@@ -160,7 +160,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'pelicun.tex', 'pelicun Documentation',
-     'Adam Zsarnóczay', 'manual'),
+     'Adam Zsarnoczay', 'manual'),
 ]
 
 
