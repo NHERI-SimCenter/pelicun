@@ -1,4 +1,4 @@
-![pelicun](docs/figures/logo.PNG){:height="50%" width="50%"}
+![pelicun](docs/figures/logo.PNG =400x)
 
 Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
 
