@@ -28,7 +28,7 @@ source_parsers = {
 
 project = 'pelicun'
 copyright = '(c) 2018, Leland Stanford Junior University and The Regents of the University of California'
-author = 'Adam Zsarnóczay'
+author = 'Adam Zsarnoczay'
 
 # The short X.Y version
 version = '0.1'
