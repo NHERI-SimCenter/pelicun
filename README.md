@@ -1,5 +1,7 @@
 <img src="docs/figures/logo.PNG" alt="pelicun" height="100"/>
 
+[![Documentation Status](https://readthedocs.org/projects/pelicun/badge/?version=latest)](http://pelicun.readthedocs.io/en/latest/?badge=latest)
+
 Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
 
 This package is in pre-alpha stage. Unless you are involved in the development, 
