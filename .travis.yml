@@ -6,12 +6,14 @@ python:
 # install dependencies
 install:
     - pip install -r requirements.txt
+    - pip install pytest pytest-cov
     - pip install python-coveralls
     - pip install coverage
 
 # run tests
 script:
-    - py.test
+    - python setup.py install
+    - pytest --cov-config .coveragerc --cov=pelicun
 
 # check for coverage
 after_success:
