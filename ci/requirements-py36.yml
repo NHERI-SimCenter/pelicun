@@ -3,8 +3,8 @@ channels:
     - defaults
 dependencies:
     - python=3.5
-    - numpy
-    - scipy
-    - pandas
+    - numpy>=1.13
+    - scipy>=1.0
+    - pandas>=0.20
     - pip:
         - coveralls
