@@ -54,7 +54,7 @@ current_dir = os.path.dirname(
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0,os.path.dirname(parent_dir)) 
 
-from pelicun.tests.reference_data import standard_normal_table
+from pelicun.tests.test_reference_data import standard_normal_table
 from pelicun import *
 
 def assert_normal_distribution(sampling_function, ref_mean, ref_stdev):
@@ -139,11 +139,8 @@ def assert_normal_distribution(sampling_function, ref_mean, ref_stdev):
     # if the hypothesis tests failed after extending the samples several 
     # (i.e. chances) times, then the underlying distribution is probably
     # not normal
-    if j==chances-1:
-        return False
-    else:
-        return True
-        #return j+1 #- if you want more information
+    return j != (chances-1)
+
 # ------------------------------------------------------------------------------
 # Random_Variable
 # ------------------------------------------------------------------------------
@@ -456,7 +453,7 @@ def test_conseq_function_bounded_linear_incorrect_definition():
     """
     
     for dist in ['normal', 'lognormal', 'truncated_normal']:
-        parameters = dict(median_kind='fixed', distribution_kind=dist,
+        parameters = dict(median_kind='bounded_linear', distribution_kind=dist,
                           standard_deviation=1.0,
                           quantity_lower_bound=1.,
                           quantity_upper_bound=2.,
@@ -555,6 +552,8 @@ def test_conseq_function_normal_samples():
                              median=ref_median)
     
     # first check that the shape of the returned values is appropriate
+    # Note that if the median is fixed, then providing the quantity attribute
+    # shall not change the returned value.
     assert CF.unit_consequence().shape == ()
     assert CF.unit_consequence(quantity=[1.0]).shape == ()
     assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]]).shape == ()
@@ -579,6 +578,30 @@ def test_conseq_function_normal_samples():
     assert assert_normal_distribution(CF.unit_consequence,
                                       ref_median, ref_stdev)
     
+    # test if the shape of the returned values is appropriate for a consequence
+    # function with bounded linear median
+    CF = ConsequenceFunction(median_kind='bounded_linear',
+                             distribution_kind='normal',
+                             standard_deviation=ref_stdev,
+                             median_min=ref_median-1.,
+                             median_max=ref_median+1.,
+                             quantity_lower_bound=1.0,
+                             quantity_upper_bound=2.0)
+
+    with pytest.raises(ValueError) as e_info:
+        CF.unit_consequence()
+    
+    assert CF.unit_consequence(quantity=[1.0]).shape == (1,)
+    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]]).shape == (2,2)
+
+    with pytest.raises(ValueError) as e_info:
+        CF.unit_consequence(sample_size=3)
+
+    assert CF.unit_consequence(quantity=[1.0], sample_size=3).shape == (3, 1)
+    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]],
+                               sample_size=3).shape == (3, 2, 2)
+
+
 def test_conseq_function_lognormal_samples():
     """
     Test if the function samples the consequence distribution properly for a
