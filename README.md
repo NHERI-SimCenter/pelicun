@@ -2,6 +2,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/pelicun/badge/?version=latest)](http://pelicun.readthedocs.io/en/latest/?badge=latest)
 [![TravisCI](https://travis-ci.org/zsarnoczay/pelicun.svg?branch=master)](https://travis-ci.org/zsarnoczay/pelicun)
+[![Coverage Status](https://coveralls.io/repos/github/zsarnoczay/pelicun/badge.svg?branch=master)](https://coveralls.io/github/zsarnoczay/pelicun?branch=master)
 
 Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
 
