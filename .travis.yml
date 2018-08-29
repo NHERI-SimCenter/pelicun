@@ -6,7 +6,12 @@ python:
 # install dependencies
 install:
     - pip install -r requirements.txt
+    - pip install coveralls
 
 # run tests
 script:
     - pytest
+
+# check for coverage
+after_success:
+    - coveralls
