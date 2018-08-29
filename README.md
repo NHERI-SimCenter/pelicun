@@ -1,4 +1,5 @@
-![pelicun](docs/figures/logo.PNG)
+![pelicun](docs/figures/logo.PNG){:height="50%" width="50%"}
+
 Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
 
 This package is in pre-alpha stage. Unless you are involved in the development, 
