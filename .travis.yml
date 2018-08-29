@@ -6,12 +6,12 @@ python:
 # install dependencies
 install:
     - pip install -r requirements.txt
-    - pip install pytest pytest-cov
-    - pip install python-coveralls
+    - pip install coverage
+    - pip install nose
 
 # run tests
 script:
-    - pytest
+    - nosetests --with-coverage
 
 # check for coverage
 after_success:
