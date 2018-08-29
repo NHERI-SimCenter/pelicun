@@ -1,4 +1,4 @@
-![pelicun](docs/figures/logo.PNG =400x)
+<img src="docs/figures/logo.PNG" alt="pelicun" height="100"/>
 
 Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
 
