@@ -44,9 +44,12 @@ quantification in pelicun.
 .. rubric:: Contents
 
 .. autosummary::
-
-    MLE_normal
+ 
+    tmvn_rvs
+    mvn_orthotope_density
+    tmvn_MLE
     RandomVariable
+    
 
 """
 

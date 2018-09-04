@@ -29,8 +29,8 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=[
-        'numpy>=1.13',
-        'scipy>=1.0',
+        'numpy>=1.15.1',
+        'scipy>=1.1',
         'pandas>=0.20',
     ],
     classifiers = [

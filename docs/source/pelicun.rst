@@ -16,5 +16,6 @@ Modules
 
 	pelicun.base
 	pelicun.model
+	pelicun.uq
 
 	
