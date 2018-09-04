@@ -37,7 +37,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
-from .base import RandomVariable
+from .uq import RandomVariable
 from .model import *
 
 __version__ = '0.1'
