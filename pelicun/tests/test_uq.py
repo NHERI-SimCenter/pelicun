@@ -450,8 +450,8 @@ def test_MVN_MLE_truncated():
     # estimate the parameters of the distribution
     mu, var = tmvn_MLE(samples, tr_lower=tr_lower, tr_upper=tr_upper)
 
-    assert ref_mean == pytest.approx(mu, abs=0.05)
-    assert ref_var == pytest.approx(var, rel=0.2)
+    assert ref_mean == pytest.approx(mu, abs=0.1)
+    assert ref_var == pytest.approx(var, rel=0.3)
 
     # multi-dimensional case
     dims = 3
@@ -510,8 +510,8 @@ def test_MVN_MLE_truncated_and_censored():
                        censored_count=c_count, 
                        det_lower=det_lower, det_upper=det_upper)
 
-    assert ref_mean == pytest.approx(mu, abs=0.05)
-    assert ref_var == pytest.approx(var, rel=0.2)
+    assert ref_mean == pytest.approx(mu, abs=0.1)
+    assert ref_var == pytest.approx(var, rel=0.3)
 
     # multi-dimensional case
     dims = 3
@@ -605,7 +605,7 @@ def test_random_variable_incorrect_none_defined():
     """
 
     with pytest.raises(ValueError) as e_info:
-        RandomVariable(ID=1, dimension_tags='test', )
+        RandomVariable(ID=1, dimension_tags='test')
 
 
 def test_random_variable_incorrect_censored_data_definition():
@@ -621,25 +621,36 @@ def test_random_variable_incorrect_censored_data_definition():
                       raw_data=[1, 2, 3, 4, 5, 6],
                       detection_limits=[0, None],
                       censored_count=3)
-    for missing_p in ['detection_limits', 'censored_count']:
+    for missing_p in ['detection_limits', 'detection_limits2',
+                      'censored_count']:
         test_p = deepcopy(parameters)
-        test_p[missing_p] = None
+        if missing_p[-1] == '2':
+            test_p[missing_p[:-1]] = [None, None]
+        else:
+            test_p[missing_p] = None
         with pytest.raises(ValueError) as e_info:
             RandomVariable(**test_p)
+    assert RandomVariable(**parameters)
+    parameters['detection_limits'] = [None, 0]
     assert RandomVariable(**parameters)
 
     # Multiple dimension
     parameters = dict(ID=1, dimension_tags='test',
                       raw_data=[[1, 0], [2, 1], [3, 1], [4, 0], [5, 1], [6, 0]],
-                      detection_limits=[[0, None], [0, 1]],
+                      detection_limits=[None, [None, 1]],
                       censored_count=5)
-    for missing_p in ['detection_limits', 'censored_count']:
+    for missing_p in ['detection_limits', 'detection_limits2',
+                      'censored_count']:
         test_p = deepcopy(parameters)
-        test_p[missing_p] = None
+        if missing_p[-1] == '2':
+            test_p[missing_p[:-1]] = [None, None]
+        else:
+            test_p[missing_p] = None
         with pytest.raises(ValueError) as e_info:
             RandomVariable(**test_p)
     assert RandomVariable(**parameters)
-
+    parameters['detection_limits'] = [[None, 1], None]
+    assert RandomVariable(**parameters)
 
 def test_random_variable_incorrect_normal_lognormal_definition():
     """
@@ -655,7 +666,8 @@ def test_random_variable_incorrect_normal_lognormal_definition():
     for dist in ['normal', 'lognormal']:
         parameters = dict(ID=1, dimension_tags='test',
                           distribution_kind=dist,
-                          theta=median, COV=beta ** 2.)
+                          theta=median, COV=beta ** 2.,
+                          truncation_limits=[None, None])
         for missing_p in ['theta', 'COV']:
             test_p = deepcopy(parameters)
             test_p[missing_p] = None
@@ -675,56 +687,43 @@ def test_random_variable_incorrect_normal_lognormal_definition():
             with pytest.raises(ValueError) as e_info:
                 RandomVariable(**test_p)
         assert RandomVariable(**parameters)
-
-
-def test_random_variable_incorrect_truncated_normal_lognormal_definition():
+        
+def test_random_variable_truncation_limit_conversion():
     """
-    Test if the random variable object raises an error when a truncated normal 
-    or a truncated lognormal distribution is defined with insufficient number 
-    of parameters, and test that it does not raise an error when all parameters 
-    are provided. 
+    Test if the None values in the truncation limits are properly converted 
+    into infinite truncation limits during initialization.
+
     """
-
-    median = 0.5
-    beta = 0.2
-
-    # Single dimension
-    for dist in ['truncated_normal', 'truncated_lognormal']:
-        parameters = dict(ID=1, dimension_tags='test',
-                          distribution_kind=dist,
-                          theta=median, COV=beta ** 2.,
-                          min_value=0.1, max_value=0.8)
-        for missing_p in [['theta', ], ['COV', ], ['min_value', 'max_value']]:
-            test_p = deepcopy(parameters)
-            for par in missing_p:
-                test_p[par] = None
-            with pytest.raises(ValueError) as e_info:
-                RandomVariable(**test_p)
-        for missing_p in [[], ['min_value', ], ['max_value', ]]:
-            test_p = deepcopy(parameters)
-            for par in missing_p:
-                test_p[par] = None
-            assert RandomVariable(**parameters)
-
-    # Multiple dimensions
-    for dist in ['truncated_normal', 'truncated_lognormal']:
-        parameters = dict(ID=1, dimension_tags=['test_1', 'test_2', 'test_3'],
-                          distribution_kind=dist,
-                          theta=np.ones(3) * median,
-                          COV=np.ones((3, 3)) * beta ** 2.,
-                          min_value=np.ones(3) * 0.1,
-                          max_value=np.ones(3) * 0.8)
-        for missing_p in [['theta', ], ['COV', ], ['min_value', 'max_value']]:
-            test_p = deepcopy(parameters)
-            for par in missing_p:
-                test_p[par] = None
-            with pytest.raises(ValueError) as e_info:
-                RandomVariable(**test_p)
-        for missing_p in [[], ['min_value', ], ['max_value', ]]:
-            test_p = deepcopy(parameters)
-            for par in missing_p:
-                test_p[par] = None
-            assert RandomVariable(**parameters)
+    # univariate
+    parameters = dict(ID=1, dimension_tags='test',
+                      distribution_kind='normal',
+                      theta=0.5, COV=0.25 ** 2.,
+                      truncation_limits=[None, None])
+    for tl, target_tl in zip([[None, 1.], [-1., None], [-1., 1.]],
+                             [[-np.inf, 1.], [-1., np.inf], [-1., 1.]]):
+        parameters['truncation_limits'] = tl
+        RV = RandomVariable(**parameters)
+        for lim, target_lim in zip(RV._truncation_limits, target_tl):
+            assert lim == target_lim
+            
+    # multivariate
+    parameters = dict(ID=1, dimension_tags='test',
+                      distribution_kind='normal',
+                      theta=[0.5, 0.8], COV=np.ones((3, 3)) * 0.25 ** 2.,
+                      truncation_limits=[None, None])
+    for tl, target_tl in zip([[None, [1., 2.]], 
+                              [[-1., -0.5], None], 
+                              [[-1., -0.5], [1., 2.]], 
+                              [[-1., None], [None, 2.]]],
+                             [[[-np.inf, -np.inf], [1., 2.]],
+                              [[-1., -0.5], [np.inf, np.inf]],
+                              [[-1., -0.5], [1., 2.]],
+                              [[-1., -np.inf], [np.inf, 2.]]]):
+        parameters['truncation_limits'] = tl
+        RV = RandomVariable(**parameters)
+        for lim_list, target_lim_list in zip(RV._truncation_limits, target_tl):
+            for lim, target_lim in zip(lim_list, target_lim_list):
+                assert lim == target_lim
 
 
 def test_random_variable_incorrect_multinomial_definition():

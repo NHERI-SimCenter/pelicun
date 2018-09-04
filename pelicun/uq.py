@@ -537,14 +537,15 @@ class RandomVariable(object):
 
     The uncertainty can be described either through raw data or through a 
     pre-defined distribution function. When using raw data, provide potentially 
-    correlated raw samples in an N dimensional array. If the data is left or
+    correlated raw samples in an 2 dimensional array. If the data is left or
     right censored in any number of its dimensions, provide the list of 
     detection limits and the number of censored samples. No other information 
     is needed to define the object from raw data. Then, either resample the raw 
     data, or fit a prescribed distribution to the samples and sample from that 
-    distribution later. Alternatively, one can choose to prescribe a 
-    distribution type and its parameters and sample from that distribution 
-    later.
+    distribution later. 
+    
+    Alternatively, one can choose to prescribe a distribution type and its 
+    parameters and sample from that distribution later.
 
     Parameters
     ----------
@@ -557,14 +558,15 @@ class RandomVariable(object):
         as other inputs. 
     raw_data: float scalar or ndarray, optional, default: None
         Samples of an uncertain variable. The samples can describe a 
-        multi-dimensional random variable if they are arranged in a 
-        multi-dimensional ndarray.
+        multi-dimensional random variable if they are arranged in a 2D ndarray.
     detection_limits: float ndarray, optional, default: None
-        Defines the limits for censored data. If the raw data is 
-        multi-dimensional, the limits need to be defined in a 2D ndarray that
-        is structured as a series of vectors with two elements: left and right
-        limits. If the data is not censored in a particular direction, assign
-        None to that position of the ndarray.
+        Defines the limits for censored data. The limits need to be defined in 
+        a 2D ndarray that is structured as two vectors with N elements. The 
+        vectors collect left and right limits for the N dimensions. If the data 
+        is not censored in a particular direction, assign None to that position 
+        of the ndarray. Replacing one of the vectors with None will assign no 
+        censoring to all dimensions in that direction. The default value 
+        corresponds to no censoring in either dimension.
     censored_count: int, optional, default: None
         The number of censored samples that are beyond the detection limits. 
         All samples outside the detection limits are aggregated into one set. 
@@ -574,9 +576,14 @@ class RandomVariable(object):
         desired, the censored raw data shall be used to fit a distribution in a 
         pre-processing step and the fitted distribution can be specified for 
         this random variable.
-    distribution_kind: {'normal', 'lognormal', 'truncated_normal', 'truncated_lognormal', 'multinomial'}, optional, default: None
+    distribution_kind: {'normal', 'lognormal', 'multinomial'}, optional, default: None
         Defines the type of probability distribution when raw data is not
-        provided, but the distribution is directly specified.
+        provided, but the distribution is directly specified. When part of the
+        data is normal in log space, while the other part is normal in linear
+        space, define a list of distribution tags such as ['normal', 'normal',
+        'lognormal']. Make sure that the covariance matrix is based on log 
+        transformed data for the lognormally distributed variables! Mixing
+        normal distributions with multinomials is not supported.
     theta: float scalar or ndarray, optional, default: None
         Median of the probability distribution. A vector of medians is expected
         in a multi-dimensional case. 
@@ -586,9 +593,9 @@ class RandomVariable(object):
         rows has to be equal to the number of elements in the supplied theta 
         vector. In a one-dimensional case, a single value is expected that 
         equals the variance (not the standard deviation!) of the distribution.
-        The COV for lognormal distributions is assumed to be specified in 
+        The COV for lognormal variables is assumed to be specified in 
         logarithmic space. 
-    p_set: float 1D ndarray, optional, default: None
+    p_set: float vector, optional, default: None
         Probabilities of a finite set of events described by a multinomial
         distribution. The RV will have binomial distribution if only one
         element is provided in this vector. The number of events equals the 
@@ -596,20 +603,22 @@ class RandomVariable(object):
         sum is less than 1.0, then an additional event is assumed with the 
         remaining probability of occurrence assigned to it. The sum of 
         event probabilities shall never be more than 1.0.
-    min_value: float scalar or ndarray, optional, default: None
-        Lower bound(s) for the truncated distribution functions. 
-        Multi-dimensional truncated distributions require a vector of bounds.
-    max_value: float scalar or ndarray, optional, default: None
-        Upper bound(s) for the truncated distribution functions. 
-        Multi-dimensional truncated distributions require a vector of bounds.
-
+    truncation_limits: float ndarray, optional, default: None
+        Defines the limits for truncated distributions. The limits need to be
+        defined in a 2D ndarray that is structured as two vectors with N 
+        elements. The vectors collect left and right limits for the N 
+        dimensions. If the distribution is not truncated in a particular 
+        direction, assign None to that position of the ndarray. Replacing one 
+        of the vectors with None will assign no truncation to all dimensions
+        in that direction. The default value corresponds to no truncation in
+        either dimension.
     """
 
     def __init__(self, ID, dimension_tags,
                  raw_data=None, detection_limits=None, censored_count=None,
                  distribution_kind=None,
                  theta=None, COV=None, p_set=None,
-                 min_value=None, max_value=None):
+                 truncation_limits=None):
 
         self._ID = ID
 
@@ -617,35 +626,92 @@ class RandomVariable(object):
 
         if raw_data is not None:
             raw_data = np.asarray(raw_data)
+            if len(raw_data.shape) > 1:
+                self._ndim = raw_data.shape[0]
+            else:
+                self._ndim = 1
         self._raw_data = raw_data
 
-        if detection_limits is not None:
-            detection_limits = np.asarray(detection_limits)
-        self._detection_limits = detection_limits
+        if self._raw_data is not None:
+            # if both directions are set to None, then there are no limits
+            if detection_limits == [None, None]:
+                detection_limits = None
+            
+            if detection_limits is not None:
+                # assign a vector of None in place of a single None value
+                if (detection_limits[0] is None) and (self._ndim > 1):
+                    detection_limits[0] = [None for d in detection_limits[1]]
+                if (detection_limits[1] is None) and (self._ndim > 1):
+                    detection_limits[1] = [None for d in detection_limits[0]]
+                    
+                detection_limits = np.asarray(detection_limits)
+                # replace None values with infinite limits
+                if self._ndim > 1:
+                    detection_limits[0][detection_limits[0] == None] = -np.inf
+                    detection_limits[1][detection_limits[1] == None] = np.inf
+                else:
+                    if detection_limits[0] == None:
+                        detection_limits[0] = -np.inf
+                    if detection_limits[1] == None:
+                        detection_limits[1] = np.inf
+                    
+            self._detection_limits = detection_limits
+            self._censored_count = censored_count
+        else:
+            self._detection_limits = None
+            self._censored_count = None
 
-        self._censored_count = censored_count
-
+        if distribution_kind is not None:
+            distribution_kind = np.asarray(distribution_kind)
         self._distribution_kind = distribution_kind
 
-        if theta is not None:
-            theta = np.asarray(theta)
-        self._theta = theta
-
-        if COV is not None:
-            COV = np.asarray(COV)
-        self._COV = COV
-
-        if p_set is not None:
-            p_set = np.asarray(p_set)
-        self._p_set = p_set
-
-        if min_value is not None:
-            min_value = np.asarray(min_value)
-        self._min_value = min_value
-
-        if max_value is not None:
-            max_value = np.asarray(max_value)
-        self._max_value = max_value
+        if self._distribution_kind is not None:
+            if theta is not None:
+                theta = np.asarray(theta)
+                if theta.shape == ():
+                    self._ndim = 1
+                else:
+                    self._ndim = theta.shape[0]
+            self._theta = theta
+    
+            if COV is not None:
+                COV = np.asarray(COV)
+            self._COV = COV
+    
+            if p_set is not None:
+                p_set = np.asarray(p_set)
+                self._ndim = 1
+            self._p_set = p_set
+    
+            # if both directions are set to None, then there are no limits
+            if truncation_limits == [None, None]:
+                truncation_limits = None
+    
+            if truncation_limits is not None:
+                # assign a vector of None in place of a single None value
+                if (truncation_limits[0] is None) and (self._ndim > 1):
+                    truncation_limits[0] = [None for d in truncation_limits[1]]
+                if (truncation_limits[1] is None) and (self._ndim > 1):
+                    truncation_limits[1] = [None for d in truncation_limits[0]]
+    
+                truncation_limits = np.asarray(truncation_limits)
+                # replace None values with infinite limits
+                if self._ndim > 1:
+                    truncation_limits[0][truncation_limits[0] == None] = -np.inf
+                    truncation_limits[1][truncation_limits[1] == None] = np.inf
+                else:
+                    if truncation_limits[0] == None:
+                        truncation_limits[0] = -np.inf
+                    if truncation_limits[1] == None:
+                        truncation_limits[1] = np.inf
+    
+            self._truncation_limits = truncation_limits
+            
+        else:
+            self._theta = None
+            self._COV = None
+            self._p_set = None
+            self._truncation_limits = None
 
         # perform some basic checks to make sure that the provided data will be
         # sufficient to define a random variable
@@ -663,17 +729,6 @@ class RandomVariable(object):
                 raise ValueError(
                     "Normal and lognormal distributions require theta and "
                     "COV parameters."
-                )
-
-            if (self._distribution_kind in ['truncated_normal',
-                                            'truncated_lognormal']
-                and (self._theta is None or self._COV is None
-                     or
-                     (self._min_value is None and self._max_value is None))):
-                raise ValueError(
-                    "Truncated normal and lognormal distributions require "
-                    "theta, COV, and at least a minimum or a maximum "
-                    "boundary value as parameters."
                 )
 
             if (self._distribution_kind in ['multinomial']
