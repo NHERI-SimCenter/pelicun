@@ -159,6 +159,20 @@ def test_TMVN_sampling_truncated_wide_limits():
                                                      upper = upper,
                                                      size=sample_size)
     assert assert_normal_distribution(sampling_function, ref_mean, ref_var)
+    
+    # univariate lower half
+    sampling_function = lambda sample_size: tmvn_rvs(ref_mean, ref_var,
+                                                     lower=None,
+                                                     upper=upper,
+                                                     size=sample_size)
+    assert assert_normal_distribution(sampling_function, ref_mean, ref_var)
+    
+    # univariate upper half
+    sampling_function = lambda sample_size: tmvn_rvs(ref_mean, ref_var,
+                                                     lower=lower,
+                                                     upper=None,
+                                                     size=sample_size)
+    assert assert_normal_distribution(sampling_function, ref_mean, ref_var)
 
     # bivariate case, various correlation coefficients
     rho_list = [-1., -0.5, 0., 0.5, 1.]
@@ -367,7 +381,28 @@ def test_MVN_MLE_baseline():
     assert_allclose(test_mu, ref_mean, atol=0.15)
     assert_allclose(test_std**2., ref_std**2., rtol=0.5)
     assert_allclose(test_rho, ref_rho, atol=0.3)
+    
+    
+def test_MVN_MLE_minimum_sample_size():
+    """
+    Test if the max. likelihood estimator function properly checks the number
+    of samples available and raises and error when insufficient samples are 
+    available.
 
+    """
+    dims = 4
+    ref_mean = np.arange(dims)
+    ref_std = np.ones(dims) * 0.25
+    ref_rho = np.ones((dims, dims)) * 0.5
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+
+    tr_lower = ref_mean + ref_std * (-2.)
+
+    samples = tmvn_rvs(ref_mean, ref_COV, lower=tr_lower, size=13)
+
+    with pytest.raises(ValueError) as e_info:
+        tmvn_MLE(np.transpose(samples), tr_lower=tr_lower)
 
 def test_MVN_MLE_censored():
     """
@@ -598,7 +633,7 @@ def test_MVN_MLE_small_alpha():
 # ------------------------------------------------------------------------------
 # Random_Variable
 # ------------------------------------------------------------------------------
-def test_random_variable_incorrect_none_defined():
+def test_RandomVariable_incorrect_none_defined():
     """
     Test if the random variable object raises an error when neither raw data
     nor distributional information is provided. 
@@ -608,7 +643,7 @@ def test_random_variable_incorrect_none_defined():
         RandomVariable(ID=1, dimension_tags='test')
 
 
-def test_random_variable_incorrect_censored_data_definition():
+def test_RandomVariable_incorrect_censored_data_definition():
     """
     Test if the random variable object raises an error when raw samples of 
     censored data are provided without sufficient information about the 
@@ -652,7 +687,7 @@ def test_random_variable_incorrect_censored_data_definition():
     parameters['detection_limits'] = [[None, 1], None]
     assert RandomVariable(**parameters)
 
-def test_random_variable_incorrect_normal_lognormal_definition():
+def test_RandomVariable_incorrect_normal_lognormal_definition():
     """
     Test if the random variable object raises an error when a normal or a 
     lognormal distribution is defined with insufficient number of parameters,
@@ -688,7 +723,7 @@ def test_random_variable_incorrect_normal_lognormal_definition():
                 RandomVariable(**test_p)
         assert RandomVariable(**parameters)
         
-def test_random_variable_truncation_limit_conversion():
+def test_RandomVariable_truncation_limit_conversion():
     """
     Test if the None values in the truncation limits are properly converted 
     into infinite truncation limits during initialization.
@@ -726,7 +761,7 @@ def test_random_variable_truncation_limit_conversion():
                 assert lim == target_lim
 
 
-def test_random_variable_incorrect_multinomial_definition():
+def test_RandomVariable_incorrect_multinomial_definition():
     """
     Test if the random variable object raises an error when a multinomial
     distribution is defined with insufficient number of parameters, and test 
@@ -757,7 +792,7 @@ def test_random_variable_incorrect_multinomial_definition():
             RandomVariable(**test_p)
     assert RandomVariable(**parameters)
     
-def test_random_variable_theta_attribute():
+def test_RandomVariable_theta_attribute():
     """
     Test if the random variable returns the assigned median value and if it 
     returns an error message if no median has been assigned.
@@ -786,7 +821,7 @@ def test_random_variable_theta_attribute():
         print(RV.theta)
 
 
-def test_random_variable_COV_attribute():
+def test_RandomVariable_COV_attribute():
     """
     Test if the random variable returns the assigned covariance matrix and if 
     it returns an error message if no COV has been assigned.
@@ -813,3 +848,274 @@ def test_random_variable_COV_attribute():
                         raw_data=[1, 2, 3])
     with pytest.raises(ValueError) as e_info:
         print(RV.COV)
+
+def test_RandomVariable_fit_distribution_simple():
+    """
+    Test if the distribution fitting is performed appropriately for a simple
+    normal distribution.
+
+    """
+    
+    # univariate case
+    # generate raw data
+    raw_data = norm.rvs(loc=0.5, scale=0.25, size=10)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, var_ref = tmvn_MLE(np.transpose(raw_data))
+
+    #create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=['A'], raw_data=raw_data)
+    mu, var = RV.fit_distribution('normal')
+    
+    # compare results
+    assert mu == mu_ref
+    assert var == var_ref
+
+    # multivariate case
+    # generate raw data
+    dims = 6
+    in_mean = np.arange(dims)
+    in_std = np.ones(dims) * 0.25
+    in_rho = np.ones((dims, dims)) * 0.5
+    np.fill_diagonal(in_rho, 1.0)
+    in_COV = np.outer(in_std, in_std) * in_rho
+
+    raw_data = multivariate_normal.rvs(mean=in_mean, cov=in_COV, size=25)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, COV_ref = tmvn_MLE(np.transpose(raw_data))
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=[np.arange(dims)],
+                        raw_data=np.transpose(raw_data))
+    mu, COV = RV.fit_distribution('normal')
+
+    # compare results
+    assert_allclose(mu, mu_ref)
+    assert_allclose(COV, COV_ref)
+    
+def test_RandomVariable_fit_distribution_truncated():
+    """
+    Test if the distribution fitting is performed appropriately for a truncated
+    normal distribution.
+
+    """
+    # define the truncation limits
+    tr_lower = -4.
+    tr_upper = 2.5
+
+    # univariate case
+    # generate raw data using the (previously tested) sampler
+    raw_data = tmvn_rvs(mu=0.5, COV=0.25, lower=tr_lower, upper=tr_upper,
+                        size=10)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, var_ref = tmvn_MLE(np.transpose(raw_data),
+                               tr_lower=tr_lower, tr_upper=tr_upper)
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=['A'], raw_data=raw_data)
+    mu, var = RV.fit_distribution('normal',
+                                  truncation_limits=[tr_lower, tr_upper])
+
+    # compare results
+    assert mu == mu_ref
+    assert var == var_ref
+
+    # multivariate case
+    # generate raw data
+    dims = 6
+    in_mean = np.arange(dims)
+    in_std = np.ones(dims) * 0.25
+    in_rho = np.ones((dims, dims)) * 0.5
+    np.fill_diagonal(in_rho, 1.0)
+    in_COV = np.outer(in_std, in_std) * in_rho
+
+    tr_lower = in_mean + in_std * tr_lower
+    tr_upper = in_mean + in_std * tr_upper
+
+    # generate raw data using the (previously tested) sampler
+    raw_data = tmvn_rvs(mu=in_mean, COV=in_COV, lower=tr_lower, upper=tr_upper,
+                        size=100)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, COV_ref = tmvn_MLE(np.transpose(raw_data),
+                               tr_lower=tr_lower, tr_upper=tr_upper)
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=[np.arange(dims)],
+                        raw_data=np.transpose(raw_data))
+    mu, COV = RV.fit_distribution('normal',
+                                  truncation_limits=[tr_lower, tr_upper])
+
+    # compare results
+    assert_allclose(mu, mu_ref, atol=0.02)
+    assert_allclose(COV, COV_ref, atol=0.02)
+    
+def test_RandomVariable_fit_distribution_truncated_and_censored():
+    """
+    Test if the distribution fitting is performed appropriately for a truncated
+    and censored normal distribution.
+
+    """
+    # define the truncation and detection limits
+    tr_lower = -4.
+    tr_upper = 2.5
+    det_lower = tr_lower
+    det_upper = 2.0
+
+    # univariate case
+    # generate raw data using the (previously tested) sampler
+    raw_data = tmvn_rvs(mu=0.5, COV=0.25, lower=tr_lower, upper=tr_upper,
+                        size=100)
+
+    # censor the samples
+    good_ones = raw_data < det_upper
+    c_samples = raw_data[good_ones]
+    c_count = 100 - sum(good_ones)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, var_ref = tmvn_MLE(np.transpose(raw_data),
+                               tr_lower=tr_lower, tr_upper=tr_upper,
+                               censored_count=c_count,
+                               det_lower=det_lower, det_upper=det_upper)
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=['A'], raw_data=raw_data,
+                        detection_limits=[det_lower, det_upper],
+                        censored_count=c_count)
+    mu, var = RV.fit_distribution('normal',
+                                  truncation_limits=[tr_lower, tr_upper])
+
+    # compare results
+    assert mu == mu_ref
+    assert var == var_ref
+
+    # multivariate case
+    # generate raw data
+    dims = 3
+    in_mean = np.arange(dims)
+    in_std = np.ones(dims) * 0.25
+    in_rho = np.ones((dims, dims)) * 0.5
+    np.fill_diagonal(in_rho, 1.0)
+    in_COV = np.outer(in_std, in_std) * in_rho
+
+    tr_lower = in_mean + in_std * tr_lower
+    tr_upper = in_mean + in_std * tr_upper
+    det_lower = in_mean + in_std * det_lower
+    det_upper = in_mean + in_std * det_upper
+
+    # generate raw data using the (previously tested) sampler
+    raw_data = tmvn_rvs(mu=in_mean, COV=in_COV, lower=tr_lower, upper=tr_upper,
+                        size=100)
+
+    # censor the samples
+    good_ones = np.all([raw_data > det_lower, raw_data < det_upper], axis=0)
+    good_ones = np.all(good_ones, axis=1)
+    c_samples = np.transpose(raw_data[good_ones])
+    c_count = 100 - sum(good_ones)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, COV_ref = tmvn_MLE(np.transpose(raw_data),
+                               tr_lower=tr_lower, tr_upper=tr_upper,
+                               censored_count=c_count,
+                               det_lower=det_lower, det_upper=det_upper)
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=[np.arange(dims)],
+                        raw_data=np.transpose(raw_data),
+                        detection_limits=[det_lower, det_upper],
+                        censored_count=c_count)
+    mu, COV = RV.fit_distribution('normal',
+                                  truncation_limits=[tr_lower, tr_upper])
+
+    # compare results
+    assert_allclose(mu, mu_ref, atol=0.02)
+    assert_allclose(COV, COV_ref, atol=0.02)
+    
+def test_RandomVariable_fit_distribution_log_and_linear():
+    """
+    Test if the distribution fitting is performed appropriately when the data
+    is lognormal in some dimensions and normal in others.
+
+    """
+    # generate raw data
+    dims = 3
+    in_mean = np.arange(dims)
+    in_std = np.ones(dims) * 0.25
+    in_rho = np.ones((dims, dims)) * 0.5
+    np.fill_diagonal(in_rho, 1.0)
+    in_COV = np.outer(in_std, in_std) * in_rho
+
+    raw_data = multivariate_normal.rvs(mean=in_mean, cov=in_COV, size=25)
+
+    # create a lognormal distribution in the second variable
+    RT = np.transpose(deepcopy(raw_data))
+    RT[1] = np.exp(RT[1])
+    raw_dataL = np.transpose(RT)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, COV_ref = tmvn_MLE(np.transpose(raw_data))
+    mu_ref[1] = np.exp(mu_ref[1])
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=[np.arange(dims)],
+                        raw_data=np.transpose(raw_dataL))
+    mu, COV = RV.fit_distribution(['normal', 'lognormal', 'normal'])
+
+    # compare results
+    assert_allclose(mu, mu_ref)
+    assert_allclose(COV, COV_ref)
+    
+def test_RandomVariable_fit_distribution_lognormal():
+    """
+    Test if the distribution fitting is performed appropriately when the data
+    is normal in log space.
+
+    """
+    # univariate case
+    # generate raw data
+    raw_data = norm.rvs(loc=0.5, scale=0.25, size=10)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, var_ref = tmvn_MLE(np.transpose(raw_data))
+    mu_ref = np.exp(mu_ref)
+
+    # convert the data into 'linear' space
+    raw_data = np.exp(raw_data)
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=['A'], raw_data=raw_data)
+    mu, var = RV.fit_distribution('lognormal')
+
+    # compare results
+    assert mu == pytest.approx(mu_ref)
+    assert var == pytest.approx(var_ref)
+
+    # multivariate case
+    # generate raw data
+    dims = 6
+    in_mean = np.arange(dims)
+    in_std = np.ones(dims) * 0.25
+    in_rho = np.ones((dims, dims)) * 0.5
+    np.fill_diagonal(in_rho, 1.0)
+    in_COV = np.outer(in_std, in_std) * in_rho
+
+    raw_data = multivariate_normal.rvs(mean=in_mean, cov=in_COV, size=25)
+
+    # reference data is directly from the (previously tested) ML estimator
+    mu_ref, COV_ref = tmvn_MLE(np.transpose(raw_data))
+    mu_ref = np.exp(mu_ref)
+
+    # convert the data into 'linear' space
+    raw_data = np.exp(raw_data)
+
+    # create a random variable and perform fitting
+    RV = RandomVariable(ID=1, dimension_tags=[np.arange(dims)],
+                        raw_data=np.transpose(raw_data))
+    mu, COV = RV.fit_distribution('lognormal')
+
+    # compare results
+    assert_allclose(mu, mu_ref)
+    assert_allclose(COV, COV_ref)
+    

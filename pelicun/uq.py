@@ -110,7 +110,7 @@ def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
         
         samples = multivariate_normal.rvs(mean=mu, cov=COV, size=size)
     
-    else:        
+    else:         
         # first, get the rejection rate
         alpha, eps_alpha = mvn_orthotope_density(mu, COV, lower, upper)
         
@@ -118,11 +118,17 @@ def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
         sample_count = 0
         samples = None
         ndim = len(mu)
+        
+        if lower is None:
+            lower = np.ones(ndim) * -np.inf
+        if upper is None:
+            upper = np.ones(ndim) * np.inf
 
         # If the error in the alpha estimate is too large, then we are 
         # beyond the applicability limits of the function used for 
         # estimating alpha. Raise an error in such a case
         if alpha <= 100. * eps_alpha:  # i.e. max. error is limited at 1%
+            #print(alpha, eps_alpha)
             raise ValueError(
                 "The density of the joint probability distribution within the "
                 "truncation limits is too small and cannot be estimated with "
@@ -363,6 +369,19 @@ def tmvn_MLE(samples,
         rho_init_ids2 = rho_init_ids[::-1]
         # prepare a vector of initial values
         inits=np.concatenate([mu_init, sig_init, rho_init_list])
+
+    # If the distribution is censored or truncated, check if the number of 
+    # samples is greater than the number of unknowns. If not, raise an error.
+    if (((tr_lower is not None) or (tr_upper is not None) 
+        or (det_lower is not None) or (det_upper is not None))
+       and (len(inits) >= nsamples)):
+        #print('samples:',nsamples,'unknowns:',len(inits))
+        raise ValueError(
+            "The number of samples is less than the number of unknowns. There "
+            "is no unique solution available for this a case. Either provide "
+            "more samples, or relax the assumed dependencies between "
+            "variables, or remove the truncation/detection limits."
+        )
     
     # define the bounds for the distribution parameters
     # mu is not bounded
@@ -440,7 +459,7 @@ def tmvn_MLE(samples,
                         'cannot be estimated with sufficiently high '
                         'accuracy.'
                     ))
-                    msg[0] = True
+                    msg[0] = True                    
                 return np.inf
             
             # If a lower limit was prescribed for alpha, it should also be 
@@ -632,30 +651,8 @@ class RandomVariable(object):
                 self._ndim = 1
         self._raw_data = raw_data
 
-        if self._raw_data is not None:
-            # if both directions are set to None, then there are no limits
-            if detection_limits == [None, None]:
-                detection_limits = None
-            
-            if detection_limits is not None:
-                # assign a vector of None in place of a single None value
-                if (detection_limits[0] is None) and (self._ndim > 1):
-                    detection_limits[0] = [None for d in detection_limits[1]]
-                if (detection_limits[1] is None) and (self._ndim > 1):
-                    detection_limits[1] = [None for d in detection_limits[0]]
-                    
-                detection_limits = np.asarray(detection_limits)
-                # replace None values with infinite limits
-                if self._ndim > 1:
-                    detection_limits[0][detection_limits[0] == None] = -np.inf
-                    detection_limits[1][detection_limits[1] == None] = np.inf
-                else:
-                    if detection_limits[0] == None:
-                        detection_limits[0] = -np.inf
-                    if detection_limits[1] == None:
-                        detection_limits[1] = np.inf
-                    
-            self._detection_limits = detection_limits
+        if self._raw_data is not None:                    
+            self._detection_limits = self._convert_limits(detection_limits)
             self._censored_count = censored_count
         else:
             self._detection_limits = None
@@ -682,31 +679,10 @@ class RandomVariable(object):
                 p_set = np.asarray(p_set)
                 self._ndim = 1
             self._p_set = p_set
-    
-            # if both directions are set to None, then there are no limits
-            if truncation_limits == [None, None]:
-                truncation_limits = None
-    
-            if truncation_limits is not None:
-                # assign a vector of None in place of a single None value
-                if (truncation_limits[0] is None) and (self._ndim > 1):
-                    truncation_limits[0] = [None for d in truncation_limits[1]]
-                if (truncation_limits[1] is None) and (self._ndim > 1):
-                    truncation_limits[1] = [None for d in truncation_limits[0]]
-    
-                truncation_limits = np.asarray(truncation_limits)
-                # replace None values with infinite limits
-                if self._ndim > 1:
-                    truncation_limits[0][truncation_limits[0] == None] = -np.inf
-                    truncation_limits[1][truncation_limits[1] == None] = np.inf
-                else:
-                    if truncation_limits[0] == None:
-                        truncation_limits[0] = -np.inf
-                    if truncation_limits[1] == None:
-                        truncation_limits[1] = np.inf
-    
-            self._truncation_limits = truncation_limits
             
+            if hasattr(self, '_ndim'):
+                self._truncation_limits = self._convert_limits(truncation_limits)
+                
         else:
             self._theta = None
             self._COV = None
@@ -747,6 +723,37 @@ class RandomVariable(object):
                     "the detection limits and the number of censored samples."
                 )
 
+    def _convert_limits(self, limits):
+        """
+        Convert None values to infinites in truncation and detection limits.
+        
+        """
+        # if both directions are set to None, then there are no limits
+        if limits is not None:
+            if (limits[0] is None) and (limits[1] is None):
+                limits = None
+
+        if limits is not None:
+            # assign a vector of None in place of a single None value
+            if (limits[0] is None) and (self._ndim > 1):
+                limits[0] = [None for d in limits[1]]
+            if (limits[1] is None) and (self._ndim > 1):
+                limits[1] = [None for d in limits[0]]
+
+            limits = np.asarray(limits)
+            # replace None values with infinite limits
+            if self._ndim > 1:
+                limits[0][limits[0] == None] = -np.inf
+                limits[1][limits[1] == None] = np.inf
+            else:
+                if limits[0] == None:
+                    limits[0] = -np.inf
+                if limits[1] == None:
+                    limits[1] = np.inf
+        
+        return limits
+        
+    
     @property
     def theta(self):
         """
@@ -772,3 +779,105 @@ class RandomVariable(object):
                 "The covariance matrix of the probability distribution of "
                 "this random variable is not yet specified."
             )
+        
+    def fit_distribution(self, distribution_kind, truncation_limits=None):
+        """
+        Estimate the parameters of a probability distribution from raw data.
+
+        Parameter estimates are calculated using maximum likelihood estimation.
+        If the data spans multiple dimensions, the estimates will also describe
+        a multi-dimensional distribution automatically. Data censoring is also
+        automatically taken into consideration following the detection limits
+        specified previously for the random variable. Truncated target 
+        distributions can be specified through the truncation limits.
+
+        Besides returning the parameter estimates, their values are also stored
+        as theta and COV attributes of the RandomVariable object for future 
+        use.
+
+        Parameters
+        ----------
+        distribution_kind: {'normal', 'lognormal'} or a list of those
+            Specifies the type of the probability distribution that is fit to
+            the raw data. When part of the data is normal in log space, while 
+            the other part is normal in linear space, define a list of 
+            distribution tags such as ['normal', 'normal', 'lognormal'].
+        truncation_limits: float ndarray, optional, default: None
+            Defines the limits for truncated distributions. The limits need to 
+            be defined in a 2D ndarray that is structured as two vectors with N 
+            elements. The vectors collect left and right limits for the N 
+            dimensions. If the distribution is not truncated in a particular 
+            direction, assign None to that position of the ndarray. Replacing 
+            one of the vectors with None will assign no truncation to all 
+            dimensions in that direction. The default value corresponds to no 
+            truncation in either dimension.
+
+        Returns
+        -------
+        theta: float scalar or ndarray
+            Median of the probability distribution. A vector of medians is 
+            returned in a multi-dimensional case.
+        COV: float scalar or 2D ndarray
+            Covariance matrix of the probability distribution. A 2D square 
+            ndarray is returned in a multi-dimensional case.
+        """
+
+        # lognormal distribution parameters are estimated by fitting a normal
+        # distribution to the data in log space
+        distribution_kind = np.asarray(distribution_kind)
+        if distribution_kind.shape == ():
+            #meaning identical distribution families
+            data = self._raw_data
+            if distribution_kind == 'lognormal':
+                data = np.log(self._raw_data)
+        else:
+            data = self._raw_data
+            for dim, dk in enumerate(distribution_kind):
+                if dk == 'lognormal':
+                    data[dim] = np.log(data[dim])            
+
+        # prepare the information on censoring and truncation
+        c_count = self._censored_count
+        if c_count is None:
+            c_count = 0
+        if self._detection_limits is not None:
+            det_lower, det_upper = self._detection_limits
+        else:
+            det_lower, det_upper = [None, None]
+        
+        if truncation_limits is not None:
+            tr_lower, tr_upper = self._convert_limits(truncation_limits)
+        else:
+            tr_lower, tr_upper = [None, None]
+        
+        # perform the parameter estimation
+        mu, COV = tmvn_MLE(data,
+                           tr_lower = tr_lower, tr_upper=tr_upper,
+                           censored_count=c_count,
+                           det_lower=det_lower, det_upper=det_upper)
+        
+        # convert mu to theta
+        if distribution_kind.shape == ():
+            if distribution_kind == 'lognormal':
+                theta = np.exp(mu)
+            else:
+                theta = mu
+        else:
+            theta = mu
+            for dim, dk in enumerate(distribution_kind):
+                if dk == 'lognormal':
+                    theta[dim] = np.exp(theta[dim])
+                
+        # store and return the parameters    
+        self._theta = theta
+        self._COV = COV
+        
+        # store the distribution properties
+        self._distribution_kind = distribution_kind
+        self._truncation_limits = truncation_limits
+        
+        return theta, COV
+                    
+            
+        
+        
