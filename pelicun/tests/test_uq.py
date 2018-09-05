@@ -656,13 +656,9 @@ def test_RandomVariable_incorrect_censored_data_definition():
                       raw_data=[1, 2, 3, 4, 5, 6],
                       detection_limits=[0, None],
                       censored_count=3)
-    for missing_p in ['detection_limits', 'detection_limits2',
-                      'censored_count']:
+    for missing_p in ['detection_limits', 'censored_count']:
         test_p = deepcopy(parameters)
-        if missing_p[-1] == '2':
-            test_p[missing_p[:-1]] = [None, None]
-        else:
-            test_p[missing_p] = None
+        test_p[missing_p] = None
         with pytest.raises(ValueError) as e_info:
             RandomVariable(**test_p)
     assert RandomVariable(**parameters)
@@ -674,13 +670,9 @@ def test_RandomVariable_incorrect_censored_data_definition():
                       raw_data=[[1, 0], [2, 1], [3, 1], [4, 0], [5, 1], [6, 0]],
                       detection_limits=[None, [None, 1]],
                       censored_count=5)
-    for missing_p in ['detection_limits', 'detection_limits2',
-                      'censored_count']:
+    for missing_p in ['detection_limits', 'censored_count']:
         test_p = deepcopy(parameters)
-        if missing_p[-1] == '2':
-            test_p[missing_p[:-1]] = [None, None]
-        else:
-            test_p[missing_p] = None
+        test_p[missing_p] = None
         with pytest.raises(ValueError) as e_info:
             RandomVariable(**test_p)
     assert RandomVariable(**parameters)
@@ -801,10 +793,12 @@ def test_RandomVariable_theta_attribute():
     COV_ref = 0.4
     
     # single dimension
-    RV = RandomVariable(ID=1, dimension_tags='test', distribution_kind='normal',
+    RV = RandomVariable(ID=1, dimension_tags='test', 
+                        distribution_kind='lognormal',
                         theta=theta_ref, COV=COV_ref)
 
     assert RV.theta == theta_ref
+    assert RV.mu == np.log(theta_ref)
     
     # multiple dimensions
     RV = RandomVariable(ID=1, dimension_tags=['test1', 'test2'], 
@@ -848,6 +842,38 @@ def test_RandomVariable_COV_attribute():
                         raw_data=[1, 2, 3])
     with pytest.raises(ValueError) as e_info:
         print(RV.COV)
+        
+def test_RandomVariable_simple_attributes():
+    """
+    Test if the attributes of the RV are properly exposed to the user.
+
+    """
+    # create a random variable with censored data
+    censored_count = 3
+    detection_limits = [0,4]
+    RV = RandomVariable(ID=1, dimension_tags = ['A'], raw_data=[1,2,3],
+                        censored_count =censored_count, 
+                        detection_limits=detection_limits)
+    
+    assert RV.censored_count == censored_count
+    assert RV.det_lower == detection_limits[0]
+    assert RV.det_upper == detection_limits[1]
+    assert RV.tr_lower == None
+    assert RV.tr_upper == None
+    assert_allclose(RV.detection_limits, detection_limits)
+    
+    # create a random variable with pre-defined truncated distribution
+    truncation_limits = [0,4]
+    RV = RandomVariable(ID=1, dimension_tags=['A'], 
+                        distribution_kind='normal', theta=0.5, COV=0.25,
+                        truncation_limits=truncation_limits)
+
+    assert RV.det_lower == None
+    assert RV.det_upper == None
+    assert RV.tr_lower == truncation_limits[0]
+    assert RV.tr_upper == truncation_limits[1]
+    assert_allclose(RV.truncation_limits, truncation_limits)
+
 
 def test_RandomVariable_fit_distribution_simple():
     """
@@ -949,8 +975,8 @@ def test_RandomVariable_fit_distribution_truncated():
                                   truncation_limits=[tr_lower, tr_upper])
 
     # compare results
-    assert_allclose(mu, mu_ref, atol=0.02)
-    assert_allclose(COV, COV_ref, atol=0.02)
+    assert_allclose(mu, mu_ref, atol=0.03)
+    assert_allclose(COV, COV_ref, atol=0.03)
     
 def test_RandomVariable_fit_distribution_truncated_and_censored():
     """
@@ -1030,8 +1056,8 @@ def test_RandomVariable_fit_distribution_truncated_and_censored():
                                   truncation_limits=[tr_lower, tr_upper])
 
     # compare results
-    assert_allclose(mu, mu_ref, atol=0.02)
-    assert_allclose(COV, COV_ref, atol=0.02)
+    assert_allclose(mu, mu_ref, atol=0.05)
+    assert_allclose(COV, COV_ref, atol=0.05)
     
 def test_RandomVariable_fit_distribution_log_and_linear():
     """
@@ -1086,7 +1112,7 @@ def test_RandomVariable_fit_distribution_lognormal():
 
     # create a random variable and perform fitting
     RV = RandomVariable(ID=1, dimension_tags=['A'], raw_data=raw_data)
-    mu, var = RV.fit_distribution('lognormal')
+    mu, var = RV.fit_distribution('lognormal', truncation_limits=[-5., 100.])
 
     # compare results
     assert mu == pytest.approx(mu_ref)
@@ -1119,3 +1145,76 @@ def test_RandomVariable_fit_distribution_lognormal():
     assert_allclose(mu, mu_ref)
     assert_allclose(COV, COV_ref)
     
+def test_RandomVariable_sample_distribution_mixed_normal():
+    """
+    Test if the distribution is sampled appropriately for a correlated mixture 
+    of normal and lognormal variables. Note that we already tested the sampling
+    algorithm itself earlier, so we will not do a thorough verification of 
+    the samples, but rather check for errors in the inputs that would 
+    typically lead to significant mistakes in the results.
+
+    """
+    # multivariate case
+    dims = 3
+    ref_mean = np.arange(dims)
+    ref_std = np.ones(dims) * 1.00
+    ref_rho = np.ones((dims, dims)) * 0.5
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+
+    # prepare the truncation limits
+    tr_lower = (ref_mean + ref_std * (-10.)).tolist()
+    tr_upper = (ref_mean + ref_std * 10.).tolist()
+
+    # variable 1 is assumed to have lognormal distribution with no lower
+    # truncation
+    ref_mean[1] = np.exp(ref_mean[1])
+    tr_lower[1] = None
+    tr_upper[1] = np.exp(tr_upper[1])
+
+    RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
+                        distribution_kind=['normal', 'lognormal', 'normal'],
+                        theta=ref_mean, COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
+    samples = RV.sample_distribution(1000)
+
+    # make sure that the samples attribute of the RV works as intended
+    assert_allclose(samples, RV.samples)
+
+    samples[1] = np.log(samples[1])
+
+    assert_allclose(np.mean(samples, axis=0), ref_mean, atol=0.2)
+    assert_allclose(np.cov(samples, rowvar=False), ref_COV, atol=0.2)
+    
+def test_RandomVariable_sample_distribution_multinomial():
+    """
+    Test if the distribution is sampled appropriately for a multinomial 
+    variable"
+
+    """
+    # first test with an incomplete p_ref
+    p_ref = [0.1, 0.3, 0.5]
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='multinomial',
+                        p_set=p_ref)
+    samples = RV.sample_distribution(1000)
+    p_ref.append(1. - np.sum(p_ref))
+
+    p_test = np.histogram(samples, bins=np.arange(len(p_ref) + 1) - 0.5,
+                          density=True)[0]
+
+    assert_allclose(p_test, p_ref, atol=0.05)
+    
+    # also make sure that the samples attribute of the RV works as intended
+    assert_allclose(samples, RV.samples)
+
+    # then with the complete p_ref
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='multinomial',
+                        p_set=p_ref)
+    samples = RV.sample_distribution(1000)
+
+    p_test = np.histogram(samples, bins=np.arange(len(p_ref) + 1) - 0.5,
+                          density=True)[0]
+
+    assert_allclose(p_test, p_ref, atol=0.05)

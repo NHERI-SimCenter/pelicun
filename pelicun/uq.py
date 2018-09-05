@@ -55,8 +55,8 @@ quantification in pelicun.
 
 import warnings
 import numpy as np
-from scipy.stats import multivariate_normal
-from scipy.stats import kde
+import pandas as pd
+from scipy.stats import multivariate_normal, multinomial, kde
 from scipy.optimize import minimize
 
 def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
@@ -655,7 +655,7 @@ class RandomVariable(object):
             self._detection_limits = self._convert_limits(detection_limits)
             self._censored_count = censored_count
         else:
-            self._detection_limits = None
+            self._detection_limits = self._convert_limits(None)
             self._censored_count = None
 
         if distribution_kind is not None:
@@ -677,17 +677,18 @@ class RandomVariable(object):
     
             if p_set is not None:
                 p_set = np.asarray(p_set)
+                if np.sum(p_set) < 1.:
+                    p_set = np.append(p_set, 1.-np.sum(p_set))
                 self._ndim = 1
             self._p_set = p_set
             
-            if hasattr(self, '_ndim'):
-                self._truncation_limits = self._convert_limits(truncation_limits)
+            self._truncation_limits = self._convert_limits(truncation_limits)
                 
         else:
             self._theta = None
             self._COV = None
             self._p_set = None
-            self._truncation_limits = None
+            self._truncation_limits = self._convert_limits(None)
 
         # perform some basic checks to make sure that the provided data will be
         # sufficient to define a random variable
@@ -700,15 +701,18 @@ class RandomVariable(object):
                     "for a random variable."
                 )
 
-            if (self._distribution_kind in ['normal', 'lognormal']
-                and (self._theta is None or self._COV is None)):
-                raise ValueError(
-                    "Normal and lognormal distributions require theta and "
-                    "COV parameters."
-                )
+            if ((self._distribution_kind.shape!=()) 
+                or ((self._distribution_kind.shape==()) 
+                    and (self._distribution_kind in ['normal', 'lognormal']))):
+                if (self._theta is None) or (self._COV is None):
+                    raise ValueError(
+                        "Normal and lognormal distributions require theta and "
+                        "COV parameters."
+                    )
 
-            if (self._distribution_kind in ['multinomial']
-                and self._p_set is None):
+            if ((self._distribution_kind.shape==()) 
+                and (self._distribution_kind in ['multinomial'])
+                and (self._p_set is None)):
                 raise ValueError(
                     "Multinomial distributions require a set of p values as "
                     "parameters."
@@ -728,12 +732,7 @@ class RandomVariable(object):
         Convert None values to infinites in truncation and detection limits.
         
         """
-        # if both directions are set to None, then there are no limits
-        if limits is not None:
-            if (limits[0] is None) and (limits[1] is None):
-                limits = None
-
-        if limits is not None:
+        if hasattr(self, '_ndim') and (limits is not None):             
             # assign a vector of None in place of a single None value
             if (limits[0] is None) and (self._ndim > 1):
                 limits[0] = [None for d in limits[1]]
@@ -741,6 +740,7 @@ class RandomVariable(object):
                 limits[1] = [None for d in limits[0]]
 
             limits = np.asarray(limits)
+            
             # replace None values with infinite limits
             if self._ndim > 1:
                 limits[0][limits[0] == None] = -np.inf
@@ -750,9 +750,76 @@ class RandomVariable(object):
                     limits[0] = -np.inf
                 if limits[1] == None:
                     limits[1] = np.inf
+            
+            limits = limits.astype(np.float64)
         
         return limits
+    
+    def _move_to_log(self, raw_data, distribution_list):
+        """
+        Convert data to log space for the lognormal variables. 
+
+        """
+
+        if distribution_list is None:
+            data = raw_data
+        elif distribution_list.shape == ():
+            # meaning identical distribution families
+            data = raw_data
+            if distribution_list == 'lognormal':
+                if np.min(data) > 0.:
+                    data = np.log(data)
+                else:
+                    # this can gracefully handle non-positive limits for 
+                    # lognormal distributions
+                    min_float = np.nextafter(0, 1)
+                    data = np.log(np.clip(data, a_min=min_float, 
+                                          a_max=None))
+                    if np.asarray(data).shape == ():
+                        if data == np.log(min_float):
+                            data = -np.inf
+                    # Although the following code would help with other 
+                    # incorrect data, it might also hide such problems and
+                    # the current implementation does not need it, so it 
+                    # is disabled for now.
+                    #else:
+                    #    data[data==np.log(min_float)] = -np.inf
+        else:
+            data = raw_data
+            for dim, dk in enumerate(distribution_list):
+                if dk == 'lognormal':
+                    if np.min(data[dim]) > 0.:
+                        data[dim] = np.log(data[dim])
+                    else:
+                        # this can gracefully handle non-positive limits for 
+                        # lognormal distributions
+                        min_float = np.nextafter(0, 1)
+                        data[dim] = np.log(np.clip(data[dim], a_min=min_float,
+                                                   a_max=None))
+                        if np.asarray(data[dim]).shape == ():
+                            if data[dim] == np.log(min_float):
+                                data[dim] = -np.inf
+                        #else:
+                        #    data[dim][data[dim]==np.log(min_float)] = -np.inf
+        return data
+    
+    def _return_from_log(self, raw_data, distribution_list):
+        """
+        Convert data back to linear space for the lognormal variables.
+
+        """
+        if distribution_list.shape == ():
+            # meaning identical distribution families
+            data = raw_data
+            if distribution_list == 'lognormal':
+                data = np.exp(raw_data)
+        else:
+            data = raw_data
+            for dim, dk in enumerate(distribution_list):
+                if dk == 'lognormal':
+                    data[dim] = np.exp(data[dim])
         
+        return data
     
     @property
     def theta(self):
@@ -766,6 +833,14 @@ class RandomVariable(object):
                 "The median of the probability distribution of this random "
                 "variable is not yet specified."
             )
+        
+    @property
+    def mu(self):
+        """
+        Return the mean value(s) of the probability distribution.
+
+        """
+        return self._move_to_log(self.theta, self._distribution_kind)
 
     @property
     def COV(self):
@@ -779,6 +854,97 @@ class RandomVariable(object):
                 "The covariance matrix of the probability distribution of "
                 "this random variable is not yet specified."
             )
+        
+    @property
+    def detection_limits(self):
+        """
+        Return the detection limits corresponding to the raw data in linear
+        space.
+        
+        """
+        # this is very simple for now
+        return self._detection_limits
+    
+    @property
+    def det_lower(self):
+        """
+        Return the lower detection limit(s) corresponding to the raw data in
+        either linear or log space according to the distribution.
+        
+        """
+        if self._detection_limits is None:
+            return None
+        else:
+            return self._move_to_log(self._detection_limits[0], 
+                                     self._distribution_kind)
+
+    @property
+    def det_upper(self):
+        """
+        Return the upper detection limit(s) corresponding to the raw data in
+        either linear or log space according to the distribution.
+
+        """
+        if self._detection_limits is None:
+            return None
+        else:
+            return self._move_to_log(self._detection_limits[1],
+                                     self._distribution_kind)
+
+    @property
+    def truncation_limits(self):
+        """
+        Return the truncation limits of the probability distribution in linear
+        space.
+
+        """
+        # this is very simple for now
+        return self._truncation_limits
+
+    @property
+    def tr_lower(self):
+        """
+        Return the lower truncation limit(s) corresponding to the distribution 
+        in either linear or log space according to the distribution.
+
+        """
+        if self._truncation_limits is None:
+            return None
+        else:
+            return self._move_to_log(self._truncation_limits[0],
+                                     self._distribution_kind)
+
+    @property
+    def tr_upper(self):
+        """
+        Return the upper truncation limit(s) corresponding to the distribution
+        in either linear or log space according to the distribution.
+
+        """
+        if self._truncation_limits is None:
+            return None
+        else:
+            return self._move_to_log(self._truncation_limits[1],
+                                     self._distribution_kind)
+    
+    @property
+    def censored_count(self):
+        """
+        Return the number of samples beyond the detection limits. 
+        
+        """
+        if self._censored_count is None:
+            return 0
+        else:
+            return self._censored_count
+        
+    @property
+    def samples(self):
+        """
+        Return the pre-generated samples from the distribution.
+
+        """
+        return self._samples
         
     def fit_distribution(self, distribution_kind, truncation_limits=None):
         """
@@ -825,48 +991,24 @@ class RandomVariable(object):
         # lognormal distribution parameters are estimated by fitting a normal
         # distribution to the data in log space
         distribution_kind = np.asarray(distribution_kind)
-        if distribution_kind.shape == ():
-            #meaning identical distribution families
-            data = self._raw_data
-            if distribution_kind == 'lognormal':
-                data = np.log(self._raw_data)
-        else:
-            data = self._raw_data
-            for dim, dk in enumerate(distribution_kind):
-                if dk == 'lognormal':
-                    data[dim] = np.log(data[dim])            
+        data = self._move_to_log(self._raw_data, distribution_kind)            
 
-        # prepare the information on censoring and truncation
-        c_count = self._censored_count
-        if c_count is None:
-            c_count = 0
-        if self._detection_limits is not None:
-            det_lower, det_upper = self._detection_limits
-        else:
-            det_lower, det_upper = [None, None]
-        
-        if truncation_limits is not None:
+        # prepare the information on truncation
+        if truncation_limits is not None:            
             tr_lower, tr_upper = self._convert_limits(truncation_limits)
+            tr_lower = self._move_to_log(tr_lower, distribution_kind)
+            tr_upper = self._move_to_log(tr_upper, distribution_kind)
         else:
             tr_lower, tr_upper = [None, None]
         
         # perform the parameter estimation
         mu, COV = tmvn_MLE(data,
                            tr_lower = tr_lower, tr_upper=tr_upper,
-                           censored_count=c_count,
-                           det_lower=det_lower, det_upper=det_upper)
+                           censored_count=self.censored_count,
+                           det_lower=self.det_lower, det_upper=self.det_upper)
         
         # convert mu to theta
-        if distribution_kind.shape == ():
-            if distribution_kind == 'lognormal':
-                theta = np.exp(mu)
-            else:
-                theta = mu
-        else:
-            theta = mu
-            for dim, dk in enumerate(distribution_kind):
-                if dk == 'lognormal':
-                    theta[dim] = np.exp(theta[dim])
+        theta = self._return_from_log(mu, distribution_kind)
                 
         # store and return the parameters    
         self._theta = theta
@@ -878,6 +1020,55 @@ class RandomVariable(object):
         
         return theta, COV
                     
+    def sample_distribution(self, sample_size):
+        """
+        Sample the probability distribution assigned to the random variable.
+        
+        Normal distributions (including truncated and/or multivariate normal 
+        and lognormal) are sampled using the tmvn_rvs() method in this module.
+        Multinomial distributions are sampled using the multinomial method in
+        scipy. The samples are returned and also stored in the `sample` 
+        attribute of the RV.
+        
+        Parameters
+        ----------
+        sample_size: int
+            Number of samples requested.
+
+        Returns
+        -------
+        samples: DataFrame
+            Samples generated from the distribution. Columns correspond to the
+            dimension tags that identify the variables.
+        """
+
+        if ((self._distribution_kind.shape == ()) and
+            (self._distribution_kind == 'multinomial')):
+            samples = multinomial.rvs(1, self._p_set, size=sample_size)
+
+            # convert the 2D sample array into a vector of integers
+            outcomes = np.array([np.arange(len(self._p_set))])
+            samples = (samples @ outcomes.T).flatten()
+            samples = pd.DataFrame(samples, columns=self._dimension_tags)
+        else:
+            raw_samples = tmvn_rvs(mu=self.mu, COV=self.COV, 
+                                   lower=self.tr_lower, 
+                                   upper=self.tr_upper,
+                                   size=sample_size)
             
+            samples = self._return_from_log(np.transpose(raw_samples),
+                                            self._distribution_kind)
+            
+            samples = pd.DataFrame(data=np.transpose(samples), 
+                                   index=np.arange(sample_size),
+                                   columns=self._dimension_tags)
+        
+        self._samples = samples
+        
+        return self._samples
+            
+            
+            
+        
         
         
