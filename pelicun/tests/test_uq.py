@@ -605,12 +605,12 @@ def test_MVN_MLE_small_alpha():
     # generate samples of a TMVN distribution 
     # (assume the tmvn_rvs function works properly)
     samples = tmvn_rvs(ref_mean, ref_var, lower=tr_lower, upper=tr_upper,
-                       size=100)
+                       size=1000)
 
     # censor the samples
     good_ones = np.all([samples > det_lower, samples < det_upper], axis=0)
     c_samples = samples[good_ones]
-    c_count = 100 - sum(good_ones)
+    c_count = 1000 - sum(good_ones)
 
     # warning about truncation limits
     with pytest.warns(UserWarning) as e_info:
@@ -1189,7 +1189,8 @@ def test_RandomVariable_sample_distribution_mixed_normal():
 def test_RandomVariable_sample_distribution_multinomial():
     """
     Test if the distribution is sampled appropriately for a multinomial 
-    variable"
+    variable. Also test that a RandomVariableSubset based on the RV works
+    appropriately."
 
     """
     # first test with an incomplete p_ref
@@ -1197,18 +1198,30 @@ def test_RandomVariable_sample_distribution_multinomial():
     RV = RandomVariable(ID=1, dimension_tags=['A'],
                         distribution_kind='multinomial',
                         p_set=p_ref)
+    RVS = RandomVariableSubset(RV=RV, tags='A')
+
     samples = RV.sample_distribution(1000)
     p_ref.append(1. - np.sum(p_ref))
 
-    p_test = np.histogram(samples, bins=np.arange(len(p_ref) + 1) - 0.5,
-                          density=True)[0]
+    h_bins = np.arange(len(p_ref) + 1) - 0.5
+    p_test = np.histogram(samples, bins=h_bins, density=True)[0]
+    p_test_RVS = np.histogram(RVS.samples, bins=h_bins, density=True)[0]
 
     assert_allclose(p_test, p_ref, atol=0.05)
-    
+    assert_allclose(p_test_RVS, p_ref, atol=0.05)
+
     # also make sure that the samples attribute of the RV works as intended
     assert_allclose(samples, RV.samples)
 
-    # then with the complete p_ref
+    # then check if resampling through RVS works well
+    RVS.sample_distribution(100)
+    old_diff = (RVS.samples - samples['A'].iloc[:100]).abs().sum()
+    new_diff = (RVS.samples - RV.samples['A'].iloc[:100]).abs().sum()
+
+    assert old_diff > 0
+    assert new_diff == 0
+
+    # finally, check the original sampling with the complete p_ref
     RV = RandomVariable(ID=1, dimension_tags=['A'],
                         distribution_kind='multinomial',
                         p_set=p_ref)

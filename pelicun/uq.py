@@ -49,6 +49,7 @@ quantification in pelicun.
     mvn_orthotope_density
     tmvn_MLE
     RandomVariable
+    RandomVariableSubset
     
 
 """
@@ -1049,7 +1050,8 @@ class RandomVariable(object):
             # convert the 2D sample array into a vector of integers
             outcomes = np.array([np.arange(len(self._p_set))])
             samples = (samples @ outcomes.T).flatten()
-            samples = pd.DataFrame(samples, columns=self._dimension_tags)
+            samples = pd.DataFrame(np.transpose(samples), 
+                                   columns=self._dimension_tags)
         else:
             raw_samples = tmvn_rvs(mu=self.mu, COV=self.COV, 
                                    lower=self.tr_lower, 
@@ -1067,8 +1069,59 @@ class RandomVariable(object):
         
         return self._samples
             
-            
-            
+
+class RandomVariableSubset(object):
+    """
+    Provides convenient access to a subset of components of a RandomVariable.
+    
+    This object is useful when working with multivariate RVs, but it is used in
+    all cases to provide a general approach.
+    
+    Parameters
+    ----------
+    RV: RandomVariable
+        The potentially multivariate random variable that is accessed through
+        this object.
+    tags: str or list of str
+        A string or list of strings that identify the subset of component we 
+        are interested in. These strings shall be among the `dimension_tags` of 
+        the RV.
+    """
+    
+    def __init__(self, RV, tags):
         
+        self._RV = RV
+        self._tags = tags
+        
+    @property
+    def samples(self):
+        """
+        Return the pre-generated samples of the selected component from the
+        RV distribution.
+        
+        """
+        return self._RV.samples[self._tags]
+    
+    def sample_distribution(self, sample_size):
+        """
+        Sample the probability distribution assigned to the connected RV.
+        
+        Note that this function will sample the potentially multivariate 
+        distribution.
+        
+        Parameters
+        ----------
+        sample_size: int
+            Number of samples requested.
+
+        Returns
+        -------
+        samples: DataFrame
+            Samples of the selected component generated from the distribution.
+
+        """
+        samples = self._RV.sample_distribution(sample_size)
+        
+        return samples[self._tags]
         
         

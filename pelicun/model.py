@@ -55,19 +55,27 @@ loss assessment.
 
 import numpy as np
 from scipy.stats import norm, truncnorm
+import pandas as pd
 
 class FragilityFunction(object):
     """
     Indicates the probability that the damage in a component, an element, or 
-    the system will correspond to or exceed a given damage state group (DSG). 
-    This exceedance probability is a function of a predictive engineering 
-    demand parameter (EDP). Fragility functions are assumed to take the form 
-    of lognormal cumulative distribution functions, defined by a median value, 
-    theta, and a logarithmic standard deviation, beta.
+    the system will correspond to or exceed the damage characterized by a 
+    given damage state group (DSG). This exceedance probability is a function 
+    of a predictive engineering demand parameter (EDP). Fragility functions are 
+    assumed to take the form of lognormal cumulative distribution functions, 
+    defined by a median value, theta, and a logarithmic standard deviation, 
+    beta.
+    
+    For the sake of generality, here we define a fragility function as a random
+    variable that describes the distribution of EDP conditioned on DSG damage
+    exceedance. This approach facilitates the definition and use of correlated 
+    fragility functions for complex analyses.
 
     Parameters
     ----------
 
+    
     theta: float
         Median of the EDP distribution conditioned on DS exceedance.
     beta: float
