@@ -126,8 +126,8 @@ def test_TMVN_sampling_non_truncated():
         
     # multi-dimensional case
     dims = 5
-    ref_mean = np.arange(dims)
-    ref_std = np.arange(1,dims+1)
+    ref_mean = np.arange(dims, dtype=np.float64)
+    ref_std = np.arange(1,dims+1, dtype=np.float64)
     ref_rho = np.ones((dims,dims))*0.3
     ref_COV = np.outer(ref_std,ref_std) * ref_rho
     np.fill_diagonal(ref_COV,ref_std**2.)
@@ -193,7 +193,7 @@ def test_TMVN_sampling_truncated_wide_limits():
 
     # multi-dimensional case
     dims = 3
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.3
     ref_COV = np.outer(ref_std, ref_std) * ref_rho
@@ -240,7 +240,7 @@ def test_TMVN_sampling_truncated_narrow_limits():
 
     # multi-dimensional case
     dims = 5
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(1) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.3
     ref_COV = np.outer(ref_std, ref_std) * ref_rho
@@ -302,8 +302,8 @@ def test_MVN_CDF_multivariate():
     # dimensions
     
     for dims in range(2, 6):
-        ref_mean = np.arange(dims)
-        ref_std = np.arange(1, dims + 1)
+        ref_mean = np.arange(dims, dtype=np.float64)
+        ref_std = np.arange(1, dims + 1, dtype=np.float64)
         ref_rho = np.ones((dims, dims)) * 1.0
         ref_COV = np.outer(ref_std, ref_std) * ref_rho
         np.fill_diagonal(ref_COV, ref_std ** 2.)
@@ -322,8 +322,8 @@ def test_MVN_CDF_multivariate():
     # Second, assume independence. Results should be equal to the univariate
     # result on the power of the number of dimensions.
     for dims in range(2, 6):
-        ref_mean = np.arange(dims)
-        ref_std = np.arange(1, dims + 1)
+        ref_mean = np.arange(dims, dtype=np.float64)
+        ref_std = np.arange(1, dims + 1, dtype=np.float64)
         ref_rho = np.ones((dims, dims)) * 0.0
         ref_COV = np.outer(ref_std, ref_std) * ref_rho
         np.fill_diagonal(ref_COV, ref_std ** 2.)
@@ -366,7 +366,7 @@ def test_MVN_MLE_baseline():
 
     # multi-dimensional case
     dims = 3
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(ref_rho, 1.0)
@@ -391,7 +391,7 @@ def test_MVN_MLE_minimum_sample_size():
 
     """
     dims = 4
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(ref_rho, 1.0)
@@ -434,7 +434,7 @@ def test_MVN_MLE_censored():
 
     # multi-dimensional case
     dims = 3
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(ref_rho, 1.0)
@@ -490,7 +490,7 @@ def test_MVN_MLE_truncated():
 
     # multi-dimensional case
     dims = 3
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(ref_rho, 1.0)
@@ -550,7 +550,7 @@ def test_MVN_MLE_truncated_and_censored():
 
     # multi-dimensional case
     dims = 3
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(ref_rho, 1.0)
@@ -665,9 +665,9 @@ def test_RandomVariable_incorrect_censored_data_definition():
     parameters['detection_limits'] = [None, 0]
     assert RandomVariable(**parameters)
 
-    # Multiple dimension
+    # Multiple dimensions
     parameters = dict(ID=1, dimension_tags='test',
-                      raw_data=[[1, 0], [2, 1], [3, 1], [4, 0], [5, 1], [6, 0]],
+                      raw_data=[[1, 2, 3, 4, 5, 6], [0, 1, 1, 0, 1, 0]],
                       detection_limits=[None, [None, 1]],
                       censored_count=5)
     for missing_p in ['detection_limits', 'censored_count']:
@@ -851,11 +851,14 @@ def test_RandomVariable_simple_attributes():
     # create a random variable with censored data
     censored_count = 3
     detection_limits = [0,4]
-    RV = RandomVariable(ID=1, dimension_tags = ['A'], raw_data=[1,2,3],
+    dimension_tags = ['A']
+    RV = RandomVariable(ID=1, dimension_tags = dimension_tags, 
+                        raw_data=[1,2,3],
                         censored_count =censored_count, 
                         detection_limits=detection_limits)
     
     assert RV.censored_count == censored_count
+    assert RV.dimension_tags == dimension_tags
     assert RV.det_lower == detection_limits[0]
     assert RV.det_upper == detection_limits[1]
     assert RV.tr_lower == None
@@ -900,7 +903,7 @@ def test_RandomVariable_fit_distribution_simple():
     # multivariate case
     # generate raw data
     dims = 6
-    in_mean = np.arange(dims)
+    in_mean = np.arange(dims, dtype=np.float64)
     in_std = np.ones(dims) * 0.25
     in_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(in_rho, 1.0)
@@ -951,7 +954,7 @@ def test_RandomVariable_fit_distribution_truncated():
     # multivariate case
     # generate raw data
     dims = 6
-    in_mean = np.arange(dims)
+    in_mean = np.arange(dims, dtype=np.float64)
     in_std = np.ones(dims) * 0.25
     in_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(in_rho, 1.0)
@@ -1020,7 +1023,7 @@ def test_RandomVariable_fit_distribution_truncated_and_censored():
     # multivariate case
     # generate raw data
     dims = 3
-    in_mean = np.arange(dims)
+    in_mean = np.arange(dims, dtype=np.float64)
     in_std = np.ones(dims) * 0.25
     in_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(in_rho, 1.0)
@@ -1067,7 +1070,7 @@ def test_RandomVariable_fit_distribution_log_and_linear():
     """
     # generate raw data
     dims = 3
-    in_mean = np.arange(dims)
+    in_mean = np.arange(dims, dtype=np.float64)
     in_std = np.ones(dims) * 0.25
     in_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(in_rho, 1.0)
@@ -1121,7 +1124,7 @@ def test_RandomVariable_fit_distribution_lognormal():
     # multivariate case
     # generate raw data
     dims = 6
-    in_mean = np.arange(dims)
+    in_mean = np.arange(dims, dtype=np.float64)
     in_std = np.ones(dims) * 0.25
     in_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(in_rho, 1.0)
@@ -1156,7 +1159,7 @@ def test_RandomVariable_sample_distribution_mixed_normal():
     """
     # multivariate case
     dims = 3
-    ref_mean = np.arange(dims)
+    ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 1.00
     ref_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(ref_rho, 1.0)
@@ -1176,12 +1179,24 @@ def test_RandomVariable_sample_distribution_mixed_normal():
                         distribution_kind=['normal', 'lognormal', 'normal'],
                         theta=ref_mean, COV=ref_COV,
                         truncation_limits=[tr_lower, tr_upper])
+    RVS = RandomVariableSubset(RV=RV, tags=1)
+
     samples = RV.sample_distribution(1000)
 
     # make sure that the samples attribute of the RV works as intended
     assert_allclose(samples, RV.samples)
+    assert_allclose(samples[1], RVS.samples)
+
+    # then check if resampling through RVS works well
+    RVS.sample_distribution(100)
+    old_diff = (RVS.samples - samples[1].iloc[:100]).abs().sum()
+    new_diff = (RVS.samples - RV.samples[1].iloc[:100]).abs().sum()
+
+    assert old_diff > 0
+    assert new_diff == 0
 
     samples[1] = np.log(samples[1])
+    ref_mean[1] = np.log(ref_mean[1])
 
     assert_allclose(np.mean(samples, axis=0), ref_mean, atol=0.2)
     assert_allclose(np.cov(samples, rowvar=False), ref_COV, atol=0.2)
@@ -1231,3 +1246,176 @@ def test_RandomVariable_sample_distribution_multinomial():
                           density=True)[0]
 
     assert_allclose(p_test, p_ref, atol=0.05)
+    
+def test_RandomVariable_orthotope_density():
+    """
+    Test if the orthotope density function provides accurate estimates of the
+    probability densities within several different hyperrectangles for TMVN 
+    distributions.
+
+    """
+    # multivariate, uncorrelated case
+    dims = 3
+    ref_mean = np.arange(dims, dtype=np.float64)
+    ref_std = np.ones(dims) * 1.00
+    ref_rho = np.ones((dims, dims)) * 0.
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+
+    # prepare the truncation limits
+    tr_lower = (ref_mean + ref_std * (-2.)).tolist()
+    tr_upper = (ref_mean + ref_std * 2.).tolist()
+
+    # variable 1 is assumed to have lognormal distribution
+    ref_mean[1] = np.exp(ref_mean[1])
+    tr_lower[1] = np.exp(tr_lower[1])
+    tr_upper[1] = np.exp(tr_upper[1])
+
+    # variable 2 is assumed to have no truncation
+    tr_lower[2] = None
+    tr_upper[2] = None
+
+    RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
+                        distribution_kind=['normal', 'lognormal', 'normal'],
+                        theta=ref_mean, COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
+
+    # Test if the full (truncated) space corresponds to a density of 1.0
+    assert RV.orthotope_density()[0] == pytest.approx(1.0)
+
+    # Test if adding limits outside the truncated area influence the results
+    test_alpha = RV.orthotope_density(lower=[-3., 0., None],
+                                      upper=[4., 25., None])[0] 
+    assert test_alpha == pytest.approx(1.0)
+
+    # Test if limiting the third variable at its mean reduces the density to 
+    # 0.5
+    test_alpha = RV.orthotope_density(lower=[None, None, 2.])[0]
+    assert test_alpha == pytest.approx(0.5)
+
+    # Test if limiting variables 1-2 to only +-1-sigma reduces the density 
+    # appropriately
+    test_alpha = RV.orthotope_density(lower=[-1., np.exp(0.), None],
+                                      upper=[1., np.exp(2.), None])[0]
+    assert test_alpha == pytest.approx(0.5115579696)
+
+    # Now let us introduce perfect correlation
+    ref_rho = np.ones((dims, dims)) * 1.
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+
+    RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
+                        distribution_kind=['normal', 'lognormal', 'normal'],
+                        theta=ref_mean, COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
+
+    # Test if the full (truncated) space corresponds to a density of 1.0
+    assert RV.orthotope_density()[0] == pytest.approx(1.0)
+
+    # Test if limiting the third variable outside 2-sigma influence the results
+    test_alpha = RV.orthotope_density(upper=[None, None, 4.])[0] 
+    assert test_alpha == pytest.approx(1.0)
+
+    # Test if limiting the third variable at its mean reduces the density to 
+    # 0.5
+    test_alpha = RV.orthotope_density(lower=[None, None, 2.])[0]
+    assert test_alpha == pytest.approx(0.5)
+
+    # Test if limiting variables 1-2 to only +-1-sigma reduces the density 
+    # appropriately
+    test_alpha = RV.orthotope_density(lower=[-1., np.exp(0.), None],
+                                      upper=[1., np.exp(2.), None])[0]
+    assert test_alpha == pytest.approx(0.71523280799)
+    
+    # Finally, test if the function works well for a non-truncated MVN 
+    # distribution with uncorrelated variables
+    ref_rho = np.ones((dims, dims)) * 0.
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+    
+    RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
+                        distribution_kind=['normal', 'lognormal', 'normal'],
+                        theta=ref_mean, COV=ref_COV)
+
+    # Test if the full (truncated) space corresponds to a density of 1.0
+    assert RV.orthotope_density()[0] == pytest.approx(1.0)
+
+    # Test if limiting the third variable at its mean reduces the density to 
+    # 0.5
+    test_alpha = RV.orthotope_density(lower=[None, None, 2.])[0]
+    assert test_alpha == pytest.approx(0.5)
+    
+def test_RandomVariableSubset_orthotope_density():
+    """
+    Test if the orthotope density function provides accurate estimates of the
+    probability densities within several different hyperrectangles for TMVN 
+    distributions. Consider that the RVS does not have access to every 
+    dimension in the RV, yet the limits assigned to those dimensions can 
+    influence the results.
+
+    """
+    # multivariate case, uncorrelated
+    dims = 3
+    ref_mean = np.arange(dims, dtype=np.float64)
+    ref_std = np.ones(dims) * 1.00
+    ref_rho = np.ones((dims, dims)) * 0.
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+
+    # prepare the truncation limits
+    tr_lower = (ref_mean + ref_std * (-2.)).tolist()
+    tr_upper = (ref_mean + ref_std * 2.).tolist()
+
+    # variable 1 is assumed to have lognormal distribution
+    ref_mean[1] = np.exp(ref_mean[1])
+    tr_lower[1] = np.exp(tr_lower[1])
+    tr_upper[1] = np.exp(tr_upper[1])
+
+    # variable 2 is assumed to have no truncation
+    tr_lower[2] = None
+    tr_upper[2] = None
+
+    RV = RandomVariable(ID=1, dimension_tags=['A', 'B', 'C'],
+                        distribution_kind=['normal', 'lognormal', 'normal'],
+                        theta=ref_mean, COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
+    RVS = RandomVariableSubset(RV=RV, tags=['B', 'A'])
+
+    # Test if the full (truncated) space corresponds to a density of 1.0
+    assert RVS.orthotope_density()[0] == pytest.approx(1.)
+
+    # Test if limiting variable B at its mean reduces the density to 0.5
+    test_alpha = RVS.orthotope_density(lower=[ref_mean[1], None])[0]
+    assert test_alpha == pytest.approx(0.5)
+
+    # Do the same test for variable A and an upper limit
+    test_alpha = RVS.orthotope_density(lower=[None, ref_mean[0]])[0]
+    assert test_alpha == pytest.approx(0.5)
+
+    # Now check how a correlated variable in RV affects the densities in the RVS
+    ref_COV[2, 0] = 1.
+    ref_COV[0, 2] = 1.
+    # A and B are independent, and A is perfectly correlated with C
+
+    # truncation limits are only introduced for C
+    tr_lower = [None, None, 1.]
+    tr_upper = [None, None, 3.]
+
+    RV = RandomVariable(ID=1, dimension_tags=['A', 'B', 'C'],
+                        distribution_kind=['normal', 'lognormal', 'normal'],
+                        theta=ref_mean, COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
+    RVS = RandomVariableSubset(RV=RV, tags=['B', 'A'])
+
+    # Test if the full (truncated) space corresponds to a density of 1.0
+    assert RVS.orthotope_density()[0] == pytest.approx(1.)
+
+    # Test if limiting variable A at one sigma on both sides reduces the density - it shouldn't
+    test_alpha = RVS.orthotope_density(lower=[None, -1.],
+                                       upper=[None, 1.])[0]
+    assert test_alpha == pytest.approx(1.0)
+
+    # Test if limiting variable B at one sigma on both sides reduces the density - it should
+    test_alpha = RVS.orthotope_density(lower=[np.exp(0.), None],
+                                       upper=[np.exp(2.), None])[0]
+    assert test_alpha == pytest.approx(0.682689492)

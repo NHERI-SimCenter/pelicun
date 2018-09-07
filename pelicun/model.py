@@ -56,46 +56,55 @@ loss assessment.
 import numpy as np
 from scipy.stats import norm, truncnorm
 import pandas as pd
+from .uq import RandomVariableSubset
 
 class FragilityFunction(object):
     """
-    Indicates the probability that the damage in a component, an element, or 
-    the system will correspond to or exceed the damage characterized by a 
-    given damage state group (DSG). This exceedance probability is a function 
-    of a predictive engineering demand parameter (EDP). Fragility functions are 
-    assumed to take the form of lognormal cumulative distribution functions, 
-    defined by a median value, theta, and a logarithmic standard deviation, 
-    beta.
+    Describes the relationship between asset response and damage.
     
-    For the sake of generality, here we define a fragility function as a random
-    variable that describes the distribution of EDP conditioned on DSG damage
-    exceedance. This approach facilitates the definition and use of correlated 
-    fragility functions for complex analyses.
+    Asset response is characterized by a Demand value that represents an 
+    engineering demand parameter (EDP). Only a scalar EDP is supported 
+    currently. The damage is characterized by a set of DamageStateGroup (DSG)
+    objects. For each DSG, the corresponding EDP limit (i.e. the EDP at which
+    the asset is assumed to experience damage described by the DSG) is 
+    considered uncertain; hence, it is described by a random variable. The 
+    random variables that describe EDP limits for the set of DSGs are not 
+    independent. 
+    
+    We assume that the EDP limit will be approximated by a normal or lognormal 
+    distribution for each DSG and these variables together form a multivariate
+    normal distribution. Following common practice, the correlation between
+    variables is assumed perfect by default, but the framework allows the
+    users to explore other, more realistic options. 
 
     Parameters
     ----------
-
-    
-    theta: float
-        Median of the EDP distribution conditioned on DS exceedance.
-    beta: float
-        The logarithmic standard deviation of the EDP distribution conditioned 
-        on DSG exceedance. 
-
+    RVS: RandomVariableSubset
+        A multidimensional random variable that might be defined as a subset
+        of a bigger correlated group of variables or a complete set of 
+        variables created only for this Fragility Function (FF). The number of 
+        dimensions shall be equal to the number of DSGs handled by the
+        FF.
+        
     """
 
-    def __init__(self, theta, beta):
-        self._theta = theta
-        self._beta = beta
+    def __init__(self, RVS):
+        self._RVS = RVS
 
-    def P_exc(self, EDP):
+    def P_exc(self, EDP, DSG_ID):
         """
-        Calculate the exceedance probability given a particular EDP value.
+        Return the probability of damage exceedance.
+        
+        Calculate the probability of exceeding the damage corresponding to the 
+        DSG identified by the DSG_ID conditioned on a particular EDP value.
 
         Parameters
         ----------
         EDP: float scalar or ndarray
             Single EDP or numpy array of EDP values.
+        DSG_ID: int
+            Identifies the conditioning DSG. The DSG numbering is 1-based, 
+            because zero typically corresponds to the undamaged state.
 
         Returns
         -------
@@ -105,20 +114,22 @@ class FragilityFunction(object):
 
         EDP = np.asarray(EDP, dtype=np.float64)
 
-        # the 0 values in EDP correspond to 0 P_exc, so we can simply copy them
-        P_exc = EDP
+        # prepare the limits for the density calculation
+        ndims = np.asarray(self._RVS.tags).size
+        nvals = EDP.size
 
-        # every other value will be updated with the appropriate P_exc
-        P_exc = np.zeros(EDP.shape, dtype=np.float64)
-        non_zeros = EDP != 0.
-        # print((non_zeros))
-        P_exc[non_zeros] = norm.cdf(np.log(EDP[non_zeros]),
-                                    loc=np.log(self._theta),
-                                    scale=self._beta)
+        limit_list = np.full((ndims, nvals), None)
+        limit_list[DSG_ID - 1:] = EDP
+        limit_list = np.transpose(limit_list)
+
+        # get the pointer for the orthotope density function to save time
+        RVS_od = self._RVS.orthotope_density
+        P_exc = 1. - np.asarray([RVS_od(lower=limit)[0] 
+                                 for limit in limit_list])
 
         # if EDP was a scalar, make sure that the result is also a scalar
-        if P_exc.ndim == 0:
-            return P_exc[()]
+        if EDP.size == 1:
+            return P_exc[0]
         else:
             return P_exc
 

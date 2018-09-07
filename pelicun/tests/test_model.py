@@ -55,85 +55,156 @@ sys.path.insert(0,os.path.dirname(parent_dir))
 from pelicun.tests.test_reference_data import standard_normal_table
 from pelicun.tests.test_pelicun import assert_normal_distribution
 from pelicun.model import *
+from pelicun.uq import RandomVariable, RandomVariableSubset
 
 # -------------------------------------------------------------------------------
 # Fragility_Function
 # ------------------------------------------------------------------------------
 
-def test_fragility_function_lognormal_unit_mean_unit_std():
+def test_fragility_function_Pexc_lognormal_unit_mean_unit_std():
     """
     Given a lognormal fragility function with theta=1.0 and beta=1.0, test if 
     the calculated exceedance probabilities are sufficiently accurate.
     The reference results are based on a standard normal table. This limits the
     accuracy of testing to an absolute probability difference of 1e-5.
     """
+    # prepare the inputs
     EDP = np.exp(np.concatenate([-standard_normal_table[0][::-1],
                                  standard_normal_table[0]]))
     reference_P_exc = np.concatenate([0.5 - standard_normal_table[1][::-1],
                                       0.5 + standard_normal_table[1]])
 
-    fragility_function = FragilityFunction(theta=1.0, beta=1.0)
-    test_P_exc = fragility_function.P_exc(EDP)
+    # create the fragility function
+    RV = RandomVariable(ID=1, dimension_tags='A', 
+                        distribution_kind='lognormal',
+                        theta=1.0, COV=1.0)
+    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV,'A'))
+    
+    # calculate the exceedance probabilities
+    test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
 
     assert_allclose(test_P_exc, reference_P_exc, atol=1e-5)
 
-    # if you want the details...
-    # for val_ref, val_test in zip(reference_P_exc, test_P_exc):
-    #    assert val_ref == pytest.approx(val_test, abs=1e-5)
-
-
-def test_fragility_function_lognormal_non_trivial_case():
+def test_fragility_function_Pexc_lognormal_non_trivial_case():
     """
     Given a lognormal fragility function with theta=0.5 and beta=0.2, test if 
     the calculated exceedance probabilities are sufficiently accurate.
     The reference results are based on a standard normal table. This limits the
     accuracy of testing to an absolute probability difference of 1e-5.
     """
+    # prepare the inputs
     target_theta = 0.5
     target_beta = 0.2
     EDP = np.concatenate([-standard_normal_table[0][::-1],
                           standard_normal_table[0]])
-    # modify the inputs to match the table's outputs
     EDP = np.exp(EDP * target_beta + np.log(target_theta))
     reference_P_exc = np.concatenate([0.5 - standard_normal_table[1][::-1],
                                       0.5 + standard_normal_table[1]])
 
-    fragility_function = FragilityFunction(theta=target_theta,
-                                           beta=target_beta)
-    test_P_exc = fragility_function.P_exc(EDP)
+    # create the fragility function
+    RV = RandomVariable(ID=1, dimension_tags='A',
+                        distribution_kind='lognormal',
+                        theta=target_theta, COV=target_beta ** 2.)
+    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV, 'A'))
+
+    # calculate the exceedance probabilities
+    test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
 
     assert_allclose(test_P_exc, reference_P_exc, atol=1e-5)
 
-    # if you want the details...
-    # for val_ref, val_test in zip(reference_P_exc, test_P_exc):
-    #    assert val_ref == pytest.approx(val_test, abs=1e-5)
-
-
-def test_fragility_function_lognormal_zero_input():
+def test_fragility_function_Pexc_lognormal_zero_input():
     """
     Given a zero EDP input to a lognormal fragility function, the result shall
     be 0 exceedance probability, even though zero input in log space shall
     correspond to -infinity. This slight modification makes our lives much
     easier when real inputs are fed to the fragility functions.
     """
-    fragility_function = FragilityFunction(theta=1.0, beta=1.0)
-
-    test_P_exc = fragility_function.P_exc(0.)
-
+    # create the fragility function
+    RV = RandomVariable(ID=1, dimension_tags='A', 
+                        distribution_kind='lognormal',
+                        theta=1.0, COV=1.0)
+    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV,'A'))
+    
+    # calculate the exceedance probability
+    test_P_exc = fragility_function.P_exc(0., DSG_ID=1)
+    
     assert test_P_exc == 0.
 
-
-def test_fragility_function_lognormal_nonzero_scalar_input():
+def test_fragility_function_Pexc_lognormal_nonzero_scalar_input():
     """
     Given a nonzero scalar EDP input, the fragility function should return a 
     nonzero scalar output.
     """
-    fragility_function = FragilityFunction(theta=1.0, beta=1.0)
+    # create the fragility function
+    RV = RandomVariable(ID=1, dimension_tags='A',
+                        distribution_kind='lognormal',
+                        theta=1.0, COV=1.0)
+    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV, 'A'))
 
-    test_P_exc = fragility_function.P_exc(standard_normal_table[0][0])
+    # calculate the exceedance probabilities
+    test_P_exc = fragility_function.P_exc(standard_normal_table[0][0], DSG_ID=1)
 
     assert test_P_exc == pytest.approx(standard_normal_table[1][0], abs=1e-5)
+    
+def test_fragility_function_Pexc_multiple_damage_states_with_correlation():
+    """
+    Test if the fragility function returns an appropriate list of exceedance
+    probabilities for various scenarios with multiple damage states that have
+    potentially correlated fragilities.
+    
+    """
+    # P_exc is requested for a list of EDPs
+    EDP = np.exp(np.linspace(-2., 2., num=11))
+    
+    # 3 damage state groups, perfectly correlated
+    # the DSGs are unordered in the RV only to make the test more general
+    dims = 3
+    ref_mean = np.exp([2.0, 0., 0.5])
+    ref_std = [1.5, 0.5, 1.0]
+    ref_rho = np.ones((dims, dims)) * 1.
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
 
+    RV = RandomVariable(ID=1, dimension_tags=['C', 'A', 'B'],
+                        distribution_kind='lognormal',
+                        theta=ref_mean, COV=ref_COV)
+    
+    # a single DSG fragility 
+    # note that A is correlated with the other RV components
+    RVS = RandomVariableSubset(RV=RV, tags='A')
+    test_res = FragilityFunction(RVS=RVS).P_exc(EDP, 1)
+    ref_res = norm.cdf(np.log(EDP),
+                       loc=np.log(ref_mean[1]), scale=ref_std[1])
+    assert_allclose(test_res, ref_res)
+
+    # three DSGs in proper order, P_exc for A is requested considering all 
+    # three
+    RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
+    test_res = FragilityFunction(RVS=RVS).P_exc(EDP, 1)
+    ref_res = [norm.cdf(np.log(EDP),
+                        loc=np.log(ref_mean[i]), scale=ref_std[i])
+               for i in range(3)]
+    ref_res = np.max(np.asarray(ref_res), axis=0)
+    assert_allclose(test_res, ref_res)
+
+    # change the covariance matrix - uncorrelated fragilities
+    ref_rho = np.ones((dims, dims)) * 0.
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+    RV = RandomVariable(ID=1, dimension_tags=['C', 'A', 'B'],
+                        distribution_kind='lognormal',
+                        theta=ref_mean, COV=ref_COV)
+    
+    # three DSGs, still interested in P_exc for A considering all three
+    RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
+    test_res = FragilityFunction(RVS=RVS).P_exc(EDP, 1)
+    ref_res = [norm.cdf(np.log(EDP),
+                        loc=np.log(ref_mean[i]), scale=ref_std[i])
+               for i in range(3)]
+    ref_res[1] = ref_res[1] * (1. - ref_res[0])
+    ref_res[2] = ref_res[2] * (1. - np.sum(np.asarray(ref_res[:2]), axis=0))
+    ref_res = np.sum(np.asarray(ref_res), axis=0)
+    assert_allclose(ref_res, test_res)
 
 # ------------------------------------------------------------------------------
 # Consequence_Function
@@ -626,7 +697,7 @@ def test_damage_state_group_description():
 
     assert DSG.description == ref_str
 
-
+'''
 def test_damage_state_group_fragility():
     """
     Test if the damage state group returns results from the assigned fragility
@@ -642,7 +713,7 @@ def test_damage_state_group_fragility():
         assert FF.P_exc(edp) == DSG.P_exc(edp)
 
     assert_allclose(DSG.P_exc(EDP), FF.P_exc(EDP), rtol=1e-10)
-
+'''
 
 # ------------------------------------------------------------------------------
 # Fragility Group

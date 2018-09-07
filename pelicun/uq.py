@@ -59,6 +59,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import multivariate_normal, multinomial, kde
 from scipy.optimize import minimize
+from copy import deepcopy
 
 def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
     """
@@ -736,9 +737,9 @@ class RandomVariable(object):
         if hasattr(self, '_ndim') and (limits is not None):             
             # assign a vector of None in place of a single None value
             if (limits[0] is None) and (self._ndim > 1):
-                limits[0] = [None for d in limits[1]]
+                limits[0] = [None for d in range(self._ndim)]
             if (limits[1] is None) and (self._ndim > 1):
-                limits[1] = [None for d in limits[0]]
+                limits[1] = [None for d in range(self._ndim)]
 
             limits = np.asarray(limits)
             
@@ -769,12 +770,12 @@ class RandomVariable(object):
             data = raw_data
             if distribution_list == 'lognormal':
                 if np.min(data) > 0.:
-                    data = np.log(data)
+                    data = np.log(raw_data)
                 else:
                     # this can gracefully handle non-positive limits for 
                     # lognormal distributions
                     min_float = np.nextafter(0, 1)
-                    data = np.log(np.clip(data, a_min=min_float, 
+                    data = np.log(np.clip(raw_data, a_min=min_float, 
                                           a_max=None))
                     if np.asarray(data).shape == ():
                         if data == np.log(min_float):
@@ -789,6 +790,7 @@ class RandomVariable(object):
             data = raw_data
             for dim, dk in enumerate(distribution_list):
                 if dk == 'lognormal':
+                    data = deepcopy(raw_data)
                     if np.min(data[dim]) > 0.:
                         data[dim] = np.log(data[dim])
                     else:
@@ -855,6 +857,15 @@ class RandomVariable(object):
                 "The covariance matrix of the probability distribution of "
                 "this random variable is not yet specified."
             )
+       
+    @property
+    def dimension_tags(self):
+        """
+        Return the tags corresponding to the dimensions of the variable.
+
+        """
+        # this is very simple for now
+        return self._dimension_tags
         
     @property
     def detection_limits(self):
@@ -1068,6 +1079,76 @@ class RandomVariable(object):
         self._samples = samples
         
         return self._samples
+    
+    def orthotope_density(self, lower=None, upper=None):
+        """
+        Estimate the probability density within an orthotope for a TMVN distr.
+        
+        Use the mvn_orthotope_density function in this module for the 
+        calculation. Pre-defined truncation limits for the RV are automatically
+        taken into consideration. Limits for lognormal distributions shall be
+        provided in linear space - the conversion is performed by the algorithm
+        automatically.  
+        
+        Parameters
+        ----------
+        lower: float vector, optional, default: None
+            Lower bound(s) of the orthotope. A scalar value can be used for a 
+            univariate RV; a list of bounds is expected in multivariate cases. 
+            If the orthotope is not bounded from below in any dimension, use
+            either 'None' or assign an infinite value (i.e. -numpy.inf) to 
+            that dimension.  
+        upper: float vector, optional, default: None
+            Upper bound(s) of the orthotope. A scalar value can be used for a 
+            univariate RV; a list of bounds is expected in multivariate cases. 
+            If the orthotope is not bounded from above in any dimension, use
+            either 'None' or assign an infinite value (i.e. numpy.inf) to 
+            that dimension.
+
+        Returns
+        -------
+        alpha: float
+            Estimate of the probability density within the orthotope.
+        eps_alpha: float
+            Estimate of the error in alpha.
+
+        """
+
+        # get the orthotope density within the truncation limits
+        if (self.tr_lower is None) and (self.tr_upper is None):
+            alpha_0 = 1.
+        else:
+            alpha_0, __ = mvn_orthotope_density(self.mu, self.COV, 
+                                            self.tr_lower, self.tr_upper)
+        
+        # merge the specified limits with the pre-defined truncation limits
+        lower, upper = self._convert_limits([lower, upper])
+        if self.truncation_limits is not None:
+            lower_lim, upper_lim = self.truncation_limits
+        else:
+            lower_lim, upper_lim = None, None
+        
+        if lower is not None:
+            if lower_lim is not None:
+                lower_lim = np.maximum(lower_lim, lower)
+            else:
+                lower_lim = lower
+
+        if upper is not None:
+            if upper_lim is not None:
+                upper_lim = np.minimum(upper_lim, upper)
+            else:
+                upper_lim = upper
+                
+        lower_lim = self._move_to_log(lower_lim, self._distribution_kind)
+        upper_lim = self._move_to_log(upper_lim, self._distribution_kind)
+          
+        # get the orthotope density within the prescribed limits      
+        alpha, eps_alpha = mvn_orthotope_density(self.mu, self.COV, 
+                                                 lower_lim, upper_lim) 
+        
+        # note that here we assume that the error in alpha_0 is negligible
+        return min(alpha / alpha_0, 1.), eps_alpha / alpha_0     
             
 
 class RandomVariableSubset(object):
@@ -1092,6 +1173,15 @@ class RandomVariableSubset(object):
         
         self._RV = RV
         self._tags = tags
+        
+    @property
+    def tags(self):
+        """
+        Return the tags corresponding to the components in the RV subset.
+
+        """
+        # this is very simple for now
+        return self._tags
         
     @property
     def samples(self):
@@ -1123,5 +1213,60 @@ class RandomVariableSubset(object):
         samples = self._RV.sample_distribution(sample_size)
         
         return samples[self._tags]
+    
+    def orthotope_density(self, lower=None, upper=None):
+        """
+        Return the density within the orthotope in the marginal pdf of the RVS.
         
+        The function considers the influence of every dependent variable in the 
+        RV on the marginal pdf of the RVS. Note that such influence only occurs 
+        when the RV is a truncated distribution.
         
+        Parameters
+        ----------
+        lower: float vector, optional, default: None
+            Lower bound(s) of the orthotope. A scalar value can be used for a 
+            univariate RVS; a list of bounds is expected in multivariate cases. 
+            If the orthotope is not bounded from below in any dimension, use
+            either 'None' or assign an infinite value (i.e. -numpy.inf) to 
+            that dimension.  
+        upper: float vector, optional, default: None
+            Upper bound(s) of the orthotope. A scalar value can be used for a 
+            univariate RVS; a list of bounds is expected in multivariate cases. 
+            If the orthotope is not bounded from above in any dimension, use
+            either 'None' or assign an infinite value (i.e. numpy.inf) to 
+            that dimension.
+
+        Returns
+        -------
+        alpha: float
+            Estimate of the probability density within the orthotope.
+        eps_alpha: float
+            Estimate of the error in alpha.
+        """
+        
+        # get the dimension tags from the parent RV and find the ones that 
+        # define this RVS
+        dtags = self._RV.dimension_tags
+        if dtags.size == 1:
+            dtags = [dtags]
+        sorter = np.argsort(dtags)
+        tag_ids = sorter[np.searchsorted(dtags, self._tags, sorter=sorter)]
+        
+        # prepare the limit vectors and assign the limits to the appropriate
+        # dimensions
+        lower_full = [None for i in range(len(dtags))]
+        upper_full = deepcopy(lower_full)
+        
+        if lower is not None:
+            lower_full = np.asarray(lower_full)
+            lower_full[tag_ids] = np.asarray(lower)
+            lower_full = lower_full.tolist()
+            
+        if upper is not None:
+            upper_full = np.asarray(upper_full)
+            upper_full[tag_ids] = np.asarray(upper)
+            upper_full = upper_full.tolist()
+        
+        # get the alpha value from the parent RV
+        return self._RV.orthotope_density(lower_full, upper_full)
