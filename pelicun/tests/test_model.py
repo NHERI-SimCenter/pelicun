@@ -61,7 +61,7 @@ from pelicun.uq import RandomVariable, RandomVariableSubset
 # Fragility_Function
 # ------------------------------------------------------------------------------
 
-def test_fragility_function_Pexc_lognormal_unit_mean_unit_std():
+def test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std():
     """
     Given a lognormal fragility function with theta=1.0 and beta=1.0, test if 
     the calculated exceedance probabilities are sufficiently accurate.
@@ -85,7 +85,7 @@ def test_fragility_function_Pexc_lognormal_unit_mean_unit_std():
 
     assert_allclose(test_P_exc, reference_P_exc, atol=1e-5)
 
-def test_fragility_function_Pexc_lognormal_non_trivial_case():
+def test_FragilityFunction_Pexc_lognormal_non_trivial_case():
     """
     Given a lognormal fragility function with theta=0.5 and beta=0.2, test if 
     the calculated exceedance probabilities are sufficiently accurate.
@@ -112,7 +112,7 @@ def test_fragility_function_Pexc_lognormal_non_trivial_case():
 
     assert_allclose(test_P_exc, reference_P_exc, atol=1e-5)
 
-def test_fragility_function_Pexc_lognormal_zero_input():
+def test_FragilityFunction_Pexc_lognormal_zero_input():
     """
     Given a zero EDP input to a lognormal fragility function, the result shall
     be 0 exceedance probability, even though zero input in log space shall
@@ -130,7 +130,7 @@ def test_fragility_function_Pexc_lognormal_zero_input():
     
     assert test_P_exc == 0.
 
-def test_fragility_function_Pexc_lognormal_nonzero_scalar_input():
+def test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input():
     """
     Given a nonzero scalar EDP input, the fragility function should return a 
     nonzero scalar output.
@@ -146,7 +146,7 @@ def test_fragility_function_Pexc_lognormal_nonzero_scalar_input():
 
     assert test_P_exc == pytest.approx(standard_normal_table[1][0], abs=1e-5)
     
-def test_fragility_function_Pexc_multiple_damage_states_with_correlation():
+def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     """
     Test if the fragility function returns an appropriate list of exceedance
     probabilities for various scenarios with multiple damage states that have
@@ -205,6 +205,100 @@ def test_fragility_function_Pexc_multiple_damage_states_with_correlation():
     ref_res[2] = ref_res[2] * (1. - np.sum(np.asarray(ref_res[:2]), axis=0))
     ref_res = np.sum(np.asarray(ref_res), axis=0)
     assert_allclose(ref_res, test_res)
+    
+def test_FragilityFunction_DSG_ID_given_EDP_general():
+    """
+    Test if the DSG_IDs returned by the function are appropriate using 
+    exceedance probabilities from the already tested P_exc function.
+    
+    """
+    # 3 damage state groups, perfectly correlated
+    # the DSGs are unordered in the RV only to make the test more general
+    dims = 3
+    ref_mean = np.exp([2.0, 0., 0.5])
+    ref_std = [1.5, 0.5, 1.0]
+    ref_rho = np.ones((dims, dims)) * 1.
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
+
+    RV = RandomVariable(ID=1, dimension_tags=['C', 'A', 'B'],
+                        distribution_kind='lognormal',
+                        theta=ref_mean, COV=ref_COV)
+
+    RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
+    FF = FragilityFunction(RVS=RVS)
+
+    # same EDP 10^5 times to allow for P_exc-based testing
+    for target_EDP in [0., 0.75, 2.0]:
+        # create the EDP vector
+        EDP = np.ones(10000) * np.exp(target_EDP)
+
+        # get the DSG_IDs
+        DSG_ID = FF.DSG_given_EDP(EDP, force_resampling=False)
+
+        # calculate the DSG_ID probabilities
+        P_DS_test = \
+        np.histogram(DSG_ID.values, bins=np.arange(5) - 0.5, density=True)[0]
+
+        # use the P_exc function to arrive at the reference DSG_ID probabilities
+        P_exc = np.asarray(
+            list(map(lambda x: FF.P_exc(np.exp(target_EDP), x), [0, 1, 2, 3])))
+        P_DS_ref = np.concatenate([P_exc[:-1] - P_exc[1:], [P_exc[-1], ]])
+
+        # compare
+        assert_allclose(P_DS_test, P_DS_ref, atol=0.01)
+
+    # random set of EDPs uniformly distributed over the several different domains
+    for a, b in [[-1., -0.9], [1., 1.1], [-1., 1.]]:
+        EDP = np.exp(np.random.uniform(a, b, 100000))
+
+        # get a DSG_ID sample for each EDP
+        DSG_ID = FF.DSG_given_EDP(EDP, force_resampling=True)
+
+        # get the test DSG_ID probabilities
+        P_DS_test = \
+        np.histogram(DSG_ID.values, bins=np.arange(5) - 0.5, density=True)[0]
+
+        # get the EDP-P_exc functions - basically the fragility functions
+        EDP = np.exp(np.linspace(a, b, num=100))
+        P_exc_f = np.asarray(
+            list(map(lambda x: FF.P_exc(EDP, x), [0, 1, 2, 3])))
+
+        # Calculate the area enclosed by the two functions that define each DS - that should be the same as the P_DS from the test
+        CDF = [p - np.max(P_exc_f[i + 1:], axis=0) for i, p in
+               enumerate(P_exc_f[:3])]
+        CDF.append(P_exc_f[-1])
+        CDF = np.asarray(CDF)
+        P_DS_ref = np.asarray(list(
+            map(lambda x: np.trapz(CDF[x], np.log(EDP)), [0, 1, 2, 3]))) / (
+                           b - a)
+
+        assert_allclose(P_DS_test, P_DS_ref, atol=0.01)
+
+def test_FragilityFunction_DSG_given_EDP_insufficient_samples():
+    """
+    Test if the function raises an error message if the number of EDP values 
+    provided is greater than the number of available samples from the RVS. 
+
+    """
+    # create a simple random variable
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='lognormal',
+                        theta=1.0, COV=1.0)
+
+    # assign it to the fragility function
+    RVS = RandomVariableSubset(RV=RV, tags=['A'])
+    FF = FragilityFunction(RVS=RVS)
+
+    # sample 10 realizations
+    RVS.sample_distribution(10)
+
+    # create 100 EDP values
+    EDP = np.ones(100)
+
+    # try to get the DSG_IDs... and expect an error
+    with pytest.raises(ValueError) as e_info:
+        FF.DSG_given_EDP(EDP)
 
 # ------------------------------------------------------------------------------
 # Consequence_Function

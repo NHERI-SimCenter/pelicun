@@ -111,29 +111,97 @@ class FragilityFunction(object):
         P_exc: float scalar or ndarray
             DSG exceedance probability at the given EDP point(s).
         """
-
+        
         EDP = np.asarray(EDP, dtype=np.float64)
-
-        # prepare the limits for the density calculation
-        ndims = np.asarray(self._RVS.tags).size
         nvals = EDP.size
 
-        limit_list = np.full((ndims, nvals), None)
-        limit_list[DSG_ID - 1:] = EDP
-        limit_list = np.transpose(limit_list)
-
-        # get the pointer for the orthotope density function to save time
-        RVS_od = self._RVS.orthotope_density
-        P_exc = 1. - np.asarray([RVS_od(lower=limit)[0] 
-                                 for limit in limit_list])
+        # The exceedance probability corresponding to no damage is 1.
+        # Although this is trivial, returning 1 for DSG_ID=0 makes using P_exc
+        # more convenient.
+        if DSG_ID == 0:
+            P_exc = np.ones(EDP.size)
+        else:
+            # prepare the limits for the density calculation
+            ndims = np.asarray(self._RVS.tags).size
+            
+            limit_list = np.full((ndims, nvals), None)
+            limit_list[DSG_ID - 1:] = EDP
+            limit_list = np.transpose(limit_list)
+    
+            # get the pointer for the orthotope density function to save time
+            RVS_od = self._RVS.orthotope_density
+            P_exc = 1. - np.asarray([RVS_od(lower=limit)[0] 
+                                     for limit in limit_list])
 
         # if EDP was a scalar, make sure that the result is also a scalar
         if EDP.size == 1:
             return P_exc[0]
         else:
             return P_exc
+        
+    def DSG_given_EDP(self, EDP, force_resampling=False):
+        """
+        Given an EDP, get a damage level based on the fragility function.
+        
+        The damage is evaluated by sampling the joint distribution of 
+        fragilities corresponding to all possible damage levels and checking
+        which damage level the given EDP falls into. This approach allows for
+        efficient damage state evaluation for a large number of EDP 
+        realizations. 
+        
+        Parameters
+        ----------
+        EDP: float scalar or ndarray or Series
+            Single EDP, or numpy array or pandas Series of EDP values.
+        force_resampling: bool, optional, default: False
+            If True, the probability distribution is resampled before 
+            evaluating the damage for each EDP. This is not recommended if the
+            fragility functions are correlated with other sources of 
+            uncertainty because those variables will also be resampled in this
+            case. If False, which is the default approach, we assume that
+            the random variable has already been sampled and the number of 
+            samples greater or equal to the number of EDP values.
 
+        Returns
+        -------
+        DSG_ID: Series
+            Identifies the damage that corresponds to the given EDP. A DSG_ID
+            of 0 means no damage. 
 
+        """
+        # get the number of samples needed
+        nsamples = EDP.size
+
+        # if there are no samples or resampling is forced, then sample the 
+        # distribution first
+        if force_resampling or (self._RVS.samples is None):
+            self._RVS.sample_distribution(sample_size=nsamples)
+
+        # if the number of samples is not sufficiently large, raise an error
+        if self._RVS.samples.shape[0] < nsamples:
+            raise ValueError(
+                'Damage evaluation requires at least as many samples of the '
+                'joint distribution defined by the fragility functions as '
+                'many EDP values are provided to the DSG_given_EDP function. '
+                'You might want to consider setting force_resampling to True '
+                'or sampling the distribution before calling the DSG_given_EDP '
+                'function.')
+
+        samples = self._RVS.samples
+        EDP = pd.Series(EDP, name='EDP')
+
+        nstates = samples.columns.values.size
+
+        EXC = samples.sub(EDP, axis=0) < 0.
+
+        DSG_ID = pd.Series(np.zeros(len(samples.index)), name='DSG_ID', 
+                        dtype=np.int)
+
+        for s in range(nstates):
+            DSG_ID[EXC.iloc[:,s]] = s + 1
+
+        return DSG_ID
+        
 class ConsequenceFunction(object):
     """
     Indicates the distribution of quantified consequences of a component, an

@@ -956,7 +956,10 @@ class RandomVariable(object):
         Return the pre-generated samples from the distribution.
 
         """
-        return self._samples
+        if hasattr(self, '_samples'):
+            return self._samples
+        else:
+            return None
         
     def fit_distribution(self, distribution_kind, truncation_limits=None):
         """
@@ -1190,7 +1193,12 @@ class RandomVariableSubset(object):
         RV distribution.
         
         """
-        return self._RV.samples[self._tags]
+        samples = self._RV.samples
+        
+        if samples is not None:
+            return samples[self._tags]
+        else:
+            return None 
     
     def sample_distribution(self, sample_size):
         """
@@ -1213,7 +1221,7 @@ class RandomVariableSubset(object):
         samples = self._RV.sample_distribution(sample_size)
         
         return samples[self._tags]
-    
+        
     def orthotope_density(self, lower=None, upper=None):
         """
         Return the density within the orthotope in the marginal pdf of the RVS.
