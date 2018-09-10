@@ -1508,7 +1508,7 @@ def test_RandomVariable_orthotope_density():
 
     # Test if adding limits outside the truncated area influence the results
     test_alpha = RV.orthotope_density(lower=[-3., 0., None],
-                                      upper=[4., 25., None])[0] 
+                                      upper=[4., 25., None])[0]
     assert test_alpha == pytest.approx(1.0)
 
     # Test if limiting the third variable at its mean reduces the density to 
@@ -1536,7 +1536,7 @@ def test_RandomVariable_orthotope_density():
     assert RV.orthotope_density()[0] == pytest.approx(1.0)
 
     # Test if limiting the third variable outside 2-sigma influence the results
-    test_alpha = RV.orthotope_density(upper=[None, None, 4.])[0] 
+    test_alpha = RV.orthotope_density(upper=[None, None, 4.])[0]
     assert test_alpha == pytest.approx(1.0)
 
     # Test if limiting the third variable at its mean reduces the density to 
@@ -1549,13 +1549,61 @@ def test_RandomVariable_orthotope_density():
     test_alpha = RV.orthotope_density(lower=[-1., np.exp(0.), None],
                                       upper=[1., np.exp(2.), None])[0]
     assert test_alpha == pytest.approx(0.71523280799)
-    
+
+    # The next test uses a mix of pre-truncation and post-truncation 
+    # correlations
+    RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
+                        distribution_kind=['normal', 'lognormal', 'normal'],
+                        corr_ref=['pre', 'post', 'pre'],
+                        theta=ref_mean, COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
+
+    # Test if the full (truncated) space corresponds to a density of 1.
+    assert RV.orthotope_density()[0] == pytest.approx(1.0)
+
+    # Test if limiting the second variable outside 2-sigma in the pre-truncated 
+    # distribution influences the results
+    test_alpha = RV.orthotope_density(upper=[None, np.exp(3.), None])[0]
+    assert test_alpha == pytest.approx(1.0)
+
+    # Test if limiting the second variable at '2-sigma' quantiles in the 
+    # marginal truncated distribution influences the results.
+    # It shouldn't because the perfect correlation with 2-sigma limited other 
+    # variables already poses such limits on variable 2. Note that these 
+    # quantiles are more strict than the 2-sigma 'pre' limits tested above, 
+    # and they would lead to sub 1.0 results if all correlations were 
+    # pre-truncation.
+    limits = truncnorm.ppf(norm.cdf([-2., 2.]),
+                           loc=np.log(ref_mean[1]), scale=ref_std[1],
+                           a=-2., b=2.)
+    test_alpha = RV.orthotope_density(lower=[None, np.exp(limits[0]), None],
+                                      upper=[None, np.exp(limits[1]), None])[0]
+    assert test_alpha == pytest.approx(1.0)
+
+    # Test if limiting variable 2 to only +- 1-sigma quantiles in the marginal 
+    # truncated distribution reduces the density appropriately. These limits 
+    # are more strict than the 1 sigma 'pre' limits would be because they are 
+    # defined in the truncated distribution.
+    limits = truncnorm.ppf(norm.cdf([-1., 1.]),
+                           loc=np.log(ref_mean[1]), scale=ref_std[1],
+                           a=-2., b=2.)
+    test_alpha = RV.orthotope_density(lower=[None, np.exp(limits[0]), None],
+                                      upper=[None, np.exp(limits[1]), None])[0]
+    ref_alpha = truncnorm.cdf([-1., 1.], loc=0., scale=1., a=-2., b=2.)
+    ref_alpha = ref_alpha[1] - ref_alpha[0]
+    assert test_alpha == pytest.approx(ref_alpha)
+
+    # test if limiting the second variable at its mean reduces the density to 
+    # 0.5
+    test_alpha = RV.orthotope_density(lower=[None, np.exp(1.), None])[0]
+    assert test_alpha == pytest.approx(0.5)
+
     # Finally, test if the function works well for a non-truncated MVN 
     # distribution with uncorrelated variables
     ref_rho = np.ones((dims, dims)) * 0.
     np.fill_diagonal(ref_rho, 1.0)
     ref_COV = np.outer(ref_std, ref_std) * ref_rho
-    
+
     RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
                         distribution_kind=['normal', 'lognormal', 'normal'],
                         theta=ref_mean, COV=ref_COV)
@@ -1615,7 +1663,8 @@ def test_RandomVariableSubset_orthotope_density():
     test_alpha = RVS.orthotope_density(lower=[None, ref_mean[0]])[0]
     assert test_alpha == pytest.approx(0.5)
 
-    # Now check how a correlated variable in RV affects the densities in the RVS
+    # Now check how a correlated variable in RV affects the densities in the 
+    # RVS
     ref_COV[2, 0] = 1.
     ref_COV[0, 2] = 1.
     # A and B are independent, and A is perfectly correlated with C

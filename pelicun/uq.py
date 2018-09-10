@@ -901,7 +901,8 @@ class RandomVariable(object):
     @property
     def mu(self):
         """
-        Return the mean value(s) of the probability distribution.
+        Return the mean value(s) of the probability distribution. Note that
+        the mean value is in log space for lognormal distributions.
 
         """
         return self._move_to_log(self.theta, self._distribution_kind)
@@ -1215,7 +1216,8 @@ class RandomVariable(object):
         calculation. Pre-defined truncation limits for the RV are automatically
         taken into consideration. Limits for lognormal distributions shall be
         provided in linear space - the conversion is performed by the algorithm
-        automatically.  
+        automatically. Pre- and post-truncation correlation is also considered 
+        automatically. 
         
         Parameters
         ----------
@@ -1250,29 +1252,38 @@ class RandomVariable(object):
         
         # merge the specified limits with the pre-defined truncation limits
         lower, upper = self._convert_limits([lower, upper])
-        if self.tr_limits_pre is not None:
-            lower_lim, upper_lim = self.tr_limits_pre
-        else:
-            lower_lim, upper_lim = None, None
-        
-        if lower is not None:
-            if lower_lim is not None:
-                lower_lim = np.maximum(lower_lim, lower)
-            else:
-                lower_lim = lower
+        lower = self._move_to_log(lower, self._distribution_kind)
+        upper = self._move_to_log(upper, self._distribution_kind)        
 
-        if upper is not None:
-            if upper_lim is not None:
-                upper_lim = np.minimum(upper_lim, upper)
-            else:
-                upper_lim = upper
-                
-        lower_lim = self._move_to_log(lower_lim, self._distribution_kind)
-        upper_lim = self._move_to_log(upper_lim, self._distribution_kind)
+        # if there are post-truncation correlations defined, transform the
+        # prescribed limits to 'pre' type limits
+        if self.tr_limits_post is not None:
+            lower_lim_post, upper_lim_post = (self.tr_lower_post, 
+                                              self.tr_upper_post)
+            for dim in range(self._ndim):
+                if ((lower_lim_post[dim] < lower[dim]) 
+                     or (upper_lim_post[dim] > upper[dim])):
+                    mu =self.mu[dim]
+                    sig = np.sqrt(self.COV[dim, dim])
+                    lim_U = truncnorm.cdf([lower[dim], upper[dim]],
+                                          loc=mu, scale=sig,
+                                          a=(lower_lim_post[dim]-mu)/sig,
+                                          b=(upper_lim_post[dim]-mu)/sig)
+                    lim_pre = norm.ppf(lim_U, loc=mu, scale=sig)
+                    lower[dim], upper[dim] = lim_pre
+
+        if self.tr_limits_pre is not None:
+            lower_lim_pre, upper_lim_pre = (self.tr_lower_pre, 
+                                            self.tr_upper_pre)
+            lower_lim_pre = np.maximum(lower_lim_pre, lower)
+            upper_lim_pre = np.minimum(upper_lim_pre, upper)
+        else:
+            lower_lim_pre = lower
+            upper_lim_pre = upper
           
         # get the orthotope density within the prescribed limits      
         alpha, eps_alpha = mvn_orthotope_density(self.mu, self.COV, 
-                                                 lower_lim, upper_lim) 
+                                                 lower_lim_pre, upper_lim_pre) 
         
         # note that here we assume that the error in alpha_0 is negligible
         return min(alpha / alpha_0, 1.), eps_alpha / alpha_0     
@@ -1352,7 +1363,9 @@ class RandomVariableSubset(object):
         
         The function considers the influence of every dependent variable in the 
         RV on the marginal pdf of the RVS. Note that such influence only occurs 
-        when the RV is a truncated distribution.
+        when the RV is a truncated distribution and at least two variables are
+        dependent. Pre- and post-truncation correlation is considered 
+        automatically.
         
         Parameters
         ----------
