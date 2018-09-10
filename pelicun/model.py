@@ -79,7 +79,7 @@ class FragilityFunction(object):
 
     Parameters
     ----------
-    RVS: RandomVariableSubset
+    EDP_limit: RandomVariableSubset
         A multidimensional random variable that might be defined as a subset
         of a bigger correlated group of variables or a complete set of 
         variables created only for this Fragility Function (FF). The number of 
@@ -88,8 +88,8 @@ class FragilityFunction(object):
         
     """
 
-    def __init__(self, RVS):
-        self._RVS = RVS
+    def __init__(self, EDP_limit):
+        self._EDP_limit = EDP_limit
 
     def P_exc(self, EDP, DSG_ID):
         """
@@ -122,14 +122,14 @@ class FragilityFunction(object):
             P_exc = np.ones(EDP.size)
         else:
             # prepare the limits for the density calculation
-            ndims = np.asarray(self._RVS.tags).size
+            ndims = np.asarray(self._EDP_limit.tags).size
             
             limit_list = np.full((ndims, nvals), None)
             limit_list[DSG_ID - 1:] = EDP
             limit_list = np.transpose(limit_list)
     
             # get the pointer for the orthotope density function to save time
-            RVS_od = self._RVS.orthotope_density
+            RVS_od = self._EDP_limit.orthotope_density
             P_exc = 1. - np.asarray([RVS_od(lower=limit)[0] 
                                      for limit in limit_list])
 
@@ -174,11 +174,11 @@ class FragilityFunction(object):
 
         # if there are no samples or resampling is forced, then sample the 
         # distribution first
-        if force_resampling or (self._RVS.samples is None):
-            self._RVS.sample_distribution(sample_size=nsamples)
+        if force_resampling or (self._EDP_limit.samples is None):
+            self._EDP_limit.sample_distribution(sample_size=nsamples)
 
         # if the number of samples is not sufficiently large, raise an error
-        if self._RVS.samples.shape[0] < nsamples:
+        if self._EDP_limit.samples.shape[0] < nsamples:
             raise ValueError(
                 'Damage evaluation requires at least as many samples of the '
                 'joint distribution defined by the fragility functions as '
@@ -187,7 +187,7 @@ class FragilityFunction(object):
                 'or sampling the distribution before calling the DSG_given_EDP '
                 'function.')
 
-        samples = self._RVS.samples
+        samples = self._EDP_limit.samples
         EDP = pd.Series(EDP, name='EDP')
 
         nstates = samples.columns.values.size
@@ -204,6 +204,8 @@ class FragilityFunction(object):
         
 class ConsequenceFunction(object):
     """
+    Describes the relationship between damage and consequence.
+    
     Indicates the distribution of quantified consequences of a component, an
     element, or the system reaching a given damage state (DS). Consequences 
     can be reconstruction cost, repair time, casualties, injuries, etc. Their
@@ -216,7 +218,13 @@ class ConsequenceFunction(object):
         The fixed option corresponds to a consequence distribution with a fixed 
         median value; in the bounded_linear case the median is a linear 
         function of the component quantity within maximum and minimum bounds
-        and a negative slope.
+        with a negative slope.
+    standardized_consequence: RandomVariableSubset
+        A one-dimensional random variable (subset) that characterizes the 
+        uncertainty in the consequence quantity. It is 'standardized' because
+        it describes the deviation from the median normalized by the standard
+        deviation. If this consequence is not dependent on other variables,
+        a standard normal (or lognormal) distribution shall be used 
     distribution_kind: {'normal', 'lognormal','truncated_normal'}
         The probability distribution of the consequence quantities. The 
         'truncated_normal' shall be used when a lower or upper limit is 

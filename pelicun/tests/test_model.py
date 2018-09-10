@@ -78,7 +78,8 @@ def test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std():
     RV = RandomVariable(ID=1, dimension_tags='A', 
                         distribution_kind='lognormal',
                         theta=1.0, COV=1.0)
-    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV,'A'))
+    fragility_function = FragilityFunction(
+        EDP_limit=RandomVariableSubset(RV, 'A'))
     
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
@@ -105,7 +106,8 @@ def test_FragilityFunction_Pexc_lognormal_non_trivial_case():
     RV = RandomVariable(ID=1, dimension_tags='A',
                         distribution_kind='lognormal',
                         theta=target_theta, COV=target_beta ** 2.)
-    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV, 'A'))
+    fragility_function = FragilityFunction(
+        EDP_limit=RandomVariableSubset(RV, 'A'))
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
@@ -123,7 +125,8 @@ def test_FragilityFunction_Pexc_lognormal_zero_input():
     RV = RandomVariable(ID=1, dimension_tags='A', 
                         distribution_kind='lognormal',
                         theta=1.0, COV=1.0)
-    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV,'A'))
+    fragility_function = FragilityFunction(
+        EDP_limit=RandomVariableSubset(RV, 'A'))
     
     # calculate the exceedance probability
     test_P_exc = fragility_function.P_exc(0., DSG_ID=1)
@@ -139,7 +142,8 @@ def test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input():
     RV = RandomVariable(ID=1, dimension_tags='A',
                         distribution_kind='lognormal',
                         theta=1.0, COV=1.0)
-    fragility_function = FragilityFunction(RVS=RandomVariableSubset(RV, 'A'))
+    fragility_function = FragilityFunction(
+        EDP_limit=RandomVariableSubset(RV, 'A'))
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(standard_normal_table[0][0], DSG_ID=1)
@@ -172,7 +176,7 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     # a single DSG fragility 
     # note that A is correlated with the other RV components
     RVS = RandomVariableSubset(RV=RV, tags='A')
-    test_res = FragilityFunction(RVS=RVS).P_exc(EDP, 1)
+    test_res = FragilityFunction(EDP_limit=RVS).P_exc(EDP, 1)
     ref_res = norm.cdf(np.log(EDP),
                        loc=np.log(ref_mean[1]), scale=ref_std[1])
     assert_allclose(test_res, ref_res)
@@ -180,7 +184,7 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     # three DSGs in proper order, P_exc for A is requested considering all 
     # three
     RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
-    test_res = FragilityFunction(RVS=RVS).P_exc(EDP, 1)
+    test_res = FragilityFunction(EDP_limit=RVS).P_exc(EDP, 1)
     ref_res = [norm.cdf(np.log(EDP),
                         loc=np.log(ref_mean[i]), scale=ref_std[i])
                for i in range(3)]
@@ -197,8 +201,8 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     
     # three DSGs, still interested in P_exc for A considering all three
     RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
-    test_res = FragilityFunction(RVS=RVS).P_exc(EDP, 1)
-    ref_res = [norm.cdf(np.log(EDP),
+    test_res = FragilityFunction(EDP_limit=RVS).P_exc(EDP, 1)
+    ref_res = [norm.cdf(np.log(EDP), 
                         loc=np.log(ref_mean[i]), scale=ref_std[i])
                for i in range(3)]
     ref_res[1] = ref_res[1] * (1. - ref_res[0])
@@ -226,7 +230,7 @@ def test_FragilityFunction_DSG_ID_given_EDP_general():
                         theta=ref_mean, COV=ref_COV)
 
     RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
-    FF = FragilityFunction(RVS=RVS)
+    FF = FragilityFunction(EDP_limit=RVS)
 
     # same EDP 10^5 times to allow for P_exc-based testing
     for target_EDP in [0., 0.75, 2.0]:
@@ -237,18 +241,19 @@ def test_FragilityFunction_DSG_ID_given_EDP_general():
         DSG_ID = FF.DSG_given_EDP(EDP, force_resampling=False)
 
         # calculate the DSG_ID probabilities
-        P_DS_test = \
-        np.histogram(DSG_ID.values, bins=np.arange(5) - 0.5, density=True)[0]
+        P_DS_test = np.histogram(DSG_ID.values, 
+                                 bins=np.arange(5) - 0.5, density=True)[0]
 
         # use the P_exc function to arrive at the reference DSG_ID probabilities
-        P_exc = np.asarray(
-            list(map(lambda x: FF.P_exc(np.exp(target_EDP), x), [0, 1, 2, 3])))
+        P_exc = np.asarray(list(map(lambda x: FF.P_exc(np.exp(target_EDP), x), 
+                                    [0, 1, 2, 3])))
         P_DS_ref = np.concatenate([P_exc[:-1] - P_exc[1:], [P_exc[-1], ]])
 
         # compare
-        assert_allclose(P_DS_test, P_DS_ref, atol=0.01)
+        assert_allclose(P_DS_test, P_DS_ref, atol=0.02)
 
-    # random set of EDPs uniformly distributed over the several different domains
+    # random set of EDPs uniformly distributed over the several different 
+    # domains
     for a, b in [[-1., -0.9], [1., 1.1], [-1., 1.]]:
         EDP = np.exp(np.random.uniform(a, b, 100000))
 
@@ -264,16 +269,16 @@ def test_FragilityFunction_DSG_ID_given_EDP_general():
         P_exc_f = np.asarray(
             list(map(lambda x: FF.P_exc(EDP, x), [0, 1, 2, 3])))
 
-        # Calculate the area enclosed by the two functions that define each DS - that should be the same as the P_DS from the test
-        CDF = [p - np.max(P_exc_f[i + 1:], axis=0) for i, p in
-               enumerate(P_exc_f[:3])]
+        # Calculate the area enclosed by the two functions that define each DS 
+        # it should be the same as the P_DS from the test
+        CDF = [p - np.max(P_exc_f[i + 1:], axis=0) 
+               for i, p in enumerate(P_exc_f[:3])]
         CDF.append(P_exc_f[-1])
         CDF = np.asarray(CDF)
-        P_DS_ref = np.asarray(list(
-            map(lambda x: np.trapz(CDF[x], np.log(EDP)), [0, 1, 2, 3]))) / (
-                           b - a)
+        P_DS_ref = np.asarray(list(map(lambda x: np.trapz(CDF[x], np.log(EDP)), 
+                                       [0, 1, 2, 3]))) / (b - a)
 
-        assert_allclose(P_DS_test, P_DS_ref, atol=0.01)
+        assert_allclose(P_DS_test, P_DS_ref, atol=0.02)
 
 def test_FragilityFunction_DSG_given_EDP_insufficient_samples():
     """
@@ -288,7 +293,7 @@ def test_FragilityFunction_DSG_given_EDP_insufficient_samples():
 
     # assign it to the fragility function
     RVS = RandomVariableSubset(RV=RV, tags=['A'])
-    FF = FragilityFunction(RVS=RVS)
+    FF = FragilityFunction(EDP_limit=RVS)
 
     # sample 10 realizations
     RVS.sample_distribution(10)

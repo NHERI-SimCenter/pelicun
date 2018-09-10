@@ -57,7 +57,7 @@ quantification in pelicun.
 import warnings
 import numpy as np
 import pandas as pd
-from scipy.stats import multivariate_normal, multinomial, kde
+from scipy.stats import norm, truncnorm, multivariate_normal, multinomial, kde
 from scipy.optimize import minimize
 from copy import deepcopy
 
@@ -84,14 +84,14 @@ def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
         Lower bound(s) for the truncated distributions. A scalar value can be
         used for a univariate case, while a list of bounds is expected in
         multivariate cases. If the distribution is non-truncated from below
-        in a subset of the dimensions, use either `None` or assign an infinite 
-        value (i.e. -numpy.inf) to those dimensions.
+        in a subset of the dimensions, assign an infinite value 
+        (i.e. -numpy.inf) to those dimensions.
     upper: float vector, optional, default: None
         Upper bound(s) for the truncated distributions. A scalar value can be
         used for a univariate case, while a list of bounds is expected in
         multivariate cases. If the distribution is non-truncated from above
-        in a subset of the dimensions, use either `None` or assign an infinite 
-        value (i.e. numpy.inf) to those dimensions.
+        in a subset of the dimensions, assign an infinite value 
+        (i.e. numpy.inf) to those dimensions.
     size: int
         Number of samples requested.
 
@@ -616,6 +616,20 @@ class RandomVariable(object):
         equals the variance (not the standard deviation!) of the distribution.
         The COV for lognormal variables is assumed to be specified in 
         logarithmic space. 
+    corr_ref: {'pre', 'post'}, optional, default: 'pre'
+        Determines whether the correlations prescribed by the covariance matrix
+        refer to the distribution functions before or after truncation. The 
+        default 'pre' setting assumes that pre-truncation correlations are
+        prescribed and creates a multivariate normal distribution using the
+        COV matrix. That distribution is truncated according to the prescribed
+        truncation limits. The other option assumes that post-truncation 
+        correlations are prescribed. The post-truncation distribution
+        is not multivariate normal in general. Currently we use a Gaussian 
+        copula to describe the dependence between the truncated variables.
+        Similarly to other characteristics, the `corr_ref` can be defined as a 
+        single string, or a vector of strings. The former assigns the same
+        option to all dimensions, while the latter allows for more flexible
+        assignment by setting the corr_ref for each dimension individually. 
     p_set: float vector, optional, default: None
         Probabilities of a finite set of events described by a multinomial
         distribution. The RV will have binomial distribution if only one
@@ -638,7 +652,7 @@ class RandomVariable(object):
     def __init__(self, ID, dimension_tags,
                  raw_data=None, detection_limits=None, censored_count=None,
                  distribution_kind=None,
-                 theta=None, COV=None, p_set=None,
+                 theta=None, COV=None, corr_ref='pre', p_set=None,
                  truncation_limits=None):
 
         self._ID = ID
@@ -676,6 +690,8 @@ class RandomVariable(object):
             if COV is not None:
                 COV = np.asarray(COV)
             self._COV = COV
+            
+            self._corr_ref = np.asarray(corr_ref)
     
             if p_set is not None:
                 p_set = np.asarray(p_set)
@@ -684,13 +700,17 @@ class RandomVariable(object):
                 self._ndim = 1
             self._p_set = p_set
             
-            self._truncation_limits = self._convert_limits(truncation_limits)
+            tr_limits = self._convert_limits(truncation_limits)
+            self._tr_limits_pre, self._tr_limits_post = \
+                self._create_pre_post_tr_limits(tr_limits)
                 
         else:
             self._theta = None
             self._COV = None
+            self._corr_ref = corr_ref
             self._p_set = None
-            self._truncation_limits = self._convert_limits(None)
+            self._tr_limits_pre = self._convert_limits(None)
+            self._tr_limits_post = deepcopy(self._tr_limits_pre)
 
         # perform some basic checks to make sure that the provided data will be
         # sufficient to define a random variable
@@ -756,6 +776,47 @@ class RandomVariable(object):
             limits = limits.astype(np.float64)
         
         return limits
+    
+    def _create_pre_post_tr_limits(self, truncation_limits):
+        """
+        Separates the truncation limits into two groups: (i) `pre` truncation 
+        limits apply to distributions where the correlations refer to the
+        joint distribution before truncation; (ii) `post` truncation limits 
+        apply to distributions after truncation. Truncation in the latter case
+        is applied differently, hence the need to separate the two types of 
+        modifications.
+    
+        """
+        if (truncation_limits is not None) and (hasattr(self, '_ndim')):
+            tr_lower, tr_upper = truncation_limits
+            CR = self._corr_ref
+                
+            # a single value or identical values means one setting 
+            # applies to all dims
+            if (CR.size == 1) or (np.unique(CR).size==1):
+                if CR.size > 1:
+                    CR = CR[0]
+                if CR == 'pre':
+                    trl_pre = deepcopy(truncation_limits)
+                    trl_post = None
+                elif CR == 'post':
+                    trl_pre = None
+                    trl_post = deepcopy(truncation_limits)
+            else:
+                # otherwise assign the appropriate limits to each dim
+                tr_lower_pre, tr_lower_post = -np.ones((2,self._ndim))*np.inf 
+                tr_upper_pre, tr_upper_post = np.ones((2,self._ndim))*np.inf
+                tr_lower_pre[CR=='pre'] = tr_lower[CR=='pre']
+                tr_upper_pre[CR == 'pre'] = tr_upper[CR == 'pre']
+                tr_lower_post[CR == 'post'] = tr_lower[CR == 'post']
+                tr_upper_post[CR=='post'] = tr_upper[CR=='post']
+                
+                trl_pre = np.asarray([tr_lower_pre, tr_upper_pre])
+                trl_post = np.asarray([tr_lower_post, tr_upper_post])
+        else:
+            trl_pre, trl_post =  None, None
+        
+        return trl_pre, trl_post
     
     def _move_to_log(self, raw_data, distribution_list):
         """
@@ -904,39 +965,79 @@ class RandomVariable(object):
                                      self._distribution_kind)
 
     @property
-    def truncation_limits(self):
+    def tr_limits_pre(self):
         """
-        Return the truncation limits of the probability distribution in linear
-        space.
+        Return the `pre` truncation limits of the probability distribution in 
+        linear space.
 
         """
         # this is very simple for now
-        return self._truncation_limits
+        return self._tr_limits_pre
 
     @property
-    def tr_lower(self):
+    def tr_limits_post(self):
         """
-        Return the lower truncation limit(s) corresponding to the distribution 
-        in either linear or log space according to the distribution.
+        Return the `post` truncation limits of the probability distribution in 
+        linear space.
 
         """
-        if self._truncation_limits is None:
+        # this is very simple for now
+        return self._tr_limits_post
+
+    @property
+    def tr_lower_pre(self):
+        """
+        Return the lower `pre` truncation limit(s) corresponding to the 
+        distribution in either linear or log space according to the 
+        distribution.
+
+        """
+        if self._tr_limits_pre is None:
             return None
         else:
-            return self._move_to_log(self._truncation_limits[0],
+            return self._move_to_log(self._tr_limits_pre[0],
                                      self._distribution_kind)
 
     @property
-    def tr_upper(self):
+    def tr_upper_pre(self):
         """
-        Return the upper truncation limit(s) corresponding to the distribution
-        in either linear or log space according to the distribution.
+        Return the upper `pre` truncation limit(s) corresponding to the 
+        distribution in either linear or log space according to the 
+        distribution.
 
         """
-        if self._truncation_limits is None:
+        if self._tr_limits_pre is None:
             return None
         else:
-            return self._move_to_log(self._truncation_limits[1],
+            return self._move_to_log(self._tr_limits_pre[1],
+                                     self._distribution_kind)
+
+    @property
+    def tr_lower_post(self):
+        """
+        Return the lower `post` truncation limit(s) corresponding to the 
+        distribution in either linear or log space according to the 
+        distribution.
+
+        """
+        if self._tr_limits_post is None:
+            return None
+        else:
+            return self._move_to_log(self._tr_limits_post[0],
+                                     self._distribution_kind)
+
+    @property
+    def tr_upper_post(self):
+        """
+        Return the upper `post` truncation limit(s) corresponding to the 
+        distribution in either linear or log space according to the 
+        distribution.
+
+        """
+        if self._tr_limits_post is None:
+            return None
+        else:
+            return self._move_to_log(self._tr_limits_post[1],
                                      self._distribution_kind)
     
     @property
@@ -1014,7 +1115,7 @@ class RandomVariable(object):
             tr_lower = self._move_to_log(tr_lower, distribution_kind)
             tr_upper = self._move_to_log(tr_upper, distribution_kind)
         else:
-            tr_lower, tr_upper = [None, None]
+            tr_lower, tr_upper = None, None
         
         # perform the parameter estimation
         mu, COV = tmvn_MLE(data,
@@ -1031,7 +1132,7 @@ class RandomVariable(object):
         
         # store the distribution properties
         self._distribution_kind = distribution_kind
-        self._truncation_limits = truncation_limits
+        self._tr_limits_pre = truncation_limits
         
         return theta, COV
                     
@@ -1041,9 +1142,15 @@ class RandomVariable(object):
         
         Normal distributions (including truncated and/or multivariate normal 
         and lognormal) are sampled using the tmvn_rvs() method in this module.
-        Multinomial distributions are sampled using the multinomial method in
-        scipy. The samples are returned and also stored in the `sample` 
-        attribute of the RV.
+        If post-truncation correlations are set for a dimension, the 
+        corresponding truncations are enforced after sampling by first applying 
+        probability integral transformation to transform samples from the 
+        non-truncated normal to standard uniform distribution, and then 
+        applying inverse probability integral transformation to transform the
+        samples from standard uniform to the desired truncated normal 
+        distribution. Multinomial distributions are sampled using the 
+        multinomial method in scipy. The samples are returned and also stored 
+        in the `sample` attribute of the RV.
         
         Parameters
         ----------
@@ -1059,6 +1166,8 @@ class RandomVariable(object):
 
         if ((self._distribution_kind.shape == ()) and
             (self._distribution_kind == 'multinomial')):
+            
+            # sampling the multinomial distribution
             samples = multinomial.rvs(1, self._p_set, size=sample_size)
 
             # convert the 2D sample array into a vector of integers
@@ -1067,12 +1176,27 @@ class RandomVariable(object):
             samples = pd.DataFrame(np.transpose(samples), 
                                    columns=self._dimension_tags)
         else:
-            raw_samples = tmvn_rvs(mu=self.mu, COV=self.COV, 
-                                   lower=self.tr_lower, 
-                                   upper=self.tr_upper,
+            # sampling the truncated multivariate normal distribution
+            raw_samples = tmvn_rvs(mu=self.mu, COV=self.COV,
+                                   lower=self.tr_lower_pre,
+                                   upper=self.tr_upper_pre,
                                    size=sample_size)
+            raw_samples = np.transpose(raw_samples)
             
-            samples = self._return_from_log(np.transpose(raw_samples),
+            # enforce post-truncation correlations if needed
+            if self.tr_limits_post is not None:
+                lower, upper = self.tr_lower_post, self.tr_upper_post
+                for dim in range(self._ndim):
+                    if (lower[dim] > -np.inf) or (upper[dim]<np.inf):
+                        mu = self.mu[dim]
+                        sig = np.sqrt(self.COV[dim,dim])
+                        samples_U = norm.cdf(raw_samples[dim],loc=mu,scale=sig)
+                        raw_samples[dim] = truncnorm.ppf(
+                            samples_U, loc=mu, scale=sig,
+                            a = (lower[dim]-mu)/sig, b=(upper[dim]-mu)/sig)
+            
+            # transform samples back from log space if needed
+            samples = self._return_from_log(raw_samples,
                                             self._distribution_kind)
             
             samples = pd.DataFrame(data=np.transpose(samples), 
@@ -1118,16 +1242,16 @@ class RandomVariable(object):
         """
 
         # get the orthotope density within the truncation limits
-        if (self.tr_lower is None) and (self.tr_upper is None):
+        if (self.tr_lower_pre is None) and (self.tr_upper_pre is None):
             alpha_0 = 1.
         else:
-            alpha_0, __ = mvn_orthotope_density(self.mu, self.COV, 
-                                            self.tr_lower, self.tr_upper)
+            alpha_0, __ = mvn_orthotope_density(self.mu, self.COV,
+                                                self.tr_lower_pre, self.tr_upper_pre)
         
         # merge the specified limits with the pre-defined truncation limits
         lower, upper = self._convert_limits([lower, upper])
-        if self.truncation_limits is not None:
-            lower_lim, upper_lim = self.truncation_limits
+        if self.tr_limits_pre is not None:
+            lower_lim, upper_lim = self.tr_limits_pre
         else:
             lower_lim, upper_lim = None, None
         

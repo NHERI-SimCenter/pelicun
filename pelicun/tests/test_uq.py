@@ -367,7 +367,7 @@ def test_MVN_MLE_baseline():
     # multi-dimensional case
     dims = 3
     ref_mean = np.arange(dims, dtype=np.float64)
-    ref_std = np.ones(dims) * 0.25
+    ref_std = np.ones(dims) * 0.5
     ref_rho = np.ones((dims, dims)) * 0.5
     np.fill_diagonal(ref_rho, 1.0)
     ref_COV = np.outer(ref_std, ref_std) * ref_rho
@@ -378,7 +378,7 @@ def test_MVN_MLE_baseline():
     test_std = np.sqrt(test_COV.diagonal())
     test_rho = test_COV/np.outer(test_std,test_std)
 
-    assert_allclose(test_mu, ref_mean, atol=0.15)
+    assert_allclose(test_mu, ref_mean, atol=0.3)
     assert_allclose(test_std**2., ref_std**2., rtol=0.5)
     assert_allclose(test_rho, ref_rho, atol=0.3)
     
@@ -546,7 +546,7 @@ def test_MVN_MLE_truncated_and_censored():
                        det_lower=det_lower, det_upper=det_upper)
 
     assert ref_mean == pytest.approx(mu, abs=0.1)
-    assert ref_var == pytest.approx(var, rel=0.3)
+    assert ref_var == pytest.approx(var, rel=0.5)
 
     # multi-dimensional case
     dims = 3
@@ -730,7 +730,7 @@ def test_RandomVariable_truncation_limit_conversion():
                              [[-np.inf, 1.], [-1., np.inf], [-1., 1.]]):
         parameters['truncation_limits'] = tl
         RV = RandomVariable(**parameters)
-        for lim, target_lim in zip(RV._truncation_limits, target_tl):
+        for lim, target_lim in zip(RV._tr_limits_pre, target_tl):
             assert lim == target_lim
             
     # multivariate
@@ -748,7 +748,7 @@ def test_RandomVariable_truncation_limit_conversion():
                               [[-1., -np.inf], [np.inf, 2.]]]):
         parameters['truncation_limits'] = tl
         RV = RandomVariable(**parameters)
-        for lim_list, target_lim_list in zip(RV._truncation_limits, target_tl):
+        for lim_list, target_lim_list in zip(RV._tr_limits_pre, target_tl):
             for lim, target_lim in zip(lim_list, target_lim_list):
                 assert lim == target_lim
 
@@ -850,32 +850,69 @@ def test_RandomVariable_simple_attributes():
     """
     # create a random variable with censored data
     censored_count = 3
-    detection_limits = [0,4]
+    detection_limits = [0, 4]
     dimension_tags = ['A']
-    RV = RandomVariable(ID=1, dimension_tags = dimension_tags, 
-                        raw_data=[1,2,3],
-                        censored_count =censored_count, 
+    RV = RandomVariable(ID=1, dimension_tags=dimension_tags,
+                        raw_data=[1, 2, 3],
+                        censored_count=censored_count,
                         detection_limits=detection_limits)
-    
+
     assert RV.censored_count == censored_count
     assert RV.dimension_tags == dimension_tags
     assert RV.det_lower == detection_limits[0]
     assert RV.det_upper == detection_limits[1]
-    assert RV.tr_lower == None
-    assert RV.tr_upper == None
+    assert RV.tr_lower_pre == None
+    assert RV.tr_upper_pre == None
     assert_allclose(RV.detection_limits, detection_limits)
-    
+
     # create a random variable with pre-defined truncated distribution
-    truncation_limits = [0,4]
-    RV = RandomVariable(ID=1, dimension_tags=['A'], 
+    truncation_limits = [0, 4]
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
                         distribution_kind='normal', theta=0.5, COV=0.25,
                         truncation_limits=truncation_limits)
 
     assert RV.det_lower == None
     assert RV.det_upper == None
-    assert RV.tr_lower == truncation_limits[0]
-    assert RV.tr_upper == truncation_limits[1]
-    assert_allclose(RV.truncation_limits, truncation_limits)
+    assert RV.tr_lower_pre == truncation_limits[0]
+    assert RV.tr_upper_pre == truncation_limits[1]
+    assert_allclose(RV.tr_limits_pre, truncation_limits)
+    assert RV.tr_lower_post == None
+    assert RV.tr_upper_post == None
+    assert RV.tr_limits_post == None
+
+    # create a bivariate distribution with post-truncation correlation
+    truncation_limits = [[0, None], [4, None]]
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='normal',
+                        theta=[0.5, 0.5], COV=np.ones((2, 2)), corr_ref='post',
+                        truncation_limits=truncation_limits)
+
+    assert RV.det_lower == None
+    assert RV.det_upper == None
+    assert RV.tr_lower_pre == None
+    assert RV.tr_upper_pre == None
+    assert RV.tr_limits_pre == None
+    assert_allclose(RV.tr_lower_post, [0., -np.inf])
+    assert_allclose(RV.tr_upper_post, [4., np.inf])
+    assert_allclose(RV.tr_limits_post, [[0., -np.inf], [4., np.inf]])
+
+    # create a bivariate distribution with mixed pre and post truncation 
+    # correlation
+    truncation_limits = [[0., -1.], [4., 5.]]
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='normal',
+                        theta=[0.5, 0.5], COV=np.ones((2, 2)),
+                        corr_ref=['post', 'pre'],
+                        truncation_limits=truncation_limits)
+
+    assert RV.det_lower == None
+    assert RV.det_upper == None
+    assert_allclose(RV.tr_lower_pre, [-np.inf, -1])
+    assert_allclose(RV.tr_upper_pre, [np.inf, 5])
+    assert_allclose(RV.tr_limits_pre, [[-np.inf, -1], [np.inf, 5]])
+    assert_allclose(RV.tr_lower_post, [0., -np.inf])
+    assert_allclose(RV.tr_upper_post, [4., np.inf])
+    assert_allclose(RV.tr_limits_post, [[0., -np.inf], [4., np.inf]])
 
 
 def test_RandomVariable_fit_distribution_simple():
@@ -1200,6 +1237,192 @@ def test_RandomVariable_sample_distribution_mixed_normal():
 
     assert_allclose(np.mean(samples, axis=0), ref_mean, atol=0.2)
     assert_allclose(np.cov(samples, rowvar=False), ref_COV, atol=0.2)
+    
+def test_RandomVariable_sample_distribution_pre_and_post_truncation():
+    """
+    Test if the truncation limits are applied appropriately for pre- and 
+    post-truncation correlation settings.
+
+    """
+    # two extreme cases are tested: uncorrelated and perfectly correlated
+    for r_i, rho in enumerate([0., 1.]):
+        # multivariate case
+        dims = 3
+        ref_mean = np.ones(dims) * 2.
+        ref_std = np.ones(dims) * 1.00
+        ref_rho = np.ones((dims, dims)) * rho
+        np.fill_diagonal(ref_rho, 1.0)
+        ref_COV = np.outer(ref_std, ref_std) * ref_rho
+    
+        # prepare the truncation limits
+        a = [-0.25, -np.inf, -1.5]
+        b = [np.inf, 1.0, 1.5]
+        tr_lower = (ref_mean + ref_std * a).tolist()
+        tr_upper = (ref_mean + ref_std * b).tolist()
+    
+        # three types of corr_ref settings are tested:
+        # 1) every variable is pre-truncated
+        # 2) every variable is post-truncated
+        # 3) mixed truncation
+        for c_i, corr_ref in enumerate([
+            ['pre', 'pre', 'pre'],
+            ['post', 'post', 'post'],
+            ['post', 'pre', 'post']]):
+
+            # variable 1 is assumed to have lognormal distribution
+            tr_lower[1] = np.exp(tr_lower[1])
+            tr_upper[1] = np.exp(tr_upper[1])
+            ref_mean[1] = np.exp(ref_mean[1])
+            
+            RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
+                                distribution_kind=['normal', 'lognormal', 
+                                                   'normal'],
+                                theta=ref_mean, COV=ref_COV,
+                                corr_ref = corr_ref,
+                                truncation_limits=[tr_lower, tr_upper])
+            RVS = RandomVariableSubset(RV=RV, tags=1)
+        
+            samples = RV.sample_distribution(1000)
+        
+            # make sure that the samples attribute of the RV works as intended
+            assert_allclose(samples, RV.samples)
+            assert_allclose(samples[1], RVS.samples)
+        
+            # then check if resampling through RVS works well
+            sample_size = 100
+            RVS.sample_distribution(sample_size)
+            old_diff = (RVS.samples - samples[1].iloc[:sample_size]).abs().sum()
+            new_diff = (RVS.samples - RV.samples[1].iloc[:sample_size]).abs().sum()
+        
+            assert old_diff > 0
+            assert new_diff == 0
+        
+            # transfer the samples and reference values back to log space
+            samples[1] = np.log(samples[1])
+            ref_mean[1] = np.log(ref_mean[1])
+            tr_lower[1] = np.log(max(np.nextafter(0,1),tr_lower[1]))
+            tr_upper[1] = np.log(tr_upper[1])
+            
+            if r_i == 0:
+                # Means and standard deviations in the uncorrelated case shall
+                # shall be equal to those from a corresponding univariate 
+                # truncated normal distribution
+                ref_samples = np.asarray(list(map(
+                    lambda x: truncnorm.rvs(a=x[0], b=x[1], loc=x[2],
+                                            scale=x[3], size=1000),
+                    zip(a, b, ref_mean, ref_std))))
+                ref_mean_trunc = np.mean(ref_samples, axis=1)
+                ref_std_trunc = np.std(ref_samples, axis=1)
+                assert_allclose(np.mean(samples, axis=0), ref_mean_trunc,
+                                atol=0.1)
+                assert_allclose(np.std(samples, axis=0), ref_std_trunc,
+                                atol=0.1)
+                # zero correlations shall not be influenced by the truncation
+                assert_allclose(np.corrcoef(samples, rowvar=False), 
+                                ref_rho, atol=0.1)
+                
+                # also make sure that the minimum and maximum of the samples
+                # are within the truncation limits
+                assert np.all(np.min(samples, axis=0) > tr_lower)
+                assert np.all(np.max(samples, axis=0) < tr_upper)
+            
+            elif r_i == 1:
+                # results under perfect correlation depend on the corr_ref 
+                # setting
+                if c_i == 0:
+                    # The pre-truncated setting will force every variable 
+                    # between the narrowest of the prescribed truncation 
+                    # limits. Their distribution will be an identical truncated 
+                    # normal (because their means and variances were identical 
+                    # originally).
+                    ref_samples = truncnorm.rvs(a=max(a), b=min(b),
+                                                loc=ref_mean[0],
+                                                scale=ref_std[0], size=1000)
+                    ref_mean_trunc = np.mean(ref_samples)
+                    ref_std_trunc = np.std(ref_samples)
+                    assert_allclose(np.mean(ref_samples, axis=0),
+                                    ref_mean_trunc, atol=0.1)
+                    assert_allclose(np.std(ref_samples, axis=0), ref_std_trunc,
+                                    atol=0.1)
+                    
+                    # all samples shall be within the stringest of the limits
+                    assert np.all(np.min(samples, axis=0) > max(tr_lower))
+                    assert np.all(np.max(samples, axis=0) < min(tr_upper))
+                    
+                    # the perfect correlation shall be properly represented
+                    assert_allclose(np.corrcoef(samples, rowvar=False), ref_rho,
+                                    atol=0.1)
+                
+                elif c_i == 1:
+                    # The post-truncated setting will let every component
+                    # respect its own limits and the marginal distributions
+                    # will follow the corresponding truncated normal 
+                    # distribution. However, the correlations are also 
+                    # preserved. Due to the truncation, the relationship 
+                    # between components is no longer linear. This leads to a 
+                    # correlation coefficient below 1, but higher than 0.85 
+                    # in this case.
+                    ref_samples = np.asarray(list(map(
+                        lambda x: truncnorm.rvs(a=x[0], b=x[1], loc=x[2],
+                                                scale=x[3], size=1000),
+                        zip(a, b, ref_mean, ref_std))))
+                    ref_mean_trunc = np.mean(ref_samples, axis=1)
+                    ref_std_trunc = np.std(ref_samples, axis=1)
+                    assert_allclose(np.mean(samples, axis=0), ref_mean_trunc,
+                                    atol=0.1)
+                    assert_allclose(np.std(samples, axis=0), ref_std_trunc,
+                                    atol=0.1)
+                    # zero correlations shall not be influenced by the truncation
+                    assert_allclose(np.corrcoef(samples, rowvar=False),
+                                    ref_rho, atol=0.1)
+                    # also make sure that the minimum and maximum of the samples
+                    # are within the truncation limits
+                    assert np.all(np.min(samples, axis=0) > tr_lower)
+                    assert np.all(np.max(samples, axis=0) < tr_upper)
+                elif c_i == 2:
+                    # The mixed pre- and post-truncated setting first enforces 
+                    # the truncation of component 2 on every other component,
+                    # and then transforms component 1 and 3 from normal to 
+                    # their truncated normal distribution. 
+                    
+                    # Component 2 will have a truncated normal distribution
+                    # similar to c_i==0 case:
+                    ref_samples = truncnorm.rvs(a=a[1], b=b[1],
+                                                loc=ref_mean[1],
+                                                scale=ref_std[1],
+                                                size=1000)
+                    assert np.mean(ref_samples) == pytest.approx(
+                        np.mean(samples[1]),
+                        abs=0.1)
+                    assert np.std(ref_samples) == pytest.approx(
+                        np.std(samples[1]),
+                        abs=0.1)
+                    # its samples shall be within its own truncation limits
+                    assert np.min(samples[1]) > tr_lower[1]
+                    assert np.max(samples[1]) < tr_upper[1]
+                    
+                    # The other two components have their distribution 
+                    # truncated twice
+                    ppf_limits = norm.cdf([a[1], b[1]], loc=0., scale=1.)
+                    for comp in [0, 2]:
+                        new_limits = truncnorm.ppf(ppf_limits, a=a[comp],
+                                                   b=b[comp], loc=0., scale=1.)
+                        ref_samples = truncnorm.rvs(a=new_limits[0],
+                                                    b=new_limits[1],
+                                                    loc=ref_mean[comp],
+                                                    scale=ref_std[comp],
+                                                    size=1000)
+
+                        assert np.mean(ref_samples) == pytest.approx(
+                            np.mean(samples[comp]), abs=0.1)
+                        assert np.std(ref_samples) == pytest.approx(
+                            np.std(samples[comp]), abs=0.1)
+                        
+                        # samples shall be within the new_limits
+                        assert np.min(samples[comp]) > \
+                               ref_mean[comp]+ref_std[comp]*new_limits[0]
+                        assert np.max(samples[comp]) < \
+                               ref_mean[comp]+ref_std[comp]*new_limits[1]
     
 def test_RandomVariable_sample_distribution_multinomial():
     """
