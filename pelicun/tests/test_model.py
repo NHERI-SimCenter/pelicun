@@ -484,7 +484,7 @@ def test_ConsequenceFunction_sample_unit_DV_insufficient_samples():
 # ------------------------------------------------------------------------------
 # Damage State
 # ------------------------------------------------------------------------------
-def test_damage_state_weight():
+def test_DamageState_weight():
     """
     Test if the damage state returns the assigned weight value.
     """
@@ -493,7 +493,7 @@ def test_damage_state_weight():
     assert DS.weight == 0.4
 
 
-def test_damage_state_description():
+def test_DamageState_description():
     """
     Test if the damage state returns the assigned description. 
     """
@@ -503,7 +503,7 @@ def test_damage_state_description():
     assert DS.description == ref_str
 
 
-def test_damage_state_repair_cost_sampling():
+def test_DamageState_repair_cost_sampling():
     """
     Test if the repair cost consequence function is properly linked to the 
     damage state and if it returns the requested samples.
@@ -537,7 +537,7 @@ def test_damage_state_repair_cost_sampling():
     assert_allclose(test_vals, ref_medians, rtol=1e-4)
 
 
-def test_damage_state_reconstruction_time_sampling():
+def test_DamageState_reconstruction_time_sampling():
     """
     Test if the reconstruction time consequence function is properly linked to 
     the damage state and if it returns the requested samples.
@@ -571,7 +571,7 @@ def test_damage_state_reconstruction_time_sampling():
 
     assert_allclose(test_vals, ref_medians, rtol=1e-4)
 
-def test_damage_state_red_tag_sampling():
+def test_DamageState_red_tag_sampling():
     """
     Test if the red tag consequence function is properly linked to the damage 
     state and if it returns the requested samples.
@@ -606,7 +606,7 @@ def test_damage_state_red_tag_sampling():
     assert np.max(test_vals) < 1.
 
 
-def test_damage_state_injury_sampling():
+def test_DamageState_injury_sampling():
     """
     Test if the set of injury consequence functions is properly linked to the 
     damage state and if it returns the requested samples.
@@ -662,7 +662,7 @@ def test_damage_state_injury_sampling():
 # ------------------------------------------------------------------------------
 # Damage State Group
 # ------------------------------------------------------------------------------
-def test_damage_state_group_description():
+def test_DamageStateGroup_description():
     """
     Test if the damage state group returns the assigned description. 
     """
@@ -673,23 +673,12 @@ def test_damage_state_group_description():
     assert DSG.description == ref_str
 
 # ------------------------------------------------------------------------------
-# Fragility Group
+# Performance Group
 # ------------------------------------------------------------------------------
-def test_fragility_group_description():
-    """
-    Test if the fragility group returns the assigned description. 
-    """
-    ref_str = 'Test description.'
-    FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
-                        description=ref_str, DSG_set=None, 
-                        fragility_function=None)
 
-    assert FG.description == ref_str
-    
-
-def test_fragility_group_Pexc():
+def test_PerformanceGroup_Pexc():
     """
-    Test if the fragility group returns exceedance probabilities from the 
+    Test if the performance group returns exceedance probabilities from the 
     assigned fragility function for a given damage state group appropriately.
     """
     # create the fragility function
@@ -701,10 +690,20 @@ def test_fragility_group_Pexc():
     # create two damage state groups
     DSG_0 = DamageStateGroup(ID=1, DS_set=None, DS_set_kind='single')
     DSG_1 = DamageStateGroup(ID=2, DS_set=None, DS_set_kind='single')
+    
+    # create a random quantity variable
+    QNT = RandomVariableSubset(
+        RandomVariable(
+            ID=2, dimension_tags='Q_A', 
+            distribution_kind='normal',
+            theta=100., COV=100.), 
+        tags='Q_A'
+    )
 
     # create the fragility group
-    FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
-                        DSG_set=[DSG_0, DSG_1], fragility_function=FF)
+    FG = PerformanceGroup(ID=1, location=1, quantity=QNT,
+                          fragility_function=FF,
+                          DSG_set=[DSG_0, DSG_1])
 
     EDP = np.linspace(0.1, 0.9, 9)
 
@@ -716,3 +715,16 @@ def test_fragility_group_Pexc():
                     rtol=1e-10)
     assert_allclose(FG.P_exc(EDP, DSG_ID=2), FG.P_exc(EDP, DSG_ID=2),
                     rtol=1e-10)
+
+# ------------------------------------------------------------------------------
+# Fragility Group
+# ------------------------------------------------------------------------------
+def test_FragilityGroup_description():
+    """
+    Test if the fragility group returns the assigned description. 
+    """
+    ref_str = 'Test description.'
+    FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
+                        description=ref_str)
+
+    assert FG.description == ref_str

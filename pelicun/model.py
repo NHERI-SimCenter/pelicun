@@ -609,6 +609,88 @@ class DamageStateGroup(object):
         Return the damage state group description.
         """
         return self._description
+    
+class PerformanceGroup(object):
+    """
+    A group of similar components that experience the same demands.
+    
+    FEMA P-58: Performance Groups (PGs) are a sub-categorization of fragility 
+    groups. A performance group is a subset of fragility group components that 
+    are subjected to the same demands (e.g. story drift, floor acceleration, 
+    etc.).
+    
+    In buildings, most performance groups shall be organized by story level. 
+    There is no need to separate performance groups by direction, because the
+    direction of components within a group can be specified during definition,
+    and it will be taken into consideration in the analysis. 
+    
+    Parameters
+    ----------
+    ID: int
+    location: int
+        Identifies the location of the components that belong to the PG. In a 
+        building, location shall typically refer to the story of the building.
+        The location assigned to each PG shall be in agreement with the 
+        locations assigned to the Demand objects.
+    quantity: RandomVariableSubset
+        Specifies the quantity of components that belong to this PG. 
+        Uncertainty in component quantities is considered by assigning a 
+        random variable to this property. 
+    fragility_function: FragilityFunction
+        The fragility function describes the probability that the damage in 
+        a component will meet or exceed the damages described by each
+        damage state group in the DSG_set. This is a multi-dimensional function
+        if there is more than one DSG.
+    DSG_set: DamageStateGroup array
+        A set of sequential Damage State Groups that describe the plausible set
+        of damage states of the components in the FG.
+    proportions: float ndarray, optional, default: [1.0]
+        Identifies subgroups of components within a PG, each of which have
+        perfectly correlated behavior. Correlation between the damage and
+        consequences among subgroups is controlled by the `correlation` 
+        parameter of the FragilityGroup that the PG belongs to. Note that if
+        the components are assumed to have perfectly correlated behavior at the 
+        PG level, assigning several subgroups to the PG is unnecessary. The
+        proportions shall be a list of weights that are applied to the quantity
+        of components to define the amount of components in each subgroup. The
+        sum of assigned weights shall be 1.0.
+    directions: int ndarray, optional, default: [0]
+        Identifies the direction of each subgroup of components within the PG.
+        The number of directions shall be identical to the number of 
+        proportions assigned. In buildings, directions typically correspond to 
+        the orientation of components in plane. Hence, using 0 or 1 to identify 
+        'X' or 'Y' is recommended. These directions shall be in agreement with 
+        the directions assigned to Demand objects. 
+    """
+    
+    def __init__(self, ID, location, quantity, fragility_function, DSG_set,
+                 proportions=[1.0], directions=[0]):
+        self._ID = ID
+        self._location = location
+        self._quantity = quantity
+        self._FF = fragility_function
+        self._DSG_set = DSG_set
+        self._proportions = proportions
+        self._directions = directions
+        
+    def P_exc(self, EDP, DSG_ID):
+        """
+        This is a convenience function that provides a shortcut to 
+        fragility_function.P_exc(). It calculates the exceedance probability 
+        of a given DSG conditioned on the provided EDP value(s).
+
+        Parameters
+        ----------
+        EDP: float scalar or ndarray
+            Single EDP or numpy array of EDP values.
+
+        Returns
+        -------
+        P_exc: float scalar or ndarray
+            Exceedance probability of the given DSG at the EDP point(s).
+        """
+        return self._FF.P_exc(EDP, DSG_ID)
+    
 
 class FragilityGroup(object):
     """
@@ -627,14 +709,6 @@ class FragilityGroup(object):
     demand_type: {'PID', 'PFA', 'PSD', 'PSA', 'ePGA', 'PGD'}
         The type of Engineering Demand Parameter (EDP) that controls the damage 
         of the components in the FG. See Demand for acronym descriptions.
-    DSG_set: DamageStateGroup array
-        A set of sequential Damage State Groups that describe the plausible set
-        of damage states of the components in the FG.
-    fragility_function: FragilityFunction
-        The fragility function describes the probability that the damage in 
-        the component will meet or exceed the damages described by the each
-        damage state group in the DSG_set. This is a multi-dimensional function
-        if there is more than one DSG.
     directional: bool, optional, default: True
         Determines whether the components in the FG are sensitive to the 
         directionality of the EDP.   
@@ -660,14 +734,12 @@ class FragilityGroup(object):
         Provides a short description of the fragility group.
     """
 
-    def __init__(self, ID, kind, demand_type, DSG_set, fragility_function,
+    def __init__(self, ID, kind, demand_type,
                  directional=True, correlation=True, demand_location_offset=0,
                  incomplete=False, description=''):
         self._ID = ID
         self._kind = kind
         self._demand_type = demand_type
-        self._DSG_set = DSG_set
-        self._FF = fragility_function
         self._directional = directional
         self._correlation = correlation
         self._demand_location_offset = demand_location_offset
@@ -680,21 +752,3 @@ class FragilityGroup(object):
         Return the fragility group description.
         """
         return self._description
-    
-    def P_exc(self, EDP, DSG_ID):
-        """
-        This is a convenience function that provides a shortcut to 
-        fragility_function.P_exc(). It calculates the exceedance probability 
-        of a given DSG conditioned on the provided EDP value(s).
-
-        Parameters
-        ----------
-        EDP: float scalar or ndarray
-            Single EDP or numpy array of EDP values.
-
-        Returns
-        -------
-        P_exc: float scalar or ndarray
-            Exceedance probability of the given DSG at the EDP point(s).
-        """
-        return self._FF.P_exc(EDP, DSG_ID)
