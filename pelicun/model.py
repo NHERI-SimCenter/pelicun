@@ -188,6 +188,7 @@ class FragilityFunction(object):
                 'function.')
 
         samples = self._EDP_limit.samples
+        
         EDP = pd.Series(EDP, name='EDP')
 
         nstates = samples.columns.values.size
@@ -200,145 +201,121 @@ class FragilityFunction(object):
         for s in range(nstates):
             DSG_ID[EXC.iloc[:,s]] = s + 1
 
-        return DSG_ID
-        
+        return DSG_ID[:nsamples]
+
+def prep_constant_median_DV(median):
+    """
+    Returns a constant median Decision Variable (DV) function.
+    
+    Parameters
+    ----------
+    median: float
+        The median DV for a consequence function with fixed median.
+
+    Returns
+    -------
+    f: callable
+        A function that returns the constant median DV for all component 
+        quantities.
+    """
+    def f(quantity):
+        return median
+    
+    return f
+
+def prep_bounded_linear_median_DV(median_max, median_min, quantity_lower,
+                                  quantity_upper):
+    """
+    Returns a bounded linear median Decision Variable (DV) function.
+    
+    The median DV equals the min and max values when the quantity is
+    outside of the prescribed quantity bounds. When the quantity is within the
+    bounds, the returned median is calculated by a linear function with a 
+    negative slope between max and min values.
+    
+    Parameters
+    ----------
+    median_max: float, optional
+    median_min: float, optional
+        Minimum and maximum limits that define the bounded_linear median DV 
+        function.
+    quantity_lower: float, optional
+    quantity_upper: float, optional
+        Lower and upper bounds of component quantity that define the 
+        bounded_linear median DV function.
+
+    Returns
+    -------
+    f: callable
+        A function that returns the median DV given the quantity of damaged 
+        components.
+    """
+    def f(quantity):
+        if quantity is None:
+            raise ValueError(
+                'A bounded linear median Decision Variable function called '
+                'without specifying the quantity of damaged components')
+
+        q_array = np.asarray(quantity, dtype=np.float64)
+
+        # calculate the median consequence given the quantity of damaged
+        # components
+        output = np.interp(q_array,
+                           [quantity_lower, quantity_upper],
+                           [median_max, median_min])
+
+        return output
+    
+    return f
+    
 class ConsequenceFunction(object):
     """
-    Describes the relationship between damage and consequence.
+    Describes the relationship between damage and a decision variable.
     
-    Indicates the distribution of quantified consequences of a component, an
-    element, or the system reaching a given damage state (DS). Consequences 
-    can be reconstruction cost, repair time, casualties, injuries, etc. Their
-    distribution might depend on the quantity of damaged components. 
-
+    Indicates the distribution of a quantified Decision Variable (DV) 
+    conditioned on a component, an element, or the system reaching a given 
+    damage state (DS). DV can be reconstruction cost, repair time, casualties, 
+    injuries, etc. Its distribution might depend on the quantity of damaged 
+    components.
+    
     Parameters
     ----------
 
-    median_kind: {'fixed','bounded_linear'}
-        The fixed option corresponds to a consequence distribution with a fixed 
-        median value; in the bounded_linear case the median is a linear 
-        function of the component quantity within maximum and minimum bounds
-        with a negative slope.
-    standardized_consequence: RandomVariableSubset
-        A one-dimensional random variable (subset) that characterizes the 
-        uncertainty in the consequence quantity. It is 'standardized' because
-        it describes the deviation from the median normalized by the standard
-        deviation. If this consequence is not dependent on other variables,
-        a standard normal (or lognormal) distribution shall be used 
-    distribution_kind: {'normal', 'lognormal','truncated_normal'}
-        The probability distribution of the consequence quantities. The 
-        'truncated_normal' shall be used when a lower or upper limit is 
-        desired. An example of such a case is the evaluation of red tag 
-        probability.
-    standard_deviation: float, optional
-        The standard deviation or the logarithmic standard deviation of the 
-        distribution of consequence quantities.
-    coefficient_of_variation: float, optional
-        The coefficient of variation of the distribution of consequence 
-        quantities. This option is only available for normal distributions.
-    median: float, optional
-        The median consequence value for cases with fixed median.
-    median_max: float, optional
-    median_min: float, optional
-        Minimum and maximum consequence limits that define the bounded_linear 
-        median consequence function.
-    quantity_lower_bound: float, optional
-    quantity_upper_bound: float, optional
-        Lower and upper bounds of component quantity that define the 
-        bounded_linear median consequence function.
-    min_value: float, optional
-        Lower bound of consequence values for the truncated_normal distribution
-        function
-    max_value: float, optional
-        Upper bound of consequence values for the truncated_normal
-        distribution function.
+    DV_median: callable
+        Describes the median DV as an f(quantity) function of the total 
+        quantity of damaged components. Use the prep_constant_median_DV, and 
+        prep_bounded_linear_median_DV helper functions to conveniently 
+        prescribe the typical FEMA P-58 functions.
+    DV_distribution: RandomVariableSubset
+        A one-dimensional random variable (or a one-dimensional subset of a 
+        multi-dimensional random variable) that characterizes the uncertainty 
+        in the DV. The distribution shall be normalized by the median DV (i.e. 
+        the RVS is expected to have a unit median). Truncation can be used to 
+        prescribe lower and upper limits for the DV, such as the (0,1) domain 
+        needed for red tag evaluation.
+    
     """
 
-    def __init__(self, median_kind, distribution_kind,
-                 standard_deviation=None, coefficient_of_variation=None,
-                 median=None, median_max=None, median_min=None,
-                 quantity_lower_bound=None, quantity_upper_bound=None,
-                 min_value=-np.inf, max_value=np.inf):
+    def __init__(self, DV_median, DV_distribution):
 
-        self._median_kind = median_kind
-        self._distribution_kind = distribution_kind
-        self._std = standard_deviation
-        self._cov = coefficient_of_variation
-        self._median = median
-        self._median_max = median_max
-        self._median_min = median_min
-        self._quantity_lower_bound = quantity_lower_bound
-        self._quantity_upper_bound = quantity_upper_bound
-        self._max_value = max_value
-        self._min_value = min_value
-
-        # perform some basic checks
-        if self._median_kind == 'fixed' and self._median is None:
-            raise ValueError(
-                "The value of 'median' needs to be specified for a consequence "
-                "function with 'fixed' median."
-            )
-
-        if (self._median_kind == 'bounded_linear'
-            and (
-                self._median_max is None
-                or self._median_min is None
-                or self._quantity_lower_bound is None
-                or self._quantity_upper_bound is None
-            )
-        ):
-            raise ValueError(
-                "The values of 'median_max', 'median_min', "
-                "'quantity_lower_bound', and 'quantity_upper_bound' needs to be"
-                "specified for a consequence function with 'bounded_linear'"
-                "median."
-            )
-
-        if (self._distribution_kind != 'truncated_normal'
-            and (
-                self._max_value != np.inf
-                or self._min_value != -np.inf
-            )
-        ):
-            raise ValueError(
-                "The 'max_value' and 'min_value' parameters are only allowed "
-                "for consequence functions with a truncated normal "
-                "distribution."
-            )
-
-        if (self._std is None and self._cov is None):
-            raise ValueError(
-                "Either the standard deviation or the coefficient of variation"
-                "of the consequence distribution needs to be specified."
-            )
-
-        if (self._std is not None and self._cov is not None):
-            raise ValueError(
-                "Only one of the (standard deviation, coefficient of variation)"
-                "pair can be specified to avoid contradicting values."
-            )
-
-        if (self._distribution_kind == 'lognormal' and self._cov is not None):
-            raise ValueError(
-                "The dispersion of lognormally distributed consequence "
-                "quantities needs to be specified using their standard "
-                "deviation."
-            )
+        self._DV_median = DV_median
+        self._DV_distribution = DV_distribution
 
     def median(self, quantity=None):
         """
-        Return the median consequence value.
+        Return the value of the median DV.
 
-        The median consequence corresponds to the component damage state (DS). 
-        If the consequence depends on the quantity of damaged components, the 
-        total quantity shall be specified through the quantity parameter.
+        The median DV corresponds to the component damage state (DS). If the 
+        damage consequence depends on the quantity of damaged components, the 
+        total quantity of damaged components shall be specified through the 
+        quantity parameter.
 
         Parameters
         ----------
         quantity: float scalar or ndarray, optional
             Total quantity of damaged components that determines the magnitude 
-            of median consequence. Not needed for consequence functions with
-            a fixed median.
+            of median DV. Not needed for consequence functions with a fixed 
+            median DV.
 
         Returns
         -------
@@ -347,88 +324,85 @@ class ConsequenceFunction(object):
             the shape of the quantity parameter for bounded_linear median.
 
         """
-        if self._median_kind == 'fixed':
-            return self._median
+        return self._DV_median(quantity)
 
-        elif self._median_kind == 'bounded_linear':
-
-            if quantity is None:
-                raise ValueError(
-                    'Consequence function with bounded linear median called '
-                    'without specifying the quantity of damaged components')
-
-            q_array = np.asarray(quantity, dtype=np.float64)
-
-            # calculate the median consequence given the quantity of damaged
-            # components
-            output = np.interp(
-                q_array,
-                [self._quantity_lower_bound, self._quantity_upper_bound],
-                [self._median_max, self._median_min])
-
-            return output
-
-    def unit_consequence(self, quantity=None, sample_size=None):
+    def sample_unit_DV(self, quantity=None, sample_size=None, 
+                       force_resampling=False):
         """
-        Sample the consequence distribution and return a unit consequence.
+        Sample the decision variable quantity per component unit.
 
-        The unit consequence corresponds to the component damage state (DS). 
-        It shall be multiplied by the quantity of damaged components. If the 
-        consequence depends on the quantity of damaged components, the total
-        quantity shall be specified through the quantity parameter.
+        The Unit Decision Variable (UDV) corresponds to the component Damage 
+        State (DS). It shall be multiplied by the quantity of damaged 
+        components to get the total DV that corresponds to the quantity of the
+        damaged components in the asset. If the DV depends on the total 
+        quantity of damaged components, that value shall be specified through 
+        the quantity parameter.
 
         Parameters
         ----------
         quantity: float scalar or ndarray, optional, default: None
             Total quantity of damaged components that determines the magnitude 
-            of median consequence. Not needed for consequence functions with
-            a fixed median.
+            of median DV. Not needed for consequence functions with a fixed 
+            median DV.
         sample_size: int, optional, default: None
-            Number of samples drawn from the consequence distribution. The
-            default value yields one sample.
+            Number of samples drawn from the DV distribution. The default value 
+            yields one sample. If quantity is an array with more than one 
+            element, the sample_size parameter is ignored.
+        force_resampling: bool, optional, default: False
+            If True, the DV distribution (and the corresponding RV if there 
+            are correlations) is resampled even if there are samples already 
+            available. This is not recommended if the DV distribution is 
+            correlated with other sources of uncertainty because those 
+            variables will also be resampled in this case. If False, which is 
+            the default approach, we assume that the random variable has 
+            already been sampled and the number of samples is greater or equal 
+            to the number of samples requested.
 
         Returns
         -------
-        unit_consequence: float scalar or ndarray
-            Unit consequence samples.
+        unit_DV: float scalar or ndarray
+            Unit DV samples.
 
         """
+        # get the median DV conditioned on the provided quantities
+        quantity = np.asarray(quantity)
         median = self.median(quantity=quantity)
 
-        if type(median) is np.ndarray:
-            if sample_size is not None:
-                sample_size = (sample_size, *median.shape)
-            else:
-                sample_size = median.shape
-            # print(sample_size)
-
-        if self._std is not None:
-            stdev = self._std
-        else:
-            stdev = self._cov * median
-
-        if self._distribution_kind == 'lognormal':
-            median = np.log(median)
-
-        output = truncnorm.rvs(a=(self._min_value - median) / stdev,
-                               b=(self._max_value - median) / stdev,
-                               loc=median,
-                               scale=stdev,
-                               size=sample_size,
-                               )
-
-        if self._distribution_kind == 'lognormal':
-            return np.exp(output)
-        else:
-            return output
+        # if there are more than one quantities defined, infer the number of 
+        # samples from the number of quantities
+        if quantity.size > 1:
+            sample_size = quantity.size
+        
+        # if there are no samples or resampling is forced, then sample the 
+        # distribution first
+        if (force_resampling or 
+            (self._DV_distribution.samples is None)):
+            self._DV_distribution.sample_distribution(sample_size=sample_size)
+        
+        # if the number of samples is not sufficiently large, raise an error
+        if self._DV_distribution.samples.shape[0] < sample_size:
+            raise ValueError(
+                'Consequence evaluation requires at least as many samples of '
+                'the Decision Variable distribution as many samples are '
+                'requested or as many quantity values are provided to the '
+                'sample_unit_DV function. You might want to consider setting '
+                'force_resampling to True or sampling the distribution before '
+                'calling the sample_unit_DV function.')
+        
+        # get the samples
+        samples = self._DV_distribution.samples
+        samples = samples[:sample_size] * median
+        
+        return samples
 
 
 class DamageState(object):
     """
-    Characterizes one type of damage that corresponds to a particular Damage 
-    State Group (DSG). The occurrence of damage is evaluated at the DSG. The DS 
-    describes one of the possibly several types of damages that belong to the 
-    same DSG. 
+    Characterizes one type of damage that corresponds to a particular DSG. 
+    
+    The occurrence of damage is evaluated at the DSG. The DS describes one of 
+    the possibly several types of damages that belong to the same DSG and the
+    consequences of such damage. 
 
     Parameters
     ----------
@@ -495,9 +469,8 @@ class DamageState(object):
         Parameters
         ----------
         quantity: float scalar or ndarray, optional, default: None
-            Total quantity of damaged components that determines the magnitude
-            of median repair cost. Not used for repair cost models with fixed
-            median.
+            Total quantity of damaged components that determines the median 
+            repair cost. Not used for repair cost models with fixed median.
         sample_size: int, optional, default: None
             Number of samples drawn from the repair cost distribution. The 
             default value yields one sample.
@@ -508,8 +481,8 @@ class DamageState(object):
             Unit repair cost samples.
 
         """
-        output = self._repair_cost_CF.unit_consequence(quantity=quantity,
-                                                       sample_size=sample_size)
+        output = self._repair_cost_CF.sample_unit_DV(quantity=quantity,
+                                                     sample_size=sample_size)
 
         return output
 
@@ -538,7 +511,7 @@ class DamageState(object):
             Unit reconstruction time samples.
 
         """
-        output = self._reconstruction_time_CF.unit_consequence(
+        output = self._reconstruction_time_CF.sample_unit_DV(
             quantity=quantity,
             sample_size=sample_size)
 
@@ -564,7 +537,7 @@ class DamageState(object):
             Samples of damaged component proportions that trigger a red tag.
 
         """
-        output = self._red_tag_CF.unit_consequence(sample_size=sample_size)
+        output = self._red_tag_CF.sample_unit_DV(sample_size=sample_size)
 
         return output
 
@@ -594,17 +567,18 @@ class DamageState(object):
 
         """
         CF = self._injuries_CF_set[severity_level]
-        output = CF.unit_consequence(sample_size=sample_size)
+        output = CF.sample_unit_DV(sample_size=sample_size)
 
         return output
 
 
 class DamageStateGroup(object):
     """
-    Collects component damages that are controlled by the same kind of EDP and 
-    occur at the same EDP magnitude. The damages are characterized by Damage
-    States (DS). A Damage State Group (DSG) might have only a single DS in the
-    simplest case.
+    A set of similar component damages that are controlled by the same EDP.
+     
+    Damages are described in detail by the set of Damage State objects. 
+    Damages in a DSG are assumed to occur at the same EDP magnitude. A Damage 
+    State Group (DSG) might have only a single DS in the simplest case.
 
     Parameters
     ----------
@@ -617,20 +591,16 @@ class DamageStateGroup(object):
         that the occurrence of one DS precludes the occurrence of another DS.
         In such a case, the weights of the DS in the set shall sum up to 1.0.
         In a 'simultaneous' case the DS are independent and unrelated. Hence,
-        they can occur at the same time and at least one of them has to occur.
-    fragility_function: FragilityFunction
-        This fragility function describes the probability that the damage in 
-        the component will meet or exceed the damages described by the DS_set. 
+        they can occur at the same time and at least one of them has to occur. 
     description: str, optional, default: ''
         Provides a short description of the damage state group.
     """
 
-    def __init__(self, ID, DS_set, DS_set_kind, fragility_function,
+    def __init__(self, ID, DS_set, DS_set_kind,
                  description=''):
         self._ID = ID
         self._DS_set = DS_set
         self._DS_set_kind = DS_set_kind
-        self._fragility_function = fragility_function
         self._description = description
 
     @property
@@ -640,27 +610,10 @@ class DamageStateGroup(object):
         """
         return self._description
 
-    def P_exc(self, EDP):
-        """
-        This is a convenience function that provides a shortcut to 
-        fragility_function.P_exc(). It calculates the DSG exceedance 
-        probability given a particular EDP value.
-
-        Parameters
-        ----------
-        EDP: float scalar or ndarray
-            Single EDP or numpy array of EDP values.
-
-        Returns
-        -------
-        P_exc: float scalar or ndarray
-            DSG exceedance probability at the given EDP point(s).
-        """
-        return self._fragility_function.P_exc(EDP)
-
-
 class FragilityGroup(object):
     """
+    Groups a set of similar components from a loss-assessment perspective. 
+    
     Characterizes a set of structural or non-structural components that have
     similar construction characteristics, similar potential modes of damage,
     similar probability of incurring those modes of damage, and similar 
@@ -677,6 +630,11 @@ class FragilityGroup(object):
     DSG_set: DamageStateGroup array
         A set of sequential Damage State Groups that describe the plausible set
         of damage states of the components in the FG.
+    fragility_function: FragilityFunction
+        The fragility function describes the probability that the damage in 
+        the component will meet or exceed the damages described by the each
+        damage state group in the DSG_set. This is a multi-dimensional function
+        if there is more than one DSG.
     directional: bool, optional, default: True
         Determines whether the components in the FG are sensitive to the 
         directionality of the EDP.   
@@ -688,7 +646,7 @@ class FragilityGroup(object):
         state evaluated independently. Correlated damage reduces the required 
         computational effort for the calculation. Incorrect correlation 
         modeling will only slightly affect the mean estimates, but might 
-        significantly change their dispersion. 
+        significantly change the dispersion of results. 
     demand_location_offset: int, optional, default: 0
         Indicates if the location for the demand shall be different from the 
         location of the components. Damage to components of the ceiling, for 
@@ -702,13 +660,14 @@ class FragilityGroup(object):
         Provides a short description of the fragility group.
     """
 
-    def __init__(self, ID, kind, demand_type, DSG_set,
+    def __init__(self, ID, kind, demand_type, DSG_set, fragility_function,
                  directional=True, correlation=True, demand_location_offset=0,
                  incomplete=False, description=''):
         self._ID = ID
         self._kind = kind
         self._demand_type = demand_type
         self._DSG_set = DSG_set
+        self._FF = fragility_function
         self._directional = directional
         self._correlation = correlation
         self._demand_location_offset = demand_location_offset
@@ -721,3 +680,21 @@ class FragilityGroup(object):
         Return the fragility group description.
         """
         return self._description
+    
+    def P_exc(self, EDP, DSG_ID):
+        """
+        This is a convenience function that provides a shortcut to 
+        fragility_function.P_exc(). It calculates the exceedance probability 
+        of a given DSG conditioned on the provided EDP value(s).
+
+        Parameters
+        ----------
+        EDP: float scalar or ndarray
+            Single EDP or numpy array of EDP values.
+
+        Returns
+        -------
+        P_exc: float scalar or ndarray
+            Exceedance probability of the given DSG at the EDP point(s).
+        """
+        return self._FF.P_exc(EDP, DSG_ID)

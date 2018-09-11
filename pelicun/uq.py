@@ -1072,7 +1072,10 @@ class RandomVariable(object):
         a multi-dimensional distribution automatically. Data censoring is also
         automatically taken into consideration following the detection limits
         specified previously for the random variable. Truncated target 
-        distributions can be specified through the truncation limits.
+        distributions can be specified through the truncation limits. The 
+        specified truncation limits are applied after the correlations are set.
+        In other words, the corr_ref proprety of the RV is set to 'pre' when
+        fitting a distribution.
 
         Besides returning the parameter estimates, their values are also stored
         as theta and COV attributes of the RandomVariable object for future 
@@ -1130,6 +1133,8 @@ class RandomVariable(object):
         # store and return the parameters    
         self._theta = theta
         self._COV = COV
+        self._corr_ref = 'pre'
+        #TODO: implement 'post' corr_ref as an option for fitting
         
         # store the distribution properties
         self._distribution_kind = distribution_kind

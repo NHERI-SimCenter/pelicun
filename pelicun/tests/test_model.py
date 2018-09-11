@@ -309,130 +309,50 @@ def test_FragilityFunction_DSG_given_EDP_insufficient_samples():
 # Consequence_Function
 # ------------------------------------------------------------------------------
 
-def test_conseq_function_fixed_no_median_defined():
-    """
-    Test if the function raises an error when its median parameter is not 
-    specified.
-    """
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        with pytest.raises(ValueError) as e_info:
-            ConsequenceFunction(median_kind='fixed',
-                                distribution_kind=dist,
-                                standard_deviation=1.0)
-
-
-def test_conseq_function_fixed_both_std_and_cov_defined():
-    """
-    Test if the function raises an error when the dispersion of the quantities
-    is defined in two ways simultaneously.
-    """
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        with pytest.raises(ValueError) as e_info:
-            ConsequenceFunction(median_kind='fixed',
-                                distribution_kind=dist,
-                                standard_deviation=1.0,
-                                coefficient_of_variation=0.5,
-                                median=1.0)
-
-
-def test_conseq_function_fixed_neither_std_nor_cov_defined():
-    """
-    Test if the function raises an error when the dispersion of the quantities
-    is undefined.
-    """
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        with pytest.raises(ValueError) as e_info:
-            ConsequenceFunction(median_kind='fixed',
-                                distribution_kind=dist,
-                                median=1.0)
-
-
-def test_conseq_function_fixed_dispersion_with_cov():
-    """
-    Test if the function raises an error for lognormal distributions if the
-    dispersion is defined through cov, and if it works well for normal 
-    distributions.
-    """
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        parameters = dict(median_kind='fixed',
-                          distribution_kind=dist,
-                          coefficient_of_variation=0.3,
-                          median=1.0)
-        if dist == 'lognormal':
-            with pytest.raises(ValueError) as e_info:
-                ConsequenceFunction(**parameters)
-        else:
-            CF = ConsequenceFunction(**parameters)
-            assert CF.median() == 1.0
-
-
-def test_conseq_function_fixed_normal_median_value():
+def test_ConsequenceFunction_fixed_median_value():
     """
     Test if the function returns the prescribed median.
     """
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        conseq_function = ConsequenceFunction(median_kind='fixed',
-                                              distribution_kind=dist,
-                                              standard_deviation=1.0,
-                                              median=1.0)
-
+    for dist in ['normal', 'lognormal']:
+        RV = RandomVariable(ID=1, dimension_tags=['A'],
+                            distribution_kind=dist,
+                            theta=1.0, COV=1.0)
+        
+        conseq_function = ConsequenceFunction(
+            DV_median=prep_constant_median_DV(1.0),
+            DV_distribution=RandomVariableSubset(RV, 'A')
+        )
+        
         assert conseq_function.median() == 1.0
+        assert conseq_function.median(1.0) == 1.0
+        assert conseq_function.median([1., 1.]) == 1.0
 
 
-def test_conseq_function_bounded_linear_incorrect_definition():
-    """
-    Test if the function raises an error when at least one of its median 
-    function parameters is not specified.
-    """
-
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        parameters = dict(median_kind='bounded_linear', distribution_kind=dist,
-                          standard_deviation=1.0,
-                          quantity_lower_bound=1.,
-                          quantity_upper_bound=2.,
-                          median_max=2.,
-                          median_min=1.)
-        for missing_p in ['median_min', 'median_max',
-                          'quantity_lower_bound', 'quantity_upper_bound']:
-            test_p = deepcopy(parameters)
-            test_p[missing_p] = None
-            with pytest.raises(ValueError) as e_info:
-                ConsequenceFunction(**test_p)
-
-
-def test_conseq_function_bounded_linear_incorrect_median_query():
-    """
-    Test if the function returns an error when its median is requested without
-    specifying the quantity of damaged components.
-    """
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        conseq_function = ConsequenceFunction(median_kind='bounded_linear',
-                                              distribution_kind=dist,
-                                              standard_deviation=1.0,
-                                              median_min=1.0,
-                                              median_max=2.0,
-                                              quantity_lower_bound=1.0,
-                                              quantity_upper_bound=2.0)
-
-        with pytest.raises(ValueError) as e_info:
-            output = conseq_function.median()
-
-
-def test_conseq_function_bounded_linear_median_value():
+def test_ConsequenceFunction_bounded_linear_median_value():
     """
     Test if the function returns an appropriate output for single quantities 
-    and for quantity arrays.
+    and for quantity arrays, and if it raises an error if the quantity is not 
+    specified for a quantity-dependent median.
     """
     test_quants = [0.5, 1.0, 1.5, 2.0, 2.5]
     ref_vals = [2.0, 2.0, 1.5, 1.0, 1.0]
-    for dist in ['normal', 'lognormal', 'truncated_normal']:
-        conseq_function = ConsequenceFunction(median_kind='bounded_linear',
-                                              distribution_kind=dist,
-                                              standard_deviation=1.0,
-                                              median_min=1.0,
-                                              median_max=2.0,
-                                              quantity_lower_bound=1.0,
-                                              quantity_upper_bound=2.0)
+
+    for dist in ['normal', 'lognormal']:
+        RV = RandomVariable(ID=1, dimension_tags=['A'],
+                            distribution_kind=dist,
+                            theta=1.0, COV=1.0)
+        f_median = prep_bounded_linear_median_DV(
+            median_max=2.0, median_min=1.0,
+            quantity_lower=1.0, quantity_upper=2.0
+        )
+        conseq_function = ConsequenceFunction(
+            DV_median=f_median,
+            DV_distribution=RandomVariableSubset(RV, 'A')
+        )
+
+        # should raise an error if the quantity is not specified
+        with pytest.raises(ValueError) as e_info:
+            conseq_function.median()
 
         # single quantities
         for quant, ref_val in zip(test_quants, ref_vals):
@@ -443,196 +363,123 @@ def test_conseq_function_bounded_linear_median_value():
         assert_allclose(test_medians, ref_vals, rtol=1e-10)
 
 
-def test_conseq_function_min_max_values_incorrect_definition():
+def test_ConsequenceFunction_sample_unit_DV():
     """
-    Test if the function raises an error when the max_value or min_value 
-    parameter is specified for a non-truncated distribution type.
+    Test if the function samples the DV distribution properly. Note that we 
+    have already tested the sampling algorithm in the uq module, so we will not
+    do a thorough verification of the samples here, but rather check for errors
+    in the inputs that would typically lead to significant mistakes in the 
+    results.
     """
-    for dist in ['normal', 'lognormal']:
-        for max_val, min_val in zip([np.inf, 10., 10.], [0.5, 0., 0.5]):
-            with pytest.raises(ValueError) as e_info:
-                ConsequenceFunction(median_kind='fixed',
-                                    distribution_kind=dist,
-                                    standard_deviation=1.0,
-                                    median=1.0,
-                                    max_value=max_val,
-                                    min_value=min_val)
+    test_quants = [0.5, 1.0, 1.5, 2.0, 2.5]
 
+    # create a Random Variable with 3 correlated decision variables
+    dims = 3
+    ref_mean = [1., 1., 0.]
+    ref_std = [0.4, 0.3, 0.2]
+    ref_rho = np.ones((dims, dims)) * 0.8
+    np.fill_diagonal(ref_rho, 1.0)
+    ref_COV = np.outer(ref_std, ref_std) * ref_rho
 
-def test_conseq_function_min_max_values_correct_definition_median():
+    ref_mean[2] = np.exp(ref_mean[2])
+
+    # prepare lower truncation limits at 0 for all...
+    tr_lower = np.zeros(dims).tolist()
+    # and an upper limit at 2 sigma for the second
+    tr_upper = [np.inf, 1.6, np.inf]
+
+    # make sure the correlations are applied post-truncation
+    corr_ref = 'post'
+
+    RV = RandomVariable(ID=1, dimension_tags=['A', 'B', 'C'],
+                        distribution_kind=['normal', 'normal', 'lognormal'],
+                        corr_ref=corr_ref,
+                        theta=ref_mean, COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
+
+    # first test sampling for each decision variable
+    for r_i, tag in enumerate(['A', 'B', 'C']):
+
+        # use fixed value for 'B' and bounded linear for the other two
+        if tag == 'B':
+            f_median = prep_constant_median_DV(10.)
+        else:
+            f_median = prep_bounded_linear_median_DV(
+                median_max=20.0, median_min=2.0,
+                quantity_lower=1.0, quantity_upper=2.0
+            )
+
+        # create the consequence function
+        conseq_function = ConsequenceFunction(
+            DV_median=f_median,
+            DV_distribution=RandomVariableSubset(RV, tag)
+        )
+
+        for qnt in test_quants:
+            samples = conseq_function.sample_unit_DV(quantity=qnt,
+                                                     sample_size=1000,
+                                                     force_resampling=True)
+
+            # transform the results to log space for 'C' to facilitate testing
+            if tag == 'C':
+                samples = np.log(samples)
+                ref_mu = np.log(f_median(qnt))
+                ref_min = np.log(max(np.nextafter(0, 1), tr_lower[r_i]))
+                ref_max = np.log(max(np.nextafter(0, 1), tr_upper[r_i]))
+                a = (ref_min - np.log(ref_mean[r_i])) / ref_std[r_i]
+                b = (ref_max - np.log(ref_mean[r_i])) / ref_std[r_i]
+                ref_max = ref_mu * b
+            else:
+                ref_mu = f_median(qnt)
+                ref_min = tr_lower[r_i]
+                a = (ref_min - ref_mean[r_i]) / ref_std[r_i]
+                b = (tr_upper[r_i] - ref_mean[r_i]) / ref_std[r_i]
+                ref_max = ref_mu * b
+
+            trNorm = truncnorm(a=a, b=b, loc=ref_mu,
+                               scale=ref_std[r_i] if tag == 'C' 
+                               else ref_std[r_i] * ref_mu)
+            ref_samples = trNorm.rvs(size=1000)
+
+            # test the means and coefficients of variation
+            assert np.mean(samples) == pytest.approx(np.mean(ref_samples),
+                                                     rel=0.1)
+            assert np.std(samples) == pytest.approx(np.std(ref_samples),
+                                                    rel=0.1)
+
+            # test the limits
+            assert np.min(samples) > ref_min
+            assert np.max(samples) < ref_max
+
+            # verify that the correlation in the random variable follows the 
+            # prescribed correlation matrix
+            CORR_sample = RV.samples
+            CORR_sample['C'] = np.log(CORR_sample['C'])
+            assert_allclose(np.corrcoef(CORR_sample, rowvar=False),
+                            ref_rho, rtol=0.1)
+
+def test_ConsequenceFunction_sample_unit_DV_insufficient_samples():
     """
-    Test if the function returns a correct median when the max_value or 
-    min_value parameter is specified for a truncated distribution type.
+    Test if the function raises an error message if the number of samples 
+    requested is greater than the number of available samples from the RVS. 
+
     """
-    for max_val, min_val in zip([np.inf, 10., 10.], [0.5, 0., 0.5]):
-        CF = ConsequenceFunction(median_kind='fixed',
-                                 distribution_kind='truncated_normal',
-                                 standard_deviation=1.0,
-                                 median=1.0,
-                                 max_value=max_val,
-                                 min_value=min_val)
+    # create a simple random variable
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='lognormal',
+                        theta=1.0, COV=1.0)
 
-        assert CF.median() == 1.0
+    # assign it to the fragility function
+    RVS = RandomVariableSubset(RV=RV, tags=['A'])
+    CF = ConsequenceFunction(DV_median=prep_constant_median_DV(1.0),
+                             DV_distribution = RVS)
 
-
-def test_conseq_function_normal_samples():
-    """
-    Test if the function samples the consequence distribution properly for a
-    normal distribution with fixed median.
-    """
-    ref_median = 0.5
-    ref_stdev = 0.25
-
-    # first define the function using the standard deviation
-    CF = ConsequenceFunction(median_kind='fixed',
-                             distribution_kind='normal',
-                             standard_deviation=ref_stdev,
-                             median=ref_median)
-
-    # first check that the shape of the returned values is appropriate
-    # Note that if the median is fixed, then providing the quantity attribute
-    # shall not change the returned value.
-    assert CF.unit_consequence().shape == ()
-    assert CF.unit_consequence(quantity=[1.0]).shape == ()
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]]).shape == ()
-
-    assert CF.unit_consequence(sample_size=2).shape == (2,)
-    assert CF.unit_consequence(quantity=[1.0], sample_size=2).shape == (2,)
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]],
-                               sample_size=2).shape == (2,)
-
-    # then check if the distribution of the samples is appropriate
-    assert assert_normal_distribution(CF.unit_consequence,
-                                      ref_median, ref_stdev**2.)
-
-    # perform the same  distribution test with a CF defined through a 
-    # coefficient of variation
-    ref_cov = 0.5
-    CF = ConsequenceFunction(median_kind='fixed',
-                             distribution_kind='normal',
-                             coefficient_of_variation=ref_cov,
-                             median=ref_median)
-
-    assert assert_normal_distribution(CF.unit_consequence,
-                                      ref_median, ref_stdev**2.)
-
-    # test if the shape of the returned values is appropriate for a consequence
-    # function with bounded linear median
-    CF = ConsequenceFunction(median_kind='bounded_linear',
-                             distribution_kind='normal',
-                             standard_deviation=ref_stdev,
-                             median_min=ref_median - 1.,
-                             median_max=ref_median + 1.,
-                             quantity_lower_bound=1.0,
-                             quantity_upper_bound=2.0)
-
+    # sample 10 realizations
+    RVS.sample_distribution(10)
+    
+    # try to get the DSG_IDs... and expect an error
     with pytest.raises(ValueError) as e_info:
-        CF.unit_consequence()
-
-    assert CF.unit_consequence(quantity=[1.0]).shape == (1,)
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]]).shape == (
-    2, 2)
-
-    with pytest.raises(ValueError) as e_info:
-        CF.unit_consequence(sample_size=3)
-
-    assert CF.unit_consequence(quantity=[1.0], sample_size=3).shape == (3, 1)
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]],
-                               sample_size=3).shape == (3, 2, 2)
-
-
-def test_conseq_function_lognormal_samples():
-    """
-    Test if the function samples the consequence distribution properly for a
-    lognormal distribution with fixed median.
-    """
-    ref_median = 0.5
-    ref_stdev = 0.5
-    CF = ConsequenceFunction(median_kind='fixed',
-                             distribution_kind='lognormal',
-                             standard_deviation=ref_stdev,
-                             median=ref_median)
-
-    # first check that the shape of the returned values is appropriate
-    assert CF.unit_consequence().shape == ()
-    assert CF.unit_consequence(quantity=[1.0]).shape == ()
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]]).shape == ()
-
-    assert CF.unit_consequence(sample_size=2).shape == (2,)
-    assert CF.unit_consequence(quantity=[1.0], sample_size=2).shape == (2,)
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]],
-                               sample_size=2).shape == (2,)
-
-    # then check if the distribution of the samples is appropriate
-    assert assert_normal_distribution(
-        lambda sample_size: np.log(
-            CF.unit_consequence(sample_size=sample_size)),
-        np.log(ref_median), ref_stdev**2.)
-
-
-def test_conseq_function_truncated_normal_samples():
-    """
-    Test if the function samples the consequence distribution properly for a
-    truncated normal distribution with fixed median.
-    """
-    ref_median = 0.5
-    ref_stdev = 0.25
-
-    # Start with testing the truncated normal distribution using a very large
-    # range. This should produce a normal distribution and shall pass the tests
-    # designed for that case.
-    # first define the function using the standard deviation
-    CF = ConsequenceFunction(median_kind='fixed',
-                             distribution_kind='truncated_normal',
-                             standard_deviation=ref_stdev,
-                             median=ref_median,
-                             min_value=-1.e+10,
-                             max_value=1.e+10
-                             )
-
-    # first check that the shape of the returned values is appropriate
-    assert CF.unit_consequence().shape == ()
-    assert CF.unit_consequence(quantity=[1.0]).shape == ()
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]]).shape == ()
-
-    assert CF.unit_consequence(sample_size=2).shape == (2,)
-    assert CF.unit_consequence(quantity=[1.0], sample_size=2).shape == (2,)
-    assert CF.unit_consequence(quantity=[[1.0, 2.0], [1.0, 2.0]],
-                               sample_size=2).shape == (2,)
-
-    # then check if the distribution of the samples is appropriate
-    assert assert_normal_distribution(CF.unit_consequence,
-                                      ref_median, ref_stdev**2.)
-
-    # perform the same assertion with a CF defined using a coefficient of 
-    # variation
-    ref_cov = 0.5
-    CF = ConsequenceFunction(median_kind='fixed',
-                             distribution_kind='truncated_normal',
-                             coefficient_of_variation=ref_cov,
-                             median=ref_median,
-                             min_value=-1.e+10,
-                             max_value=1.e+10
-                             )
-
-    assert assert_normal_distribution(CF.unit_consequence,
-                                      ref_median, ref_stdev**2.)
-
-    # Next, test if the truncation works appropriately by creating a CF with
-    # much stricter bounds...
-    CF = ConsequenceFunction(median_kind='fixed',
-                             distribution_kind='truncated_normal',
-                             coefficient_of_variation=ref_cov,
-                             median=ref_median,
-                             min_value=0.25,
-                             max_value=0.75
-                             )
-
-    # and checking that the every generated sample is within those bounds
-    samples = CF.unit_consequence(sample_size=10000)
-    assert np.max(samples) <= 0.75
-    assert np.min(samples) >= 0.25
-
+        CF.sample_unit_DV(sample_size=100)
 
 # ------------------------------------------------------------------------------
 # Damage State
@@ -664,28 +511,30 @@ def test_damage_state_repair_cost_sampling():
 
     # create a consequence function (the small standard deviation facilitates
     # the assertion of the returned samples)
-    CF = ConsequenceFunction(median_kind='bounded_linear',
-                             distribution_kind='lognormal',
-                             standard_deviation=1e-6,
-                             median_min=1.0,
-                             median_max=2.0,
-                             quantity_lower_bound=10.0,
-                             quantity_upper_bound=20.0)
+    f_median = prep_bounded_linear_median_DV(
+        median_max=2.0, median_min=1.0,
+        quantity_lower=10.0, quantity_upper=20.0
+    )
+    
+    RV=RandomVariable(ID=1, dimension_tags=['A'],
+                      distribution_kind='lognormal',
+                      theta=1.0, COV=1e-10)
+    
+    CF = ConsequenceFunction(DV_median=f_median,
+                             DV_distribution=RandomVariableSubset(RV,'A'))
 
     # create a damage state and assign the CF to it
     DS = DamageState(ID=1, repair_cost_CF=CF)
 
     # sample the repair cost distribution
-    test_vals = DS.unit_repair_cost(quantity=[[10.0, 15.0, 20.0],
-                                              [20.0, 25.0, 5.0]],
+    test_vals = DS.unit_repair_cost(quantity=[5.0, 10.0, 15.0, 20.0, 25.0],
                                     sample_size=4)
 
-    assert test_vals.shape == (4, 2, 3)
+    assert test_vals.size == 5
 
-    ref_medians = np.asarray([[2.0, 1.5, 1.0], [1.0, 1.0, 2.0]])
+    ref_medians = np.asarray([2.0, 2.0, 1.5, 1.0, 1.0])
 
-    for sample in test_vals:
-        assert_allclose(sample, ref_medians, rtol=1e-4)
+    assert_allclose(test_vals, ref_medians, rtol=1e-4)
 
 
 def test_damage_state_reconstruction_time_sampling():
@@ -696,29 +545,31 @@ def test_damage_state_reconstruction_time_sampling():
 
     # create a consequence function (the small standard deviation facilitates
     # the assertion of the returned samples)
-    CF = ConsequenceFunction(median_kind='bounded_linear',
-                             distribution_kind='lognormal',
-                             standard_deviation=1e-6,
-                             median_min=1.0,
-                             median_max=2.0,
-                             quantity_lower_bound=10.0,
-                             quantity_upper_bound=20.0)
+    f_median = prep_bounded_linear_median_DV(
+        median_max=2.0, median_min=1.0,
+        quantity_lower=10.0, quantity_upper=20.0
+    )
+
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='lognormal',
+                        theta=1.0, COV=1e-10)
+
+    CF = ConsequenceFunction(DV_median=f_median,
+                             DV_distribution=RandomVariableSubset(RV, 'A'))
 
     # create a damage state and assign the CF to it
     DS = DamageState(ID=1, reconstruction_time_CF=CF)
 
-    # sample the reconstruction time distribution
-    test_vals = DS.unit_reconstruction_time(quantity=[[10.0, 15.0, 20.0],
-                                                      [20.0, 25.0, 5.0]],
-                                            sample_size=4)
+    # sample the repair cost distribution
+    test_vals = DS.unit_reconstruction_time(
+        quantity=[5.0, 10.0, 15.0, 20.0, 25.0],
+        sample_size=4)
 
-    assert test_vals.shape == (4, 2, 3)
+    assert test_vals.size == 5
 
-    ref_medians = np.asarray([[2.0, 1.5, 1.0], [1.0, 1.0, 2.0]])
+    ref_medians = np.asarray([2.0, 2.0, 1.5, 1.0, 1.0])
 
-    for sample in test_vals:
-        assert_allclose(sample, ref_medians, rtol=1e-4)
-
+    assert_allclose(test_vals, ref_medians, rtol=1e-4)
 
 def test_damage_state_red_tag_sampling():
     """
@@ -726,26 +577,33 @@ def test_damage_state_red_tag_sampling():
     state and if it returns the requested samples.
     """
 
-    # create a consequence function (the small standard deviation facilitates
-    # the assertion of the returned samples)
-    CF = ConsequenceFunction(median_kind='fixed',
-                             distribution_kind='truncated_normal',
-                             standard_deviation=1e-6,
-                             median=0.5,
-                             min_value=0.0,
-                             max_value=1.0)
+    # create a consequence function
+    f_median = prep_constant_median_DV(0.25)
+
+    RV = RandomVariable(ID=1, dimension_tags=['A'],
+                        distribution_kind='normal',
+                        theta=1.0, COV=1.0 ** 2.,
+                        truncation_limits=[0., 4.])
+
+    CF = ConsequenceFunction(DV_median=f_median,
+                             DV_distribution=RandomVariableSubset(RV, 'A'))
 
     # create a damage state and assign the CF to it
     DS = DamageState(ID=1, red_tag_CF=CF)
 
-    # sample the red tag distribution
-    test_vals = DS.unit_red_tag(sample_size=4)
+    # sample the repair cost distribution
+    test_vals = DS.unit_red_tag(sample_size=1000)
 
-    assert test_vals.shape == (4,)
+    assert test_vals.size == 1000
 
-    ref_medians = np.ones(4) * 0.5
+    # sample the reference truncated normal distribution and use the samples for testing
+    ref_samples = truncnorm.rvs(a=-1., b=3., loc=0.25, scale=0.25, size=1000)
 
-    assert_allclose(test_vals, ref_medians, rtol=1e-4)
+    assert np.mean(test_vals) == pytest.approx(np.mean(ref_samples), rel=0.1)
+    assert np.std(test_vals) == pytest.approx(np.std(ref_samples), rel=0.1)
+
+    assert np.min(test_vals) > 0.
+    assert np.max(test_vals) < 1.
 
 
 def test_damage_state_injury_sampling():
@@ -754,33 +612,52 @@ def test_damage_state_injury_sampling():
     damage state and if it returns the requested samples.
     """
 
-    # create two consequence functions (the small standard deviation facilitates
-    # the assertion of the returned samples)
-    CF_0 = ConsequenceFunction(median_kind='fixed',
-                               distribution_kind='truncated_normal',
-                               standard_deviation=1e-6,
-                               median=0.5, min_value=0.0, max_value=1.0)
+    # create two consequence functions that are correlated
+    ref_median = [0.5, 0.4]
+    ref_cov = np.asarray([0.5, 0.6])
+    ref_COV = np.outer(ref_cov, ref_cov)
+    ref_COV[0, 1] = ref_COV[0, 1] * 0.8
+    ref_COV[1, 0] = ref_COV[0, 1]
+    tr_lower = np.zeros(2)
+    tr_upper = 1. + ((np.ones(2) - ref_median) / ref_median)
 
-    CF_1 = ConsequenceFunction(median_kind='fixed',
-                               distribution_kind='truncated_normal',
-                               standard_deviation=1e-6,
-                               median=0.1, min_value=0.0, max_value=1.0)
+    f_median_0 = prep_constant_median_DV(ref_median[0])
+    f_median_1 = prep_constant_median_DV(ref_median[1])
+    RV = RandomVariable(ID=1, dimension_tags=['A', 'B'],
+                        distribution_kind='normal',
+                        corr_ref='post',
+                        theta=np.ones(2), COV=ref_COV,
+                        truncation_limits=[tr_lower, tr_upper])
 
-    # create a damage state and assign the CF to it
+    CF_0 = ConsequenceFunction(DV_median=f_median_0,
+                               DV_distribution=RandomVariableSubset(RV, 'A'))
+    CF_1 = ConsequenceFunction(DV_median=f_median_1,
+                               DV_distribution=RandomVariableSubset(RV, 'B'))
+
+    # create a damage state and assign the CF list to it
     DS = DamageState(ID=1, injuries_CF_set=[CF_0, CF_1])
 
-    # first, sample the distribution of lower injury severity
-    test_vals = DS.unit_injuries(severity_level=0, sample_size=4)
-    assert test_vals.shape == (4,)
-    ref_medians = np.ones(4) * 0.5
-    assert_allclose(test_vals, ref_medians, rtol=1e-4)
+    # sample the two types of injuries and check if the values are appropriate
+    for s_i in [0, 1]:
+        samples = DS.unit_injuries(severity_level=s_i, sample_size=10000)
+        assert samples.size == 10000
 
-    # then, sample the distribution of higher injury severity
-    test_vals = DS.unit_injuries(severity_level=1, sample_size=4)
-    assert test_vals.shape == (4,)
-    ref_medians = np.ones(4) * 0.1
-    assert_allclose(test_vals, ref_medians, rtol=1e-4)
+        # sample the reference truncated normal distribution and use the 
+        # samples for testing
+        ref_samples = truncnorm.rvs(a=(-1.) / ref_cov[s_i],
+                                    b=(tr_upper[s_i] - 1.) / ref_cov[s_i],
+                                    loc=ref_median[s_i],
+                                    scale=ref_cov[s_i] * ref_median[s_i],
+                                    size=1000)
 
+        assert np.mean(samples) == pytest.approx(np.mean(ref_samples), rel=0.1)
+        assert np.std(samples) == pytest.approx(np.std(ref_samples), abs=0.01)
+        assert np.min(samples) == pytest.approx(0., abs=0.05)
+        assert np.max(samples) == pytest.approx(1., abs=0.05)
+
+    # finally, check the correlation between A and B
+    test_corr = np.corrcoef(RV.samples, rowvar=False)[0, 1]
+    assert  test_corr == pytest.approx(0.8, rel=0.1)
 
 # ------------------------------------------------------------------------------
 # Damage State Group
@@ -791,28 +668,9 @@ def test_damage_state_group_description():
     """
     ref_str = 'Test description.'
     DSG = DamageStateGroup(ID=1, description=ref_str,
-                           DS_set=None, DS_set_kind='single',
-                           fragility_function=None)
+                           DS_set=None, DS_set_kind='single')
 
     assert DSG.description == ref_str
-
-'''
-def test_damage_state_group_fragility():
-    """
-    Test if the damage state group returns results from the assigned fragility
-    function.
-    """
-    FF = FragilityFunction(theta=0.5, beta=0.2)
-    DSG = DamageStateGroup(ID=1, DS_set=None, DS_set_kind='single',
-                           fragility_function=FF)
-
-    EDP = np.linspace(0.1, 0.9, 9)
-
-    for edp in EDP:
-        assert FF.P_exc(edp) == DSG.P_exc(edp)
-
-    assert_allclose(DSG.P_exc(EDP), FF.P_exc(EDP), rtol=1e-10)
-'''
 
 # ------------------------------------------------------------------------------
 # Fragility Group
@@ -823,6 +681,38 @@ def test_fragility_group_description():
     """
     ref_str = 'Test description.'
     FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
-                        description=ref_str, DSG_set=None)
+                        description=ref_str, DSG_set=None, 
+                        fragility_function=None)
 
     assert FG.description == ref_str
+    
+
+def test_fragility_group_Pexc():
+    """
+    Test if the fragility group returns exceedance probabilities from the 
+    assigned fragility function for a given damage state group appropriately.
+    """
+    # create the fragility function
+    RV = RandomVariable(ID=1, dimension_tags='A',
+                        distribution_kind='lognormal',
+                        theta=[0.5, 0.7], COV=np.ones((2, 2)) * 0.16)
+    FF = FragilityFunction(EDP_limit=RandomVariableSubset(RV, 'A'))
+
+    # create two damage state groups
+    DSG_0 = DamageStateGroup(ID=1, DS_set=None, DS_set_kind='single')
+    DSG_1 = DamageStateGroup(ID=2, DS_set=None, DS_set_kind='single')
+
+    # create the fragility group
+    FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
+                        DSG_set=[DSG_0, DSG_1], fragility_function=FF)
+
+    EDP = np.linspace(0.1, 0.9, 9)
+
+    for edp in EDP:
+        assert FF.P_exc(edp, DSG_ID=1) == FG.P_exc(edp, DSG_ID=1)
+        assert FF.P_exc(edp, DSG_ID=2) == FG.P_exc(edp, DSG_ID=2)
+
+    assert_allclose(FG.P_exc(EDP, DSG_ID=1), FG.P_exc(EDP, DSG_ID=1),
+                    rtol=1e-10)
+    assert_allclose(FG.P_exc(EDP, DSG_ID=2), FG.P_exc(EDP, DSG_ID=2),
+                    rtol=1e-10)

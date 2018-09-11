@@ -496,7 +496,7 @@ def test_MVN_MLE_truncated():
     np.fill_diagonal(ref_rho, 1.0)
     ref_COV = np.outer(ref_std, ref_std) * ref_rho
 
-    tr_lower = ref_mean - 0.5 * ref_std
+    tr_lower = ref_mean - 1.5 * ref_std
     tr_upper = ref_mean + 8.5 * ref_std
 
     tr_lower[2] = -np.inf
