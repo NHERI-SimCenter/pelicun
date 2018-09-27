@@ -45,7 +45,7 @@ This module has classes and methods that handle file input and output.
 .. autosummary::
 
     read_SimCenter_DL_input
-    read_SimCenter_UQ_input
+    read_SimCenter_EDP_input
     read_P58_population_distribution
     read_P58_component_data
     write_SimCenter_DL_output

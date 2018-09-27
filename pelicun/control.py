@@ -44,7 +44,8 @@ This module has classes and methods that control the loss assessment.
 
 .. autosummary::
 
-       
+    Assessment
+    FEMA_P58_Assessment
 
 """
 

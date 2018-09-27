@@ -15,6 +15,8 @@ Modules
 	:maxdepth: 1
 
 	pelicun.base
+	pelicun.control
+	pelicun.file_io
 	pelicun.model
 	pelicun.uq
 
