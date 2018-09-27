@@ -49,7 +49,11 @@ loss assessment.
     ConsequenceFunction
     DamageState
     DamageStateGroup
+    PerformanceGroup
     FragilityGroup
+    
+    prep_constant_median_DV
+    prep_bounded_linear_median_DV    
 
 """
 
@@ -189,19 +193,22 @@ class FragilityFunction(object):
 
         samples = self._EDP_limit.samples
         
-        EDP = pd.Series(EDP, name='EDP')
+        if type(EDP) not in [pd.Series, pd.DataFrame]:
+            EDP = pd.Series(EDP, name='EDP')
 
         nstates = samples.columns.values.size
+        
+        samples = samples.loc[EDP.index,:]
 
         EXC = samples.sub(EDP, axis=0) < 0.
 
-        DSG_ID = pd.Series(np.zeros(len(samples.index)), name='DSG_ID', 
-                        dtype=np.int)
+        DSG_ID = pd.Series(np.zeros(len(samples.index)), name='DSG_ID',
+                           index=samples.index, dtype=np.int)
 
         for s in range(nstates):
             DSG_ID[EXC.iloc[:,s]] = s + 1
 
-        return DSG_ID[:nsamples]
+        return DSG_ID
 
 def prep_constant_median_DV(median):
     """
@@ -326,7 +333,7 @@ class ConsequenceFunction(object):
         """
         return self._DV_median(quantity)
 
-    def sample_unit_DV(self, quantity=None, sample_size=None, 
+    def sample_unit_DV(self, quantity=None, sample_size=1, 
                        force_resampling=False):
         """
         Sample the decision variable quantity per component unit.
@@ -340,11 +347,11 @@ class ConsequenceFunction(object):
 
         Parameters
         ----------
-        quantity: float scalar or ndarray, optional, default: None
+        quantity: float scalar, ndarray or Series, optional, default: None
             Total quantity of damaged components that determines the magnitude 
             of median DV. Not needed for consequence functions with a fixed 
             median DV.
-        sample_size: int, optional, default: None
+        sample_size: int, optional, default: 1
             Number of samples drawn from the DV distribution. The default value 
             yields one sample. If quantity is an array with more than one 
             element, the sample_size parameter is ignored.
@@ -365,13 +372,19 @@ class ConsequenceFunction(object):
 
         """
         # get the median DV conditioned on the provided quantities
-        quantity = np.asarray(quantity)
-        median = self.median(quantity=quantity)
+        median = self.median(quantity=np.asarray(quantity))
 
         # if there are more than one quantities defined, infer the number of 
-        # samples from the number of quantities
-        if quantity.size > 1:
-            sample_size = quantity.size
+        # samples from the number of quantities           
+        if quantity is not None:
+            if type(quantity) not in [pd.Series, pd.DataFrame]:
+                quantity = pd.Series(quantity, name='QNT')
+            
+            if quantity.size > 1:
+                sample_size = quantity.size
+            elif sample_size > 1:
+                quantity = pd.Series(np.ones(sample_size) * quantity.values, 
+                                     name='QNT')
         
         # if there are no samples or resampling is forced, then sample the 
         # distribution first
@@ -390,8 +403,11 @@ class ConsequenceFunction(object):
                 'calling the sample_unit_DV function.')
         
         # get the samples
-        samples = self._DV_distribution.samples
-        samples = samples[:sample_size] * median
+        if quantity is not None:
+            samples = self._DV_distribution.samples.loc[quantity.index]
+        else:
+            samples = self._DV_distribution.samples.iloc[:sample_size]
+        samples = samples * median
         
         return samples
 
@@ -416,6 +432,8 @@ class DamageState(object):
         DS occur simultaneously, the sum of weights typically exceeds 1.0.
     description: str, optional
         Provides a short description of the damage state.
+    affected_area: float, optional, default: 0.
+        Defines the area over which life safety hazards from this DS exist.
     repair_cost_CF: ConsequenceFunction, optional
         A consequence function that describes the cost necessary to restore the
         component to its pre-disaster condition.    
@@ -436,13 +454,14 @@ class DamageState(object):
 
     def __init__(self, ID, weight=1.0, description='',
                  repair_cost_CF=None, reconstruction_time_CF=None,
-                 injuries_CF_set=None, red_tag_CF=None):
+                 injuries_CF_set=None, affected_area=0., red_tag_CF=None):
         self._ID = int(ID)
         self._weight = float(weight)
         self._description = description
         self._repair_cost_CF = repair_cost_CF
         self._reconstruction_time_CF = reconstruction_time_CF
         self._injuries_CF_set = injuries_CF_set
+        self._affected_area = affected_area
         self._red_tag_CF = red_tag_CF
 
     @property
@@ -459,7 +478,7 @@ class DamageState(object):
         """
         return self._weight
 
-    def unit_repair_cost(self, quantity=None, sample_size=None):
+    def unit_repair_cost(self, quantity=None, sample_size=1, **kwargs):
         """
         Sample the repair cost distribution and return the unit repair costs.
 
@@ -468,10 +487,10 @@ class DamageState(object):
 
         Parameters
         ----------
-        quantity: float scalar or ndarray, optional, default: None
+        quantity: float scalar, ndarray or Series, optional, default: None
             Total quantity of damaged components that determines the median 
             repair cost. Not used for repair cost models with fixed median.
-        sample_size: int, optional, default: None
+        sample_size: int, optional, default: 1
             Number of samples drawn from the repair cost distribution. The 
             default value yields one sample.
 
@@ -482,11 +501,13 @@ class DamageState(object):
 
         """
         output = self._repair_cost_CF.sample_unit_DV(quantity=quantity,
-                                                     sample_size=sample_size)
+                                                     sample_size=sample_size,
+                                                     **kwargs)
 
         return output
 
-    def unit_reconstruction_time(self, quantity=None, sample_size=None):
+    def unit_reconstruction_time(self, quantity=None, sample_size=1, 
+                                 **kwargs):
         """
         Sample the reconstruction time distribution and return the unit 
         reconstruction times.
@@ -497,11 +518,11 @@ class DamageState(object):
 
         Parameters
         ----------
-        quantity: float scalar or ndarray, optional, default: None
+        quantity: float scalar, ndarray or Series, optional, default: None
             Total quantity of damaged components that determines the magnitude
             of median reconstruction time. Not used for reconstruction time 
             models with fixed median.
-        sample_size: int, optional, default: None
+        sample_size: int, optional, default: 1
             Number of samples drawn from the reconstruction time distribution. 
             The default value yields one sample.
 
@@ -513,11 +534,11 @@ class DamageState(object):
         """
         output = self._reconstruction_time_CF.sample_unit_DV(
             quantity=quantity,
-            sample_size=sample_size)
+            sample_size=sample_size, **kwargs)
 
         return output
 
-    def unit_red_tag(self, sample_size=None):
+    def red_tag_dmg_limit(self, sample_size=1, **kwargs):
         """
         Sample the red tag consequence function and return the proportion of 
         components that needs to be damaged to trigger a red tag.
@@ -527,7 +548,7 @@ class DamageState(object):
 
         Parameters
         ----------
-        sample_size: int, optional, default: None
+        sample_size: int, optional, default: 1
             Number of samples drawn from the red tag consequence distribution. 
             The default value yields one sample.
 
@@ -537,11 +558,12 @@ class DamageState(object):
             Samples of damaged component proportions that trigger a red tag.
 
         """
-        output = self._red_tag_CF.sample_unit_DV(sample_size=sample_size)
+        output = self._red_tag_CF.sample_unit_DV(sample_size=sample_size, 
+                                                 **kwargs)
 
         return output
 
-    def unit_injuries(self, severity_level=0, sample_size=None):
+    def unit_injuries(self, severity_level=0, sample_size=1, **kwargs):
         """
         Sample the injury consequence function that corresponds to the 
         specified level of severity and return the injuries per component unit.
@@ -556,7 +578,7 @@ class DamageState(object):
         severity_level: int, optional, default: 1
             Identifies which injury consequence to sample. The indexing of 
             severity levels is zero-based.       
-        sample_size: int, optional, default: None
+        sample_size: int, optional, default: 1
             Number of samples drawn from the injury consequence distribution. 
             The default value yields one sample.
 
@@ -566,8 +588,11 @@ class DamageState(object):
             Unit injury samples.
 
         """
+
         CF = self._injuries_CF_set[severity_level]
-        output = CF.sample_unit_DV(sample_size=sample_size)
+        output = None
+        if CF is not None:
+            output = CF.sample_unit_DV(sample_size=sample_size, **kwargs)        
 
         return output
 
@@ -636,11 +661,12 @@ class PerformanceGroup(object):
         Specifies the quantity of components that belong to this PG. 
         Uncertainty in component quantities is considered by assigning a 
         random variable to this property. 
-    fragility_function: FragilityFunction
-        The fragility function describes the probability that the damage in 
-        a component will meet or exceed the damages described by each
-        damage state group in the DSG_set. This is a multi-dimensional function
-        if there is more than one DSG.
+    fragility_functions: FragilityFunction list
+        Each fragility function describes the probability that the damage in 
+        a subset of components will meet or exceed the damages described by 
+        each damage state group in the DSG_set. Each is a multi-dimensional 
+        function if there is more than one DSG. The number of functions shall
+        match the number of subsets defined by the `proportions` parameter.
     DSG_set: DamageStateGroup array
         A set of sequential Damage State Groups that describe the plausible set
         of damage states of the components in the FG.
@@ -663,12 +689,15 @@ class PerformanceGroup(object):
         the directions assigned to Demand objects. 
     """
     
-    def __init__(self, ID, location, quantity, fragility_function, DSG_set,
+    def __init__(self, ID, location, quantity, fragility_functions, DSG_set,
                  proportions=[1.0], directions=[0]):
         self._ID = ID
         self._location = location
         self._quantity = quantity
-        self._FF = fragility_function
+        if type(fragility_functions) == FragilityFunction:
+            self._FF_set = [fragility_functions,]
+        else:
+            self._FF_set = fragility_functions
         self._DSG_set = DSG_set
         self._proportions = proportions
         self._directions = directions
@@ -677,19 +706,23 @@ class PerformanceGroup(object):
         """
         This is a convenience function that provides a shortcut to 
         fragility_function.P_exc(). It calculates the exceedance probability 
-        of a given DSG conditioned on the provided EDP value(s).
+        of a given DSG conditioned on the provided EDP value(s). The fragility
+        functions assigned to the first subset are used for this calculation
+        because P_exc shall be identical among subsets.
 
         Parameters
         ----------
         EDP: float scalar or ndarray
             Single EDP or numpy array of EDP values.
+        DSG_ID: int
+            Identifies the DSG of interest. 
 
         Returns
         -------
         P_exc: float scalar or ndarray
             Exceedance probability of the given DSG at the EDP point(s).
         """
-        return self._FF.P_exc(EDP, DSG_ID)
+        return self._FF_set[0].P_exc(EDP, DSG_ID)
     
 
 class FragilityGroup(object):
@@ -709,6 +742,9 @@ class FragilityGroup(object):
     demand_type: {'PID', 'PFA', 'PSD', 'PSA', 'ePGA', 'PGD'}
         The type of Engineering Demand Parameter (EDP) that controls the damage 
         of the components in the FG. See Demand for acronym descriptions.
+    performance_groups: PerformanceGroup array
+        A list of performance groups that contain the components characterized
+        by the FG.
     directional: bool, optional, default: True
         Determines whether the components in the FG are sensitive to the 
         directionality of the EDP.   
@@ -730,25 +766,37 @@ class FragilityGroup(object):
     incomplete: bool, optional, default: False
         Indicates that the FG information is not complete and corresponding
         results shall be treated with caution.
-    description: str, optional, default: ''
+    name: str, optional, default: ''
         Provides a short description of the fragility group.
+    description: str, optional, default: ''
+        Provides a detailed description of the fragility group.
     """
 
-    def __init__(self, ID, kind, demand_type,
+    def __init__(self, ID, kind, demand_type, performance_groups,
                  directional=True, correlation=True, demand_location_offset=0,
-                 incomplete=False, description=''):
+                 incomplete=False, name='', description=''):
         self._ID = ID
         self._kind = kind
         self._demand_type = demand_type
+        self._performance_groups = performance_groups
         self._directional = directional
         self._correlation = correlation
         self._demand_location_offset = demand_location_offset
         self._incomplete = incomplete
+        self._name = name
         self._description = description
-
+    
     @property
     def description(self):
         """
         Return the fragility group description.
         """
         return self._description
+    
+    @property
+    def name(self):
+        """
+        Return the name of the fragility group.
+
+        """
+        return self._name

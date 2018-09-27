@@ -445,7 +445,7 @@ def test_ConsequenceFunction_sample_unit_DV():
             assert np.mean(samples) == pytest.approx(np.mean(ref_samples),
                                                      rel=0.1)
             assert np.std(samples) == pytest.approx(np.std(ref_samples),
-                                                    rel=0.1)
+                                                    rel=0.15)
 
             # test the limits
             assert np.min(samples) > ref_min
@@ -592,7 +592,7 @@ def test_DamageState_red_tag_sampling():
     DS = DamageState(ID=1, red_tag_CF=CF)
 
     # sample the repair cost distribution
-    test_vals = DS.unit_red_tag(sample_size=1000)
+    test_vals = DS.red_tag_dmg_limit(sample_size=1000)
 
     assert test_vals.size == 1000
 
@@ -651,7 +651,7 @@ def test_DamageState_injury_sampling():
                                     size=1000)
 
         assert np.mean(samples) == pytest.approx(np.mean(ref_samples), rel=0.1)
-        assert np.std(samples) == pytest.approx(np.std(ref_samples), abs=0.01)
+        assert np.std(samples) == pytest.approx(np.std(ref_samples), abs=0.02)
         assert np.min(samples) == pytest.approx(0., abs=0.05)
         assert np.max(samples) == pytest.approx(1., abs=0.05)
 
@@ -700,31 +700,50 @@ def test_PerformanceGroup_Pexc():
         tags='Q_A'
     )
 
-    # create the fragility group
-    FG = PerformanceGroup(ID=1, location=1, quantity=QNT,
-                          fragility_function=FF,
+    # create the performance group
+    PG = PerformanceGroup(ID=1, location=1, quantity=QNT,
+                          fragility_functions=[FF, FF],
                           DSG_set=[DSG_0, DSG_1])
 
     EDP = np.linspace(0.1, 0.9, 9)
 
     for edp in EDP:
-        assert FF.P_exc(edp, DSG_ID=1) == FG.P_exc(edp, DSG_ID=1)
-        assert FF.P_exc(edp, DSG_ID=2) == FG.P_exc(edp, DSG_ID=2)
+        assert FF.P_exc(edp, DSG_ID=1) == PG.P_exc(edp, DSG_ID=1)
+        assert FF.P_exc(edp, DSG_ID=2) == PG.P_exc(edp, DSG_ID=2)
 
-    assert_allclose(FG.P_exc(EDP, DSG_ID=1), FG.P_exc(EDP, DSG_ID=1),
+    assert_allclose(PG.P_exc(EDP, DSG_ID=1), PG.P_exc(EDP, DSG_ID=1),
                     rtol=1e-10)
-    assert_allclose(FG.P_exc(EDP, DSG_ID=2), FG.P_exc(EDP, DSG_ID=2),
+    assert_allclose(PG.P_exc(EDP, DSG_ID=2), PG.P_exc(EDP, DSG_ID=2),
                     rtol=1e-10)
 
 # ------------------------------------------------------------------------------
 # Fragility Group
 # ------------------------------------------------------------------------------
-def test_FragilityGroup_description():
+def test_FragilityGroup_description_and_name():
     """
     Test if the fragility group returns the assigned description. 
     """
-    ref_str = 'Test description.'
-    FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
-                        description=ref_str)
+    ref_desc = 'Test long description.'
+    ref_name = 'Test short description.'
+    
+    # create a dummy performance group
 
-    assert FG.description == ref_str
+    # create the fragility function
+    RV = RandomVariable(ID=1, dimension_tags='A',
+                        distribution_kind='lognormal',
+                        theta=0.5, COV=0.16)
+    FF = FragilityFunction(EDP_limit=RandomVariableSubset(RV, 'A'))
+    
+    # some of the inputs below do not make sense, but since the subject of the 
+    # test is not the performance group, they will work fine
+    PG = PerformanceGroup(ID=1, location=1, 
+                          quantity=RandomVariableSubset(RV, 'A'),
+                          fragility_functions=FF,
+                          DSG_set=None)
+    
+    FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
+                        performance_groups = [PG, ],
+                        name=ref_name, description=ref_desc)
+
+    assert FG.name == ref_name
+    assert FG.description == ref_desc

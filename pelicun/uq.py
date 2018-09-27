@@ -45,11 +45,12 @@ quantification in pelicun.
 
 .. autosummary::
  
+    RandomVariable
+    RandomVariableSubset
+    
     tmvn_rvs
     mvn_orthotope_density
     tmvn_MLE
-    RandomVariable
-    RandomVariableSubset
     
 
 """
@@ -177,7 +178,7 @@ def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
                 
                 # check the number of available samples and generate more if 
                 # needed
-                sample_count = len(samples)
+                sample_count = samples.shape[0]
 
             samples = samples[:size]
                 
@@ -501,7 +502,8 @@ def tmvn_MLE(samples,
                         'The density of the joint probability distribution '
                         'within the detection limits is too small and '
                         'cannot be estimated with sufficiently high '
-                        'accuracy.'
+                        'accuracy. '
+                        '(alpha: '+str(det_alpha)+' eps: '+str(eps_alpha)+')'
                     )
                     msg[2] = True
                 return np. inf
@@ -848,10 +850,9 @@ class RandomVariable(object):
                     #else:
                     #    data[data==np.log(min_float)] = -np.inf
         else:
-            data = raw_data
+            data = deepcopy(raw_data)
             for dim, dk in enumerate(distribution_list):
-                if dk == 'lognormal':
-                    data = deepcopy(raw_data)
+                if dk == 'lognormal':                    
                     if np.min(data[dim]) > 0.:
                         data[dim] = np.log(data[dim])
                     else:
@@ -1110,7 +1111,7 @@ class RandomVariable(object):
 
         # lognormal distribution parameters are estimated by fitting a normal
         # distribution to the data in log space
-        distribution_kind = np.asarray(distribution_kind)
+        distribution_kind = np.asarray(distribution_kind)        
         data = self._move_to_log(self._raw_data, distribution_kind)            
 
         # prepare the information on truncation
@@ -1120,12 +1121,20 @@ class RandomVariable(object):
             tr_upper = self._move_to_log(tr_upper, distribution_kind)
         else:
             tr_lower, tr_upper = None, None
+            
+        # convert the detection limits to log if needed
+        if self.detection_limits is not None:
+            det_lower, det_upper = self.detection_limits
+            det_lower = self._move_to_log(det_lower, distribution_kind)
+            det_upper = self._move_to_log(det_upper, distribution_kind)
+        else:
+            det_lower, det_upper = None, None
         
         # perform the parameter estimation
         mu, COV = tmvn_MLE(data,
                            tr_lower = tr_lower, tr_upper=tr_upper,
                            censored_count=self.censored_count,
-                           det_lower=self.det_lower, det_upper=self.det_upper)
+                           det_lower=det_lower, det_upper=det_upper)
         
         # convert mu to theta
         theta = self._return_from_log(mu, distribution_kind)
@@ -1204,10 +1213,12 @@ class RandomVariable(object):
             # transform samples back from log space if needed
             samples = self._return_from_log(raw_samples,
                                             self._distribution_kind)
-            
+
             samples = pd.DataFrame(data=np.transpose(samples), 
                                    index=np.arange(sample_size),
                                    columns=self._dimension_tags)
+            
+            samples = samples.astype(np.float64)
         
         self._samples = samples
         

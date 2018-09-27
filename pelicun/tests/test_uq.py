@@ -1253,13 +1253,13 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
         ref_rho = np.ones((dims, dims)) * rho
         np.fill_diagonal(ref_rho, 1.0)
         ref_COV = np.outer(ref_std, ref_std) * ref_rho
-    
+
         # prepare the truncation limits
         a = [-0.25, -np.inf, -1.5]
         b = [np.inf, 1.0, 1.5]
         tr_lower = (ref_mean + ref_std * a).tolist()
         tr_upper = (ref_mean + ref_std * b).tolist()
-    
+
         # three types of corr_ref settings are tested:
         # 1) every variable is pre-truncated
         # 2) every variable is post-truncated
@@ -1273,36 +1273,37 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
             tr_lower[1] = np.exp(tr_lower[1])
             tr_upper[1] = np.exp(tr_upper[1])
             ref_mean[1] = np.exp(ref_mean[1])
-            
+
             RV = RandomVariable(ID=1, dimension_tags=np.arange(dims),
-                                distribution_kind=['normal', 'lognormal', 
+                                distribution_kind=['normal', 'lognormal',
                                                    'normal'],
                                 theta=ref_mean, COV=ref_COV,
-                                corr_ref = corr_ref,
+                                corr_ref=corr_ref,
                                 truncation_limits=[tr_lower, tr_upper])
             RVS = RandomVariableSubset(RV=RV, tags=1)
-        
+
             samples = RV.sample_distribution(1000)
-        
+
             # make sure that the samples attribute of the RV works as intended
             assert_allclose(samples, RV.samples)
             assert_allclose(samples[1], RVS.samples)
-        
+
             # then check if resampling through RVS works well
             sample_size = 100
             RVS.sample_distribution(sample_size)
             old_diff = (RVS.samples - samples[1].iloc[:sample_size]).abs().sum()
-            new_diff = (RVS.samples - RV.samples[1].iloc[:sample_size]).abs().sum()
-        
+            new_diff = (
+                    RVS.samples - RV.samples[1].iloc[:sample_size]).abs().sum()
+
             assert old_diff > 0
             assert new_diff == 0
-        
+
             # transfer the samples and reference values back to log space
             samples[1] = np.log(samples[1])
             ref_mean[1] = np.log(ref_mean[1])
-            tr_lower[1] = np.log(max(np.nextafter(0,1),tr_lower[1]))
+            tr_lower[1] = np.log(max(np.nextafter(0, 1), tr_lower[1]))
             tr_upper[1] = np.log(tr_upper[1])
-            
+
             if r_i == 0:
                 # Means and standard deviations in the uncorrelated case shall
                 # shall be equal to those from a corresponding univariate 
@@ -1314,18 +1315,18 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
                 ref_mean_trunc = np.mean(ref_samples, axis=1)
                 ref_std_trunc = np.std(ref_samples, axis=1)
                 assert_allclose(np.mean(samples, axis=0), ref_mean_trunc,
-                                atol=0.1)
+                                atol=0.2)
                 assert_allclose(np.std(samples, axis=0), ref_std_trunc,
-                                atol=0.1)
+                                atol=0.15)
                 # zero correlations shall not be influenced by the truncation
-                assert_allclose(np.corrcoef(samples, rowvar=False), 
-                                ref_rho, atol=0.1)
-                
+                assert_allclose(np.corrcoef(samples, rowvar=False),
+                                ref_rho, atol=0.15)
+
                 # also make sure that the minimum and maximum of the samples
                 # are within the truncation limits
                 assert np.all(np.min(samples, axis=0) > tr_lower)
                 assert np.all(np.max(samples, axis=0) < tr_upper)
-            
+
             elif r_i == 1:
                 # results under perfect correlation depend on the corr_ref 
                 # setting
@@ -1341,18 +1342,18 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
                     ref_mean_trunc = np.mean(ref_samples)
                     ref_std_trunc = np.std(ref_samples)
                     assert_allclose(np.mean(ref_samples, axis=0),
-                                    ref_mean_trunc, atol=0.1)
+                                    ref_mean_trunc, atol=0.2)
                     assert_allclose(np.std(ref_samples, axis=0), ref_std_trunc,
-                                    atol=0.1)
-                    
+                                    atol=0.15)
+
                     # all samples shall be within the stringest of the limits
                     assert np.all(np.min(samples, axis=0) > max(tr_lower))
                     assert np.all(np.max(samples, axis=0) < min(tr_upper))
-                    
+
                     # the perfect correlation shall be properly represented
                     assert_allclose(np.corrcoef(samples, rowvar=False), ref_rho,
-                                    atol=0.1)
-                
+                                    atol=0.15)
+
                 elif c_i == 1:
                     # The post-truncated setting will let every component
                     # respect its own limits and the marginal distributions
@@ -1369,12 +1370,12 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
                     ref_mean_trunc = np.mean(ref_samples, axis=1)
                     ref_std_trunc = np.std(ref_samples, axis=1)
                     assert_allclose(np.mean(samples, axis=0), ref_mean_trunc,
-                                    atol=0.1)
+                                    atol=0.2)
                     assert_allclose(np.std(samples, axis=0), ref_std_trunc,
-                                    atol=0.1)
+                                    atol=0.15)
                     # zero correlations shall not be influenced by the truncation
                     assert_allclose(np.corrcoef(samples, rowvar=False),
-                                    ref_rho, atol=0.1)
+                                    ref_rho, atol=0.15)
                     # also make sure that the minimum and maximum of the samples
                     # are within the truncation limits
                     assert np.all(np.min(samples, axis=0) > tr_lower)
@@ -1384,7 +1385,7 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
                     # the truncation of component 2 on every other component,
                     # and then transforms component 1 and 3 from normal to 
                     # their truncated normal distribution. 
-                    
+
                     # Component 2 will have a truncated normal distribution
                     # similar to c_i==0 case:
                     ref_samples = truncnorm.rvs(a=a[1], b=b[1],
@@ -1393,14 +1394,14 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
                                                 size=1000)
                     assert np.mean(ref_samples) == pytest.approx(
                         np.mean(samples[1]),
-                        abs=0.1)
+                        abs=0.2)
                     assert np.std(ref_samples) == pytest.approx(
                         np.std(samples[1]),
-                        abs=0.1)
+                        abs=0.15)
                     # its samples shall be within its own truncation limits
                     assert np.min(samples[1]) > tr_lower[1]
                     assert np.max(samples[1]) < tr_upper[1]
-                    
+
                     # The other two components have their distribution 
                     # truncated twice
                     ppf_limits = norm.cdf([a[1], b[1]], loc=0., scale=1.)
@@ -1414,15 +1415,15 @@ def test_RandomVariable_sample_distribution_pre_and_post_truncation():
                                                     size=1000)
 
                         assert np.mean(ref_samples) == pytest.approx(
-                            np.mean(samples[comp]), abs=0.1)
+                            np.mean(samples[comp]), abs=0.2)
                         assert np.std(ref_samples) == pytest.approx(
-                            np.std(samples[comp]), abs=0.1)
-                        
+                            np.std(samples[comp]), abs=0.15)
+
                         # samples shall be within the new_limits
                         assert np.min(samples[comp]) > \
-                               ref_mean[comp]+ref_std[comp]*new_limits[0]
+                               ref_mean[comp] + ref_std[comp] * new_limits[0]
                         assert np.max(samples[comp]) < \
-                               ref_mean[comp]+ref_std[comp]*new_limits[1]
+                               ref_mean[comp] + ref_std[comp] * new_limits[1]
     
 def test_RandomVariable_sample_distribution_multinomial():
     """

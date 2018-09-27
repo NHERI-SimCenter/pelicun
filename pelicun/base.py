@@ -56,6 +56,10 @@ mm2 = mm**2.
 cm = 0.01
 cm2 = cm**2.
 
+m = 1.
+m2 = 1.
+m3 = 1.
+
 km = 1000.
 km2 = km**2.
 
@@ -66,4 +70,8 @@ ft = 12. * inch
 ft2 = ft**2.
 
 mile = 5280. * ft
-mile2 = mile**2.      
+mile2 = mile**2.  
+
+SF = ft2
+LF = ft
+ea = 1.
