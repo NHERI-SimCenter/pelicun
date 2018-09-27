@@ -44,7 +44,7 @@ This subpackage performs unit tests on the model module of pelicun.
 import pytest
 import numpy as np
 from numpy.testing import assert_allclose
-from copy import deepcopy
+from scipy.stats import norm, truncnorm
 
 import os, sys, inspect
 current_dir = os.path.dirname(
@@ -53,7 +53,6 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0,os.path.dirname(parent_dir)) 
 
 from pelicun.tests.test_reference_data import standard_normal_table
-from pelicun.tests.test_pelicun import assert_normal_distribution
 from pelicun.model import *
 from pelicun.uq import RandomVariable, RandomVariableSubset
 

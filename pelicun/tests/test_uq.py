@@ -53,7 +53,6 @@ current_dir = os.path.dirname(
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0,os.path.dirname(parent_dir)) 
 
-from pelicun.tests.test_reference_data import standard_normal_table
 from pelicun.tests.test_pelicun import assert_normal_distribution
 from pelicun.uq import *
 

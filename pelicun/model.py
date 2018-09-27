@@ -58,7 +58,6 @@ loss assessment.
 """
 
 import numpy as np
-from scipy.stats import norm, truncnorm
 import pandas as pd
 from .uq import RandomVariableSubset
 
