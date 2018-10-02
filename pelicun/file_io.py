@@ -53,11 +53,15 @@ This module has classes and methods that handle file input and output.
 """
 
 import numpy as np
+import pandas as pd
 import json
 import xml.etree.ElementTree as ET
 from distutils.util import strtobool
+import pprint
 
 from .base import *
+
+pp = pprint.PrettyPrinter(indent=4)
 
 def _classify(conversion_dict, source_class):
     """
@@ -90,123 +94,181 @@ def _classify(conversion_dict, source_class):
 
 def read_SimCenter_DL_input(input_path, verbose=False):
     
-    Occupancy_to_P58 = dict([
-        ('__type__', 'occupancy to P58'),
-        ('Commercial Office', ['office', ]),
-        ('Elementary School', ['education',
-                               'school']),
-        ('Middle School', []),
-        ('High School', []),
-        ('Healthcare', ['healthcare', ]),
-        ('Hospitality', ['hospitality',
-                         'hotel']),
-        ('Multi-Unit Residential', ['residence',
-                                    'Residential']),
-        ('Retail', ['retail', ]),
-        ('Warehouse', ['warehouse',
-                       'industrial']),
-        ('Research Laboratories', ['research', ]),
-    ])
-    
     with open(input_path, 'r') as f:
         jd = json.load(f)
 
-    # replace random values with their mean
-    # we will load actual realizations of those values in a different method
-    randoms = dict((rv['name'], rv['mean']) for rv in jd['RandomVariables'])
-    jd = jd['GI']
-    for attrib in jd.keys():
-        if attrib in randoms:
-            jd[attrib] = randoms[attrib]
+    # get the list of random variables
+    randoms = dict((rv['name'], rv) for rv in jd['randomVariables'])
 
-    # load the other attributes
-    # note that we assume that everything is provided in standard units
-    data = dict(
-        name             = jd['name'],
-        area             = float(jd['area']) * m2,
-        stories          = int(jd['numStory']),
-        year_built       = int(jd['yearBuilt']),
-        str_type         = jd['structType'],
-        occupancy        = _classify(Occupancy_to_P58, jd['occupancy']),
-        height           = float(jd['height']) * m,
-        replacement_cost = float(jd['replacementCost']),
-        replacement_time = float(jd['replacementTime']),
-    )
-    if jd['population'] == 'auto':
-        data.update(dict(population = 'auto'))
-    else:
-        data.update(dict(population = np.asarray(jd['population'])))
+    # get the data required for DL
+    data = dict([(label, dict()) for label in [
+        'general', 'units', 'components', 'collapse_modes',
+        'decision_variables', 'dependencies'
+    ]])
 
-    # print the parsed data to the screen if requested
-    if verbose:
-        for attribute, value in data.items():
-            print(attribute, ':', value)
-        print('-' * 75)
+    # general information
+    GI = jd['GeneralInformation']
+    for target_att, source_att, f_conv in [
+        ['plan_area', 'planArea', float],
+        ['stories', 'stories', int],
+        ['building_type', 'type', str],
+        ['story_height', 'height', float],
+        ['year_built', 'year', int],
+    ]:
+        data['general'].update({target_att: f_conv(GI[source_att])})
 
+    # units
+    [data['units'].update({key: value}) for key, value in GI['units'].items()]
+
+    LM = jd['LossModel']
+
+    # components
+    for comp in LM['Components']:
+        comp_data = {
+            'quantities'  : 
+                np.array([float(qnt) for qnt in comp['quantity'].split(',')]),
+            'csg_weights' : 
+                np.array([float(wgt) for wgt in comp['weights'].split(',')]),
+            'dirs'        : 
+                np.array([int(dir_) for dir_ in comp['directions'].split(',')]),
+            'kind'        : 'structural' if comp['structural'] else 'non-structural',
+            'distribution': comp['distribution'],
+            'cov'         : float(comp['cov']),
+            'unit'        : [float(comp['unit_size']), comp['unit_type']],
+        }
+        comp_data.update({
+            'locations':(np.where(comp_data['quantities'] > 0.)[0]+1)
+        })
+        # remove the zeros from the quantities
+        nonzero = comp_data['quantities'] > 0.
+        comp_data['quantities'] = comp_data['quantities'][nonzero]
+        if comp_data['quantities'].shape == ():
+            comp_data['quantities'] = np.array([comp_data['quantities']])
+        data['components'].update({comp['ID']: comp_data})
+
+    # collapse modes
+    for coll_mode in LM['CollapseModes']:
+        cm_data = {
+            'w'            : float(coll_mode['w']),
+            'injuries'     : [float(inj) for inj in
+                              coll_mode['injuries'].split(',')],
+            'affected_area': [float(cfar) for cfar in
+                              coll_mode['affected_area'].split(',')],
+        }
+        data['collapse_modes'].update({coll_mode['name']: cm_data})
+
+    def float_or_None(text):
+        return float(text) if text != '' else None
+
+    # other general info
+    data['general'].update({
+        'collapse_limits'       :
+            dict([(key, float_or_None(value)) for key, value in
+                  LM['BuildingDamage']['CollapseLimits'].items()]),
+
+        'irrepairable_res_drift':
+            dict([(key, float_or_None(value)) for key, value in
+                  LM['BuildingDamage']['IrrepairableResidualDrift'].items()]),
+
+        'detection_limits'      :
+            dict([(key, float_or_None(value)) for key, value in
+                  LM['BuildingResponse']['DetectionLimits'].items()]),
+
+        'yield_drift'           : float_or_None(
+            LM['BuildingResponse']['YieldDriftRatio']),
+
+        'added_uncertainty'     : {
+            'beta_gm': float_or_None(
+                LM['UncertaintyQuantification']['AdditionalUncertainty'][
+                    'GroundMotion']),
+            'beta_m' : float_or_None(
+                LM['UncertaintyQuantification']['AdditionalUncertainty'][
+                    'Modeling']),
+        },
+
+        'realizations'          : int(LM['UncertaintyQuantification'][
+            'Realizations']),
+        
+        'replacement_cost'      : float_or_None(
+            LM['BuildingDamage']['ReplacementCost']),
+        'replacement_time'      : float_or_None(
+            LM['BuildingDamage']['ReplacementTime']),
+        
+        'occupancy_type'        : LM['Inhabitants']['OccupancyType'],
+        'population'            : [float(pop) for pop in
+                                   LM['Inhabitants']['PeakPopulation'].split(',')], 
+    })
+
+    # decision variables of interest
+    DV = LM['DecisionVariables']
+    for target_att, source_att in [
+        ['injuries', 'Injuries'],
+        ['rec_cost', 'ReconstructionCost'],
+        ['rec_time', 'ReconstructionTime'],
+        ['red_tag', 'RedTag'],
+    ]:
+        data['decision_variables'].update({target_att: bool(DV[source_att])})
+
+    # dependencies
+    dependency_to_acronym = {
+        'btw. Fragility Groups'  : 'FG',
+        'btw. Performance Groups': 'PG',
+        'btw. Floors'            : 'LOC',
+        'btw. Directions'        : 'DIR',
+        'btw. Damage States'     : 'DS',
+        'Independent'            : 'IND',
+        'per ATC recommendation' : 'ATC,'
+    }
+    DEP = LM['LossModelDependencies']
+    for target_att, source_att in [
+        ['quantities', 'Quantities'],
+        ['fragilities', 'Fragilities'],
+        ['injuries', 'Injuries'],
+        ['rec_costs', 'ReconstructionCosts'],
+        ['rec_times', 'ReconstructionTimes'],
+        ['red_tags', 'RedTagProbabilities'],
+    ]:
+        data['dependencies'].update({
+            target_att:dependency_to_acronym[DEP[source_att]]})
+        
+    data['dependencies'].update({
+        'cost_and_time': bool(DEP['CostAndTime']),
+        'injury_lvls'  : bool(DEP['Injuries'])
+    })
+
+    if verbose: pp.pprint(data)
+    
     return data
 
 def read_SimCenter_EDP_input(input_path, verbose=False):
     
-    Demand_to_Acronym = dict([
-        ('__type__', 'demand to acronym'),
-        ('PFA', ['max_abs_acceleration', ]),
-        ('PID', ['max_drift', ]),
-        ('RD', ['residual_disp', ]),
-    ])
-    
-    # initialize the dictionary of EDP data
+    # initialize the data container
     data = {}
 
-    with open(input_path, 'r') as f:
-        jd = json.load(f)['EngineeringDemandParameters']
+    # read the dakota table output
+    EDP_raw = pd.read_csv(input_path, sep='\s+', header=0,
+                          index_col='%eval_id')
+    EDP_raw.index = EDP_raw.index - 1
 
-    events = []
-    for i, event_data in enumerate(jd):
-        # to make sure every IM level has a unique and informative ID
-        events.append('{}_{}'.format(i + 1, event_data['name']))
+    # store the EDP data
+    for column in EDP_raw.columns:
+        for kind in ['PFA', 'PID']:
+            if kind in column:
 
-    for i, edp in enumerate(jd[0]['responses']):
-        kind = _classify(Demand_to_Acronym, edp['type'])
-        if kind not in data.keys():
-            data.update({kind: []})
+                if kind not in data.keys():
+                    data.update({kind: []})
 
-        scale_factor = 1.0  # we assume that EDPs are provided in standard units
+                info = column.split('-')
+                data[kind].append(dict(
+                    raw_data=EDP_raw[column].values,
+                    location=info[2],
+                    direction=info[3],
+                    scenario_id=info[0]
+                ))
 
-        raw_data = dict([
-            (event,
-             np.array(jd[e]['responses'][i]['scalar_data'],
-                      dtype=np.float64) * scale_factor
-             )
-            for e, event in enumerate(events)
-        ])
-
-        data[kind].append(dict(
-            cline=int(edp['cline']),
-            floor=int(edp['floor1' if kind == 'PID' else 'floor']),
-            raw_data=raw_data,
-            floor2=int(edp['floor2']) if kind == 'PID' else None,
-        ))
-
-    # print the parsed data to the screen if requested
-    if verbose:
-        for kind, EDP_list in data.items():
-            print(kind)
-            for EDP_attributes in EDP_list:
-                for attribute, value in EDP_attributes.items():
-                    if attribute is not 'raw_data':
-                        print('\t', attribute, value)
-                    else:
-                        print('\t', attribute)
-                        for event, edp_data in value.items():
-                            print('\t\t', event,
-                                  '| {} samples: '.format(len(edp_data)),
-                                  '[{:.4f}, ..., {:.4f}]'.format(min(edp_data),
-                                                                 max(edp_data)))
-                print()
-            print('-' * 75)
+    if verbose: pp.pprint(data)
 
     return data
-
 
 def read_P58_population_distribution(path_POP, occupancy, verbose=False):
     with open(path_POP, 'r') as f:
@@ -218,17 +280,7 @@ def read_P58_population_distribution(path_POP, occupancy, verbose=False):
     data['peak'] = data['peak'] / (1000. * ft2)
 
     if verbose:
-        for attribute, value_set in data.items():
-            if type(value_set) is not dict:
-                print(attribute, ':', value_set)
-            else:
-                print(attribute)
-                for sub_attribute, value in value_set.items():
-                    if len(value) < 13:
-                        print('\t', sub_attribute, ':', value)
-                    else:
-                        print('\t', sub_attribute, ':', value[:12], '...')
-        print('-' * 75)
+        pp.pprint(data)
 
     return data
 
@@ -315,8 +367,10 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
         'incomplete',
         'locations',
         'quantities',
-        'proportions',
+        'csg_weights',
+        'dir_weights',
         'directions',
+        'distribution_kind',
         'cov',
         'unit',
         'DSG_set',
@@ -332,10 +386,17 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
         c_data['quantities'] = np.asarray(ci_data['quantities']) * c_data[
             'unit']
         c_data['distribution_kind'] = ci_data['distribution']
-        c_data['proportions'] = ci_data['props']
-        c_data['directions'] = ci_data['dirs']
-        c_data['locations'] = ci_data['locations']
+        c_data['csg_weights'] = np.asarray(ci_data['csg_weights'])
+        c_data['directions'] = np.asarray(ci_data['dirs'], dtype=np.int)
+        c_data['locations'] = np.asarray(ci_data['locations'], dtype=np.int)
         c_data['cov'] = ci_data['cov']
+
+        # calculate the quantity weights in each direction
+        dirs = c_data['directions']
+        u_dirs = np.unique(dirs)
+        weights = c_data['csg_weights']
+        c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)]) 
+                                 for d_i in u_dirs]
 
         # parse the xml file
         # TODO: replace the xml with a json
@@ -417,42 +478,7 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
     if verbose:
         for c_id, c_data in data.items():
             print(c_id)
-            for att, vals in c_data.items():
-                if type(vals) is not dict:
-                    print(att, ':', vals)
-                else:
-                    print(att)
-                    for att2, vals2 in vals.items():
-                        if type(vals2) is not dict:
-                            print('  ', att2, ':', vals2)
-                        else:
-                            print('  ', att2)
-                            for att3, vals3 in vals2.items():
-                                if type(vals3) is not dict:
-                                    print('    ', att3, ':', vals3)
-                                else:
-                                    print('    ', att3)
-                                    for att4, vals4 in vals3.items():
-                                        if type(vals4) is not dict:
-                                            print('      ', att4, ':', vals4)
-                                        else:
-                                            print('      ', att4)
-                                            for att5, vals5 in vals4.items():
-                                                if type(vals5) is not dict:
-                                                    print('        ',
-                                                          att5, ':', vals5)
-                                                else:
-                                                    print('        ', att5)
-                                                    for att6, vals6 in vals5.items():
-                                                        if type(
-                                                            vals6) is not dict:
-                                                            print('          ',
-                                                                  att6, ':',
-                                                                  vals6)
-                                                        else:
-                                                            print('          ',
-                                                                  att6)
-            print('-' * 75)
+            pp.pprint(c_data)
 
     return data
 

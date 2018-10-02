@@ -400,7 +400,7 @@ def test_MVN_MLE_minimum_sample_size():
 
     samples = tmvn_rvs(ref_mean, ref_COV, lower=tr_lower, size=13)
 
-    with pytest.raises(ValueError) as e_info:
+    with pytest.warns(UserWarning) as e_info:
         tmvn_MLE(np.transpose(samples), tr_lower=tr_lower)
 
 def test_MVN_MLE_censored():

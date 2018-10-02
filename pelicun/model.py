@@ -665,31 +665,31 @@ class PerformanceGroup(object):
         a subset of components will meet or exceed the damages described by 
         each damage state group in the DSG_set. Each is a multi-dimensional 
         function if there is more than one DSG. The number of functions shall
-        match the number of subsets defined by the `proportions` parameter.
+        match the number of subsets defined by the `csg_weights` parameter.
     DSG_set: DamageStateGroup array
         A set of sequential Damage State Groups that describe the plausible set
         of damage states of the components in the FG.
-    proportions: float ndarray, optional, default: [1.0]
+    csg_weights: float ndarray, optional, default: [1.0]
         Identifies subgroups of components within a PG, each of which have
         perfectly correlated behavior. Correlation between the damage and
         consequences among subgroups is controlled by the `correlation` 
         parameter of the FragilityGroup that the PG belongs to. Note that if
         the components are assumed to have perfectly correlated behavior at the 
-        PG level, assigning several subgroups to the PG is unnecessary. The
-        proportions shall be a list of weights that are applied to the quantity
+        PG level, assigning several subgroups to the PG is unnecessary. This
+        input shall be a list of weights that are applied to the quantity
         of components to define the amount of components in each subgroup. The
         sum of assigned weights shall be 1.0.
     directions: int ndarray, optional, default: [0]
         Identifies the direction of each subgroup of components within the PG.
         The number of directions shall be identical to the number of 
-        proportions assigned. In buildings, directions typically correspond to 
+        csg_weights assigned. In buildings, directions typically correspond to 
         the orientation of components in plane. Hence, using 0 or 1 to identify 
         'X' or 'Y' is recommended. These directions shall be in agreement with 
         the directions assigned to Demand objects. 
     """
     
     def __init__(self, ID, location, quantity, fragility_functions, DSG_set,
-                 proportions=[1.0], directions=[0]):
+                 csg_weights=[1.0], direction=0):
         self._ID = ID
         self._location = location
         self._quantity = quantity
@@ -698,8 +698,8 @@ class PerformanceGroup(object):
         else:
             self._FF_set = fragility_functions
         self._DSG_set = DSG_set
-        self._proportions = proportions
-        self._directions = directions
+        self._csg_weights = csg_weights
+        self._direction = direction
         
     def P_exc(self, EDP, DSG_ID):
         """

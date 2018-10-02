@@ -60,10 +60,7 @@ class Assessment(object):
     
     """
     
-    def __init__(self, realizations):
-        
-        # assessment settings
-        self._realizations = realizations 
+    def __init__(self):
         
         # initialize the basic data containers      
         # inputs
@@ -86,14 +83,15 @@ class Assessment(object):
         self._DV_dict = None
         self._SUMMARY = None
         
-    def read_inputs(self, path_DL_input, path_EDP_input):
+    def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         
         # read SimCenter inputs -----------------------------------------------
         # BIM file
-        self._AIM_in = read_SimCenter_DL_input(path_DL_input, verbose=False)
+        self._AIM_in = read_SimCenter_DL_input(path_DL_input, verbose=verbose)
 
         # EDP file
-        self._EDP_in = read_SimCenter_EDP_input(path_EDP_input, verbose=False)
+        self._EDP_in = read_SimCenter_EDP_input(path_EDP_input, 
+                                                verbose=verbose)
     
     def define_random_variables(self):
         pass
@@ -102,10 +100,10 @@ class Assessment(object):
         pass
     
     def calculate_damage(self):
-        pass
+        self._ID_dict = {}
     
     def calculate_losses(self):
-        pass
+        self._DV_dict = {}
     
     def write_outputs(self):
         pass
@@ -114,26 +112,22 @@ class FEMA_P58_Assessment(Assessment):
     """
     Description
     """
-    def __init__(self, realizations,
-                 beta_m, beta_gm,
-                 f_secondary_EDP = 0.7, inj_lvls = 2):
-        super().__init__(realizations)
-        
-        # assessment settings
-        self._beta_m = beta_m
-        self._beta_gm = beta_gm
+    def __init__(self, inj_lvls = 2):
+        super().__init__()
         
         # constants for the FEMA-P58 methodology
-        self._f_secondary_EDP = f_secondary_EDP
         self._inj_lvls = inj_lvls
         
     @property
     def beta_additional(self):
-        return np.sqrt(self._beta_m ** 2. + self._beta_gm ** 2.)
+        
+        AU = self._AIM_in['general']['added_uncertainty']
+        return np.sqrt(AU['beta_m'] ** 2. + AU['beta_gm'] ** 2.)
 
     def read_inputs(self, path_DL_input, path_EDP_input, 
-                    path_CMP_data=None, path_POP_data=None):
-        super().read_inputs(path_DL_input, path_EDP_input)
+                    path_CMP_data=None, path_POP_data=None, verbose=False):
+        
+        super().read_inputs(path_DL_input, path_EDP_input, verbose)
         
         # check if the component data path is provided by the user
         if path_CMP_data is None:
@@ -147,50 +141,55 @@ class FEMA_P58_Assessment(Assessment):
 
         # read component and population data ----------------------------------
         # components
-        self._FG_in = read_P58_component_data(path_CMP_data,
-                                              BIM['components'], verbose=False)
-        # TODO: BIM['components'] is component info now
+        self._FG_in = read_P58_component_data(path_CMP_data, BIM['components'], 
+                                              verbose=verbose)
         
         if path_POP_data is not None:
             # population
-            POP = read_P58_population_distribution(path_POP_data, 
-                                                   BIM['occupancy'], 
-                                                   verbose=False)
+            POP = read_P58_population_distribution(
+                path_POP_data, 
+                BIM['general']['occupancy_type'], 
+                verbose=verbose)
     
-            # if the peak population is specified in the BIM, then use that
-            # if the population is set to automatic, then calculate it based on the 
-            # gross building area
-            if ((BIM['population'].size == 1) 
-                and (BIM['population'] == 'auto')):
-                POP['peak'] = [POP['peak'] * BIM['area'] 
-                               for s in range(BIM['stories'])]
-            else:
-                POP['peak'] = BIM['population']          
-            self._POP_in = POP
+            POP['peak'] = BIM['general']['population']          
+            self._POP_in = POP              
 
     def define_random_variables(self):
         super().define_random_variables()
 
         # create the random variables -----------------------------------------
-        rho_dict = self._AIM_in['correlations']
+        DEP = self._AIM_in['dependencies']
+        
+        self._RV_dict = {}
 
         # quantities 100
         self._RV_dict.update({'QNT': 
-                            self._create_RV_quantities(rho_dict['quantity'])})
-
+                            self._create_RV_quantities(DEP['quantities'])})
+        
         # fragilities 300
         for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
-            self._RV_dict.update({'FR-' + c_name: 
-                            self._create_RV_fragilities(c_id, comp, 
-                                                        rho_dict['fragility'])})
-
+            self._RV_dict.update({
+                'FR-' + c_name: 
+                    self._create_RV_fragilities(c_id, comp, 
+                                                DEP['fragilities'])})
+            
         # consequences 400
-        self._RV_dict.update({'DV_RED': 
-                            self._create_RV_red_tags(rho_dict['red_tag'])})
-        self._RV_dict.update({'DV_REP': 
-                            self._create_RV_repairs(rho_dict['repair'])})
-        self._RV_dict.update({'DV_INJ': 
-                            self._create_RV_injuries(rho_dict['injury'])})
+        DVs = self._AIM_in['decision_variables']
+        
+        if DVs['red_tag']:
+            self._RV_dict.update({'DV_RED': 
+                                self._create_RV_red_tags(DEP['red_tags'])})
+        if DVs['rec_time'] or DVs['rec_cost']:
+            self._RV_dict.update({'DV_REP': 
+                                self._create_RV_repairs(
+                                    DEP['rec_costs'], 
+                                    DEP['rec_times'],
+                                    DEP['cost_and_time'])})
+        if DVs['injuries']:
+            self._RV_dict.update({'DV_INJ': 
+                                self._create_RV_injuries(
+                                    DEP['injuries'],
+                                    DEP['injury_lvls'])})
 
         # demands 200
         self._RV_dict.update({'EDP': self._create_RV_demands(
@@ -198,11 +197,11 @@ class FEMA_P58_Assessment(Assessment):
 
         # sample the random variables -----------------------------------------
         for r_i, rv in self._RV_dict.items():
-            rv.sample_distribution(self._realizations)
+            rv.sample_distribution(self._AIM_in['general']['realizations'])
 
     def define_loss_model(self):
         super().define_loss_model()
-
+        
         # fragility groups
         self._FG_dict = self._create_fragility_groups()
 
@@ -218,59 +217,67 @@ class FEMA_P58_Assessment(Assessment):
         self._TIME = self._sample_event_time()
         
         # get the population conditioned on event time
-        self.POP = self._get_population()
-
+        self._POP = self._get_population()
+        
         # collapses
-        COL, collapsed_IDs = self._calc_collapses()
+        self._COL, collapsed_IDs = self._calc_collapses()
         self._ID_dict.update({'collapse':collapsed_IDs})
 
         # select the non-collapse cases for further analyses
-        non_collapsed_IDs = self.POP[
-            ~self.POP.index.isin(collapsed_IDs)].index.values.astype(int)
+        non_collapsed_IDs = self._POP[
+            ~self._POP.index.isin(collapsed_IDs)].index.values.astype(int)
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
-
+        
         # damage in non-collapses
         self._DMG = self._calc_damage()
 
     def calculate_losses(self):
         super().calculate_losses()
-
+        DVs = self._AIM_in['decision_variables']
+        
         # red tag probability
-        DV_RED = self._calc_red_tag()
+        if DVs['red_tag']:
+            DV_RED = self._calc_red_tag()
+            
+            self._DV_dict.update({'red_tag': DV_RED})
 
-        # irrepairable cases
-        irrepairable_IDs = self._calc_irrepairable()
+        # reconstruction cost and time
+        if DVs['rec_cost'] or DVs['rec_time']:
+            # irrepairable cases
+            irrepairable_IDs = self._calc_irrepairable()
+    
+            # collect the IDs of repairable realizations
+            P_NC = self._POP.loc[self._ID_dict['non-collapse']]
+            repairable_IDs = P_NC[
+                ~P_NC.index.isin(irrepairable_IDs)].index.values.astype(int)
+    
+            self._ID_dict.update({'repairable': repairable_IDs})
+            self._ID_dict.update({'irrepairable': irrepairable_IDs})
+    
+            # reconstruction cost and time for repairable cases
+            DV_COST, DV_TIME = self._calc_repair_cost_and_time()
 
-        # collect the IDs of repairable realizations
-        P_NC = self._POP.loc[self._ID_dict['non-collapsed']]
-        repairable_IDs = P_NC[
-            ~P_NC.index.isin(irrepairable_IDs)].index.values.astype(int)
-
-        self._ID_dict.update({'repairable': repairable_IDs})
-        self._ID_dict.update({'irrepairable': irrepairable_IDs})
-
-        # reconstruction cost and time for repairable cases
-        DV_COST, DV_TIME = self._calc_repair_cost_and_time()
-        
+            self._DV_dict.update({
+                'rec_cost': DV_COST,
+                'rec_time': DV_TIME,
+            })
+            
         # injuries due to collapse
-        # ------------------------------------------------------------------------------
-        COL_INJ = self._calc_collapse_injuries()
+        if DVs['injuries']:
+            COL_INJ = self._calc_collapse_injuries()
+    
+            # injuries in non-collapsed cases
+            DV_INJ_dict = self._calc_non_collapse_injuries()
+            
+            # store results
+            if COL_INJ is not None:
+                self.COL = pd.concat([self._COL, COL_INJ], axis=1)
 
-        # injuries in non-collapsed cases
-
-        DV_INJ_dict = self._calc_non_collapse_injuries()
-        
-        # store results
-        self.COL = pd.concat([self._COL, COL_INJ], axis=1)
-
-        self._DV_dict.update({
-            'red tag': DV_RED,
-            'repair cost': DV_COST,
-            'repair time': DV_TIME,
-            'injuries': DV_INJ_dict
-        })
+            self._DV_dict.update({'injuries': DV_INJ_dict})
         
     def aggregate_results(self):
+
+        DVs = self._AIM_in['decision_variables']
 
         MI_raw = [
             ('event time', 'month'),
@@ -292,13 +299,15 @@ class FEMA_P58_Assessment(Assessment):
         
         ncID = self._ID_dict['non-collapse']
         colID = self._ID_dict['collapse']
-        repID = self._ID_dict['repairable']
-        irID = self._ID_dict['irrepairable']
+        if DVs['rec_cost'] or DVs['rec_time']:
+            repID = self._ID_dict['repairable']
+            irID = self._ID_dict['irrepairable']
 
         MI = pd.MultiIndex.from_tuples(MI_raw)
 
-        SUMMARY = pd.DataFrame(np.empty((self._realizations, len(MI))),
-                               columns=MI)
+        SUMMARY = pd.DataFrame(np.empty((
+            self._AIM_in['general']['realizations'], 
+            len(MI))), columns=MI)
         SUMMARY[:] = np.NaN
 
         # event time
@@ -306,75 +315,199 @@ class FEMA_P58_Assessment(Assessment):
             offset = 0
             if prop == 'month':
                 offset = 1
-            SUMMARY.loc[:, ('event time', prop)] = self._TIME.loc[:, prop] + offset
+            SUMMARY.loc[:, ('event time', prop)] = \
+                self._TIME.loc[:, prop] + offset
 
         # inhabitants
         SUMMARY.loc[:, ('inhabitants', '')] = self._POP.sum(axis=1)
 
         # collapses
-        SUMMARY.loc[:, ('collapses', 'collapsed?')] = self._COL.iloc[:, 0]
-        SUMMARY.loc[colID, ('collapses', 'mode')] = self._COL.loc[:, 'CM']
+        SUMMARY.loc[:, ('collapses', 'collapsed?')] = self._COL.iloc[:, 0]        
 
         # red tag
-        SUMMARY.loc[ncID, ('red tagged?', '')] = \
-            self._DV_dict['red tag'].max(axis=1)
+        if DVs['red_tag']:
+            SUMMARY.loc[ncID, ('red tagged?', '')] = \
+                self._DV_dict['red_tag'].max(axis=1)
 
         # reconstruction cost
-        SUMMARY.loc[ncID, ('reconstruction', 'cost')] = \
-            self._DV_dict['repair cost'].sum(axis=1)
+        if DVs['rec_cost']:
+            SUMMARY.loc[ncID, ('reconstruction', 'cost')] = \
+                self._DV_dict['rec_cost'].sum(axis=1)
+    
+            repl_cost = self._AIM_in['general']['replacement_cost']
+            SUMMARY.loc[colID, ('reconstruction', 'cost')] = repl_cost
 
-        repl_cost = self._AIM_in['replacement_cost']
-        SUMMARY.loc[colID, ('reconstruction', 'cost')] = repl_cost
+        if DVs['rec_cost'] or DVs['rec_time']:
+            SUMMARY.loc[ncID, ('reconstruction', 'irrepairable?')] = 0
+            SUMMARY.loc[irID, ('reconstruction', 'irrepairable?')] = 1
 
-        SUMMARY.loc[ncID, ('reconstruction', 'irrepairable?')] = 0
-        SUMMARY.loc[irID,
-                    ('reconstruction', 'irrepairable?')] = 1
-        SUMMARY.loc[irID, ('reconstruction', 'cost')] = repl_cost
+        if DVs['rec_cost']:
+            SUMMARY.loc[irID, ('reconstruction', 'cost')] = repl_cost
 
-        repair_impractical_IDs = SUMMARY.loc[
-            SUMMARY.loc[:, ('reconstruction', 'cost')] > repl_cost].index
-        SUMMARY.loc[repID, ('reconstruction', 'cost impractical?')] = 0
-        SUMMARY.loc[repair_impractical_IDs,
-                    ('reconstruction', 'cost impractical?')] = 1
-        SUMMARY.loc[
-            repair_impractical_IDs, ('reconstruction', 'cost')] = repl_cost
+        
+            repair_impractical_IDs = SUMMARY.loc[
+                SUMMARY.loc[:, ('reconstruction', 'cost')] > repl_cost].index
+            SUMMARY.loc[repID, ('reconstruction', 'cost impractical?')] = 0
+            SUMMARY.loc[repair_impractical_IDs,
+                        ('reconstruction', 'cost impractical?')] = 1
+            SUMMARY.loc[
+                repair_impractical_IDs, ('reconstruction', 'cost')] = repl_cost
 
         # reconstruction time
-        SUMMARY.loc[ncID, ('reconstruction', 'time-sequential')] = \
-            self._DV_dict['repair time'].sum(axis=1)
-        SUMMARY.loc[ncID, ('reconstruction', 'time-parallel')] = \
-            self._DV_dict['repair time'].max(axis=1)
+        if DVs['rec_time']:
+            SUMMARY.loc[ncID, ('reconstruction', 'time-sequential')] = \
+                self._DV_dict['rec_time'].sum(axis=1)
+            SUMMARY.loc[ncID, ('reconstruction', 'time-parallel')] = \
+                self._DV_dict['rec_time'].max(axis=1)
 
-        rep_time = self._AIM_in['replacement_time']
+            rep_time = self._AIM_in['general']['replacement_time']
 
-        for t_label in ['time-sequential', 'time-parallel']:
-            SUMMARY.loc[colID, ('reconstruction', t_label)] = rep_time
-            SUMMARY.loc[irID, ('reconstruction', t_label)] = rep_time
+            for t_label in ['time-sequential', 'time-parallel']:
+                SUMMARY.loc[colID, ('reconstruction', t_label)] = rep_time
+                SUMMARY.loc[irID, ('reconstruction', t_label)] = rep_time
 
-        repair_impractical_IDs = \
-            SUMMARY.loc[SUMMARY.loc[:, ('reconstruction',
-                                        'time-parallel')] > rep_time].index
-        SUMMARY.loc[repID, ('reconstruction', 'time impractical?')] = 0
-        SUMMARY.loc[repair_impractical_IDs,('reconstruction', 
-                                            'time impractical?')] = 1
-        SUMMARY.loc[repair_impractical_IDs, ('reconstruction', 
-                                             'time-parallel')] = rep_time
+            repair_impractical_IDs = \
+                SUMMARY.loc[SUMMARY.loc[:, ('reconstruction',
+                                            'time-parallel')] > rep_time].index
+            SUMMARY.loc[repID, ('reconstruction', 'time impractical?')] = 0
+            SUMMARY.loc[repair_impractical_IDs,('reconstruction', 
+                                                'time impractical?')] = 1
+            SUMMARY.loc[repair_impractical_IDs, ('reconstruction', 
+                                                 'time-parallel')] = rep_time
 
         # injuries
-        SUMMARY.loc[colID, ('injuries', 'casualties')] = \
-            self._COL.loc[:, 'INJ-0']
-        SUMMARY.loc[colID, ('injuries', 'fatalities')] = \
-            self._COL.loc[:, 'INJ-1']
-
-        SUMMARY.loc[ncID, ('injuries', 'casualties')] = \
-            self._DV_dict['injuries'][0].sum(axis=1)
-        SUMMARY.loc[ncID, ('injuries', 'fatalities')] = \
-            self._DV_dict['injuries'][1].sum(axis=1)
+        if DVs['injuries']:
+            if 'CM' in self._COL.columns:
+                SUMMARY.loc[colID, ('collapses', 'mode')] = self._COL.loc[:, 'CM']
+            
+                SUMMARY.loc[colID, ('injuries', 'casualties')] = \
+                    self._COL.loc[:, 'INJ-0']
+                SUMMARY.loc[colID, ('injuries', 'fatalities')] = \
+                    self._COL.loc[:, 'INJ-1']
+    
+            SUMMARY.loc[ncID, ('injuries', 'casualties')] = \
+                self._DV_dict['injuries'][0].sum(axis=1)
+            SUMMARY.loc[ncID, ('injuries', 'fatalities')] = \
+                self._DV_dict['injuries'][1].sum(axis=1)
         
-        self._SUMMARY = SUMMARY
+        self._SUMMARY = SUMMARY.dropna(axis=1,how='all')
 
     def write_outputs(self):
         super().write_outputs()
+
+    def _create_correlation_matrix(self, rho_target, c_target=-1, 
+                                   include_CSG=False, 
+                                   include_DSG=False, include_DS=False):
+
+        # set the correlation structure
+        rho_FG, rho_PG, rho_LOC, rho_DIR, rho_CSG, rho_DS = np.zeros(6)
+
+        if rho_target in ['FG', 'PG', 'DIR', 'LOC', 'CSG', 'ATC', 'DS']:
+            rho_DS = 1.0
+        if rho_target in ['FG', 'PG', 'DIR', 'LOC', 'CSG']:
+            rho_CSG = 1.0
+        if rho_target in ['FG', 'PG', 'DIR']:
+            rho_DIR = 1.0
+        if rho_target in ['FG', 'PG', 'LOC']:
+            rho_LOC = 1.0
+        if rho_target in ['FG', 'PG']:
+            rho_PG = 1.0
+        if rho_target == 'FG':
+            rho_FG = 1.0
+
+        L_D_list = []
+        dims = []
+        DS_list = []
+        ATC_rho = []
+        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
+            if ((c_target == -1) or (c_id == c_target)):
+                c_L_D_list = []
+                c_DS_list = []
+                ATC_rho.append(comp['correlation'])
+
+                if include_DSG:
+                    DS_count = 0
+                    for dsg_i, DSG in comp['DSG_set'].items():
+                        if include_DS:
+                            DS_count += len(DSG['DS_set'])
+                        else:
+                            DS_count += 1
+                else:
+                    DS_count = 1
+
+                for loc in comp['locations']:
+                    if include_CSG:
+                        u_dirs = comp['directions']
+                    else:
+                        u_dirs = np.unique(comp['directions'])
+                    c_L_D_list.append([])
+                    for dir_ in u_dirs:
+                        c_DS_list.append(DS_count)
+                        for ds_i in range(DS_count):
+                            c_L_D_list[-1].append(dir_)
+
+                c_dims = sum([len(loc) for loc in c_L_D_list])
+                dims.append(c_dims)
+                L_D_list.append(c_L_D_list)
+                DS_list.append(c_DS_list)
+
+        rho = np.ones((sum(dims), sum(dims))) * rho_FG
+
+        f_pos_id = 0
+        for c_id, (c_L_D_list, c_dims, c_DS_list) in enumerate(
+            zip(L_D_list, dims, DS_list)):
+            c_rho = np.ones((c_dims, c_dims)) * rho_PG
+
+            # dependencies btw directions
+            if rho_DIR != 0:
+                c_pos_id = 0
+                for loc_D_list in c_L_D_list:
+                    l_dim = len(loc_D_list)
+                    c_rho[c_pos_id:c_pos_id + l_dim,
+                    c_pos_id:c_pos_id + l_dim] = rho_DIR
+                    c_pos_id = c_pos_id + l_dim
+
+            # dependencies btw locations
+            if rho_LOC != 0:
+                flat_dirs = []
+                [[flat_dirs.append(dir_i) for dir_i in dirs] for dirs in
+                 c_L_D_list]
+                flat_dirs = np.array(flat_dirs)
+                for u_dir in np.unique(flat_dirs):
+                    dir_ids = np.where(flat_dirs == u_dir)[0]
+                    for i in dir_ids:
+                        for j in dir_ids:
+                            c_rho[i, j] = rho_LOC
+
+            if ((rho_CSG != 0) or (rho_target == 'ATC')):
+                c_pos_id = 0
+                if rho_target == 'ATC':
+                    rho_to_use = float(ATC_rho[c_id])
+                else:
+                    rho_to_use = rho_CSG
+                for loc_D_list in c_L_D_list:
+                    flat_dirs = np.array(loc_D_list)
+                    for u_dir in np.unique(flat_dirs):
+                        dir_ids = np.where(flat_dirs == u_dir)[0]
+                        for i in dir_ids:
+                            for j in dir_ids:
+                                c_rho[c_pos_id + i, c_pos_id + j] = rho_to_use
+                    c_pos_id = c_pos_id + len(loc_D_list)
+
+            if rho_DS != 0:
+                c_pos_id = 0
+                for l_dim in c_DS_list:
+                    c_rho[c_pos_id:c_pos_id + l_dim,
+                    c_pos_id:c_pos_id + l_dim] = rho_DS
+                    c_pos_id = c_pos_id + l_dim
+
+            rho[f_pos_id:f_pos_id + c_dims,
+            f_pos_id:f_pos_id + c_dims] = c_rho
+            f_pos_id = f_pos_id + c_dims
+
+        np.fill_diagonal(rho, 1.0)
+
+        return rho
 
     def _create_RV_quantities(self, rho_qnt):
 
@@ -382,21 +515,31 @@ class FEMA_P58_Assessment(Assessment):
 
         # collect the parameters for each quantity dimension
         for c_id, comp in self._FG_in.items():
-            q_theta = np.append(q_theta, comp['quantities'])
+            u_dirs = np.unique(comp['directions'])
+
+            dir_weights = comp['dir_weights']
+            theta_list = []
+            [[theta_list.append(qnt * dw) for dw in dir_weights]
+             for qnt in comp['quantities']]
+            q_theta = np.append(q_theta, theta_list)
+
             if comp['distribution_kind'] == 'normal':
                 q_sig = np.append(q_sig, (
-                    comp['cov'] * np.asarray(comp['quantities'])).tolist())
+                    comp['cov'] * np.asarray(theta_list)).tolist())
             else:
                 q_sig = np.append(q_sig, (
-                    np.ones(len(comp['locations'])) * comp['cov']).tolist())
-            q_tag = np.append(q_tag, [c_id + '-QNT-' + str(s_i) for s_i in
-                                      comp['locations']])
-            q_dist = np.append(q_dist, [comp['distribution_kind'] for s_i in
-                                        comp['locations']])
+                    np.ones(len(theta_list)) * comp['cov']).tolist())
+
+            q_tag = np.append(q_tag,
+                              [[c_id + '-QNT-' + str(s_i) + '-' + str(d_i)
+                                for d_i in u_dirs]
+                               for s_i in comp['locations']])
+            q_dist = np.append(q_dist,
+                               [[comp['distribution_kind'] for d_i in u_dirs]
+                                for s_i in comp['locations']])
 
         dims = len(q_theta)
-        rho = np.ones((dims, dims)) * rho_qnt
-        np.fill_diagonal(rho, 1.0)
+        rho = self._create_correlation_matrix(rho_qnt)
         q_COV = np.outer(q_sig, q_sig) * rho
 
         # add lower limits to ensure only positive quantities
@@ -431,38 +574,28 @@ class FEMA_P58_Assessment(Assessment):
         dims = len(d_theta)
 
         # get the total number of random variables for this fragility group
-        rv_count = len(comp['locations']) * len(comp['proportions']) * dims
+        rv_count = len(comp['locations']) * len(comp['directions']) * dims
 
         # create the (empty) input arrays for the RV
         c_theta = np.zeros(rv_count)
         c_tag = np.empty(rv_count, dtype=object)
         c_sig = np.zeros(rv_count)
-        c_rho = np.ones(
-            (rv_count, rv_count)) * rho_fr['PG']  # set correlations between PGs
 
         pos_id = 0
-        PG_size = len(comp['proportions']) * dims
         for l_id in comp['locations']:
-            # for each performance group (i.e. location)
-            # correlation between subgroups is controlled by the component data
-            if rho_fr['CSG'] is not None:
-                rho = rho_fr['CSG']
-            else:
-                rho = comp['correlation']
-            c_rho[pos_id:pos_id + PG_size, pos_id:pos_id + PG_size] = rho
-            
-            for p_id, __ in enumerate(comp['proportions']):
+            # for each location-direction pair)
+            for d_id, __ in enumerate(comp['directions']):
                 # for each component-subgroup
                 c_theta[pos_id:pos_id + dims] = d_theta
                 c_sig[pos_id:pos_id + dims] = d_sig
                 c_tag[pos_id:pos_id + dims] = [
-                    t + '-LOC-{}-CSG-{}'.format(l_id, p_id) for t in d_tag]
-                c_rho[pos_id:pos_id + dims, 
-                      pos_id:pos_id + dims] = rho_fr['DSG']
+                    t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
                 pos_id += dims
 
         # create the covariance matrix
-        np.fill_diagonal(c_rho, 1.0)
+        c_rho = self._create_correlation_matrix('ATC', c_target=c_id, 
+                                                include_DSG=True,
+                                                include_CSG=True)
         c_COV = np.outer(c_sig, c_sig) * c_rho
 
         fragility_RV = RandomVariable(ID=300 + c_id,
@@ -473,24 +606,9 @@ class FEMA_P58_Assessment(Assessment):
 
         return fragility_RV
 
-    def _create_RV_red_tags(self, rho_rt):
+    def _create_RV_red_tags(self, rho_target):
 
-        # get the total number of red tag decision variables
-        rv_count = 0
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
-            for dsg_i, DSG in comp['DSG_set'].items():
-                for ds_i, DS in DSG['DS_set'].items():
-                    if DS['red_tag']['theta'] > 0:
-                        rv_count += len(comp['locations'])
-
-        # create the (empty) input arrays for the RV
-        f_theta = np.zeros(rv_count)
-        f_tag = np.empty(rv_count, dtype=object)
-        f_sig = np.zeros(rv_count)
-        f_rho = np.ones(
-            (rv_count, rv_count)) * rho_rt['CMP']  # set correlations between FGs
-
-        f_pos_id = 0
+        f_theta, f_sig, f_tag = [np.array([]) for i in range(3)]
         for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
 
             d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
@@ -498,45 +616,33 @@ class FEMA_P58_Assessment(Assessment):
             for dsg_i, DSG in comp['DSG_set'].items():
                 for ds_i, DS in DSG['DS_set'].items():
                     theta = DS['red_tag']['theta']
-                    if theta > 0:
-                        d_theta = np.append(d_theta, theta)
-                        d_sig = np.append(d_sig, DS['red_tag']['cov'])
-                        d_tag = np.append(
-                            d_tag,
-                            comp['ID'] + '-' + str(dsg_i) + '-' + str(ds_i))
-            dims = len(d_theta)
+                    d_theta = np.append(d_theta, theta)
+                    d_sig = np.append(d_sig, DS['red_tag']['cov'])
+                    d_tag = np.append(d_tag,
+                                      comp['ID'] + '-' + str(dsg_i) + '-' + str(
+                                          ds_i))
 
-            # get the total number of random variables for this fragility group
-            PG_size = len(comp['locations']) * dims
+            for loc in comp['locations']:
+                for dir_ in np.unique(comp['directions']):
+                    f_theta = np.append(f_theta, d_theta)
+                    f_sig = np.append(f_sig, d_sig)
+                    f_tag = np.append(f_tag,
+                                      [t + '-LOC-{}-DIR-{}'.format(loc, dir_)
+                                       for t in d_tag])
 
-            # create the (empty) input arrays for the RV
-            c_theta = np.zeros(PG_size)
-            c_tag = np.empty(PG_size, dtype=object)
-            c_sig = np.zeros(PG_size)
-            c_rho = np.ones(
-                (PG_size, PG_size)) * rho_rt['PG'] # set correlations between PGs
+        rho = self._create_correlation_matrix('PG', c_target=-1, 
+                                              include_DSG=True,
+                                              include_DS=True)
 
-            pos_id = 0
-            for l_id in comp['locations']:
-                # for each performance group (i.e. location)
-                c_theta[pos_id:pos_id + dims] = d_theta
-                c_sig[pos_id:pos_id + dims] = d_sig
-                c_tag[pos_id:pos_id + dims] = [
-                    t + '-LOC-{}'.format(l_id) for t in d_tag]
-                c_rho[pos_id:pos_id + dims, pos_id:pos_id + dims] = rho_rt['DS']
-                pos_id += dims
+        # remove the unnecessary fields
+        to_remove = np.where(f_theta == 0)[0]
+        rho = np.delete(rho, to_remove, axis=0)
+        rho = np.delete(rho, to_remove, axis=1)
 
-            # now append the performance group data to the global arrays
-            f_end_id = f_pos_id + len(c_theta)
-            f_theta[f_pos_id:f_end_id] = c_theta
-            f_sig[f_pos_id:f_end_id] = c_sig
-            f_tag[f_pos_id:f_end_id] = c_tag
-            f_rho[f_pos_id:f_end_id, f_pos_id:f_end_id] = c_rho
-            f_pos_id = f_end_id
+        f_theta, f_sig, f_tag = [np.delete(f_vals, to_remove)
+                                 for f_vals in [f_theta, f_sig, f_tag]]
 
-        # create the global covariance matrix
-        np.fill_diagonal(f_rho, 1.0)
-        f_COV = np.outer(f_sig, f_sig) * f_rho
+        f_COV = np.outer(f_sig, f_sig) * rho
 
         tr_upper = 1. + (1. - f_theta) / f_theta
 
@@ -551,211 +657,151 @@ class FEMA_P58_Assessment(Assessment):
 
         return red_tag_RV
 
-    def _create_RV_repairs(self, rho_rep):
+    def _create_RV_repairs(self, rho_cost, rho_time, rho_cNt):
 
-        # get the total number of repair cost and time decision variables
-        rv_count = 0
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
-            for dsg_i, DSG in comp['DSG_set'].items():
-                for ds_i, DS in DSG['DS_set'].items():
-                    rv_count += 2 * len(comp['locations'])
+        # prepare the cost and time parts of the data separately
+        ct_sig, ct_tag, ct_dkind = [np.array([]) for i in range(3)]
+        for rho_target, name in zip([rho_cost, rho_time], ['cost', 'time']):
+            
+            f_sig, f_tag, f_dkind = [np.array([]) for i in range(3)]
+            for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
 
-        # create the (empty) input arrays for the RV
-        f_tag = np.empty(rv_count, dtype=object)
-        f_dkind = np.empty(rv_count, dtype=object)
-        f_sig = np.zeros(rv_count)
-        f_rho = np.ones(
-            (rv_count, rv_count)) * rho_rep['CMP'] # set correlations between CMPs
+                d_sig, d_tag, d_dkind = [np.array([]) for i in range(3)]
 
-        c_dims = []
-        f_pos_id_c = 0
-        f_pos_id_t = rv_count // 2
-        # set the correlation between repair cost and repair time
-        z = np.zeros((f_pos_id_t, f_pos_id_t))
-        np.fill_diagonal(z, rho_rep['CT'])
-        f_rho[:f_pos_id_t, f_pos_id_t:] = z
-        f_rho[f_pos_id_t:, :f_pos_id_t] = z
+                for dsg_i, DSG in comp['DSG_set'].items():
+                    for ds_i, DS in DSG['DS_set'].items():
+                        d_sig = np.append(d_sig,
+                                          DS['repair_{}'.format(name)]['cov'])
+                        d_dkind = np.append(d_dkind,
+                                            DS['repair_{}'.format(name)][
+                                                'distribution_kind'])
+                        d_tag = np.append(d_tag,
+                                          comp['ID'] + '-' + str(
+                                              dsg_i) + '-' + str(
+                                              ds_i) + '-{}'.format(name))
 
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
+                for loc in comp['locations']:
+                    for dir_ in np.unique(comp['directions']):
+                        f_sig = np.append(f_sig, d_sig)
+                        f_dkind = np.append(f_dkind, d_dkind)
+                        f_tag = np.append(f_tag,
+                                          [t + '-LOC-{}-DIR-{}'.format(loc,
+                                                                       dir_)
+                                           for t in d_tag])
+            ct_sig = np.append(ct_sig, f_sig)
+            ct_tag = np.append(ct_tag, f_tag)
+            ct_dkind = np.append(ct_dkind, f_dkind)
 
-            (dc_sig, dc_tag, dc_dkind,
-             dt_sig, dt_tag, dt_dkind) = [np.array([]) for i in range(6)]
+        rho_c = self._create_correlation_matrix(rho_cost, c_target=-1,
+                                          include_DSG=True,
+                                          include_DS=True)
+        rho_t = self._create_correlation_matrix(rho_time, c_target=-1,
+                                          include_DSG=True,
+                                          include_DS=True)
 
-            for dsg_i, DSG in comp['DSG_set'].items():
-                for ds_i, DS in DSG['DS_set'].items():
-                    dc_sig = np.append(dc_sig, DS['repair_cost']['cov'])
-                    dt_sig = np.append(dt_sig, DS['repair_time']['cov'])
-                    dc_dkind = np.append(dc_dkind,
-                                         DS['repair_cost']['distribution_kind'])
-                    dt_dkind = np.append(dt_dkind,
-                                         DS['repair_time']['distribution_kind'])
-                    dc_tag = np.append(dc_tag,
-                                       comp['ID'] + '-' + str(
-                                           dsg_i) + '-' + str(
-                                           ds_i) + '-C')
-                    dt_tag = np.append(dt_tag, dc_tag[-1][:-1] + 'T')
-            dims = len(dc_sig)
+        dims = len(ct_tag)
+        ct_rho = np.zeros((dims, dims))
 
-            # get the total number of random variables for this fragility group
-            PG_size = len(comp['locations']) * dims
+        dims = dims // 2
+        ct_rho[:dims, :dims] = rho_c
+        ct_rho[dims:, dims:] = rho_t
 
-            # create the (empty) input arrays for the RV
-            c_tag = np.empty(PG_size, dtype=object)
-            c_dkind = np.empty(PG_size, dtype=object)
-            c_sig = np.zeros(PG_size)
-            c_rho = np.ones(
-                (PG_size, PG_size)) * rho_rep['PG']  # set correlations between PGs
+        # if correlation between cost and time is considered, add that to the matrix
+        if rho_cNt:
+            rho_ct = np.zeros((dims, dims))
+            np.fill_diagonal(rho_ct, 1.)
+            ct_rho[:dims, dims:] = rho_ct
+            ct_rho[dims:, :dims] = rho_ct
 
-            t_tag = np.empty(PG_size, dtype=object)
-            t_dkind = np.empty(PG_size, dtype=object)
-            t_sig = np.zeros(PG_size)
-            t_rho = np.ones(
-                (PG_size, PG_size)) * rho_rep['PG'] # set correlations between PGs
-
-            pos_id = 0
-            for l_id in comp['locations']:
-                # for each performance group (i.e. location)
-                c_sig[pos_id:pos_id + dims] = dc_sig
-                c_tag[pos_id:pos_id + dims] = [
-                    t + '-LOC-{}'.format(l_id) for t in dc_tag]
-                c_rho[pos_id:pos_id + dims, pos_id:pos_id + dims] = rho_rep['DS']
-                c_dkind[pos_id:pos_id + dims] = dc_dkind
-
-                t_sig[pos_id:pos_id + dims] = dt_sig
-                t_tag[pos_id:pos_id + dims] = [
-                    t + '-LOC-{}'.format(l_id) for t in dt_tag]
-                t_rho[pos_id:pos_id + dims, pos_id:pos_id + dims] = rho_rep['DS']
-                t_dkind[pos_id:pos_id + dims] = dt_dkind
-                pos_id += dims
-
-            # now add the performance group data to the global arrays
-            f_end_id = f_pos_id_c + len(c_sig)
-            f_sig[f_pos_id_c:f_end_id] = c_sig
-            f_tag[f_pos_id_c:f_end_id] = c_tag
-            f_dkind[f_pos_id_c:f_end_id] = c_dkind
-            f_rho[f_pos_id_c:f_end_id, f_pos_id_c:f_end_id] = c_rho
-            f_pos_id_c = f_end_id
-
-            f_end_id = f_pos_id_t + len(t_sig)
-            f_sig[f_pos_id_t:f_end_id] = t_sig
-            f_tag[f_pos_id_t:f_end_id] = t_tag
-            f_dkind[f_pos_id_t:f_end_id] = t_dkind
-            f_rho[f_pos_id_t:f_end_id, f_pos_id_t:f_end_id] = t_rho
-            f_pos_id_t = f_end_id
-
-        # create the global covariance matrix
-        np.fill_diagonal(f_rho, 1.0)
-        f_COV = np.outer(f_sig, f_sig) * f_rho
+        ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
 
         repair_RV = RandomVariable(ID=401,
-                                   dimension_tags=f_tag,
-                                   distribution_kind=f_dkind,
-                                   theta=np.ones(len(f_sig)),
-                                   COV=f_COV,
+                                   dimension_tags=ct_tag,
+                                   distribution_kind=ct_dkind,
+                                   theta=np.ones(len(ct_sig)),
+                                   COV=ct_COV,
                                    corr_ref='post',
-                                   truncation_limits=[np.zeros(len(f_sig)),
+                                   truncation_limits=[np.zeros(len(ct_sig)),
                                                       None])
 
         return repair_RV
 
-    def _create_RV_injuries(self, rho_inj):
+    def _create_RV_injuries(self, rho_target, rho_lvls):
 
         inj_lvls = self._inj_lvls
-        
-        # get the total number of injury-related decision variables
-        rv_count = 0
-        comp_list = []
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
-            for dsg_i, DSG in comp['DSG_set'].items():
-                for ds_i, DS in DSG['DS_set'].items():
-                    thetas = DS['injuries']['theta']
-                    if np.sum(thetas) > 0.:
-                        rv_count += len(thetas) * len(comp['locations'])
-                        comp_list.append(c_name)
 
-        # create the (empty) input arrays for the RV
-        f_theta = np.zeros(rv_count)
-        f_tag = np.empty(rv_count, dtype=object)
-        f_sig = np.zeros(rv_count)
-        f_rho = np.ones(
-            (rv_count, rv_count)) * rho_inj['CMP'] # set correlations between CMPs
+        # prepare the cost and time parts of the data separately
+        full_theta, full_sig, full_tag = [np.array([]) for i in range(3)]
+        for i in range(inj_lvls):
 
-        f_pos_id = 0
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
-            if c_name in comp_list:
+            f_theta, f_sig, f_tag = [np.array([]) for i in range(3)]
+            for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
 
                 d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
 
                 for dsg_i, DSG in comp['DSG_set'].items():
                     for ds_i, DS in DSG['DS_set'].items():
-                        theta_list = DS['injuries']['theta']
-                        cov_list = DS['injuries']['cov']
-                        inj_lvls = len(cov_list)
-                        for inj_id in range(len(cov_list)):
-                            d_theta = np.append(d_theta, theta_list[inj_id])
-                            d_sig = np.append(d_sig, cov_list[inj_id])
-                            d_tag = np.append(d_tag,
-                                              comp['ID'] + '-' + str(
-                                                  dsg_i) + '-' + str(
-                                                  ds_i) + '-' + str(inj_id))
-                dims = len(d_sig)
+                        d_theta = np.append(d_theta, DS['injuries']['theta'][i])
+                        d_sig = np.append(d_sig, DS['injuries']['cov'][i])
+                        d_tag = np.append(d_tag,
+                                          comp['ID'] + '-' + str(
+                                              dsg_i) + '-' + str(
+                                              ds_i) + '-{}'.format(i))
 
-                # get the total number of random variables for this fragility group
-                PG_size = len(comp['locations']) * dims
+                for loc in comp['locations']:
+                    for dir_ in np.unique(comp['directions']):
+                        f_theta = np.append(f_theta, d_theta)
+                        f_sig = np.append(f_sig, d_sig)
+                        f_tag = np.append(f_tag,
+                                          [t + '-LOC-{}-DIR-{}'.format(loc,
+                                                                       dir_)
+                                           for t in d_tag])
 
-                # create the (empty) input arrays for the RV
-                c_tag = np.empty(PG_size, dtype=object)
-                c_theta = np.zeros(PG_size)
-                c_sig = np.zeros(PG_size)
-                c_rho = np.ones(
-                    (PG_size,
-                     PG_size)) * rho_inj['PG'] # set correlations between PGs
+            full_theta = np.append(full_theta, f_theta)
+            full_sig = np.append(full_sig, f_sig)
+            full_tag = np.append(full_tag, f_tag)
 
-                pos_id = 0
+        dims = len(full_tag)
+        full_rho = np.zeros((dims, dims))
+        dims = dims // inj_lvls
 
-                for l_id in comp['locations']:
-                    # for each performance group (i.e. location)
-                    c_theta[pos_id:pos_id + dims] = d_theta
-                    c_sig[pos_id:pos_id + dims] = d_sig
-                    c_tag[pos_id:pos_id + dims] = [
-                        t + '-LOC-{}'.format(l_id) for t in d_tag]
-                    c_rho[pos_id:pos_id + dims,
-                    pos_id:pos_id + dims] = rho_inj['DS']
-                    pos_id += dims
+        # if correlation between different levels of severity is considered, add that to the matrix
+        if rho_lvls:
+            rho_i = self._create_correlation_matrix(rho_target, c_target=-1,
+                                              include_DSG=True,
+                                              include_DS=True)            
+            for i in range(inj_lvls):
+                for j in range(inj_lvls):
+                    full_rho[i * dims:(i + 1) * dims,
+                    j * dims:(j + 1) * dims] = rho_i
 
-                # finally, add the correlation between injury levels
-                for i in range(PG_size // inj_lvls):
-                    c_rho[i * inj_lvls:(i + 1) * inj_lvls,
-                    i * inj_lvls:(i + 1) * inj_lvls] = rho_inj['LVL']
+        # and now add the values around the main diagonal
+        for i in range(inj_lvls):
+            rho_i = self._create_correlation_matrix(rho_target, c_target=-1,
+                                              include_DSG=True,
+                                              include_DS=True)
+            full_rho[i * dims:(i + 1) * dims, i * dims:(i + 1) * dims] = rho_i
 
-                # now add the performance group data to the global arrays
-                f_end_id = f_pos_id + len(c_sig)
-                f_theta[f_pos_id:f_end_id] = c_theta
-                f_sig[f_pos_id:f_end_id] = c_sig
-                f_tag[f_pos_id:f_end_id] = c_tag
-                f_rho[f_pos_id:f_end_id, f_pos_id:f_end_id] = c_rho
-                f_pos_id = f_end_id
+            # finally, remove the unnecessary lines
+        to_remove = np.where(full_theta == 0)[0]
+        full_rho = np.delete(full_rho, to_remove, axis=0)
+        full_rho = np.delete(full_rho, to_remove, axis=1)
 
-        # create the global covariance matrix
-        np.fill_diagonal(f_rho, 1.0)
-        f_COV = np.outer(f_sig, f_sig) * f_rho
+        full_theta, full_sig, full_tag = [np.delete(f_vals, to_remove)
+                                          for f_vals in
+                                          [full_theta, full_sig, full_tag]]
 
-        # remove invalid entries
-        z_list = np.where(f_theta == 0.)[0]
-        f_COV = np.delete(np.delete(f_COV, z_list, axis=0), z_list, axis=1)
-        f_tag = f_tag[f_theta > 0.]
-        f_sig = f_sig[f_theta > 0.]
-        f_theta = f_theta[f_theta > 0.]
+        full_COV = np.outer(full_sig, full_sig) * full_rho
 
-        tr_upper = 1. + (1. - f_theta) / f_theta
+        tr_upper = 1. + (1. - full_theta) / full_theta
 
         injury_RV = RandomVariable(ID=402,
-                                   dimension_tags=f_tag,
+                                   dimension_tags=full_tag,
                                    distribution_kind='normal',
-                                   theta=np.ones(len(f_sig)),
-                                   COV=f_COV,
+                                   theta=np.ones(len(full_sig)),
+                                   COV=full_COV,
                                    corr_ref='post',
-                                   truncation_limits=[np.zeros(len(f_sig)),
+                                   truncation_limits=[np.zeros(len(full_sig)),
                                                       tr_upper])
 
         return injury_RV
@@ -769,12 +815,14 @@ class FEMA_P58_Assessment(Assessment):
         detection_limits = []
         for d_id, d_list in self._EDP_in.items():
             for i in range(len(d_list)):
-                d_rd = d_list[i]['raw_data']
-                events = list(d_rd.keys())
-                demand_data.append(d_rd[events[0]])
-                d_tags.append(str(d_id) + '-LOC-' + str(d_list[i]['floor']))
-                detection_limits.append(
-                    [0., self._AIM_in['EDP_detection_limits'][d_id]])
+                demand_data.append(d_list[i]['raw_data'])
+                d_tags.append(str(d_id) + 
+                              '-LOC-' + str(d_list[i]['location']) + 
+                              '-DIR-' + str(d_list[i]['direction']))
+                det_lim = self._AIM_in['general']['detection_limits'][d_id]
+                if det_lim is None:
+                    det_lim = np.inf
+                detection_limits.append([0., det_lim])
 
         detection_limits = np.transpose(np.asarray(detection_limits))
         demand_data = np.transpose(np.asarray(demand_data))
@@ -819,6 +867,7 @@ class FEMA_P58_Assessment(Assessment):
     def _create_fragility_groups(self):
 
         RVd = self._RV_dict
+        DVs = self._AIM_in['decision_variables']
 
         # create a list for the fragility groups
         FG_dict = dict()
@@ -832,121 +881,142 @@ class FEMA_P58_Assessment(Assessment):
 
             # one group for each of the stories prescribed by the user
             PG_locations = comp['locations']
+            PG_directions = np.unique(comp['directions'])
             for loc in PG_locations:
-                PG_ID = 1000 + FG_ID * 10 + loc
-
-                # get the quantity
-                QNT = RandomVariableSubset(RVd['QNT'],
-                                           tags=[c_id + '-QNT-' + str(loc), ])
-
-                # create the damage objects
-                # consequences do not need to be calculated on a subgroup basis
-
-                # create a list for the damage state groups and their tags
-                DSG_list = []
-                d_tags = []
-                for dsg_i, (DSG_ID, DSG) in enumerate(comp['DSG_set'].items()):
-                    d_tags.append(c_id + '-' + DSG_ID)
-
-                    # create a list for the damage states
-                    DS_set = []
-
-                    for ds_i, (DS_ID, DS) in enumerate(DSG['DS_set'].items()):
-
-                        # create the consequence functions
-                        data = DS['repair_cost']
-                        f_median = prep_bounded_linear_median_DV(
-                            **{k: data.get(k, None) for k in
-                               ('median_max', 'median_min',
-                                'quantity_lower', 'quantity_upper')})
-                        cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + '-C' + \
-                                 '-LOC-{}'.format(loc)
-                        CF_RV = RandomVariableSubset(RVd['DV_REP'],
-                                                     tags=cf_tag)
-                        CF_cost = ConsequenceFunction(DV_median=f_median,
-                                                      DV_distribution=CF_RV)
-
-                        data = DS['repair_time']
-                        f_median = prep_bounded_linear_median_DV(
-                            **{k: data.get(k, None) for k in
-                               ('median_max', 'median_min', 'quantity_lower',
-                                'quantity_upper')})
-                        cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + '-T' + \
-                                 '-LOC-{}'.format(loc)
-                        CF_RV = RandomVariableSubset(RVd['DV_REP'],
-                                                     tags=cf_tag)
-                        CF_time = ConsequenceFunction(DV_median=f_median,
-                                                      DV_distribution=CF_RV)
-
-                        data = DS['red_tag']
-                        if data['theta'] > 0:
-                            f_median = prep_constant_median_DV(data['theta'])
-                            cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
-                                     '-LOC-{}'.format(loc)
-                            CF_RV = RandomVariableSubset(RVd['DV_RED'],
-                                                         tags=cf_tag)
-                            CF_red_tag = ConsequenceFunction(DV_median=f_median,
-                                                             DV_distribution=CF_RV)
-                        else:
-                            CF_red_tag = None
-
-                        data = DS['injuries']
-                        CF_inj_set = []
-                        for inj_i, theta in enumerate(data['theta']):
-                            if theta > 0.:
-                                f_median = prep_constant_median_DV(theta)
+                for dir_ in PG_directions:
+                    PG_ID = 1000 + dir_*100 + FG_ID * 10 + loc
+    
+                    # get the quantity
+                    QNT = RandomVariableSubset(
+                        RVd['QNT'],
+                        tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
+    
+                    # create the damage objects
+                    # consequences are calculated on a performance group level
+    
+                    # create a list for the damage state groups and their tags
+                    DSG_list = []
+                    d_tags = []
+                    for dsg_i, (DSG_ID, DSG) in enumerate(comp['DSG_set'].items()):
+                        d_tags.append(c_id + '-' + DSG_ID)
+    
+                        # create a list for the damage states
+                        DS_set = []
+    
+                        for ds_i, (DS_ID, DS) in enumerate(DSG['DS_set'].items()):
+    
+                            # create the consequence functions
+                            if DVs['rec_cost']:
+                                data = DS['repair_cost']
+                                f_median = prep_bounded_linear_median_DV(
+                                    **{k: data.get(k, None) for k in
+                                       ('median_max', 'median_min',
+                                        'quantity_lower', 'quantity_upper')})
                                 cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
-                                         '-{}-LOC-{}'.format(inj_i, loc)
-                                CF_RV = RandomVariableSubset(RVd['DV_INJ'],
+                                         '-cost' + \
+                                         '-LOC-{}-DIR-{}'.format(loc, dir_)
+                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
                                                              tags=cf_tag)
-                                CF_inj_set.append(ConsequenceFunction(
-                                    DV_median=f_median,
-                                    DV_distribution=CF_RV))
+                                CF_cost = ConsequenceFunction(DV_median=f_median,
+                                                              DV_distribution=CF_RV)
                             else:
-                                CF_inj_set.append(None)
-
-                        # add the DS to the list
-                        DS_set.append(DamageState(ID=ds_i + 1,
-                                                  description=DS['description'],
-                                                  weight=DS['weight'],
-                                                  affected_area=DS[
-                                                      'affected_area'],
-                                                  repair_cost_CF=CF_cost,
-                                                  reconstruction_time_CF=CF_time,
-                                                  red_tag_CF=CF_red_tag,
-                                                  injuries_CF_set=CF_inj_set
-                                                  ))
-
-                    # add the DSG to the list
-                    DSG_list.append(DamageStateGroup(ID=dsg_i + 1,
-                                                     DS_set=DS_set,
-                                                     DS_set_kind=DSG[
-                                                         'DS_set_kind'],
-                                                     description=DSG[
-                                                         'description']
-                                                     ))
-
-                # create the fragility functions
-                FF_set = []
-                for p_id, prop in enumerate(comp['proportions']):
-                    # assign the appropriate random variable to the fragility 
-                    # function
-                    ff_tags = [t + '-LOC-{}-CSG-{}'.format(loc, p_id)
-                               for t in d_tags]
-                    EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
-                                                     tags=ff_tags)
-                    FF_set.append(FragilityFunction(EDP_limit))
-
-                # create the performance group
-                PG = PerformanceGroup(ID=PG_ID,
-                                      location=loc,
-                                      quantity=QNT,
-                                      fragility_functions=FF_set,
-                                      DSG_set=DSG_list,
-                                      proportions=comp['proportions'],
-                                      directions=comp['directions']
-                                      )
-                performance_groups.append(PG)
+                                CF_cost = None
+    
+                            if DVs['rec_time']:
+                                data = DS['repair_time']
+                                f_median = prep_bounded_linear_median_DV(
+                                    **{k: data.get(k, None) for k in
+                                       ('median_max', 'median_min', 'quantity_lower',
+                                        'quantity_upper')})
+                                cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                         '-time' + \
+                                         '-LOC-{}-DIR-{}'.format(loc, dir_)
+                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                                             tags=cf_tag)
+                                CF_time = ConsequenceFunction(DV_median=f_median,
+                                                              DV_distribution=CF_RV)
+                            else:
+                                CF_time = None
+    
+                            if DVs['red_tag']:
+                                data = DS['red_tag']
+                                if data['theta'] > 0:
+                                    f_median = prep_constant_median_DV(data['theta'])
+                                    cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                             '-LOC-{}-DIR-{}'.format(loc, dir_)
+                                    CF_RV = RandomVariableSubset(RVd['DV_RED'],
+                                                                 tags=cf_tag)
+                                    CF_red_tag = ConsequenceFunction(DV_median=f_median,
+                                                                     DV_distribution=CF_RV)
+                                else:
+                                    CF_red_tag = None
+                            else:
+                                CF_red_tag = None
+    
+                            if DVs['injuries']:
+                                data = DS['injuries']
+                                CF_inj_set = []
+                                for inj_i, theta in enumerate(data['theta']):
+                                    if theta > 0.:
+                                        f_median = prep_constant_median_DV(theta)
+                                        cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                                 '-{}-LOC-{}-DIR-{}'.format(inj_i, loc, dir_)
+                                        CF_RV = RandomVariableSubset(RVd['DV_INJ'],
+                                                                     tags=cf_tag)
+                                        CF_inj_set.append(ConsequenceFunction(
+                                            DV_median=f_median,
+                                            DV_distribution=CF_RV))
+                                    else:
+                                        CF_inj_set.append(None)
+                            else:
+                                CF_inj_set = [None,]
+    
+                            # add the DS to the list
+                            DS_set.append(DamageState(ID=ds_i + 1,
+                                                      description=DS['description'],
+                                                      weight=DS['weight'],
+                                                      affected_area=DS[
+                                                          'affected_area'],
+                                                      repair_cost_CF=CF_cost,
+                                                      reconstruction_time_CF=CF_time,
+                                                      red_tag_CF=CF_red_tag,
+                                                      injuries_CF_set=CF_inj_set
+                                                      ))
+    
+                        # add the DSG to the list
+                        DSG_list.append(DamageStateGroup(ID=dsg_i + 1,
+                                                         DS_set=DS_set,
+                                                         DS_set_kind=DSG[
+                                                             'DS_set_kind'],
+                                                         description=DSG[
+                                                             'description']
+                                                         ))
+    
+                    # create the fragility functions
+                    FF_set = []
+                    CSG_this = np.where(comp['directions']==dir_)[0]
+                    PG_weights = comp['csg_weights'][CSG_this]
+                    # normalize the weights
+                    PG_weights /= sum(PG_weights)
+                    for csg_id in CSG_this:
+                        # assign the appropriate random variable to the fragility 
+                        # function
+                        ff_tags = [t + '-LOC-{}-CSG-{}'.format(loc, csg_id)
+                                   for t in d_tags]
+                        EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
+                                                         tags=ff_tags)
+                        FF_set.append(FragilityFunction(EDP_limit))
+    
+                    # create the performance group
+                    PG = PerformanceGroup(ID=PG_ID,
+                                          location=loc,
+                                          quantity=QNT,
+                                          fragility_functions=FF_set,
+                                          DSG_set=DSG_list,
+                                          csg_weights=PG_weights,
+                                          direction=dir_
+                                          )
+                    performance_groups.append(PG)
 
             # create the fragility group
             FG = FragilityGroup(ID=FG_ID,
@@ -967,7 +1037,7 @@ class FEMA_P58_Assessment(Assessment):
 
     def _sample_event_time(self):
         
-        sample_count = self._realizations
+        sample_count = self._AIM_in['general']['realizations']
         
         # month - uniform distribution over [0,11]
         month = np.random.randint(0, 12, size=sample_count)
@@ -1029,7 +1099,7 @@ class FEMA_P58_Assessment(Assessment):
         for demand_ID, demand in self._EDP_dict.items():
             coll_df = pd.DataFrame()
             kind = demand_ID[:3]
-            collapse_limit = self._AIM_in['EDP_collapse_limits'][kind]
+            collapse_limit = self._AIM_in['general']['collapse_limits'][kind]
             if collapse_limit is not None:
                 EDP_samples = demand.samples
                 coll_df = EDP_samples[EDP_samples > collapse_limit]
@@ -1039,7 +1109,8 @@ class FEMA_P58_Assessment(Assessment):
         # get a list of IDs of the collapsed cases
         collapsed_IDs = np.unique(collapsed_IDs).astype(int)
 
-        COL = pd.DataFrame(np.zeros(self._realizations), columns=['COL', ])
+        COL = pd.DataFrame(np.zeros(self._AIM_in['general']['realizations']), 
+                           columns=['COL', ])
         COL.loc[collapsed_IDs, 'COL'] = 1
 
         return COL, collapsed_IDs
@@ -1075,20 +1146,26 @@ class FEMA_P58_Assessment(Assessment):
                 PG_qnt = PG._quantity.samples.loc[ncID]
 
                 # get the corresponding demands
-                demand_ID = FG._demand_type + '-LOC-' + str(PG._location)
-                EDP_samples = self._EDP_dict[demand_ID].samples.loc[
-                    ncID]
+                demand_ID = (FG._demand_type + 
+                             '-LOC-' + str(PG._location) +
+                             '-DIR-' + str(PG._direction+1))
+                if demand_ID in self._EDP_dict.keys():
+                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                else:
+                    # If the required demand is not available, then we are most
+                    # likely analyzing a 3D structure using results from a 2D 
+                    # simulation. The best thing we can do in that particular
+                    # case is to use the EDP from the 0 direction for all other
+                    # directions.
+                    demand_ID = (FG._demand_type + 
+                                 '-LOC-' + str(PG._location) + '-DIR-1')
+                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                    
+                csg_w_list = PG._csg_weights
 
-                prps = PG._proportions
-                dirs = PG._directions
-
-                for csg_i, (csg_w, csg_dir) in enumerate(zip(prps, dirs)):
-                    if csg_dir == 0:
-                        DSG_df = PG._FF_set[csg_i].DSG_given_EDP(EDP_samples)
-                    else:
-                        DSG_df = PG._FF_set[csg_i].DSG_given_EDP(
-                            EDP_samples * self._f_secondary_EDP)
-
+                for csg_i, csg_w in enumerate(csg_w_list): 
+                    DSG_df = PG._FF_set[csg_i].DSG_given_EDP(EDP_samples)
+                    
                     for DSG in PG._DSG_set:
                         in_this_DSG = DSG_df[DSG_df.values == DSG._ID].index
                         if DSG._DS_set_kind == 'single':
@@ -1113,13 +1190,15 @@ class FEMA_P58_Assessment(Assessment):
                             # TODO: simultaneous
                             print(DSG._DS_set_kind)
 
-                FG_damages.iloc[:,
-                pg_i * d_count:(pg_i + 1) * d_count] = FG_damages.mul(
-                    PG_qnt.iloc[:, 0], axis=0)
+                FG_damages.iloc[:,pg_i * d_count:(pg_i + 1) * d_count] = \
+                    FG_damages.mul(PG_qnt.iloc[:, 0], axis=0)
 
             DMG = pd.concat((DMG, FG_damages), axis=1)
 
         DMG.index = ncID
+        
+        # sort the columns to enable index slicing later
+        DMG = DMG.sort_index(axis=1, ascending=True)
 
         return DMG
 
@@ -1176,6 +1255,9 @@ class FEMA_P58_Assessment(Assessment):
             if FG_RED.size > 0:
                 DV_RED = pd.concat((DV_RED, FG_RED), axis=1)
 
+        # sort the columns to enable index slicing later
+        DV_RED = DV_RED.sort_index(axis=1, ascending=True)
+
         return DV_RED
 
     def _calc_irrepairable(self):
@@ -1207,7 +1289,7 @@ class FEMA_P58_Assessment(Assessment):
             RED_max = np.zeros(NC_samples)
 
             # based on Appendix C in FEMA P-58
-            delta_y = self._AIM_in['yield_drift']
+            delta_y = self._AIM_in['general']['yield_drift']
             small = PID_max < delta_y
             medium = PID_max < 4 * delta_y
             large = PID_max >= 4 * delta_y
@@ -1217,11 +1299,11 @@ class FEMA_P58_Assessment(Assessment):
             RED_max[small] = 0.
 
         # get the probabilities of irrepairability
-        irrep_frag = self._AIM_in['irrepairable_fragility']
+        irrep_frag = self._AIM_in['general']['irrepairable_res_drift']
         RV_irrep = RandomVariable(ID=-1, dimension_tags=['RED_irrep', ],
                                   distribution_kind='lognormal',
-                                  theta=irrep_frag['theta'],
-                                  COV=irrep_frag['sig'] ** 2.
+                                  theta=irrep_frag['Median'],
+                                  COV=irrep_frag['Sig'] ** 2.
                                   )
         RED_irrep = RV_irrep.sample_distribution(NC_samples)['RED_irrep'].values
 
@@ -1234,6 +1316,7 @@ class FEMA_P58_Assessment(Assessment):
     def _calc_repair_cost_and_time(self):
 
         idx = pd.IndexSlice
+        DVs = self._AIM_in['decision_variables']
 
         DMG_by_FG_and_DS = self._DMG.groupby(level=[0, 2], axis=1).sum()
 
@@ -1260,63 +1343,81 @@ class FEMA_P58_Assessment(Assessment):
 
                     DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
 
-                    TOT_qnt = DMG_by_FG_and_DS.loc[
-                        repID, (FG._ID, d_tag)]
+                    TOT_qnt = DMG_by_FG_and_DS.loc[repID, (FG._ID, d_tag)]
                     PG_qnt = self._DMG.loc[repID, 
                                            (FG._ID, PG_ID, d_tag)]
 
                     # repair cost
-                    COST_samples = DS.unit_repair_cost(quantity=TOT_qnt)
-                    DV_COST.loc[:,
-                    (FG._ID, PG_ID, d_tag)] = COST_samples * PG_qnt
+                    if DVs['rec_cost']:
+                        COST_samples = DS.unit_repair_cost(quantity=TOT_qnt)
+                        DV_COST.loc[:,
+                        (FG._ID, PG_ID, d_tag)] = COST_samples * PG_qnt
+                    
+                    if DVs['rec_time']:
+                        # repair time
+                        TIME_samples = DS.unit_reconstruction_time(quantity=TOT_qnt)
+                        DV_TIME.loc[:,
+                        (FG._ID, PG_ID, d_tag)] = TIME_samples * PG_qnt
 
-                    # repair time
-                    TIME_samples = DS.unit_reconstruction_time(quantity=TOT_qnt)
-                    DV_TIME.loc[:,
-                    (FG._ID, PG_ID, d_tag)] = TIME_samples * PG_qnt
+        # sort the columns to enable index slicing later
+        if DVs['rec_cost']:
+            DV_COST = DV_COST.sort_index(axis=1, ascending=True)
+        else:
+            DV_COST = None
+        if DVs['rec_time']:
+            DV_TIME = DV_TIME.sort_index(axis=1, ascending=True)
+        else:
+            DV_TIME = None
 
         return DV_COST, DV_TIME
 
     def _calc_collapse_injuries(self):
 
+        inj_lvls = self._inj_lvls
+
         # calculate casualties and injuries for the collapsed cases
         # generate collapse modes
         colID = self._ID_dict['collapse']
         C_samples = len(colID)
+        
+        if C_samples > 0:
+            
+            inj_lvls = self._inj_lvls
+            coll_modes = self._AIM_in['collapse_modes']
+            P_keys = [cmk for cmk in coll_modes.keys()]
+            P_modes = [coll_modes[k]['w'] for k in P_keys]
+    
+            # create the DataFrame that collects the decision variables
+            COL_INJ = pd.DataFrame(np.zeros((C_samples, inj_lvls + 1)),
+                                   columns=('CM', *['INJ-{}'.format(i) for i in
+                                                    range(inj_lvls)]),
+                                   index=colID)
+    
+            CM_RV = RandomVariable(ID=-1, dimension_tags=['CM', ],
+                                   distribution_kind='multinomial',
+                                   p_set=P_modes)
+            COL_INJ['CM'] = CM_RV.sample_distribution(C_samples).values
+    
+            # get the popoulation values corresponding to the collapsed cases
+            P_sel = self._POP.loc[colID]
+    
+            # calculate the exposure of the popoulation
+            for cm_i, cmk in enumerate(P_keys):
+                mode_IDs = COL_INJ[COL_INJ['CM'] == cm_i].index
+                CFAR = coll_modes[cmk]['affected_area']
+                INJ = coll_modes[cmk]['injuries']
+                for loc_i in range(len(CFAR)):
+                    loc_label = 'LOC{}'.format(loc_i + 1)
+                    if loc_label in P_sel.columns:
+                        for inj_i in range(inj_lvls):
+                            INJ_i = P_sel.loc[mode_IDs, loc_label] * CFAR[loc_i] * \
+                                    INJ[inj_i]
+                            COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)] += INJ_i
 
-        inj_lvls = self._inj_lvls
-        coll_modes = self._AIM_in['collapse_modes']
-        P_keys = [cmk for cmk in coll_modes.keys()]
-        P_modes = [coll_modes[k]['w'] for k in P_keys]
-
-        # create the DataFrame that collects the decision variables
-        COL_INJ = pd.DataFrame(np.zeros((C_samples, inj_lvls + 1)),
-                               columns=('CM', *['INJ-{}'.format(i) for i in
-                                                range(inj_lvls)]),
-                               index=colID)
-
-        CM_RV = RandomVariable(ID=-1, dimension_tags=['CM', ],
-                               distribution_kind='multinomial',
-                               p_set=P_modes)
-        COL_INJ['CM'] = CM_RV.sample_distribution(C_samples).values
-
-        # get the popoulation values corresponding to the collapsed cases
-        P_sel = self._POP.loc[colID]
-
-        # calculate the exposure of the popoulation
-        for cm_i, cmk in enumerate(P_keys):
-            mode_IDs = COL_INJ[COL_INJ['CM'] == cm_i].index
-            CFAR = coll_modes[cmk]['CFAR']
-            INJ = coll_modes[cmk]['injuries']
-            for loc_i in range(len(CFAR)):
-                loc_label = 'LOC{}'.format(loc_i + 1)
-                if loc_label in P_sel.columns:
-                    for inj_i in range(inj_lvls):
-                        INJ_i = P_sel.loc[mode_IDs, loc_label] * CFAR[loc_i] * \
-                                INJ[inj_i]
-                        COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)] += INJ_i
-
-        return COL_INJ
+            return COL_INJ
+        
+        else:
+            return None
 
     def _calc_non_collapse_injuries(self):
 
@@ -1349,7 +1450,8 @@ class FEMA_P58_Assessment(Assessment):
 
                     if DS._affected_area > 0.:
                         P_affected = (self._POP.loc[ncID]
-                                      * DS._affected_area / self._AIM_in['area'])
+                                      * DS._affected_area / 
+                                      self._AIM_in['general']['plan_area'])
 
                         QNT = self._DMG.loc[:, (FG._ID, PG_ID, d_tag)]
 
@@ -1369,5 +1471,9 @@ class FEMA_P58_Assessment(Assessment):
         for i in range(self._inj_lvls):
             DV_INJ = DV_INJ_dict[i]
             DV_INJ_dict[i] = DV_INJ.loc[:, (DV_INJ != 0.0).any(axis=0)]
+
+        # sort the columns to enable index slicing later
+        for i in range(self._inj_lvls):
+            DV_INJ_dict[i] = DV_INJ_dict[i].sort_index(axis=1, ascending=True)
 
         return DV_INJ_dict
