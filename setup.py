@@ -25,6 +25,7 @@ setup(
     author_email='adamzs@stanford.edu',
     description='Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     packages=['pelicun'],
     include_package_data=True,
     platforms='any',

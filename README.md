@@ -1,4 +1,4 @@
-<img src="docs/figures/logo.PNG" alt="pelicun" height="100"/>
+<img src="https://raw.githubusercontent.com/zsarnoczay/pelicun/master/docs/figures/logo.PNG" alt="pelicun" height="100"/>
 
 [![Documentation Status](https://readthedocs.org/projects/pelicun/badge/?version=latest)](http://pelicun.readthedocs.io/en/latest/?badge=latest)
 [![TravisCI](https://travis-ci.org/zsarnoczay/pelicun.svg?branch=master)](https://travis-ci.org/zsarnoczay/pelicun)
