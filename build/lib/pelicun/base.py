@@ -37,26 +37,41 @@
 # Contributors:
 # Adam Zsarnóczay
 
-# imports for Python 2.X support
-from __future__ import division, print_function
-import sys
-if sys.version.startswith('2'): 
-    range=xrange
-else:
-    pass
+"""
+This module defines constants, basic classes and methods for pelicun.
 
-name = "pelicun"
+"""
 
-__version__ = '0.9'
+# Constants for unit conversion
+kN = 1e3
 
-__copyright__ = """Copyright (c) 2018 Leland Stanford Junior University and 
-The Regents of the University of California"""
+MPa = 1e6
+GPa = 1e9
 
-__license__ = "BSD 3-Clause License"
-    
+g = 9.80665
 
+mm = 0.001
+mm2 = mm**2.
 
-        
-        
-    
-    
+cm = 0.01
+cm2 = cm**2.
+
+m = 1.
+m2 = 1.
+m3 = 1.
+
+km = 1000.
+km2 = km**2.
+
+inch = 0.0254
+inch2 = inch**2.
+
+ft = 12. * inch
+ft2 = ft**2.
+
+mile = 5280. * ft
+mile2 = mile**2.  
+
+SF = ft2
+LF = ft
+ea = 1.
