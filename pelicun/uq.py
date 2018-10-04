@@ -1189,7 +1189,7 @@ class RandomVariable(object):
 
             # convert the 2D sample array into a vector of integers
             outcomes = np.array([np.arange(len(self._p_set))])
-            samples = (samples @ outcomes.T).flatten()
+            samples = np.matmul(samples, outcomes.T).flatten()
             samples = pd.DataFrame(np.transpose(samples), 
                                    columns=self._dimension_tags)
         else:

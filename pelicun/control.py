@@ -113,7 +113,7 @@ class FEMA_P58_Assessment(Assessment):
     Description
     """
     def __init__(self, inj_lvls = 2):
-        super().__init__()
+        super(FEMA_P58_Assessment, self).__init__()
         
         # constants for the FEMA-P58 methodology
         self._inj_lvls = inj_lvls
@@ -127,7 +127,7 @@ class FEMA_P58_Assessment(Assessment):
     def read_inputs(self, path_DL_input, path_EDP_input, 
                     path_CMP_data=None, path_POP_data=None, verbose=False):
         
-        super().read_inputs(path_DL_input, path_EDP_input, verbose)
+        super(FEMA_P58_Assessment, self).read_inputs(path_DL_input, path_EDP_input, verbose)
         
         # check if the component data path is provided by the user
         if path_CMP_data is None:
@@ -155,7 +155,7 @@ class FEMA_P58_Assessment(Assessment):
             self._POP_in = POP              
 
     def define_random_variables(self):
-        super().define_random_variables()
+        super(FEMA_P58_Assessment, self).define_random_variables()
 
         # create the random variables -----------------------------------------
         DEP = self._AIM_in['dependencies']
@@ -200,7 +200,7 @@ class FEMA_P58_Assessment(Assessment):
             rv.sample_distribution(self._AIM_in['general']['realizations'])
 
     def define_loss_model(self):
-        super().define_loss_model()
+        super(FEMA_P58_Assessment, self).define_loss_model()
         
         # fragility groups
         self._FG_dict = self._create_fragility_groups()
@@ -211,7 +211,7 @@ class FEMA_P58_Assessment(Assessment):
              for tag in self._RV_dict['EDP']._dimension_tags])
         
     def calculate_damage(self):
-        super().calculate_damage()
+        super(FEMA_P58_Assessment, self).calculate_damage()
 
         # event time - month, weekday, and hour realizations
         self._TIME = self._sample_event_time()
@@ -232,7 +232,7 @@ class FEMA_P58_Assessment(Assessment):
         self._DMG = self._calc_damage()
 
     def calculate_losses(self):
-        super().calculate_losses()
+        super(FEMA_P58_Assessment, self).calculate_losses()
         DVs = self._AIM_in['decision_variables']
         
         # red tag probability
@@ -393,7 +393,7 @@ class FEMA_P58_Assessment(Assessment):
         self._SUMMARY = SUMMARY.dropna(axis=1,how='all')
 
     def write_outputs(self):
-        super().write_outputs()
+        super(FEMA_P58_Assessment, self).write_outputs()
 
     def _create_correlation_matrix(self, rho_target, c_target=-1, 
                                    include_CSG=False, 
@@ -732,7 +732,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # prepare the cost and time parts of the data separately
         full_theta, full_sig, full_tag = [np.array([]) for i in range(3)]
-        for i in range(inj_lvls):
+        for i_lvl in range(inj_lvls):
 
             f_theta, f_sig, f_tag = [np.array([]) for i in range(3)]
             for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
@@ -741,12 +741,12 @@ class FEMA_P58_Assessment(Assessment):
 
                 for dsg_i, DSG in comp['DSG_set'].items():
                     for ds_i, DS in DSG['DS_set'].items():
-                        d_theta = np.append(d_theta, DS['injuries']['theta'][i])
-                        d_sig = np.append(d_sig, DS['injuries']['cov'][i])
+                        d_theta = np.append(d_theta, DS['injuries']['theta'][i_lvl])
+                        d_sig = np.append(d_sig, DS['injuries']['cov'][i_lvl])
                         d_tag = np.append(d_tag,
                                           comp['ID'] + '-' + str(
                                               dsg_i) + '-' + str(
-                                              ds_i) + '-{}'.format(i))
+                                              ds_i) + '-{}'.format(i_lvl))
 
                 for loc in comp['locations']:
                     for dir_ in np.unique(comp['directions']):
@@ -1389,8 +1389,9 @@ class FEMA_P58_Assessment(Assessment):
     
             # create the DataFrame that collects the decision variables
             COL_INJ = pd.DataFrame(np.zeros((C_samples, inj_lvls + 1)),
-                                   columns=('CM', *['INJ-{}'.format(i) for i in
-                                                    range(inj_lvls)]),
+                                   columns=[['CM',] + 
+                                            ['INJ-{}'.format(i) for i in
+                                             range(inj_lvls)]],
                                    index=colID)
     
             CM_RV = RandomVariable(ID=-1, dimension_tags=['CM', ],

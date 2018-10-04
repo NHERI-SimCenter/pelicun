@@ -37,8 +37,13 @@
 # Contributors:
 # Adam Zsarnóczay
 
-from .uq import RandomVariable, RandomVariableSubset
-from .model import *
+# imports for Python 2.X support
+from __future__ import division, print_function
+import sys
+if sys.version.startswith('2'): 
+    range=xrange
+else:
+    from past.builtins import basestring
 
 __version__ = '0.1'
 
