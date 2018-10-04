@@ -50,10 +50,10 @@ import os, sys, inspect
 current_dir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0,os.path.dirname(parent_dir)) 
+sys.path.insert(0,os.path.dirname(parent_dir))
 
-from pelicun.tests.test_reference_data import standard_normal_table
 from pelicun.model import *
+from pelicun.tests.test_reference_data import standard_normal_table
 from pelicun.uq import RandomVariable, RandomVariableSubset
 
 # -------------------------------------------------------------------------------

@@ -190,12 +190,12 @@ def assert_normal_distribution(sampling_function, ref_mean, ref_COV):
         else:
             if ndim > 1:
                 # calculate the proportion of samples in the orthant below the
-                # (sample) mean
+                # (sample) mean + one std
                 sample_mean = np.mean(samples, axis=0)
                 sample_std = np.std(samples, axis=0, ddof=1)
                 orthant_limit = sample_mean + sample_std
                 empirical_prop = np.sum(np.all(samples<orthant_limit, axis=1))
-                empirical_prop = empirical_prop/size 
+                empirical_prop = empirical_prop/float(size) 
                 
                 if np.abs(np.log(empirical_prop/est_prop)) < 0.05:
                     # the result is accepted if the error is less than 5%
