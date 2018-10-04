@@ -43,7 +43,7 @@ import sys
 if sys.version.startswith('2'): 
     range=xrange
 else:
-    from past.builtins import basestring
+    pass
 
 __version__ = '0.1'
 

@@ -35,7 +35,7 @@ setup(
     ],
     classifiers = [
         'Programming Language :: Python',
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Natural Language :: English',
         'Environment :: Console',
         'Framework :: Jupyter',
