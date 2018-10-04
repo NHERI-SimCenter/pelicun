@@ -482,5 +482,6 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
 
     return data
 
-def write_SimCenter_DL_output(output_path):
-    pass
+def write_SimCenter_DL_output(output_path, output_df):
+    
+    output_df.to_csv(output_path)
