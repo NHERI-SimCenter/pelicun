@@ -193,7 +193,30 @@ def test_read_SimCenter_EDP_input():
     # read the input file 
     test_EDP = read_SimCenter_EDP_input(
         'resources/test_EDP_input.csv',
-        EDP_kinds=('PID', 'PFA', 'RD'), verbose=False)
+        EDP_kinds=('PID', 'PFA', 'RD', 'PRD'), verbose=False)
 
     # check if the returned dictionary is appropriate
     assert ref_EDP == test_EDP
+    
+# -------------------------------------------------------------------------------
+# read_P58_population_distribution
+# ------------------------------------------------------------------------------
+
+def test_read_P58_population_distribution():
+    """
+    Test if the population distribution is read according to the specified 
+    occupancy type and if the peak population is properly converted from 
+    1/1000*ft2 to 1/m2.
+    """
+
+    # load the reference results
+    with open('resources/ref_POP_data.json') as f:
+        ref_POP = json.load(f)
+
+    # read the input file 
+    test_POP = read_population_distribution(
+        'resources/test_POP_data.json',
+        occupancy='Commercial Office', verbose=False)
+
+    # check if the returned dictionary is appropriate
+    assert ref_POP == test_POP

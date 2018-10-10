@@ -208,7 +208,7 @@ class FEMA_P58_Assessment(Assessment):
         
         if path_POP_data is not None:
             # population
-            POP = read_P58_population_distribution(
+            POP = read_population_distribution(
                 path_POP_data, 
                 BIM['general']['occupancy_type'], 
                 verbose=verbose)

@@ -484,18 +484,32 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'), verbose=False)
 
     return data
 
-def read_P58_population_distribution(path_POP, occupancy, verbose=False):
+def read_population_distribution(path_POP, occupancy, verbose=False):
     """
+    Read the population distribution from an external json file.
+    
+    The population distribution is expected in a format used in FEMA P58, but
+    the list of occupancy categories can be extended beyond those available
+    in that document. The population distributions for the occupancy categories
+    from FEMA P58 are provided with pelicun in the population.json in the 
+    resources folder.
     
     Parameters
     ----------
-    path_POP
-    occupancy
-    verbose
+    path_POP: string
+        Location of the population distribution json file.
+    occupancy: string
+        Identifies the occupancy category. There must be a matching category in 
+        the population distribution json file. 
+    verbose: boolean
+        If True, the function echoes the information read from the file. This
+        can be useful to ensure that the information in the file is properly
+        read by the method.
 
     Returns
     -------
-
+    data: dict
+        A dictionary with the population distribution data.
     """
     with open(path_POP, 'r') as f:
         jd = json.load(f)
