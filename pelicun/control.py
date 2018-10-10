@@ -84,6 +84,18 @@ class Assessment(object):
         self._SUMMARY = None
         
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
+        """
+        
+        Parameters
+        ----------
+        path_DL_input
+        path_EDP_input
+        verbose
+
+        Returns
+        -------
+
+        """
         
         # read SimCenter inputs -----------------------------------------------
         # BIM file
@@ -94,18 +106,48 @@ class Assessment(object):
                                                 verbose=verbose)
     
     def define_random_variables(self):
+        """
+        
+        Returns
+        -------
+
+        """
         pass
     
     def define_loss_model(self):
+        """
+        
+        Returns
+        -------
+
+        """
         pass
     
     def calculate_damage(self):
+        """
+        
+        Returns
+        -------
+
+        """
         self._ID_dict = {}
     
     def calculate_losses(self):
+        """
+        
+        Returns
+        -------
+
+        """
         self._DV_dict = {}
     
     def write_outputs(self):
+        """
+        
+        Returns
+        -------
+
+        """
         pass
     
 class FEMA_P58_Assessment(Assessment):
@@ -120,12 +162,32 @@ class FEMA_P58_Assessment(Assessment):
         
     @property
     def beta_additional(self):
+        """
+        
+        Returns
+        -------
+
+        """
         
         AU = self._AIM_in['general']['added_uncertainty']
         return np.sqrt(AU['beta_m'] ** 2. + AU['beta_gm'] ** 2.)
 
     def read_inputs(self, path_DL_input, path_EDP_input, 
                     path_CMP_data=None, path_POP_data=None, verbose=False):
+        """
+        
+        Parameters
+        ----------
+        path_DL_input
+        path_EDP_input
+        path_CMP_data
+        path_POP_data
+        verbose
+
+        Returns
+        -------
+
+        """
         
         super(FEMA_P58_Assessment, self).read_inputs(path_DL_input, path_EDP_input, verbose)
         
@@ -155,6 +217,12 @@ class FEMA_P58_Assessment(Assessment):
             self._POP_in = POP              
 
     def define_random_variables(self):
+        """
+        
+        Returns
+        -------
+
+        """
         super(FEMA_P58_Assessment, self).define_random_variables()
 
         # create the random variables -----------------------------------------
@@ -200,6 +268,12 @@ class FEMA_P58_Assessment(Assessment):
             rv.sample_distribution(self._AIM_in['general']['realizations'])
 
     def define_loss_model(self):
+        """
+        
+        Returns
+        -------
+
+        """
         super(FEMA_P58_Assessment, self).define_loss_model()
         
         # fragility groups
@@ -211,6 +285,12 @@ class FEMA_P58_Assessment(Assessment):
              for tag in self._RV_dict['EDP']._dimension_tags])
         
     def calculate_damage(self):
+        """
+        
+        Returns
+        -------
+
+        """
         super(FEMA_P58_Assessment, self).calculate_damage()
 
         # event time - month, weekday, and hour realizations
@@ -232,6 +312,12 @@ class FEMA_P58_Assessment(Assessment):
         self._DMG = self._calc_damage()
 
     def calculate_losses(self):
+        """
+        
+        Returns
+        -------
+
+        """
         super(FEMA_P58_Assessment, self).calculate_losses()
         DVs = self._AIM_in['decision_variables']
         
@@ -276,6 +362,12 @@ class FEMA_P58_Assessment(Assessment):
             self._DV_dict.update({'injuries': DV_INJ_dict})
         
     def aggregate_results(self):
+        """
+        
+        Returns
+        -------
+
+        """
 
         DVs = self._AIM_in['decision_variables']
 
@@ -393,11 +485,31 @@ class FEMA_P58_Assessment(Assessment):
         self._SUMMARY = SUMMARY.dropna(axis=1,how='all')
 
     def write_outputs(self):
+        """
+        
+        Returns
+        -------
+
+        """
         super(FEMA_P58_Assessment, self).write_outputs()
 
     def _create_correlation_matrix(self, rho_target, c_target=-1, 
                                    include_CSG=False, 
                                    include_DSG=False, include_DS=False):
+        """
+        
+        Parameters
+        ----------
+        rho_target
+        c_target
+        include_CSG
+        include_DSG
+        include_DS
+
+        Returns
+        -------
+
+        """
 
         # set the correlation structure
         rho_FG, rho_PG, rho_LOC, rho_DIR, rho_CSG, rho_DS = np.zeros(6)
@@ -510,6 +622,16 @@ class FEMA_P58_Assessment(Assessment):
         return rho
 
     def _create_RV_quantities(self, rho_qnt):
+        """
+        
+        Parameters
+        ----------
+        rho_qnt
+
+        Returns
+        -------
+
+        """
 
         q_theta, q_sig, q_tag, q_dist = [np.array([]) for i in range(4)]
 
@@ -563,6 +685,18 @@ class FEMA_P58_Assessment(Assessment):
         return quantity_RV
 
     def _create_RV_fragilities(self, c_id, comp, rho_fr):
+        """
+        
+        Parameters
+        ----------
+        c_id
+        comp
+        rho_fr
+
+        Returns
+        -------
+
+        """
 
         # prepare the basic multivariate distribution data for one component subgroup considering all damage states
         d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
@@ -593,7 +727,7 @@ class FEMA_P58_Assessment(Assessment):
                 pos_id += dims
 
         # create the covariance matrix
-        c_rho = self._create_correlation_matrix('ATC', c_target=c_id, 
+        c_rho = self._create_correlation_matrix(rho_fr, c_target=c_id, 
                                                 include_DSG=True,
                                                 include_CSG=True)
         c_COV = np.outer(c_sig, c_sig) * c_rho

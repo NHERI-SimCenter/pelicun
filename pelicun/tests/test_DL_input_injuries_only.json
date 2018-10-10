@@ -1,0 +1,69 @@
+{
+    "GeneralInformation": {        
+        "units": {
+            "force": "N",
+            "length": "m",
+            "temperature": "C",
+            "time": "sec"
+        }
+    },
+    "LossModel": {
+        "BuildingDamage": {
+            "CollapseLimits": {
+                "PFA": "",
+                "PID": ""
+            }
+        },
+        "BuildingResponse":{
+            "DetectionLimits": {
+                "PFA": "",
+                "PID": ""
+            }
+        },
+        "CollapseModes": [
+            {
+                "affected_area": "1.0",
+                "injuries": "0.1, 0.9",
+                "name": "complete",
+                "w": "0.2"
+            }
+        ],
+        "Components": [            
+            {
+                "ID": "B1071.011",
+                "cov": "0.01",
+                "directions": "0, 0, 1, 1",
+                "distribution": "normal",
+                "name": "light framed wood walls",
+                "quantity": "12.6",
+                "structural": true,
+                "unit_size": "100",
+                "unit_type": "SF",
+                "weights": "0.285, 0.285, 0.215, 0.215"
+            }           
+        ],
+        "DecisionVariables": {
+            "Injuries": true,
+            "ReconstructionCost": false,
+            "ReconstructionTime": false,
+            "RedTag": false
+        },
+        "Inhabitants": {
+            "OccupancyType": "Multi-Unit Residential",
+            "PeakPopulation": "2"
+        },
+        "LossModelDependencies": {
+            "Fragilities": "per ATC recommendation",
+            "Injuries": "btw. Directions",
+            "InjurySeverities": true,
+            "Quantities": "btw. Fragility Groups"
+        },
+        "UncertaintyQuantification": {
+            "AdditionalUncertainty": {
+                "GroundMotion": "",
+                "Modeling": ""
+            },
+            "Realizations": "20000"
+        }
+    }
+}

@@ -1,0 +1,35 @@
+{
+	"GeneralInformation": {
+        "planArea": 111.484,
+        "units": {
+            "force": "N",
+            "length": "ft",
+            "temperature": "C",
+            "time": "sec",
+            "acceleration": "g"
+        }
+    },
+    "LossModel": {
+        "BuildingDamage": {
+            "CollapseLimits": {
+                "PFA": "1.5",
+                "PID": "0.1"
+            }
+        },
+        "BuildingResponse": {
+            "DetectionLimits": {
+                "PFA": "2.0",
+                "PID": "0.15"
+            }
+        },
+        "DecisionVariables": {
+            "Injuries": false,
+            "ReconstructionCost": true,
+            "ReconstructionTime": false,
+            "RedTag": false
+        },
+        "UncertaintyQuantification": {            
+            "Realizations": "20000"
+        }
+    }
+}

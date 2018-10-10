@@ -47,7 +47,7 @@ else:
 
 name = "pelicun"
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 
 __copyright__ = """Copyright (c) 2018 Leland Stanford Junior University and 
 The Regents of the University of California"""

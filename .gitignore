@@ -1,7 +1,8 @@
 # Compiled python modules
 *.pyc
 
-# Setuptools distribution folder
+# Setuptools build and distribution folder
+/build/
 /dist/
 
 # documentation
@@ -22,6 +23,9 @@
 # Python egg metadata, regenerated from source files by setuptools
 /*.egg-info
 /*.egg
+
+# resources
+/pelicun/examples/SimCenter/resources/
 
 
 __pycache__

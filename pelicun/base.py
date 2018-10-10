@@ -43,6 +43,7 @@ This module defines constants, basic classes and methods for pelicun.
 """
 
 # Constants for unit conversion
+N = 1.
 kN = 1e3
 
 MPa = 1e6
@@ -75,3 +76,7 @@ mile2 = mile**2.
 SF = ft2
 LF = ft
 ea = 1.
+
+C = 1.
+
+sec = 1.

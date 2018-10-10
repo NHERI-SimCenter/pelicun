@@ -1,0 +1,13 @@
+{
+    "LossModel": {
+        "DecisionVariables": {
+            "Injuries": false,
+            "ReconstructionCost": false,
+            "ReconstructionTime": false,
+            "RedTag": false
+        },
+        "UncertaintyQuantification": {            
+            "Realizations": "20000"
+        }
+    }
+}
