@@ -71,8 +71,8 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     
     The SimCenter in the function name refers to having specific fields 
     available in the file. Such a file is automatically prepared by the 
-    SimCenter PBE Application and the fields are explained in detail in the
-    user manual of that application.
+    SimCenter PBE Application. The accepted input fields are explained in 
+    detail in the Input section of the documentation.
     
     Parameters
     ----------
@@ -80,7 +80,7 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         Location of the DL input json file.
     verbose: boolean
         If True, the function echoes the information read from the file. This
-        can be a useful to ensure that the information in the file is properly
+        can be useful to ensure that the information in the file is properly
         read by the method.
 
     Returns
@@ -421,38 +421,60 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     
     return data
 
-def read_SimCenter_EDP_input(input_path, verbose=False):
+def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'), verbose=False):
     """
+    Read the EDP input information from a text file with a tabular structure.
+    
+    The SimCenter in the function name refers to having specific columns 
+    available in the file. Currently, the expected formatting follows the
+    output formatting of Dakota that is applied for the dakotaTab.out. When
+    using pelicun with the PBE Application, such a dakotaTab.out is 
+    automatically generated. The Input section of the documentation provides
+    more information about the expected formatting of the EDP input file.
     
     Parameters
     ----------
-    input_path
-    verbose
+    input_path: string
+        Location of the EDP input file.
+    EDP_kinds: tuple of strings, default: ('PID', 'PFA')
+        Collection of the kinds of EDPs in the input file. The default pair of
+        'PID' and 'PFA' can be replaced or extended by any other EDPs. 
+    verbose: boolean
+        If True, the function echoes the information read from the file. This
+        can be useful to ensure that the information in the file is properly
+        read by the method.
 
     Returns
     -------
-
+    data: dict
+        A dictionary with all the EDP data.
     """
     
     # initialize the data container
     data = {}
 
-    # read the dakota table output
+    # read the collection of EDP inputs...
+    # the read_csv method in pandas is sufficiently versatile to handle the
+    # tabular format of dakota
     EDP_raw = pd.read_csv(input_path, sep='\s+', header=0,
                           index_col='%eval_id')
+    # set the index to be zero-based
     EDP_raw.index = EDP_raw.index - 1
 
-    # store the EDP data
+    # search the header for EDP information
     for column in EDP_raw.columns:
-        for kind in ['PFA', 'PID']:
+        for kind in EDP_kinds:
             if kind in column:
 
                 if kind not in data.keys():
                     data.update({kind: []})
 
+                # extract info about the location, direction, and scenario
                 info = column.split('-')
+                
+                # store the data
                 data[kind].append(dict(
-                    raw_data=EDP_raw[column].values,
+                    raw_data=EDP_raw[column].values.tolist(),
                     location=info[2],
                     direction=info[3],
                     scenario_id=info[0]

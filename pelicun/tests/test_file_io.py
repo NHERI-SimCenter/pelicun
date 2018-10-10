@@ -175,3 +175,25 @@ def test_read_SimCenter_DL_input_no_realizations():
     with pytest.raises(ValueError) as e_info:
         test_DL = read_SimCenter_DL_input(
             'resources/test_DL_input_no_realizations.json', verbose=False)
+              
+# -------------------------------------------------------------------------------
+# read_SimCenter_EDP_input
+# ------------------------------------------------------------------------------
+
+def test_read_SimCenter_EDP_input():
+    """
+    Test if the function can read the provided set of EDPs from a file and 
+    return them and the corresponding additional information in a properly 
+    structured format.
+    """
+    # load the reference results
+    with open('resources/ref_EDP_input.json') as f:
+        ref_EDP = json.load(f)
+
+    # read the input file 
+    test_EDP = read_SimCenter_EDP_input(
+        'resources/test_EDP_input.csv',
+        EDP_kinds=('PID', 'PFA', 'RD'), verbose=False)
+
+    # check if the returned dictionary is appropriate
+    assert ref_EDP == test_EDP
