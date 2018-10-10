@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>0aff6814-78fc-4d75-b653-075458e5a480</UniqueID>
+  <ID>D2031.021a</ID>
+  <Description>Costing based upon 1000 ft segments of pipe</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC A,B, PIPING FRAGILITY</Name>
+  <Author></Author>
+  <Correlation>1</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:49:09.3445683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>Yes
+Import errors:
+ Warning: D2031.021a: Could not parse Correlation - Assuming Correlated
+Warning: D2031.021a: Could not parse Demand Location - Using False
+Warning, Data missing: D2031.021a:DS1: Could not parse dispersion - using 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Joints break - 1 break per 1000 feet of pipe</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>NO</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>6700</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>2010</MinAmount>
+          <Uncertainty>0.3142</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>19.7029</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>5.9088</MinAmount>
+          <Uncertainty>0.3143</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.25</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

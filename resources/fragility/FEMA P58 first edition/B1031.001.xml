@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>143a6df7-5841-4406-abac-29dc8a26cfb9</UniqueID>
+  <ID>B1031.001</ID>
+  <Description>Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Bolted shear tab gravity connections</Name>
+  <Author>Greg Deierlein</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:38.2515683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Yielding of shear tab and elongation of bolt holes, possible crack initiation around bolt holes or at shear tab weld. </Description>
+      <DamageImageName>B1031.001-DS1-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Careful inspection and welded repair to any cracks and possible replacement of shear tab if bolt hole deformations are excessive (possible for deeper 6-bolt or deeper shear tabs). </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>15264</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>10176</MinAmount>
+          <Uncertainty>0.3706</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>43.6928</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>29.1272</MinAmount>
+          <Uncertainty>0.3706</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.04</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Partial tearing of shear tab and possibility of bolt shear failure (6-bolt or deeper connections).</Description>
+      <DamageImageName>B1031.001-DS2-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Repairs will include either welded repair of shear tab or possible complete replacement of shear tab and installation of new bolts.  Repairs may require shoring of beam.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.2</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>15564</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>10376</MinAmount>
+          <Uncertainty>0.3789</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>44.556</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>29.704</MinAmount>
+          <Uncertainty>0.3789</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.08</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Complete separation of shear tab, close to complete loss of vertical load resistance. </Description>
+      <DamageImageName>B1031.001-DS3-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Repair will include complete replacement of shear tab and installation of new bolts. Repairs will require shoring of beam.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.1</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>15264</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>10176</MinAmount>
+          <Uncertainty>0.3836</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>43.6928</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>29.1272</MinAmount>
+          <Uncertainty>0.3836</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.11</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

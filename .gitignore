@@ -24,8 +24,4 @@
 /*.egg-info
 /*.egg
 
-# resources
-/pelicun/examples/SimCenter/resources/
-
-
 __pycache__

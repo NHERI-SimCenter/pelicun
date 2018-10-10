@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>3771b649-721f-4c79-9d44-d9b7f9fb9adf</UniqueID>
+  <ID>E2022.112b</ID>
+  <Description>Filing cabinet, anchored laterally.  Cabinet has 2 drawers and is 15" deep x 24" tall</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Vertical Filing Cabinet, 2 drawer, anchored laterally</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Peak Floor Velocity</TypeName>
+    <DefaultUnits>Inch Per Second</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:49:01.1175683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence.
+Import errors:
+ Warning, Data missing: E2022.112b:DS1: Could not parse median - using 500
+Warning, Data missing: E2022.112b:DS1: Could not parse dispersion - using 0.5
+Warning, Data missing: E2022.112b:DS1:Time: Could not parse CurveType - Assuming Normal
+Warning, Data missing: E2022.112b:DS1:Time: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: E2022.112b:DS1:Time: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: E2022.112b:DS1:Time: Could not parse Dispersion - Assuming 0.5
+Warning, Data missing: E2022.112b:DS1:Cost: Could not parse CurveType - Assuming Normal
+Warning, Data missing: E2022.112b:DS1:Cost: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: E2022.112b:DS1:Cost: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: E2022.112b:DS1:Cost: Could not parse Dispersion - Assuming 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Filing cabinet falls over and contents are scattered.  Likely damage to file cabinet.  </Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace filing cabinet and refile / replace contents.  </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>500</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

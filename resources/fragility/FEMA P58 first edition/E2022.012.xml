@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>888c2143-20c1-466e-95b3-e513f342a26a</UniqueID>
+  <ID>E2022.012</ID>
+  <Description>Costing to be furnished by user.  Consequence data assumes 16 SF of damage area.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Fragile contents on shelves in storage cabinets with latches</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:48:56.7255683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence.
+Import errors:
+ Warning, Data missing: E2022.012:DS1:Time: Could not parse CurveType - Assuming Normal
+Warning, Data missing: E2022.012:DS1:Time: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: E2022.012:DS1:Time: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: E2022.012:DS1:Time: Could not parse Dispersion - Assuming 0.5
+Warning, Data missing: E2022.012:DS1:Cost: Could not parse CurveType - Assuming Normal
+Warning, Data missing: E2022.012:DS1:Cost: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: E2022.012:DS1:Cost: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: E2022.012:DS1:Cost: Could not parse Dispersion - Assuming 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Object falls off shelf or shelf overturns and object breaks or object breaks within cabinet</Description>
+      <DamageImageName>E2022.010-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace object.  Note:  user must supply cost of replacement.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>true</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea>
+          <Area>
+            <Unit>Square Foot</Unit>
+            <Value>16</Value>
+          </Area>
+        </AffectedFloorArea>
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0.05</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0.5</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.6</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>
