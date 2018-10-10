@@ -64,12 +64,12 @@ def test_read_SimCenter_DL_input_minimum_input():
     """
     
     # load the reference results
-    with open('test_DL_reference_min.json') as f:
+    with open('resources/test_DL_reference_min.json') as f:
         ref_DL = json.load(f)
     
     # read the input file and check for at least one warning
     with pytest.warns(UserWarning) as e_info:
-        test_DL = read_SimCenter_DL_input('test_DL_input_min.json', 
+        test_DL = read_SimCenter_DL_input('resources/test_DL_input_min.json', 
                                         verbose=False)
         
     # check if the returned dictionary is appropriate
@@ -84,11 +84,11 @@ def test_read_SimCenter_DL_input_full_input():
     """
 
     # load the reference results
-    with open('test_DL_reference_full.json') as f:
+    with open('resources/test_DL_reference_full.json') as f:
         ref_DL = json.load(f)
 
     # read the input file
-    test_DL = read_SimCenter_DL_input('test_DL_input_full.json',
+    test_DL = read_SimCenter_DL_input('resources/test_DL_input_full.json',
                                       verbose=False)
 
     # check if the returned dictionary is appropriate
@@ -100,13 +100,13 @@ def test_read_SimCenter_DL_input_non_standard_units():
     """
 
     # load the reference results
-    with open('test_DL_reference_ns_units.json') as f:
+    with open('resources/test_DL_reference_ns_units.json') as f:
         ref_DL = json.load(f)
 
     # read the input file and check for at least one warning
     with pytest.warns(UserWarning) as e_info:
-        test_DL = read_SimCenter_DL_input('test_DL_input_ns_units.json',
-                                          verbose=False)
+        test_DL = read_SimCenter_DL_input(
+            'resources/test_DL_input_ns_units.json', verbose=False)
 
     # check if the returned dictionary is appropriate
     assert ref_DL == test_DL
@@ -117,8 +117,8 @@ def test_read_SimCenter_DL_input_unknown_unit():
     """
     
     with pytest.warns(UserWarning) as e_info:
-        test_DL = read_SimCenter_DL_input('test_DL_input_unknown_unit.json',
-                                          verbose=False)
+        test_DL = read_SimCenter_DL_input(
+            'resources/test_DL_input_unknown_unit.json', verbose=False)
         
 def test_read_SimCenter_DL_input_injuries_only():
     """
@@ -127,14 +127,14 @@ def test_read_SimCenter_DL_input_injuries_only():
     """
 
     # load the reference results
-    with open('test_DL_reference_injuries_only.json') as f:
+    with open('resources/test_DL_reference_injuries_only.json') as f:
         ref_DL = json.load(f)
 
     # read the input file and check for at least one warning because the plan
     # area is not specified in the file 
     with pytest.warns(UserWarning) as e_info:
-        test_DL = read_SimCenter_DL_input('test_DL_input_injuries_only.json',
-                                          verbose=False)
+        test_DL = read_SimCenter_DL_input(
+            'resources/test_DL_input_injuries_only.json', verbose=False)
 
     # check if the returned dictionary is appropriate
     assert ref_DL == test_DL
@@ -143,12 +143,13 @@ def test_read_SimCenter_DL_input_injuries_only():
     # other pieces of data are missing
     
     # load the reference results
-    with open('test_DL_reference_injuries_missing_data.json') as f:
+    with open('resources/test_DL_reference_injuries_missing_data.json') as f:
         ref_DL = json.load(f)
     
     with pytest.warns(UserWarning) as e_info:
         test_DL = read_SimCenter_DL_input(
-            'test_DL_input_injuries_missing_data.json', verbose=False)
+            'resources/test_DL_input_injuries_missing_data.json', 
+            verbose=False)
 
     # check if the returned dictionary is appropriate
     assert ref_DL == test_DL
@@ -161,8 +162,9 @@ def test_read_SimCenter_DL_input_unknown_component_unit():
     """
 
     with pytest.raises(ValueError) as e_info:
-        test_DL = read_SimCenter_DL_input('test_DL_input_unknown_comp_unit.json',
-                                          verbose=False)
+        test_DL = read_SimCenter_DL_input(
+            'resources/test_DL_input_unknown_comp_unit.json',
+            verbose=False)
         
 def test_read_SimCenter_DL_input_no_realizations():
     """
@@ -171,5 +173,5 @@ def test_read_SimCenter_DL_input_no_realizations():
     """
 
     with pytest.raises(ValueError) as e_info:
-        test_DL = read_SimCenter_DL_input('test_DL_input_no_realizations.json',
-                                          verbose=False)
+        test_DL = read_SimCenter_DL_input(
+            'resources/test_DL_input_no_realizations.json', verbose=False)
