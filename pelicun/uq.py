@@ -442,7 +442,12 @@ def tmvn_MLE(samples,
         
         # reconstruct the mu and COV arrays from the parameters
         mu, COV = _get_mu_COV(params)
-        
+
+        if ndims > 2:
+            pos_sem_def = np.all(np.linalg.eigvals(COV) >= 0.)
+            if not pos_sem_def:
+                return np.inf
+            
         # calculate the probability density within the truncation limits
         if (tr_lower is not None) and (tr_upper is not None):
             alpha, eps_alpha = mvn_orthotope_density(mu, COV, 

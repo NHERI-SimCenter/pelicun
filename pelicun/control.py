@@ -193,9 +193,11 @@ class FEMA_P58_Assessment(Assessment):
         
         # check if the component data path is provided by the user
         if path_CMP_data is None:
-            raise ValueError(
-                "You need to specify the path to the component data files."
-            )
+            warnings.warn(UserWarning(
+                "The component database is not specified; using the default "
+                "FEMA P58 first edition data."
+            ))
+            path_CMP_data = '../../resources/component DL/FEMA P58 first edition/'
 
         # assume that the asset is a building
         # TODO: If we want to apply FEMA-P58 to non-building assets, several parts of this methodology need to be extended.
@@ -203,8 +205,8 @@ class FEMA_P58_Assessment(Assessment):
 
         # read component and population data ----------------------------------
         # components
-        self._FG_in = read_P58_component_data(path_CMP_data, BIM['components'], 
-                                              verbose=verbose)
+        self._FG_in = read_component_DL_data(path_CMP_data, BIM['components'],
+                                             verbose=verbose)
         
         if path_POP_data is not None:
             # population
@@ -1129,7 +1131,7 @@ class FEMA_P58_Assessment(Assessment):
                     # create the fragility functions
                     FF_set = []
                     CSG_this = np.where(comp['directions']==dir_)[0]
-                    PG_weights = comp['csg_weights'][CSG_this]
+                    PG_weights = np.asarray(comp['csg_weights'])[CSG_this]
                     # normalize the weights
                     PG_weights /= sum(PG_weights)
                     for csg_id in CSG_this:

@@ -7,3 +7,5 @@ omit =
     setup.py
     test*.py
     /docs/*
+    /examples/*
+    /resources/*

@@ -58,6 +58,7 @@ import json
 import xml.etree.ElementTree as ET
 from distutils.util import strtobool
 import pprint
+from copy import deepcopy
 
 import warnings
 
@@ -195,19 +196,15 @@ def read_SimCenter_DL_input(input_path, verbose=False):
             })
             # remove the zeros from the quantities
             nonzero = comp_data['quantities'] > 0.
-            comp_data['quantities'] = np.array(comp_data['quantities'][nonzero])
+            comp_data['quantities'] = comp_data['quantities'][nonzero].tolist()
                 
             # scale the quantities according to the specified unit
             unit_kind = comp_data['unit'][1]
-            if unit_kind in globals().keys():
-                f_qnt = globals()[unit_kind] * comp_data['unit'][0]
-            else:
+            if unit_kind not in globals().keys():
                 raise ValueError(
                     "Unknown unit for component {}: {}".format(
                         comp['ID'], unit_kind))
-                
-            comp_data['quantities'] = (comp_data['quantities'] * f_qnt).tolist()
-                
+            
             # store the component data
             data['components'].update({comp['ID']: comp_data})
     else:
@@ -421,7 +418,9 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     
     return data
 
-def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'), verbose=False):
+def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'), 
+                             units = dict(PID=1., PFA=1.),
+                             verbose=False):
     """
     Read the EDP input information from a text file with a tabular structure.
     
@@ -439,6 +438,8 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'), verbose=False)
     EDP_kinds: tuple of strings, default: ('PID', 'PFA')
         Collection of the kinds of EDPs in the input file. The default pair of
         'PID' and 'PFA' can be replaced or extended by any other EDPs. 
+    units: dict, default: {'PID':1., 'PFA':1}
+        Defines the unit conversion that shall be applied to the EDP values.
     verbose: boolean
         If True, the function echoes the information read from the file. This
         can be useful to ensure that the information in the file is properly
@@ -472,9 +473,12 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'), verbose=False)
                 # extract info about the location, direction, and scenario
                 info = column.split('-')
                 
+                # get the scale factor to perform unit conversion
+                f_unit = units[kind]
+                
                 # store the data
                 data[kind].append(dict(
-                    raw_data=EDP_raw[column].values.tolist(),
+                    raw_data=(EDP_raw[column].values * f_unit).tolist(),
                     location=info[2],
                     direction=info[3],
                     scenario_id=info[0]
@@ -524,18 +528,34 @@ def read_population_distribution(path_POP, occupancy, verbose=False):
 
     return data
 
-
-def read_P58_component_data(path_CMP, comp_info, verbose=False):
+def read_component_DL_data(path_CMP, comp_info, verbose=False):
     """
+    Read the damage and loss data for the components of the asset.
+    
+    DL data for each component is assumed to be stored in an xml file. The name
+    of the file is the ID (key) of the component in the comp_info dictionary.
+    Besides the filename, the comp_info dictionary is also used to get other
+    pieces of data about the component that is not available in the xml files.
+    Therefore, the following attributes need to be provided in the comp_info:
+    ['quantities', 'csg_weights', 'dirs', 'kind', 'distribution', 'cov', 
+    'unit', 'locations'] Further information about these attributes is 
+    available in the Input section of the documentation.
     
     Parameters
     ----------
-    path_CMP
-    comp_info
-    verbose
+    path_CMP: string
+        Location of the folder that contains the component data in xml files.
+    comp_info: dict
+        Dictionary with additional information about the components.
+    verbose: boolean
+        If True, the function echoes the information read from the files. This
+        can be useful to ensure that the information in the files is properly
+        read by the method.
 
     Returns
     -------
+    data: dict
+        A dictionary with damage and loss data for each component.
 
     """
     def parse_DS_xml(DS_xml):
@@ -587,8 +607,8 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
             if unit == 'Square Foot':
                 affected_area = float(CFG_A.find('Value').text) * SF
             else:
-                print('WARNING: unknown unit for affected floor area: ',
-                      '{}'.format(unit))
+                warnings.warn(UserWarning(
+                    'Unknown unit for affected floor area: {}'.format(unit)))
                 affected_area = 0.
             data.update({'affected_area': affected_area})
         else:
@@ -635,18 +655,18 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
         ci_data = comp_info[c_id]
         c_data['kind'] = ci_data['kind']
         c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
-        c_data['quantities'] = np.asarray(ci_data['quantities']) * c_data[
-            'unit']
+        c_data['quantities'] = (np.asarray(ci_data['quantities']) * c_data[
+            'unit']).tolist()
         c_data['distribution_kind'] = ci_data['distribution']
-        c_data['csg_weights'] = np.asarray(ci_data['csg_weights'])
-        c_data['directions'] = np.asarray(ci_data['dirs'], dtype=np.int)
-        c_data['locations'] = np.asarray(ci_data['locations'], dtype=np.int)
+        c_data['csg_weights'] = ci_data['csg_weights']
+        c_data['directions'] = ci_data['dirs']
+        c_data['locations'] = ci_data['locations']
         c_data['cov'] = ci_data['cov']
 
         # calculate the quantity weights in each direction
-        dirs = c_data['directions']
+        dirs = np.asarray(c_data['directions'], dtype=np.int)
         u_dirs = np.unique(dirs)
-        weights = c_data['csg_weights']
+        weights = np.asarray(c_data['csg_weights'])
         c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)]) 
                                  for d_i in u_dirs]
 
@@ -665,8 +685,8 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
         c_data['incomplete'] = strtobool(root.find('Incomplete').text)
 
         if c_data['incomplete']:
-            print('WARNING: fragility information for',
-                  '{} is incomplete'.format(c_id))
+            warnings.warn(UserWarning(
+                'Fragility information for {} is incomplete'.format(c_id)))
 
         EDP = root.find('EDPType')
         EDP_type = EDP.find('TypeName').text
@@ -676,13 +696,18 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
         elif EDP_type == 'Acceleration':
             demand_type = 'PFA'
             demand_factor = g
-        elif EDP_type == 'Effective Drift':
-            demand_type = 'PID'
-            print('WARNING: Unable to handle {} EDP type,',
-                  'using Story Drift Ratio instead'.format(EDP_type))
+        elif EDP_type in [
+            'Peak Floor Velocity',
+            'Link Rotation Angle',
+            'Link Beam Chord Rotation']:
+            demand_type = None
+            warnings.warn(UserWarning(
+                'Component {} requires {} as EDP, which is not yet '
+                'implemented.'.format(c_data['ID'], EDP_type)))
         else:
             demand_type = None
-            print('WARNING: Unknown EDP type: {}'.format(EDP_type))
+            warnings.warn(UserWarning(
+                'Unexpected EDP type: {}'.format(EDP_type)))
         c_data['demand_type'] = demand_type
 
         # dictionary to convert xml to internal
@@ -735,7 +760,7 @@ def read_P58_component_data(path_CMP, comp_info, verbose=False):
     return data
 
 def write_SimCenter_DL_output(output_path, output_df, index_name='#Num', 
-                              collapse_columns = True, summary=False):
+                              collapse_columns = True, stats_only=False):
     """
     
     Parameters
@@ -750,9 +775,11 @@ def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
 
     """
     
+    output_df = deepcopy(output_df)
+    
     # if the summary flag is set, then not all realizations are returned, but
     # only the first two moments and the empirical CDF through 100 percentiles
-    if summary:
+    if stats_only:
         output_df = output_df.describe(np.arange(1, 100)/100.)
         
     # the name of the index column is replaced with the provided value
