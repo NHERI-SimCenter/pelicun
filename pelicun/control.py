@@ -1712,7 +1712,7 @@ class FEMA_P58_Assessment(Assessment):
                             INJ_i = P_sel.loc[mode_IDs, loc_label] * CFAR[loc_i] * \
                                     INJ[inj_i]
                             COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)] = (
-                                COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)].add(INJ_i, axis=0))
+                                COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)].add(INJ_i, axis=0).values)
 
             return COL_INJ
         

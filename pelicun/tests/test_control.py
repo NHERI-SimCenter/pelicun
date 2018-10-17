@@ -191,6 +191,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
     assert_allclose(DV_RED['mean'], np.array([0.341344, 0.1586555]), rtol=0.1)
 
     # INJ - collapse
+    print(A._COL.columns)
     DV_INJ_C = deepcopy(A._COL[['INJ-0', 'INJ-1']])
     DV_INJ_C.dropna(inplace=True)
     NC_count = DV_INJ_C.describe().T['count'][0]
