@@ -1,0 +1,79 @@
+{
+    "GeneralInformation": {
+        "planArea": 100.0,
+        "units": {
+            "force": "N",
+            "length": "m",
+            "temperature": "C",
+            "time": "sec"
+        }
+    },
+    "LossModel": {
+        "BuildingDamage": {
+            "CollapseLimits": {
+                "PFA": "4.903325"
+            },
+            "IrrepairableResidualDrift": {
+                "Median": "10.",
+                "Sig": "0.0001"
+            },
+            "ReplacementCost": "300000",
+            "ReplacementTime": "300"
+        },
+        "BuildingResponse": {
+            "DetectionLimits": {
+                "PFA": ""
+            },
+            "YieldDriftRatio": "0.01"
+        },
+        "CollapseModes": [
+            {
+                "affected_area": "1.0",
+                "injuries": "0.1, 0.9",
+                "name": "complete",
+                "w": "1.0"
+            }
+        ],
+        "Components": [
+            {
+                "ID": "T0001.001",
+                "cov": "0.0001",
+                "directions": "0",
+                "distribution": "normal",
+                "name": "clay tile roof",
+                "quantity": "5.3821",
+                "structural": true,
+                "unit_size": "100",
+                "unit_type": "SF",
+                "weights": "1.0"
+            }
+        ],
+        "DecisionVariables": {
+            "Injuries": true,
+            "ReconstructionCost": true,
+            "ReconstructionTime": true,
+            "RedTag": true
+        },
+        "Inhabitants": {
+            "OccupancyType": "Target Occupancy",
+            "PeakPopulation": "10"
+        },
+        "LossModelDependencies": {
+            "CostAndTime": false,
+            "Fragilities": "per ATC recommendation",
+            "Injuries": "Independent",
+            "InjurySeverities": false,
+            "Quantities": "Independent",
+            "ReconstructionCosts": "Independent",
+            "ReconstructionTimes": "Independent",
+            "RedTagProbabilities": "Independent"
+        },
+        "UncertaintyQuantification": {
+            "AdditionalUncertainty": {
+                "GroundMotion": "0.0001",
+                "Modeling": "0.0001"
+            },
+            "Realizations": "10000"
+        }
+    }
+}

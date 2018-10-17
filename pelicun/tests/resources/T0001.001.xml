@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="0.1">
+  <ID>T0001.001</ID>
+  <Description>Costing per square unit (100 SF)</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Made-up component to test loss assessment</Name>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Incomplete>false</Incomplete>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Description>First DS</Description>
+      <ConsequenceGroup>
+        <RepairMeasures>Minor repair measures</RepairMeasures>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1.0764</LowerQuantity>
+          <MaxAmount>836.1</MaxAmount>
+          <UpperQuantity>9.6878</UpperQuantity>
+          <MinAmount>92.9</MinAmount>
+          <Uncertainty>0.0001</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1.0764</LowerQuantity>
+          <MaxAmount>0.8361</MaxAmount>
+          <UpperQuantity>9.6878</UpperQuantity>
+          <MinAmount>0.0929</MinAmount>
+          <Uncertainty>0.0001</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.37</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Description>Second DS</Description>
+      <ConsequenceGroup>
+        <RepairMeasures>Intermediate repair measures</RepairMeasures>
+        <AffectedFloorArea>
+          <Area>
+            <Unit>Square Foot</Unit>
+            <Value>20</Value>
+          </Area>
+        </AffectedFloorArea>
+        <AffectedDeathRate>0.1</AffectedDeathRate>
+        <AffectedInjuryRate>0.3</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0.0001</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0.0001</AffectedInjuryRateBeta>
+        <RedTagMedian>0.5</RedTagMedian>
+        <RedTagBeta>0.0001</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1.0764</LowerQuantity>
+          <MaxAmount>8361.0</MaxAmount>
+          <UpperQuantity>9.6878</UpperQuantity>
+          <MinAmount>929.0</MinAmount>
+          <Uncertainty>0.0001</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1.0764</LowerQuantity>
+          <MaxAmount>8.361</MaxAmount>
+          <UpperQuantity>9.6878</UpperQuantity>
+          <MinAmount>0.929</MinAmount>
+          <Uncertainty>0.0001</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.5</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Description>Third DS</Description>
+      <ConsequenceGroup>
+        <RepairMeasures>Major repair measures</RepairMeasures>
+        <AffectedFloorArea>
+          <Area>
+            <Unit>Square Foot</Unit>
+            <Value>20</Value>
+          </Area>
+        </AffectedFloorArea>
+        <AffectedDeathRate>0.1</AffectedDeathRate>
+        <AffectedInjuryRate>0.3</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0.0001</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0.0001</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.0001</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1.0764</LowerQuantity>
+          <MaxAmount>83610.0</MaxAmount>
+          <UpperQuantity>9.6878</UpperQuantity>
+          <MinAmount>9290.0</MinAmount>
+          <Uncertainty>0.0001</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1.0764</LowerQuantity>
+          <MaxAmount>83.61</MaxAmount>
+          <UpperQuantity>9.6878</UpperQuantity>
+          <MinAmount>9.29</MinAmount>
+          <Uncertainty>0.0001</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.82</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

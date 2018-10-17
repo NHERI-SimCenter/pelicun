@@ -56,8 +56,9 @@ from .file_io import *
 
 class Assessment(object):
     """
-    Description
-    
+    A high-level class that collects features common to all supported loss
+    assessment methods. This class will only rarely be called directly when
+    using pelicun.
     """
     
     def __init__(self):
@@ -85,16 +86,22 @@ class Assessment(object):
         
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
+        Read and process the input files to describe the loss assessment task.
         
         Parameters
         ----------
-        path_DL_input
-        path_EDP_input
-        verbose
-
-        Returns
-        -------
-
+        path_DL_input: string
+            Location of the Damage and Loss input file. The file is expected to
+            be a JSON with data stored in a standard format described in detail
+            in the Input section of the documentation.
+        path_EDP_input: string
+            Location of the EDP input file. The file is expected to follow the 
+            output formatting of Dakota. The Input section of the documentation
+            provides more information about the expected formatting.
+        verbose: boolean, default: False
+            If True, the method echoes the information read from the files.
+            This can be useful to ensure that the information in the file is 
+            properly read by the method.
         """
         
         # read SimCenter inputs -----------------------------------------------
@@ -107,52 +114,42 @@ class Assessment(object):
     
     def define_random_variables(self):
         """
-        
-        Returns
-        -------
+        Define the random variables used for loss assessment.
 
         """
         pass
     
     def define_loss_model(self):
         """
-        
-        Returns
-        -------
+        Create the stochastic loss model based on the inputs provided earlier.
 
         """
         pass
     
     def calculate_damage(self):
         """
-        
-        Returns
-        -------
+        Characterize the damage experienced in each random event realization.
 
         """
         self._ID_dict = {}
     
     def calculate_losses(self):
         """
-        
-        Returns
-        -------
+        Characterize the consequences of damage in each random event realization.
 
         """
         self._DV_dict = {}
     
     def write_outputs(self):
         """
-        
-        Returns
-        -------
+        Export the results.
 
         """
         pass
     
 class FEMA_P58_Assessment(Assessment):
     """
-    Description
+    An Assessment class that implements the loss assessment method in FEMA P58.
     """
     def __init__(self, inj_lvls = 2):
         super(FEMA_P58_Assessment, self).__init__()
@@ -163,29 +160,63 @@ class FEMA_P58_Assessment(Assessment):
     @property
     def beta_additional(self):
         """
+        Calculate the total additional uncertainty for post processing.
+        
+        The total additional uncertainty is the squared root of sum of squared
+        uncertainties corresponding to ground motion and modeling.
         
         Returns
         -------
-
+        beta_tot: float
+            The total uncertainty (logarithmic EDP standard deviation) to add
+            to the EDP distribution.
         """
         
         AU = self._AIM_in['general']['added_uncertainty']
-        return np.sqrt(AU['beta_m'] ** 2. + AU['beta_gm'] ** 2.)
+        
+        beta_tot = 0.
+        if AU['beta_m'] is not None:
+            beta_tot += AU['beta_m']**2.
+        if AU['beta_gm'] is not None:
+            beta_tot += AU['beta_gm']**2.
+            
+        # if no uncertainty is assigned, we consider a minimum of 10^-4
+        if beta_tot == 0:
+            beta_tot = 1e-4
+        else:
+            beta_tot = np.sqrt(beta_tot)
+        
+        return beta_tot
 
     def read_inputs(self, path_DL_input, path_EDP_input, 
                     path_CMP_data=None, path_POP_data=None, verbose=False):
         """
+        Read and process the input files to describe the loss assessment task.
         
         Parameters
         ----------
-        path_DL_input
-        path_EDP_input
-        path_CMP_data
-        path_POP_data
-        verbose
-
-        Returns
-        -------
+        path_DL_input: string
+            Location of the Damage and Loss input file. The file is expected to
+            be a JSON with data stored in a standard format described in detail
+            in the Input section of the documentation.
+        path_EDP_input: string
+            Location of the EDP input file. The file is expected to follow the 
+            output formatting of Dakota. The Input section of the documentation
+            provides more information about the expected formatting.
+        path_CMP_data: string, default: None
+            Location of the folder with component damage and loss data files. 
+            The default None value triggers the use of the FEMA P58 first
+            edition data from pelicun/resources/component DL/FEMA P58 first 
+            edition/.
+        path_POP_data: string, default: None
+            Location of the JSON file that describes the temporal distribution
+            of the population per the FEMA P58 method. The default None value
+            triggers the use of the FEMA P58 first edition distribution from
+            pelicun/resources/population.json. 
+        verbose: boolean, default: False
+            If True, the method echoes the information read from the files.
+            This can be useful to ensure that the information in the file is 
+            properly read by the method.
 
         """
         
@@ -199,6 +230,13 @@ class FEMA_P58_Assessment(Assessment):
             ))
             path_CMP_data = '../../resources/component DL/FEMA P58 first edition/'
 
+        if path_POP_data is None:
+            warnings.warn(UserWarning(
+                "The population distribution is not specified; using the default "
+                "FEMA P58 first edition data."
+            ))
+            path_POP_data = '../../resources/population.json'
+
         # assume that the asset is a building
         # TODO: If we want to apply FEMA-P58 to non-building assets, several parts of this methodology need to be extended.
         BIM = self._AIM_in
@@ -208,22 +246,76 @@ class FEMA_P58_Assessment(Assessment):
         self._FG_in = read_component_DL_data(path_CMP_data, BIM['components'],
                                              verbose=verbose)
         
-        if path_POP_data is not None:
-            # population
-            POP = read_population_distribution(
-                path_POP_data, 
-                BIM['general']['occupancy_type'], 
-                verbose=verbose)
-    
-            POP['peak'] = BIM['general']['population']          
-            self._POP_in = POP              
+        # population
+        POP = read_population_distribution(
+            path_POP_data, 
+            BIM['general']['occupancy_type'], 
+            verbose=verbose)
+
+        POP['peak'] = BIM['general']['population']          
+        self._POP_in = POP              
 
     def define_random_variables(self):
         """
+        Define the random variables used for loss assessment.
         
-        Returns
-        -------
-
+        Following the FEMA P58 methodology, the groups of parameters below are 
+        considered random. Simple correlation structures within each group can
+        be specified through the DL input file. The random decision variables
+        are only created and used later if those particular decision variables
+        are requested in the input file.
+        
+        1. Demand (EDP) distribution
+        
+        Describe the uncertainty in the demands. Unlike other random variables,
+        the EDPs are characterized by the EDP input data provided earlier. All
+        EDPs are handled in one multivariate lognormal distribution. If more 
+        than one sample is provided, the distribution is fit to the EDP data.
+        Otherwise, the provided data point is assumed to be the median value
+        and the additional uncertainty prescribed describes the dispersion. See
+        _create_RV_demands() for more details.
+        
+        2. Component quantities
+        
+        Describe the uncertainty in the quantity of components in each 
+        Performance Group. All Fragility Groups are handled in the same 
+        multivariate distribution. Consequently, correlation between various 
+        groups of component quantities can be specified. See 
+        _create_RV_quantities() for details. 
+        
+        3. Fragility EDP limits
+        
+        Describe the uncertainty in the EDP limit that corresponds to 
+        exceedance of each Damage State. EDP limits are grouped by Fragility
+        Groups. Consequently, correlation between fragility limits are 
+        currently are limited within Fragility Groups. See 
+        _create_RV_fragilities() for details.
+        
+        4. Reconstruction cost and time
+        
+        Describe the uncertainty in the cost and duration of reconstruction of 
+        each component conditioned on the damage state of the component. All
+        Fragility Groups are handled in the same multivariate distribution.
+        Consequently, correlation between various groups of component 
+        reconstruction time and cost estimates can be specified. See 
+        _create_RV_repairs() for details.
+        
+        5. Damaged component proportions that trigger a red tag
+        
+        Describe the uncertainty in the amount of damaged components needed to
+        trigger a red tag for the building. All Fragility Groups are handled in
+        the same multivariate distribution. Consequently, correlation between
+        various groups of component proportion limits can be specified. See
+        _create_RV_red_tags() for details.
+        
+        6. Injuries
+        
+        Describe the uncertainty in the proportion of people in the affected
+        area getting injuries exceeding a certain level of severity. FEMA P58
+        uses two severity levels: injury and fatality. Both levels for all
+        Fragility Groups are handled in the same multivariate distribution. 
+        Consequently, correlation between various groups of component injury
+        expectations can be specified. See _create_RV_injuries() for details. 
         """
         super(FEMA_P58_Assessment, self).define_random_variables()
 
@@ -271,9 +363,13 @@ class FEMA_P58_Assessment(Assessment):
 
     def define_loss_model(self):
         """
+        Create the stochastic loss model based on the inputs provided earlier.
         
-        Returns
-        -------
+        Following the FEMA P58 methodology, the components specified in the 
+        Damage and Loss input file are used to create Fragility Groups. Each
+        Fragility Group corresponds to a component that might be present in 
+        the building at several locations. See _create_fragility_groups() for
+        more details about the creation of Fragility Groups.
 
         """
         super(FEMA_P58_Assessment, self).define_loss_model()
@@ -288,9 +384,19 @@ class FEMA_P58_Assessment(Assessment):
         
     def calculate_damage(self):
         """
+        Characterize the damage experienced in each random event realization.
         
-        Returns
-        -------
+        First, the time of the event (month, weekday/weekend, hour) is randomly
+        generated for each realization. Given the event time, the number of 
+        people present at each floor of the building is calculated.
+        
+        Second, the realizations that led to collapse are filtered. See 
+        _calc_collapses() for more details on collapse estimation.
+        
+        Finally, the realizations that did not lead to building collapse are 
+        further investigated and the quantities of components in each damage
+        state are estimated. See _calc_damage() for more details on damage 
+        estimation.
 
         """
         super(FEMA_P58_Assessment, self).calculate_damage()
@@ -315,10 +421,38 @@ class FEMA_P58_Assessment(Assessment):
 
     def calculate_losses(self):
         """
+        Characterize the consequences of damage in each random event realization.
         
-        Returns
-        -------
-
+        For the sake of efficiency, only the decision variables requested in 
+        the input file are estimated. The following consequences are handled by 
+        this method:
+        
+        Reconstruction time and cost
+        Estimate the irrepairable cases based on residual drift magnitude and
+        the provided irrepairable drift limits. Realizations that led to 
+        irrepairable damage or collapse are assigned the replacement cost and
+        time of the building when reconstruction cost and time is estimated. 
+        Repairable cases get a cost and time estimate for each Damage State in 
+        each Performance Group. For more information about estimating 
+        irrepairability see _calc_irrepairable() and reconstruction cost and
+        time see _calc_repair_cost_and_time() methods.
+        
+        Injuries
+        Collapse-induced injuries are based on the collapse modes and 
+        corresponding injury characterization. Injuries conditioned on no 
+        collapse are based on the affected area and the probability of 
+        injuries of various severity specified in the component data file. For
+        more information about estimating injuries conditioned on collapse and
+        no collapse, see _calc_collapse_injuries() and 
+        _calc_non_collapse_injuries, respecitvely.
+        
+        Red Tag
+        The probability of getting an unsafe placard or red tag is a function
+        of the amount of damage experienced in various Damage States for each
+        Performance Group. The damage limits that trigger an unsafe placard are
+        specified in the component data file. For more information on 
+        assigning red tags to realizations see the _calc_red_tag() method.
+        
         """
         super(FEMA_P58_Assessment, self).calculate_losses()
         DVs = self._AIM_in['decision_variables']
@@ -359,7 +493,7 @@ class FEMA_P58_Assessment(Assessment):
             
             # store results
             if COL_INJ is not None:
-                self.COL = pd.concat([self._COL, COL_INJ], axis=1)
+                self._COL = pd.concat([self._COL, COL_INJ], axis=1)
 
             self._DV_dict.update({'injuries': DV_INJ_dict})
         
@@ -612,11 +746,11 @@ class FEMA_P58_Assessment(Assessment):
                 c_pos_id = 0
                 for l_dim in c_DS_list:
                     c_rho[c_pos_id:c_pos_id + l_dim,
-                    c_pos_id:c_pos_id + l_dim] = rho_DS
+                          c_pos_id:c_pos_id + l_dim] = rho_DS
                     c_pos_id = c_pos_id + l_dim
 
             rho[f_pos_id:f_pos_id + c_dims,
-            f_pos_id:f_pos_id + c_dims] = c_rho
+                f_pos_id:f_pos_id + c_dims] = c_rho
             f_pos_id = f_pos_id + c_dims
 
         np.fill_diagonal(rho, 1.0)
@@ -766,7 +900,7 @@ class FEMA_P58_Assessment(Assessment):
                                       [t + '-LOC-{}-DIR-{}'.format(loc, dir_)
                                        for t in d_tag])
 
-        rho = self._create_correlation_matrix('PG', c_target=-1, 
+        rho = self._create_correlation_matrix(rho_target, c_target=-1, 
                                               include_DSG=True,
                                               include_DS=True)
 
@@ -962,34 +1096,56 @@ class FEMA_P58_Assessment(Assessment):
 
         detection_limits = np.transpose(np.asarray(detection_limits))
         demand_data = np.transpose(np.asarray(demand_data))
+        
+        # if more than one sample is provided
+        if demand_data.shape[0] > 1:
+            # get the number of censored samples
+            EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
+                                 np.all(demand_data < detection_limits[1], axis=1)],
+                                axis=0)
+            censored_count = len(EDP_filter) - sum(EDP_filter)
+            demand_data = demand_data[EDP_filter]
+            demand_data = np.transpose(demand_data)
+    
+            # create the random variable
+            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                                       raw_data=demand_data,
+                                       detection_limits=detection_limits,
+                                       censored_count=censored_count
+                                       )
+    
+            # fit a multivariate lognormal distribution to the censored raw data
+            demand_RV.fit_distribution('lognormal')
+        else:
+            # Since we only have one data point, the best we can do is assume
+            # it is the median of the multivariate distribution. The dispersion
+            # is assumed to be negligible.
+            dim = len(demand_data[0])
+            if dim > 1:
+                sig = np.ones(dim)*1e-4
+                rho = np.zeros((dim,dim))
+                np.fill_diagonal(rho, 1.0)
+                COV = np.outer(sig,sig) * rho
+            else:
+                COV = np.asarray((1e-4)**2.)
+                
+            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                                       distribution_kind='lognormal',
+                                       theta=demand_data[0],
+                                       COV=COV)
 
-        # get the number of censored samples
-        EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
-                             np.all(demand_data < detection_limits[1], axis=1)],
-                            axis=0)
-        censored_count = len(EDP_filter) - sum(EDP_filter)
-        demand_data = demand_data[EDP_filter]
-        demand_data = np.transpose(demand_data)
-
-        # create the random variable
-        demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                   raw_data=demand_data,
-                                   detection_limits=detection_limits,
-                                   censored_count=censored_count
-                                   )
-
-        # fit a multivariate lognormal distribution to the censored raw data
-        demand_RV.fit_distribution('lognormal')
-
-        # if we want to add other sources of uncertainty, we will need to redefine
-        # the random variable
+        # if we want to add other sources of uncertainty, we will need to 
+        # redefine the random variable
         if beta_added > 0.:
             # get the covariance matrix with added uncertainty
             COV_orig = demand_RV.COV
-            sig_orig = np.sqrt(np.diagonal(COV_orig))
-            rho_orig = COV_orig / np.outer(sig_orig, sig_orig)
-            sig_mod = np.sqrt(sig_orig ** 2. + beta_added ** 2.)
-            COV_mod = np.outer(sig_mod, sig_mod) * rho_orig
+            if COV_orig.shape is not ():
+                sig_orig = np.sqrt(np.diagonal(COV_orig))
+                rho_orig = COV_orig / np.outer(sig_orig, sig_orig)
+                sig_mod = np.sqrt(sig_orig ** 2. + beta_added ** 2.)
+                COV_mod = np.outer(sig_mod, sig_mod) * rho_orig
+            else:
+                COV_mod = np.sqrt(COV_orig**2. + beta_added**2.)
 
             # redefine the random variable
             demand_RV = RandomVariable(ID=200,
@@ -1197,8 +1353,7 @@ class FEMA_P58_Assessment(Assessment):
 
         Returns
         -------
-        P: DataFrame
-            Explain...
+        
         """
         POPin = self._POP_in
         TIME = self._TIME
@@ -1221,9 +1376,9 @@ class FEMA_P58_Assessment(Assessment):
 
             POP.loc[weekends, col] = (
                 POP.loc[weekends, col] *
-                np.array(POPin['weekday']['daily'])[
+                np.array(POPin['weekend']['daily'])[
                     TIME.loc[weekends, 'hour'].values.astype(int)] *
-                np.array(POPin['weekday']['monthly'])[
+                np.array(POPin['weekend']['monthly'])[
                     TIME.loc[weekends, 'month'].values.astype(int)])
 
         return POP
@@ -1379,9 +1534,11 @@ class FEMA_P58_Assessment(Assessment):
                     if DS._red_tag_CF is not None:
                         RED_samples = DS.red_tag_dmg_limit(
                             sample_size=NC_samples)
+                        RED_samples.index = ncID
 
                         is_red = PG_DMG.loc[:, (FG._ID, PG_ID, d_tag)].sub(
                             RED_samples, axis=0)
+                        
                         FG_RED.loc[:, (FG._ID, PG_ID, d_tag)] = (
                             is_red > 0.).astype(int)
                     else:
@@ -1420,7 +1577,7 @@ class FEMA_P58_Assessment(Assessment):
                 else:
                     PID_max = np.max((PID_max, d_max), axis=0)
 
-        if RED_max is None:
+        if (RED_max is None) and (PID_max is not None):
             # we need to estimate residual drifts based on peak drifts
             RED_max = np.zeros(NC_samples)
 
@@ -1433,7 +1590,12 @@ class FEMA_P58_Assessment(Assessment):
             RED_max[large] = PID_max[large] - 3 * delta_y
             RED_max[medium] = 0.3 * (PID_max[medium] - delta_y)
             RED_max[small] = 0.
-
+        else:
+            # If no drift data is available, then we cannot provide an estimate
+            # of irrepairability. We assume that all non-collapse realizations 
+            # are repairable in this case.
+            return np.array([])
+            
         # get the probabilities of irrepairability
         irrep_frag = self._AIM_in['general']['irrepairable_res_drift']
         RV_irrep = RandomVariable(ID=-1, dimension_tags=['RED_irrep', ],

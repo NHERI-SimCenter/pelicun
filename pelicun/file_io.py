@@ -46,8 +46,8 @@ This module has classes and methods that handle file input and output.
 
     read_SimCenter_DL_input
     read_SimCenter_EDP_input
-    read_P58_population_distribution
-    read_P58_component_data
+    read_population_distribution
+    read_component_DL_data
     write_SimCenter_DL_output
 
 """
@@ -368,7 +368,7 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         'btw. Directions'        : 'DIR',
         'btw. Damage States'     : 'DS',
         'Independent'            : 'IND',
-        'per ATC recommendation' : 'ATC,'
+        'per ATC recommendation' : 'ATC',
     }
     
     if 'LossModelDependencies' in LM:
@@ -624,6 +624,7 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         data['repair_cost']['median_max'] /= c_data['unit']
         data['repair_time']['median_min'] /= c_data['unit']
         data['repair_time']['median_max'] /= c_data['unit']
+        data['affected_area'] /= c_data['unit']
 
         return data
 
