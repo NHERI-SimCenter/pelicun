@@ -1686,11 +1686,11 @@ class FEMA_P58_Assessment(Assessment):
             P_modes = [coll_modes[k]['w'] for k in P_keys]
     
             # create the DataFrame that collects the decision variables
+            inj_cols = ['CM',]
+            for i in range(inj_lvls):
+                inj_cols.append('INJ-{}'.format(i))
             COL_INJ = pd.DataFrame(np.zeros((C_samples, inj_lvls + 1)),
-                                   columns=[['CM',] + 
-                                            ['INJ-{}'.format(i) for i in
-                                             range(inj_lvls)]],
-                                   index=colID)
+                                   columns=inj_cols, index=colID)
     
             CM_RV = RandomVariable(ID=-1, dimension_tags=['CM', ],
                                    distribution_kind='multinomial',
