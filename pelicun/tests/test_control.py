@@ -96,25 +96,23 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     # FRG
     RV_FRG = A._RV_dict['FR-T0001.001']
-    order = np.argsort(RV_FRG.dimension_tags)
-    assert_allclose(RV_FRG.theta[order], np.array([0.37, 0.5, 0.82]) * g, rtol=0.01)
+    assert_allclose(RV_FRG.theta, np.array([0.37, 0.5, 0.82]) * g, rtol=0.01)
     COV = deepcopy(RV_FRG.COV)
     sig = np.sqrt(np.diagonal(COV))
-    assert_allclose(sig[order], np.array([0.3, 0.4, 0.5]), rtol=0.01)
+    assert_allclose(sig, np.array([0.3, 0.4, 0.5]), rtol=0.01)
     assert_allclose(COV / np.outer(sig, sig), np.ones((3, 3)), rtol=0.01)
     assert RV_FRG._distribution_kind == 'lognormal'
 
     # RED
     RV_RED = A._RV_dict['DV_RED']
-    order = np.argsort(RV_RED.dimension_tags)
-    assert_allclose(RV_RED.theta[order], np.ones(2), rtol=0.01)
+    assert_allclose(RV_RED.theta, np.ones(2), rtol=0.01)
     assert_allclose(RV_RED.COV, np.array([[1, 0], [0, 1]]) * (1e-4) ** 2.,
                     rtol=0.01)
     assert RV_RED._distribution_kind == 'normal'
     assert RV_RED.tr_limits_pre == None
-    assert_allclose(RV_RED.tr_limits_post[0][order], np.array([0., 0.]),
+    assert_allclose(RV_RED.tr_limits_post[0], np.array([0., 0.]),
                     rtol=0.01)
-    assert_allclose(RV_RED.tr_limits_post[1][order], np.array([2., 4.]),
+    assert_allclose(RV_RED.tr_limits_post[1], np.array([2., 4.]),
                     rtol=0.01)
 
     # INJ
@@ -191,7 +189,6 @@ def test_FEMA_P58_Assessment_central_tendencies():
     assert_allclose(DV_RED['mean'], np.array([0.341344, 0.1586555]), rtol=0.1)
 
     # INJ - collapse
-    print(A._COL.columns)
     DV_INJ_C = deepcopy(A._COL[['INJ-0', 'INJ-1']])
     DV_INJ_C.dropna(inplace=True)
     NC_count = DV_INJ_C.describe().T['count'][0]
