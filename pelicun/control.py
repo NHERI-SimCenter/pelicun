@@ -329,7 +329,10 @@ class FEMA_P58_Assessment(Assessment):
                             self._create_RV_quantities(DEP['quantities'])})
         
         # fragilities 300
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id, c_name in enumerate(s_fg_keys):
+            comp = self._FG_in[c_name]
+            
             self._RV_dict.update({
                 'FR-' + c_name: 
                     self._create_RV_fragilities(c_id, comp, 
@@ -358,7 +361,9 @@ class FEMA_P58_Assessment(Assessment):
             self.beta_additional)})
 
         # sample the random variables -----------------------------------------
-        for r_i, rv in self._RV_dict.items():
+        s_rv_keys = sorted(self._RV_dict.keys())
+        for r_i in s_rv_keys:
+            rv = self._RV_dict[r_i]
             rv.sample_distribution(self._AIM_in['general']['realizations'])
 
     def define_loss_model(self):
@@ -667,7 +672,10 @@ class FEMA_P58_Assessment(Assessment):
         dims = []
         DS_list = []
         ATC_rho = []
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id, c_name in enumerate(s_fg_keys):
+            comp = self._FG_in[c_name]
+            
             if ((c_target == -1) or (c_id == c_target)):
                 c_L_D_list = []
                 c_DS_list = []
@@ -675,7 +683,9 @@ class FEMA_P58_Assessment(Assessment):
 
                 if include_DSG:
                     DS_count = 0
-                    for dsg_i, DSG in comp['DSG_set'].items():
+                    s_dsg_keys = sorted(comp['DSG_set'].keys())
+                    for dsg_i in s_dsg_keys:
+                        DSG = comp['DSG_set'][dsg_i]
                         if include_DS:
                             DS_count += len(DSG['DS_set'])
                         else:
@@ -772,7 +782,9 @@ class FEMA_P58_Assessment(Assessment):
         q_theta, q_sig, q_tag, q_dist = [np.array([]) for i in range(4)]
 
         # collect the parameters for each quantity dimension
-        for c_id, comp in self._FG_in.items():
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id in s_fg_keys:
+            comp = self._FG_in[c_id]
             u_dirs = np.unique(comp['directions'])
 
             dir_weights = comp['dir_weights']
@@ -837,7 +849,9 @@ class FEMA_P58_Assessment(Assessment):
         # prepare the basic multivariate distribution data for one component subgroup considering all damage states
         d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
 
-        for d_id, DSG in comp['DSG_set'].items():
+        s_dsg_keys = sorted(comp['DSG_set'].keys())
+        for d_id in s_dsg_keys:
+            DSG = comp['DSG_set'][d_id]
             d_theta = np.append(d_theta, DSG['theta'])
             d_sig = np.append(d_sig, DSG['sig'])
             d_tag = np.append(d_tag, comp['ID'] + '-' + str(d_id))
@@ -879,12 +893,18 @@ class FEMA_P58_Assessment(Assessment):
     def _create_RV_red_tags(self, rho_target):
 
         f_theta, f_sig, f_tag = [np.array([]) for i in range(3)]
-        for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id, c_name in enumerate(s_fg_keys):
+            comp = self._FG_in[c_name]
 
             d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
 
-            for dsg_i, DSG in comp['DSG_set'].items():
-                for ds_i, DS in DSG['DS_set'].items():
+            s_dsg_keys = sorted(comp['DSG_set'].keys())
+            for dsg_i in s_dsg_keys:
+                DSG = comp['DSG_set'][dsg_i]
+                s_ds_keys = sorted(DSG['DS_set'].keys())
+                for ds_i in s_ds_keys:
+                    DS = DSG['DS_set'][ds_i]
                     theta = DS['red_tag']['theta']
                     d_theta = np.append(d_theta, theta)
                     d_sig = np.append(d_sig, DS['red_tag']['cov'])
@@ -934,12 +954,19 @@ class FEMA_P58_Assessment(Assessment):
         for rho_target, name in zip([rho_cost, rho_time], ['cost', 'time']):
             
             f_sig, f_tag, f_dkind = [np.array([]) for i in range(3)]
-            for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
+            
+            s_fg_keys = sorted(self._FG_in.keys())
+            for c_id, c_name in enumerate(s_fg_keys):
+                comp = self._FG_in[c_name]
 
                 d_sig, d_tag, d_dkind = [np.array([]) for i in range(3)]
 
-                for dsg_i, DSG in comp['DSG_set'].items():
-                    for ds_i, DS in DSG['DS_set'].items():
+                s_dsg_keys = sorted(comp['DSG_set'].keys())
+                for dsg_i in s_dsg_keys:
+                    DSG = comp['DSG_set'][dsg_i]
+                    s_ds_keys = sorted(DSG['DS_set'].keys())
+                    for ds_i in s_ds_keys:
+                        DS = DSG['DS_set'][ds_i]
                         d_sig = np.append(d_sig,
                                           DS['repair_{}'.format(name)]['cov'])
                         d_dkind = np.append(d_dkind,
@@ -1005,12 +1032,18 @@ class FEMA_P58_Assessment(Assessment):
         for i_lvl in range(inj_lvls):
 
             f_theta, f_sig, f_tag = [np.array([]) for i in range(3)]
-            for c_id, (c_name, comp) in enumerate(self._FG_in.items()):
+            s_fg_keys = sorted(self._FG_in.keys())
+            for c_id, c_name in enumerate(s_fg_keys):
+                comp = self._FG_in[c_name]
 
                 d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
 
-                for dsg_i, DSG in comp['DSG_set'].items():
-                    for ds_i, DS in DSG['DS_set'].items():
+                s_dsg_keys = sorted(comp['DSG_set'].keys())
+                for dsg_i in s_dsg_keys:
+                    DSG = comp['DSG_set'][dsg_i]
+                    s_ds_keys = sorted(DSG['DS_set'].keys())
+                    for ds_i in s_ds_keys:
+                        DS = DSG['DS_set'][ds_i]
                         d_theta = np.append(d_theta, DS['injuries']['theta'][i_lvl])
                         d_sig = np.append(d_sig, DS['injuries']['cov'][i_lvl])
                         d_tag = np.append(d_tag,
@@ -1083,7 +1116,9 @@ class FEMA_P58_Assessment(Assessment):
         demand_data = []
         d_tags = []
         detection_limits = []
-        for d_id, d_list in self._EDP_in.items():
+        s_edp_keys = sorted(self._EDP_in.keys())
+        for d_id in s_edp_keys:
+            d_list = self._EDP_in[d_id]
             for i in range(len(d_list)):
                 demand_data.append(d_list[i]['raw_data'])
                 d_tags.append(str(d_id) + 
@@ -1164,7 +1199,9 @@ class FEMA_P58_Assessment(Assessment):
         # create a list for the fragility groups
         FG_dict = dict()
 
-        for c_id, comp in self._FG_in.items():
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id in s_fg_keys:
+            comp = self._FG_in[c_id]
 
             FG_ID = len(FG_dict.keys())
 
@@ -1189,13 +1226,17 @@ class FEMA_P58_Assessment(Assessment):
                     # create a list for the damage state groups and their tags
                     DSG_list = []
                     d_tags = []
-                    for dsg_i, (DSG_ID, DSG) in enumerate(comp['DSG_set'].items()):
+                    s_dsg_keys = sorted(comp['DSG_set'].keys())
+                    for dsg_i, DSG_ID in enumerate(s_dsg_keys):
+                        DSG = comp['DSG_set'][DSG_ID]
                         d_tags.append(c_id + '-' + DSG_ID)
     
                         # create a list for the damage states
                         DS_set = []
-    
-                        for ds_i, (DS_ID, DS) in enumerate(DSG['DS_set'].items()):
+                        
+                        s_ds_keys = sorted(DSG['DS_set'].keys())
+                        for ds_i, DS_ID in enumerate(s_ds_keys):
+                            DS = DSG['DS_set'][DS_ID]
     
                             # create the consequence functions
                             if DVs['rec_cost']:
@@ -1387,7 +1428,9 @@ class FEMA_P58_Assessment(Assessment):
 
         # filter the collapsed cases based on the demand samples
         collapsed_IDs = np.array([])
-        for demand_ID, demand in self._EDP_dict.items():
+        s_edp_keys = sorted(self._EDP_dict.keys())
+        for demand_ID in s_edp_keys:
+            demand = self._EDP_dict[demand_ID]
             coll_df = pd.DataFrame()
             kind = demand_ID[:3]
             collapse_limit = self._AIM_in['general']['collapse_limits'][kind]
@@ -1412,7 +1455,9 @@ class FEMA_P58_Assessment(Assessment):
         NC_samples = len(ncID)
         DMG = pd.DataFrame()
 
-        for fg_id, FG in self._FG_dict.items():
+        s_fg_keys = sorted(self._FG_dict.keys())
+        for fg_id in s_fg_keys:
+            FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
 
@@ -1500,7 +1545,9 @@ class FEMA_P58_Assessment(Assessment):
         NC_samples = len(ncID)
         DV_RED = pd.DataFrame()
 
-        for fg_id, FG in self._FG_dict.items():
+        s_fg_keys = sorted(self._FG_dict.keys())
+        for fg_id in s_fg_keys:
+            FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
 
@@ -1562,7 +1609,9 @@ class FEMA_P58_Assessment(Assessment):
         # get the max residual drifts
         RED_max = None
         PID_max = None
-        for demand_ID, demand in self._EDP_dict.items():
+        s_edp_keys = sorted(self._EDP_dict.keys())
+        for demand_ID in s_edp_keys:
+            demand = self._EDP_dict[demand_ID]
             kind = demand_ID[:3]
             if kind == 'RED':
                 r_max = demand.samples.loc[ncID].values
@@ -1624,7 +1673,9 @@ class FEMA_P58_Assessment(Assessment):
                                columns=self._DMG.columns, index=repID)
         DV_TIME = deepcopy(DV_COST)
 
-        for fg_id, FG in self._FG_dict.items():
+        s_fg_keys = sorted(self._FG_dict.keys())
+        for fg_id in s_fg_keys:
+            FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
 
@@ -1730,8 +1781,9 @@ class FEMA_P58_Assessment(Assessment):
                                              columns=self._DMG.columns,
                                              index=ncID))
                             for i in range(self._inj_lvls)])
-
-        for fg_id, FG in self._FG_dict.items():
+        s_fg_keys = sorted(self._FG_dict.keys())
+        for fg_id in s_fg_keys:
+            FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
 

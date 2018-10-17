@@ -650,7 +650,9 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
     ]])) for c_id in comp_info.keys()])
 
     # for each component
-    for c_id, c_data in data.items():
+    s_cmp_keys = sorted(data.keys())
+    for c_id in s_cmp_keys:
+        c_data = data[c_id]
 
         # first, get the parameters from the BIM component info
         ci_data = comp_info[c_id]
