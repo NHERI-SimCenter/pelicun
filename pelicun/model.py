@@ -198,6 +198,11 @@ class FragilityFunction(object):
         nstates = samples.columns.values.size
         
         samples = samples.loc[EDP.index,:]
+        
+        sample_cols = samples.columns
+        col_order = np.argsort(sample_cols)
+        ordered_cols = sample_cols[col_order]
+        samples = samples[ordered_cols]
 
         EXC = samples.sub(EDP, axis=0) < 0.
 
