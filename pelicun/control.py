@@ -1711,7 +1711,9 @@ class FEMA_P58_Assessment(Assessment):
                         for inj_i in range(inj_lvls):
                             INJ_i = P_sel.loc[mode_IDs, loc_label] * CFAR[loc_i] * \
                                     INJ[inj_i]
-                            COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)] += INJ_i
+                            COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)] = (
+                                COL_INJ.loc[mode_IDs, 'INJ-{}'.format(inj_i)] 
+                                + INJ_i)
 
             return COL_INJ
         

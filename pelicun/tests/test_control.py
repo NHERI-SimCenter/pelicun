@@ -99,8 +99,8 @@ def test_FEMA_P58_Assessment_central_tendencies():
     order = np.argsort(RV_FRG.dimension_tags)
     assert_allclose(RV_FRG.theta[order], np.array([0.37, 0.5, 0.82]) * g, rtol=0.01)
     COV = deepcopy(RV_FRG.COV)
-    sig = np.sqrt(np.diagonal(COV))[order]
-    assert_allclose(sig, np.array([0.3, 0.4, 0.5]), rtol=0.01)
+    sig = np.sqrt(np.diagonal(COV))
+    assert_allclose(sig[order], np.array([0.3, 0.4, 0.5]), rtol=0.01)
     assert_allclose(COV / np.outer(sig, sig), np.ones((3, 3)), rtol=0.01)
     assert RV_FRG._distribution_kind == 'lognormal'
 
