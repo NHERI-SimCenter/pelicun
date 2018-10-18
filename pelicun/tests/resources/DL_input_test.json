@@ -55,7 +55,7 @@
             "RedTag": true
         },
         "Inhabitants": {
-            "OccupancyType": "Target Occupancy",
+            "OccupancyType": "Hospitality",
             "PeakPopulation": "10"
         },
         "LossModelDependencies": {

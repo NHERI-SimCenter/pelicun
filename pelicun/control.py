@@ -228,14 +228,18 @@ class FEMA_P58_Assessment(Assessment):
                 "The component database is not specified; using the default "
                 "FEMA P58 first edition data."
             ))
-            path_CMP_data = '../../resources/component DL/FEMA P58 first edition/'
+            #path_CMP_data = '../../resources/component DL/FEMA P58 first edition/'
+            path_CMP_data = pelicun_path
+            path_CMP_data += '/resources/component DL/FEMA P58 first edition/'
 
         if path_POP_data is None:
             warnings.warn(UserWarning(
                 "The population distribution is not specified; using the default "
                 "FEMA P58 first edition data."
             ))
-            path_POP_data = '../../resources/population.json'
+            #path_POP_data = '../../resources/population.json'
+            path_POP_data = pelicun_path
+            path_POP_data += '/resources/population.json'
 
         # assume that the asset is a building
         # TODO: If we want to apply FEMA-P58 to non-building assets, several parts of this methodology need to be extended.
@@ -1000,13 +1004,17 @@ class FEMA_P58_Assessment(Assessment):
         ct_rho = np.zeros((dims, dims))
 
         dims = dims // 2
-        ct_rho[:dims, :dims] = rho_c
-        ct_rho[dims:, dims:] = rho_t
-
-        # if correlation between cost and time is considered, add that to the matrix
-        if rho_cNt:
-            rho_ct = np.zeros((dims, dims))
-            np.fill_diagonal(rho_ct, 1.)
+        if rho_cNt == False:
+            ct_rho[:dims, :dims] = rho_c
+            ct_rho[dims:, dims:] = rho_t
+        else:    
+            # if correlation between cost and time is considered, then the 
+            # envelope of rho_c and rho_t shall be applied
+            rho_ct = np.maximum(rho_c, rho_t)
+            ct_rho[:dims, :dims] = rho_ct
+            ct_rho[dims:, dims:] = rho_ct
+            
+            # apply the same blocks to the off-diagonal positions
             ct_rho[:dims, dims:] = rho_ct
             ct_rho[dims:, :dims] = rho_ct
 

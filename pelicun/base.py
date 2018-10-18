@@ -42,6 +42,11 @@ This module defines constants, basic classes and methods for pelicun.
 
 """
 
+import os
+
+# get the absolute path of the pelicun directory
+pelicun_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Constants for unit conversion
 N = 1.
 kN = 1e3
