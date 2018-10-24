@@ -764,19 +764,6 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
 
 def write_SimCenter_DL_output(output_path, output_df, index_name='#Num', 
                               collapse_columns = True, stats_only=False):
-    """
-    
-    Parameters
-    ----------
-    output_path
-    output_df
-    index_name
-    collapse_columns
-
-    Returns
-    -------
-
-    """
     
     output_df = deepcopy(output_df)
     

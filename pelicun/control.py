@@ -368,7 +368,8 @@ class FEMA_P58_Assessment(Assessment):
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:
             rv = self._RV_dict[r_i]
-            rv.sample_distribution(self._AIM_in['general']['realizations'])
+            if rv is not None:
+                rv.sample_distribution(self._AIM_in['general']['realizations'])
 
     def define_loss_model(self):
         """
@@ -826,13 +827,16 @@ class FEMA_P58_Assessment(Assessment):
         corr_ref = 'post'
 
         # create a random variable for component quantities in performance groups
-        quantity_RV = RandomVariable(ID=100,
-                                     dimension_tags=q_tag,
-                                     distribution_kind=q_dist,
-                                     theta=q_theta,
-                                     COV=q_COV,
-                                     truncation_limits=[tr_lower, tr_upper],
-                                     corr_ref=corr_ref)
+        if q_tag.size > 0:
+            quantity_RV = RandomVariable(ID=100,
+                                         dimension_tags=q_tag,
+                                         distribution_kind=q_dist,
+                                         theta=q_theta,
+                                         COV=q_COV,
+                                         truncation_limits=[tr_lower, tr_upper],
+                                         corr_ref=corr_ref)
+        else:
+            quantity_RV = None
 
         return quantity_RV
 
@@ -886,11 +890,14 @@ class FEMA_P58_Assessment(Assessment):
                                                 include_CSG=True)
         c_COV = np.outer(c_sig, c_sig) * c_rho
 
-        fragility_RV = RandomVariable(ID=300 + c_id,
-                                      dimension_tags=c_tag,
-                                      distribution_kind='lognormal',
-                                      theta=c_theta,
-                                      COV=c_COV)
+        if c_tag.size > 0:
+            fragility_RV = RandomVariable(ID=300 + c_id,
+                                          dimension_tags=c_tag,
+                                          distribution_kind='lognormal',
+                                          theta=c_theta,
+                                          COV=c_COV)
+        else:
+            fragility_RV = None
 
         return fragility_RV
 
@@ -940,14 +947,17 @@ class FEMA_P58_Assessment(Assessment):
 
         tr_upper = 1. + (1. - f_theta) / f_theta
 
-        red_tag_RV = RandomVariable(ID=400,
-                                    dimension_tags=f_tag,
-                                    distribution_kind='normal',
-                                    theta=np.ones(len(f_theta)),
-                                    COV=f_COV,
-                                    corr_ref='post',
-                                    truncation_limits=[np.zeros(len(f_theta)),
-                                                       tr_upper])
+        if f_tag.size > 0:
+            red_tag_RV = RandomVariable(ID=400,
+                                        dimension_tags=f_tag,
+                                        distribution_kind='normal',
+                                        theta=np.ones(len(f_theta)),
+                                        COV=f_COV,
+                                        corr_ref='post',
+                                        truncation_limits=[np.zeros(len(f_theta)),
+                                                           tr_upper])
+        else:
+            red_tag_RV = None
 
         return red_tag_RV
 
@@ -1020,14 +1030,17 @@ class FEMA_P58_Assessment(Assessment):
 
         ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
 
-        repair_RV = RandomVariable(ID=401,
-                                   dimension_tags=ct_tag,
-                                   distribution_kind=ct_dkind,
-                                   theta=np.ones(len(ct_sig)),
-                                   COV=ct_COV,
-                                   corr_ref='post',
-                                   truncation_limits=[np.zeros(len(ct_sig)),
-                                                      None])
+        if ct_tag.size > 0:
+            repair_RV = RandomVariable(ID=401,
+                                       dimension_tags=ct_tag,
+                                       distribution_kind=ct_dkind,
+                                       theta=np.ones(len(ct_sig)),
+                                       COV=ct_COV,
+                                       corr_ref='post',
+                                       truncation_limits=[np.zeros(len(ct_sig)),
+                                                          None])
+        else:
+            repair_RV = None
 
         return repair_RV
 
@@ -1106,14 +1119,17 @@ class FEMA_P58_Assessment(Assessment):
 
         tr_upper = 1. + (1. - full_theta) / full_theta
 
-        injury_RV = RandomVariable(ID=402,
-                                   dimension_tags=full_tag,
-                                   distribution_kind='normal',
-                                   theta=np.ones(len(full_sig)),
-                                   COV=full_COV,
-                                   corr_ref='post',
-                                   truncation_limits=[np.zeros(len(full_sig)),
-                                                      tr_upper])
+        if full_tag.size > 0:
+            injury_RV = RandomVariable(ID=402,
+                                       dimension_tags=full_tag,
+                                       distribution_kind='normal',
+                                       theta=np.ones(len(full_sig)),
+                                       COV=full_COV,
+                                       corr_ref='post',
+                                       truncation_limits=[np.zeros(len(full_sig)),
+                                                          tr_upper])
+        else:
+            injury_RV = None
 
         return injury_RV
 
