@@ -50,6 +50,7 @@ pelicun_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Constants for unit conversion
 N = 1.
 kN = 1e3
+kips = 4448.22
 
 MPa = 1e6
 GPa = 1e9
