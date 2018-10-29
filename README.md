@@ -1,13 +1,10 @@
-<img src="https://raw.githubusercontent.com/zsarnoczay/pelicun/master/docs/figures/logo.PNG" alt="pelicun" height="100"/>
+<img src="https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/master/docs/figures/logo.PNG" alt="pelicun" height="100"/>
 
 [![Documentation Status](https://readthedocs.org/projects/pelicun/badge/?version=latest)](http://pelicun.readthedocs.io/en/latest/?badge=latest)
-[![TravisCI](https://travis-ci.org/zsarnoczay/pelicun.svg?branch=master)](https://travis-ci.org/zsarnoczay/pelicun)
-[![Coverage Status](https://coveralls.io/repos/github/zsarnoczay/pelicun/badge.svg?branch=master)](https://coveralls.io/github/zsarnoczay/pelicun?branch=master)
+[![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
+[![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
 
 Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
-
-This package is in pre-alpha stage. Unless you are involved in the development, 
-please check back a bit later.
 
 ## What is it?
 
