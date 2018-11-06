@@ -9,15 +9,15 @@ API documentation:
     :show-inheritance:
 
 Modules
------------
+-------
 
 .. toctree::
 	:maxdepth: 1
 
-	pelicun.base
-	pelicun.control
-	pelicun.file_io
-	pelicun.model
-	pelicun.uq
+	base <pelicun.base>
+	control <pelicun.control>
+	file_io <pelicun.file_io>
+	model <pelicun.model>
+	uq <pelicun.uq>
 
 	
