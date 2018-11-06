@@ -31,9 +31,9 @@ copyright = '(c) 2018, Leland Stanford Junior University and The Regents of the 
 author = 'Adam Zsarnoczay'
 
 # The short X.Y version
-version = '0.1'
+version = '1.0.0'
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -201,3 +201,4 @@ def setup(app):
             'auto_toc_tree_section': 'Contents',
             }, True)
     app.add_transform(AutoStructify)
+    app.add_stylesheet('css/custom.css')

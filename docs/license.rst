@@ -1,7 +1,7 @@
 
 Copyright and license
 ================================
-The pelicun Python package is copyright through Leland Stanford Junior 
+The *pelicun* Python package is copyright through Leland Stanford Junior 
 University and The Regents of the University of California.
 
 The software is distributed under the BSD 3-Clause License.
