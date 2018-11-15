@@ -4,6 +4,8 @@
 [![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
 [![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1489230.svg)](https://doi.org/10.5281/zenodo.1489230)
+
 Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
 
 ## What is it?
