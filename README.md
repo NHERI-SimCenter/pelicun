@@ -58,6 +58,10 @@ pip install pelicun
 
 `pelicun` is distributed under the BSD 3-Clause license, see LICENSE.
 
+## Acknowledgement
+
+This material is based upon work supported by the National Science Foundation under Grant No. 1612843. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
+
 ## Contact
 
 Adam Zsarnóczay, NHERI SimCenter, Stanford University, adamzs@stanford.edu
