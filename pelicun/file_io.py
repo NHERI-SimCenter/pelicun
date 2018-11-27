@@ -266,7 +266,7 @@ def read_SimCenter_DL_input(input_path, verbose=False):
             data['general'].update({
                 'collapse_limits':
                     dict([(key, float_or_None(value)) for key, value in
-                          LM['BuildingDamage']['CollapseLimits'].items()])})
+                          LM['BuildingDamage']['CollapseLimits'].items()])})            
             # scale the limits by the units
             DGCL = data['general']['collapse_limits']
             for EDP_kind, value in DGCL.items():
@@ -276,7 +276,12 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         else:
             warnings.warn(UserWarning(
                 "Collapse EDP limits were not defined in the input file. "
-                "Infinite EDP limits are assumed."))
+                "No EDP limits are assumed."))        
+        # make sure that PID and PFA collapse limits are identified
+        for key in ['PID', 'PFA']:
+            if key not in data['general']['collapse_limits'].keys():
+                data['general']['collapse_limits'].update({key: None})
+            
             
         if 'IrrepairableResidualDrift' in LM['BuildingDamage'].keys():
             data['general'].update({
