@@ -717,7 +717,7 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         tree = ET.parse(path_CMP + c_id + '.xml')
         root = tree.getroot()
 
-        c_data['ID'] = root.find('ID').text
+        c_data['ID'] = c_id #root.find('ID').text
         c_data['name'] = root.find('Name').text
         c_data['description'] = root.find('Description').text
         c_data['offset'] = int(strtobool(
