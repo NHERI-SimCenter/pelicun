@@ -76,7 +76,8 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     A = FEMA_P58_Assessment()
 
-    A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
 
     A.define_random_variables()
 

@@ -103,15 +103,26 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     LM = jd['LossModel']
 
     # decision variables of interest
-    # We assume that these are always specified in the file.
-    DV = LM['DecisionVariables']
-    for target_att, source_att in [
-        ['injuries', 'Injuries'],
-        ['rec_cost', 'ReconstructionCost'],
-        ['rec_time', 'ReconstructionTime'],
-        ['red_tag', 'RedTag'],
-    ]:
-        data['decision_variables'].update({target_att: bool(DV[source_att])})
+    if 'DecisionVariables' in LM.keys():        
+        DV = LM['DecisionVariables']
+        for target_att, source_att in [
+            ['injuries', 'Injuries'],
+            ['rec_cost', 'ReconstructionCost'],
+            ['rec_time', 'ReconstructionTime'],
+            ['red_tag', 'RedTag'],
+        ]:
+            data['decision_variables'].update({target_att: bool(DV[source_att])})
+    else:
+        warnings.warn(UserWarning(
+            "No decision variables specified in the input file. Assuming that "
+            "all decision variables shall be calculated."))
+        data['decision_variables'].update({
+            'injuries': True,
+            'rec_cost': True,
+            'rec_time': True,
+            'red_tag': True
+        })
+        
     DV = data['decision_variables']
 
     # general information
@@ -313,7 +324,12 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                     DGDL[EDP_kind] = DGDL[EDP_kind] * f_EDP
         else:
             warnings.warn(UserWarning(
-                "EDP detection limits were not defined in the input file."))
+                "EDP detection limits were not defined in the input file. "
+                "Assuming no detection limits."))
+            data['general'].update({
+                'detection_limits': dict(
+                    [(key, None) for key in ['PFA', 'PID']])
+            })
         
         if 'YieldDriftRatio' in LM['BuildingResponse'].keys():
             data['general'].update({
@@ -321,12 +337,20 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                     LM['BuildingResponse']['YieldDriftRatio'])})
         elif DV['rec_cost'] or DV['rec_time']:
             warnings.warn(UserWarning(
-                "Yield drift ratio was not defined in the input file."))
+                "Yield drift ratio was not defined in the input file. "
+                "Assuming a yield drift ratio of 0.01 radian."))
+            data['general'].update({'yield_drift': 0.01})
             
     else:
         warnings.warn(UserWarning(
             "Building response characteristics were not defined in the input "
-            "file."))
+            "file. Assuming no detection limits and a yield drift ratio of "
+            "0.01 radian."))
+        data['general'].update({
+            'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
+            'yield_drift': 0.01
+        })
+        
         
     if 'AdditionalUncertainty' in LM['UncertaintyQuantification'].keys():
         data['general'].update({
@@ -339,7 +363,15 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                         'Modeling'])}})
     else:
         warnings.warn(UserWarning(
-            "No additional uncertainties were defined in the input file."))
+            "No additional uncertainties were defined in the input file. "
+            "Assuming that EDPs already include all ground motion and modeling "
+            "uncertainty."))
+        data['general'].update({
+            'added_uncertainty': {
+                'beta_gm': 0.0001,
+                'beta_m': 0.0001
+            }
+        })
     
     if 'Inhabitants' in LM.keys():
         if 'OccupancyType' in LM['Inhabitants'].keys():

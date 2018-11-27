@@ -19,13 +19,7 @@
             },
             "ReplacementCost": "300000",
             "ReplacementTime": "300"
-        },
-        "BuildingResponse": {
-            "DetectionLimits": {
-                "PFA": ""
-            },
-            "YieldDriftRatio": "0.01"
-        },
+        },        
         "CollapseModes": [
             {
                 "affected_area": "1.0",
@@ -47,32 +41,12 @@
                 "unit_type": "SF",
                 "weights": "1.0"
             }
-        ],
-        "DecisionVariables": {
-            "Injuries": true,
-            "ReconstructionCost": true,
-            "ReconstructionTime": true,
-            "RedTag": true
-        },
+        ],        
         "Inhabitants": {
             "OccupancyType": "Hospitality",
             "PeakPopulation": "10"
         },
-        "LossModelDependencies": {
-            "CostAndTime": false,
-            "Fragilities": "per ATC recommendation",
-            "Injuries": "Independent",
-            "InjurySeverities": false,
-            "Quantities": "Independent",
-            "ReconstructionCosts": "Independent",
-            "ReconstructionTimes": "Independent",
-            "RedTagProbabilities": "Independent"
-        },
-        "UncertaintyQuantification": {
-            "AdditionalUncertainty": {
-                "GroundMotion": "0.0001",
-                "Modeling": "0.0001"
-            },
+        "UncertaintyQuantification": {            
             "Realizations": "10000"
         }
     }
