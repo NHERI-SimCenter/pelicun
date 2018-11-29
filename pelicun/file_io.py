@@ -278,6 +278,8 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                 "Collapse EDP limits were not defined in the input file. "
                 "No EDP limits are assumed."))        
         # make sure that PID and PFA collapse limits are identified
+        if 'collapse_limits' not in data['general'].keys():
+            data['general'].update({'collapse_limits':{}})
         for key in ['PID', 'PFA']:
             if key not in data['general']['collapse_limits'].keys():
                 data['general']['collapse_limits'].update({key: None})

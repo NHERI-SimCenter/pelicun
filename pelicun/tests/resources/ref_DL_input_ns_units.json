@@ -1,1 +1,42 @@
-{"general": {"plan_area": 10.357202511359997, "realizations": 20000, "collapse_limits": {"PFA": 14.709975, "PID": 0.1}, "detection_limits": {"PFA": 19.6133, "PID": 0.15}}, "units": {"force": 1.0, "length": 0.30479999999999996, "temperature": 1.0, "time": 1.0, "acceleration": 9.80665, "area": 0.09290303999999998, "volume": 0.02831684659199999}, "components": {}, "collapse_modes": {}, "decision_variables": {"injuries": false, "rec_cost": true, "rec_time": false, "red_tag": false}, "dependencies": {"quantities": "IND", "fragilities": "ATC", "rec_costs": "IND", "cost_and_time": false}}
+{
+  "general": {
+    "plan_area": 10.357202511359997,
+    "realizations": 20000,
+    "collapse_limits": {
+      "PFA": 14.709975,
+      "PID": 0.1
+    },
+    "detection_limits": {
+      "PFA": 19.6133,
+      "PID": 0.15
+    },
+    "yield_drift": 0.01,
+    "added_uncertainty": {
+      "beta_gm": 0.0001,
+      "beta_m": 0.0001
+    }
+  },
+  "units": {
+    "force": 1.0,
+    "length": 0.30479999999999996,
+    "temperature": 1.0,
+    "time": 1.0,
+    "acceleration": 9.80665,
+    "area": 0.09290303999999998,
+    "volume": 0.02831684659199999
+  },
+  "components": {},
+  "collapse_modes": {},
+  "decision_variables": {
+    "injuries": false,
+    "rec_cost": true,
+    "rec_time": false,
+    "red_tag": false
+  },
+  "dependencies": {
+    "quantities": "IND",
+    "fragilities": "ATC",
+    "rec_costs": "IND",
+    "cost_and_time": false
+  }
+}

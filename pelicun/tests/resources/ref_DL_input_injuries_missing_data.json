@@ -1,7 +1,19 @@
 {
   "general": {
     "plan_area": 111.484,
-    "realizations": 20000
+    "realizations": 20000,
+    "collapse_limits": {
+      "PID": null,
+      "PFA": null
+    },
+    "detection_limits": {
+      "PFA": null,
+      "PID": null
+    },
+    "added_uncertainty": {
+      "beta_gm": 0.0001,
+      "beta_m": 0.0001
+    }
   },
   "units": {
     "force": 1.0,
