@@ -417,7 +417,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty():
     assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
 
     # DMG
-    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000 for i in
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
                  range(8)]
 
     DMG_1_PID = mvn_od(np.log([0.074081, 0.044932]),
@@ -489,7 +489,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -521,7 +521,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -559,7 +559,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -597,7 +597,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -605,7 +605,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty():
 
     # RED TAG
     RED_check = A._DV_dict['red_tag'].describe().T
-    RED_check = (RED_check['mean'] * RED_check['count'] / 10000).values
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
 
     assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
     assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
