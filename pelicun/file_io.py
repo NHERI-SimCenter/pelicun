@@ -323,8 +323,8 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                 'detection_limits':
                     dict([(key, float_or_None(value)) for key, value in
                           LM['BuildingResponse']['DetectionLimits'].items()])})
-            # scale the limits by the units
             DGDL = data['general']['detection_limits']
+            # scale the limits by the units            
             for EDP_kind, value in DGDL.items():
                 if (EDP_kind in EDP_units.keys()) and (value is not None):
                     f_EDP = data['units'][EDP_units[EDP_kind]]
@@ -333,10 +333,11 @@ def read_SimCenter_DL_input(input_path, verbose=False):
             warnings.warn(UserWarning(
                 "EDP detection limits were not defined in the input file. "
                 "Assuming no detection limits."))
-            data['general'].update({
-                'detection_limits': dict(
-                    [(key, None) for key in ['PFA', 'PID']])
-            })
+        if 'detection_limits' not in data['general'].keys():
+            data['general'].update({'detection_limits':{}})
+        for key in ['PID', 'PFA']:
+            if key not in data['general']['detection_limits'].keys():
+                data['general']['detection_limits'].update({key: None})
         
         if 'YieldDriftRatio' in LM['BuildingResponse'].keys():
             data['general'].update({
