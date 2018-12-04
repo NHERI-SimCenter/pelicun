@@ -641,7 +641,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
     SD = S.describe().T
 
     P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000
+        ('red tagged?', ''), 'count'] / 10000.
 
 def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     """
@@ -776,7 +776,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -808,7 +808,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -846,7 +846,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -884,7 +884,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.02)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -892,7 +892,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     # RED TAG
     RED_check = A._DV_dict['red_tag'].describe().T
-    RED_check = (RED_check['mean'] * RED_check['count'] / 10000).values
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
 
     assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
     assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
@@ -928,7 +928,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     SD = S.describe().T
 
     P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000
+        ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
     
@@ -1077,7 +1077,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.05)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -1109,7 +1109,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.05)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -1147,7 +1147,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.05)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -1185,7 +1185,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
             return_counts=True)
         T_test = T_test[np.where(P_test > 10)]
         P_test = P_test[np.where(P_test > 10)]
-        P_test = P_test / 10000
+        P_test = P_test / 10000.
 
         assert_allclose(P_target, P_test, atol=0.05)
         assert_allclose(C_target, C_test, rtol=0.001)
@@ -1193,7 +1193,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     # RED TAG
     RED_check = A._DV_dict['red_tag'].describe().T
-    RED_check = (RED_check['mean'] * RED_check['count'] / 10000).values
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
 
     assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
     assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
@@ -1229,7 +1229,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     SD = S.describe().T
 
     P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000
+        ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.02)
     
@@ -1400,7 +1400,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
     P_test = P_test[np.where(P_test > 10)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target, P_test, atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
@@ -1446,7 +1446,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
     P_test = P_test[np.where(P_test > 10)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target, P_test, atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
@@ -1492,7 +1492,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
     P_test = P_test[np.where(P_test > 10)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target, P_test, atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
@@ -1538,7 +1538,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 5)]
     P_test = P_test[np.where(P_test > 5)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target[:-1], P_test[:4], atol=0.05)
     assert_allclose(C_target[:-1], C_test[:4], rtol=0.001)
@@ -1601,7 +1601,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
     P_test = P_test[np.where(P_test > 10)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target, P_test, atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
@@ -1664,7 +1664,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
     P_test = P_test[np.where(P_test > 10)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target, P_test, atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
@@ -1727,7 +1727,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
     P_test = P_test[np.where(P_test > 10)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target, P_test, atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
@@ -1790,7 +1790,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
     P_test = P_test[np.where(P_test > 10)]
-    P_test = P_test / 10000
+    P_test = P_test / 10000.
 
     assert_allclose(P_target, P_test, atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
@@ -1798,7 +1798,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     # RED TAG
     RED_check = A._DV_dict['red_tag'].describe().T
-    RED_check = (RED_check['mean'] * RED_check['count'] / 10000).values
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
 
     assert_allclose(RED_check, DMG_ref, rtol=0.10)
 
@@ -1820,6 +1820,6 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     SD = S.describe().T
 
     P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000
+        ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
