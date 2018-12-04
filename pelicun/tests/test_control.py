@@ -704,7 +704,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
 
     # DMG
-    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000 for i in
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
                  range(8)]
 
     DMG_1_PID = mvn_od(np.log([0.074081, 0.044932]),
@@ -1005,7 +1005,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
 
     # DMG
-    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000 for i in
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
                  range(8)]
 
     DMG_1_PID = mvn_od(np.log([0.074081, 0.044932]),
@@ -1307,7 +1307,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
 
     # DMG
-    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000 for i in
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
                  range(8)]
 
     DMG_1_1_PID = mvn_od(theta_PID, COV_PID,
