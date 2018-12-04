@@ -54,6 +54,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0,os.path.dirname(parent_dir))
 
 from pelicun.control import *
+from pelicun.uq import mvn_orthotope_density as mvn_od
 
 # -----------------------------------------------------------------------------
 # FEMA_P58_Assessment
@@ -76,11 +77,12 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     A = FEMA_P58_Assessment()
 
-    A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
 
     A.define_random_variables()
 
-    # ------------------------------------------------------ check random variables
+    # -------------------------------------------------- check random variables
 
     # EDP
     RV_EDP = A._RV_dict['EDP']
@@ -148,7 +150,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     A.calculate_damage()
 
-    # ------------------------------------------------------ check damage calculation
+    # ------------------------------------------------ check damage calculation
     # TIME
     T_check = A._TIME.describe().T.loc[['hour','month','weekday?'],:]
 
@@ -182,7 +184,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     A.calculate_losses()
 
-    # ------------------------------------------------------ check loss calculation
+    # -------------------------------------------------- check loss calculation
 
     # RED
     DV_RED = A._DV_dict['red_tag'].describe().T
@@ -294,7 +296,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     A.aggregate_results()
 
-    # ------------------------------------------------------ check result aggregation
+    # ------------------------------------------------ check result aggregation
 
     S = A._SUMMARY
     SD = S.describe().T
@@ -356,3 +358,1650 @@ def test_FEMA_P58_Assessment_central_tendencies():
     assert_allclose(counts / 10000.,
                     np.array([35, 1, 3.5, 2.5, 2, 7, 5]) / 56., atol=0.01,
                     rtol=0.1)
+
+
+def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of 
+    EDP uncertainty through the analysis. Dispersions in other calculation 
+    parameters are reduced to negligible levels. This allows us to test the 
+    results against pre-defined reference values in spite of the  randomness 
+    involved in the calculations.
+    """
+
+    base_input_path = 'resources/'
+    DL_input = base_input_path + "DL_input_test_2.json"
+    EDP_input = base_input_path + "EDP_table_test_2.out"
+    CMP_data = base_input_path
+    POP_data = base_input_path + "population_test.json"
+
+    A = FEMA_P58_Assessment()
+
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    assert_allclose(RV_EDP.theta, [9.80665, 12.59198, 0.074081, 0.044932],
+                    rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    assert_allclose(sig, [0.25, 0.25, 0.3, 0.4], rtol=0.1)
+    rho_target = [
+        [1.0, 0.6, 0.3, 0.3],
+        [0.6, 1.0, 0.3, 0.3],
+        [0.3, 0.3, 1.0, 0.7],
+        [0.3, 0.3, 0.7, 1.0]]
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+
+    # ------------------------------------------------------------------------
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    # ------------------------------------------------ check damage calculation
+    # COL
+    COL_check = A._COL.describe().T
+    col_target = 1.0 - mvn_od(np.log([0.074081, 0.044932]),
+                              np.array([[1, 0.7], [0.7, 1]]) * np.outer(
+                                  [0.3, 0.4], [0.3, 0.4]),
+                              upper=np.log([0.1, 0.1]))[0]
+    assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
+
+    # DMG
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
+                 range(8)]
+
+    DMG_1_PID = mvn_od(np.log([0.074081, 0.044932]),
+                       np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                                 [0.3, 0.4]),
+                       lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.1]))[
+        0]
+    DMG_2_PID = mvn_od(np.log([0.074081, 0.044932]),
+                       np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                                 [0.3, 0.4]),
+                       lower=np.log([1e-6, 0.05488]), upper=np.log([0.1, 0.1]))[
+        0]
+    DMG_1_PFA = mvn_od(np.log([0.074081, 9.80665]),
+                       np.array([[1, 0.3], [0.3, 1]]) * np.outer([0.3, 0.25],
+                                                                 [0.3, 0.25]),
+                       lower=np.log([1e-6, 9.80665]),
+                       upper=np.log([0.1, np.inf]))[0]
+    DMG_2_PFA = mvn_od(np.log([0.074081, 12.59198]),
+                       np.array([[1, 0.3], [0.3, 1]]) * np.outer([0.3, 0.25],
+                                                                 [0.3, 0.25]),
+                       lower=np.log([1e-6, 9.80665]),
+                       upper=np.log([0.1, np.inf]))[0]
+
+    assert DMG_check[0] == pytest.approx(DMG_check[2], rel=0.01)
+    assert DMG_check[1] == pytest.approx(DMG_check[3], rel=0.01)
+    assert DMG_check[4] == pytest.approx(DMG_check[6], rel=0.01)
+    assert DMG_check[5] == pytest.approx(DMG_check[7], rel=0.01)
+
+    assert DMG_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
+    assert DMG_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert DMG_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
+    assert DMG_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+
+    # ------------------------------------------------------------------------
+
+    A.calculate_losses()
+
+    # -------------------------------------------------- check loss calculation
+    # COST
+    DV_COST = A._DV_dict['rec_cost']
+    DV_TIME = A._DV_dict['rec_time']
+
+    C_target = [0., 250., 1250.]
+    T_target = [0., 0.25, 1.25]
+
+    # PG 1001 and 1101
+    P_target = [
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.05488, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+    ]
+
+    for i in [0, 2]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1002 and 1102
+    P_target = [
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
+    ]
+
+    for i in [1, 3]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1011 and 1111
+    P_target = [
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 9.80665, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 9.80665]),
+               upper=np.log([0.1, np.inf, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 1e-6]),
+               upper=np.log([0.1, np.inf, 9.80665]))[0],
+    ]
+
+    for i in [4, 6]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1012 and 1112
+    P_target = [
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, np.inf, 9.80665]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 9.80665]),
+               upper=np.log([0.1, np.inf, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 9.80665]),
+               upper=np.log([0.1, 9.80665, np.inf]))[0],
+    ]
+
+    for i in [5, 7]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # RED TAG
+    RED_check = A._DV_dict['red_tag'].describe().T
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
+
+    assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
+    assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
+    assert RED_check[4] == pytest.approx(RED_check[6], rel=0.01)
+    assert RED_check[5] == pytest.approx(RED_check[7], rel=0.01)
+
+    assert RED_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
+    assert RED_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert RED_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
+    assert RED_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+
+    DMG_on = np.where(A._DMG > 0.0)[0]
+    RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
+    assert_allclose(DMG_on, RED_on)
+
+    # ------------------------------------------------------------------------
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log([0.074081, 0.044932, 9.80665, 12.59198]),
+                             np.array(
+                                 [[1.0, 0.7, 0.3, 0.3], [0.7, 1.0, 0.3, 0.3],
+                                  [0.3, 0.3, 1.0, 0.6],
+                                  [0.3, 0.3, 0.6, 1.0]]) * np.outer(
+                                 [0.3, 0.4, 0.25, 0.25],
+                                 [0.3, 0.4, 0.25, 0.25]),
+                             lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+                             upper=np.log(
+                                 [0.05488, 0.05488, 9.80665, 9.80665]))[0]
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
+        ('red tagged?', ''), 'count'] / 10000.
+
+def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of 
+    EDP uncertainty through the analysis. Dispersions in other calculation 
+    parameters are reduced to negligible levels. This allows us to test the 
+    results against pre-defined reference values in spite of the  randomness 
+    involved in the calculations.
+    This test differs from the basic case in having unreliable EDP values above
+    a certain limit - a typical feature of interstory drifts in dynamic 
+    simulations. Such cases should not be a problem if the limits can be 
+    estimated and they are specified as detection limits in input file.
+    """
+
+    base_input_path = 'resources/'
+    DL_input = base_input_path + "DL_input_test_3.json"
+    EDP_input = base_input_path + "EDP_table_test_3.out"
+    CMP_data = base_input_path
+    POP_data = base_input_path + "population_test.json"
+
+    A = FEMA_P58_Assessment()
+
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+
+    A.define_random_variables()
+
+    # ------------------------------------------------------ check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    assert_allclose(RV_EDP.theta, [9.80665, 12.59198, 0.074081, 0.044932],
+                    rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    assert_allclose(sig, [0.25, 0.25, 0.3, 0.4], rtol=0.1)
+    rho_target = [
+        [1.0, 0.6, 0.3, 0.3],
+        [0.6, 1.0, 0.3, 0.3],
+        [0.3, 0.3, 1.0, 0.7],
+        [0.3, 0.3, 0.7, 1.0]]
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+
+    # ------------------------------------------------------------------------
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    # ------------------------------------------------------ check damage calculation
+    # COL
+    COL_check = A._COL.describe().T
+    col_target = 1.0 - mvn_od(np.log([0.074081, 0.044932]),
+                              np.array([[1, 0.7], [0.7, 1]]) * np.outer(
+                                  [0.3, 0.4], [0.3, 0.4]),
+                              upper=np.log([0.1, 0.1]))[0]
+    assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
+
+    # DMG
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
+                 range(8)]
+
+    DMG_1_PID = mvn_od(np.log([0.074081, 0.044932]),
+                       np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                                 [0.3, 0.4]),
+                       lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.1]))[
+        0]
+    DMG_2_PID = mvn_od(np.log([0.074081, 0.044932]),
+                       np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                                 [0.3, 0.4]),
+                       lower=np.log([1e-6, 0.05488]), upper=np.log([0.1, 0.1]))[
+        0]
+    DMG_1_PFA = mvn_od(np.log([0.074081, 9.80665]),
+                       np.array([[1, 0.3], [0.3, 1]]) * np.outer([0.3, 0.25],
+                                                                 [0.3, 0.25]),
+                       lower=np.log([1e-6, 9.80665]),
+                       upper=np.log([0.1, np.inf]))[0]
+    DMG_2_PFA = mvn_od(np.log([0.074081, 12.59198]),
+                       np.array([[1, 0.3], [0.3, 1]]) * np.outer([0.3, 0.25],
+                                                                 [0.3, 0.25]),
+                       lower=np.log([1e-6, 9.80665]),
+                       upper=np.log([0.1, np.inf]))[0]
+
+    assert DMG_check[0] == pytest.approx(DMG_check[2], rel=0.01)
+    assert DMG_check[1] == pytest.approx(DMG_check[3], rel=0.01)
+    assert DMG_check[4] == pytest.approx(DMG_check[6], rel=0.01)
+    assert DMG_check[5] == pytest.approx(DMG_check[7], rel=0.01)
+
+    assert DMG_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
+    assert DMG_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert DMG_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
+    assert DMG_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+
+    # ------------------------------------------------------------------------
+
+    A.calculate_losses()
+
+    # ------------------------------------------------------ check loss calculation
+    # COST
+    DV_COST = A._DV_dict['rec_cost']
+    DV_TIME = A._DV_dict['rec_time']
+
+    C_target = [0., 250., 1250.]
+    T_target = [0., 0.25, 1.25]
+
+    # PG 1001 and 1101
+    P_target = [
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.05488, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+    ]
+
+    for i in [0, 2]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1002 and 1102
+    P_target = [
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
+    ]
+
+    for i in [1, 3]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1011 and 1111
+    P_target = [
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 9.80665, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 9.80665]),
+               upper=np.log([0.1, np.inf, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 1e-6]),
+               upper=np.log([0.1, np.inf, 9.80665]))[0],
+    ]
+
+    for i in [4, 6]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1012 and 1112
+    P_target = [
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, np.inf, 9.80665]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 9.80665]),
+               upper=np.log([0.1, np.inf, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 9.80665]),
+               upper=np.log([0.1, 9.80665, np.inf]))[0],
+    ]
+
+    for i in [5, 7]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # RED TAG
+    RED_check = A._DV_dict['red_tag'].describe().T
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
+
+    assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
+    assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
+    assert RED_check[4] == pytest.approx(RED_check[6], rel=0.01)
+    assert RED_check[5] == pytest.approx(RED_check[7], rel=0.01)
+
+    assert RED_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
+    assert RED_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert RED_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
+    assert RED_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+
+    DMG_on = np.where(A._DMG > 0.0)[0]
+    RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
+    assert_allclose(DMG_on, RED_on)
+
+    # ------------------------------------------------------------------------
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log([0.074081, 0.044932, 9.80665, 12.59198]),
+                             np.array(
+                                 [[1.0, 0.7, 0.3, 0.3], [0.7, 1.0, 0.3, 0.3],
+                                  [0.3, 0.3, 1.0, 0.6],
+                                  [0.3, 0.3, 0.6, 1.0]]) * np.outer(
+                                 [0.3, 0.4, 0.25, 0.25],
+                                 [0.3, 0.4, 0.25, 0.25]),
+                             lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+                             upper=np.log(
+                                 [0.05488, 0.05488, 9.80665, 9.80665]))[0]
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
+        ('red tagged?', ''), 'count'] / 10000.
+
+    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
+    
+def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of 
+    EDP uncertainty through the analysis. Dispersions in other calculation 
+    parameters are reduced to negligible levels. This allows us to test the 
+    results against pre-defined reference values in spite of the  randomness 
+    involved in the calculations.
+    Here we use EDP results with unique values assigned to failed analyses. 
+    In particular, PID=1.0 and PFA=100.0 are used when an analysis fails. 
+    These values shall be handled by detection limits of 10 and 100 for PID
+    and PFA, respectively.
+    Some information is lost when a large number of analysis results are 
+    replaced with 1.0 and 100.0. The ML estimator used in the current version
+    can provide a reasonable estimate of the original covariance matrix, but
+    the error is not negligible. That error is not due to a mistake or bug, but
+    a rather an expected product of the implemented estimator. Those errors 
+    forced us to increase the tolerances in this test compared to the previous
+    ones to avoid false positives. Future improvements in the tmvn_MLE 
+    algorithm will hopefully allow us to eventually return to the original
+    tolerance levels.
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + "DL_input_test_4.json"
+    EDP_input = base_input_path + "EDP_table_test_4.out"
+    CMP_data = base_input_path
+    POP_data = base_input_path + "population_test.json"
+
+    A = FEMA_P58_Assessment()
+
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    assert_allclose(RV_EDP.theta, [9.80665, 12.59198, 0.074081, 0.044932],
+                    rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+
+    assert_allclose(sig, [0.25, 0.25, 0.3, 0.4], rtol=0.1)
+    rho_target = [
+        [1.0, 0.6, 0.3, 0.3],
+        [0.6, 1.0, 0.3, 0.3],
+        [0.3, 0.3, 1.0, 0.7],
+        [0.3, 0.3, 0.7, 1.0]]
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.15)
+
+    # ------------------------------------------------------------------------
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    # ------------------------------------------------ check damage calculation
+    # COL
+    COL_check = A._COL.describe().T
+    col_target = 1.0 - mvn_od(np.log([0.074081, 0.044932]),
+                              np.array([[1, 0.7], [0.7, 1]]) * np.outer(
+                                  [0.3, 0.4], [0.3, 0.4]),
+                              upper=np.log([0.1, 0.1]))[0]
+
+    assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
+
+    # DMG
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
+                 range(8)]
+
+    DMG_1_PID = mvn_od(np.log([0.074081, 0.044932]),
+                       np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                                 [0.3, 0.4]),
+                       lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.1]))[
+        0]
+    DMG_2_PID = mvn_od(np.log([0.074081, 0.044932]),
+                       np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                                 [0.3, 0.4]),
+                       lower=np.log([1e-6, 0.05488]), upper=np.log([0.1, 0.1]))[
+        0]
+    DMG_1_PFA = mvn_od(np.log([0.074081, 9.80665]),
+                       np.array([[1, 0.3], [0.3, 1]]) * np.outer([0.3, 0.25],
+                                                                 [0.3, 0.25]),
+                       lower=np.log([1e-6, 9.80665]),
+                       upper=np.log([0.1, np.inf]))[0]
+    DMG_2_PFA = mvn_od(np.log([0.074081, 12.59198]),
+                       np.array([[1, 0.3], [0.3, 1]]) * np.outer([0.3, 0.25],
+                                                                 [0.3, 0.25]),
+                       lower=np.log([1e-6, 9.80665]),
+                       upper=np.log([0.1, np.inf]))[0]
+
+    assert DMG_check[0] == pytest.approx(DMG_check[2], rel=0.01)
+    assert DMG_check[1] == pytest.approx(DMG_check[3], rel=0.01)
+    assert DMG_check[4] == pytest.approx(DMG_check[6], rel=0.01)
+    assert DMG_check[5] == pytest.approx(DMG_check[7], rel=0.01)
+
+    assert DMG_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
+    assert DMG_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert DMG_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
+    assert DMG_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+
+    # ------------------------------------------------------------------------
+
+    A.calculate_losses()
+
+    # -------------------------------------------------- check loss calculation
+    # COST
+    DV_COST = A._DV_dict['rec_cost']
+    DV_TIME = A._DV_dict['rec_time']
+
+    C_target = [0., 250., 1250.]
+    T_target = [0., 0.25, 1.25]
+
+    # PG 1001 and 1101
+    P_target = [
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.05488, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+    ]
+
+    for i in [0, 2]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.05)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1002 and 1102
+    P_target = [
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+        mvn_od(np.log([0.074081, 0.044932]),
+               np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
+                                                         [0.3, 0.4]),
+               lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
+    ]
+
+    for i in [1, 3]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.05)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1011 and 1111
+    P_target = [
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 9.80665, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 9.80665]),
+               upper=np.log([0.1, np.inf, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 1e-6]),
+               upper=np.log([0.1, np.inf, 9.80665]))[0],
+    ]
+
+    for i in [4, 6]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.05)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1012 and 1112
+    P_target = [
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, np.inf, 9.80665]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 9.80665, 9.80665]),
+               upper=np.log([0.1, np.inf, np.inf]))[0],
+        mvn_od(np.log([0.074081, 9.80665, 12.59198]),
+               np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
+                         [0.3, 0.6, 1.0]]) * np.outer([0.3, 0.25, 0.25],
+                                                      [0.3, 0.25, 0.25]),
+               lower=np.log([1e-6, 1e-6, 9.80665]),
+               upper=np.log([0.1, 9.80665, np.inf]))[0],
+    ]
+
+    for i in [5, 7]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(P_target, P_test, atol=0.05)
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+
+    # RED TAG
+    RED_check = A._DV_dict['red_tag'].describe().T
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
+
+    assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
+    assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
+    assert RED_check[4] == pytest.approx(RED_check[6], rel=0.01)
+    assert RED_check[5] == pytest.approx(RED_check[7], rel=0.01)
+
+    assert RED_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
+    assert RED_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert RED_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
+    assert RED_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+
+    DMG_on = np.where(A._DMG > 0.0)[0]
+    RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
+    assert_allclose(DMG_on, RED_on)
+
+    # ------------------------------------------------------------------------
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log([0.074081, 0.044932, 9.80665, 12.59198]),
+                             np.array(
+                                 [[1.0, 0.7, 0.3, 0.3], [0.7, 1.0, 0.3, 0.3],
+                                  [0.3, 0.3, 1.0, 0.6],
+                                  [0.3, 0.3, 0.6, 1.0]]) * np.outer(
+                                 [0.3, 0.4, 0.25, 0.25],
+                                 [0.3, 0.4, 0.25, 0.25]),
+                             lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+                             upper=np.log(
+                                 [0.05488, 0.05488, 9.80665, 9.80665]))[0]
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
+        ('red tagged?', ''), 'count'] / 10000.
+
+    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.02)
+    
+def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of 
+    EDP uncertainty through the analysis. Dispersions in other calculation 
+    parameters are reduced to negligible levels. This allows us to test the 
+    results against pre-defined reference values in spite of the  randomness 
+    involved in the calculations.
+    In this test we look at the propagation of EDP values provided for two 
+    different directions. (3D refers to the numerical model used for response
+    estimation.)
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + "DL_input_test_5.json"
+    EDP_input = base_input_path + "EDP_table_test_5.out"
+    CMP_data = base_input_path
+    POP_data = base_input_path + "population_test.json"
+
+    A = FEMA_P58_Assessment()
+
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+
+    A.define_random_variables()
+
+    # ------------------------------------------------------ check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    theta_target = [9.80665, 8.65433, 12.59198, 11.11239,
+                    0.074081, 0.063763, 0.044932, 0.036788]
+    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    sig_target = [0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.4, 0.4]
+    assert_allclose(sig, sig_target, rtol=0.1)
+    rho_target = [
+        [1.0, 0.8, 0.6, 0.5, 0.3, 0.3, 0.3, 0.3],
+        [0.8, 1.0, 0.5, 0.6, 0.3, 0.3, 0.3, 0.3],
+        [0.6, 0.5, 1.0, 0.8, 0.3, 0.3, 0.3, 0.3],
+        [0.5, 0.6, 0.8, 1.0, 0.3, 0.3, 0.3, 0.3],
+        [0.3, 0.3, 0.3, 0.3, 1.0, 0.8, 0.7, 0.6],
+        [0.3, 0.3, 0.3, 0.3, 0.8, 1.0, 0.6, 0.7],
+        [0.3, 0.3, 0.3, 0.3, 0.7, 0.6, 1.0, 0.8],
+        [0.3, 0.3, 0.3, 0.3, 0.6, 0.7, 0.8, 1.0]]
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+    COV_target = rho_target * np.outer(sig_target, sig_target)
+
+    # ------------------------------------------------------------------------
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    # ------------------------------------------------------ check damage calculation
+    theta_PID = np.log([0.074081, 0.063763, 0.044932, 0.036788])
+    COV_PID = np.array([[1.0, 0.8, 0.7, 0.6],
+                        [0.8, 1.0, 0.6, 0.7],
+                        [0.7, 0.6, 1.0, 0.8],
+                        [0.6, 0.7, 0.8, 1.0]]) * np.outer([0.3, 0.3, 0.4, 0.4],
+                                                          [0.3, 0.3, 0.4, 0.4])
+
+    # COL
+    COL_check = A._COL.describe().T
+    col_target = 1.0 - mvn_od(theta_PID, COV_PID,
+                              upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+
+    assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1)
+
+    # DMG
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000. for i in
+                 range(8)]
+
+    DMG_1_1_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([0.05488, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_1_2_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([1e-6, 0.05488, 1e-6, 1e-6]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_1_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([1e-6, 1e-6, 0.05488, 1e-6]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_2_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([1e-6, 1e-6, 1e-6, 0.05488]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_1_1_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([9.80665, 1e-6, 1e-6, 1e-6,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_1_2_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([1e-6, 9.80665, 1e-6, 1e-6,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_1_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([1e-6, 1e-6, 9.80665, 1e-6,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_2_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([1e-6, 1e-6, 1e-6, 9.80665,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+
+    DMG_ref = [DMG_1_1_PID, DMG_2_1_PID, DMG_1_2_PID, DMG_2_2_PID,
+               DMG_1_1_PFA, DMG_2_1_PFA, DMG_1_2_PFA, DMG_2_2_PFA]
+
+    assert_allclose(DMG_check, DMG_ref, rtol=0.10, atol=0.01)
+
+    # ------------------------------------------------------------------------
+
+    A.calculate_losses()
+
+    # ------------------------------------------------------ check loss calculation
+    # COST
+    DV_COST = A._DV_dict['rec_cost']
+    DV_TIME = A._DV_dict['rec_time']
+
+    C_target = [0., 249., 624., 1251., 1875.]
+    T_target = [0., 0.249, 0.624, 1.251, 1.875]
+
+    # PG 1001
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.05488]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.05488]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([0.05488, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.05488, 0.05488, 0.05488]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 0].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 0].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1101
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.05488]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.05488]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 0.05488, 1e-6, 1e-6]),
+               upper=np.log([0.05488, 0.1, 0.05488, 0.05488]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 2].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 2].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1002
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.05488]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.05488]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 0.05488, 1e-6]),
+               upper=np.log([0.05488, 0.05488, 0.1, 0.05488]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 1].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 1].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1102
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.05488, 0.1]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 0.05488]),
+               upper=np.log([0.05488, 0.05488, 0.05488, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 3].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 5)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 3].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 5)]
+    P_test = P_test[np.where(P_test > 5)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target[:-1], P_test[:4], atol=0.05)
+    assert_allclose(C_target[:-1], C_test[:4], rtol=0.001)
+    assert_allclose(T_target[:-1], T_test[:4], rtol=0.001)
+
+    # PG 1011
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, 9.80665, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 4].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 4].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1111
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 6].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 6].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1012
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 5].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 5].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1112
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [1e-6, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 7].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 7].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / 10000.
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # RED TAG
+    RED_check = A._DV_dict['red_tag'].describe().T
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
+
+    assert_allclose(RED_check, DMG_ref, rtol=0.10)
+
+    DMG_on = np.where(A._DMG > 0.0)[0]
+    RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
+    assert_allclose(DMG_on, RED_on)
+
+    # ------------------------------------------------------------------------
+
+    A.aggregate_results()
+
+    # ------------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log(theta_target), COV_target,
+                             upper=np.log(
+                                 [9.80665, 9.80665, 9.80665, 9.80665, 0.05488,
+                                  0.05488, 0.05488, 0.05488]))[0]
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
+        ('red tagged?', ''), 'count'] / 10000.
+
+    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
+    
+def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of 
+    EDP uncertainty through the analysis. Dispersions in other calculation 
+    parameters are reduced to negligible levels. This allows us to test the 
+    results against pre-defined reference values in spite of the  randomness 
+    involved in the calculations.
+    In this test we provide only one structural response result and see if it
+    is properly handled as a deterministic value or a random EDP using the 
+    additional sources of uncertainty.
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + "DL_input_test_6.json"
+    EDP_input = base_input_path + "EDP_table_test_6.out"
+    CMP_data = base_input_path
+    POP_data = base_input_path + "population_test.json"
+
+    A = FEMA_P58_Assessment()
+
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    theta_target = [7.634901, 6.85613, 11.685934, 10.565554, 0.061364, 0.048515,
+                    0.033256, 0.020352]
+    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    assert_allclose(sig, np.ones(8) * np.sqrt(2e-8), rtol=0.1)
+    rho_target = np.zeros((8, 8))
+    np.fill_diagonal(rho_target, 1.0)
+    COV_target = rho_target * 3e-8
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+
+    # ------------------------------------------------- perform the calculation
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    A.calculate_losses()
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
+        ('red tagged?', ''), 'count'] / 10000.
+
+    assert P_no_RED_test == 0.0
+
+    # -------------------------------------------------------------------------
+    # now do the same analysis, but consider additional uncertainty
+    # -------------------------------------------------------------------------
+
+    A = FEMA_P58_Assessment()
+
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+
+    AU = A._AIM_in['general']['added_uncertainty']
+
+    AU['beta_m'] = 0.3
+    AU['beta_gm'] = 0.4
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    sig_target = np.sqrt(1e-8 + 0.3 ** 2. + 0.4 ** 2.)
+    assert_allclose(sig, np.ones(8) * sig_target, rtol=0.1)
+    rho_target = np.zeros((8, 8))
+    np.fill_diagonal(rho_target, 1.0)
+    COV_target = rho_target * sig_target ** 2.
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+
+    # ------------------------------------------------- perform the calculation
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    A.calculate_losses()
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log(theta_target), COV_target,
+                             upper=np.log(
+                                 [9.80665, 9.80665, 9.80665, 9.80665, 0.05488,
+                                  0.05488, 0.05488, 0.05488]))[0]
+
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
+        ('red tagged?', ''), 'count'] / 10000.
+
+    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
+    
+def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of 
+    EDP uncertainty through the analysis. Dispersions in other calculation 
+    parameters are reduced to negligible levels. This allows us to test the 
+    results against pre-defined reference values in spite of the  randomness 
+    involved in the calculations.
+    This test simulates a scenario when one of the EDPs is identical in all
+    of the available samples. This results in zero variance in that dimension
+    and the purpose of the test is to ensure that such cases are handled 
+    appropriately.
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + "DL_input_test_7.json"
+    EDP_input = base_input_path + "EDP_table_test_7.out"
+    CMP_data = base_input_path
+    POP_data = base_input_path + "population_test.json"
+
+    A = FEMA_P58_Assessment()
+
+    with pytest.warns(UserWarning) as e_info:
+        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+
+    with pytest.warns(UserWarning) as e_info:
+        A.define_random_variables()
+
+    # ------------------------------------------------------ check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    assert RV_EDP.theta[4] == pytest.approx(0.061364, rel=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    assert sig[4] < 1e-3
+    assert_allclose((COV / np.outer(sig, sig))[4],
+                    [0., 0., 0., 0., 1., 0., 0., 0.])
+
+    # ------------------------------------------------------ perform the calculation
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    A.calculate_losses()
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
+        ('red tagged?', ''), 'count'] / 10000.
+
+    assert P_no_RED_test == 0.0

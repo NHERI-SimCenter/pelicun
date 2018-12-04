@@ -11,7 +11,7 @@
     "LossModel": {
         "BuildingDamage": {
             "CollapseLimits": {
-                "PFA": "4.903325"
+                "PID": "0.10"
             },
             "IrrepairableResidualDrift": {
                 "Median": "10.",
@@ -30,16 +30,28 @@
         ],
         "Components": [
             {
-                "ID": "T0001.001",
+                "ID": "T0002.001",
                 "cov": "0.0001",
-                "directions": "0",
+                "directions": "0, 1",
                 "distribution": "normal",
-                "name": "clay tile roof",
-                "quantity": "5.3821",
+                "name": "drift sensitive test comp",
+                "quantity": "5.3821, 5.3821",
                 "structural": true,
                 "unit_size": "100",
                 "unit_type": "SF",
-                "weights": "1.0"
+                "weights": "0.5, 0.5"
+            },
+            {
+                "ID": "T0002.002",
+                "cov": "0.0001",
+                "directions": "0, 1",
+                "distribution": "normal",
+                "name": "acceleration sensitive test comp",
+                "quantity": "5.3821, 5.3821",
+                "structural": false,
+                "unit_size": "100",
+                "unit_type": "SF",
+                "weights": "0.5, 0.5"
             }
         ],        
         "Inhabitants": {

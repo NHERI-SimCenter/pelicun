@@ -103,15 +103,26 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     LM = jd['LossModel']
 
     # decision variables of interest
-    # We assume that these are always specified in the file.
-    DV = LM['DecisionVariables']
-    for target_att, source_att in [
-        ['injuries', 'Injuries'],
-        ['rec_cost', 'ReconstructionCost'],
-        ['rec_time', 'ReconstructionTime'],
-        ['red_tag', 'RedTag'],
-    ]:
-        data['decision_variables'].update({target_att: bool(DV[source_att])})
+    if 'DecisionVariables' in LM.keys():        
+        DV = LM['DecisionVariables']
+        for target_att, source_att in [
+            ['injuries', 'Injuries'],
+            ['rec_cost', 'ReconstructionCost'],
+            ['rec_time', 'ReconstructionTime'],
+            ['red_tag', 'RedTag'],
+        ]:
+            data['decision_variables'].update({target_att: bool(DV[source_att])})
+    else:
+        warnings.warn(UserWarning(
+            "No decision variables specified in the input file. Assuming that "
+            "all decision variables shall be calculated."))
+        data['decision_variables'].update({
+            'injuries': True,
+            'rec_cost': True,
+            'rec_time': True,
+            'red_tag': True
+        })
+        
     DV = data['decision_variables']
 
     # general information
@@ -255,7 +266,7 @@ def read_SimCenter_DL_input(input_path, verbose=False):
             data['general'].update({
                 'collapse_limits':
                     dict([(key, float_or_None(value)) for key, value in
-                          LM['BuildingDamage']['CollapseLimits'].items()])})
+                          LM['BuildingDamage']['CollapseLimits'].items()])})            
             # scale the limits by the units
             DGCL = data['general']['collapse_limits']
             for EDP_kind, value in DGCL.items():
@@ -265,7 +276,14 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         else:
             warnings.warn(UserWarning(
                 "Collapse EDP limits were not defined in the input file. "
-                "Infinite EDP limits are assumed."))
+                "No EDP limits are assumed."))        
+        # make sure that PID and PFA collapse limits are identified
+        if 'collapse_limits' not in data['general'].keys():
+            data['general'].update({'collapse_limits':{}})
+        for key in ['PID', 'PFA']:
+            if key not in data['general']['collapse_limits'].keys():
+                data['general']['collapse_limits'].update({key: None})
+            
             
         if 'IrrepairableResidualDrift' in LM['BuildingDamage'].keys():
             data['general'].update({
@@ -305,15 +323,21 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                 'detection_limits':
                     dict([(key, float_or_None(value)) for key, value in
                           LM['BuildingResponse']['DetectionLimits'].items()])})
-            # scale the limits by the units
             DGDL = data['general']['detection_limits']
+            # scale the limits by the units            
             for EDP_kind, value in DGDL.items():
                 if (EDP_kind in EDP_units.keys()) and (value is not None):
                     f_EDP = data['units'][EDP_units[EDP_kind]]
                     DGDL[EDP_kind] = DGDL[EDP_kind] * f_EDP
         else:
             warnings.warn(UserWarning(
-                "EDP detection limits were not defined in the input file."))
+                "EDP detection limits were not defined in the input file. "
+                "Assuming no detection limits."))
+        if 'detection_limits' not in data['general'].keys():
+            data['general'].update({'detection_limits':{}})
+        for key in ['PID', 'PFA']:
+            if key not in data['general']['detection_limits'].keys():
+                data['general']['detection_limits'].update({key: None})
         
         if 'YieldDriftRatio' in LM['BuildingResponse'].keys():
             data['general'].update({
@@ -321,12 +345,20 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                     LM['BuildingResponse']['YieldDriftRatio'])})
         elif DV['rec_cost'] or DV['rec_time']:
             warnings.warn(UserWarning(
-                "Yield drift ratio was not defined in the input file."))
+                "Yield drift ratio was not defined in the input file. "
+                "Assuming a yield drift ratio of 0.01 radian."))
+            data['general'].update({'yield_drift': 0.01})
             
     else:
         warnings.warn(UserWarning(
             "Building response characteristics were not defined in the input "
-            "file."))
+            "file. Assuming no detection limits and a yield drift ratio of "
+            "0.01 radian."))
+        data['general'].update({
+            'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
+            'yield_drift': 0.01
+        })
+        
         
     if 'AdditionalUncertainty' in LM['UncertaintyQuantification'].keys():
         data['general'].update({
@@ -339,7 +371,15 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                         'Modeling'])}})
     else:
         warnings.warn(UserWarning(
-            "No additional uncertainties were defined in the input file."))
+            "No additional uncertainties were defined in the input file. "
+            "Assuming that EDPs already include all ground motion and modeling "
+            "uncertainty."))
+        data['general'].update({
+            'added_uncertainty': {
+                'beta_gm': 0.0001,
+                'beta_m': 0.0001
+            }
+        })
     
     if 'Inhabitants' in LM.keys():
         if 'OccupancyType' in LM['Inhabitants'].keys():
@@ -460,7 +500,7 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
     # the read_csv method in pandas is sufficiently versatile to handle the
     # tabular format of dakota
     EDP_raw = pd.read_csv(input_path, sep='\s+', header=0,
-                          index_col='%eval_id')
+                          index_col=0)
     # set the index to be zero-based
     EDP_raw.index = EDP_raw.index - 1
 
@@ -680,7 +720,7 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         tree = ET.parse(path_CMP + c_id + '.xml')
         root = tree.getroot()
 
-        c_data['ID'] = root.find('ID').text
+        c_data['ID'] = c_id #root.find('ID').text
         c_data['name'] = root.find('Name').text
         c_data['description'] = root.find('Description').text
         c_data['offset'] = int(strtobool(

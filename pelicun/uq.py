@@ -357,13 +357,23 @@ def tmvn_MLE(samples,
         mu_init = np.mean(samples)
         # use biased estimate for std, because MLE will converge to that anyway
         sig_init = np.std(samples, ddof=0) 
+        # replace zero variance with negligible variance
+        if sig_init == 0.0:
+            sig_init = 1e-6 * np.abs(mu_init)
         # prepare a vector of initial values
         inits = np.asarray([mu_init, sig_init])
     else:
         mu_init = np.mean(samples, axis=1)
         # use biased estimate, see comment above
         sig_init = np.std(samples, axis=1, ddof=0)
+        # replace zero variance with negligible variance
+        sig_zero_id = np.where(sig_init == 0.0)[0]
+        sig_init[sig_zero_id] = 1e-6 * np.abs(mu_init[sig_zero_id])
+        # create the correlation matrix
         rho_init = np.corrcoef(samples)
+        # replace nan corrcoef with zero correlation        
+        rho_init[np.where(np.isnan(rho_init))] = 0.0
+        np.fill_diagonal(rho_init,1.0)
         # collect the independent values (i.e. elements above the main 
         # diagonal) from the correlation matrix in a list
         rho_init_ids = np.triu_indices(ndims, k=1)
