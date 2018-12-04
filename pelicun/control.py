@@ -1181,12 +1181,12 @@ class FEMA_P58_Assessment(Assessment):
             # is assumed to be negligible.
             dim = len(demand_data[0])
             if dim > 1:
-                sig = np.ones(dim)*1e-4
+                sig = np.abs(demand_data[0])*1e-6
                 rho = np.zeros((dim,dim))
                 np.fill_diagonal(rho, 1.0)
                 COV = np.outer(sig,sig) * rho
             else:
-                COV = np.asarray((1e-4)**2.)
+                COV = np.abs(demand_data[0][0])*(1e-6)**2.0
                 
             demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
                                        distribution_kind='lognormal',
