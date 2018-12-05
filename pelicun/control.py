@@ -1227,7 +1227,7 @@ class FEMA_P58_Assessment(Assessment):
         for c_id in s_fg_keys:
             comp = self._FG_in[c_id]
 
-            FG_ID = len(FG_dict.keys())
+            FG_ID = len(FG_dict.keys())+1
 
             # create a list for the performance groups
             performance_groups = []
@@ -1237,7 +1237,7 @@ class FEMA_P58_Assessment(Assessment):
             PG_directions = np.unique(comp['directions'])
             for loc in PG_locations:
                 for dir_ in PG_directions:
-                    PG_ID = 1000 + dir_*100 + FG_ID * 10 + loc
+                    PG_ID = 1000 * FG_ID + 10 * loc + dir_
     
                     # get the quantity
                     QNT = RandomVariableSubset(

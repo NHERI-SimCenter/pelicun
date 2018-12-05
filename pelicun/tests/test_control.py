@@ -441,15 +441,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
                        lower=np.log([1e-6, 9.80665]),
                        upper=np.log([0.1, np.inf]))[0]
 
-    assert DMG_check[0] == pytest.approx(DMG_check[2], rel=0.01)
-    assert DMG_check[1] == pytest.approx(DMG_check[3], rel=0.01)
-    assert DMG_check[4] == pytest.approx(DMG_check[6], rel=0.01)
-    assert DMG_check[5] == pytest.approx(DMG_check[7], rel=0.01)
+    assert DMG_check[0] == pytest.approx(DMG_check[1], rel=0.01)
+    assert DMG_check[2] == pytest.approx(DMG_check[3], rel=0.01)
+    assert DMG_check[4] == pytest.approx(DMG_check[5], rel=0.01)
+    assert DMG_check[6] == pytest.approx(DMG_check[7], rel=0.01)
 
     assert DMG_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
-    assert DMG_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert DMG_check[2] == pytest.approx(DMG_2_PID, rel=0.10)
     assert DMG_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
-    assert DMG_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+    assert DMG_check[6] == pytest.approx(DMG_2_PFA, rel=0.10)
 
     # ------------------------------------------------------------------------
 
@@ -463,7 +463,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
     C_target = [0., 250., 1250.]
     T_target = [0., 0.25, 1.25]
 
-    # PG 1001 and 1101
+    # PG 1011 and 1012
     P_target = [
         mvn_od(np.log([0.074081, 0.044932]),
                np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
@@ -479,7 +479,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
                lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
     ]
 
-    for i in [0, 2]:
+    for i in [0, 1]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -495,7 +495,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1002 and 1102
+    # PG 1021 and 1022
     P_target = [
         mvn_od(np.log([0.074081, 0.044932]),
                np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
@@ -511,7 +511,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
                lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
     ]
 
-    for i in [1, 3]:
+    for i in [2, 3]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -527,7 +527,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1011 and 1111
+    # PG 2011 and 2012
     P_target = [
         mvn_od(np.log([0.074081, 9.80665, 12.59198]),
                np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
@@ -549,7 +549,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
                upper=np.log([0.1, np.inf, 9.80665]))[0],
     ]
 
-    for i in [4, 6]:
+    for i in [4, 5]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -565,7 +565,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1012 and 1112
+    # PG 2021 and 2022
     P_target = [
         mvn_od(np.log([0.074081, 9.80665, 12.59198]),
                np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
@@ -587,7 +587,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
                upper=np.log([0.1, 9.80665, np.inf]))[0],
     ]
 
-    for i in [5, 7]:
+    for i in [6, 7]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -607,15 +607,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
     RED_check = A._DV_dict['red_tag'].describe().T
     RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
 
-    assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
-    assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
-    assert RED_check[4] == pytest.approx(RED_check[6], rel=0.01)
-    assert RED_check[5] == pytest.approx(RED_check[7], rel=0.01)
+    assert RED_check[0] == pytest.approx(RED_check[1], rel=0.01)
+    assert RED_check[2] == pytest.approx(RED_check[3], rel=0.01)
+    assert RED_check[4] == pytest.approx(RED_check[5], rel=0.01)
+    assert RED_check[6] == pytest.approx(RED_check[7], rel=0.01)
 
     assert RED_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
-    assert RED_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert RED_check[2] == pytest.approx(DMG_2_PID, rel=0.10)
     assert RED_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
-    assert RED_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+    assert RED_check[6] == pytest.approx(DMG_2_PFA, rel=0.10)
 
     DMG_on = np.where(A._DMG > 0.0)[0]
     RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
@@ -686,7 +686,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
         [0.6, 1.0, 0.3, 0.3],
         [0.3, 0.3, 1.0, 0.7],
         [0.3, 0.3, 0.7, 1.0]]
-    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.15)
 
     # ------------------------------------------------------------------------
 
@@ -728,15 +728,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
                        lower=np.log([1e-6, 9.80665]),
                        upper=np.log([0.1, np.inf]))[0]
 
-    assert DMG_check[0] == pytest.approx(DMG_check[2], rel=0.01)
-    assert DMG_check[1] == pytest.approx(DMG_check[3], rel=0.01)
-    assert DMG_check[4] == pytest.approx(DMG_check[6], rel=0.01)
-    assert DMG_check[5] == pytest.approx(DMG_check[7], rel=0.01)
+    assert DMG_check[0] == pytest.approx(DMG_check[1], rel=0.01)
+    assert DMG_check[2] == pytest.approx(DMG_check[3], rel=0.01)
+    assert DMG_check[4] == pytest.approx(DMG_check[5], rel=0.01)
+    assert DMG_check[6] == pytest.approx(DMG_check[7], rel=0.01)
 
     assert DMG_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
-    assert DMG_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert DMG_check[2] == pytest.approx(DMG_2_PID, rel=0.10)
     assert DMG_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
-    assert DMG_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+    assert DMG_check[6] == pytest.approx(DMG_2_PFA, rel=0.10)
 
     # ------------------------------------------------------------------------
 
@@ -750,7 +750,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     C_target = [0., 250., 1250.]
     T_target = [0., 0.25, 1.25]
 
-    # PG 1001 and 1101
+    # PG 1011 and 1012
     P_target = [
         mvn_od(np.log([0.074081, 0.044932]),
                np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
@@ -766,7 +766,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
                lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
     ]
 
-    for i in [0, 2]:
+    for i in [0, 1]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -782,7 +782,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1002 and 1102
+    # PG 1021 and 1022
     P_target = [
         mvn_od(np.log([0.074081, 0.044932]),
                np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
@@ -798,7 +798,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
                lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
     ]
 
-    for i in [1, 3]:
+    for i in [2, 3]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -814,7 +814,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1011 and 1111
+    # PG 2011 and 2012
     P_target = [
         mvn_od(np.log([0.074081, 9.80665, 12.59198]),
                np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
@@ -836,7 +836,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
                upper=np.log([0.1, np.inf, 9.80665]))[0],
     ]
 
-    for i in [4, 6]:
+    for i in [4, 5]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -852,7 +852,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1012 and 1112
+    # PG 2021 and 2022
     P_target = [
         mvn_od(np.log([0.074081, 9.80665, 12.59198]),
                np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
@@ -874,7 +874,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
                upper=np.log([0.1, 9.80665, np.inf]))[0],
     ]
 
-    for i in [5, 7]:
+    for i in [6, 7]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -894,15 +894,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     RED_check = A._DV_dict['red_tag'].describe().T
     RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
 
-    assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
-    assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
-    assert RED_check[4] == pytest.approx(RED_check[6], rel=0.01)
-    assert RED_check[5] == pytest.approx(RED_check[7], rel=0.01)
+    assert RED_check[0] == pytest.approx(RED_check[1], rel=0.01)
+    assert RED_check[2] == pytest.approx(RED_check[3], rel=0.01)
+    assert RED_check[4] == pytest.approx(RED_check[5], rel=0.01)
+    assert RED_check[6] == pytest.approx(RED_check[7], rel=0.01)
 
     assert RED_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
-    assert RED_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert RED_check[2] == pytest.approx(DMG_2_PID, rel=0.10)
     assert RED_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
-    assert RED_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+    assert RED_check[6] == pytest.approx(DMG_2_PFA, rel=0.10)
 
     DMG_on = np.where(A._DMG > 0.0)[0]
     RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
@@ -1029,15 +1029,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
                        lower=np.log([1e-6, 9.80665]),
                        upper=np.log([0.1, np.inf]))[0]
 
-    assert DMG_check[0] == pytest.approx(DMG_check[2], rel=0.01)
-    assert DMG_check[1] == pytest.approx(DMG_check[3], rel=0.01)
-    assert DMG_check[4] == pytest.approx(DMG_check[6], rel=0.01)
-    assert DMG_check[5] == pytest.approx(DMG_check[7], rel=0.01)
+    assert DMG_check[0] == pytest.approx(DMG_check[1], rel=0.01)
+    assert DMG_check[2] == pytest.approx(DMG_check[3], rel=0.01)
+    assert DMG_check[4] == pytest.approx(DMG_check[5], rel=0.01)
+    assert DMG_check[6] == pytest.approx(DMG_check[7], rel=0.01)
 
     assert DMG_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
-    assert DMG_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert DMG_check[2] == pytest.approx(DMG_2_PID, rel=0.10)
     assert DMG_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
-    assert DMG_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+    assert DMG_check[6] == pytest.approx(DMG_2_PFA, rel=0.10)
 
     # ------------------------------------------------------------------------
 
@@ -1051,7 +1051,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     C_target = [0., 250., 1250.]
     T_target = [0., 0.25, 1.25]
 
-    # PG 1001 and 1101
+    # PG 1011 and 1012
     P_target = [
         mvn_od(np.log([0.074081, 0.044932]),
                np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
@@ -1067,7 +1067,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
                lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
     ]
 
-    for i in [0, 2]:
+    for i in [0, 1]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -1083,7 +1083,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1002 and 1102
+    # PG 1021 and 1022
     P_target = [
         mvn_od(np.log([0.074081, 0.044932]),
                np.array([[1, 0.7], [0.7, 1]]) * np.outer([0.3, 0.4],
@@ -1099,7 +1099,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
                lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
     ]
 
-    for i in [1, 3]:
+    for i in [2, 3]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -1115,7 +1115,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1011 and 1111
+    # PG 2011 and 2012
     P_target = [
         mvn_od(np.log([0.074081, 9.80665, 12.59198]),
                np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
@@ -1137,7 +1137,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
                upper=np.log([0.1, np.inf, 9.80665]))[0],
     ]
 
-    for i in [4, 6]:
+    for i in [4, 5]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -1153,7 +1153,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1012 and 1112
+    # PG 2021 and 2022
     P_target = [
         mvn_od(np.log([0.074081, 9.80665, 12.59198]),
                np.array([[1.0, 0.3, 0.3], [0.3, 1.0, 0.6],
@@ -1175,7 +1175,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
                upper=np.log([0.1, 9.80665, np.inf]))[0],
     ]
 
-    for i in [5, 7]:
+    for i in [6, 7]:
         C_test, P_test = np.unique(
             np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
             return_counts=True)
@@ -1195,15 +1195,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     RED_check = A._DV_dict['red_tag'].describe().T
     RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
 
-    assert RED_check[0] == pytest.approx(RED_check[2], rel=0.01)
-    assert RED_check[1] == pytest.approx(RED_check[3], rel=0.01)
-    assert RED_check[4] == pytest.approx(RED_check[6], rel=0.01)
-    assert RED_check[5] == pytest.approx(RED_check[7], rel=0.01)
+    assert RED_check[0] == pytest.approx(RED_check[1], rel=0.01)
+    assert RED_check[2] == pytest.approx(RED_check[3], rel=0.01)
+    assert RED_check[4] == pytest.approx(RED_check[5], rel=0.01)
+    assert RED_check[6] == pytest.approx(RED_check[7], rel=0.01)
 
     assert RED_check[0] == pytest.approx(DMG_1_PID, rel=0.10)
-    assert RED_check[1] == pytest.approx(DMG_2_PID, rel=0.10)
+    assert RED_check[2] == pytest.approx(DMG_2_PID, rel=0.10)
     assert RED_check[4] == pytest.approx(DMG_1_PFA, rel=0.10)
-    assert RED_check[5] == pytest.approx(DMG_2_PFA, rel=0.10)
+    assert RED_check[6] == pytest.approx(DMG_2_PFA, rel=0.10)
 
     DMG_on = np.where(A._DMG > 0.0)[0]
     RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
@@ -1343,8 +1343,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
                          upper=np.log([np.inf, np.inf, np.inf, np.inf,
                                        0.1, 0.1, 0.1, 0.1]))[0]
 
-    DMG_ref = [DMG_1_1_PID, DMG_2_1_PID, DMG_1_2_PID, DMG_2_2_PID,
-               DMG_1_1_PFA, DMG_2_1_PFA, DMG_1_2_PFA, DMG_2_2_PFA]
+    DMG_ref = [DMG_1_1_PID, DMG_1_2_PID, DMG_2_1_PID, DMG_2_2_PID,
+               DMG_1_1_PFA, DMG_1_2_PFA, DMG_2_1_PFA, DMG_2_2_PFA]
 
     assert_allclose(DMG_check, DMG_ref, rtol=0.10, atol=0.01)
 
@@ -1360,7 +1360,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     C_target = [0., 249., 624., 1251., 1875.]
     T_target = [0., 0.249, 0.624, 1.251, 1.875]
 
-    # PG 1001
+    # PG 1011
     P_target = [
         mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
@@ -1406,7 +1406,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1101
+    # PG 1012
     P_target = [
         mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
@@ -1438,10 +1438,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     ]
 
     C_test, P_test = np.unique(
-        np.around(DV_COST.iloc[:, 2].values / 3., decimals=0) * 3.,
+        np.around(DV_COST.iloc[:, 1].values / 3., decimals=0) * 3.,
         return_counts=True)
     C_test = C_test[np.where(P_test > 10)]
-    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 2].values * 333.33333,
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 1].values * 333.33333,
                                          decimals=0) / 333.33333,
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
@@ -1452,7 +1452,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1002
+    # PG 1021
     P_target = [
         mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0],
@@ -1484,10 +1484,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     ]
 
     C_test, P_test = np.unique(
-        np.around(DV_COST.iloc[:, 1].values / 3., decimals=0) * 3.,
+        np.around(DV_COST.iloc[:, 2].values / 3., decimals=0) * 3.,
         return_counts=True)
     C_test = C_test[np.where(P_test > 10)]
-    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 1].values * 333.33333,
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 2].values * 333.33333,
                                          decimals=0) / 333.33333,
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
@@ -1498,7 +1498,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1102
+    # PG 1022
     P_target = [
         mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0],
@@ -1544,7 +1544,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target[:-1], C_test[:4], rtol=0.001)
     assert_allclose(T_target[:-1], T_test[:4], rtol=0.001)
 
-    # PG 1011
+    # PG 2011
     P_target = [
         mvn_od(np.log(theta_target), COV_target,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
@@ -1607,7 +1607,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1111
+    # PG 2012
     P_target = [
         mvn_od(np.log(theta_target), COV_target,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
@@ -1656,10 +1656,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     ]
 
     C_test, P_test = np.unique(
-        np.around(DV_COST.iloc[:, 6].values / 3., decimals=0) * 3.,
+        np.around(DV_COST.iloc[:, 5].values / 3., decimals=0) * 3.,
         return_counts=True)
     C_test = C_test[np.where(P_test > 10)]
-    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 6].values * 333.33333,
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 5].values * 333.33333,
                                          decimals=0) / 333.33333,
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
@@ -1670,7 +1670,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1012
+    # PG 2021
     P_target = [
         mvn_od(np.log(theta_target), COV_target,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
@@ -1719,10 +1719,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     ]
 
     C_test, P_test = np.unique(
-        np.around(DV_COST.iloc[:, 5].values / 3., decimals=0) * 3.,
+        np.around(DV_COST.iloc[:, 6].values / 3., decimals=0) * 3.,
         return_counts=True)
     C_test = C_test[np.where(P_test > 10)]
-    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 5].values * 333.33333,
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 6].values * 333.33333,
                                          decimals=0) / 333.33333,
                                return_counts=True)
     T_test = T_test[np.where(P_test > 10)]
@@ -1733,7 +1733,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 
-    # PG 1112
+    # PG 2022
     P_target = [
         mvn_od(np.log(theta_target), COV_target,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),

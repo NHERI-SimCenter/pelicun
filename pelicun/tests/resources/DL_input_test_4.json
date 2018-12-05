@@ -39,7 +39,7 @@
             {
                 "ID": "T0002.001",
                 "cov": "0.0001",
-                "directions": "0, 1",
+                "directions": "1, 2",
                 "distribution": "normal",
                 "name": "drift sensitive test comp",
                 "quantity": "5.3821, 5.3821",
@@ -51,7 +51,7 @@
             {
                 "ID": "T0002.002",
                 "cov": "0.0001",
-                "directions": "0, 1",
+                "directions": "1, 2",
                 "distribution": "normal",
                 "name": "acceleration sensitive test comp",
                 "quantity": "5.3821, 5.3821",

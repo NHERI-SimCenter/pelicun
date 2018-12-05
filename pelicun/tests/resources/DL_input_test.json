@@ -32,7 +32,7 @@
             {
                 "ID": "T0001.001",
                 "cov": "0.0001",
-                "directions": "0",
+                "directions": "1",
                 "distribution": "normal",
                 "name": "clay tile roof",
                 "quantity": "5.3821",
