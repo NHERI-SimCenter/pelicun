@@ -1508,14 +1508,14 @@ class FEMA_P58_Assessment(Assessment):
                 # get the corresponding demands
                 demand_ID = (FG._demand_type + 
                              '-LOC-' + str(PG._location) +
-                             '-DIR-' + str(PG._direction+1))
+                             '-DIR-' + str(PG._direction))
                 if demand_ID in self._EDP_dict.keys():
                     EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
                 else:
                     # If the required demand is not available, then we are most
                     # likely analyzing a 3D structure using results from a 2D 
                     # simulation. The best thing we can do in that particular
-                    # case is to use the EDP from the 0 direction for all other
+                    # case is to use the EDP from the 1 direction for all other
                     # directions.
                     demand_ID = (FG._demand_type + 
                                  '-LOC-' + str(PG._location) + '-DIR-1')
