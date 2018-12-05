@@ -1,6 +1,7 @@
 {
     "GeneralInformation": {
         "planArea": 100.0,
+        "stories": 2,
         "units": {
             "force": "N",
             "length": "m",
