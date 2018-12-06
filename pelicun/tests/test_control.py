@@ -2188,3 +2188,283 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
                     S.loc[:, ('injuries', 'casualties')])
     assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
                     S.loc[:, ('injuries', 'fatalities')])
+    
+def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
+    """
+    Perform loss assessment with customized inputs that focus on testing the 
+    propagation of uncertainty in component quantities. Dispersions in other
+    calculation parameters are reduced to negligible levels. This allows us to
+    test the results against pre-defined reference values in spite of the 
+    randomness involved in the calculations.
+    This test checks if dependencies between component quantities are handled
+    appropriately.
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + "DL_input_test_8.json"
+    EDP_input = base_input_path + "EDP_table_test_8.out"
+    CMP_data = base_input_path
+    POP_data = base_input_path + "population_test_det.json"
+
+    for dep in ['FG', 'PG', 'DIR', 'LOC']:
+
+        A = FEMA_P58_Assessment()
+
+        with pytest.warns(UserWarning) as e_info:
+            A.read_inputs(DL_input, EDP_input, CMP_data, POP_data,
+                          verbose=False)
+
+        A._AIM_in['dependencies']['quantities'] = dep
+
+        A.define_random_variables()
+
+        # ---------------------------------------------- check random variables
+
+        # QNT
+        RV_QNT = A._RV_dict['QNT']
+
+        COV_test = deepcopy(RV_QNT.COV)
+        sig_test = np.sqrt(np.diagonal(COV_test))
+        rho_test = COV_test / np.outer(sig_test, sig_test)
+
+        for i, (dist, sig) in enumerate(
+            zip(['normal'] * 4 + ['lognormal'] * 4, [25.0] * 4 + [0.4] * 4)):
+            assert RV_QNT._distribution_kind[i] == dist
+            assert RV_QNT.theta[i] == pytest.approx(25., rel=0.001)
+            assert sig_test[i] == pytest.approx(sig, rel=0.001)
+
+        if dep == 'FG':
+            rho_target = np.array([
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+            ])
+        elif dep == 'PG':
+            rho_target = np.array([
+                [1, 1, 1, 1, 0, 0, 0, 0],
+                [1, 1, 1, 1, 0, 0, 0, 0],
+                [1, 1, 1, 1, 0, 0, 0, 0],
+                [1, 1, 1, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 0, 0, 1, 1, 1, 1],
+                [0, 0, 0, 0, 1, 1, 1, 1],
+            ])
+        elif dep == 'DIR':
+            rho_target = np.array([
+                [1, 1, 0, 0, 0, 0, 0, 0],
+                [1, 1, 0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 1, 0, 0, 0, 0],
+                [0, 0, 1, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 1, 0, 0],
+                [0, 0, 0, 0, 1, 1, 0, 0],
+                [0, 0, 0, 0, 0, 0, 1, 1],
+                [0, 0, 0, 0, 0, 0, 1, 1],
+            ])
+        elif dep == 'LOC':
+            rho_target = np.array([
+                [1, 0, 1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 1, 0, 0, 0, 0],
+                [1, 0, 1, 0, 0, 0, 0, 0],
+                [0, 1, 0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1, 0, 1],
+                [0, 0, 0, 0, 1, 0, 1, 0],
+                [0, 0, 0, 0, 0, 1, 0, 1],
+            ])
+
+        assert_allclose(rho_test, rho_target, rtol=0.001)
+
+        # ---------------------------------------------------------------------
+
+        A.define_loss_model()
+
+        A.calculate_damage()
+
+        # -------------------------------------------- check damage calculation
+
+        # COL
+        # there shall be no collapses
+        assert A._COL.describe().T['mean'].values == 0
+
+        # DMG
+        # Because the correlations are enforced after truncation, the marginals 
+        # shall be unaffected by the correlation structure. Hence, the 
+        # distribution of damaged quantities within a PG shall be identical in 
+        # all dep cases.
+        # The specified dependencies are apparent in the correlation between 
+        # damaged quantities in various PGs.
+
+        DMG_check = A._DMG.describe().T
+        mu_test = DMG_check['mean']
+        sig_test = DMG_check['std']
+        rho_test = A._DMG.corr()
+
+        mu_target_1 = 25.0 + 25.0 * norm.pdf(-1.0) / (1.0 - norm.cdf(-1.0))
+        sig_target_1 = np.sqrt(25.0 ** 2.0 * (
+                1 - norm.pdf(-1.0) / (1.0 - norm.cdf(-1.0)) - (
+                    norm.pdf(-1.0) / (1.0 - norm.cdf(-1.0))) ** 2.0))
+        mu_target_2 = np.exp(np.log(25.0) + 0.4 ** 2. / 2.)
+        sig_target_2 = np.sqrt(
+            (np.exp(0.4 ** 2.0) - 1.0) * np.exp(2 * np.log(25.0) + 0.4 ** 2.0))
+
+        assert_allclose(mu_test[:4], mu_target_1, rtol=0.05)
+        assert_allclose(mu_test[4:], mu_target_2, rtol=0.05)
+        assert_allclose(sig_test[:4], sig_target_1, rtol=0.05)
+        assert_allclose(sig_test[4:], sig_target_2, rtol=0.05)
+        assert_allclose(rho_test, rho_target, atol=0.05)
+
+        # ---------------------------------------------------------------------
+
+        A.calculate_losses()
+
+        # ---------------------------------------------- check loss calculation
+
+        DV_COST = A._DV_dict['rec_cost'] / A._DMG
+
+        # After the DVs are normalized by the damaged quantities, the resulting 
+        # samples show the correlations between the DV_measure (such as 
+        # reconstruction cost) / 1 unit of damaged component. Because this 
+        # consequences are perfectly correlated among the components of a 
+        # fragility group by definition, the quadrants on the main diagonal 
+        # will follow the matrix presented below. If there are additional 
+        # correlations defined between component quantities in different 
+        # fragility groups (i.e. the off-diagonal quadrants of the rho matrix), 
+        # those will be preserved in the consequences. Therefore, the 
+        # off-diagonal quadrants need to be updated with those from rho_target 
+        # to get an appropriate rho_DV_target.
+        
+        rho_DV_target = np.array([
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+        ])
+        rho_DV_target[:4, 4:] = rho_target[:4, 4:]
+        rho_DV_target[4:, :4] = rho_target[:4, 4:]
+
+        assert_allclose(DV_COST.corr(), rho_DV_target, atol=0.05)
+
+        # uncertainty in decision variables is controlled by the correlation 
+        # between damages
+        P_test_PID = np.sum(DV_COST.iloc[:, 0] < 10.01) / 10000.
+        P_test_PFA = np.sum(DV_COST.iloc[:, 4] < 10.01) / 10000.
+
+        # the first component quantities follow a truncated multivariate normal 
+        # distribution
+        mu_target_PID = mu_target_1 * 4.
+        sig_target_PID = np.sqrt(
+            sig_target_1 ** 2. * np.sum(rho_target[:4, :4]))
+        mu_target_PID_b = mu_target_PID
+        sig_target_PID_b = sig_target_PID
+        alpha = 100.
+        i = 0
+        while (np.log(
+            np.abs(alpha / (mu_target_PID_b / sig_target_PID_b))) > 0.001) and (
+            i < 10):
+            alpha = -mu_target_PID_b / sig_target_PID_b
+            mu_target_PID_b = mu_target_PID - sig_target_PID_b * norm.pdf(
+                alpha) / (1.0 - norm.cdf(alpha))
+            sig_target_PID_b = sig_target_PID / np.sqrt(
+                (1.0 + alpha * norm.pdf(alpha) / (1.0 - norm.cdf(alpha))))
+            i += 1
+        xi = (90 - mu_target_PID_b) / sig_target_PID_b
+        P_target_PID = 1.0 - (norm.cdf(xi) - norm.cdf(alpha)) / (
+                1.0 - norm.cdf(alpha))
+
+        assert P_target_PID == pytest.approx(P_test_PID, rel=0.05)
+
+        # the second component quantities follow a multivariate lognormal 
+        # distribution
+        mu_target_PFA = mu_target_2 * 4.
+        sig_target_PFA = np.sqrt(
+            sig_target_2 ** 2. * np.sum(rho_target[4:, 4:]))
+        sig_target_PFA_b = np.sqrt(
+            np.log(sig_target_PFA ** 2.0 / mu_target_PFA ** 2.0 + 1.0))
+        mu_target_PFA_b = np.log(mu_target_PFA) - sig_target_PFA_b ** 2.0 / 2.
+        xi = np.log(90)
+        P_target_PFA = 1.0 - norm.cdf(xi, loc=mu_target_PFA_b,
+                                      scale=sig_target_PFA_b)
+
+        assert P_target_PFA == pytest.approx(P_test_PFA, rel=0.05)
+
+        # the same checks can be performed for reconstruction time
+        DV_TIME = A._DV_dict['rec_time'] / A._DMG
+
+        assert_allclose(DV_TIME.corr(), rho_DV_target, atol=0.05)
+
+        P_test_PID = np.sum(DV_TIME.iloc[:, 0] < 0.0101) / 10000.
+        assert P_target_PID == pytest.approx(P_test_PID, rel=0.05)
+
+        P_test_PFA = np.sum(DV_TIME.iloc[:, 4] < 0.0101) / 10000.
+        assert P_target_PFA == pytest.approx(P_test_PFA, rel=0.05)
+
+        # injuries...
+        # Every component is damaged in every realization in this test. Once 
+        # normalized by the quantity of components, the number of injuries 
+        # shall be identical and unaffected by the correlation between 
+        # component quantities.
+
+        DV_INJ_dict = deepcopy(A._DV_dict['injuries'])
+        DV_INJ0 = (DV_INJ_dict[0] / A._DMG).describe()
+        DV_INJ1 = (DV_INJ_dict[1] / A._DMG).describe()
+
+        assert_allclose(DV_INJ0.loc['mean', :][:4], np.ones(4) * 0.025,
+                        rtol=0.001)
+        assert_allclose(DV_INJ0.loc['mean', :][4:], np.ones(4) * 0.1,
+                        rtol=0.001)
+        assert_allclose(DV_INJ1.loc['mean', :][:4], np.ones(4) * 0.005,
+                        rtol=0.001)
+        assert_allclose(DV_INJ1.loc['mean', :][4:], np.ones(4) * 0.02,
+                        rtol=0.001)
+
+        assert_allclose(DV_INJ0.loc['std', :], np.zeros(8), atol=1e-4)
+        assert_allclose(DV_INJ1.loc['std', :], np.zeros(8), atol=1e-4)
+
+        # and for red tag...
+        # since every component is damaged in every realization, the red tag 
+        # results should all be 1.0
+        assert_allclose(A._DV_dict['red_tag'], np.ones((10000, 8)))
+
+        # ---------------------------------------------------------------------
+
+        A.aggregate_results()
+
+        # -------------------------------------------- check result aggregation
+
+        S = A._SUMMARY
+        SD = S.describe().T
+
+        assert SD.loc[('inhabitants', ''), 'mean'] == 20.0
+        assert SD.loc[('inhabitants', ''), 'std'] == 0.0
+
+        assert SD.loc[('collapses', 'collapsed?'), 'mean'] == 0.0
+        assert SD.loc[('collapses', 'collapsed?'), 'std'] == 0.0
+
+        assert SD.loc[('red tagged?', ''), 'mean'] == 1.0
+        assert SD.loc[('red tagged?', ''), 'std'] == 0.0
+
+        assert np.corrcoef(S.loc[:, ('reconstruction', 'cost')],
+                           S.loc[:, ('reconstruction', 'time-sequential')])[
+                   0, 1] == pytest.approx(1.0)
+
+        assert_allclose(A._DV_dict['rec_cost'].sum(axis=1),
+                        S.loc[:, ('reconstruction', 'cost')])
+        assert_allclose(A._DV_dict['rec_time'].sum(axis=1),
+                        S.loc[:, ('reconstruction', 'time-sequential')])
+        assert_allclose(A._DV_dict['rec_time'].max(axis=1),
+                        S.loc[:, ('reconstruction', 'time-parallel')])
+        assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
+                        S.loc[:, ('injuries', 'casualties')])
+        assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
+                        S.loc[:, ('injuries', 'fatalities')])

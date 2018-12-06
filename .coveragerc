@@ -9,3 +9,5 @@ omit =
     /docs/*
     /examples/*
     /resources/*
+    /pelicun/tests/*
+    /tests/*
