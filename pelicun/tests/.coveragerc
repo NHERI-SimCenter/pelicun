@@ -1,13 +1,11 @@
 [run]
 source = 
 	pelicun
-omit =
+omit = *test*
+	*lab.py
 	*/python?.?/*
     */site-packages/nose/*
     setup.py
-    *test*
     /docs/*
     /examples/*
     /resources/*
-    /pelicun/tests/*
-    /tests/*

@@ -176,7 +176,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
     # DMG
     DMG_check = A._DMG.describe().T
     assert_allclose(DMG_check['mean'], np.array([17.074, 17.074, 7.9361]),
-                    rtol=0.1)
+                    rtol=0.1, atol=1.0)
     assert_allclose(DMG_check['min'], np.zeros(3), rtol=0.01)
     assert_allclose(DMG_check['max'], np.ones(3) * 50.0157, rtol=0.05)
 
