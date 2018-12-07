@@ -202,6 +202,13 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                 'cov'         : float(comp['cov']),
                 'unit'        : [float(comp['unit_size']), comp['unit_type']],
             }
+
+            # sort the dirs and their weights to have better structured matrices 
+            # later
+            dir_order = np.argsort(comp_data['dirs'])
+            comp_data['dirs'] = [comp_data['dirs'][d_i] for d_i in dir_order]
+            comp_data['csg_weights'] = [comp_data['csg_weights'][d_i] for d_i in dir_order]
+            
             # get the location(s) of components based on non-zero quantities
             comp_data.update({
                 'locations':(np.where(comp_data['quantities'] > 0.)[0]+1).tolist()
@@ -728,10 +735,10 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         c_data['csg_weights'] = ci_data['csg_weights']
         c_data['directions'] = ci_data['dirs']
         c_data['locations'] = ci_data['locations']
-        c_data['cov'] = ci_data['cov']
+        c_data['cov'] = ci_data['cov']        
 
         # calculate the quantity weights in each direction
-        dirs = np.asarray(c_data['directions'], dtype=np.int)
+        dirs = np.asarray(c_data['directions'], dtype=np.int)        
         u_dirs = np.unique(dirs)
         weights = np.asarray(c_data['csg_weights'])
         c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)]) 
