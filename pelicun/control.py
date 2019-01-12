@@ -1546,9 +1546,35 @@ class FEMA_P58_Assessment(Assessment):
                                 in_this_DS = DS_df[DS_df.values == DS._ID].index
                                 FG_damages.loc[in_this_DSG[in_this_DS],
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
+                        elif DSG._DS_set_kind == 'simultaneous':
+                            DS_weights = [DS._weight for DS in DSG._DS_set]
+                            DS_df = np.random.uniform(
+                                size=(len(in_this_DSG), len(DS_weights)))
+                            which_DS = DS_df < DS_weights
+                            any_DS = np.any(which_DS, axis=1)
+                            no_DS_ids = np.where(any_DS == False)[0]
+
+                            while len(no_DS_ids) > 0:
+                                DS_df_add = np.random.uniform(
+                                    size=(len(no_DS_ids), len(DS_weights)))
+                                which_DS_add = DS_df_add < DS_weights
+                                which_DS[no_DS_ids] = which_DS_add
+
+                                any_DS = np.any(which_DS_add, axis=1)
+                                no_DS_ids = no_DS_ids[
+                                    np.where(any_DS == False)[0]]
+
+                            for ds_i, DS in enumerate(DSG._DS_set):
+                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                in_this_DS = which_DS[:, ds_i]
+                                FG_damages.loc[in_this_DSG[in_this_DS], (
+                                FG._ID, PG_ID, DS_tag)] += csg_w
+                            
                         else:
-                            # TODO: simultaneous
-                            print(DSG._DS_set_kind)
+                            raise ValueError(
+                                "Unknown damage state type: {}".format(
+                                    DSG._DS_set_kind)
+                            )
 
                 FG_damages.iloc[:,pg_i * d_count:(pg_i + 1) * d_count] = \
                     FG_damages.mul(PG_qnt.iloc[:, 0], axis=0)
@@ -1829,7 +1855,7 @@ class FEMA_P58_Assessment(Assessment):
                                       * DS._affected_area / 
                                       self._AIM_in['general']['plan_area'])
 
-                        QNT = self._DMG.loc[:, (FG._ID, PG_ID, d_tag)]
+                        QNT = self._DMG.loc[:, (FG._ID, PG_ID, d_tag)]                        
 
                         # estimate injuries
                         for i in range(self._inj_lvls):
