@@ -1017,10 +1017,20 @@ class FEMA_P58_Assessment(Assessment):
         if rho_cNt == False:
             ct_rho[:dims, :dims] = rho_c
             ct_rho[dims:, dims:] = rho_t
-        else:    
-            # if correlation between cost and time is considered, then the 
-            # envelope of rho_c and rho_t shall be applied
-            rho_ct = np.maximum(rho_c, rho_t)
+        else:                
+            # In the special case of mixing perfect correlation between 
+            # locations and directions, taking the envelope is not the 
+            # appropriate solution. Instead, the LOC & DIR -> PG approach is
+            # used.
+            if (((rho_cost == 'LOC') and (rho_time =='DIR')) or
+                ((rho_cost == 'DIR') and (rho_time == 'LOC'))):
+                rho_ct = self._create_correlation_matrix('PG', c_target=-1,
+                                                         include_DSG=True,
+                                                         include_DS=True)
+            else:
+                # We use the envelope in every other case.
+                rho_ct = np.maximum(rho_c, rho_t)
+            
             ct_rho[:dims, :dims] = rho_ct
             ct_rho[dims:, dims:] = rho_ct
             
