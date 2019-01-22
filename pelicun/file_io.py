@@ -166,23 +166,22 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     # other attributes
     for target_att, source_att, f_conv, unit_kind, dv_req in [
         ['plan_area', 'planArea', float, 'area', 'injuries'],
+        ['stories', 'stories', int, '', ''],
         # The following lines are commented out for now, because we do not use
         # these pieces of data anyway.
-        #['stories', 'stories', int, ''],
         #['building_type', 'type', str, ''],
         #['height', 'height', float, 'length'],
         #['year_built', 'year', int, ''],
     ]:
         if (GI is not None) and (source_att in GI.keys()):
-            #if unit_kind is not '':
-            #    f_unit = data['units'][unit_kind]
-            #else:
-            #    f_unit = 1
-            f_unit = data['units'][unit_kind]
+            if unit_kind is not '':
+                f_unit = data['units'][unit_kind]
+            else:
+                f_unit = 1
             att_value = f_conv(GI[source_att]) * f_unit
             data['general'].update({target_att: att_value})
         else:
-            if DV[dv_req]:
+            if (dv_req!='') and DV[dv_req]:
                 warnings.warn(UserWarning(
                     "{} is not in the DL input file.".format(source_att)))
         
@@ -203,6 +202,13 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                 'cov'         : float(comp['cov']),
                 'unit'        : [float(comp['unit_size']), comp['unit_type']],
             }
+
+            # sort the dirs and their weights to have better structured matrices 
+            # later
+            dir_order = np.argsort(comp_data['dirs'])
+            comp_data['dirs'] = [comp_data['dirs'][d_i] for d_i in dir_order]
+            comp_data['csg_weights'] = [comp_data['csg_weights'][d_i] for d_i in dir_order]
+            
             # get the location(s) of components based on non-zero quantities
             comp_data.update({
                 'locations':(np.where(comp_data['quantities'] > 0.)[0]+1).tolist()
@@ -390,9 +396,32 @@ def read_SimCenter_DL_input(input_path, verbose=False):
                 "Occupancy type was not defined in the input file."))
     
         if 'PeakPopulation' in LM['Inhabitants'].keys():
-            data['general'].update({
-                'population': [float(pop) for pop in
-                               LM['Inhabitants']['PeakPopulation'].split(',')]})
+            peak_pop = [float(pop) for pop in
+                               LM['Inhabitants']['PeakPopulation'].split(',')]
+            
+            # If the number of stories is specified and the population list
+            # does not provide values for every story...
+            # If only one value is provided, then it is assumed at every story.
+            # Otherwise, the values are assumed to correspond to the bottom
+            # stories and the upper ones are filled with zeros. 
+            # A warning message is displayed in this case.
+            if 'stories' in data['general'].keys():
+                stories = data['general']['stories']
+                pop_in = len(peak_pop)
+                for s in range(pop_in, stories):
+                    if pop_in == 1:
+                        peak_pop.append(peak_pop[0])
+                    else:
+                        peak_pop.append(0)
+                
+                if pop_in > 1 and pop_in != stories:
+                    warnings.warn(UserWarning(
+                        "Peak population was specified to some, but not all "
+                        "stories. The remaining stories are assumed to have "
+                        "zero population."
+                    ))
+                
+            data['general'].update({'population': peak_pop})
         elif DV['injuries']:
             warnings.warn(UserWarning(
                 "Peak population was not defined in the input file."))
@@ -706,10 +735,10 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         c_data['csg_weights'] = ci_data['csg_weights']
         c_data['directions'] = ci_data['dirs']
         c_data['locations'] = ci_data['locations']
-        c_data['cov'] = ci_data['cov']
+        c_data['cov'] = ci_data['cov']        
 
         # calculate the quantity weights in each direction
-        dirs = np.asarray(c_data['directions'], dtype=np.int)
+        dirs = np.asarray(c_data['directions'], dtype=np.int)        
         u_dirs = np.unique(dirs)
         weights = np.asarray(c_data['csg_weights'])
         c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)]) 

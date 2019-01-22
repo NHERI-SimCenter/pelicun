@@ -1,6 +1,7 @@
 {
   "general": {
     "plan_area": 111.484,
+    "stories": 3,
     "realizations": 20000,
     "collapse_limits": {
       "PFA": 1.5,

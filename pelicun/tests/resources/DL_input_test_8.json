@@ -32,7 +32,7 @@
         "Components": [
             {
                 "ID": "T0002.001",
-                "cov": "0.0001",
+                "cov": "1.0",
                 "directions": "1, 2",
                 "distribution": "normal",
                 "name": "drift sensitive test comp",
@@ -44,9 +44,9 @@
             },
             {
                 "ID": "T0002.002",
-                "cov": "0.0001",
-                "directions": "1, 2",
-                "distribution": "normal",
+                "cov": "0.4",
+                "directions": "2, 1",
+                "distribution": "lognormal",
                 "name": "acceleration sensitive test comp",
                 "quantity": "5.3821, 5.3821",
                 "structural": false,

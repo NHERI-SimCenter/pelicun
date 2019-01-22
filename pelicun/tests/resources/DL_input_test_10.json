@@ -18,8 +18,8 @@
                 "Median": "10.",
                 "Sig": "0.0001"
             },
-            "ReplacementCost": "300000",
-            "ReplacementTime": "300"
+            "ReplacementCost": "30000000",
+            "ReplacementTime": "30000"
         },   
         "CollapseModes": [
             {
@@ -31,28 +31,28 @@
         ],
         "Components": [
             {
-                "ID": "T0002.001",
+                "ID": "T0004.001",
                 "cov": "0.0001",
-                "directions": "1, 2",
+                "directions": "1, 2, 1, 2, 1, 2, 1, 2",
                 "distribution": "normal",
-                "name": "drift sensitive test comp",
+                "name": "drift sensitive test comp 1",
                 "quantity": "5.3821, 5.3821",
                 "structural": true,
                 "unit_size": "100",
                 "unit_type": "SF",
-                "weights": "0.5, 0.5"
+                "weights": "0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125"
             },
             {
-                "ID": "T0002.002",
+                "ID": "T0004.002",
                 "cov": "0.0001",
-                "directions": "1, 2",
+                "directions": "1, 2, 1, 2, 1, 2, 1, 2",
                 "distribution": "normal",
-                "name": "acceleration sensitive test comp",
+                "name": "drift sensitive test comp 2",
                 "quantity": "5.3821, 5.3821",
-                "structural": false,
+                "structural": true,
                 "unit_size": "100",
                 "unit_type": "SF",
-                "weights": "0.5, 0.5"
+                "weights": "0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125"
             }
         ],        
         "Inhabitants": {

@@ -1017,10 +1017,20 @@ class FEMA_P58_Assessment(Assessment):
         if rho_cNt == False:
             ct_rho[:dims, :dims] = rho_c
             ct_rho[dims:, dims:] = rho_t
-        else:    
-            # if correlation between cost and time is considered, then the 
-            # envelope of rho_c and rho_t shall be applied
-            rho_ct = np.maximum(rho_c, rho_t)
+        else:                
+            # In the special case of mixing perfect correlation between 
+            # locations and directions, taking the envelope is not the 
+            # appropriate solution. Instead, the LOC & DIR -> PG approach is
+            # used.
+            if (((rho_cost == 'LOC') and (rho_time =='DIR')) or
+                ((rho_cost == 'DIR') and (rho_time == 'LOC'))):
+                rho_ct = self._create_correlation_matrix('PG', c_target=-1,
+                                                         include_DSG=True,
+                                                         include_DS=True)
+            else:
+                # We use the envelope in every other case.
+                rho_ct = np.maximum(rho_c, rho_t)
+            
             ct_rho[:dims, :dims] = rho_ct
             ct_rho[dims:, dims:] = rho_ct
             
@@ -1227,7 +1237,7 @@ class FEMA_P58_Assessment(Assessment):
         for c_id in s_fg_keys:
             comp = self._FG_in[c_id]
 
-            FG_ID = len(FG_dict.keys())
+            FG_ID = len(FG_dict.keys())+1
 
             # create a list for the performance groups
             performance_groups = []
@@ -1237,7 +1247,7 @@ class FEMA_P58_Assessment(Assessment):
             PG_directions = np.unique(comp['directions'])
             for loc in PG_locations:
                 for dir_ in PG_directions:
-                    PG_ID = 1000 + dir_*100 + FG_ID * 10 + loc
+                    PG_ID = 1000 * FG_ID + 10 * loc + dir_
     
                     # get the quantity
                     QNT = RandomVariableSubset(
@@ -1508,14 +1518,14 @@ class FEMA_P58_Assessment(Assessment):
                 # get the corresponding demands
                 demand_ID = (FG._demand_type + 
                              '-LOC-' + str(PG._location) +
-                             '-DIR-' + str(PG._direction+1))
+                             '-DIR-' + str(PG._direction))
                 if demand_ID in self._EDP_dict.keys():
                     EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
                 else:
                     # If the required demand is not available, then we are most
                     # likely analyzing a 3D structure using results from a 2D 
                     # simulation. The best thing we can do in that particular
-                    # case is to use the EDP from the 0 direction for all other
+                    # case is to use the EDP from the 1 direction for all other
                     # directions.
                     demand_ID = (FG._demand_type + 
                                  '-LOC-' + str(PG._location) + '-DIR-1')
@@ -1546,9 +1556,35 @@ class FEMA_P58_Assessment(Assessment):
                                 in_this_DS = DS_df[DS_df.values == DS._ID].index
                                 FG_damages.loc[in_this_DSG[in_this_DS],
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
+                        elif DSG._DS_set_kind == 'simultaneous':
+                            DS_weights = [DS._weight for DS in DSG._DS_set]
+                            DS_df = np.random.uniform(
+                                size=(len(in_this_DSG), len(DS_weights)))
+                            which_DS = DS_df < DS_weights
+                            any_DS = np.any(which_DS, axis=1)
+                            no_DS_ids = np.where(any_DS == False)[0]
+
+                            while len(no_DS_ids) > 0:
+                                DS_df_add = np.random.uniform(
+                                    size=(len(no_DS_ids), len(DS_weights)))
+                                which_DS_add = DS_df_add < DS_weights
+                                which_DS[no_DS_ids] = which_DS_add
+
+                                any_DS = np.any(which_DS_add, axis=1)
+                                no_DS_ids = no_DS_ids[
+                                    np.where(any_DS == False)[0]]
+
+                            for ds_i, DS in enumerate(DSG._DS_set):
+                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                in_this_DS = which_DS[:, ds_i]
+                                FG_damages.loc[in_this_DSG[in_this_DS], (
+                                FG._ID, PG_ID, DS_tag)] += csg_w
+                            
                         else:
-                            # TODO: simultaneous
-                            print(DSG._DS_set_kind)
+                            raise ValueError(
+                                "Unknown damage state type: {}".format(
+                                    DSG._DS_set_kind)
+                            )
 
                 FG_damages.iloc[:,pg_i * d_count:(pg_i + 1) * d_count] = \
                     FG_damages.mul(PG_qnt.iloc[:, 0], axis=0)
@@ -1829,7 +1865,7 @@ class FEMA_P58_Assessment(Assessment):
                                       * DS._affected_area / 
                                       self._AIM_in['general']['plan_area'])
 
-                        QNT = self._DMG.loc[:, (FG._ID, PG_ID, d_tag)]
+                        QNT = self._DMG.loc[:, (FG._ID, PG_ID, d_tag)]                        
 
                         # estimate injuries
                         for i in range(self._inj_lvls):
