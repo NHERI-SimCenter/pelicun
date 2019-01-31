@@ -64,13 +64,14 @@ def test_read_SimCenter_DL_input_minimum_input():
     """
     
     # load the reference results
-    with open('resources/ref_DL_input_min.json') as f:
+    with open('resources/io testing/ref/ref_DL_input_min.json') as f:
         ref_DL = json.load(f)
     
     # read the input file and check for at least one warning
     with pytest.warns(UserWarning) as e_info:
-        test_DL = read_SimCenter_DL_input('resources/test_DL_input_min.json', 
-                                        verbose=False)
+        test_DL = read_SimCenter_DL_input('resources/io testing/test/'
+                                          'test_DL_input_min.json', 
+                                          verbose=False)
         
     # check if the returned dictionary is appropriate
     assert ref_DL == test_DL
@@ -84,11 +85,12 @@ def test_read_SimCenter_DL_input_full_input():
     """
 
     # load the reference results
-    with open('resources/ref_DL_input_full.json') as f:
+    with open('resources/io testing/ref/ref_DL_input_full.json') as f:
         ref_DL = json.load(f)
 
     # read the input file
-    test_DL = read_SimCenter_DL_input('resources/test_DL_input_full.json',
+    test_DL = read_SimCenter_DL_input('resources/io testing/test/'
+                                      'test_DL_input_full.json',
                                       verbose=False)
 
     # check if the returned dictionary is appropriate
@@ -100,13 +102,14 @@ def test_read_SimCenter_DL_input_non_standard_units():
     """
 
     # load the reference results
-    with open('resources/ref_DL_input_ns_units.json') as f:
+    with open('resources/io testing/ref/ref_DL_input_ns_units.json') as f:
         ref_DL = json.load(f)
 
     # read the input file and check for at least one warning
     with pytest.warns(UserWarning) as e_info:
         test_DL = read_SimCenter_DL_input(
-            'resources/test_DL_input_ns_units.json', verbose=False)
+            'resources/io testing/test/'
+            'test_DL_input_ns_units.json', verbose=False)
 
     # check if the returned dictionary is appropriate
     assert ref_DL == test_DL
@@ -118,7 +121,8 @@ def test_read_SimCenter_DL_input_unknown_unit():
     
     with pytest.warns(UserWarning) as e_info:
         test_DL = read_SimCenter_DL_input(
-            'resources/test_DL_input_unknown_unit.json', verbose=False)
+            'resources/io testing/test/'
+            'test_DL_input_unknown_unit.json', verbose=False)
         
 def test_read_SimCenter_DL_input_injuries_only():
     """
@@ -127,14 +131,15 @@ def test_read_SimCenter_DL_input_injuries_only():
     """
 
     # load the reference results
-    with open('resources/ref_DL_input_injuries_only.json') as f:
+    with open('resources/io testing/ref/ref_DL_input_injuries_only.json') as f:
         ref_DL = json.load(f)
 
     # read the input file and check for at least one warning because the plan
     # area is not specified in the file 
     with pytest.warns(UserWarning) as e_info:
         test_DL = read_SimCenter_DL_input(
-            'resources/test_DL_input_injuries_only.json', verbose=False)
+            'resources/io testing/test/'
+            'test_DL_input_injuries_only.json', verbose=False)
 
     # check if the returned dictionary is appropriate
     assert ref_DL == test_DL
@@ -143,12 +148,14 @@ def test_read_SimCenter_DL_input_injuries_only():
     # other pieces of data are missing
     
     # load the reference results
-    with open('resources/ref_DL_input_injuries_missing_data.json') as f:
+    with open('resources/io testing/ref/'
+              'ref_DL_input_injuries_missing_data.json') as f:
         ref_DL = json.load(f)
     
     with pytest.warns(UserWarning) as e_info:
         test_DL = read_SimCenter_DL_input(
-            'resources/test_DL_input_injuries_missing_data.json', 
+            'resources/io testing/test/'
+            'test_DL_input_injuries_missing_data.json', 
             verbose=False)
 
     # check if the returned dictionary is appropriate
@@ -163,7 +170,8 @@ def test_read_SimCenter_DL_input_unknown_component_unit():
 
     with pytest.raises(ValueError) as e_info:
         test_DL = read_SimCenter_DL_input(
-            'resources/test_DL_input_unknown_comp_unit.json',
+            'resources/io testing/test/'
+            'test_DL_input_unknown_comp_unit.json',
             verbose=False)
         
 def test_read_SimCenter_DL_input_no_realizations():
@@ -174,7 +182,8 @@ def test_read_SimCenter_DL_input_no_realizations():
 
     with pytest.raises(ValueError) as e_info:
         test_DL = read_SimCenter_DL_input(
-            'resources/test_DL_input_no_realizations.json', verbose=False)
+            'resources/io testing/test/'
+            'test_DL_input_no_realizations.json', verbose=False)
               
 # -----------------------------------------------------------------------------
 # read_SimCenter_EDP_input
@@ -187,12 +196,12 @@ def test_read_SimCenter_EDP_input():
     structured format.
     """
     # load the reference results
-    with open('resources/ref_EDP_input.json') as f:
+    with open('resources/io testing/ref/ref_EDP_input.json') as f:
         ref_EDP = json.load(f)
 
     # read the input file 
     test_EDP = read_SimCenter_EDP_input(
-        'resources/test_EDP_input.csv',
+        'resources/io testing/test/test_EDP_input.csv',
         EDP_kinds=('PID', 'PFA', 'RD', 'PRD'),
         units = dict(PID=1., PFA=9.81, RD=1., PRD=0.2),
         verbose=False)
@@ -212,12 +221,12 @@ def test_read_population_distribution():
     """
 
     # load the reference results
-    with open('resources/ref_POP_data.json') as f:
+    with open('resources/io testing/ref/ref_POP_data.json') as f:
         ref_POP = json.load(f)
 
     # read the input file 
     test_POP = read_population_distribution(
-        'resources/test_POP_data.json',
+        'resources/io testing/test/test_POP_data.json',
         occupancy='Commercial Office', verbose=False)
 
     # check if the returned dictionary is appropriate
@@ -253,7 +262,7 @@ def test_read_component_DL_data():
         '../../resources/component DL/FEMA P58 first edition/', comp_info)
 
     # load the reference results
-    with open('resources/ref_CMP_B1071.011.json') as f:
+    with open('resources/io testing/ref/ref_CMP_B1071.011.json') as f:
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
@@ -280,7 +289,7 @@ def test_read_component_DL_data():
             comp_info)
 
     # load the reference results
-    with open('resources/ref_CMP_E2022.023.json') as f:
+    with open('resources/io testing/ref/ref_CMP_E2022.023.json') as f:
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
@@ -306,7 +315,7 @@ def test_read_component_DL_data():
         comp_info)
 
     # load the reference results
-    with open('resources/ref_CMP_D1014.011.json') as f:
+    with open('resources/io testing/ref/ref_CMP_D1014.011.json') as f:
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
@@ -332,7 +341,7 @@ def test_read_component_DL_data():
         comp_info)
 
     # load the reference results
-    with open('resources/ref_CMP_B1035.051.json') as f:
+    with open('resources/io testing/ref/ref_CMP_B1035.051.json') as f:
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate

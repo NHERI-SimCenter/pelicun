@@ -72,10 +72,10 @@ def test_FEMA_P58_Assessment_central_tendencies():
     """
 
     base_input_path = 'resources/'
-    DL_input = base_input_path + "DL_input_test.json"
-    EDP_input = base_input_path + "EDP_table_test.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
@@ -374,10 +374,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
     """
 
     base_input_path = 'resources/'
-    DL_input = base_input_path + "DL_input_test_2.json"
-    EDP_input = base_input_path + "EDP_table_test_2.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_2.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_2.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
@@ -661,10 +661,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     """
 
     base_input_path = 'resources/'
-    DL_input = base_input_path + "DL_input_test_3.json"
-    EDP_input = base_input_path + "EDP_table_test_3.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_3.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_3.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
@@ -960,10 +960,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_4.json"
-    EDP_input = base_input_path + "EDP_table_test_4.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_4.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_4.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
@@ -1251,10 +1251,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_5.json"
-    EDP_input = base_input_path + "EDP_table_test_5.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_5.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_5.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
@@ -1842,10 +1842,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_6.json"
-    EDP_input = base_input_path + "EDP_table_test_6.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_6.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_6.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
@@ -1963,10 +1963,10 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_7.json"
-    EDP_input = base_input_path + "EDP_table_test_7.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_7.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_7.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
@@ -2020,10 +2020,10 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_8.json"
-    EDP_input = base_input_path + "EDP_table_test_8.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test_det.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_8.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_8.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     A = FEMA_P58_Assessment()
 
@@ -2204,10 +2204,10 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_8.json"
-    EDP_input = base_input_path + "EDP_table_test_8.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test_det.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_8.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_8.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     for dep in ['FG', 'PG', 'DIR', 'LOC']:
 
@@ -2484,10 +2484,10 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_9.json"
-    EDP_input = base_input_path + "EDP_table_test_9.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test_det.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_9.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_9.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     for dep in ['IND', 'PG', 'DIR', 'LOC', 'ATC', 'CSG', 'DS']:
         #print(dep, end=' ')
@@ -3479,10 +3479,10 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
 
     base_input_path = 'resources/'
 
-    DL_input = base_input_path + "DL_input_test_10.json"
-    EDP_input = base_input_path + "EDP_table_test_10.out"
-    CMP_data = base_input_path
-    POP_data = base_input_path + "population_test_det.json"
+    DL_input = base_input_path + 'input data/' + "DL_input_test_10.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_10.out"
+    CMP_data = base_input_path + 'DL data/xml/'
+    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     dep_list = ['IND', 'FG', 'PG', 'DIR', 'LOC', 'DS']
 
