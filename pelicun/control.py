@@ -230,7 +230,7 @@ class FEMA_P58_Assessment(Assessment):
             ))
             #path_CMP_data = '../../resources/component DL/FEMA P58 first edition/'
             path_CMP_data = pelicun_path
-            path_CMP_data += '/resources/component DL/FEMA P58 first edition/'
+            path_CMP_data += '/resources/component DL/FEMA P58 first edition/xml/'
 
         if path_POP_data is None:
             warnings.warn(UserWarning(

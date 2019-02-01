@@ -259,7 +259,7 @@ def test_read_component_DL_data():
         
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/component DL/FEMA P58 first edition/', comp_info)
+        '../../resources/component DL/FEMA P58 first edition/xml/', comp_info)
 
     # load the reference results
     with open('resources/io testing/ref/ref_CMP_B1071.011.json') as f:
@@ -285,7 +285,7 @@ def test_read_component_DL_data():
     # read the component data
     with pytest.warns(UserWarning) as e_info:
         test_CMP = read_component_DL_data(
-            '../../resources/component DL/FEMA P58 first edition/', 
+            '../../resources/component DL/FEMA P58 first edition/xml/', 
             comp_info)
 
     # load the reference results
@@ -311,7 +311,7 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/component DL/FEMA P58 first edition/',
+        '../../resources/component DL/FEMA P58 first edition/xml/',
         comp_info)
 
     # load the reference results
@@ -337,7 +337,7 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/component DL/FEMA P58 first edition/',
+        '../../resources/component DL/FEMA P58 first edition/xml/',
         comp_info)
 
     # load the reference results

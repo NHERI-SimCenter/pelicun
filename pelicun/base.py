@@ -42,7 +42,14 @@ This module defines constants, basic classes and methods for pelicun.
 
 """
 
-import os
+# imports for Python 2.X support
+from __future__ import division, print_function
+import os, sys
+if sys.version.startswith('2'): 
+    range=xrange
+    string_types = basestring
+else:
+    string_types = str
 
 # get the absolute path of the pelicun directory
 pelicun_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

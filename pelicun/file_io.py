@@ -911,8 +911,6 @@ def convert_P58_data_to_json(data_dir, target_dir):
         except ValueError:
             return False
 
-    #data_dir = "C:/Adam/pelicun/resources/component DL/FEMA P58 first edition/"
-
     src_df = pd.read_excel(
         os.path.join(data_dir, 'FEMAP58ED1_fragility_data.xlsx'))
     ID_list = src_df['NISTIR Classification']
@@ -1070,7 +1068,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                         DSG['DamageStates'][-1].update({'DamageImageName': IMG})
 
                     AA = row['DS {} - Casualty Affected Area'.format(DS[-1])]
-                    if type(AA) == str and is_float(AA.split(' ')[0]):
+                    if (isinstance(AA, string_types) and (is_float(AA.split(' ')[0]))):
                         AA = AA.split(' ')
                         DSG['DamageStates'][-1].update(
                             {'AffectedArea': [int(AA[0]), AA[1]]})
