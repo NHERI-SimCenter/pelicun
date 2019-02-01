@@ -904,7 +904,10 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 s_f = float(s[:-1]) / 100.
             else:
                 s_f = float(s)
-            return True
+            if np.isnan(s_f):
+                return False
+            else:
+                return True
         except ValueError:
             return False
 
@@ -923,6 +926,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
         comp_ID = filename[:-4]
 
         try:
+        #if True:
             tree = ET.parse(os.path.join(data_dir, comp_ID + '.xml'))
             root = tree.getroot()
 
@@ -975,6 +979,9 @@ def convert_P58_data_to_json(data_dir, target_dir):
                     'Notes'      : row['Comments / Notes']
                 }
             })
+            for key in json_output['GeneralInformation'].keys():
+                if json_output['GeneralInformation'][key] is np.nan:
+                    json_output['GeneralInformation'][key] = 'Undefined'
 
             json_output.update({
                 'Ratings': {
@@ -984,6 +991,9 @@ def convert_P58_data_to_json(data_dir, target_dir):
                     'Rationality'  : row['Rationality'],
                 }
             })
+            for key in json_output['Ratings'].keys():
+                if json_output['Ratings'][key] is np.nan:
+                    json_output['Ratings'][key] = 'Undefined'
 
             DSH = decode_DS_Hierarchy(row['DS Hierarchy'])
 
@@ -1084,16 +1094,19 @@ def convert_P58_data_to_json(data_dir, target_dir):
                             'Beta'     : float(INJ_beta),
                             'CurveType': 'Normal',
                             'Bounds'   : [0., 1.]
-                        })
-                        need_INJ = True
-                        if (INJ_mu != 0) and (
-                            DSG['DamageStates'][-1]['AffectedArea'][0] == 0):
-                            incomplete = True
+                        })                        
+                        
+                        if INJ_mu != 0.0:
+                            need_INJ = True
+                            if DSG['DamageStates'][-1]['AffectedArea'][0] == 0:
+                                incomplete = True
                     else:
                         INJ0.update({'Amount'   : 
-                                         float(mu) if is_float(mu) else 'Undefined',
+                                         float(INJ_mu) if is_float(INJ_mu) 
+                                         else 'Undefined',
                                      'Beta'     : 
-                                         float(beta) if is_float(beta) else 'Undefined',
+                                         float(INJ_beta) if is_float(INJ_beta) 
+                                         else 'Undefined',
                                      'CurveType': 'Normal'})
                         if ((INJ0['Amount'] == 'Undefined') or 
                             (INJ0['Beta'] == 'Undefined')):
@@ -1109,16 +1122,18 @@ def convert_P58_data_to_json(data_dir, target_dir):
                             'Beta'     : float(INJ_beta),
                             'CurveType': 'Normal',
                             'Bounds'   : [0., 1.]
-                        })
-                        need_INJ = True
-                        if (INJ_mu != 0) and (
-                            DSG['DamageStates'][-1]['AffectedArea'][0] == 0):
-                            incomplete = True
+                        })                    
+                        if INJ_mu != 0.0:
+                            need_INJ = True
+                            if DSG['DamageStates'][-1]['AffectedArea'][0] == 0:
+                                incomplete = True
                     else:
                         INJ1.update({'Amount'   : 
-                                         float(mu) if is_float(mu) else 'Undefined',
+                                         float(INJ_mu) if is_float(INJ_mu) 
+                                         else 'Undefined',
                                      'Beta'     : 
-                                         float(beta) if is_float(beta) else 'Undefined',
+                                         float(INJ_beta) if is_float(INJ_beta) 
+                                         else 'Undefined',
                                      'CurveType': 'Normal', 
                                      'Bounds': [0., 1.]})
                         if ((INJ1['Amount'] == 'Undefined') or 
@@ -1137,11 +1152,15 @@ def convert_P58_data_to_json(data_dir, target_dir):
                             'CurveType': 'Normal',
                             'Bounds'   : [0., 1.]
                         })
-                        need_RT = True
+                        if RT['Amount'] != 0.0:
+                            need_RT = True
                     else:
                         RT.update({'Amount'   : 
-                                       float(RT_mu[:-1]) if is_float(RT_mu) else 'Undefined',
-                                   'Beta'     : float(RT_beta[:-1]) if is_float(RT_beta) else 'Undefined',
+                                       float(RT_mu[:-1]) if is_float(RT_mu) 
+                                       else 'Undefined',
+                                   'Beta'     : 
+                                       float(RT_beta[:-1]) if is_float(RT_beta) 
+                                       else 'Undefined',
                                    'CurveType': 'Normal', 
                                    'Bounds': [0., 1.]})
                         if ((RT['Amount'] == 'Undefined') or 

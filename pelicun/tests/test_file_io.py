@@ -44,7 +44,7 @@ This subpackage performs unit tests on the file_io module of pelicun.
 
 import pytest
 
-import os, sys, inspect
+import os, sys, inspect, shutil
 current_dir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
@@ -346,7 +346,44 @@ def test_read_component_DL_data():
 
     # check if the returned dictionary is appropriate
     assert test_CMP == ref_CMP
+
+# -----------------------------------------------------------------------------
+# read_component_DL_data
+# -----------------------------------------------------------------------------
+
+def test_convert_P58_data_to_json():
+    """
+    Test if the damage and loss data from the FEMA P58 project is properly
+    converted into the SimCenter JSON format using xml and xlsx files avialable
+    from ATC (the test uses a subset of the files).
+    """
     
+    data_dir = 'resources/io testing/P58 converter/source/'
+    ref_dir = 'resources/io testing/P58 converter/ref/'
+    test_dir = 'test/'
+    
+    try:
+        # convert the files in the data folder
+        os.mkdir(test_dir)
+        convert_P58_data_to_json(data_dir, test_dir)
+        
+        # collect the prepared reference files
+        ref_files = sorted(os.listdir(ref_dir))
+        
+        # collect the converted files
+        test_files = sorted(os.listdir(test_dir))
+        
+        # compare the reference files to the converted ones
+        for test, ref in zip(test_files, ref_files):
+            with open(os.path.join(test_dir,test),'r') as f_test:
+                with open(os.path.join(ref_dir,ref),'r') as f_ref:
+                    #print(test, ref)
+                    assert json.load(f_test) == json.load(f_ref)
+        
+    finally:
+        #pass
+        shutil.rmtree(test_dir)    
+   
 # -----------------------------------------------------------------------------
 # write_SimCenter_DL_output
 # -----------------------------------------------------------------------------
