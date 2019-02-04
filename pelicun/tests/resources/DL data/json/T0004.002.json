@@ -1,0 +1,116 @@
+{
+    "Name": "Made-up component to test loss assessment",
+    "QuantityUnit": [100, "SF"],
+    "Directional": false,
+    "Correlated": false,
+    "EDP": { 
+        "Type": "Story Drift Ratio",
+        "Unit": [1, "rad"],
+        "Offset": 0 
+    },
+    "GeneralInformation": {
+        "ID": "T0004.002",
+        "Description": "Costing per square unit (100 SF)",
+        "Incomplete": false
+    },
+    "DSGroups": [
+        {
+            "MedianEDP": 0.03,
+            "Beta": 0.40,
+            "CurveType": "LogNormal",
+            "DSGroupType": "Single",
+            "DamageStates": [
+                {
+                    "Description": "First DS",
+                    "Weight": 1.0,
+                    "AffectedArea": [50, "SF"],
+                    "Consequences": {
+                        "Injuries": [
+                            {
+                                "Amount": 0.5,
+                                "Beta": 0.34,
+                                "CurveType": "Normal",
+                                "Bounds": [0.0, 1.0]
+                            },
+                            {
+                                "Amount": 0.1,
+                                "Beta": 0.35,
+                                "CurveType": "Normal",
+                                "Bounds": [0.0, 1.0]
+                            }
+                        ],
+                        "RedTag": {
+                            "Amount": 0.50,
+                            "Beta": 0.33,
+                            "CurveType": "Normal",
+                            "Bounds": [0.0, 1.0]
+                        },
+                        "ReconstructionCost": {
+                            "Amount": [92.901, 92.9],
+                            "Quantity": [1.0764, 9.6878],
+                            "CurveType": "LogNormal",
+                            "Beta": 0.31,
+                            "Bounds": [0, "None"]
+                        },
+                        "ReconstructionTime": {
+                            "Amount": [0.092901, 0.0929],
+                            "Quantity": [1.0764, 9.6878],
+                            "CurveType": "LogNormal",
+                            "Beta": 0.32,
+                            "Bounds": [0, "None"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "MedianEDP": 0.06,
+            "Beta": 0.40,
+            "CurveType": "LogNormal",
+            "DSGroupType": "Single",
+            "DamageStates": [
+                {
+                    "Description": "Second DS",
+                    "Weight": 1.0,
+                    "AffectedArea": [100, "SF"],
+                    "Consequences": {
+                        "Injuries": [
+                            {
+                                "Amount": 0.6,
+                                "Beta": 0.74,
+                                "CurveType": "Normal",
+                                "Bounds": [0.0, 1.0]
+                            },
+                            {
+                                "Amount": 0.2,
+                                "Beta": 0.75,
+                                "CurveType": "Normal",
+                                "Bounds": [0.0, 1.0]
+                            }
+                        ],
+                        "RedTag": {
+                            "Amount": 0.23185,
+                            "Beta": 0.73,
+                            "CurveType": "Normal",
+                            "Bounds": [0.0, 1.0]
+                        },
+                        "ReconstructionCost": {
+                            "Amount": [9290.1, 9290.0],
+                            "Quantity": [1.0764, 9.6878],
+                            "CurveType": "Normal",
+                            "Beta": 0.71,
+                            "Bounds": [0, "None"]
+                        },
+                        "ReconstructionTime": {
+                            "Amount": [9.2901, 9.29],
+                            "Quantity": [1.0764, 9.6878],
+                            "CurveType": "Normal",
+                            "Beta": 0.72,
+                            "Bounds": [0, "None"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,6 +1,7 @@
 {
   "general": {
-    "stories": 2,
+    "plan_area": 100.0,
+    "stories": 3,
     "realizations": 20000,
     "collapse_limits": {
       "PFA": null,
@@ -16,8 +17,9 @@
     },
     "occupancy_type": "Multi-Unit Residential",
     "population": [
+      1.0,
       2.0,
-      2.0
+      0.0
     ]
   },
   "units": {
@@ -32,6 +34,8 @@
   "components": {
     "B1071.011": {
       "quantities": [
+        12.6,
+        12.6,
         12.6
       ],
       "csg_weights": [
@@ -54,7 +58,9 @@
         "SF"
       ],
       "locations": [
-        2
+        1, 
+        2,
+        3
       ]
     }
   },
@@ -66,6 +72,7 @@
         0.9
       ],
       "affected_area": [
+        1.0,
         1.0,
         1.0
       ]

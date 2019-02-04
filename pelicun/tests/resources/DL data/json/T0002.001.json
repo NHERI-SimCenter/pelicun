@@ -1,0 +1,67 @@
+{
+    "Name": "Made-up component to test loss assessment",
+    "QuantityUnit": [100, "SF"],
+    "Directional": false,
+    "Correlated": false,
+    "EDP": { 
+        "Type": "Story Drift Ratio",
+        "Unit": [1, "rad"],
+        "Offset": 0 
+    },
+    "GeneralInformation": {
+        "ID": "T0002.001",
+        "Description": "Costing per square unit (100 SF)",
+        "Incomplete": false
+    },
+    "DSGroups": [
+        {
+            "MedianEDP": 0.05488,
+            "Beta": 0.0001,
+            "CurveType": "LogNormal",
+            "DSGroupType": "Single",
+            "DamageStates": [
+                {
+                    "Description": "First DS",
+                    "Weight": 1.0,
+                    "AffectedArea": [50, "SF"],
+                    "Consequences": {
+                        "Injuries": [
+                            {
+                                "Amount": 0.5,
+                                "Beta": 0.0001,
+                                "CurveType": "Normal",
+                                "Bounds": [0.0, 1.0]
+                            },
+                            {
+                                "Amount": 0.1,
+                                "Beta": 0.0001,
+                                "CurveType": "Normal",
+                                "Bounds": [0.0, 1.0]
+                            }
+                        ],
+                        "RedTag": {
+                            "Amount": 0.75,
+                            "Beta": 0.0001,
+                            "CurveType": "Normal",
+                            "Bounds": [0.0, 1.0]
+                        },
+                        "ReconstructionCost": {
+                            "Amount": [836.1, 92.9],
+                            "Quantity": [1.0764, 9.6878],
+                            "CurveType": "LogNormal",
+                            "Beta": 0.0001,
+                            "Bounds": [0, "None"]
+                        },
+                        "ReconstructionTime": {
+                            "Amount": [0.8361, 0.0929],
+                            "Quantity": [1.0764, 9.6878],
+                            "CurveType": "LogNormal",
+                            "Beta": 0.0001,
+                            "Bounds": [0, "None"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

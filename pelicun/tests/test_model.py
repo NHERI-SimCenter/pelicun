@@ -661,15 +661,14 @@ def test_DamageState_injury_sampling():
 # ------------------------------------------------------------------------------
 # Damage State Group
 # ------------------------------------------------------------------------------
-def test_DamageStateGroup_description():
+def test_DamageStateGroup_kind():
     """
-    Test if the damage state group returns the assigned description. 
+    Test if the damage state group returns the assigned group type. 
     """
-    ref_str = 'Test description.'
-    DSG = DamageStateGroup(ID=1, description=ref_str,
-                           DS_set=None, DS_set_kind='single')
+    ref_kind = 'single'
+    DSG = DamageStateGroup(ID=1, DS_set=None, DS_set_kind=ref_kind)
 
-    assert DSG.description == ref_str
+    assert DSG._DS_set_kind == ref_kind
 
 # ------------------------------------------------------------------------------
 # Performance Group

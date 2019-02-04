@@ -144,8 +144,24 @@ def test_read_SimCenter_DL_input_injuries_only():
     # check if the returned dictionary is appropriate
     assert ref_DL == test_DL
     
-    # now test if warnings are shown if the plan area is in the file, but 
-    # other pieces of data are missing
+    # now test if warnings are shown if the plan area is in the file, but the
+    # population is only specified for the first two stories
+
+    # load the reference results
+    with open('resources/io testing/ref/'
+              'ref_DL_input_injuries_missing_pop.json') as f:
+        ref_DL = json.load(f)
+
+    with pytest.warns(UserWarning) as e_info:
+        test_DL = read_SimCenter_DL_input(
+            'resources/io testing/test/'
+            'test_DL_input_injuries_missing_pop.json',
+            verbose=False)
+
+    # check if the returned dictionary is appropriate
+    assert ref_DL == test_DL
+    
+    # now test if warnings are shown if other pieces of data are missing
     
     # load the reference results
     with open('resources/io testing/ref/'
@@ -242,10 +258,10 @@ def test_read_component_DL_data():
     Use a series of tests to see if certain component features trigger proper
     warnings or errors.
     """
-    
+
     # basic case with a typical component
     comp_info = {
-        "B1071.011" : {
+        "B1071.011": {
             "quantities"  : [1.0, 1.0],
             "csg_weights" : [0.5, 0.5],
             "dirs"        : [0, 1],
@@ -256,40 +272,42 @@ def test_read_component_DL_data():
             "locations"   : [2, 3]
         },
     }
-        
+
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/component DL/FEMA P58 first edition/xml/', comp_info)
+        '../../resources/component DL/FEMA P58 first edition/json/',
+        comp_info)
 
     # load the reference results
-    with open('resources/io testing/ref/ref_CMP_B1071.011.json') as f:
+    with open('resources/io testing/ref/ref_CMP_B1071.011.json',
+              'r') as f:
         ref_CMP = json.load(f)
 
-    # check if the returned dictionary is appropriate
+        # check if the returned dictionary is appropriate
     assert test_CMP == ref_CMP
 
     # acceleration-sensitive component with injuries
     comp_info = {
-        "E2022.023": {
+        "C3032.001a": {
             "quantities"  : [1.0],
             "csg_weights" : [0.1, 0.2, 0.3, 0.4],
             "dirs"        : [0, 1, 1, 0],
             "kind"        : "non-structural",
             "distribution": "normal",
             "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
+            "unit"        : [250.0, "SF"],
             "locations"   : [1]
         },
     }
 
     # read the component data
-    with pytest.warns(UserWarning) as e_info:
-        test_CMP = read_component_DL_data(
-            '../../resources/component DL/FEMA P58 first edition/xml/', 
-            comp_info)
+    test_CMP = read_component_DL_data(
+        '../../resources/component DL/FEMA P58 first edition/json/',
+        comp_info)
 
     # load the reference results
-    with open('resources/io testing/ref/ref_CMP_E2022.023.json') as f:
+    with open('resources/io testing/ref/ref_CMP_C3032.001a.json',
+              'r') as f:
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
@@ -311,11 +329,12 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/component DL/FEMA P58 first edition/xml/',
+        '../../resources/component DL/FEMA P58 first edition/json/',
         comp_info)
 
     # load the reference results
-    with open('resources/io testing/ref/ref_CMP_D1014.011.json') as f:
+    with open('resources/io testing/ref/ref_CMP_D1014.011.json',
+              'r') as f:
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
@@ -337,15 +356,60 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/component DL/FEMA P58 first edition/xml/',
+        '../../resources/component DL/FEMA P58 first edition/json/',
         comp_info)
 
     # load the reference results
-    with open('resources/io testing/ref/ref_CMP_B1035.051.json') as f:
+    with open('resources/io testing/ref/ref_CMP_B1035.051.json',
+              'r') as f:
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
     assert test_CMP == ref_CMP
+
+    # an incomplete component shall not get parsed and shall produce a warning
+    comp_info = {
+        "E2022.023": {
+            "quantities"  : [1.0],
+            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
+            "dirs"        : [0, 1, 1, 0],
+            "kind"        : "non-structural",
+            "distribution": "normal",
+            "cov"         : 1.0,
+            "unit"        : [1.0, "ea"],
+            "locations"   : [1]
+        },
+    }
+
+    # read the component data
+    with pytest.warns(UserWarning) as e_info:
+        test_CMP = read_component_DL_data(
+            '../../resources/component DL/FEMA P58 first edition/json/',
+            comp_info)
+
+    assert test_CMP == {}
+
+    # a component with unknown EDP shall not get parsed and shall produce a warning
+    comp_info = {
+        "B1042.001a": {
+            "quantities"  : [1.0],
+            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
+            "dirs"        : [0, 1, 1, 0],
+            "kind"        : "structural",
+            "distribution": "normal",
+            "cov"         : 1.0,
+            "unit"        : [1.0, "ea"],
+            "locations"   : [1]
+        },
+    }
+
+    # read the component data
+    with pytest.warns(UserWarning) as e_info:
+        test_CMP = read_component_DL_data(
+            '../../resources/component DL/FEMA P58 first edition/json/',
+            comp_info)
+
+    assert test_CMP == {}
 
 # -----------------------------------------------------------------------------
 # read_component_DL_data

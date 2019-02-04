@@ -1,6 +1,7 @@
 {
-    "GeneralInformation": { 
-        "stories": 2,       
+    "GeneralInformation": {        
+        "planArea": 100.0,
+        "stories": 3,
         "units": {
             "force": "N",
             "length": "m",
@@ -23,7 +24,7 @@
         },
         "CollapseModes": [
             {
-                "affected_area": "1.0, 1.0",
+                "affected_area": "1.0, 1.0, 1.0",
                 "injuries": "0.1, 0.9",
                 "name": "complete",
                 "w": "0.2"
@@ -36,7 +37,7 @@
                 "directions": "0, 0, 1, 1",
                 "distribution": "normal",
                 "name": "light framed wood walls",
-                "quantity": "0.0, 12.6",
+                "quantity": "12.6, 12.6, 12.6",
                 "structural": true,
                 "unit_size": "100",
                 "unit_type": "SF",
@@ -51,7 +52,7 @@
         },
         "Inhabitants": {
             "OccupancyType": "Multi-Unit Residential",
-            "PeakPopulation": "2"
+            "PeakPopulation": "1, 2"
         },
         "LossModelDependencies": {
             "Fragilities": "per ATC recommendation",
