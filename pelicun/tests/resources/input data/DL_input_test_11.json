@@ -1,0 +1,66 @@
+{
+    "GeneralInformation": {
+        "planArea": 100.0,
+        "stories": 2,
+        "units": {
+            "force": "N",
+            "length": "m",
+            "temperature": "C",
+            "time": "sec"
+        }
+    },
+    "LossModel": {
+        "BuildingDamage": {
+            "CollapseLimits": {
+                "PID": "0.10"
+            },
+            "IrrepairableResidualDrift": {
+                "Median": "10.",
+                "Sig": "0.0001"
+            },
+            "ReplacementCost": "30000000",
+            "ReplacementTime": "30000"
+        },   
+        "CollapseModes": [
+            {
+                "affected_area": "1.0",
+                "injuries": "0.1, 0.9",
+                "name": "complete",
+                "w": "1.0"
+            }
+        ],
+        "Components": [
+            {
+                "ID": "T0004.001b",
+                "cov": "0.0001",
+                "directions": "1, 2, 1, 2, 1, 2, 1, 2",
+                "distribution": "normal",
+                "name": "drift sensitive test comp 1",
+                "quantity": "5.3821, 5.3821",
+                "structural": true,
+                "unit_size": "100",
+                "unit_type": "SF",
+                "weights": "0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125"
+            },
+            {
+                "ID": "T0004.002",
+                "cov": "0.0001",
+                "directions": "1, 2, 1, 2, 1, 2, 1, 2",
+                "distribution": "normal",
+                "name": "drift sensitive test comp 2",
+                "quantity": "5.3821, 5.3821",
+                "structural": true,
+                "unit_size": "100",
+                "unit_type": "SF",
+                "weights": "0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125"
+            }
+        ],        
+        "Inhabitants": {
+            "OccupancyType": "Hospitality",
+            "PeakPopulation": "10, 10"
+        },
+        "UncertaintyQuantification": {            
+            "Realizations": "10000"
+        }
+    }
+}

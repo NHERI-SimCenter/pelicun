@@ -1,0 +1,154 @@
+{
+  "C3032.001a": {
+    "ID": "C3032.001a",
+    "name": "Suspended Ceiling, SDC A,B, Area (A): A < 250, Vert support only",
+    "description": "Costing for each 250 SF Unit, Suspended Lay-in Acoustic Tile Ceiling, Support:  Vertical hanging wires only",
+    "kind": "non-structural",
+    "demand_type": "PFA",
+    "directional": 0,
+    "correlation": 0,
+    "offset": 1,
+    "incomplete": 0,
+    "locations": [
+      1
+    ],
+    "quantities": [
+      23.225759999999994
+    ],
+    "csg_weights": [
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "dir_weights": [
+      0.5,
+      0.5
+    ],
+    "directions": [
+      0,
+      1,
+      1,
+      0
+    ],
+    "distribution_kind": "normal",
+    "cov": 1.0,
+    "unit": 23.225759999999994,
+    "DSG_set": {
+      "DSG-1": {
+        "theta": 8.825985,
+        "sig": 0.4,
+        "DS_set_kind": "single",
+        "DS_set": {
+          "DS-1": {
+            "description": "5 % of tiles dislodge and fall.",
+            "weight": 1.0,
+            "repair_cost": {
+              "median_max": 20.289971135497833,
+              "median_min": 14.046903093806192,
+              "quantity_lower": 23.225759999999994,
+              "quantity_upper": 232.25759999999994,
+              "distribution_kind": "normal",
+              "cov": 0.5508
+            },
+            "repair_time": {
+              "median_max": 0.06851013702027406,
+              "median_min": 0.04892412562602905,
+              "quantity_lower": 23.225759999999994,
+              "quantity_upper": 232.25759999999994,
+              "distribution_kind": "normal",
+              "cov": 0.5852
+            },
+            "injuries": {
+              "theta": [
+                0.0,
+                0.0
+              ],
+              "cov": [
+                0.0,
+                0.0
+              ]
+            },
+            "affected_area": 0.0
+          }
+        }
+      },
+      "DSG-2": {
+        "theta": 14.709975,
+        "sig": 0.4,
+        "DS_set_kind": "single",
+        "DS_set": {
+          "DS-1": {
+            "description": "30% of tiles dislodge and fall and t-bar grid damaged.",
+            "weight": 1.0,
+            "repair_cost": {
+              "median_max": 158.821498198552,
+              "median_min": 109.95334490668984,
+              "quantity_lower": 23.225759999999994,
+              "quantity_upper": 232.25759999999994,
+              "distribution_kind": "lognormal",
+              "cov": 0.5183
+            },
+            "repair_time": {
+              "median_max": 0.5024851716370101,
+              "median_min": 0.3491726427897301,
+              "quantity_lower": 23.225759999999994,
+              "quantity_upper": 232.25759999999994,
+              "distribution_kind": "lognormal",
+              "cov": 0.5127
+            },
+            "injuries": {
+              "theta": [
+                0.0,
+                0.0
+              ],
+              "cov": [
+                0.0,
+                0.0
+              ]
+            },
+            "affected_area": 0.0
+          }
+        }
+      },
+      "DSG-3": {
+        "theta": 21.57463,
+        "sig": 0.4,
+        "DS_set_kind": "single",
+        "DS_set": {
+          "DS-1": {
+            "description": "Total ceiling collapse.",
+            "weight": 1.0,
+            "repair_cost": {
+              "median_max": 326.7385006992237,
+              "median_min": 226.20357740715488,
+              "quantity_lower": 23.225759999999994,
+              "quantity_upper": 232.25759999999994,
+              "distribution_kind": "lognormal",
+              "cov": 0.2026
+            },
+            "repair_time": {
+              "median_max": 1.0223174613015895,
+              "median_min": 0.7069133582711612,
+              "quantity_lower": 23.225759999999994,
+              "quantity_upper": 232.25759999999994,
+              "distribution_kind": "lognormal",
+              "cov": 0.2034
+            },
+            "injuries": {
+              "theta": [
+                0.1,
+                0.0
+              ],
+              "cov": [
+                0.5,
+                0.0
+              ]
+            },
+            "affected_area": 1.0
+          }
+        }
+      }
+    }
+  }
+}

@@ -37,17 +37,9 @@
 # Contributors:
 # Adam Zsarnóczay
 
-# imports for Python 2.X support
-from __future__ import division, print_function
-import sys
-if sys.version.startswith('2'): 
-    range=xrange
-else:
-    pass
-
 name = "pelicun"
 
-__version__ = '1.0.0'
+__version__ = '1.0.5'
 
 __copyright__ = """Copyright (c) 2018 Leland Stanford Junior University and 
 The Regents of the University of California"""

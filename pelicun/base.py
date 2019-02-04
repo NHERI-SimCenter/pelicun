@@ -42,47 +42,109 @@ This module defines constants, basic classes and methods for pelicun.
 
 """
 
-import os
+# imports for Python 2.X support
+from __future__ import division, print_function
+import os, sys
+if sys.version.startswith('2'): 
+    range=xrange
+    string_types = basestring
+else:
+    string_types = str
 
 # get the absolute path of the pelicun directory
 pelicun_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Constants for unit conversion
-N = 1.
-kN = 1e3
-kips = 4448.22
 
-MPa = 1e6
-GPa = 1e9
+# time
+sec = 1.
 
-g = 9.80665
+minute = 60. * sec
+h = 60. * minute
+day = 24. * h
 
-mm = 0.001
-mm2 = mm**2.
+sec2 = sec**2.
 
-cm = 0.01
-cm2 = cm**2.
-
+# distance, area, volume
 m = 1.
-m2 = 1.
-m3 = 1.
 
-km = 1000.
-km2 = km**2.
+mm = 0.001 * m
+cm = 0.01 * m
+km = 1000. * m
 
 inch = 0.0254
-inch2 = inch**2.
-
 ft = 12. * inch
-ft2 = ft**2.
-
 mile = 5280. * ft
-mile2 = mile**2.  
+ 
+# area
+m2 = m**2.
 
-SF = ft2
-LF = ft
+mm2 = mm**2.
+cm2 = cm**2.
+km2 = km**2.
+
+inch2 = inch**2.
+ft2 = ft**2.
+mile2 = mile**2.
+
+# volume
+m3 = m**3.
+
+ft3 = ft**3.
+
+# velocity
+mps = m / sec
+
+# acceleration
+mps2 = m / sec2
+
+g = 9.80665 * mps2
+
+# mass
+kg = 1.
+
+ton = 1000. * kg
+
+lb = 0.453592 * kg
+
+# force
+N = kg * m / sec2
+
+kN = 1e3 * N
+
+lbf = lb * g
+kip = 1000. * lbf
+kips = kip
+
+# pressure / stress
+Pa = N / m2
+
+kPa = 1e3 * Pa
+MPa = 1e6 * Pa
+GPa = 1e9 * Pa
+
+psi = lbf / inch2
+ksi = 1e3 * psi
+Mpsi = 1e6 * psi
+
+# misc
+A = 1.
+
+V = 1.
+kV = 1000. * V
+
 ea = 1.
+
+rad = 1.
 
 C = 1.
 
-sec = 1.
+# FEMA P58 specific
+#TODO: work around these and make them available only in the parser methods
+SF = ft2
+LF = ft
+TN = ton
+AP = A
+CF = ft3 / minute
+KV = kV * A
+

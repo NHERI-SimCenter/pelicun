@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>5492429e-c73c-4a69-a553-531f1168b5e6</UniqueID>
+  <ID>B1033.071a</ID>
+  <Description>Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Braced frame, design for factored loads, no additional seismic detailing, Chevron Brace, Brace w &lt; 40 PLF</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Average</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:41.4105683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3…  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Fracture of brace or gusset.  Buckling of gusset.  Substantial loss of lateral resistance.  </Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace and gusset are severely damaged with significant loss in stiffness and resistance, and both likely require replacement.  Yielding and local buckling of beams and columns may be repaired by heat straightening, stiffeners or reinforcement, if there is no cracking or tearing.  If cracking or tearing has initiated more substantial repair is needed.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.2</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>43294.1943</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>28862.7962</MinAmount>
+          <Uncertainty>0.3278</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>122.2437</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>81.4963</MinAmount>
+          <Uncertainty>0.3278</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0042</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

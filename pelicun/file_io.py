@@ -594,28 +594,30 @@ def read_population_distribution(path_POP, occupancy, verbose=False):
     # convert peak population to persons/m2
     data['peak'] = data['peak'] / (1000. * ft2)
 
-    if verbose:
+    if verbose: # pragma: no cover
         pp.pprint(data)
 
     return data
 
+
 def read_component_DL_data(path_CMP, comp_info, verbose=False):
     """
     Read the damage and loss data for the components of the asset.
-    
-    DL data for each component is assumed to be stored in an xml file. The name
-    of the file is the ID (key) of the component in the comp_info dictionary.
-    Besides the filename, the comp_info dictionary is also used to get other
-    pieces of data about the component that is not available in the xml files.
-    Therefore, the following attributes need to be provided in the comp_info:
-    ['quantities', 'csg_weights', 'dirs', 'kind', 'distribution', 'cov', 
-    'unit', 'locations'] Further information about these attributes is 
-    available in the Input section of the documentation.
-    
+
+    DL data for each component is assumed to be stored in a JSON file following 
+    the DL file format specified by SimCenter. The name of the file is the ID 
+    (key) of the component in the comp_info dictionary. Besides the filename, 
+    the comp_info dictionary is also used to get other pieces of data about the 
+    component that is not available in the JSON files. Therefore, the following 
+    attributes need to be provided in the comp_info: ['quantities', 
+    'csg_weights', 'dirs', 'kind', 'distribution', 'cov', 'unit', 'locations'] 
+    Further information about these attributes is available in the Input 
+    section of the documentation.
+
     Parameters
     ----------
     path_CMP: string
-        Location of the folder that contains the component data in xml files.
+        Location of the folder that contains the component data in JSON files.
     comp_info: dict
         Dictionary with additional information about the components.
     verbose: boolean
@@ -629,75 +631,6 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         A dictionary with damage and loss data for each component.
 
     """
-    def parse_DS_xml(DS_xml):
-
-        CFG = DS_xml.find('ConsequenceGroup')
-        CFG_C = CFG.find('CostConsequence')
-        CFG_T = CFG.find('TimeConsequence')
-
-        if DS_xml.find('Percent') is not None:
-            weight = float(DS_xml.find('Percent').text)
-        else:
-            weight = 1.0
-
-        data = dict(
-            description=DS_xml.find('Description').text,
-            weight=weight,
-            repair_cost=dict(
-                median_max=float(CFG_C.find('MaxAmount').text),
-                median_min=float(CFG_C.find('MinAmount').text),
-                quantity_lower=float(CFG_C.find('LowerQuantity').text),
-                quantity_upper=float(CFG_C.find('UpperQuantity').text),
-                distribution_kind=curve_type[CFG_C.find('CurveType').text],
-                cov=float(CFG_C.find('Uncertainty').text),
-            ),
-            repair_time=dict(
-                median_max=float(CFG_T.find('MaxAmount').text),
-                median_min=float(CFG_T.find('MinAmount').text),
-                quantity_lower=float(CFG_T.find('LowerQuantity').text),
-                quantity_upper=float(CFG_T.find('UpperQuantity').text),
-                distribution_kind=curve_type[CFG_T.find('CurveType').text],
-                cov=float(CFG_T.find('Uncertainty').text),
-            ),
-            red_tag=dict(
-                theta=float(CFG.find('RedTagMedian').text),
-                cov=float(CFG.find('RedTagBeta').text),
-            ),
-            injuries=dict(
-                theta=[float(CFG.find('AffectedInjuryRate').text),
-                       float(CFG.find('AffectedDeathRate').text)],
-                cov=[float(CFG.find('AffectedInjuryRateBeta').text),
-                     float(CFG.find('AffectedDeathRateBeta').text)]
-            )
-        )
-
-        # if there is a chance of injuries, load the affected floor area
-        if data['injuries']['theta'][0] > 0.:
-            CFG_A = CFG.find('AffectedFloorArea').find('Area')
-            unit = CFG_A.find('Unit').text
-            if unit == 'Square Foot':
-                affected_area = float(CFG_A.find('Value').text) * SF
-            else:
-                warnings.warn(UserWarning(
-                    'Unknown unit for affected floor area: {}'.format(unit)))
-                affected_area = 0.
-            data.update({'affected_area': affected_area})
-        else:
-            data.update({'affected_area': 0.})
-
-        # convert the units to standard ones
-        data['repair_cost']['quantity_lower'] *= c_data['unit']
-        data['repair_cost']['quantity_upper'] *= c_data['unit']
-        data['repair_time']['quantity_lower'] *= c_data['unit']
-        data['repair_time']['quantity_upper'] *= c_data['unit']
-
-        data['repair_cost']['median_min'] /= c_data['unit']
-        data['repair_cost']['median_max'] /= c_data['unit']
-        data['repair_time']['median_min'] /= c_data['unit']
-        data['repair_time']['median_max'] /= c_data['unit']
-        data['affected_area'] /= c_data['unit']
-
-        return data
 
     data = dict([(c_id, dict([(key, None) for key in [
         'ID',
@@ -725,7 +658,28 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
     for c_id in s_cmp_keys:
         c_data = data[c_id]
 
-        # first, get the parameters from the BIM component info
+        # parse the json file
+        with open(os.path.join(path_CMP, c_id + '.json'), 'r') as f:
+            DL_data = json.load(f)
+
+        DL_GI = DL_data['GeneralInformation']
+        DL_EDP = DL_data['EDP']
+        DL_DSG = DL_data['DSGroups']
+
+        # First, check if the DL data is complete. Incomplete data can lead to 
+        # all kinds of problems, so in such a case we display a warning and do 
+        # not use the component. This can be relaxed later if someone creates a 
+        # method to replace unknown values with reasonable estimates.
+        c_data['incomplete'] = int(DL_GI['Incomplete'])
+        if c_data['incomplete']:
+            # show warning            
+            del data[c_id]
+            warnings.warn(UserWarning(
+                'Fragility information for {} is incomplete. The component '
+                'cannot be used for loss assessment.'.format(c_id)))
+            continue
+
+        # Get the parameters from the BIM component info
         ci_data = comp_info[c_id]
         c_data['kind'] = ci_data['kind']
         c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
@@ -735,39 +689,27 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         c_data['csg_weights'] = ci_data['csg_weights']
         c_data['directions'] = ci_data['dirs']
         c_data['locations'] = ci_data['locations']
-        c_data['cov'] = ci_data['cov']        
+        c_data['cov'] = ci_data['cov']
 
         # calculate the quantity weights in each direction
-        dirs = np.asarray(c_data['directions'], dtype=np.int)        
+        dirs = np.asarray(c_data['directions'], dtype=np.int)
         u_dirs = np.unique(dirs)
         weights = np.asarray(c_data['csg_weights'])
-        c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)]) 
+        c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)])
                                  for d_i in u_dirs]
 
-        # parse the xml file
-        # TODO: replace the xml with a json
-        tree = ET.parse(path_CMP + c_id + '.xml')
-        root = tree.getroot()
+        c_data['ID'] = c_id
+        c_data['name'] = DL_data['Name']
+        c_data['description'] = DL_GI['Description']
+        c_data['offset'] = DL_EDP['Offset']
+        c_data['correlation'] = int(DL_data['Correlated'])
+        c_data['directional'] = int(DL_data['Directional'])
 
-        c_data['ID'] = c_id #root.find('ID').text
-        c_data['name'] = root.find('Name').text
-        c_data['description'] = root.find('Description').text
-        c_data['offset'] = int(strtobool(
-            root.find('UseEDPValueOfFloorAbove').text))
-        c_data['correlation'] = strtobool(root.find('Correlation').text)
-        c_data['directional'] = strtobool(root.find('Directional').text)
-        c_data['incomplete'] = strtobool(root.find('Incomplete').text)
-
-        if c_data['incomplete']:
-            warnings.warn(UserWarning(
-                'Fragility information for {} is incomplete'.format(c_id)))
-
-        EDP = root.find('EDPType')
-        EDP_type = EDP.find('TypeName').text
+        EDP_type = DL_EDP['Type']
         demand_factor = 1.0
         if EDP_type == 'Story Drift Ratio':
             demand_type = 'PID'
-        elif EDP_type == 'Acceleration':
+        elif EDP_type == 'Peak Floor Acceleration':
             demand_type = 'PFA'
             demand_factor = g
         elif EDP_type in [
@@ -778,60 +720,500 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
             warnings.warn(UserWarning(
                 'Component {} requires {} as EDP, which is not yet '
                 'implemented.'.format(c_data['ID'], EDP_type)))
-        else:
+        else: # pragma: no cover
             demand_type = None
             warnings.warn(UserWarning(
                 'Unexpected EDP type: {}'.format(EDP_type)))
+        if demand_type is None:
+            del data[c_id]
+            continue
         c_data['demand_type'] = demand_type
 
-        # dictionary to convert xml to internal
+        # dictionary to convert DL data to internal representation
         curve_type = {'LogNormal': 'lognormal',
                       'Normal'   : 'normal'}
         DS_set_kind = {'MutuallyExclusive' : 'mutually exclusive',
                        'mutually exclusive': 'mutually exclusive',
                        'simultaneous'      : 'simultaneous',
                        'Simultaneous'      : 'simultaneous',
-                       'single'            : 'single'}
+                       'single'            : 'single',
+                       'Single'            : 'single'}
 
-        # load the damage state group information        
+        # load the damage state group information
         c_data['DSG_set'] = dict()
-        DSGs = root.find('DamageStates').findall('DamageState')
-        for DSG_i, DSG_xml in enumerate(DSGs):
+        for DSG_id, DSG_i in enumerate(DL_DSG):
             DSG_data = dict(
-                theta=float(DSG_xml.find('Median').text) * demand_factor,
-                sig=float(DSG_xml.find('Beta').text),
-                description=DSG_xml.find('Description').text,
+                theta=DSG_i['MedianEDP'] * demand_factor,
+                sig=DSG_i['Beta'],
+                DS_set_kind=DS_set_kind[DSG_i['DSGroupType']],
+                # distribution_kind = curve_type[DSG_i['CurveType']],
+                DS_set={}
             )
 
-            if DSG_xml.find('DamageStates') is not None:
-                # the group contains multiple damage states                
-                DS_xml = DSG_xml.find('DamageStates')
-                DSG_data.update({'DS_set_kind':
-                                     DS_set_kind[
-                                         DS_xml.find('DSGroupType').text]})
-                DSG_data.update(dict(DS_set=dict()))
+            for DS_id, DS_i in enumerate(DSG_i['DamageStates']):
+                DS_data = {'description': DS_i['Description'],
+                           'weight'     : DS_i['Weight']}
 
-                for DS_i, DS_xml in enumerate(
-                    DS_xml.findall('DamageState')):
-                    DS = parse_DS_xml(DS_xml)
-                    DSG_data['DS_set'].update({'DS-' + str(DS_i + 1): DS})
+                DS_C = DS_i['Consequences']
+                if 'ReconstructionCost' in DS_C.keys():
+                    DS_CC = DS_C['ReconstructionCost']
+                    DS_data.update({'repair_cost': {
+                        'median_max'       : DS_CC['Amount'][0],
+                        'median_min'       : DS_CC['Amount'][1],
+                        'quantity_lower'   : DS_CC['Quantity'][0],
+                        'quantity_upper'   : DS_CC['Quantity'][1],
+                        'distribution_kind': curve_type[DS_CC['CurveType']],
+                        'cov'              : DS_CC['Beta'],
+                    }})
 
-            else:
-                # the group contains only one damage state
-                DSG_data.update({'DS_set_kind': 'single'})
-                DSG_data.update(dict(DS_set=dict()))
+                    # convert the units to standard ones
+                    DS_data['repair_cost']['quantity_lower'] *= c_data['unit']
+                    DS_data['repair_cost']['quantity_upper'] *= c_data['unit']
+                    DS_data['repair_cost']['median_min'] /= c_data['unit']
+                    DS_data['repair_cost']['median_max'] /= c_data['unit']
 
-                DS = parse_DS_xml(DSG_xml)
-                DSG_data['DS_set'].update({'DS-1': DS})
+                if 'ReconstructionTime' in DS_C.keys():
+                    DS_CT = DS_C['ReconstructionTime']
+                    DS_data.update({'repair_time': {
+                        'median_max'       : DS_CT['Amount'][0],
+                        'median_min'       : DS_CT['Amount'][1],
+                        'quantity_lower'   : DS_CT['Quantity'][0],
+                        'quantity_upper'   : DS_CT['Quantity'][1],
+                        'distribution_kind': curve_type[DS_CT['CurveType']],
+                        'cov'              : DS_CT['Beta'],
+                    }})
 
-            c_data['DSG_set'].update({'DSG-' + str(DSG_i + 1): DSG_data})
+                    # convert the units to standard ones
+                    DS_data['repair_time']['quantity_lower'] *= c_data['unit']
+                    DS_data['repair_time']['quantity_upper'] *= c_data['unit']
+                    DS_data['repair_time']['median_min'] /= c_data['unit']
+                    DS_data['repair_time']['median_max'] /= c_data['unit']
 
-    if verbose:
+                if 'RedTag' in DS_C.keys():
+                    DS_CR = DS_C['RedTag']
+                    DS_data.update({'red_tag': {
+                        'theta': DS_CR['Amount'],
+                        # 'distribution_kind': curve_type[DS_CR['CurveType']],
+                        'cov'  : DS_CR['Beta'],
+                    }})
+
+                if 'Injuries' in DS_C.keys():
+                    DS_CI = DS_C['Injuries']
+                    DS_data.update({'injuries': {
+                        'theta': [I_i['Amount'] for I_i in DS_CI],
+                        # 'distribution_kind': curve_type[DS_CR['CurveType']],
+                        'cov'  : [I_i['Beta'] for I_i in DS_CI],
+                    }})
+
+                    # if there is a chance of injuries, load the affected floor area
+                    affected_area, unit = DS_i['AffectedArea']
+                    if unit == 'SF':
+                        affected_area = affected_area * SF
+                    else: # pragma: no cover
+                        warnings.warn(UserWarning(
+                            'Unknown unit for affected floor area: {}'.format(
+                                unit)))
+                        affected_area = 0.
+                    DS_data.update({'affected_area': affected_area})
+
+                    # convert the units to standard ones
+                    DS_data['affected_area'] /= c_data['unit']
+
+                DSG_data['DS_set'].update({'DS-' + str(DS_id + 1): DS_data})
+
+            c_data['DSG_set'].update({'DSG-' + str(DSG_id + 1): DSG_data})
+
+    if verbose: # pragma: no cover
         for c_id, c_data in data.items():
             print(c_id)
             pp.pprint(c_data)
 
     return data
+
+def convert_P58_data_to_json(data_dir, target_dir):
+    
+    convert_unit = {
+        'Unit less': 'ea',
+        'Radians'  : 'rad',
+        'g'        : 'g',
+        'meter/sec': 'mps'
+    }
+
+    convert_DSG_type = {
+        'MutEx': 'MutuallyExclusive',
+        'Simul': 'Simultaneous'
+    }
+
+    def decode_DS_Hierarchy(DSH):
+
+        if 'Seq' == DSH[:3]:
+            DSH = DSH[4:-1]
+
+        DS_setup = []
+
+        while len(DSH) > 0:
+            if DSH[:2] == 'DS':
+                DS_setup.append(DSH[:3])
+                DSH = DSH[4:]
+            elif DSH[:5] in ['MutEx', 'Simul']:
+                closing_pos = DSH.find(')')
+                subDSH = DSH[:closing_pos + 1]
+                DSH = DSH[closing_pos + 2:]
+
+                DS_setup.append([subDSH[:5]] + subDSH[6:-1].split(','))
+
+        return DS_setup
+
+    def parse_DS_xml(DS_xml):
+        CFG = DS_xml.find('ConsequenceGroup')
+        CFG_C = CFG.find('CostConsequence')
+        CFG_T = CFG.find('TimeConsequence')
+
+        repair_cost = dict(
+            Amount=[float(CFG_C.find('MaxAmount').text),
+                    float(CFG_C.find('MinAmount').text)],
+            Quantity=[float(CFG_C.find('LowerQuantity').text),
+                      float(CFG_C.find('UpperQuantity').text)],
+            CurveType=CFG_C.find('CurveType').text,
+            Beta=float(CFG_C.find('Uncertainty').text),
+            Bounds=[0, 'None']
+        )
+        if repair_cost['Amount'] == [0.0, 0.0]:
+            repair_cost['Amount'] = 'Undefined'
+
+        repair_time = dict(
+            Amount=[float(CFG_T.find('MaxAmount').text),
+                    float(CFG_T.find('MinAmount').text)],
+            Quantity=[float(CFG_T.find('LowerQuantity').text),
+                      float(CFG_T.find('UpperQuantity').text)],
+            CurveType=CFG_T.find('CurveType').text,
+            Beta=float(CFG_T.find('Uncertainty').text),
+            Bounds=[0, 'None']
+        )
+        if repair_time['Amount'] == [0.0, 0.0]:
+            repair_time['Amount'] = 'Undefined'
+
+        return repair_cost, repair_time
+
+    def is_float(s):
+        try:
+            if type(s) == str and s[-1] == '%':
+                s_f = float(s[:-1]) / 100.
+            else:
+                s_f = float(s)
+            if np.isnan(s_f):
+                return False
+            else:
+                return True
+        except ValueError:
+            return False
+
+    src_df = pd.read_excel(
+        os.path.join(data_dir, 'FEMAP58ED1_fragility_data.xlsx'))
+    ID_list = src_df['NISTIR Classification']
+
+    XML_list = [f for f in os.listdir(data_dir) if f.endswith('.xml')]
+
+    incomplete_count = 0
+
+    for filename in XML_list:
+
+        comp_ID = filename[:-4]
+
+        try:
+        #if True:
+            tree = ET.parse(os.path.join(data_dir, comp_ID + '.xml'))
+            root = tree.getroot()
+
+            # correct for the error in the numbering of RC beams
+            if (comp_ID[:5] == 'B1051') and (
+                comp_ID[-1] not in str([1, 2, 3, 4])):
+                comp_ID = 'B1042' + comp_ID[5:]
+
+            row = src_df.loc[np.where(ID_list == comp_ID)[0][0], :]
+
+            json_output = {}
+            incomplete = False
+
+            json_output.update({'Name': row['Component Name']})
+
+            QU = row['Fragility Unit of Measure']
+            QU = QU.split(' ')
+            if is_float(QU[1]):
+                json_output.update({'QuantityUnit': [int(QU[1]), QU[0]]})
+            else:
+                json_output.update({'QuantityUnit': [0, 'Undefined']})
+                incomplete = True
+
+            json_output.update({'Directional': row['Directional?'] in ['YES']})
+            json_output.update({'Correlated': row['Correlated?'] in ['YES']})
+
+            json_output.update({
+                'EDP': {
+                    'Type'  : row['Demand Parameter (value):'],
+                    'Unit'  : [1,
+                               convert_unit[row['Demand Parameter (unit):']]],
+                    'Offset': int(
+                        row['Demand Location (use floor above? Yes/No)'] in [
+                            'Yes'])
+                }
+            })
+
+            json_output.update({
+                'GeneralInformation': {
+                    'ID'         : row['NISTIR Classification'],
+                    'Description': row['Component Description'],
+                    'Author'     : row['Author'],
+                    'Official'   : root.find('Official').text in ['True',
+                                                                  'true'],
+                    'DateCreated': root.find('DateCreated').text,
+                    'Approved'   : root.find('Approved').text in ['True',
+                                                                  'true'],
+                    'Incomplete' : root.find('Incomplete').text in ['True',
+                                                                    'true'],
+                    'Notes'      : row['Comments / Notes']
+                }
+            })
+            for key in json_output['GeneralInformation'].keys():
+                if json_output['GeneralInformation'][key] is np.nan:
+                    json_output['GeneralInformation'][key] = 'Undefined'
+
+            json_output.update({
+                'Ratings': {
+                    'DataQuality'  : row['Data Quality'],
+                    'DataRelevance': row['Data Relevance'],
+                    'Documentation': row['Documentation Quality'],
+                    'Rationality'  : row['Rationality'],
+                }
+            })
+            for key in json_output['Ratings'].keys():
+                if json_output['Ratings'][key] is np.nan:
+                    json_output['Ratings'][key] = 'Undefined'
+
+            DSH = decode_DS_Hierarchy(row['DS Hierarchy'])
+
+            json_output.update({'DSGroups': []})
+
+            for DSG in DSH:
+                if DSG[0] in ['MutEx', 'Simul']:
+                    mu = row['DS {}, Median Demand'.format(DSG[1][-1])]
+                    beta = row[
+                        'DS {}, Total Dispersion (Beta)'.format(DSG[1][-1])]
+                    if is_float(mu) and is_float(beta):
+                        json_output['DSGroups'].append({
+                            'MedianEDP'   : float(mu),
+                            'Beta'        : float(beta),
+                            'CurveType'   : 'LogNormal',
+                            'DSGroupType' : convert_DSG_type[DSG[0]],
+                            'DamageStates': DSG[1:]
+                        })
+                    else:
+                        json_output['DSGroups'].append({
+                            'MedianEDP'   : float(mu) if is_float(
+                                mu) else 'Undefined',
+                            'Beta'        : float(beta) if is_float(
+                                beta) else 'Undefined',
+                            'CurveType'   : 'LogNormal',
+                            'DSGroupType' : convert_DSG_type[DSG[0]],
+                            'DamageStates': DSG[1:]
+                        })
+                        incomplete = True
+                else:
+                    mu = row['DS {}, Median Demand'.format(DSG[-1])]
+                    beta = row['DS {}, Total Dispersion (Beta)'.format(DSG[-1])]
+                    if is_float(mu) and is_float(beta):
+                        json_output['DSGroups'].append({
+                            'MedianEDP'   : float(mu),
+                            'Beta'        : float(beta),
+                            'CurveType'   : 'LogNormal',
+                            'DSGroupType' : 'Single',
+                            'DamageStates': [DSG],
+                        })
+                    else:
+                        json_output['DSGroups'].append({
+                            'MedianEDP'   : float(mu) if is_float(
+                                mu) else 'Undefined',
+                            'Beta'        : float(beta) if is_float(
+                                beta) else 'Undefined',
+                            'CurveType'   : 'LogNormal',
+                            'DSGroupType' : 'Single',
+                            'DamageStates': [DSG],
+                        })
+                        incomplete = True
+
+            need_INJ = False
+            need_RT = False
+            for DSG in json_output['DSGroups']:
+                DS_list = DSG['DamageStates']
+                DSG['DamageStates'] = []
+                for DS in DS_list:
+                    DSG['DamageStates'].append({
+                        'Weight'        : 
+                            float(row['DS {}, Probability'.format(DS[-1])]),
+                        'LongLeadTime'  : 
+                            row['DS {}, Long Lead Time'.format(DS[-1])] in [
+                                'YES'],
+                        'Consequences'  : {},
+                        'Description'   : 
+                            row['DS {}, Description'.format(DS[-1])],
+                        'RepairMeasures': 
+                            row['DS {}, Repair Description'.format(DS[-1])],
+                    })
+
+                    IMG = row['DS{}, Illustrations'.format(DS[-1])]
+                    if IMG not in ['none', np.nan]:
+                        DSG['DamageStates'][-1].update({'DamageImageName': IMG})
+
+                    AA = row['DS {} - Casualty Affected Area'.format(DS[-1])]
+                    if (isinstance(AA, string_types) and (is_float(AA.split(' ')[0]))):
+                        AA = AA.split(' ')
+                        DSG['DamageStates'][-1].update(
+                            {'AffectedArea': [int(AA[0]), AA[1]]})
+                        need_INJ = True
+                    else:
+                        DSG['DamageStates'][-1].update(
+                            {'AffectedArea': [0, 'SF']})
+
+                    DSG['DamageStates'][-1]['Consequences'].update(
+                        {'Injuries': [{}, {}]})
+
+                    INJ0 = DSG[
+                        'DamageStates'][-1]['Consequences']['Injuries'][0]
+                    INJ_mu = row[
+                        'DS {} Serious Injury Rate - Median'.format(DS[-1])]
+                    INJ_beta = row[
+                        'DS {} Serious Injury Rate - Dispersion'.format(DS[-1])]
+                    if is_float(INJ_mu) and is_float(INJ_beta):
+                        INJ0.update({
+                            'Amount'   : float(INJ_mu),
+                            'Beta'     : float(INJ_beta),
+                            'CurveType': 'Normal',
+                            'Bounds'   : [0., 1.]
+                        })                        
+                        
+                        if INJ_mu != 0.0:
+                            need_INJ = True
+                            if DSG['DamageStates'][-1]['AffectedArea'][0] == 0:
+                                incomplete = True
+                    else:
+                        INJ0.update({'Amount'   : 
+                                         float(INJ_mu) if is_float(INJ_mu) 
+                                         else 'Undefined',
+                                     'Beta'     : 
+                                         float(INJ_beta) if is_float(INJ_beta) 
+                                         else 'Undefined',
+                                     'CurveType': 'Normal'})
+                        if ((INJ0['Amount'] == 'Undefined') or 
+                            (INJ0['Beta'] == 'Undefined')):
+                            incomplete = True
+
+                    INJ1 = DSG[
+                        'DamageStates'][-1]['Consequences']['Injuries'][1]
+                    INJ_mu = row['DS {} Loss of Life Rate - Median'.format(DS[-1])]
+                    INJ_beta = row['DS {} Loss of Life Rate - Dispersion'.format(DS[-1])]
+                    if is_float(INJ_mu) and is_float(INJ_beta):
+                        INJ1.update({
+                            'Amount'   : float(INJ_mu),
+                            'Beta'     : float(INJ_beta),
+                            'CurveType': 'Normal',
+                            'Bounds'   : [0., 1.]
+                        })                    
+                        if INJ_mu != 0.0:
+                            need_INJ = True
+                            if DSG['DamageStates'][-1]['AffectedArea'][0] == 0:
+                                incomplete = True
+                    else:
+                        INJ1.update({'Amount'   : 
+                                         float(INJ_mu) if is_float(INJ_mu) 
+                                         else 'Undefined',
+                                     'Beta'     : 
+                                         float(INJ_beta) if is_float(INJ_beta) 
+                                         else 'Undefined',
+                                     'CurveType': 'Normal', 
+                                     'Bounds': [0., 1.]})
+                        if ((INJ1['Amount'] == 'Undefined') or 
+                            (INJ1['Beta'] == 'Undefined')):
+                            incomplete = True
+
+                    DSG['DamageStates'][-1]['Consequences'].update({'RedTag': {}})
+                    RT = DSG['DamageStates'][-1]['Consequences']['RedTag']
+
+                    RT_mu = row['DS {}, Unsafe Placard Damage Median'.format(DS[-1])]
+                    RT_beta = row['DS {}, Unsafe Placard Damage Dispersion'.format(DS[-1])]
+                    if is_float(RT_mu) and is_float(RT_beta):
+                        RT.update({
+                            'Amount'   : float(RT_mu),
+                            'Beta'     : float(RT_beta),
+                            'CurveType': 'Normal',
+                            'Bounds'   : [0., 1.]
+                        })
+                        if RT['Amount'] != 0.0:
+                            need_RT = True
+                    else:
+                        RT.update({'Amount'   : 
+                                       float(RT_mu[:-1]) if is_float(RT_mu) 
+                                       else 'Undefined',
+                                   'Beta'     : 
+                                       float(RT_beta[:-1]) if is_float(RT_beta) 
+                                       else 'Undefined',
+                                   'CurveType': 'Normal', 
+                                   'Bounds': [0., 1.]})
+                        if ((RT['Amount'] == 'Undefined') or 
+                            (RT['Beta'] == 'Undefined')):
+                            incomplete = True
+
+            # remove the unused fields
+            if not need_INJ:
+                for DSG in json_output['DSGroups']:
+                    for DS in DSG['DamageStates']:
+                        del DS['AffectedArea']
+                        del DS['Consequences']['Injuries']
+
+            if not need_RT:
+                for DSG in json_output['DSGroups']:
+                    for DS in DSG['DamageStates']:
+                        del DS['Consequences']['RedTag']
+
+            # collect the repair cost and time consequences from the XML file
+            DSG_list = root.find('DamageStates').findall('DamageState')
+            for DSG_i, DSG_xml in enumerate(DSG_list):
+
+                if DSG_xml.find('DamageStates') is not None:
+                    DS_list = (DSG_xml.find('DamageStates')).findall('DamageState')
+                    for DS_i, DS_xml in enumerate(DS_list):
+                        r_cost, r_time = parse_DS_xml(DS_xml)
+                        CONSEQ = json_output['DSGroups'][DSG_i][
+                            'DamageStates'][DS_i]['Consequences']
+                        CONSEQ.update({
+                            'ReconstructionCost': r_cost,
+                            'ReconstructionTime': r_time
+                        })
+                        if ((r_cost['Amount'] == 'Undefined') or 
+                            (r_time['Amount'] == 'Undefined')):
+                            incomplete = True
+
+                else:
+                    r_cost, r_time = parse_DS_xml(DSG_xml)
+                    CONSEQ = json_output['DSGroups'][DSG_i][
+                        'DamageStates'][0]['Consequences']
+                    CONSEQ.update({
+                        'ReconstructionCost': r_cost,
+                        'ReconstructionTime': r_time
+                    })
+                    if ((r_cost['Amount'] == 'Undefined') or 
+                        (r_time['Amount'] == 'Undefined')):
+                        incomplete = True
+
+            if incomplete:
+                json_output['GeneralInformation']['Incomplete'] = True
+                incomplete_count += 1
+
+            with open(os.path.join(target_dir, comp_ID + '.json'),'w') as f:
+                json.dump(json_output, f)
+
+        except:
+            warnings.warn(UserWarning(
+                'Error converting data for component {}'.format(comp_ID)))
 
 def write_SimCenter_DL_output(output_path, output_df, index_name='#Num', 
                               collapse_columns = True, stats_only=False):
