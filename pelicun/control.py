@@ -230,7 +230,7 @@ class FEMA_P58_Assessment(Assessment):
             ))
             #path_CMP_data = '../../resources/component DL/FEMA P58 first edition/'
             path_CMP_data = pelicun_path
-            path_CMP_data += '/resources/component DL/FEMA P58 first edition/xml/'
+            path_CMP_data += '/resources/component DL/FEMA P58 first edition/json/'
 
         if path_POP_data is None:
             warnings.warn(UserWarning(
@@ -916,9 +916,13 @@ class FEMA_P58_Assessment(Assessment):
                 s_ds_keys = sorted(DSG['DS_set'].keys())
                 for ds_i in s_ds_keys:
                     DS = DSG['DS_set'][ds_i]
-                    theta = DS['red_tag']['theta']
-                    d_theta = np.append(d_theta, theta)
-                    d_sig = np.append(d_sig, DS['red_tag']['cov'])
+                    if 'red_tag' in DS.keys():
+                        d_theta = np.append(d_theta, DS['red_tag']['theta'])
+                        d_sig = np.append(d_sig, DS['red_tag']['cov'])
+                    else:
+                        # if there are no injuries assigned to this DS
+                        d_theta = np.append(d_theta, 0)
+                        d_sig = np.append(d_sig, 0.0001)
                     d_tag = np.append(d_tag,
                                       comp['ID'] + '-' + str(dsg_i) + '-' + str(
                                           ds_i))
@@ -1058,7 +1062,7 @@ class FEMA_P58_Assessment(Assessment):
 
         inj_lvls = self._inj_lvls
 
-        # prepare the cost and time parts of the data separately
+        # prepare the parts for different levels of injury separately
         full_theta, full_sig, full_tag = [np.array([]) for i in range(3)]
         for i_lvl in range(inj_lvls):
 
@@ -1075,12 +1079,18 @@ class FEMA_P58_Assessment(Assessment):
                     s_ds_keys = sorted(DSG['DS_set'].keys())
                     for ds_i in s_ds_keys:
                         DS = DSG['DS_set'][ds_i]
-                        d_theta = np.append(d_theta, DS['injuries']['theta'][i_lvl])
-                        d_sig = np.append(d_sig, DS['injuries']['cov'][i_lvl])
+                        if 'injuries' in DS.keys():
+                            d_theta = np.append(
+                                d_theta, DS['injuries']['theta'][i_lvl])
+                            d_sig = np.append(
+                                d_sig, DS['injuries']['cov'][i_lvl])
+                        else:
+                            # if there are no injuries assigned to this DS
+                            d_theta = np.append(d_theta, 0)
+                            d_sig = np.append(d_sig, 0.0001)
                         d_tag = np.append(d_tag,
-                                          comp['ID'] + '-' + str(
-                                              dsg_i) + '-' + str(
-                                              ds_i) + '-{}'.format(i_lvl))
+                                          (comp['ID'] + '-' + str(dsg_i) + '-' + 
+                                           str(ds_i) + '-{}'.format(i_lvl)))
 
                 for loc in comp['locations']:
                     for dir_ in np.unique(comp['directions']):
@@ -1305,7 +1315,7 @@ class FEMA_P58_Assessment(Assessment):
                             else:
                                 CF_time = None
     
-                            if DVs['red_tag']:
+                            if (DVs['red_tag']) and ('red_tag' in DS.keys()):
                                 data = DS['red_tag']
                                 if data['theta'] > 0:
                                     f_median = prep_constant_median_DV(data['theta'])
@@ -1320,10 +1330,9 @@ class FEMA_P58_Assessment(Assessment):
                             else:
                                 CF_red_tag = None
     
-                            if DVs['injuries']:
-                                data = DS['injuries']
+                            if (DVs['injuries']) and ('injuries' in DS.keys()):
                                 CF_inj_set = []
-                                for inj_i, theta in enumerate(data['theta']):
+                                for inj_i, theta in enumerate(DS['injuries']['theta']):
                                     if theta > 0.:
                                         f_median = prep_constant_median_DV(theta)
                                         cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
@@ -1339,11 +1348,15 @@ class FEMA_P58_Assessment(Assessment):
                                 CF_inj_set = [None,]
     
                             # add the DS to the list
+                            if 'affected_area' in DS.keys():
+                                AA = DS['affected_area']
+                            else:
+                                AA = 0.0
+                            # TODO: make this smarter by making affected_area a property of DS
                             DS_set.append(DamageState(ID=ds_i + 1,
                                                       description=DS['description'],
                                                       weight=DS['weight'],
-                                                      affected_area=DS[
-                                                          'affected_area'],
+                                                      affected_area=AA,
                                                       repair_cost_CF=CF_cost,
                                                       reconstruction_time_CF=CF_time,
                                                       red_tag_CF=CF_red_tag,
@@ -1354,9 +1367,7 @@ class FEMA_P58_Assessment(Assessment):
                         DSG_list.append(DamageStateGroup(ID=dsg_i + 1,
                                                          DS_set=DS_set,
                                                          DS_set_kind=DSG[
-                                                             'DS_set_kind'],
-                                                         description=DSG[
-                                                             'description']
+                                                             'DS_set_kind']
                                                          ))
     
                     # create the fragility functions
