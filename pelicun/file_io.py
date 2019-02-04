@@ -594,28 +594,30 @@ def read_population_distribution(path_POP, occupancy, verbose=False):
     # convert peak population to persons/m2
     data['peak'] = data['peak'] / (1000. * ft2)
 
-    if verbose:
+    if verbose: # pragma: no cover
         pp.pprint(data)
 
     return data
 
+
 def read_component_DL_data(path_CMP, comp_info, verbose=False):
     """
     Read the damage and loss data for the components of the asset.
-    
-    DL data for each component is assumed to be stored in an xml file. The name
-    of the file is the ID (key) of the component in the comp_info dictionary.
-    Besides the filename, the comp_info dictionary is also used to get other
-    pieces of data about the component that is not available in the xml files.
-    Therefore, the following attributes need to be provided in the comp_info:
-    ['quantities', 'csg_weights', 'dirs', 'kind', 'distribution', 'cov', 
-    'unit', 'locations'] Further information about these attributes is 
-    available in the Input section of the documentation.
-    
+
+    DL data for each component is assumed to be stored in a JSON file following 
+    the DL file format specified by SimCenter. The name of the file is the ID 
+    (key) of the component in the comp_info dictionary. Besides the filename, 
+    the comp_info dictionary is also used to get other pieces of data about the 
+    component that is not available in the JSON files. Therefore, the following 
+    attributes need to be provided in the comp_info: ['quantities', 
+    'csg_weights', 'dirs', 'kind', 'distribution', 'cov', 'unit', 'locations'] 
+    Further information about these attributes is available in the Input 
+    section of the documentation.
+
     Parameters
     ----------
     path_CMP: string
-        Location of the folder that contains the component data in xml files.
+        Location of the folder that contains the component data in JSON files.
     comp_info: dict
         Dictionary with additional information about the components.
     verbose: boolean
@@ -629,75 +631,6 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         A dictionary with damage and loss data for each component.
 
     """
-    def parse_DS_xml(DS_xml):
-
-        CFG = DS_xml.find('ConsequenceGroup')
-        CFG_C = CFG.find('CostConsequence')
-        CFG_T = CFG.find('TimeConsequence')
-
-        if DS_xml.find('Percent') is not None:
-            weight = float(DS_xml.find('Percent').text)
-        else:
-            weight = 1.0
-
-        data = dict(
-            description=DS_xml.find('Description').text,
-            weight=weight,
-            repair_cost=dict(
-                median_max=float(CFG_C.find('MaxAmount').text),
-                median_min=float(CFG_C.find('MinAmount').text),
-                quantity_lower=float(CFG_C.find('LowerQuantity').text),
-                quantity_upper=float(CFG_C.find('UpperQuantity').text),
-                distribution_kind=curve_type[CFG_C.find('CurveType').text],
-                cov=float(CFG_C.find('Uncertainty').text),
-            ),
-            repair_time=dict(
-                median_max=float(CFG_T.find('MaxAmount').text),
-                median_min=float(CFG_T.find('MinAmount').text),
-                quantity_lower=float(CFG_T.find('LowerQuantity').text),
-                quantity_upper=float(CFG_T.find('UpperQuantity').text),
-                distribution_kind=curve_type[CFG_T.find('CurveType').text],
-                cov=float(CFG_T.find('Uncertainty').text),
-            ),
-            red_tag=dict(
-                theta=float(CFG.find('RedTagMedian').text),
-                cov=float(CFG.find('RedTagBeta').text),
-            ),
-            injuries=dict(
-                theta=[float(CFG.find('AffectedInjuryRate').text),
-                       float(CFG.find('AffectedDeathRate').text)],
-                cov=[float(CFG.find('AffectedInjuryRateBeta').text),
-                     float(CFG.find('AffectedDeathRateBeta').text)]
-            )
-        )
-
-        # if there is a chance of injuries, load the affected floor area
-        if data['injuries']['theta'][0] > 0.:
-            CFG_A = CFG.find('AffectedFloorArea').find('Area')
-            unit = CFG_A.find('Unit').text
-            if unit == 'Square Foot':
-                affected_area = float(CFG_A.find('Value').text) * SF
-            else:
-                warnings.warn(UserWarning(
-                    'Unknown unit for affected floor area: {}'.format(unit)))
-                affected_area = 0.
-            data.update({'affected_area': affected_area})
-        else:
-            data.update({'affected_area': 0.})
-
-        # convert the units to standard ones
-        data['repair_cost']['quantity_lower'] *= c_data['unit']
-        data['repair_cost']['quantity_upper'] *= c_data['unit']
-        data['repair_time']['quantity_lower'] *= c_data['unit']
-        data['repair_time']['quantity_upper'] *= c_data['unit']
-
-        data['repair_cost']['median_min'] /= c_data['unit']
-        data['repair_cost']['median_max'] /= c_data['unit']
-        data['repair_time']['median_min'] /= c_data['unit']
-        data['repair_time']['median_max'] /= c_data['unit']
-        data['affected_area'] /= c_data['unit']
-
-        return data
 
     data = dict([(c_id, dict([(key, None) for key in [
         'ID',
@@ -725,7 +658,28 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
     for c_id in s_cmp_keys:
         c_data = data[c_id]
 
-        # first, get the parameters from the BIM component info
+        # parse the json file
+        with open(os.path.join(path_CMP, c_id + '.json'), 'r') as f:
+            DL_data = json.load(f)
+
+        DL_GI = DL_data['GeneralInformation']
+        DL_EDP = DL_data['EDP']
+        DL_DSG = DL_data['DSGroups']
+
+        # First, check if the DL data is complete. Incomplete data can lead to 
+        # all kinds of problems, so in such a case we display a warning and do 
+        # not use the component. This can be relaxed later if someone creates a 
+        # method to replace unknown values with reasonable estimates.
+        c_data['incomplete'] = int(DL_GI['Incomplete'])
+        if c_data['incomplete']:
+            # show warning            
+            del data[c_id]
+            warnings.warn(UserWarning(
+                'Fragility information for {} is incomplete. The component '
+                'cannot be used for loss assessment.'.format(c_id)))
+            continue
+
+        # Get the parameters from the BIM component info
         ci_data = comp_info[c_id]
         c_data['kind'] = ci_data['kind']
         c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
@@ -735,39 +689,27 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         c_data['csg_weights'] = ci_data['csg_weights']
         c_data['directions'] = ci_data['dirs']
         c_data['locations'] = ci_data['locations']
-        c_data['cov'] = ci_data['cov']        
+        c_data['cov'] = ci_data['cov']
 
         # calculate the quantity weights in each direction
-        dirs = np.asarray(c_data['directions'], dtype=np.int)        
+        dirs = np.asarray(c_data['directions'], dtype=np.int)
         u_dirs = np.unique(dirs)
         weights = np.asarray(c_data['csg_weights'])
-        c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)]) 
+        c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)])
                                  for d_i in u_dirs]
 
-        # parse the xml file
-        # TODO: replace the xml with a json
-        tree = ET.parse(path_CMP + c_id + '.xml')
-        root = tree.getroot()
+        c_data['ID'] = c_id
+        c_data['name'] = DL_data['Name']
+        c_data['description'] = DL_GI['Description']
+        c_data['offset'] = DL_EDP['Offset']
+        c_data['correlation'] = int(DL_data['Correlated'])
+        c_data['directional'] = int(DL_data['Directional'])
 
-        c_data['ID'] = c_id #root.find('ID').text
-        c_data['name'] = root.find('Name').text
-        c_data['description'] = root.find('Description').text
-        c_data['offset'] = int(strtobool(
-            root.find('UseEDPValueOfFloorAbove').text))
-        c_data['correlation'] = strtobool(root.find('Correlation').text)
-        c_data['directional'] = strtobool(root.find('Directional').text)
-        c_data['incomplete'] = strtobool(root.find('Incomplete').text)
-
-        if c_data['incomplete']:
-            warnings.warn(UserWarning(
-                'Fragility information for {} is incomplete'.format(c_id)))
-
-        EDP = root.find('EDPType')
-        EDP_type = EDP.find('TypeName').text
+        EDP_type = DL_EDP['Type']
         demand_factor = 1.0
         if EDP_type == 'Story Drift Ratio':
             demand_type = 'PID'
-        elif EDP_type == 'Acceleration':
+        elif EDP_type == 'Peak Floor Acceleration':
             demand_type = 'PFA'
             demand_factor = g
         elif EDP_type in [
@@ -778,55 +720,110 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
             warnings.warn(UserWarning(
                 'Component {} requires {} as EDP, which is not yet '
                 'implemented.'.format(c_data['ID'], EDP_type)))
-        else:
+        else: # pragma: no cover
             demand_type = None
             warnings.warn(UserWarning(
                 'Unexpected EDP type: {}'.format(EDP_type)))
+        if demand_type is None:
+            del data[c_id]
+            continue
         c_data['demand_type'] = demand_type
 
-        # dictionary to convert xml to internal
+        # dictionary to convert DL data to internal representation
         curve_type = {'LogNormal': 'lognormal',
                       'Normal'   : 'normal'}
         DS_set_kind = {'MutuallyExclusive' : 'mutually exclusive',
                        'mutually exclusive': 'mutually exclusive',
                        'simultaneous'      : 'simultaneous',
                        'Simultaneous'      : 'simultaneous',
-                       'single'            : 'single'}
+                       'single'            : 'single',
+                       'Single'            : 'single'}
 
-        # load the damage state group information        
+        # load the damage state group information
         c_data['DSG_set'] = dict()
-        DSGs = root.find('DamageStates').findall('DamageState')
-        for DSG_i, DSG_xml in enumerate(DSGs):
+        for DSG_id, DSG_i in enumerate(DL_DSG):
             DSG_data = dict(
-                theta=float(DSG_xml.find('Median').text) * demand_factor,
-                sig=float(DSG_xml.find('Beta').text),
-                description=DSG_xml.find('Description').text,
+                theta=DSG_i['MedianEDP'] * demand_factor,
+                sig=DSG_i['Beta'],
+                DS_set_kind=DS_set_kind[DSG_i['DSGroupType']],
+                # distribution_kind = curve_type[DSG_i['CurveType']],
+                DS_set={}
             )
 
-            if DSG_xml.find('DamageStates') is not None:
-                # the group contains multiple damage states                
-                DS_xml = DSG_xml.find('DamageStates')
-                DSG_data.update({'DS_set_kind':
-                                     DS_set_kind[
-                                         DS_xml.find('DSGroupType').text]})
-                DSG_data.update(dict(DS_set=dict()))
+            for DS_id, DS_i in enumerate(DSG_i['DamageStates']):
+                DS_data = {'description': DS_i['Description'],
+                           'weight'     : DS_i['Weight']}
 
-                for DS_i, DS_xml in enumerate(
-                    DS_xml.findall('DamageState')):
-                    DS = parse_DS_xml(DS_xml)
-                    DSG_data['DS_set'].update({'DS-' + str(DS_i + 1): DS})
+                DS_C = DS_i['Consequences']
+                if 'ReconstructionCost' in DS_C.keys():
+                    DS_CC = DS_C['ReconstructionCost']
+                    DS_data.update({'repair_cost': {
+                        'median_max'       : DS_CC['Amount'][0],
+                        'median_min'       : DS_CC['Amount'][1],
+                        'quantity_lower'   : DS_CC['Quantity'][0],
+                        'quantity_upper'   : DS_CC['Quantity'][1],
+                        'distribution_kind': curve_type[DS_CC['CurveType']],
+                        'cov'              : DS_CC['Beta'],
+                    }})
 
-            else:
-                # the group contains only one damage state
-                DSG_data.update({'DS_set_kind': 'single'})
-                DSG_data.update(dict(DS_set=dict()))
+                    # convert the units to standard ones
+                    DS_data['repair_cost']['quantity_lower'] *= c_data['unit']
+                    DS_data['repair_cost']['quantity_upper'] *= c_data['unit']
+                    DS_data['repair_cost']['median_min'] /= c_data['unit']
+                    DS_data['repair_cost']['median_max'] /= c_data['unit']
 
-                DS = parse_DS_xml(DSG_xml)
-                DSG_data['DS_set'].update({'DS-1': DS})
+                if 'ReconstructionTime' in DS_C.keys():
+                    DS_CT = DS_C['ReconstructionTime']
+                    DS_data.update({'repair_time': {
+                        'median_max'       : DS_CT['Amount'][0],
+                        'median_min'       : DS_CT['Amount'][1],
+                        'quantity_lower'   : DS_CT['Quantity'][0],
+                        'quantity_upper'   : DS_CT['Quantity'][1],
+                        'distribution_kind': curve_type[DS_CT['CurveType']],
+                        'cov'              : DS_CT['Beta'],
+                    }})
 
-            c_data['DSG_set'].update({'DSG-' + str(DSG_i + 1): DSG_data})
+                    # convert the units to standard ones
+                    DS_data['repair_time']['quantity_lower'] *= c_data['unit']
+                    DS_data['repair_time']['quantity_upper'] *= c_data['unit']
+                    DS_data['repair_time']['median_min'] /= c_data['unit']
+                    DS_data['repair_time']['median_max'] /= c_data['unit']
 
-    if verbose:
+                if 'RedTag' in DS_C.keys():
+                    DS_CR = DS_C['RedTag']
+                    DS_data.update({'red_tag': {
+                        'theta': DS_CR['Amount'],
+                        # 'distribution_kind': curve_type[DS_CR['CurveType']],
+                        'cov'  : DS_CR['Beta'],
+                    }})
+
+                if 'Injuries' in DS_C.keys():
+                    DS_CI = DS_C['Injuries']
+                    DS_data.update({'injuries': {
+                        'theta': [I_i['Amount'] for I_i in DS_CI],
+                        # 'distribution_kind': curve_type[DS_CR['CurveType']],
+                        'cov'  : [I_i['Beta'] for I_i in DS_CI],
+                    }})
+
+                    # if there is a chance of injuries, load the affected floor area
+                    affected_area, unit = DS_i['AffectedArea']
+                    if unit == 'SF':
+                        affected_area = affected_area * SF
+                    else: # pragma: no cover
+                        warnings.warn(UserWarning(
+                            'Unknown unit for affected floor area: {}'.format(
+                                unit)))
+                        affected_area = 0.
+                    DS_data.update({'affected_area': affected_area})
+
+                    # convert the units to standard ones
+                    DS_data['affected_area'] /= c_data['unit']
+
+                DSG_data['DS_set'].update({'DS-' + str(DS_id + 1): DS_data})
+
+            c_data['DSG_set'].update({'DSG-' + str(DSG_id + 1): DSG_data})
+
+    if verbose: # pragma: no cover
         for c_id, c_data in data.items():
             print(c_id)
             pp.pprint(c_data)
@@ -1207,9 +1204,6 @@ def convert_P58_data_to_json(data_dir, target_dir):
                         (r_time['Amount'] == 'Undefined')):
                         incomplete = True
 
-            # if incomplete != json_output['GeneralInformation']['Incomplete']:
-            #    print(comp_ID, incomplete, json_output['GeneralInformation']['Incomplete'])
-
             if incomplete:
                 json_output['GeneralInformation']['Incomplete'] = True
                 incomplete_count += 1
@@ -1218,8 +1212,8 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 json.dump(json_output, f)
 
         except:
-            print('Error converting data for component {}'.format(comp_ID))
-
+            warnings.warn(UserWarning(
+                'Error converting data for component {}'.format(comp_ID)))
 
 def write_SimCenter_DL_output(output_path, output_df, index_name='#Num', 
                               collapse_columns = True, stats_only=False):
