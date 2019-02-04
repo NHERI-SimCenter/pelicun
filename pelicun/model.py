@@ -620,24 +620,13 @@ class DamageStateGroup(object):
         that the occurrence of one DS precludes the occurrence of another DS.
         In such a case, the weights of the DS in the set shall sum up to 1.0.
         In a 'simultaneous' case the DS are independent and unrelated. Hence,
-        they can occur at the same time and at least one of them has to occur. 
-    description: str, optional, default: ''
-        Provides a short description of the damage state group.
+        they can occur at the same time and at least one of them has to occur.
     """
 
-    def __init__(self, ID, DS_set, DS_set_kind,
-                 description=''):
+    def __init__(self, ID, DS_set, DS_set_kind):
         self._ID = ID
         self._DS_set = DS_set
         self._DS_set_kind = DS_set_kind
-        self._description = description
-
-    @property
-    def description(self):
-        """
-        Return the damage state group description.
-        """
-        return self._description
     
 class PerformanceGroup(object):
     """
