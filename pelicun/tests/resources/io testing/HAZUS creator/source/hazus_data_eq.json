@@ -1,0 +1,79 @@
+{
+	"Structural_Fragility_Groups": {
+		"EDP_limits": {
+			"High_code": {
+				"W1":   [0.0040, 0.0120, 0.0400, 0.1000],				
+				"MH":   [0.0040, 0.0080, 0.0240, 0.0700]
+			},
+			"Pre_code": {
+				"W1":   [0.0032, 0.0079, 0.0245, 0.0600]
+			}
+		},
+		"Fragility_beta":{
+			"High_code": 0.4,
+			"Pre_code": 0.4
+		},
+		"P_collapse": {
+			"W1":   0.03,		
+			"MH":   0.03
+		},
+		"Injury_rates":{
+			"DS1": {
+				"W1":   [0.05, 0, 0, 0],				
+				"MH":   [0.05, 0, 0, 0]
+			},
+			"DS2": {
+				"W1":   [0.25, 0.030, 0, 0],				
+				"MH":   [0.25, 0.030, 0, 0]
+			},
+			"DS3": {
+				"W1":   [1, 0.1, 0.001, 0.001],				
+				"MH":   [1, 0.1, 0.001, 0.001]
+			},
+			"DS4": {
+				"W1":   [5, 1, 0.01, 0.01],				
+				"MH":   [5, 1, 0.01, 0.01]
+			},
+			"DS5": {
+				"W1":   [40, 20, 3, 5],				
+				"MH":   [40, 20, 3, 5]
+			}
+		},
+		"Reconstruction_cost": {
+			"RES1":  [0.5, 2.3, 11.7, 23.4],			
+			"EDU2":  [0.2, 1.1, 5.5, 11.0]
+		},
+		"Reconstruction_time": {
+			"RES1":  [2, 30, 90, 180],			
+			"EDU2":  [10, 45, 180, 360]
+		}
+	},
+	"NonStructural_Drift_Sensitive_Fragility_Groups":{
+		"EDP_limits": [0.004, 0.008, 0.025, 0.050],
+		"Fragility_beta": 0.5,
+		"Reconstruction_cost": {
+			"RES1":  [1.0, 5.0, 25.0, 50.0],			
+			"EDU2":  [1.2, 6.0, 30.0, 60.0]
+		}
+	},
+	"NonStructural_Acceleration_Sensitive_Fragility_Groups":{
+		"EDP_limits": {
+			"High_code":     [0.30, 0.60, 1.20, 2.40],
+			"Pre_code":      [0.20, 0.40, 0.80, 1.60]
+		},
+		"Fragility_beta": 0.6,
+		"Reconstruction_cost": {
+			"RES1":  [0.5, 2.7, 8.0, 26.6],			
+			"EDU2":  [0.6, 2.9, 8.7, 29.0]
+		}
+	},
+	"Parts_of_day":{
+		"Nighttime": [0, 1, 2, 3, 4, 5, 20, 21, 22, 23],
+		"Daytime":   [9, 10, 11, 12, 13, 14, 15],
+		"Commute":   [6, 7, 8, 16, 17, 18, 19]
+	},
+	"Population_Distribution":{
+		"Residential": [1.00, 0.53, 0.35],		
+		"Hotels":      [1.00, 0.19, 0.30]
+	}
+}

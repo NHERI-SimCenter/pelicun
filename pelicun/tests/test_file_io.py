@@ -412,7 +412,7 @@ def test_read_component_DL_data():
     assert test_CMP == {}
 
 # -----------------------------------------------------------------------------
-# read_component_DL_data
+# convert P58 data to JSON
 # -----------------------------------------------------------------------------
 
 def test_convert_P58_data_to_json():
@@ -446,8 +446,52 @@ def test_convert_P58_data_to_json():
         
     finally:
         #pass
-        shutil.rmtree(test_dir)    
-   
+        shutil.rmtree(test_dir)
+
+# -----------------------------------------------------------------------------
+# create HAZUS JSON files
+# -----------------------------------------------------------------------------
+
+def test_create_HAZUS_json_files():
+    """
+    Test if the damage and loss data from HAZUS is properly converted into the 
+    SimCenter JSON format the prepared raw HAZUS JSON files (the test uses a 
+    subset of the HAZUS input data).
+    """
+
+    data_dir = 'resources/io testing/HAZUS creator/source/'
+    ref_dir = 'resources/io testing/HAZUS creator/ref/'
+    test_dir = 'test/'
+
+    try:
+        # convert the files in the data folder
+        os.mkdir(test_dir)
+        os.mkdir(test_dir+'DL json/')
+        create_HAZUS_json_files(data_dir, test_dir)
+
+        # collect the prepared reference files
+        ref_files = sorted(os.listdir(ref_dir+'DL json/'))
+
+        # collect the converted files
+        test_files = sorted(os.listdir(test_dir+'DL json/'))
+
+        # compare the reference files to the converted ones
+        for test, ref in zip(test_files, ref_files):
+            with open(os.path.join(test_dir + 'DL json/', test), 'r') as f_test:
+                with open(os.path.join(ref_dir + 'DL json/', ref), 'r') as f_ref:
+                    # print(test, ref)
+                    assert json.load(f_test) == json.load(f_ref)
+                    
+        # compare the population files
+        with open(os.path.join(test_dir, 'population.json'), 'r') as f_test:
+            with open(os.path.join(ref_dir, 'population.json'), 'r') as f_ref:
+                # print(test, ref)
+                assert json.load(f_test) == json.load(f_ref)
+
+    finally:
+        #pass
+        shutil.rmtree(test_dir)
+
 # -----------------------------------------------------------------------------
 # write_SimCenter_DL_output
 # -----------------------------------------------------------------------------

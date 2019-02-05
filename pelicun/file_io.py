@@ -935,7 +935,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
         os.path.join(data_dir, 'FEMAP58ED1_fragility_data.xlsx'))
     ID_list = src_df['NISTIR Classification']
 
-    XML_list = [f for f in os.listdir(data_dir) if f.endswith('.xml')]
+    XML_list = [f for f in os.listdir(data_dir+'DL xml/') if f.endswith('.xml')]
 
     incomplete_count = 0
 
@@ -945,7 +945,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
 
         try:
         #if True:
-            tree = ET.parse(os.path.join(data_dir, comp_ID + '.xml'))
+            tree = ET.parse(os.path.join(data_dir+'DL xml/', comp_ID + '.xml'))
             root = tree.getroot()
 
             # correct for the error in the numbering of RC beams
@@ -1288,8 +1288,7 @@ def create_HAZUS_json_files(data_dir, target_dir):
     design_levels = list(
         raw_data['Structural_Fragility_Groups']['EDP_limits'].keys())
     building_types = list(
-        raw_data['Structural_Fragility_Groups']['EDP_limits'][
-            'Pre_code'].keys())
+        raw_data['Structural_Fragility_Groups']['P_collapse'].keys())
     occupancy_types = list(raw_data['Structural_Fragility_Groups'][
                                'Reconstruction_cost'].keys())
 
