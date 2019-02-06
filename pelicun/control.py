@@ -230,7 +230,7 @@ class FEMA_P58_Assessment(Assessment):
             ))
             #path_CMP_data = '../../resources/component DL/FEMA P58 first edition/'
             path_CMP_data = pelicun_path
-            path_CMP_data += '/resources/component DL/FEMA P58 first edition/json/'
+            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
 
         if path_POP_data is None:
             warnings.warn(UserWarning(
@@ -239,7 +239,7 @@ class FEMA_P58_Assessment(Assessment):
             ))
             #path_POP_data = '../../resources/population.json'
             path_POP_data = pelicun_path
-            path_POP_data += '/resources/population.json'
+            path_POP_data += '/FEMA P58 first edition/population.json'
 
         # assume that the asset is a building
         # TODO: If we want to apply FEMA-P58 to non-building assets, several parts of this methodology need to be extended.

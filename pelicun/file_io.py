@@ -831,6 +831,29 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
     return data
 
 def convert_P58_data_to_json(data_dir, target_dir):
+    """
+    Create JSON data files from publicly available P58 data.
+    
+    FEMA P58 damage and loss information is publicly available in an Excel 
+    spreadsheet and also in a series of XML files as part of the PACT tool. 
+    Those files are copied to the resources folder in the pelicun repo. Here
+    we collect the available information on Fragility Groups from those files
+    and save the damage and loss data in the common SimCenter JSON format.
+    
+    A large part of the Fragility Groups in FEMA P58 do not have complete
+    damage and loss information available. These FGs are clearly marked with
+    an incomplete flag in the JSON file and the 'Undefined' value highlights
+    the missing pieces of information. 
+    
+    Parameters
+    ----------
+    data_dir: string
+        Path to the folder with the FEMA P58 Excel file and a 'DL xml' 
+        subfolder in it that contains the XML files.
+    target_dir: string
+        Path to the folder where the JSON files shall be saved.
+
+    """
     
     convert_unit = {
         'Unit less': 'ea',
@@ -912,7 +935,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
         os.path.join(data_dir, 'FEMAP58ED1_fragility_data.xlsx'))
     ID_list = src_df['NISTIR Classification']
 
-    XML_list = [f for f in os.listdir(data_dir) if f.endswith('.xml')]
+    XML_list = [f for f in os.listdir(data_dir+'DL xml/') if f.endswith('.xml')]
 
     incomplete_count = 0
 
@@ -922,7 +945,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
 
         try:
         #if True:
-            tree = ET.parse(os.path.join(data_dir, comp_ID + '.xml'))
+            tree = ET.parse(os.path.join(data_dir+'DL xml/', comp_ID + '.xml'))
             root = tree.getroot()
 
             # correct for the error in the numbering of RC beams
@@ -1214,6 +1237,288 @@ def convert_P58_data_to_json(data_dir, target_dir):
         except:
             warnings.warn(UserWarning(
                 'Error converting data for component {}'.format(comp_ID)))
+            
+def create_HAZUS_json_files(data_dir, target_dir):
+    """
+    Create JSON data files from publicly available HAZUS data.
+
+    HAZUS damage and loss information is publicly available in the technical
+    manuals. The relevant tables have been converted into a JSON input file
+    (hazus_data_eq.json) that is stored in the 'resources/HAZUS MH 2.1' folder
+    in the pelicun repo. Here we read that file (or a file of similar format)
+    and produce damage and loss data for Fragility Groups in the common 
+    SimCenter JSON format.
+    
+    HAZUS handles damage and losses at the assembly level differentiating only
+    structural and two types of non-structural component assemblies. In this 
+    implementation we consider each of those assemblies a Fragility Group
+    and describe their damage and its consequences in a FEMA P58-like framework
+    but using the data from the HAZUS Technical Manual.  
+
+    Parameters
+    ----------
+    data_dir: string
+        Path to the folder with the hazus_data_eq JSON file.
+    target_dir: string
+        Path to the folder where the results shall be saved. The population 
+        distribution file will be saved here, the DL JSON files will be saved
+        to a 'DL json' subfolder.
+
+    """
+
+    convert_design_level = {
+        'High_code'    : 'HC',
+        'Moderate_code': 'MC',
+        'Low_code'     : 'LC',
+        'Pre_code'     : 'PC'
+    }
+
+    convert_DS_description = {
+        'DS1': 'Slight',
+        'DS2': 'Moderate',
+        'DS3': 'Extensive',
+        'DS4': 'Complete',
+        'DS5': 'Collapse',
+    }
+
+    # open the raw HAZUS data
+    with open(os.path.join(data_dir, 'hazus_data_eq.json'), 'r') as f:
+        raw_data = json.load(f)
+
+    design_levels = list(
+        raw_data['Structural_Fragility_Groups']['EDP_limits'].keys())
+    building_types = list(
+        raw_data['Structural_Fragility_Groups']['P_collapse'].keys())
+    occupancy_types = list(raw_data['Structural_Fragility_Groups'][
+                               'Reconstruction_cost'].keys())
+
+    S_data = raw_data['Structural_Fragility_Groups']
+    NSA_data = raw_data[
+        'NonStructural_Acceleration_Sensitive_Fragility_Groups']
+    NSD_data = raw_data['NonStructural_Drift_Sensitive_Fragility_Groups']
+
+    for ot in occupancy_types:
+
+        # first, structural fragility groups
+        for dl in design_levels:
+            for bt in building_types:
+                if bt in S_data['EDP_limits'][dl].keys():
+
+                    json_output = {}
+
+                    dl_id = 'S-{}-{}-{}'.format(bt,
+                                                convert_design_level[dl],
+                                                ot)
+
+                    # this might get replaced by a more descriptive name in the future
+                    json_output.update({'Name': dl_id})
+
+                    # General info
+                    json_output.update({
+                        'GeneralInformation': {
+                            'ID'         : dl_id,
+                            'Description': dl_id,
+                        # this might get replaced by more details in the future
+                            # other fields can be added here if needed
+                        }
+                    })
+
+                    # EDP info
+                    json_output.update({
+                        'EDP': {
+                            'Type': 'Story Drift Ratio',
+                            'Unit': [1, 'rad']
+                        }
+                    })
+
+                    # Damage State info
+                    json_output.update({'DSGroups': []})
+                    EDP_lim = S_data['EDP_limits'][dl][bt]
+
+                    for dsg_i in range(4):
+                        json_output['DSGroups'].append({
+                            'MedianEDP'   : EDP_lim[dsg_i],
+                            'Beta'        : S_data['Fragility_beta'][dl],
+                            'CurveType'   : 'LogNormal',
+                            'DSGroupType' : 'Single',
+                            'DamageStates': [{
+                                'Weight'      : 1.0,
+                                'Consequences': {},
+                                'Description' : 'DS{}'.format(dsg_i + 1),
+                            }]
+                        })
+                        # the last DSG is different
+                        if dsg_i == 3:
+                            json_output['DSGroups'][-1][
+                                'DSGroupType'] = 'MutuallyExclusive'
+                            DS5_w = S_data['P_collapse'][bt]
+                            json_output['DSGroups'][-1][
+                                'DamageStates'].append({
+                                'Weight'      : DS5_w,
+                                'Consequences': {},
+                                'Description' : 'DS5'
+                            })
+                            json_output['DSGroups'][-1]['DamageStates'][0][
+                                'Weight'] = 1.0 - DS5_w
+
+                    for dsg_i, DSG in enumerate(json_output['DSGroups']):
+                        for DS in DSG['DamageStates']:
+                            DS_id = DS['Description']
+                            DS['Consequences'] = {
+                                # injury rates are provided in percentages of the population
+                                'Injuries'          : [
+                                    {'Amount': val / 100.} for val in
+                                    S_data['Injury_rates'][DS_id][bt]],
+                                # reconstruction cost is provided in percentages of replacement cost
+                                'ReconstructionCost': {"Amount": S_data[
+                                                                     'Reconstruction_cost'][
+                                                                     ot][
+                                                                     dsg_i] / 100.},
+                                'ReconstructionTime': {"Amount": S_data[
+                                    'Reconstruction_time'][ot][dsg_i]}
+                            }
+                            DS['Description'] = convert_DS_description[
+                                DS['Description']]
+
+                    with open(os.path.join(target_dir + 'DL json/',
+                                           dl_id + '.json'), 'w') as f:
+                        json.dump(json_output, f)
+
+            # second, nonstructural acceleration sensitive fragility groups
+            json_output = {}
+
+            dl_id = 'NSA-{}-{}'.format(convert_design_level[dl], ot)
+
+            # this might get replaced by a more descriptive name in the future
+            json_output.update({'Name': dl_id})
+
+            # General info
+            json_output.update({
+                'GeneralInformation': {
+                    'ID'         : dl_id,
+                    'Description': dl_id,
+                # this might get replaced by more details in the future
+                    # other fields can be added here if needed
+                }
+            })
+
+            # EDP info
+            json_output.update({
+                'EDP': {
+                    'Type': 'Peak Floor Acceleration',
+                    'Unit': [1, 'g']
+                }
+            })
+
+            # Damage State info
+            json_output.update({'DSGroups': []})
+
+            for dsg_i in range(4):
+                json_output['DSGroups'].append({
+                    'MedianEDP'   : NSA_data['EDP_limits'][dl][dsg_i],
+                    'Beta'        : NSA_data['Fragility_beta'],
+                    'CurveType'   : 'LogNormal',
+                    'DSGroupType' : 'Single',
+                    'DamageStates': [{
+                        'Weight'      : 1.0,
+                        'Consequences': {
+                            # reconstruction cost is provided in percentages of replacement cost
+                            'Reconstruction_cost': {'Amount': NSA_data[
+                                                                  'Reconstruction_cost'][
+                                                                  ot][
+                                                                  dsg_i] / 100.}
+                        },
+                        'Description' : convert_DS_description[
+                            'DS{}'.format(dsg_i + 1)]
+                    }]
+                })
+
+            with open(
+                os.path.join(target_dir + 'DL json/', dl_id + '.json'),
+                'w') as f:
+                json.dump(json_output, f)
+
+                # third, nonstructural drift sensitive fragility groups
+        json_output = {}
+
+        dl_id = 'NSD-{}'.format(ot)
+
+        # this might get replaced by a more descriptive name in the future
+        json_output.update({'Name': dl_id})
+
+        # General info
+        json_output.update({
+            'GeneralInformation': {
+                'ID'         : dl_id,
+                'Description': dl_id,
+            # this might get replaced by more details in the future
+                # other fields can be added here if needed
+            }
+        })
+
+        # EDP info
+        json_output.update({
+            'EDP': {
+                'Type': 'Story Drift Ratio',
+                'Unit': [1, 'rad']
+            }
+        })
+
+        # Damage State info
+        json_output.update({'DSGroups': []})
+
+        for dsg_i in range(4):
+            json_output['DSGroups'].append({
+                'MedianEDP'   : NSD_data['EDP_limits'][dsg_i],
+                'Beta'        : NSD_data['Fragility_beta'],
+                'CurveType'   : 'LogNormal',
+                'DSGroupType' : 'Single',
+                'DamageStates': [{
+                    'Weight'      : 1.0,
+                    'Consequences': {
+                        # reconstruction cost is provided in percentages of replacement cost
+                        'Reconstruction_cost': {
+                            'Amount': NSD_data['Reconstruction_cost'][ot][
+                                          dsg_i] / 100.}
+                    },
+                    'Description' : convert_DS_description[
+                        'DS{}'.format(dsg_i + 1)]
+                }]
+            })
+
+        with open(os.path.join(target_dir + 'DL json/', dl_id + '.json'),
+                  'w') as f:
+            json.dump(json_output, f)
+
+    # finally, prepare the population distribution data
+    PD_data = raw_data['Population_Distribution']
+
+    pop_output = {}
+    for ot in PD_data.keys():
+        night_ids = raw_data['Parts_of_day']['Nighttime']
+        day_ids = raw_data['Parts_of_day']['Daytime']
+        commute_ids = raw_data['Parts_of_day']['Commute']
+
+        daily_pop = np.ones(24)
+        daily_pop[night_ids] = PD_data[ot][0]
+        daily_pop[day_ids] = PD_data[ot][1]
+        daily_pop[commute_ids] = PD_data[ot][2]
+        daily_pop = list(daily_pop)
+
+        # HAZUS does not introduce monthly and weekend/weekday variation
+        pop_output.update({ot: {
+            "weekday": {
+                "daily"  : daily_pop,
+                "monthly": list(np.ones(12))
+            },
+            "weekend": {
+                "daily"  : daily_pop,
+                "monthly": list(np.ones(12))
+            }
+        }})
+
+    with open(os.path.join(target_dir, 'population.json'), 'w') as f:
+        json.dump(pop_output, f)
 
 def write_SimCenter_DL_output(output_path, output_df, index_name='#Num', 
                               collapse_columns = True, stats_only=False):
