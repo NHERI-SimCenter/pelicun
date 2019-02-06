@@ -66,19 +66,23 @@ from .base import *
 
 pp = pprint.PrettyPrinter(indent=4)
 
-def read_SimCenter_DL_input(input_path, verbose=False):
+def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
     Read the damage and loss input information from a json file.
     
     The SimCenter in the function name refers to having specific fields 
     available in the file. Such a file is automatically prepared by the 
-    SimCenter PBE Application. The accepted input fields are explained in 
-    detail in the Input section of the documentation.
+    SimCenter PBE Application, but it can also be easily manipulated or created
+    manually. The accepted input fields are explained in detail in the Input 
+    section of the documentation.
     
     Parameters
     ----------
     input_path: string
         Location of the DL input json file.
+    assessment_type: {'P58', 'HAZUS'}
+        Tailors the warnings and verifications towards the type of assessment.
+        default: 'P58'.
     verbose: boolean
         If True, the function echoes the information read from the file. This
         can be useful to ensure that the information in the file is properly
@@ -90,6 +94,12 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         A dictionary with all the damage and loss data.
 
     """
+
+    # this is a convenience function for converting strings to float or None
+    def float_or_None(text):
+        return float(text) if text != '' else None
+    
+    AT = assessment_type
     
     with open(input_path, 'r') as f:
         jd = json.load(f)
@@ -111,7 +121,11 @@ def read_SimCenter_DL_input(input_path, verbose=False):
             ['rec_time', 'ReconstructionTime'],
             ['red_tag', 'RedTag'],
         ]:
-            data['decision_variables'].update({target_att: bool(DV[source_att])})
+            if source_att in DV.keys():
+                val = bool(DV[source_att])     
+            else:
+                val = False
+            data['decision_variables'].update({target_att: val})
     else:
         warnings.warn(UserWarning(
             "No decision variables specified in the input file. Assuming that "
@@ -120,8 +134,10 @@ def read_SimCenter_DL_input(input_path, verbose=False):
             'injuries': True,
             'rec_cost': True,
             'rec_time': True,
-            'red_tag': True
         })
+        # red tag is only used by P58 now
+        if AT == 'P58':
+            data['decision_variables'].update({'red_tag': True})          
         
     DV = data['decision_variables']
 
@@ -156,73 +172,93 @@ def read_SimCenter_DL_input(input_path, verbose=False):
             "No units were specified in the input file. Standard units are "
             "assumed."))
         data['units'].update({
-            'force': 1.,
-            'length': 1.,
-            'area': 1.,
-            'volume': 1.,
-            'acceleration': 1.,
+            'force': globals()['N'],
+            'length': globals()['m'],
+            'area': globals()['m2'],
+            'volume': globals()['m3'],
+            'acceleration': globals()['mps2'],
         })
 
-    # other attributes
-    for target_att, source_att, f_conv, unit_kind, dv_req in [
-        ['plan_area', 'planArea', float, 'area', 'injuries'],
-        ['stories', 'stories', int, '', ''],
-        # The following lines are commented out for now, because we do not use
-        # these pieces of data anyway.
-        #['building_type', 'type', str, ''],
-        #['height', 'height', float, 'length'],
-        #['year_built', 'year', int, ''],
-    ]:
-        if (GI is not None) and (source_att in GI.keys()):
-            if unit_kind is not '':
-                f_unit = data['units'][unit_kind]
+    # other attributes that can be used by a P58 assessment
+    if AT == 'P58':
+        for target_att, source_att, f_conv, unit_kind, dv_req in [
+            ['plan_area', 'planArea', float, 'area', 'injuries'],
+            ['stories', 'stories', int, '', ''],
+            # The following lines are commented out for now, because we do not 
+            # use these pieces of data anyway.
+            #['building_type', 'type', str, ''],
+            #['height', 'height', float, 'length'],
+            #['year_built', 'year', int, ''],
+        ]:
+            if (GI is not None) and (source_att in GI.keys()):
+                if unit_kind is not '':
+                    f_unit = data['units'][unit_kind]
+                else:
+                    f_unit = 1
+                att_value = f_conv(GI[source_att]) * f_unit
+                data['general'].update({target_att: att_value})
             else:
-                f_unit = 1
-            att_value = f_conv(GI[source_att]) * f_unit
-            data['general'].update({target_att: att_value})
-        else:
-            if (dv_req!='') and DV[dv_req]:
-                warnings.warn(UserWarning(
-                    "{} is not in the DL input file.".format(source_att)))
+                if (dv_req!='') and DV[dv_req]:
+                    warnings.warn(UserWarning(
+                        "{} is not in the DL input file.".format(source_att)))
         
     # components
     # Having components defined is not necessary, but if a component is defined
-    # then all of its attributes need to be specified.
+    # then all of its attributes need to be specified. Note that the required
+    # set of attributes depends on the type of assessment.
     if 'Components' in LM.keys():
         for comp in LM['Components']:
-            comp_data = {
-                'quantities'  : 
-                    np.array([float(qnt) for qnt in comp['quantity'].split(',')]),
-                'csg_weights' : 
-                    [float(wgt) for wgt in comp['weights'].split(',')],
-                'dirs'        : 
-                    [int(dir_) for dir_ in comp['directions'].split(',')],
-                'kind'        : 'structural' if comp['structural'] else 'non-structural',
-                'distribution': comp['distribution'],
-                'cov'         : float(comp['cov']),
-                'unit'        : [float(comp['unit_size']), comp['unit_type']],
-            }
+            if AT == 'P58':
+                comp_data = {
+                    'quantities'  : 
+                        np.array([float(qnt) for qnt in 
+                                  comp['quantity'].split(',')]),
+                    'csg_weights' : 
+                        [float(wgt) for wgt in comp['weights'].split(',')],
+                    'dirs'        : 
+                        [int(dir_) for dir_ in comp['directions'].split(',')],
+                    'kind'        : ('structural' if comp['structural'] 
+                                     else 'non-structural'),
+                    'distribution': comp['distribution'],
+                    'cov'         : float(comp['cov']),
+                    'unit'        : [float(comp['unit_size']), comp['unit_type']],
+                }
+            elif AT == 'HAZUS':
+                comp_data = {
+                    'quantities'  : np.ones(1),
+                    'csg_weights' : [1.0,],
+                    'locations'   : [1,],
+                    'dirs'        : [1,],
+                    'kind'        : ('structural' if comp['structural']
+                                     else 'non-structural'),
+                    'distribution': 'normal',
+                    'cov'         : 1e-4,
+                    'unit'        : [1.0, 'ea']
+                }
 
-            # sort the dirs and their weights to have better structured matrices 
-            # later
-            dir_order = np.argsort(comp_data['dirs'])
-            comp_data['dirs'] = [comp_data['dirs'][d_i] for d_i in dir_order]
-            comp_data['csg_weights'] = [comp_data['csg_weights'][d_i] for d_i in dir_order]
-            
-            # get the location(s) of components based on non-zero quantities
-            comp_data.update({
-                'locations':(np.where(comp_data['quantities'] > 0.)[0]+1).tolist()
-            })
-            # remove the zeros from the quantities
-            nonzero = comp_data['quantities'] > 0.
-            comp_data['quantities'] = comp_data['quantities'][nonzero].tolist()
+            if AT == 'P58':
+                # sort the dirs and their weights to have better structured 
+                # matrices later
+                dir_order = np.argsort(comp_data['dirs'])
+                comp_data['dirs'] = [comp_data['dirs'][d_i] for d_i 
+                                     in dir_order]
+                comp_data['csg_weights'] = [comp_data['csg_weights'][d_i] 
+                                            for d_i in dir_order]
                 
-            # scale the quantities according to the specified unit
-            unit_kind = comp_data['unit'][1]
-            if unit_kind not in globals().keys():
-                raise ValueError(
-                    "Unknown unit for component {}: {}".format(
-                        comp['ID'], unit_kind))
+                # get the location(s) of components based on non-zero quantities
+                comp_data.update({
+                    'locations':(np.where(comp_data['quantities'] > 0.)[0]+1).tolist()
+                })
+                # remove the zeros from the quantities
+                nonzero = comp_data['quantities'] > 0.
+                comp_data['quantities'] = comp_data['quantities'][nonzero].tolist()
+                    
+                # scale the quantities according to the specified unit
+                unit_kind = comp_data['unit'][1]
+                if unit_kind not in globals().keys():
+                    raise ValueError(
+                        "Unknown unit for component {}: {}".format(
+                            comp['ID'], unit_kind))
             
             # store the component data
             data['components'].update({comp['ID']: comp_data})
@@ -230,22 +266,24 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         warnings.warn(UserWarning(
             "No components were defined in the input file."))
 
+    
     # collapse modes
-    # Having collapse modes defined is not necessary, but if a collapse mode is
-    # defined, then all of its attributes need to be specified.
-    if 'CollapseModes' in LM.keys():
-        for coll_mode in LM['CollapseModes']:
-            cm_data = {
-                'w'            : float(coll_mode['w']),
-                'injuries'     : [float(inj) for inj in
-                                  coll_mode['injuries'].split(',')],
-                'affected_area': [float(cfar) for cfar in
-                                  coll_mode['affected_area'].split(',')],
-            }
-            data['collapse_modes'].update({coll_mode['name']: cm_data})
-    else:
-        warnings.warn(UserWarning(
-            "No collapse modes were defined in the input file."))
+    if AT == 'P58':
+        # Having collapse modes defined is not necessary, but if a collapse mode 
+        # is defined, then all of its attributes need to be specified.
+        if 'CollapseModes' in LM.keys():
+            for coll_mode in LM['CollapseModes']:
+                cm_data = {
+                    'w'            : float(coll_mode['w']),
+                    'injuries'     : [float(inj) for inj in
+                                      coll_mode['injuries'].split(',')],
+                    'affected_area': [float(cfar) for cfar in
+                                      coll_mode['affected_area'].split(',')],
+                }
+                data['collapse_modes'].update({coll_mode['name']: cm_data})
+        else:
+            warnings.warn(UserWarning(
+                "No collapse modes were defined in the input file."))
 
     # the number of realizations has to be specified in the file    
     if (('UncertaintyQuantification' in LM) and 
@@ -256,10 +294,6 @@ def read_SimCenter_DL_input(input_path, verbose=False):
     else:
         raise ValueError(
             "Number of realizations is not specified in the input file.")
-
-    # this is a convenience function for converting strings to float or None
-    def float_or_None(text):
-        return float(text) if text != '' else None
     
     EDP_units = dict(
         # PID is not here because it is unitless
@@ -268,60 +302,79 @@ def read_SimCenter_DL_input(input_path, verbose=False):
 
     # other general info
     if 'BuildingDamage' in LM.keys():
-        if 'CollapseLimits' in LM['BuildingDamage'].keys():
-            data['general'].update({
-                'collapse_limits':
-                    dict([(key, float_or_None(value)) for key, value in
-                          LM['BuildingDamage']['CollapseLimits'].items()])})            
-            # scale the limits by the units
-            DGCL = data['general']['collapse_limits']
-            for EDP_kind, value in DGCL.items():
-                if (EDP_kind in EDP_units.keys()) and (value is not None):
-                    f_EDP = data['units'][EDP_units[EDP_kind]]
-                    DGCL[EDP_kind] = DGCL[EDP_kind] * f_EDP
-        else:
-            warnings.warn(UserWarning(
-                "Collapse EDP limits were not defined in the input file. "
-                "No EDP limits are assumed."))        
-        # make sure that PID and PFA collapse limits are identified
-        if 'collapse_limits' not in data['general'].keys():
-            data['general'].update({'collapse_limits':{}})
-        for key in ['PID', 'PFA']:
-            if key not in data['general']['collapse_limits'].keys():
-                data['general']['collapse_limits'].update({key: None})
-            
-            
-        if 'IrrepairableResidualDrift' in LM['BuildingDamage'].keys():
-            data['general'].update({
-                'irrepairable_res_drift':
-                    dict([(key, float_or_None(value)) for key, value in
-                          LM['BuildingDamage'][
-                              'IrrepairableResidualDrift'].items()])})
-        elif DV['rec_cost'] or DV['rec_time']:
-            warnings.warn(UserWarning(
-                "Residual drift limits corresponding to irrepairable "
-                "damage were not defined in the input file. We assume that "
-                "damage is repairable regardless of the residual drift."))
-            
+        
         if 'ReplacementCost' in LM['BuildingDamage'].keys():
             data['general'].update({
                 'replacement_cost': float_or_None(
                     LM['BuildingDamage']['ReplacementCost'])})
         elif DV['rec_cost']:
-            warnings.warn(UserWarning(
-                "Building replacement cost was not defined in the input file."))
-    
+            if AT == 'P58':
+                warnings.warn(UserWarning(
+                    "Building replacement cost was not defined in the "
+                    "input file."))
+            elif AT == 'HAZUS':
+                raise ValueError("Building replacement cost was not defined in "
+                                 "the input file.")
+
         if 'ReplacementTime' in LM['BuildingDamage'].keys():
             data['general'].update({
                 'replacement_time': float_or_None(
                     LM['BuildingDamage']['ReplacementTime'])})
         elif DV['rec_time']:
-            warnings.warn(UserWarning(
-                "Building replacement time was not defined in the input file."))
+            if AT == 'P58':
+                warnings.warn(UserWarning(
+                    "Building replacement time was not defined in the "
+                    "input file."))
+            elif AT == 'HAZUS':
+                raise ValueError("Building replacement time was not defined in "
+                                 "the input file.")
+        
+        if AT == 'P58':
+            if 'CollapseLimits' in LM['BuildingDamage'].keys():
+                data['general'].update({
+                    'collapse_limits':
+                        dict([(key, float_or_None(value)) for key, value in
+                              LM['BuildingDamage']['CollapseLimits'].items()])})
+                # scale the limits by the units
+                DGCL = data['general']['collapse_limits']
+                for EDP_kind, value in DGCL.items():
+                    if (EDP_kind in EDP_units.keys()) and (value is not None):
+                        f_EDP = data['units'][EDP_units[EDP_kind]]
+                        DGCL[EDP_kind] = DGCL[EDP_kind] * f_EDP
+            else:
+                warnings.warn(UserWarning(
+                    "Collapse EDP limits were not defined in the input file. "
+                    "No EDP limits are assumed."))        
+            # make sure that PID and PFA collapse limits are identified
+            if 'collapse_limits' not in data['general'].keys():
+                data['general'].update({'collapse_limits':{}})
+            for key in ['PID', 'PFA']:
+                if key not in data['general']['collapse_limits'].keys():
+                    data['general']['collapse_limits'].update({key: None})
+                
+                
+            if 'IrrepairableResidualDrift' in LM['BuildingDamage'].keys():
+                data['general'].update({
+                    'irrepairable_res_drift':
+                        dict([(key, float_or_None(value)) for key, value in
+                              LM['BuildingDamage'][
+                                  'IrrepairableResidualDrift'].items()])})
+            elif DV['rec_cost'] or DV['rec_time']:
+                warnings.warn(UserWarning(
+                    "Residual drift limits corresponding to irrepairable "
+                    "damage were not defined in the input file. We assume that "
+                    "damage is repairable regardless of the residual drift."))        
     else:
-        warnings.warn(UserWarning(
-            "Building damage characteristics were not defined in the input "
-            "file"))
+        if AT == 'P58':
+            warnings.warn(UserWarning(
+                "Building damage characteristics were not defined in the "
+                "input file"))
+        elif AT == 'HAZUS' and DV['rec_cost']:
+            raise ValueError("Building replacement cost was not defined in "
+                             "the input file.")
+        elif AT == 'HAZUS' and DV['rec_time']:
+            raise ValueError("Building replacement time was not defined in "
+                             "the input file.")
     
     if 'BuildingResponse' in LM.keys():
         if 'DetectionLimits' in LM['BuildingResponse'].keys():
@@ -344,26 +397,36 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         for key in ['PID', 'PFA']:
             if key not in data['general']['detection_limits'].keys():
                 data['general']['detection_limits'].update({key: None})
-        
-        if 'YieldDriftRatio' in LM['BuildingResponse'].keys():
-            data['general'].update({
-                'yield_drift': float_or_None(
-                    LM['BuildingResponse']['YieldDriftRatio'])})
-        elif DV['rec_cost'] or DV['rec_time']:
-            warnings.warn(UserWarning(
-                "Yield drift ratio was not defined in the input file. "
-                "Assuming a yield drift ratio of 0.01 radian."))
-            data['general'].update({'yield_drift': 0.01})
+       
+        if AT == 'P58': 
+            if 'YieldDriftRatio' in LM['BuildingResponse'].keys():
+                data['general'].update({
+                    'yield_drift': float_or_None(
+                        LM['BuildingResponse']['YieldDriftRatio'])})
+            elif DV['rec_cost'] or DV['rec_time']:
+                warnings.warn(UserWarning(
+                    "Yield drift ratio was not defined in the input file. "
+                    "Assuming a yield drift ratio of 0.01 radian."))
+                data['general'].update({'yield_drift': 0.01})
             
     else:
-        warnings.warn(UserWarning(
-            "Building response characteristics were not defined in the input "
-            "file. Assuming no detection limits and a yield drift ratio of "
-            "0.01 radian."))
-        data['general'].update({
-            'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
-            'yield_drift': 0.01
-        })
+        if AT == 'P58':
+            warnings.warn(UserWarning(
+                "Building response characteristics were not defined in the "
+                "input file. Assuming no detection limits and a yield drift "
+                "ratio of 0.01 radian."))
+            data['general'].update({
+                'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
+                'yield_drift': 0.01
+            })
+        elif AT == 'HAZUS':
+            warnings.warn(UserWarning(
+                "Building response characteristics were not defined in the "
+                "input file. Assuming no detection limits."))
+            data['general'].update({
+                'detection_limits': dict(
+                    [(key, None) for key in ['PFA', 'PID']])
+            })
         
         
     if 'AdditionalUncertainty' in LM['UncertaintyQuantification'].keys():
@@ -391,9 +454,12 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         if 'OccupancyType' in LM['Inhabitants'].keys():
             data['general'].update({
                 'occupancy_type': LM['Inhabitants']['OccupancyType']})
-        elif DV['injuries']:
+        elif AT == 'P58' and DV['injuries']:
             warnings.warn(UserWarning(
                 "Occupancy type was not defined in the input file."))
+        elif AT == 'HAZUS' and DV['injuries']:
+            raise ValueError("Occupancy type was not defined in the input "
+                             "file.")
     
         if 'PeakPopulation' in LM['Inhabitants'].keys():
             peak_pop = [float(pop) for pop in
@@ -429,7 +495,7 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         warnings.warn(UserWarning(
             "Information about inhabitants was not defined in the input file."))
 
-    # dependencies
+    # dependencies    
     # We assume 'Independent' for all unspecified fields except for the 
     # fragilities where 'per ATC recommendation' is the default setting.
     dependency_to_acronym = {
@@ -441,49 +507,50 @@ def read_SimCenter_DL_input(input_path, verbose=False):
         'Independent'            : 'IND',
         'per ATC recommendation' : 'ATC',
     }
-    
-    if 'LossModelDependencies' in LM:
-        DEP = LM['LossModelDependencies']
-    else:
-        DEP = None
-        
-    for target_att, source_att, dv_req in [
-        ['quantities', 'Quantities', ''],
-        ['fragilities', 'Fragilities', ''],
-        ['injuries', 'Injuries', 'injuries'],
-        ['rec_costs', 'ReconstructionCosts', 'rec_cost'],
-        ['rec_times', 'ReconstructionTimes', 'rec_time'],
-        ['red_tags', 'RedTagProbabilities', 'red_tag'],
-    ]:
-        if (DEP is not None) and (source_att in DEP.keys()):
-            data['dependencies'].update({
-                target_att:dependency_to_acronym[DEP[source_att]]})
-        elif dv_req == '' or DV[dv_req]:
-            if target_att is not 'fragilities':
-                data['dependencies'].update({target_att: 'IND'})
-            else:
-                data['dependencies'].update({target_att: 'ATC'})
-                        
-            warnings.warn(UserWarning(
-                "Correlation between {} was not ".format(source_att)+
-                "defined in the input file. Using default values."))
-                
-    if (DEP is not None) and ('CostAndTime' in DEP.keys()):
-        data['dependencies'].update({'cost_and_time': bool(DEP['CostAndTime'])})
-    elif DV['rec_cost'] or DV['rec_time']:
-        data['dependencies'].update({'cost_and_time': False})
-        warnings.warn(UserWarning(
-            "Correlation between reconstruction cost and time was not defined "
-            "in the input file. Using default values."))
 
-    if (DEP is not None) and ('InjurySeverities' in DEP.keys()):
-        data['dependencies'].update({'injury_lvls': 
-                                         bool(DEP['InjurySeverities'])})
-    elif DV['injuries']:
-        data['dependencies'].update({'injury_lvls': False})
-        warnings.warn(UserWarning(
-            "Correlation between injury levels was not defined in the input "
-            "file. Using default values."))
+    if AT == 'P58':
+        if 'LossModelDependencies' in LM:
+            DEP = LM['LossModelDependencies']
+        else:
+            DEP = None
+            
+        for target_att, source_att, dv_req in [
+            ['quantities', 'Quantities', ''],
+            ['fragilities', 'Fragilities', ''],
+            ['injuries', 'Injuries', 'injuries'],
+            ['rec_costs', 'ReconstructionCosts', 'rec_cost'],
+            ['rec_times', 'ReconstructionTimes', 'rec_time'],
+            ['red_tags', 'RedTagProbabilities', 'red_tag'],
+        ]:
+            if (DEP is not None) and (source_att in DEP.keys()):
+                data['dependencies'].update({
+                    target_att:dependency_to_acronym[DEP[source_att]]})
+            elif dv_req == '' or DV[dv_req]:
+                if target_att is not 'fragilities':
+                    data['dependencies'].update({target_att: 'IND'})
+                else:
+                    data['dependencies'].update({target_att: 'ATC'})
+                            
+                warnings.warn(UserWarning(
+                    "Correlation between {} was not ".format(source_att)+
+                    "defined in the input file. Using default values."))
+                    
+        if (DEP is not None) and ('CostAndTime' in DEP.keys()):
+            data['dependencies'].update({'cost_and_time': bool(DEP['CostAndTime'])})
+        elif DV['rec_cost'] or DV['rec_time']:
+            data['dependencies'].update({'cost_and_time': False})
+            warnings.warn(UserWarning(
+                "Correlation between reconstruction cost and time was not defined "
+                "in the input file. Using default values."))
+    
+        if (DEP is not None) and ('InjurySeverities' in DEP.keys()):
+            data['dependencies'].update({'injury_lvls': 
+                                             bool(DEP['InjurySeverities'])})
+        elif DV['injuries']:
+            data['dependencies'].update({'injury_lvls': False})
+            warnings.warn(UserWarning(
+                "Correlation between injury levels was not defined in the input "
+                "file. Using default values."))
 
     if verbose: pp.pprint(data)
     
@@ -592,7 +659,8 @@ def read_population_distribution(path_POP, occupancy, verbose=False):
     data = jd[occupancy]
 
     # convert peak population to persons/m2
-    data['peak'] = data['peak'] / (1000. * ft2)
+    if 'peak' in data.keys():
+        data['peak'] = data['peak'] / (1000. * ft2)
 
     if verbose: # pragma: no cover
         pp.pprint(data)
@@ -670,14 +738,15 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         # all kinds of problems, so in such a case we display a warning and do 
         # not use the component. This can be relaxed later if someone creates a 
         # method to replace unknown values with reasonable estimates.
-        c_data['incomplete'] = int(DL_GI['Incomplete'])
-        if c_data['incomplete']:
-            # show warning            
-            del data[c_id]
-            warnings.warn(UserWarning(
-                'Fragility information for {} is incomplete. The component '
-                'cannot be used for loss assessment.'.format(c_id)))
-            continue
+        if 'Incomplete' in DL_GI.keys():
+            c_data['incomplete'] = int(DL_GI['Incomplete'])
+            if c_data['incomplete']:
+                # show warning            
+                del data[c_id]
+                warnings.warn(UserWarning(
+                    'Fragility information for {} is incomplete. The component '
+                    'cannot be used for loss assessment.'.format(c_id)))
+                continue
 
         # Get the parameters from the BIM component info
         ci_data = comp_info[c_id]
@@ -701,9 +770,9 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
         c_data['description'] = DL_GI['Description']
-        c_data['offset'] = DL_EDP['Offset']
-        c_data['correlation'] = int(DL_data['Correlated'])
-        c_data['directional'] = int(DL_data['Directional'])
+        c_data['offset'] =DL_EDP.get('Offset') 
+        c_data['correlation'] = int(DL_data.get('Correlated', False))
+        c_data['directional'] = int(DL_data.get('Directional', False))
 
         EDP_type = DL_EDP['Type']
         demand_factor = 1.0
@@ -757,37 +826,45 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
                 DS_C = DS_i['Consequences']
                 if 'ReconstructionCost' in DS_C.keys():
                     DS_CC = DS_C['ReconstructionCost']
-                    DS_data.update({'repair_cost': {
-                        'median_max'       : DS_CC['Amount'][0],
-                        'median_min'       : DS_CC['Amount'][1],
-                        'quantity_lower'   : DS_CC['Quantity'][0],
-                        'quantity_upper'   : DS_CC['Quantity'][1],
-                        'distribution_kind': curve_type[DS_CC['CurveType']],
-                        'cov'              : DS_CC['Beta'],
-                    }})
+                    if isinstance(DS_CC['Amount'], list):
+                        DS_data.update({'repair_cost': {
+                            'median_max'       : DS_CC['Amount'][0],
+                            'median_min'       : DS_CC['Amount'][1],
+                            'quantity_lower'   : DS_CC['Quantity'][0],
+                            'quantity_upper'   : DS_CC['Quantity'][1],
+                            'distribution_kind': curve_type[DS_CC['CurveType']],
+                            'cov'              : DS_CC['Beta'],
+                        }})
 
-                    # convert the units to standard ones
-                    DS_data['repair_cost']['quantity_lower'] *= c_data['unit']
-                    DS_data['repair_cost']['quantity_upper'] *= c_data['unit']
-                    DS_data['repair_cost']['median_min'] /= c_data['unit']
-                    DS_data['repair_cost']['median_max'] /= c_data['unit']
+                        # convert the units to standard ones
+                        DS_data['repair_cost']['quantity_lower'] *= c_data[
+                            'unit']
+                        DS_data['repair_cost']['quantity_upper'] *= c_data[
+                            'unit']
+                        DS_data['repair_cost']['median_min'] /= c_data['unit']
+                        DS_data['repair_cost']['median_max'] /= c_data['unit']
+                    else:
+                        DS_data.update({'repair_cost': DS_CC['Amount']})                        
 
                 if 'ReconstructionTime' in DS_C.keys():
                     DS_CT = DS_C['ReconstructionTime']
-                    DS_data.update({'repair_time': {
-                        'median_max'       : DS_CT['Amount'][0],
-                        'median_min'       : DS_CT['Amount'][1],
-                        'quantity_lower'   : DS_CT['Quantity'][0],
-                        'quantity_upper'   : DS_CT['Quantity'][1],
-                        'distribution_kind': curve_type[DS_CT['CurveType']],
-                        'cov'              : DS_CT['Beta'],
-                    }})
-
-                    # convert the units to standard ones
-                    DS_data['repair_time']['quantity_lower'] *= c_data['unit']
-                    DS_data['repair_time']['quantity_upper'] *= c_data['unit']
-                    DS_data['repair_time']['median_min'] /= c_data['unit']
-                    DS_data['repair_time']['median_max'] /= c_data['unit']
+                    if isinstance(DS_CT['Amount'], list):
+                        DS_data.update({'repair_time': {
+                            'median_max'       : DS_CT['Amount'][0],
+                            'median_min'       : DS_CT['Amount'][1],
+                            'quantity_lower'   : DS_CT['Quantity'][0],
+                            'quantity_upper'   : DS_CT['Quantity'][1],
+                            'distribution_kind': curve_type[DS_CT['CurveType']],
+                            'cov'              : DS_CT['Beta'],
+                        }})
+    
+                        # convert the units to standard ones
+                        DS_data['repair_time']['quantity_lower'] *= c_data['unit']
+                        DS_data['repair_time']['quantity_upper'] *= c_data['unit']
+                        DS_data['repair_time']['median_min'] /= c_data['unit']
+                        DS_data['repair_time']['median_max'] /= c_data['unit']
+                    else:
+                        DS_data.update({'repair_time': DS_CT['Amount']})
 
                 if 'RedTag' in DS_C.keys():
                     DS_CR = DS_C['RedTag']
@@ -799,14 +876,19 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
 
                 if 'Injuries' in DS_C.keys():
                     DS_CI = DS_C['Injuries']
-                    DS_data.update({'injuries': {
-                        'theta': [I_i['Amount'] for I_i in DS_CI],
-                        # 'distribution_kind': curve_type[DS_CR['CurveType']],
-                        'cov'  : [I_i['Beta'] for I_i in DS_CI],
-                    }})
+                    if DS_CI[0].get('Beta') is not None:
+                        DS_data.update({'injuries': {
+                            'theta': [I_i['Amount'] for I_i in DS_CI],
+                            # 'distribution_kind': curve_type[DS_CR['CurveType']],
+                            'cov'  : [I_i['Beta'] for I_i in DS_CI],
+                        }})
+                    else:
+                        DS_data.update({
+                            'injuries': [I_i['Amount'] for I_i in DS_CI]})
 
                     # if there is a chance of injuries, load the affected floor area
-                    affected_area, unit = DS_i['AffectedArea']
+                    affected_area, unit = DS_i.get('AffectedArea', 
+                                                   [0.0, 'SF'])
                     if unit == 'SF':
                         affected_area = affected_area * SF
                     else: # pragma: no cover
@@ -1423,7 +1505,7 @@ def create_HAZUS_json_files(data_dir, target_dir):
                         'Weight'      : 1.0,
                         'Consequences': {
                             # reconstruction cost is provided in percentages of replacement cost
-                            'Reconstruction_cost': {'Amount': NSA_data[
+                            'ReconstructionCost': {'Amount': NSA_data[
                                                                   'Reconstruction_cost'][
                                                                   ot][
                                                                   dsg_i] / 100.}
@@ -1477,7 +1559,7 @@ def create_HAZUS_json_files(data_dir, target_dir):
                     'Weight'      : 1.0,
                     'Consequences': {
                         # reconstruction cost is provided in percentages of replacement cost
-                        'Reconstruction_cost': {
+                        'ReconstructionCost': {
                             'Amount': NSD_data['Reconstruction_cost'][ot][
                                           dsg_i] / 100.}
                     },

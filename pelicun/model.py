@@ -377,43 +377,49 @@ class ConsequenceFunction(object):
         """
         # get the median DV conditioned on the provided quantities
         median = self.median(quantity=np.asarray(quantity))
-
-        # if there are more than one quantities defined, infer the number of 
-        # samples from the number of quantities           
-        if quantity is not None:
-            if type(quantity) not in [pd.Series, pd.DataFrame]:
-                quantity = pd.Series(quantity, name='QNT')
-            
-            if quantity.size > 1:
-                sample_size = quantity.size
-            elif sample_size > 1:
-                quantity = pd.Series(np.ones(sample_size) * quantity.values, 
-                                     name='QNT')
         
-        # if there are no samples or resampling is forced, then sample the 
-        # distribution first
-        if (force_resampling or 
-            (self._DV_distribution.samples is None)):
-            self._DV_distribution.sample_distribution(sample_size=sample_size)
+        # if the distribution is None, then there is no uncertainty in the DV
+        # and the median values are the samples
+        if self._DV_distribution is None:
+            return median
         
-        # if the number of samples is not sufficiently large, raise an error
-        if self._DV_distribution.samples.shape[0] < sample_size:
-            raise ValueError(
-                'Consequence evaluation requires at least as many samples of '
-                'the Decision Variable distribution as many samples are '
-                'requested or as many quantity values are provided to the '
-                'sample_unit_DV function. You might want to consider setting '
-                'force_resampling to True or sampling the distribution before '
-                'calling the sample_unit_DV function.')
-        
-        # get the samples
-        if quantity is not None:
-            samples = self._DV_distribution.samples.loc[quantity.index]
         else:
-            samples = self._DV_distribution.samples.iloc[:sample_size]
-        samples = samples * median
-        
-        return samples
+            # if there are more than one quantities defined, infer the number of 
+            # samples from the number of quantities   
+            if quantity is not None:
+                if type(quantity) not in [pd.Series, pd.DataFrame]:
+                    quantity = pd.Series(quantity, name='QNT')
+                
+                if quantity.size > 1:
+                    sample_size = quantity.size
+                elif sample_size > 1:
+                    quantity = pd.Series(np.ones(sample_size) * quantity.values, 
+                                         name='QNT')
+            
+            # if there are no samples or resampling is forced, then sample the 
+            # distribution first
+            if (force_resampling or 
+                (self._DV_distribution.samples is None)):
+                self._DV_distribution.sample_distribution(sample_size=sample_size)
+            
+            # if the number of samples is not sufficiently large, raise an error
+            if self._DV_distribution.samples.shape[0] < sample_size:
+                raise ValueError(
+                    'Consequence evaluation requires at least as many samples of '
+                    'the Decision Variable distribution as many samples are '
+                    'requested or as many quantity values are provided to the '
+                    'sample_unit_DV function. You might want to consider setting '
+                    'force_resampling to True or sampling the distribution before '
+                    'calling the sample_unit_DV function.')
+            
+            # get the samples
+            if quantity is not None:
+                samples = self._DV_distribution.samples.loc[quantity.index]
+            else:
+                samples = self._DV_distribution.samples.iloc[:sample_size]
+            samples = samples * median
+            
+            return samples
 
 
 class DamageState(object):
@@ -504,9 +510,11 @@ class DamageState(object):
             Unit repair cost samples.
 
         """
-        output = self._repair_cost_CF.sample_unit_DV(quantity=quantity,
-                                                     sample_size=sample_size,
-                                                     **kwargs)
+        output = None
+        if self._repair_cost_CF is not None:
+            output = self._repair_cost_CF.sample_unit_DV(quantity=quantity,
+                                                         sample_size=sample_size,
+                                                         **kwargs)
 
         return output
 
@@ -536,9 +544,11 @@ class DamageState(object):
             Unit reconstruction time samples.
 
         """
-        output = self._reconstruction_time_CF.sample_unit_DV(
-            quantity=quantity,
-            sample_size=sample_size, **kwargs)
+        output = None
+        if self._reconstruction_time_CF is not None:
+            output = self._reconstruction_time_CF.sample_unit_DV(
+                quantity=quantity,
+                sample_size=sample_size, **kwargs)
 
         return output
 
@@ -562,8 +572,10 @@ class DamageState(object):
             Samples of damaged component proportions that trigger a red tag.
 
         """
-        output = self._red_tag_CF.sample_unit_DV(sample_size=sample_size, 
-                                                 **kwargs)
+        output = None
+        if self._red_tag_CF is not None:
+            output = self._red_tag_CF.sample_unit_DV(sample_size=sample_size, 
+                                                     **kwargs)
 
         return output
 
@@ -593,10 +605,12 @@ class DamageState(object):
 
         """
 
-        CF = self._injuries_CF_set[severity_level]
+        
         output = None
-        if CF is not None:
-            output = CF.sample_unit_DV(sample_size=sample_size, **kwargs)        
+        if len(self._injuries_CF_set) > severity_level:
+            CF = self._injuries_CF_set[severity_level]
+            if CF is not None:
+                output = CF.sample_unit_DV(sample_size=sample_size, **kwargs)        
 
         return output
 
