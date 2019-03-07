@@ -280,6 +280,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'affected_area': [float(cfar) for cfar in
                                       coll_mode['affected_area'].split(',')],
                 }
+                if len(cm_data['affected_area']) == 1:
+                    cm_data['affected_area'] = np.ones(data['general']['stories'])*cm_data['affected_area']
                 data['collapse_modes'].update({coll_mode['name']: cm_data})
         else:
             warnings.warn(UserWarning(
