@@ -165,8 +165,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             })
             if 'acceleration' not in data['units'].keys():
                 data['units'].update({
-                    'acceleration': 1.0 }) 
-            #            data['units']['length'] / data['units']['time'] ** 2.})
+                    #'acceleration': 1.0 }) 
+                    'acceleration': data['units']['length']})
     else:
         warnings.warn(UserWarning(
             "No units were specified in the input file. Standard units are "

@@ -144,8 +144,11 @@ class Assessment(object):
             verbose=verbose)
 
         # EDP file
-        self._EDP_in = read_SimCenter_EDP_input(path_EDP_input, 
-                                                verbose=verbose)
+        self._EDP_in = read_SimCenter_EDP_input(
+            path_EDP_input, 
+            units=dict(PID=1., 
+                       PFA=self._AIM_in['units']['acceleration']),
+            verbose=verbose)
     
     def define_random_variables(self):
         """
@@ -1797,7 +1800,7 @@ class FEMA_P58_Assessment(Assessment):
     def _calc_collapse_injuries(self):
 
         inj_lvls = self._inj_lvls
-
+        
         # calculate casualties and injuries for the collapsed cases
         # generate collapse modes
         colID = self._ID_dict['collapse']
