@@ -260,6 +260,7 @@ class FEMA_P58_Assessment(Assessment):
         POP = read_population_distribution(
             path_POP_data, 
             BIM['general']['occupancy_type'], 
+            assessment_type=self._assessment_type,
             verbose=verbose)
 
         POP['peak'] = BIM['general']['population']          
@@ -537,8 +538,8 @@ class FEMA_P58_Assessment(Assessment):
             ('reconstruction', 'time impractical?'),
             ('reconstruction', 'time-sequential'),
             ('reconstruction', 'time-parallel'),
-            ('injuries', 'casualties'),
-            ('injuries', 'fatalities'),
+            ('injuries', 'sev. 1'),  # thanks, Laura S.!
+            ('injuries', 'sev. 2'),
         ]
         
         ncID = self._ID_dict['non-collapse']
@@ -624,14 +625,14 @@ class FEMA_P58_Assessment(Assessment):
             if 'CM' in self._COL.columns:
                 SUMMARY.loc[colID, ('collapses', 'mode')] = self._COL.loc[:, 'CM']
             
-                SUMMARY.loc[colID, ('injuries', 'casualties')] = \
+                SUMMARY.loc[colID, ('injuries', 'sev. 1')] = \
                     self._COL.loc[:, 'INJ-0']
-                SUMMARY.loc[colID, ('injuries', 'fatalities')] = \
+                SUMMARY.loc[colID, ('injuries', 'sev. 2')] = \
                     self._COL.loc[:, 'INJ-1']
     
-            SUMMARY.loc[ncID, ('injuries', 'casualties')] = \
+            SUMMARY.loc[ncID, ('injuries', 'sev. 1')] = \
                 self._DV_dict['injuries'][0].sum(axis=1)
-            SUMMARY.loc[ncID, ('injuries', 'fatalities')] = \
+            SUMMARY.loc[ncID, ('injuries', 'sev. 2')] = \
                 self._DV_dict['injuries'][1].sum(axis=1)
         
         self._SUMMARY = SUMMARY.dropna(axis=1,how='all')
@@ -1801,7 +1802,7 @@ class FEMA_P58_Assessment(Assessment):
 
         inj_lvls = self._inj_lvls
         
-        # calculate casualties and injuries for the collapsed cases
+        # calculate injuries for the collapsed cases
         # generate collapse modes
         colID = self._ID_dict['collapse']
         C_samples = len(colID)
@@ -1983,6 +1984,7 @@ class HAZUS_Assessment(Assessment):
         POP = read_population_distribution(
             path_POP_data,
             BIM['general']['occupancy_type'],
+            assessment_type=self._assessment_type,
             verbose=verbose)
 
         POP['peak'] = BIM['general']['population']

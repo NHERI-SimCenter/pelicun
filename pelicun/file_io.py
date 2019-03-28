@@ -628,23 +628,35 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
 
     return data
 
-def read_population_distribution(path_POP, occupancy, verbose=False):
+def read_population_distribution(path_POP, occupancy, assessment_type='P58', 
+    verbose=False):
     """
     Read the population distribution from an external json file.
     
     The population distribution is expected in a format used in FEMA P58, but
-    the list of occupancy categories can be extended beyond those available
-    in that document. The population distributions for the occupancy categories
-    from FEMA P58 are provided with pelicun in the population.json in the 
-    resources folder.
+    the list of occupancy categories can be modified and/or extended beyond 
+    those available in that document. The population distributions for the 
+    occupancy categories from FEMA P58 and HAZUS MH are provided with pelicun 
+    in the population.json files in the corresponding folder under resources.
+
+    Note: Population distributions in HAZUS do not have a 1:1 mapping to the
+    occupancy types provided in the Technical Manual. We expect inputs to 
+    follow the naming convention in the HAZUS Technical Manual and convert
+    those to the broader categories here automatically. During conversion, the
+    following assumptions are made about the occupancy classes: i) RES classes 
+    are best described as Residential; ii) COM and REL as Commercial; iii) EDU
+    as Educational; iv) IND and AGR as Industrial; v) Hotels do not have a 
+    matching occupancy class.
     
     Parameters
     ----------
     path_POP: string
         Location of the population distribution json file.
     occupancy: string
-        Identifies the occupancy category. There must be a matching category in 
-        the population distribution json file. 
+        Identifies the occupancy category. 
+    assessment_type: {'P58', 'HAZUS'}
+        Tailors the warnings and verifications towards the type of assessment.
+        default: 'P58'.
     verbose: boolean
         If True, the function echoes the information read from the file. This
         can be useful to ensure that the information in the file is properly
@@ -657,6 +669,27 @@ def read_population_distribution(path_POP, occupancy, verbose=False):
     """
     with open(path_POP, 'r') as f:
         jd = json.load(f)
+
+    AT = assessment_type
+
+    # Convert the HAZUS occupancy classes to the broader categories used for 
+    # population distribution.
+    if AT == 'HAZUS':
+        base_occupancy = occupancy
+        if base_occupancy[:3] == "RES":
+            occupancy = "Residential"
+        elif base_occupancy[:3] in ["COM", "REL"]:
+            occupancy = "Commercial"
+        elif base_occupancy[:3] == "EDU":
+            occupancy = "Educational"
+        elif base_occupancy[:3] in ["IND", "AGR"]:
+            occupancy = "Industrial"
+        else:
+            warnings.warn(UserWarning(
+                'Unknown, probably invalid, occupancy class for HAZUS '
+                'assessment: {}. When defining population distribution, '
+                'assuming RES1 instead.'.format(base_occupancy)))
+            occupancy = 'Residential'
 
     data = jd[occupancy]
 
@@ -1612,7 +1645,8 @@ def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
     # if the summary flag is set, then not all realizations are returned, but
     # only the first two moments and the empirical CDF through 100 percentiles
     if stats_only:
-        output_df = output_df.describe(np.arange(1, 100)/100.)
+        #output_df = output_df.describe(np.arange(1, 100)/100.)
+        output_df = output_df.describe([0.1,0.5,0.9])
         
     # the name of the index column is replaced with the provided value
     output_df.index.name = index_name
