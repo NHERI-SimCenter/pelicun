@@ -4,34 +4,34 @@
 # Copyright (c) 2018 The Regents of the University of California
 #
 # This file is part of pelicun.
-# 
-# Redistribution and use in source and binary forms, with or without 
+#
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
-# 1. Redistributions of source code must retain the above copyright notice, 
+# 1. Redistributions of source code must retain the above copyright notice,
 # this list of conditions and the following disclaimer.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, 
-# this list of conditions and the following disclaimer in the documentation 
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
 # and/or other materials provided with the distribution.
 #
-# 3. Neither the name of the copyright holder nor the names of its contributors 
-# may be used to endorse or promote products derived from this software without 
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
 # specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-# 
-# You should have received a copy of the BSD 3-Clause License along with 
+#
+# You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
 #
 # Contributors:
@@ -69,13 +69,13 @@ pp = pprint.PrettyPrinter(indent=4)
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
     Read the damage and loss input information from a json file.
-    
-    The SimCenter in the function name refers to having specific fields 
-    available in the file. Such a file is automatically prepared by the 
+
+    The SimCenter in the function name refers to having specific fields
+    available in the file. Such a file is automatically prepared by the
     SimCenter PBE Application, but it can also be easily manipulated or created
-    manually. The accepted input fields are explained in detail in the Input 
+    manually. The accepted input fields are explained in detail in the Input
     section of the documentation.
-    
+
     Parameters
     ----------
     input_path: string
@@ -98,9 +98,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     # this is a convenience function for converting strings to float or None
     def float_or_None(text):
         return float(text) if text != '' else None
-    
+
     AT = assessment_type
-    
+
     with open(input_path, 'r') as f:
         jd = json.load(f)
 
@@ -153,7 +153,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     data['data_sources'].update({'path_POP_data': path_POP_data})
 
     # decision variables of interest
-    if 'DecisionVariables' in LM.keys():        
+    if 'DecisionVariables' in LM.keys():
         DV = LM['DecisionVariables']
         for target_att, source_att in [
             ['injuries', 'Injuries'],
@@ -162,7 +162,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             ['red_tag', 'RedTag'],
         ]:
             if source_att in DV.keys():
-                val = bool(DV[source_att])     
+                val = bool(DV[source_att])
             else:
                 val = False
             data['decision_variables'].update({target_att: val})
@@ -177,8 +177,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         })
         # red tag is only used by P58 now
         if AT == 'P58':
-            data['decision_variables'].update({'red_tag': True})          
-        
+            data['decision_variables'].update({'red_tag': True})
+
     DV = data['decision_variables']
 
     # general information
@@ -201,11 +201,11 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         if 'length' in data['units'].keys():
             data['units'].update({
                 'area': data['units']['length']**2.,
-                'volume': data['units']['length']**3.                
+                'volume': data['units']['length']**3.
             })
             if 'acceleration' not in data['units'].keys():
                 data['units'].update({
-                    #'acceleration': 1.0 }) 
+                    #'acceleration': 1.0 })
                     'acceleration': data['units']['length']})
     else:
         warnings.warn(UserWarning(
@@ -224,7 +224,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         for target_att, source_att, f_conv, unit_kind, dv_req in [
             ['plan_area', 'planArea', float, 'area', 'injuries'],
             ['stories', 'stories', int, '', ''],
-            # The following lines are commented out for now, because we do not 
+            # The following lines are commented out for now, because we do not
             # use these pieces of data anyway.
             #['building_type', 'type', str, ''],
             #['height', 'height', float, 'length'],
@@ -241,7 +241,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 if (dv_req!='') and DV[dv_req]:
                     warnings.warn(UserWarning(
                         "{} is not in the DL input file.".format(source_att)))
-        
+
     # components
     # Having components defined is not necessary, but if a component is defined
     # then all of its attributes need to be specified. Note that the required
@@ -250,14 +250,14 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         for comp in LM['Components']:
             if AT == 'P58':
                 comp_data = {
-                    'quantities'  : 
-                        np.array([float(qnt) for qnt in 
+                    'quantities'  :
+                        np.array([float(qnt) for qnt in
                                   comp['quantity'].split(',')]),
-                    'csg_weights' : 
+                    'csg_weights' :
                         [float(wgt) for wgt in comp['weights'].split(',')],
-                    'dirs'        : 
+                    'dirs'        :
                         [int(dir_) for dir_ in comp['directions'].split(',')],
-                    'kind'        : ('structural' if comp['structural'] 
+                    'kind'        : ('structural' if comp['structural']
                                      else 'non-structural'),
                     'distribution': comp['distribution'],
                     'cov'         : float(comp['cov']),
@@ -277,14 +277,14 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 }
 
             if AT == 'P58':
-                # sort the dirs and their weights to have better structured 
+                # sort the dirs and their weights to have better structured
                 # matrices later
                 dir_order = np.argsort(comp_data['dirs'])
-                comp_data['dirs'] = [comp_data['dirs'][d_i] for d_i 
+                comp_data['dirs'] = [comp_data['dirs'][d_i] for d_i
                                      in dir_order]
-                comp_data['csg_weights'] = [comp_data['csg_weights'][d_i] 
+                comp_data['csg_weights'] = [comp_data['csg_weights'][d_i]
                                             for d_i in dir_order]
-                
+
                 # get the location(s) of components based on non-zero quantities
                 comp_data.update({
                     'locations':(np.where(comp_data['quantities'] > 0.)[0]+1).tolist()
@@ -292,24 +292,24 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 # remove the zeros from the quantities
                 nonzero = comp_data['quantities'] > 0.
                 comp_data['quantities'] = comp_data['quantities'][nonzero].tolist()
-                    
+
                 # scale the quantities according to the specified unit
                 unit_kind = comp_data['unit'][1]
                 if unit_kind not in globals().keys():
                     raise ValueError(
                         "Unknown unit for component {}: {}".format(
                             comp['ID'], unit_kind))
-            
+
             # store the component data
             data['components'].update({comp['ID']: comp_data})
     else:
         warnings.warn(UserWarning(
             "No components were defined in the input file."))
 
-    
+
     # collapse modes
     if AT == 'P58':
-        # Having collapse modes defined is not necessary, but if a collapse mode 
+        # Having collapse modes defined is not necessary, but if a collapse mode
         # is defined, then all of its attributes need to be specified.
         if 'CollapseModes' in LM.keys():
             for coll_mode in LM['CollapseModes']:
@@ -327,8 +327,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             warnings.warn(UserWarning(
                 "No collapse modes were defined in the input file."))
 
-    # the number of realizations has to be specified in the file    
-    if (('UncertaintyQuantification' in LM) and 
+    # the number of realizations has to be specified in the file
+    if (('UncertaintyQuantification' in LM) and
         ('Realizations' in LM['UncertaintyQuantification'])):
             data['general'].update({
                 'realizations': int(LM['UncertaintyQuantification'][
@@ -336,7 +336,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     else:
         raise ValueError(
             "Number of realizations is not specified in the input file.")
-    
+
     EDP_units = dict(
         # PID is not here because it is unitless
         PFA = 'acceleration'
@@ -344,7 +344,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     # other general info
     if 'BuildingDamage' in LM.keys():
-        
+
         if 'ReplacementCost' in LM['BuildingDamage'].keys():
             data['general'].update({
                 'replacement_cost': float_or_None(
@@ -370,7 +370,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             elif AT == 'HAZUS':
                 raise ValueError("Building replacement time was not defined in "
                                  "the input file.")
-        
+
         if AT == 'P58':
             if 'CollapseLimits' in LM['BuildingDamage'].keys():
                 data['general'].update({
@@ -386,15 +386,15 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             else:
                 warnings.warn(UserWarning(
                     "Collapse EDP limits were not defined in the input file. "
-                    "No EDP limits are assumed."))        
+                    "No EDP limits are assumed."))
             # make sure that PID and PFA collapse limits are identified
             if 'collapse_limits' not in data['general'].keys():
                 data['general'].update({'collapse_limits':{}})
             for key in ['PID', 'PFA']:
                 if key not in data['general']['collapse_limits'].keys():
                     data['general']['collapse_limits'].update({key: None})
-                
-                
+
+
             if 'IrrepairableResidualDrift' in LM['BuildingDamage'].keys():
                 data['general'].update({
                     'irrepairable_res_drift':
@@ -405,7 +405,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 warnings.warn(UserWarning(
                     "Residual drift limits corresponding to irrepairable "
                     "damage were not defined in the input file. We assume that "
-                    "damage is repairable regardless of the residual drift."))        
+                    "damage is repairable regardless of the residual drift."))
     else:
         if AT == 'P58':
             warnings.warn(UserWarning(
@@ -417,7 +417,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif AT == 'HAZUS' and DV['rec_time']:
             raise ValueError("Building replacement time was not defined in "
                              "the input file.")
-    
+
     if 'BuildingResponse' in LM.keys():
         if 'DetectionLimits' in LM['BuildingResponse'].keys():
             data['general'].update({
@@ -425,7 +425,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     dict([(key, float_or_None(value)) for key, value in
                           LM['BuildingResponse']['DetectionLimits'].items()])})
             DGDL = data['general']['detection_limits']
-            # scale the limits by the units            
+            # scale the limits by the units
             for EDP_kind, value in DGDL.items():
                 if (EDP_kind in EDP_units.keys()) and (value is not None):
                     f_EDP = data['units'][EDP_units[EDP_kind]]
@@ -439,8 +439,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         for key in ['PID', 'PFA']:
             if key not in data['general']['detection_limits'].keys():
                 data['general']['detection_limits'].update({key: None})
-       
-        if AT == 'P58': 
+
+        if AT == 'P58':
             if 'YieldDriftRatio' in LM['BuildingResponse'].keys():
                 data['general'].update({
                     'yield_drift': float_or_None(
@@ -450,7 +450,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     "Yield drift ratio was not defined in the input file. "
                     "Assuming a yield drift ratio of 0.01 radian."))
                 data['general'].update({'yield_drift': 0.01})
-            
+
     else:
         if AT == 'P58':
             warnings.warn(UserWarning(
@@ -469,8 +469,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 'detection_limits': dict(
                     [(key, None) for key in ['PFA', 'PID']])
             })
-        
-        
+
+
     if 'AdditionalUncertainty' in LM['UncertaintyQuantification'].keys():
         data['general'].update({
             'added_uncertainty': {
@@ -491,7 +491,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 'beta_m': 0.0001
             }
         })
-    
+
     if 'Inhabitants' in LM.keys():
         if 'OccupancyType' in LM['Inhabitants'].keys():
             data['general'].update({
@@ -502,16 +502,16 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif AT == 'HAZUS' and DV['injuries']:
             raise ValueError("Occupancy type was not defined in the input "
                              "file.")
-    
+
         if 'PeakPopulation' in LM['Inhabitants'].keys():
             peak_pop = [float(pop) for pop in
                                LM['Inhabitants']['PeakPopulation'].split(',')]
-            
+
             # If the number of stories is specified and the population list
             # does not provide values for every story...
             # If only one value is provided, then it is assumed at every story.
             # Otherwise, the values are assumed to correspond to the bottom
-            # stories and the upper ones are filled with zeros. 
+            # stories and the upper ones are filled with zeros.
             # A warning message is displayed in this case.
             if 'stories' in data['general'].keys():
                 stories = data['general']['stories']
@@ -521,14 +521,14 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                         peak_pop.append(peak_pop[0])
                     else:
                         peak_pop.append(0)
-                
+
                 if pop_in > 1 and pop_in != stories:
                     warnings.warn(UserWarning(
                         "Peak population was specified to some, but not all "
                         "stories. The remaining stories are assumed to have "
                         "zero population."
                     ))
-                
+
             data['general'].update({'population': peak_pop})
         elif DV['injuries']:
             warnings.warn(UserWarning(
@@ -537,8 +537,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         warnings.warn(UserWarning(
             "Information about inhabitants was not defined in the input file."))
 
-    # dependencies    
-    # We assume 'Independent' for all unspecified fields except for the 
+    # dependencies
+    # We assume 'Independent' for all unspecified fields except for the
     # fragilities where 'per ATC recommendation' is the default setting.
     dependency_to_acronym = {
         'btw. Fragility Groups'  : 'FG',
@@ -555,7 +555,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             DEP = LM['LossModelDependencies']
         else:
             DEP = None
-            
+
         for target_att, source_att, dv_req in [
             ['quantities', 'Quantities', ''],
             ['fragilities', 'Fragilities', ''],
@@ -572,11 +572,11 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     data['dependencies'].update({target_att: 'IND'})
                 else:
                     data['dependencies'].update({target_att: 'ATC'})
-                            
+
                 warnings.warn(UserWarning(
                     "Correlation between {} was not ".format(source_att)+
                     "defined in the input file. Using default values."))
-                    
+
         if (DEP is not None) and ('CostAndTime' in DEP.keys()):
             data['dependencies'].update({'cost_and_time': bool(DEP['CostAndTime'])})
         elif DV['rec_cost'] or DV['rec_time']:
@@ -584,9 +584,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             warnings.warn(UserWarning(
                 "Correlation between reconstruction cost and time was not defined "
                 "in the input file. Using default values."))
-    
+
         if (DEP is not None) and ('InjurySeverities' in DEP.keys()):
-            data['dependencies'].update({'injury_lvls': 
+            data['dependencies'].update({'injury_lvls':
                                              bool(DEP['InjurySeverities'])})
         elif DV['injuries']:
             data['dependencies'].update({'injury_lvls': False})
@@ -595,29 +595,29 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 "file. Using default values."))
 
     if verbose: pp.pprint(data)
-    
+
     return data
 
-def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'), 
+def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
                              units = dict(PID=1., PFA=1.),
                              verbose=False):
     """
     Read the EDP input information from a text file with a tabular structure.
-    
-    The SimCenter in the function name refers to having specific columns 
+
+    The SimCenter in the function name refers to having specific columns
     available in the file. Currently, the expected formatting follows the
     output formatting of Dakota that is applied for the dakotaTab.out. When
-    using pelicun with the PBE Application, such a dakotaTab.out is 
+    using pelicun with the PBE Application, such a dakotaTab.out is
     automatically generated. The Input section of the documentation provides
     more information about the expected formatting of the EDP input file.
-    
+
     Parameters
     ----------
     input_path: string
         Location of the EDP input file.
     EDP_kinds: tuple of strings, default: ('PID', 'PFA')
         Collection of the kinds of EDPs in the input file. The default pair of
-        'PID' and 'PFA' can be replaced or extended by any other EDPs. 
+        'PID' and 'PFA' can be replaced or extended by any other EDPs.
     units: dict, default: {'PID':1., 'PFA':1}
         Defines the unit conversion that shall be applied to the EDP values.
     verbose: boolean
@@ -630,7 +630,7 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
     data: dict
         A dictionary with all the EDP data.
     """
-    
+
     # initialize the data container
     data = {}
 
@@ -652,10 +652,10 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
 
                 # extract info about the location, direction, and scenario
                 info = column.split('-')
-                
+
                 # get the scale factor to perform unit conversion
                 f_unit = units[kind]
-                
+
                 # store the data
                 data[kind].append(dict(
                     raw_data=(EDP_raw[column].values * f_unit).tolist(),
@@ -668,32 +668,32 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
 
     return data
 
-def read_population_distribution(path_POP, occupancy, assessment_type='P58', 
+def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     verbose=False):
     """
     Read the population distribution from an external json file.
-    
+
     The population distribution is expected in a format used in FEMA P58, but
-    the list of occupancy categories can be modified and/or extended beyond 
-    those available in that document. The population distributions for the 
-    occupancy categories from FEMA P58 and HAZUS MH are provided with pelicun 
+    the list of occupancy categories can be modified and/or extended beyond
+    those available in that document. The population distributions for the
+    occupancy categories from FEMA P58 and HAZUS MH are provided with pelicun
     in the population.json files in the corresponding folder under resources.
 
     Note: Population distributions in HAZUS do not have a 1:1 mapping to the
-    occupancy types provided in the Technical Manual. We expect inputs to 
+    occupancy types provided in the Technical Manual. We expect inputs to
     follow the naming convention in the HAZUS Technical Manual and convert
     those to the broader categories here automatically. During conversion, the
-    following assumptions are made about the occupancy classes: i) RES classes 
+    following assumptions are made about the occupancy classes: i) RES classes
     are best described as Residential; ii) COM and REL as Commercial; iii) EDU
-    as Educational; iv) IND and AGR as Industrial; v) Hotels do not have a 
+    as Educational; iv) IND and AGR as Industrial; v) Hotels do not have a
     matching occupancy class.
-    
+
     Parameters
     ----------
     path_POP: string
         Location of the population distribution json file.
     occupancy: string
-        Identifies the occupancy category. 
+        Identifies the occupancy category.
     assessment_type: {'P58', 'HAZUS'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
@@ -712,7 +712,7 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
 
     AT = assessment_type
 
-    # Convert the HAZUS occupancy classes to the broader categories used for 
+    # Convert the HAZUS occupancy classes to the broader categories used for
     # population distribution.
     if AT == 'HAZUS':
         base_occupancy = occupancy
@@ -748,14 +748,14 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
     """
     Read the damage and loss data for the components of the asset.
 
-    DL data for each component is assumed to be stored in a JSON file following 
-    the DL file format specified by SimCenter. The name of the file is the ID 
-    (key) of the component in the comp_info dictionary. Besides the filename, 
-    the comp_info dictionary is also used to get other pieces of data about the 
-    component that is not available in the JSON files. Therefore, the following 
-    attributes need to be provided in the comp_info: ['quantities', 
-    'csg_weights', 'dirs', 'kind', 'distribution', 'cov', 'unit', 'locations'] 
-    Further information about these attributes is available in the Input 
+    DL data for each component is assumed to be stored in a JSON file following
+    the DL file format specified by SimCenter. The name of the file is the ID
+    (key) of the component in the comp_info dictionary. Besides the filename,
+    the comp_info dictionary is also used to get other pieces of data about the
+    component that is not available in the JSON files. Therefore, the following
+    attributes need to be provided in the comp_info: ['quantities',
+    'csg_weights', 'dirs', 'kind', 'distribution', 'cov', 'unit', 'locations']
+    Further information about these attributes is available in the Input
     section of the documentation.
 
     Parameters
@@ -813,14 +813,14 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         DL_EDP = DL_data['EDP']
         DL_DSG = DL_data['DSGroups']
 
-        # First, check if the DL data is complete. Incomplete data can lead to 
-        # all kinds of problems, so in such a case we display a warning and do 
-        # not use the component. This can be relaxed later if someone creates a 
+        # First, check if the DL data is complete. Incomplete data can lead to
+        # all kinds of problems, so in such a case we display a warning and do
+        # not use the component. This can be relaxed later if someone creates a
         # method to replace unknown values with reasonable estimates.
         if 'Incomplete' in DL_GI.keys():
             c_data['incomplete'] = int(DL_GI['Incomplete'])
             if c_data['incomplete']:
-                # show warning            
+                # show warning
                 del data[c_id]
                 warnings.warn(UserWarning(
                     'Fragility information for {} is incomplete. The component '
@@ -849,7 +849,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
         c_data['description'] = DL_GI['Description']
-        c_data['offset'] =DL_EDP.get('Offset', 0)        
+        c_data['offset'] =DL_EDP.get('Offset', 0)
         c_data['correlation'] = int(DL_data.get('Correlated', False))
         c_data['directional'] = int(DL_data.get('Directional', False))
 
@@ -861,11 +861,11 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
             demand_type = 'PFA'
             demand_factor = g
             # PFA corresponds to the top of the given story. The ground floor
-            # has an idex of 0. When damage of acceleration-sensitive components 
+            # has an idex of 0. When damage of acceleration-sensitive components
             # is controlled by the acceleration of the bottom of the story, the
-            # corresponding PFA location needs to be reduced by 1. Since FEMA 
+            # corresponding PFA location needs to be reduced by 1. Since FEMA
             # P58 assumes that PFA corresponds to the bottom of the given story
-            # by default, we need to subtract 1 from the location values in a 
+            # by default, we need to subtract 1 from the location values in a
             # FEMA P58 assessment. Rather than changing the locations themselves,
             # we assign an offset so that the results still get collected at the
             # appropriate story.
@@ -934,7 +934,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                         DS_data['repair_cost']['median_min'] /= c_data['unit']
                         DS_data['repair_cost']['median_max'] /= c_data['unit']
                     else:
-                        DS_data.update({'repair_cost': DS_CC['Amount']})                        
+                        DS_data.update({'repair_cost': DS_CC['Amount']})
 
                 if 'ReconstructionTime' in DS_C.keys():
                     DS_CT = DS_C['ReconstructionTime']
@@ -947,7 +947,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                             'distribution_kind': curve_type[DS_CT['CurveType']],
                             'cov'              : DS_CT['Beta'],
                         }})
-    
+
                         # convert the units to standard ones
                         DS_data['repair_time']['quantity_lower'] *= c_data['unit']
                         DS_data['repair_time']['quantity_upper'] *= c_data['unit']
@@ -977,7 +977,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                             'injuries': [I_i['Amount'] for I_i in DS_CI]})
 
                     # if there is a chance of injuries, load the affected floor area
-                    affected_area, unit = DS_i.get('AffectedArea', 
+                    affected_area, unit = DS_i.get('AffectedArea',
                                                    [0.0, 'SF'])
                     if unit == 'SF':
                         affected_area = affected_area * SF
@@ -1005,28 +1005,28 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 def convert_P58_data_to_json(data_dir, target_dir):
     """
     Create JSON data files from publicly available P58 data.
-    
-    FEMA P58 damage and loss information is publicly available in an Excel 
-    spreadsheet and also in a series of XML files as part of the PACT tool. 
+
+    FEMA P58 damage and loss information is publicly available in an Excel
+    spreadsheet and also in a series of XML files as part of the PACT tool.
     Those files are copied to the resources folder in the pelicun repo. Here
     we collect the available information on Fragility Groups from those files
     and save the damage and loss data in the common SimCenter JSON format.
-    
+
     A large part of the Fragility Groups in FEMA P58 do not have complete
     damage and loss information available. These FGs are clearly marked with
     an incomplete flag in the JSON file and the 'Undefined' value highlights
-    the missing pieces of information. 
-    
+    the missing pieces of information.
+
     Parameters
     ----------
     data_dir: string
-        Path to the folder with the FEMA P58 Excel file and a 'DL xml' 
+        Path to the folder with the FEMA P58 Excel file and a 'DL xml'
         subfolder in it that contains the XML files.
     target_dir: string
         Path to the folder where the JSON files shall be saved.
 
     """
-    
+
     convert_unit = {
         'Unit less': 'ea',
         'Radians'  : 'rad',
@@ -1243,15 +1243,15 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 DSG['DamageStates'] = []
                 for DS in DS_list:
                     DSG['DamageStates'].append({
-                        'Weight'        : 
+                        'Weight'        :
                             float(row['DS {}, Probability'.format(DS[-1])]),
-                        'LongLeadTime'  : 
+                        'LongLeadTime'  :
                             row['DS {}, Long Lead Time'.format(DS[-1])] in [
                                 'YES'],
                         'Consequences'  : {},
-                        'Description'   : 
+                        'Description'   :
                             row['DS {}, Description'.format(DS[-1])],
-                        'RepairMeasures': 
+                        'RepairMeasures':
                             row['DS {}, Repair Description'.format(DS[-1])],
                     })
 
@@ -1284,21 +1284,21 @@ def convert_P58_data_to_json(data_dir, target_dir):
                             'Beta'     : float(INJ_beta),
                             'CurveType': 'Normal',
                             'Bounds'   : [0., 1.]
-                        })                        
-                        
+                        })
+
                         if INJ_mu != 0.0:
                             need_INJ = True
                             if DSG['DamageStates'][-1]['AffectedArea'][0] == 0:
                                 incomplete = True
                     else:
-                        INJ0.update({'Amount'   : 
-                                         float(INJ_mu) if is_float(INJ_mu) 
+                        INJ0.update({'Amount'   :
+                                         float(INJ_mu) if is_float(INJ_mu)
                                          else 'Undefined',
-                                     'Beta'     : 
-                                         float(INJ_beta) if is_float(INJ_beta) 
+                                     'Beta'     :
+                                         float(INJ_beta) if is_float(INJ_beta)
                                          else 'Undefined',
                                      'CurveType': 'Normal'})
-                        if ((INJ0['Amount'] == 'Undefined') or 
+                        if ((INJ0['Amount'] == 'Undefined') or
                             (INJ0['Beta'] == 'Undefined')):
                             incomplete = True
 
@@ -1312,21 +1312,21 @@ def convert_P58_data_to_json(data_dir, target_dir):
                             'Beta'     : float(INJ_beta),
                             'CurveType': 'Normal',
                             'Bounds'   : [0., 1.]
-                        })                    
+                        })
                         if INJ_mu != 0.0:
                             need_INJ = True
                             if DSG['DamageStates'][-1]['AffectedArea'][0] == 0:
                                 incomplete = True
                     else:
-                        INJ1.update({'Amount'   : 
-                                         float(INJ_mu) if is_float(INJ_mu) 
+                        INJ1.update({'Amount'   :
+                                         float(INJ_mu) if is_float(INJ_mu)
                                          else 'Undefined',
-                                     'Beta'     : 
-                                         float(INJ_beta) if is_float(INJ_beta) 
+                                     'Beta'     :
+                                         float(INJ_beta) if is_float(INJ_beta)
                                          else 'Undefined',
-                                     'CurveType': 'Normal', 
+                                     'CurveType': 'Normal',
                                      'Bounds': [0., 1.]})
-                        if ((INJ1['Amount'] == 'Undefined') or 
+                        if ((INJ1['Amount'] == 'Undefined') or
                             (INJ1['Beta'] == 'Undefined')):
                             incomplete = True
 
@@ -1345,15 +1345,15 @@ def convert_P58_data_to_json(data_dir, target_dir):
                         if RT['Amount'] != 0.0:
                             need_RT = True
                     else:
-                        RT.update({'Amount'   : 
-                                       float(RT_mu[:-1]) if is_float(RT_mu) 
+                        RT.update({'Amount'   :
+                                       float(RT_mu[:-1]) if is_float(RT_mu)
                                        else 'Undefined',
-                                   'Beta'     : 
-                                       float(RT_beta[:-1]) if is_float(RT_beta) 
+                                   'Beta'     :
+                                       float(RT_beta[:-1]) if is_float(RT_beta)
                                        else 'Undefined',
-                                   'CurveType': 'Normal', 
+                                   'CurveType': 'Normal',
                                    'Bounds': [0., 1.]})
-                        if ((RT['Amount'] == 'Undefined') or 
+                        if ((RT['Amount'] == 'Undefined') or
                             (RT['Beta'] == 'Undefined')):
                             incomplete = True
 
@@ -1383,7 +1383,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                             'ReconstructionCost': r_cost,
                             'ReconstructionTime': r_time
                         })
-                        if ((r_cost['Amount'] == 'Undefined') or 
+                        if ((r_cost['Amount'] == 'Undefined') or
                             (r_time['Amount'] == 'Undefined')):
                             incomplete = True
 
@@ -1395,7 +1395,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                         'ReconstructionCost': r_cost,
                         'ReconstructionTime': r_time
                     })
-                    if ((r_cost['Amount'] == 'Undefined') or 
+                    if ((r_cost['Amount'] == 'Undefined') or
                         (r_time['Amount'] == 'Undefined')):
                         incomplete = True
 
@@ -1409,7 +1409,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
         except:
             warnings.warn(UserWarning(
                 'Error converting data for component {}'.format(comp_ID)))
-            
+
 def create_HAZUS_json_files(data_dir, target_dir):
     """
     Create JSON data files from publicly available HAZUS data.
@@ -1418,21 +1418,21 @@ def create_HAZUS_json_files(data_dir, target_dir):
     manuals. The relevant tables have been converted into a JSON input file
     (hazus_data_eq.json) that is stored in the 'resources/HAZUS MH 2.1' folder
     in the pelicun repo. Here we read that file (or a file of similar format)
-    and produce damage and loss data for Fragility Groups in the common 
+    and produce damage and loss data for Fragility Groups in the common
     SimCenter JSON format.
-    
+
     HAZUS handles damage and losses at the assembly level differentiating only
-    structural and two types of non-structural component assemblies. In this 
+    structural and two types of non-structural component assemblies. In this
     implementation we consider each of those assemblies a Fragility Group
     and describe their damage and its consequences in a FEMA P58-like framework
-    but using the data from the HAZUS Technical Manual.  
+    but using the data from the HAZUS Technical Manual.
 
     Parameters
     ----------
     data_dir: string
         Path to the folder with the hazus_data_eq JSON file.
     target_dir: string
-        Path to the folder where the results shall be saved. The population 
+        Path to the folder where the results shall be saved. The population
         distribution file will be saved here, the DL JSON files will be saved
         to a 'DL json' subfolder.
 
@@ -1692,17 +1692,17 @@ def create_HAZUS_json_files(data_dir, target_dir):
     with open(os.path.join(target_dir, 'population.json'), 'w') as f:
         json.dump(pop_output, f)
 
-def write_SimCenter_DL_output(output_path, output_df, index_name='#Num', 
+def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
                               collapse_columns = True, stats_only=False):
-    
+
     output_df = deepcopy(output_df)
-    
+
     # if the summary flag is set, then not all realizations are returned, but
     # only the first two moments and the empirical CDF through 100 percentiles
     if stats_only:
         #output_df = output_df.describe(np.arange(1, 100)/100.)
         output_df = output_df.describe([0.1,0.5,0.9])
-        
+
     # the name of the index column is replaced with the provided value
     output_df.index.name = index_name
 
@@ -1713,7 +1713,7 @@ def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
         output_df.columns = [('{}/{}'.format(s0, s1)).replace(' ', '_')
                      for s0, s1 in zip(output_df.columns.get_level_values(0),
                                        output_df.columns.get_level_values(1))]
-        
+
     # write the results in a csv file
     # TODO: provide other file formats
     output_df.to_csv(output_path)
