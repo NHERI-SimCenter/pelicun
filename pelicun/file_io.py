@@ -107,10 +107,50 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     # get the data required for DL
     data = dict([(label, dict()) for label in [
         'general', 'units', 'components', 'collapse_modes',
-        'decision_variables', 'dependencies'
+        'decision_variables', 'dependencies', 'data_sources',
     ]])
 
     LM = jd['LossModel']
+
+    # data sources
+    # check if the user specified custom data sources
+    if 'DataSources' in LM.keys():
+        path_CMP_data = LM['DataSources'].get('ComponentDataFolder',"")
+        path_POP_data = LM['DataSources'].get('PopulationDataFile',"")
+
+    else:
+        path_CMP_data = ""
+        path_POP_data = ""
+
+    default_data_name = {
+        'P58': 'FEMA P58 first edition',
+        'HAZUS': 'HAZUS'
+        }
+
+    # if not, use the default location
+    if path_CMP_data is "":
+        warnings.warn(UserWarning(
+            "The component database is not specified; using the default "
+            "{} data.".format(default_data_name[assessment_type])
+        ))
+        path_CMP_data = pelicun_path
+        if assessment_type == 'P58':
+            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
+        elif assessment_type == 'HAZUS':
+            path_CMP_data += '/resources/HAZUS MH 2.1/DL json/'
+    data['data_sources'].update({'path_CMP_data': path_CMP_data})
+
+    if path_POP_data is "":
+        warnings.warn(UserWarning(
+            "The population distribution is not specified; using the default "
+            "{} data.".format(default_data_name[assessment_type])
+        ))
+        path_POP_data = pelicun_path
+        if assessment_type == 'P58':
+            path_POP_data += '/resources/FEMA P58 first edition/population.json'
+        elif assessment_type == 'HAZUS':
+            path_POP_data += '/resources/HAZUS MH 2.1/population.json'
+    data['data_sources'].update({'path_POP_data': path_POP_data})
 
     # decision variables of interest
     if 'DecisionVariables' in LM.keys():        

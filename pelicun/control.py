@@ -196,8 +196,7 @@ class FEMA_P58_Assessment(Assessment):
         self._inj_lvls = inj_lvls
         self._assessment_type = 'P58'
 
-    def read_inputs(self, path_DL_input, path_EDP_input, 
-                    path_CMP_data=None, path_POP_data=None, verbose=False):
+    def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
         Read and process the input files to describe the loss assessment task.
         
@@ -211,15 +210,6 @@ class FEMA_P58_Assessment(Assessment):
             Location of the EDP input file. The file is expected to follow the 
             output formatting of Dakota. The Input section of the documentation
             provides more information about the expected formatting.
-        path_CMP_data: string, default: None
-            Location of the folder with component damage and loss data files. 
-            The default None value triggers the use of the FEMA P58 first
-            edition data from pelicun/resources/FEMA P58 first edition/DL json/
-        path_POP_data: string, default: None
-            Location of the JSON file that describes the temporal distribution
-            of the population per the FEMA P58 method. The default None value
-            triggers the use of the FEMA P58 first edition distribution from
-            pelicun/resources/FEMA P58 first edition/population.json. 
         verbose: boolean, default: False
             If True, the method echoes the information read from the files.
             This can be useful to ensure that the information in the file is 
@@ -230,35 +220,21 @@ class FEMA_P58_Assessment(Assessment):
         super(FEMA_P58_Assessment, self).read_inputs(path_DL_input, 
                                                      path_EDP_input, verbose)
         
-        # check if the component data path is provided by the user
-        if path_CMP_data is None:
-            warnings.warn(UserWarning(
-                "The component database is not specified; using the default "
-                "FEMA P58 first edition data."
-            ))
-            path_CMP_data = pelicun_path
-            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
-
-        if path_POP_data is None:
-            warnings.warn(UserWarning(
-                "The population distribution is not specified; using the default "
-                "FEMA P58 first edition data."
-            ))
-            path_POP_data = pelicun_path
-            path_POP_data += '/resources/FEMA P58 first edition/population.json'
-
         # assume that the asset is a building
         # TODO: If we want to apply FEMA-P58 to non-building assets, several parts of this methodology need to be extended.
         BIM = self._AIM_in
 
         # read component and population data ----------------------------------
         # components
-        self._FG_in = read_component_DL_data(path_CMP_data, BIM['components'],
+        self._FG_in = read_component_DL_data(
+            self._AIM_in['data_sources']['path_CMP_data'], 
+            BIM['components'], 
+            assessment_type=self._assessment_type,
                                              verbose=verbose)
         
         # population
         POP = read_population_distribution(
-            path_POP_data, 
+            self._AIM_in['data_sources']['path_POP_data'], 
             BIM['general']['occupancy_type'], 
             assessment_type=self._assessment_type,
             verbose=verbose)
@@ -1919,8 +1895,7 @@ class HAZUS_Assessment(Assessment):
         self._inj_lvls = inj_lvls
         self._assessment_type = 'HAZUS'
 
-    def read_inputs(self, path_DL_input, path_EDP_input,
-                    path_CMP_data=None, path_POP_data=None, verbose=False):
+    def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
         Read and process the input files to describe the loss assessment task.
 
@@ -1934,15 +1909,6 @@ class HAZUS_Assessment(Assessment):
             Location of the EDP input file. The file is expected to follow the 
             output formatting of Dakota. The Input section of the documentation
             provides more information about the expected formatting.
-        path_CMP_data: string, default: None
-            Location of the folder with component damage and loss data files. 
-            The default None value triggers the use of the HAZUS data from 
-            pelicun/resources/HAZUS MH 2.1/DL json/.
-        path_POP_data: string, default: None
-            Location of the JSON file that describes the temporal distribution
-            of the population per the HAZUS method. The default None value
-            triggers the use of the HAZUS data from 
-            pelicun/resources/HAZUS MH 2.1/population.json. 
         verbose: boolean, default: False
             If True, the method echoes the information read from the files.
             This can be useful to ensure that the information in the file is 
@@ -1953,36 +1919,21 @@ class HAZUS_Assessment(Assessment):
         super(HAZUS_Assessment, self).read_inputs(path_DL_input,
                                                   path_EDP_input, verbose)
 
-        # check if the component data path is provided by the user
-        if path_CMP_data is None:
-            warnings.warn(UserWarning(
-                "The component database is not specified; using the default "
-                "HAZUS data."
-            ))            
-            path_CMP_data = pelicun_path
-            path_CMP_data += '/resources/HAZUS MH 2.1/DL json/'
-
-        if path_POP_data is None:
-            warnings.warn(UserWarning(
-                "The population distribution is not specified; using the default "
-                "HAZUS data."
-            ))
-            path_POP_data = pelicun_path
-            path_POP_data += '/resources/HAZUS MH 2.1/population.json'
-
         # assume that the asset is a building
         # TODO: If we want to apply HAZUS to non-building assets, several parts of this methodology need to be extended.
         BIM = self._AIM_in
 
         # read component and population data ----------------------------------
         # components
-        self._FG_in = read_component_DL_data(path_CMP_data, 
+        self._FG_in = read_component_DL_data(
+            self._AIM_in['data_sources']['path_CMP_data'], 
                                              BIM['components'],
+            assessment_type=self._assessment_type,
                                              verbose=verbose)
 
         # population
         POP = read_population_distribution(
-            path_POP_data,
+            self._AIM_in['data_sources']['path_POP_data'],
             BIM['general']['occupancy_type'],
             assessment_type=self._assessment_type,
             verbose=verbose)
