@@ -62,6 +62,9 @@ from scipy.stats import norm, truncnorm, multivariate_normal, multinomial, kde
 from scipy.optimize import minimize
 from copy import deepcopy
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
+
 def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
     """
     Sample a truncated MVN distribution.
@@ -192,7 +195,7 @@ def mvn_orthotope_density(mu, COV, lower=None, upper=None):
     Estimate the probability density within a hyperrectangle for an MVN distr.
     
     Use the method of Alan Genz (1992) to estimate the probability density
-    of a multivariate normal distribution within an n-orthotope (i.e. 
+    of a multivariate normal distribution within an n-orthotope (i.e., 
     hyperrectangle) defined by its lower and upper bounds. Limits can be 
     relaxed in any direction by assigning infinite bounds (i.e. numpy.inf).
     
@@ -341,6 +344,10 @@ def tmvn_MLE(samples,
 
     """
     
+    verbose = True
+    if verbose:
+        print(det_lower)
+        print(det_upper)
     # extract some basic information about the number of dimensions and the 
     # number of samples from raw data
     samples = np.asarray(samples)
@@ -388,7 +395,7 @@ def tmvn_MLE(samples,
     if (((tr_lower is not None) or (tr_upper is not None) 
         or (det_lower is not None) or (det_upper is not None))
        and (len(inits) >= nsamples)):
-        #print('samples:',nsamples,'unknowns:',len(inits))
+        if verbose: print('samples:',nsamples,'unknowns:',len(inits))
         warnings.warn(UserWarning(
             "The number of samples is less than the number of unknowns. There "
             "is no unique solution available for such a case. Expect a poor "
@@ -414,6 +421,11 @@ def tmvn_MLE(samples,
     # create a lower and an upper bounds vector
     bounds = mu_bounds + sig_bounds + rho_bounds
     bnd_lower, bnd_upper = np.transpose(bounds)
+    if verbose: 
+        print('bounds:')
+        print(mu_bounds)
+        print(sig_bounds)
+        print(rho_bounds)
     
     # create a convenience function that converts a vector of distribution 
     # parameters to the standard mu and COV arrays
@@ -548,7 +560,9 @@ def tmvn_MLE(samples,
         
         # normalize the likelihoods with the sample count
         NLL = NLL/nsamples
-        #print(mu, NLL)
+        #print(mu[-4:], NLL)
+        #print(np.sqrt(np.diagonal(COV))[-4:],NLL)
+        
         
         return NLL
     
@@ -562,10 +576,18 @@ def tmvn_MLE(samples,
                             'xatol': np.max(inits[:ndims])*0.1, 
                             'fatol': 5e-5 * ndims, 
                             'adaptive': True})
-    #print(out.fun, out.nfev)
+    if verbose: print(out.fun, out.nfev, 400*ndims)
     
     # reconstruct the mu and COV arrays from the solutions and return them
     mu, COV = _get_mu_COV(out.x, unbiased=True)
+    
+    if verbose:
+        pp.pprint(list(zip(mu,mu_init)))
+        sig = np.sqrt(np.diagonal(COV))
+        pp.pprint(list(zip(sig,sig_init)))
+        rho = (COV/np.outer(sig,sig))[-4:,-4:]
+        pp.pprint(rho)
+        pp.pprint(list(zip(rho,rho_init[-4:,-4:])))
     
     return mu, COV
 
@@ -928,7 +950,8 @@ class RandomVariable(object):
     @property
     def COV(self):
         """
-        Return the covariance matrix of the probability distribution.
+        Return the covariance matrix of the probability distribution. Note that
+        the covariances are in log space for lognormal distributions.
         """
         if self._COV is not None:
             return self._COV
