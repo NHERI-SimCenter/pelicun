@@ -743,7 +743,8 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     return data
 
 
-def read_component_DL_data(path_CMP, comp_info, verbose=False):
+def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
+    verbose=False):
     """
     Read the damage and loss data for the components of the asset.
 
@@ -763,6 +764,9 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         Location of the folder that contains the component data in JSON files.
     comp_info: dict
         Dictionary with additional information about the components.
+    assessment_type: {'P58', 'HAZUS'}
+        Tailors the warnings and verifications towards the type of assessment.
+        default: 'P58'.
     verbose: boolean
         If True, the function echoes the information read from the files. This
         can be useful to ensure that the information in the files is properly
@@ -845,7 +849,7 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
         c_data['description'] = DL_GI['Description']
-        c_data['offset'] =DL_EDP.get('Offset') 
+        c_data['offset'] =DL_EDP.get('Offset', 0)        
         c_data['correlation'] = int(DL_data.get('Correlated', False))
         c_data['directional'] = int(DL_data.get('Directional', False))
 
@@ -856,6 +860,17 @@ def read_component_DL_data(path_CMP, comp_info, verbose=False):
         elif EDP_type == 'Peak Floor Acceleration':
             demand_type = 'PFA'
             demand_factor = g
+            # PFA corresponds to the top of the given story. The ground floor
+            # has an idex of 0. When damage of acceleration-sensitive components 
+            # is controlled by the acceleration of the bottom of the story, the
+            # corresponding PFA location needs to be reduced by 1. Since FEMA 
+            # P58 assumes that PFA corresponds to the bottom of the given story
+            # by default, we need to subtract 1 from the location values in a 
+            # FEMA P58 assessment. Rather than changing the locations themselves,
+            # we assign an offset so that the results still get collected at the
+            # appropriate story.
+            if assessment_type == 'P58':
+                c_data['offset'] = c_data['offset'] - 1
         elif EDP_type in [
             'Peak Floor Velocity',
             'Link Rotation Angle',

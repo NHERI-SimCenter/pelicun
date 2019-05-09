@@ -1511,7 +1511,7 @@ class FEMA_P58_Assessment(Assessment):
 
                 # get the corresponding demands
                 demand_ID = (FG._demand_type + 
-                             '-LOC-' + str(PG._location) +
+                             '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
                 if demand_ID in self._EDP_dict.keys():
                     EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
@@ -1522,7 +1522,7 @@ class FEMA_P58_Assessment(Assessment):
                     # case is to use the EDP from the 1 direction for all other
                     # directions.
                     demand_ID = (FG._demand_type + 
-                                 '-LOC-' + str(PG._location) + '-DIR-1')
+                                 '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
                     EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
                     
                 csg_w_list = PG._csg_weights
@@ -2545,7 +2545,7 @@ class HAZUS_Assessment(Assessment):
 
                 # get the corresponding demands
                 demand_ID = (FG._demand_type +
-                             '-LOC-' + str(PG._location) +
+                             '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
                 if demand_ID in self._EDP_dict.keys():
                     EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
@@ -2556,7 +2556,7 @@ class HAZUS_Assessment(Assessment):
                     # case is to use the EDP from the 1 direction for all other
                     # directions.
                     demand_ID = (FG._demand_type +
-                                 '-LOC-' + str(PG._location) + '-DIR-1')
+                                 '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
                     EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
 
                 csg_w_list = PG._csg_weights
