@@ -45,6 +45,7 @@ This module defines constants, basic classes and methods for pelicun.
 # imports for Python 2.X support
 from __future__ import division, print_function
 import os, sys
+import warnings
 if sys.version.startswith('2'): 
     range=xrange
     string_types = basestring
@@ -53,6 +54,16 @@ else:
 
 # get the absolute path of the pelicun directory
 pelicun_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Monkeypatch warnings to get prettier messages
+def _warning(message, category, filename, lineno, file=None, line=None):
+    if '\\' in filename:
+        file_path = filename.split('\\')
+    elif '/' in filename:
+        file_path = filename.split('/')
+    python_file = '/'.join(file_path[-3:])
+    print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
+warnings.showwarning = _warning
 
 # Constants for unit conversion
 
