@@ -960,6 +960,50 @@ class RandomVariable(object):
                 "The covariance matrix of the probability distribution of "
                 "this random variable is not yet specified."
             )
+        
+    @property
+    def corr(self):
+        """
+        Return the correlation matrix of the probability distribution. Note that
+        correlation coefficient correspond to the joint distribution in log
+        space for lognormal distributions.
+        """
+        if self._COV is not None:
+            return self._COV / np.outer(self.sig, self.sig)
+        else:
+            raise ValueError(
+                "The correlation matrix of the probability distribution of "
+                "this random variable is not yet specified."
+            )
+             
+    @property
+    def var(self):
+        """
+        Return the variance vector of the probability distribution. Note that
+        the variances are in log space for lognormal distributions.
+        """
+        if self._COV is not None:
+            return np.diagonal(self._COV)
+        else:
+            raise ValueError(
+                "The covariance matrix of the probability distribution of "
+                "this random variable is not yet specified."
+            )
+
+    @property
+    def sig(self):
+        """
+        Return the standard deviation vector of the probability distribution.
+        Note that the standard deviations are in log space for lognormal 
+        distributions.
+        """
+        if self._COV is not None:
+            return np.sqrt(self.var)
+        else:
+            raise ValueError(
+                "The covariance matrix of the probability distribution of "
+                "this random variable is not yet specified."
+            )
        
     @property
     def dimension_tags(self):
