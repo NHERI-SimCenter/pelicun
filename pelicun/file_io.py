@@ -223,7 +223,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     if AT == 'P58':
         for target_att, source_att, f_conv, unit_kind, dv_req in [
             ['plan_area', 'planArea', float, 'area', 'injuries'],
-            ['stories', 'stories', int, '', ''],
+            ['stories', 'stories', int, '', 'all'],
             # The following lines are commented out for now, because we do not
             # use these pieces of data anyway.
             #['building_type', 'type', str, ''],
@@ -231,16 +231,18 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             #['year_built', 'year', int, ''],
         ]:
             if (GI is not None) and (source_att in GI.keys()):
-                if unit_kind is not '':
+                if unit_kind != '':
                     f_unit = data['units'][unit_kind]
                 else:
                     f_unit = 1
                 att_value = f_conv(GI[source_att]) * f_unit
                 data['general'].update({target_att: att_value})
             else:
-                if (dv_req!='') and DV[dv_req]:
-                    warnings.warn(UserWarning(
-                        "{} is not in the DL input file.".format(source_att)))
+                if (dv_req != '') and ((dv_req == 'all') or DV[dv_req]):
+                    raise ValueError(
+                        "{} has to be specified in the DL input file to "
+                        "estimate {} decision variable(s).".format(source_att,
+                                                                   dv_req))
 
     # is this a coupled assessment?
     data['general'].update({'coupled_assessment':
@@ -325,7 +327,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                                       coll_mode['affected_area'].split(',')],
                 }
                 if len(cm_data['affected_area']) == 1:
-                    cm_data['affected_area'] = np.ones(data['general']['stories'])*cm_data['affected_area']
+                    cm_data['affected_area'] = (np.ones(data['general']['stories'])*cm_data['affected_area']).tolist()
+                if len(cm_data['injuries']) == 1:
+                    cm_data['injuries'] = (np.ones(data['general']['stories'])*cm_data['injuries']).tolist()
                 data['collapse_modes'].update({coll_mode['name']: cm_data})
         else:
             warnings.warn(UserWarning(
