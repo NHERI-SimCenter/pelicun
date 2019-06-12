@@ -572,6 +572,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         'btw. Performance Groups': 'PG',
         'btw. Floors'            : 'LOC',
         'btw. Directions'        : 'DIR',
+        'btw. Component Groups'  : 'CSG',
         'btw. Damage States'     : 'DS',
         'Independent'            : 'IND',
         'per ATC recommendation' : 'ATC',
