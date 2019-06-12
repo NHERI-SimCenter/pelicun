@@ -88,7 +88,7 @@ class Assessment(object):
         self._assessment_type = 'generic'
 
     @property
-    def beta_additional(self):
+    def beta_tot(self):
         """
         Calculate the total additional uncertainty for post processing.
 
@@ -97,26 +97,27 @@ class Assessment(object):
 
         Returns
         -------
-        beta_tot: float
+        beta_total: float
             The total uncertainty (logarithmic EDP standard deviation) to add
-            to the EDP distribution.
+            to the EDP distribution. Returns None if no additional uncertainty
+            is assigned.
         """
 
         AU = self._AIM_in['general']['added_uncertainty']
 
-        beta_tot = 0.
+        beta_total = 0.
         if AU['beta_m'] is not None:
-            beta_tot += AU['beta_m'] ** 2.
+            beta_total += AU['beta_m'] ** 2.
         if AU['beta_gm'] is not None:
-            beta_tot += AU['beta_gm'] ** 2.
+            beta_total += AU['beta_gm'] ** 2.
 
-        # if no uncertainty is assigned, we consider a minimum of 10^-4
-        if beta_tot == 0:
-            beta_tot = 1e-4
+        # if no uncertainty is assigned, we return None
+        if beta_total == 0:
+            beta_total = None
         else:
-            beta_tot = np.sqrt(beta_tot)
+            beta_total = np.sqrt(beta_total)
 
-        return beta_tot
+        return beta_total
 
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
@@ -185,6 +186,119 @@ class Assessment(object):
 
         """
         pass
+
+    def _create_RV_demands(self):
+
+        # Unlike other random variables, the demand RV is based on raw data.
+
+        # First, collect the raw values from the EDP dict...
+        demand_data = []
+        d_tags = []
+        detection_limits = []
+        collapse_limits = []
+        GI = self._AIM_in['general']
+        s_edp_keys = sorted(self._EDP_in.keys())
+        for d_id in s_edp_keys:
+            d_list = self._EDP_in[d_id]
+            for i in range(len(d_list)):
+                demand_data.append(d_list[i]['raw_data'])
+                d_tags.append(str(d_id) +
+                              '-LOC-' + str(d_list[i]['location']) +
+                              '-DIR-' + str(d_list[i]['direction']))
+                det_lim = GI['detection_limits'][d_id]
+                if det_lim is None:
+                    det_lim = np.inf
+                if GI['response']['EDP_dist_basis'] == 'non-collapse results':
+                    coll_lim = GI['collapse_limits'][d_id]
+                    if coll_lim is None:
+                        coll_lim = np.inf
+                elif GI['response']['EDP_dist_basis'] == 'all results':
+                    coll_lim = np.inf
+
+                detection_limits.append([0., det_lim])
+                collapse_limits.append([0., coll_lim])
+
+        detection_limits = np.transpose(np.asarray(detection_limits))
+        collapse_limits = np.transpose(np.asarray(collapse_limits))
+        demand_data = np.transpose(np.asarray(demand_data))
+
+        # If more than one sample is available...
+        if demand_data.shape[0] > 1:
+
+            # Second, we discard the collapsed EDPs if the fitted distribution shall
+            # represent non-collapse EDPs.
+            EDP_filter = np.all([np.all(demand_data > collapse_limits[0], axis=1),
+                                 np.all(demand_data < collapse_limits[1], axis=1)],
+                                axis=0)
+            demand_data = demand_data[EDP_filter]
+
+            # Third, we censor the EDPs that are beyond the detection limit.
+            EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
+                                 np.all(demand_data < detection_limits[1], axis=1)],
+                                axis=0)
+            censored_count = len(EDP_filter) - sum(EDP_filter)
+            demand_data = demand_data[EDP_filter]
+            demand_data = np.transpose(demand_data)
+
+            # Fourth, we create the random variable
+            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                                       raw_data=demand_data,
+                                       detection_limits=detection_limits,
+                                       censored_count=censored_count
+                                       )
+
+            # And finally, if requested, we fit a multivariate lognormal or a
+            # truncated multivariate lognormal distribution to the censored raw
+            # data.
+            target_dist = GI['response']['EDP_distribution']
+
+            if target_dist == 'lognormal':
+                demand_RV.fit_distribution('lognormal')
+            elif target_dist == 'truncated lognormal':
+                demand_RV.fit_distribution('lognormal', collapse_limits)
+
+        # This is a special case when only a one sample is provided.
+        else:
+            # TODO: what to do when the sample is larger than the collapse or detection limit and when truncated distribution is prescribed
+
+            # Since we only have one data point, the best we can do is assume
+            # it is the median of the multivariate distribution. The dispersion
+            # is assumed to be negligible.
+            dim = len(demand_data[0])
+            if dim > 1:
+                sig = np.abs(demand_data[0])*1e-6
+                rho = np.zeros((dim,dim))
+                np.fill_diagonal(rho, 1.0)
+                COV = np.outer(sig,sig) * rho
+            else:
+                COV = np.abs(demand_data[0][0])*(1e-6)**2.0
+
+            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                                       distribution_kind='lognormal',
+                                       theta=demand_data[0],
+                                       COV=COV)
+
+        # To consider additional uncertainty in EDPs, we need to redefine the
+        # random variable. If the EDP distribution is set to 'empirical' then
+        # adding uncertainty by increasing its variance is not possible.
+        if ((self.beta_tot is not None) and
+            (GI['response']['EDP_distribution'] != 'empirical')):
+            # determine the covariance matrix with added uncertainty
+            if demand_RV.COV.shape is not ():
+                sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
+                COV_mod = np.outer(sig_mod, sig_mod) * demand_RV.corr
+            else:
+                COV_mod = np.sqrt(demand_RV.COV**2. + self.beta_tot**2.)
+
+            # redefine the random variable
+            demand_RV = RandomVariable(
+                ID=200,
+                dimension_tags=demand_RV.dimension_tags,
+                distribution_kind=demand_RV.distribution_kind,
+                theta=demand_RV.theta,
+                COV=COV_mod)
+
+        return demand_RV
 
 
 class FEMA_P58_Assessment(Assessment):
@@ -345,15 +459,25 @@ class FEMA_P58_Assessment(Assessment):
                                     DEP['injury_lvls'])})
 
         # demands 200
-        self._RV_dict.update({'EDP': self._create_RV_demands(
-            self.beta_additional)})
+        GR = self._AIM_in['general']['response']
+        if GR['EDP_dist_basis'] is 'non-collapse results':
+            discard_limits = self._AIM_in['general']['collapse_limits']
+        else:
+            discard_limits = None
+
+        self._RV_dict.update({
+            'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
+        realization_count = self._AIM_in['general']['realizations']
+        is_coupled = self._AIM_in['general']
+
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:
             rv = self._RV_dict[r_i]
             if rv is not None:
-                rv.sample_distribution(self._AIM_in['general']['realizations'])
+                rv.sample_distribution(
+                    sample_size=realization_count, preserve_order=is_coupled)
 
     def define_loss_model(self):
         """
@@ -1137,88 +1261,6 @@ class FEMA_P58_Assessment(Assessment):
 
         return injury_RV
 
-    def _create_RV_demands(self, beta_added):
-
-        # unlike other random variables, the demand RV is based on raw data
-        # first, collect the raw values from the EDP dict
-        demand_data = []
-        d_tags = []
-        detection_limits = []
-        s_edp_keys = sorted(self._EDP_in.keys())
-        for d_id in s_edp_keys:
-            d_list = self._EDP_in[d_id]
-            for i in range(len(d_list)):
-                demand_data.append(d_list[i]['raw_data'])
-                d_tags.append(str(d_id) +
-                              '-LOC-' + str(d_list[i]['location']) +
-                              '-DIR-' + str(d_list[i]['direction']))
-                det_lim = self._AIM_in['general']['detection_limits'][d_id]
-                if det_lim is None:
-                    det_lim = np.inf
-                detection_limits.append([0., det_lim])
-
-        detection_limits = np.transpose(np.asarray(detection_limits))
-        demand_data = np.transpose(np.asarray(demand_data))
-
-        # if more than one sample is provided
-        if demand_data.shape[0] > 1:
-            # get the number of censored samples
-            EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
-                                 np.all(demand_data < detection_limits[1], axis=1)],
-                                axis=0)
-            censored_count = len(EDP_filter) - sum(EDP_filter)
-            demand_data = demand_data[EDP_filter]
-            demand_data = np.transpose(demand_data)
-
-            # create the random variable
-            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                       raw_data=demand_data,
-                                       detection_limits=detection_limits,
-                                       censored_count=censored_count
-                                       )
-
-            # fit a multivariate lognormal distribution to the censored raw data
-            demand_RV.fit_distribution('lognormal')
-        else:
-            # Since we only have one data point, the best we can do is assume
-            # it is the median of the multivariate distribution. The dispersion
-            # is assumed to be negligible.
-            dim = len(demand_data[0])
-            if dim > 1:
-                sig = np.abs(demand_data[0])*1e-6
-                rho = np.zeros((dim,dim))
-                np.fill_diagonal(rho, 1.0)
-                COV = np.outer(sig,sig) * rho
-            else:
-                COV = np.abs(demand_data[0][0])*(1e-6)**2.0
-
-            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                       distribution_kind='lognormal',
-                                       theta=demand_data[0],
-                                       COV=COV)
-
-        # if we want to add other sources of uncertainty, we will need to
-        # redefine the random variable
-        if beta_added > 0.:
-            # get the covariance matrix with added uncertainty
-            COV_orig = demand_RV.COV
-            if COV_orig.shape is not ():
-                sig_orig = np.sqrt(np.diagonal(COV_orig))
-                rho_orig = COV_orig / np.outer(sig_orig, sig_orig)
-                sig_mod = np.sqrt(sig_orig ** 2. + beta_added ** 2.)
-                COV_mod = np.outer(sig_mod, sig_mod) * rho_orig
-            else:
-                COV_mod = np.sqrt(COV_orig**2. + beta_added**2.)
-
-            # redefine the random variable
-            demand_RV = RandomVariable(ID=200,
-                                       dimension_tags=demand_RV.dimension_tags,
-                                       distribution_kind='lognormal',
-                                       theta=demand_RV.theta,
-                                       COV=COV_mod)
-
-        return demand_RV
-
     def _create_fragility_groups(self):
 
         RVd = self._RV_dict
@@ -1455,25 +1497,67 @@ class FEMA_P58_Assessment(Assessment):
 
     def _calc_collapses(self):
 
-        # filter the collapsed cases based on the demand samples
-        collapsed_IDs = np.array([])
-        s_edp_keys = sorted(self._EDP_dict.keys())
-        for demand_ID in s_edp_keys:
-            demand = self._EDP_dict[demand_ID]
-            coll_df = pd.DataFrame()
-            kind = demand_ID[:3]
-            collapse_limit = self._AIM_in['general']['collapse_limits'][kind]
-            if collapse_limit is not None:
-                EDP_samples = demand.samples
-                coll_df = EDP_samples[EDP_samples > collapse_limit]
-            collapsed_IDs = np.concatenate(
-                (collapsed_IDs, coll_df.index.values))
+        # There are three options for determining which realizations ended in
+        # collapse.
+        GI = self._AIM_in['general']
+        GR = GI['response']
+        realizations = self._AIM_in['general']['realizations']
+
+        # 1, The simplest case: prescribed collapse rate
+        if GR['coll_prob'] != 'estimated':
+            collapsed_IDs = np.random.choice(
+                realizations,
+                size=int(GR['coll_prob']*realizations),
+                replace=False)
+
+        # 2, Collapses estimated using EDP results
+        elif GR['CP_est_basis'] == 'raw EDP':
+            demand_data = []
+            collapse_limits = []
+            s_edp_keys = sorted(self._EDP_in.keys())
+            for d_id in s_edp_keys:
+                d_list = self._EDP_in[d_id]
+                for i in range(len(d_list)):
+                    demand_data.append(d_list[i]['raw_data'])
+
+                    coll_lim = GI['collapse_limits'][d_id]
+                    if coll_lim is None:
+                        coll_lim = np.inf
+
+                    collapse_limits.append([0., coll_lim])
+
+            collapse_limits = np.transpose(np.asarray(collapse_limits))
+            demand_data = np.transpose(np.asarray(demand_data))
+
+            EDP_filter = np.all(
+                [np.all(demand_data > collapse_limits[0], axis=1),
+                 np.all(demand_data < collapse_limits[1], axis=1)],
+                axis=0)
+            coll_prob = 1.0 - sum(EDP_filter)/len(EDP_filter)
+            collapsed_IDs = np.random.choice(
+                realizations,
+                size=int(coll_prob * realizations),
+                replace=False)
+
+        # 3, Collapses estimated using sampled EDP distribution
+        elif GR['CP_est_basis'] == 'sampled EDP':
+            collapsed_IDs = np.array([])
+            s_edp_keys = sorted(self._EDP_dict.keys())
+            for demand_ID in s_edp_keys:
+                demand = self._EDP_dict[demand_ID]
+                coll_df = pd.DataFrame()
+                kind = demand_ID[:3]
+                collapse_limit = self._AIM_in['general']['collapse_limits'][kind]
+                if collapse_limit is not None:
+                    EDP_samples = demand.samples
+                    coll_df = EDP_samples[EDP_samples > collapse_limit]
+                collapsed_IDs = np.concatenate(
+                    (collapsed_IDs, coll_df.index.values))
 
         # get a list of IDs of the collapsed cases
         collapsed_IDs = np.unique(collapsed_IDs).astype(int)
 
-        COL = pd.DataFrame(np.zeros(self._AIM_in['general']['realizations']),
-                           columns=['COL', ])
+        COL = pd.DataFrame(np.zeros(realizations), columns=['COL', ])
         COL.loc[collapsed_IDs, 'COL'] = 1
 
         return COL, collapsed_IDs
@@ -1983,15 +2067,18 @@ class HAZUS_Assessment(Assessment):
                     self._create_RV_fragilities(c_id, comp,'PG')})
 
         # demands 200
-        self._RV_dict.update({'EDP': self._create_RV_demands(
-            self.beta_additional)})
+        self._RV_dict.update({'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
+        realization_count = self._AIM_in['general']['realizations']
+        is_coupled = self._AIM_in['general']
+
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:
             rv = self._RV_dict[r_i]
             if rv is not None:
-                rv.sample_distribution(self._AIM_in['general']['realizations'])
+                rv.sample_distribution(
+                    sample_size=realization_count, preserve_order=is_coupled)
 
     def define_loss_model(self):
         """
@@ -2223,89 +2310,6 @@ class HAZUS_Assessment(Assessment):
             fragility_RV = None
 
         return fragility_RV
-
-    def _create_RV_demands(self, beta_added):
-
-        # unlike other random variables, the demand RV is based on raw data
-        # first, collect the raw values from the EDP dict
-        demand_data = []
-        d_tags = []
-        detection_limits = []
-        s_edp_keys = sorted(self._EDP_in.keys())
-        for d_id in s_edp_keys:
-            d_list = self._EDP_in[d_id]
-            for i in range(len(d_list)):
-                demand_data.append(d_list[i]['raw_data'])
-                d_tags.append(str(d_id) +
-                              '-LOC-' + str(d_list[i]['location']) +
-                              '-DIR-' + str(d_list[i]['direction']))
-                det_lim = self._AIM_in['general']['detection_limits'][d_id]
-                if det_lim is None:
-                    det_lim = np.inf
-                detection_limits.append([0., det_lim])
-
-        detection_limits = np.transpose(np.asarray(detection_limits))
-        demand_data = np.transpose(np.asarray(demand_data))
-
-        # if more than one sample is provided
-        if demand_data.shape[0] > 1:
-            # get the number of censored samples
-            EDP_filter = np.all(
-                [np.all(demand_data > detection_limits[0], axis=1),
-                 np.all(demand_data < detection_limits[1], axis=1)],
-                axis=0)
-            censored_count = len(EDP_filter) - sum(EDP_filter)
-            demand_data = demand_data[EDP_filter]
-            demand_data = np.transpose(demand_data)
-
-            # create the random variable
-            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                       raw_data=demand_data,
-                                       detection_limits=detection_limits,
-                                       censored_count=censored_count
-                                       )
-
-            # fit a multivariate lognormal distribution to the censored raw data
-            demand_RV.fit_distribution('lognormal')
-        else:
-            # Since we only have one data point, the best we can do is assume
-            # it is the median of the multivariate distribution. The dispersion
-            # is assumed to be negligible.
-            dim = len(demand_data[0])
-            if dim > 1:
-                sig = np.abs(demand_data[0]) * 1e-6
-                rho = np.zeros((dim, dim))
-                np.fill_diagonal(rho, 1.0)
-                COV = np.outer(sig, sig) * rho
-            else:
-                COV = np.abs(demand_data[0][0]) * (1e-6) ** 2.0
-
-            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                       distribution_kind='lognormal',
-                                       theta=demand_data[0],
-                                       COV=COV)
-
-        # if we want to add other sources of uncertainty, we will need to
-        # redefine the random variable
-        if beta_added > 0.:
-            # get the covariance matrix with added uncertainty
-            COV_orig = demand_RV.COV
-            if COV_orig.shape is not ():
-                sig_orig = np.sqrt(np.diagonal(COV_orig))
-                rho_orig = COV_orig / np.outer(sig_orig, sig_orig)
-                sig_mod = np.sqrt(sig_orig ** 2. + beta_added ** 2.)
-                COV_mod = np.outer(sig_mod, sig_mod) * rho_orig
-            else:
-                COV_mod = np.sqrt(COV_orig ** 2. + beta_added ** 2.)
-
-            # redefine the random variable
-            demand_RV = RandomVariable(ID=200,
-                                       dimension_tags=demand_RV.dimension_tags,
-                                       distribution_kind='lognormal',
-                                       theta=demand_RV.theta,
-                                       COV=COV_mod)
-
-        return demand_RV
 
     def _create_fragility_groups(self):
 

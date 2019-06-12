@@ -242,6 +242,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     warnings.warn(UserWarning(
                         "{} is not in the DL input file.".format(source_att)))
 
+    # is this a coupled assessment?
+    data['general'].update({'coupled_assessment':
+                            LM.get('CoupledDLAssessment', False)})
+
     # components
     # Having components defined is not necessary, but if a component is defined
     # then all of its attributes need to be specified. Note that the required
@@ -419,11 +423,12 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                              "the input file.")
 
     if 'BuildingResponse' in LM.keys():
-        if 'DetectionLimits' in LM['BuildingResponse'].keys():
+        LMBR = LM['BuildingResponse']
+        if 'DetectionLimits' in LMBR.keys():
             data['general'].update({
                 'detection_limits':
                     dict([(key, float_or_None(value)) for key, value in
-                          LM['BuildingResponse']['DetectionLimits'].items()])})
+                          LMBR['DetectionLimits'].items()])})
             DGDL = data['general']['detection_limits']
             # scale the limits by the units
             for EDP_kind, value in DGDL.items():
@@ -434,6 +439,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             warnings.warn(UserWarning(
                 "EDP detection limits were not defined in the input file. "
                 "Assuming no detection limits."))
+
         if 'detection_limits' not in data['general'].keys():
             data['general'].update({'detection_limits':{}})
         for key in ['PID', 'PFA']:
@@ -441,22 +447,34 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 data['general']['detection_limits'].update({key: None})
 
         if AT == 'P58':
-            if 'YieldDriftRatio' in LM['BuildingResponse'].keys():
+            if 'YieldDriftRatio' in LMBR.keys():
                 data['general'].update({
                     'yield_drift': float_or_None(
-                        LM['BuildingResponse']['YieldDriftRatio'])})
+                        LMBR['YieldDriftRatio'])})
             elif DV['rec_cost'] or DV['rec_time']:
                 warnings.warn(UserWarning(
                     "Yield drift ratio was not defined in the input file. "
                     "Assuming a yield drift ratio of 0.01 radian."))
                 data['general'].update({'yield_drift': 0.01})
 
+        data['general'].update({'response': {
+            'EDP_distribution': LMBR.get('EDP_Distribution', 'lognormal'),
+            'coll_prob': LMBR.get('CollapseProbability', 'estimated'),
+            'CP_est_basis': LMBR.get('BasisOfCPEstimate', 'raw EDP'),
+            'EDP_dist_basis':
+                LMBR.get('BasisOfEDP_Distribution', 'all results')}})
+        if data['general']['response']['coll_prob'] != 'estimated':
+            data['general']['response']['coll_prob'] = \
+                float(data['general']['response']['coll_prob'])
+
     else:
         if AT == 'P58':
             warnings.warn(UserWarning(
                 "Building response characteristics were not defined in the "
-                "input file. Assuming no detection limits and a yield drift "
-                "ratio of 0.01 radian."))
+                "input file. Assuming no detection limits, a yield drift "
+                "ratio of 0.01 radian. Collapse probability is estimated "
+                "using raw EDP samples and all EDP samples are used to "
+                "define a multivariate lognormal EDP distribution."))
             data['general'].update({
                 'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
                 'yield_drift': 0.01
@@ -464,12 +482,17 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif AT == 'HAZUS':
             warnings.warn(UserWarning(
                 "Building response characteristics were not defined in the "
-                "input file. Assuming no detection limits."))
+                "input file. Assuming no detection limits. All EDP samples are "
+                "used to define a multivariate lognormal EDP distribution"))
             data['general'].update({
                 'detection_limits': dict(
                     [(key, None) for key in ['PFA', 'PID']])
             })
-
+        data['general'].update({'response': {
+            'EDP_distribution': 'lognormal',
+            'coll_prob'       : 'estimated',
+            'CP_est_basis'    : 'raw EDP',
+            'EDP_dist_basis'  : 'all results'}})
 
     if 'AdditionalUncertainty' in LM['UncertaintyQuantification'].keys():
         data['general'].update({

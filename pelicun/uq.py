@@ -344,7 +344,7 @@ def tmvn_MLE(samples,
 
     """
 
-    verbose = True
+    verbose = False
     if verbose:
         print(det_lower)
         print(det_upper)
@@ -599,7 +599,7 @@ class RandomVariable(object):
 
     The uncertainty can be described either through raw data or through a
     pre-defined distribution function. When using raw data, provide potentially
-    correlated raw samples in an 2 dimensional array. If the data is left or
+    correlated raw samples in a 2 dimensional array. If the data is left or
     right censored in any number of its dimensions, provide the list of
     detection limits and the number of censored samples. No other information
     is needed to define the object from raw data. Then, either resample the raw
@@ -703,9 +703,10 @@ class RandomVariable(object):
         if raw_data is not None:
             raw_data = np.asarray(raw_data)
             if len(raw_data.shape) > 1:
-                self._ndim = raw_data.shape[0]
+                self._ndim, self._ncount = raw_data.shape[:2]
             else:
                 self._ndim = 1
+                self._ncount = raw_data.shape[0]
         self._raw_data = raw_data
 
         if self._raw_data is not None:
@@ -924,6 +925,13 @@ class RandomVariable(object):
                     data[dim] = np.exp(data[dim])
 
         return data
+
+    @property
+    def distribution_kind(self):
+        """
+        Return the assigned probability distribution family.
+        """
+        return self._distribution_kind
 
     @property
     def theta(self):
@@ -1148,6 +1156,17 @@ class RandomVariable(object):
         else:
             return None
 
+    @property
+    def raw(self):
+        """
+        Return the pre-assigned raw data.
+
+        """
+        if hasattr(self, '_raw_data'):
+            return self._raw_data
+        else:
+            return None
+
     def fit_distribution(self, distribution_kind, truncation_limits=None):
         """
         Estimate the parameters of a probability distribution from raw data.
@@ -1235,7 +1254,7 @@ class RandomVariable(object):
 
         return theta, COV
 
-    def sample_distribution(self, sample_size):
+    def sample_distribution(self, sample_size, preserve_order=False):
         """
         Sample the probability distribution assigned to the random variable.
 
@@ -1251,10 +1270,18 @@ class RandomVariable(object):
         multinomial method in scipy. The samples are returned and also stored
         in the `sample` attribute of the RV.
 
+        If the random variable is defined by raw data only, we sample from the
+        raw data.
+
         Parameters
         ----------
         sample_size: int
             Number of samples requested.
+        preserve_order: bool, default: False
+            Influences sampling from raw data. If True, the samples are copies
+            of the first n rows of the raw data where n is the sample_size. This
+            only works for sample_size <= raw data size. If False, the samples
+            are drawn from the raw data pool with replacement.
 
         Returns
         -------
@@ -1263,46 +1290,86 @@ class RandomVariable(object):
             dimension tags that identify the variables.
         """
 
-        if ((self._distribution_kind.shape == ()) and
-            (self._distribution_kind == 'multinomial')):
+        if self._distribution_kind is not None:
+            if ((self._distribution_kind.shape == ()) and
+                (self._distribution_kind == 'multinomial')):
 
-            # sampling the multinomial distribution
-            samples = multinomial.rvs(1, self._p_set, size=sample_size)
+                # sampling the multinomial distribution
+                samples = multinomial.rvs(1, self._p_set, size=sample_size)
 
-            # convert the 2D sample array into a vector of integers
-            outcomes = np.array([np.arange(len(self._p_set))])
-            samples = np.matmul(samples, outcomes.T).flatten()
-            samples = pd.DataFrame(np.transpose(samples),
-                                   columns=self._dimension_tags)
+                # convert the 2D sample array into a vector of integers
+                outcomes = np.array([np.arange(len(self._p_set))])
+                samples = np.matmul(samples, outcomes.T).flatten()
+                samples = pd.DataFrame(np.transpose(samples),
+                                       columns=self._dimension_tags)
+            else:
+                # sampling the truncated multivariate normal distribution
+                raw_samples = tmvn_rvs(mu=self.mu, COV=self.COV,
+                                       lower=self.tr_lower_pre,
+                                       upper=self.tr_upper_pre,
+                                       size=sample_size)
+                raw_samples = np.transpose(raw_samples)
+
+                # enforce post-truncation correlations if needed
+                if self.tr_limits_post is not None:
+                    lower, upper = self.tr_lower_post, self.tr_upper_post
+                    for dim in range(self._ndim):
+                        if (lower[dim] > -np.inf) or (upper[dim]<np.inf):
+                            mu = self.mu[dim]
+                            sig = np.sqrt(self.COV[dim,dim])
+                            samples_U = norm.cdf(raw_samples[dim],loc=mu,scale=sig)
+                            raw_samples[dim] = truncnorm.ppf(
+                                samples_U, loc=mu, scale=sig,
+                                a = (lower[dim]-mu)/sig, b=(upper[dim]-mu)/sig)
+
+                # transform samples back from log space if needed
+                samples = self._return_from_log(raw_samples,
+                                                self._distribution_kind)
+
+                samples = pd.DataFrame(data=np.transpose(samples),
+                                       index=np.arange(sample_size),
+                                       columns=self._dimension_tags)
+
+                samples = samples.astype(np.float64)
         else:
-            # sampling the truncated multivariate normal distribution
-            raw_samples = tmvn_rvs(mu=self.mu, COV=self.COV,
-                                   lower=self.tr_lower_pre,
-                                   upper=self.tr_upper_pre,
-                                   size=sample_size)
-            raw_samples = np.transpose(raw_samples)
+            if self._raw_data is not None:
 
-            # enforce post-truncation correlations if needed
-            if self.tr_limits_post is not None:
-                lower, upper = self.tr_lower_post, self.tr_upper_post
-                for dim in range(self._ndim):
-                    if (lower[dim] > -np.inf) or (upper[dim]<np.inf):
-                        mu = self.mu[dim]
-                        sig = np.sqrt(self.COV[dim,dim])
-                        samples_U = norm.cdf(raw_samples[dim],loc=mu,scale=sig)
-                        raw_samples[dim] = truncnorm.ppf(
-                            samples_U, loc=mu, scale=sig,
-                            a = (lower[dim]-mu)/sig, b=(upper[dim]-mu)/sig)
+                if preserve_order:
+                    if self._ncount >= sample_size:
+                        if self._ndim > 1:
+                            samples = self._raw_data[:, :sample_size]
+                        else:
+                            samples = self._raw_data[:sample_size]
 
-            # transform samples back from log space if needed
-            samples = self._return_from_log(raw_samples,
-                                            self._distribution_kind)
+                    else:
+                        raise ValueError(
+                            "The number of samples requested is larger than "
+                            "number of raw data points available. Either "
+                            "sample without preserving order or reduce the "
+                            "sample size.")
 
-            samples = pd.DataFrame(data=np.transpose(samples),
-                                   index=np.arange(sample_size),
-                                   columns=self._dimension_tags)
+                else:
+                    # generate a random list of indices
+                    id_list = np.random.uniform(0, self._ncount,
+                                                size=sample_size)
 
-            samples = samples.astype(np.float64)
+                    # get the raw data that corresponds to the random ids
+                    if self._ndim > 1:
+                        samples = self._raw_data[:, id_list]
+                    else:
+                        samples = self._raw_data[id_list]
+
+                # put the samples in a DataFrame
+                samples = pd.DataFrame(data=np.transpose(samples),
+                                       index=np.arange(sample_size),
+                                       columns=self._dimension_tags)
+
+                samples = samples.astype(np.float64)
+
+            else:
+                raise ValueError(
+                    "Either raw samples or a distribution needs to be defined "
+                    "to sample a random variable.")
 
         self._samples = samples
 
@@ -1435,17 +1502,22 @@ class RandomVariableSubset(object):
         else:
             return None
 
-    def sample_distribution(self, sample_size):
+    def sample_distribution(self, sample_size, preserve_order=False):
         """
         Sample the probability distribution assigned to the connected RV.
 
-        Note that this function will sample the potentially multivariate
+        Note that this function will sample the full, potentially multivariate,
         distribution.
 
         Parameters
         ----------
         sample_size: int
             Number of samples requested.
+        preserve_order: bool, default: False
+            Influences sampling from raw data. If True, the samples are copies
+            of the first n rows of the raw data where n is the sample_size. This
+            only works for sample_size <= raw data size. If False, the samples
+            are drawn from the raw data pool with replacement.
 
         Returns
         -------
@@ -1453,7 +1525,7 @@ class RandomVariableSubset(object):
             Samples of the selected component generated from the distribution.
 
         """
-        samples = self._RV.sample_distribution(sample_size)
+        samples = self._RV.sample_distribution(sample_size, preserve_order)
 
         return samples[self._tags]
 
