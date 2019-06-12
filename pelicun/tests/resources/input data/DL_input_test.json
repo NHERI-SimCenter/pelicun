@@ -1,6 +1,7 @@
 {
     "GeneralInformation": {
         "planArea": 100.0,
+        "stories": 1,
         "units": {
             "force": "N",
             "length": "m",
@@ -19,7 +20,13 @@
             },
             "ReplacementCost": "300000",
             "ReplacementTime": "300"
-        },        
+        },    
+        "BuildingResponse": {            
+            "EDP_Distribution": "lognormal",
+            "BasisOfEDP_Distribution": "all results",
+            "CollapseProbability": "estimated",
+            "BasisOfCPEstimate": "sampled EDP"
+        },  
         "CollapseModes": [
             {
                 "affected_area": "1.0",
@@ -41,7 +48,11 @@
                 "unit_type": "SF",
                 "weights": "1.0"
             }
-        ],        
+        ],  
+        "DataSources": {
+            "ComponentDataFolder": "resources/DL data/json/",
+            "PopulationDataFile": "resources/population data/population_test.json"
+        },      
         "Inhabitants": {
             "OccupancyType": "Hospitality",
             "PeakPopulation": "10"

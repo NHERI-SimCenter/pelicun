@@ -21,6 +21,12 @@
             "ReplacementCost": "30000000",
             "ReplacementTime": "30000"
         },   
+        "BuildingResponse": {            
+            "EDP_Distribution": "lognormal",
+            "BasisOfEDP_Distribution": "all results",
+            "CollapseProbability": "estimated",
+            "BasisOfCPEstimate": "sampled EDP"
+        },  
         "CollapseModes": [
             {
                 "affected_area": "1.0",
@@ -78,7 +84,11 @@
                 "unit_type": "SF",
                 "weights": "0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02"
             }
-        ],        
+        ],    
+        "DataSources": {
+            "ComponentDataFolder": "resources/DL data/json/",
+            "PopulationDataFile": "resources/population data/population_test_det.json"
+        },     
         "Inhabitants": {
             "OccupancyType": "Hospitality",
             "PeakPopulation": "10"
