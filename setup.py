@@ -1,4 +1,4 @@
-﻿from setuptools import setup
+﻿from setuptools import setup, find_packages
 import io
 
 import pelicun
@@ -26,7 +26,8 @@ setup(
     description='Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    packages=['pelicun'],
+    #packages=['pelicun'],
+    packages = find_packages(),
     include_package_data=True,
     platforms='any',
     install_requires=[
@@ -36,7 +37,7 @@ setup(
     ],
     classifiers = [
         'Programming Language :: Python',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Natural Language :: English',
         'Environment :: Console',
         'Framework :: Jupyter',
@@ -50,7 +51,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Topic :: Scientific/Engineering',        
+        'Topic :: Scientific/Engineering',
         ],
     extras_require={
         'testing': ['pytest'],

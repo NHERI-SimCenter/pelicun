@@ -1,15 +1,23 @@
 {
   "general": {
+    "plan_area": 100.0,
+    "stories": 3,
     "realizations": 20000,
     "detection_limits": {
       "PFA": null,
       "PID": null
     },
     "yield_drift": 0.01,
+    "coupled_assessment": false,
     "added_uncertainty": {
       "beta_gm": 0.0001,
       "beta_m": 0.0001
-    }
+    },
+    "response": {  
+      "coll_prob": "estimated", 
+      "CP_est_basis": "raw EDP",
+      "EDP_dist_basis": "all results",
+      "EDP_distribution": "lognormal"}
   },
   "units": {
     "force": 1.0,

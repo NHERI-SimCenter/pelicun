@@ -24,3 +24,4 @@
 /*.egg
 
 __pycache__
+*.bak

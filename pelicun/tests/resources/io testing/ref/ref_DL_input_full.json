@@ -7,6 +7,7 @@
       "PFA": 1.5,
       "PID": 0.1
     },
+    "coupled_assessment": false,
     "irrepairable_res_drift": {
       "Median": 0.1,
       "Sig": 0.3
@@ -27,7 +28,12 @@
       0.0,
       2.0,
       2.0
-    ]
+    ],
+    "response": {  
+      "coll_prob": "estimated", 
+      "CP_est_basis": "raw EDP",
+      "EDP_dist_basis": "all results",
+      "EDP_distribution": "lognormal"}
   },
   "units": {
     "force": 1.0,

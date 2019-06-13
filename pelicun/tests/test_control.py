@@ -4,34 +4,34 @@
 # Copyright (c) 2018 The Regents of the University of California
 #
 # This file is part of pelicun.
-# 
-# Redistribution and use in source and binary forms, with or without 
+#
+# Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
-# 1. Redistributions of source code must retain the above copyright notice, 
+# 1. Redistributions of source code must retain the above copyright notice,
 # this list of conditions and the following disclaimer.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, 
-# this list of conditions and the following disclaimer in the documentation 
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
 # and/or other materials provided with the distribution.
 #
-# 3. Neither the name of the copyright holder nor the names of its contributors 
-# may be used to endorse or promote products derived from this software without 
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
 # specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-# 
-# You should have received a copy of the BSD 3-Clause License along with 
+#
+# You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
 #
 # Contributors:
@@ -64,23 +64,21 @@ from pelicun.uq import mvn_orthotope_density as mvn_od
 
 def test_FEMA_P58_Assessment_central_tendencies():
     """
-    Perform a loss assessment with customized inputs that reduce the 
+    Perform a loss assessment with customized inputs that reduce the
     dispersion of calculation parameters to negligible levels. This allows us
-    to test the results against pre-defined reference values in spite of the 
+    to test the results against pre-defined reference values in spite of the
     randomness involved in the calculations.
-    
+
     """
 
     base_input_path = 'resources/'
     DL_input = base_input_path + 'input data/' + "DL_input_test.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -345,7 +343,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
     assert_allclose(S.loc[:, ('reconstruction', 'time-parallel')],
                     S.loc[:, ('reconstruction', 'time-sequential')])
 
-    CAS = deepcopy(S.loc[:, ('injuries', 'casualties')])
+    CAS = deepcopy(S.loc[:, ('injuries', 'sev. 1')])
     CAS_CDF = np.around(CAS, decimals=3)
     vals, counts = np.unique(CAS_CDF, return_counts=True)
     assert_allclose(vals, [0, 0.075, 0.15, 0.25, 0.3, 0.5, 1.])
@@ -353,7 +351,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
                     np.array([35, 1, 3.5, 2, 2.5, 7, 5]) / 56., atol=0.01,
                     rtol=0.1)
 
-    CAS = deepcopy(S.loc[:, ('injuries', 'fatalities')])
+    CAS = deepcopy(S.loc[:, ('injuries', 'sev. 2')])
     CAS_CDF = np.around(CAS, decimals=3)
     vals, counts = np.unique(CAS_CDF, return_counts=True)
     assert_allclose(vals, [0, 0.025, 0.05, 0.1, 2.25, 4.5, 9.])
@@ -366,23 +364,21 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
     """
     Perform a loss assessment with customized inputs that focus on testing the
     methods used to estimate the multivariate lognormal distribution of EDP
-    values. Besides the fitting, this test also evaluates the propagation of 
-    EDP uncertainty through the analysis. Dispersions in other calculation 
-    parameters are reduced to negligible levels. This allows us to test the 
-    results against pre-defined reference values in spite of the  randomness 
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
     involved in the calculations.
     """
 
     base_input_path = 'resources/'
     DL_input = base_input_path + 'input data/' + "DL_input_test_2.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_2.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -649,27 +645,25 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     """
     Perform a loss assessment with customized inputs that focus on testing the
     methods used to estimate the multivariate lognormal distribution of EDP
-    values. Besides the fitting, this test also evaluates the propagation of 
-    EDP uncertainty through the analysis. Dispersions in other calculation 
-    parameters are reduced to negligible levels. This allows us to test the 
-    results against pre-defined reference values in spite of the  randomness 
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
     involved in the calculations.
     This test differs from the basic case in having unreliable EDP values above
-    a certain limit - a typical feature of interstory drifts in dynamic 
-    simulations. Such cases should not be a problem if the limits can be 
+    a certain limit - a typical feature of interstory drifts in dynamic
+    simulations. Such cases should not be a problem if the limits can be
     estimated and they are specified as detection limits in input file.
     """
 
     base_input_path = 'resources/'
     DL_input = base_input_path + 'input data/' + "DL_input_test_3.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_3.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -933,27 +927,27 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
         ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
-    
+
 def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     """
     Perform a loss assessment with customized inputs that focus on testing the
     methods used to estimate the multivariate lognormal distribution of EDP
-    values. Besides the fitting, this test also evaluates the propagation of 
-    EDP uncertainty through the analysis. Dispersions in other calculation 
-    parameters are reduced to negligible levels. This allows us to test the 
-    results against pre-defined reference values in spite of the  randomness 
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
     involved in the calculations.
-    Here we use EDP results with unique values assigned to failed analyses. 
-    In particular, PID=1.0 and PFA=100.0 are used when an analysis fails. 
+    Here we use EDP results with unique values assigned to failed analyses.
+    In particular, PID=1.0 and PFA=100.0 are used when an analysis fails.
     These values shall be handled by detection limits of 10 and 100 for PID
     and PFA, respectively.
-    Some information is lost when a large number of analysis results are 
+    Some information is lost when a large number of analysis results are
     replaced with 1.0 and 100.0. The ML estimator used in the current version
     can provide a reasonable estimate of the original covariance matrix, but
     the error is not negligible. That error is not due to a mistake or bug, but
-    a rather an expected product of the implemented estimator. Those errors 
+    a rather an expected product of the implemented estimator. Those errors
     forced us to increase the tolerances in this test compared to the previous
-    ones to avoid false positives. Future improvements in the tmvn_MLE 
+    ones to avoid false positives. Future improvements in the tmvn_MLE
     algorithm will hopefully allow us to eventually return to the original
     tolerance levels.
     """
@@ -962,13 +956,11 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_4.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_4.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -1234,17 +1226,17 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
         ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.02)
-    
+
 def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     """
     Perform a loss assessment with customized inputs that focus on testing the
     methods used to estimate the multivariate lognormal distribution of EDP
-    values. Besides the fitting, this test also evaluates the propagation of 
-    EDP uncertainty through the analysis. Dispersions in other calculation 
-    parameters are reduced to negligible levels. This allows us to test the 
-    results against pre-defined reference values in spite of the  randomness 
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
     involved in the calculations.
-    In this test we look at the propagation of EDP values provided for two 
+    In this test we look at the propagation of EDP values provided for two
     different directions. (3D refers to the numerical model used for response
     estimation.)
     """
@@ -1253,13 +1245,11 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_5.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_5.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -1825,18 +1815,18 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
         ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
-    
+
 def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     """
     Perform a loss assessment with customized inputs that focus on testing the
     methods used to estimate the multivariate lognormal distribution of EDP
-    values. Besides the fitting, this test also evaluates the propagation of 
-    EDP uncertainty through the analysis. Dispersions in other calculation 
-    parameters are reduced to negligible levels. This allows us to test the 
-    results against pre-defined reference values in spite of the  randomness 
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
     involved in the calculations.
     In this test we provide only one structural response result and see if it
-    is properly handled as a deterministic value or a random EDP using the 
+    is properly handled as a deterministic value or a random EDP using the
     additional sources of uncertainty.
     """
 
@@ -1844,13 +1834,11 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_6.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_6.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -1897,7 +1885,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     AU = A._AIM_in['general']['added_uncertainty']
 
@@ -1945,19 +1933,19 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
         ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
-    
+
 def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
     """
     Perform a loss assessment with customized inputs that focus on testing the
     methods used to estimate the multivariate lognormal distribution of EDP
-    values. Besides the fitting, this test also evaluates the propagation of 
-    EDP uncertainty through the analysis. Dispersions in other calculation 
-    parameters are reduced to negligible levels. This allows us to test the 
-    results against pre-defined reference values in spite of the  randomness 
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
     involved in the calculations.
     This test simulates a scenario when one of the EDPs is identical in all
     of the available samples. This results in zero variance in that dimension
-    and the purpose of the test is to ensure that such cases are handled 
+    and the purpose of the test is to ensure that such cases are handled
     appropriately.
     """
 
@@ -1965,13 +1953,11 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_7.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_7.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     with pytest.warns(UserWarning) as e_info:
         A.define_random_variables()
@@ -2007,13 +1993,13 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
         ('red tagged?', ''), 'count'] / 10000.
 
     assert P_no_RED_test == 0.0
-    
+
 def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
     """
-    Perform loss assessment with customized inputs that focus on testing the 
+    Perform loss assessment with customized inputs that focus on testing the
     propagation of uncertainty in component quantities. Dispersions in other
     calculation parameters are reduced to negligible levels. This allows us to
-    test the results against pre-defined reference values in spite of the 
+    test the results against pre-defined reference values in spite of the
     randomness involved in the calculations.
     This test assumes that component quantities are independent.
     """
@@ -2022,13 +2008,11 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_8.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_8.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     A = FEMA_P58_Assessment()
 
     with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -2113,7 +2097,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
 
     assert_allclose(DV_COST.corr(), rho_DV_target, atol=0.05)
 
-    # Uncertainty in decision variables is controlled by the correlation 
+    # Uncertainty in decision variables is controlled by the correlation
     # between damages
     RND = [truncnorm.rvs(-1., np.inf, loc=25, scale=25, size=10000) for i in
            range(4)]
@@ -2154,7 +2138,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
     assert_allclose(DV_INJ1.loc['std', :], np.zeros(8), atol=1e-4)
 
     # and for red tag...
-    # Since every component is damaged in every realization, the red tag 
+    # Since every component is damaged in every realization, the red tag
     # results should all be 1.0
     assert_allclose(A._DV_dict['red_tag'], np.ones((10000, 8)))
 
@@ -2187,16 +2171,16 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
     assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                     S.loc[:, ('reconstruction', 'time-parallel')])
     assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                    S.loc[:, ('injuries', 'casualties')])
+                    S.loc[:, ('injuries', 'sev. 1')])
     assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                    S.loc[:, ('injuries', 'fatalities')])
-    
+                    S.loc[:, ('injuries', 'sev. 2')])
+
 def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
     """
-    Perform loss assessment with customized inputs that focus on testing the 
+    Perform loss assessment with customized inputs that focus on testing the
     propagation of uncertainty in component quantities. Dispersions in other
     calculation parameters are reduced to negligible levels. This allows us to
-    test the results against pre-defined reference values in spite of the 
+    test the results against pre-defined reference values in spite of the
     randomness involved in the calculations.
     This test checks if dependencies between component quantities are handled
     appropriately.
@@ -2206,16 +2190,13 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_8.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_8.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     for dep in ['FG', 'PG', 'DIR', 'LOC']:
 
         A = FEMA_P58_Assessment()
 
         with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, CMP_data, POP_data,
-                          verbose=False)
+            A.read_inputs(DL_input, EDP_input, verbose=False)
 
         A._AIM_in['dependencies']['quantities'] = dep
 
@@ -2296,11 +2277,11 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         assert A._COL.describe().T['mean'].values == 0
 
         # DMG
-        # Because the correlations are enforced after truncation, the marginals 
-        # shall be unaffected by the correlation structure. Hence, the 
-        # distribution of damaged quantities within a PG shall be identical in 
+        # Because the correlations are enforced after truncation, the marginals
+        # shall be unaffected by the correlation structure. Hence, the
+        # distribution of damaged quantities within a PG shall be identical in
         # all dep cases.
-        # The specified dependencies are apparent in the correlation between 
+        # The specified dependencies are apparent in the correlation between
         # damaged quantities in various PGs.
 
         DMG_check = A._DMG.describe().T
@@ -2330,18 +2311,18 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
 
         DV_COST = A._DV_dict['rec_cost'] / A._DMG
 
-        # After the DVs are normalized by the damaged quantities, the resulting 
-        # samples show the correlations between the DV_measure (such as 
-        # reconstruction cost) / 1 unit of damaged component. Because this 
-        # consequences are perfectly correlated among the components of a 
-        # fragility group by definition, the quadrants on the main diagonal 
-        # will follow the matrix presented below. If there are additional 
-        # correlations defined between component quantities in different 
-        # fragility groups (i.e. the off-diagonal quadrants of the rho matrix), 
-        # those will be preserved in the consequences. Therefore, the 
-        # off-diagonal quadrants need to be updated with those from rho_target 
+        # After the DVs are normalized by the damaged quantities, the resulting
+        # samples show the correlations between the DV_measure (such as
+        # reconstruction cost) / 1 unit of damaged component. Because this
+        # consequences are perfectly correlated among the components of a
+        # fragility group by definition, the quadrants on the main diagonal
+        # will follow the matrix presented below. If there are additional
+        # correlations defined between component quantities in different
+        # fragility groups (i.e. the off-diagonal quadrants of the rho matrix),
+        # those will be preserved in the consequences. Therefore, the
+        # off-diagonal quadrants need to be updated with those from rho_target
         # to get an appropriate rho_DV_target.
-        
+
         rho_DV_target = np.array([
             [1, 1, 1, 1, 0, 0, 0, 0],
             [1, 1, 1, 1, 0, 0, 0, 0],
@@ -2357,12 +2338,12 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
 
         assert_allclose(DV_COST.corr(), rho_DV_target, atol=0.05)
 
-        # uncertainty in decision variables is controlled by the correlation 
+        # uncertainty in decision variables is controlled by the correlation
         # between damages
         P_test_PID = np.sum(DV_COST.iloc[:, 0] < 10.01) / 10000.
         P_test_PFA = np.sum(DV_COST.iloc[:, 4] < 10.01) / 10000.
 
-        # the first component quantities follow a truncated multivariate normal 
+        # the first component quantities follow a truncated multivariate normal
         # distribution
         mu_target_PID = mu_target_1 * 4.
         sig_target_PID = np.sqrt(
@@ -2386,7 +2367,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
 
         assert P_target_PID == pytest.approx(P_test_PID, rel=0.05)
 
-        # the second component quantities follow a multivariate lognormal 
+        # the second component quantities follow a multivariate lognormal
         # distribution
         mu_target_PFA = mu_target_2 * 4.
         sig_target_PFA = np.sqrt(
@@ -2412,9 +2393,9 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         assert P_target_PFA == pytest.approx(P_test_PFA, rel=0.05)
 
         # injuries...
-        # Every component is damaged in every realization in this test. Once 
-        # normalized by the quantity of components, the number of injuries 
-        # shall be identical and unaffected by the correlation between 
+        # Every component is damaged in every realization in this test. Once
+        # normalized by the quantity of components, the number of injuries
+        # shall be identical and unaffected by the correlation between
         # component quantities.
 
         DV_INJ_dict = deepcopy(A._DV_dict['injuries'])
@@ -2434,7 +2415,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         assert_allclose(DV_INJ1.loc['std', :], np.zeros(8), atol=1e-4)
 
         # and for red tag...
-        # since every component is damaged in every realization, the red tag 
+        # since every component is damaged in every realization, the red tag
         # results should all be 1.0
         assert_allclose(A._DV_dict['red_tag'], np.ones((10000, 8)))
 
@@ -2467,27 +2448,25 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'casualties')])
+                        S.loc[:, ('injuries', 'sev. 1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'fatalities')])
-        
+                        S.loc[:, ('injuries', 'sev. 2')])
+
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
     """
-    Perform loss assessment with customized inputs that focus on testing the 
+    Perform loss assessment with customized inputs that focus on testing the
     propagation of uncertainty in component fragilities. Dispersions in other
     calculation parameters are reduced to negligible levels. This allows us to
-    test the results against pre-defined reference values in spite of the 
+    test the results against pre-defined reference values in spite of the
     randomness involved in the calculations.
     """
-    
+
     idx = pd.IndexSlice
 
     base_input_path = 'resources/'
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_9.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_9.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     for dep in ['IND', 'PG', 'DIR', 'LOC', 'ATC', 'CSG', 'DS']:
         #print(dep, end=' ')
@@ -2495,8 +2474,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
         A = FEMA_P58_Assessment()
 
         with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, CMP_data, POP_data,
-                          verbose=False)
+            A.read_inputs(DL_input, EDP_input, verbose=False)
 
         A._AIM_in['dependencies']['fragilities'] = dep
 
@@ -2673,8 +2651,8 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                             np.zeros(np.array(sig_target[k]).shape), atol=1e-10)
 
             if k == 0:
-                # we perform the detailed verification of rho for the first case 
-                # only (because the others are 360x360 matrices)   
+                # we perform the detailed verification of rho for the first case
+                # only (because the others are 360x360 matrices)
                 assert_allclose(rho_test, rho_target)
 
             else:
@@ -3061,7 +3039,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                         assert DMG_corr.iloc[i, j] == pytest.approx(ref_i,
                                                                     abs=0.15)
 
-        # then check the distribution of damage within each performance group        
+        # then check the distribution of damage within each performance group
         EDP_list = np.array(
             [[[0.080000, 0.080000], [0.080000, 0.080000], [0.040000, 0.040000]],
              [[7.845320, 7.845320], [7.845320, 7.845320],
@@ -3117,7 +3095,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                         return_counts=True)
                     DMG_val_test = DMG_val_test[0][DMG_val_test[1] > 10]
 
-                    # only check at most the first 10 elements, because the 
+                    # only check at most the first 10 elements, because the
                     # higher values have extremely low likelihood
                     ddim = min(len(DMG_val_test), 10)
                     DMG_val_ref = DMG_vals[np.sign(k), dir_]
@@ -3130,14 +3108,14 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                         DMG_DS2_test = DMG_check_PG.iloc[:, [1, 2, 3]].sum(
                             axis=1)
 
-                        # the proportion of each DS in DS2 shall follow the 
+                        # the proportion of each DS in DS2 shall follow the
                         # pre-assigned weights
                         ME_test = \
                         DMG_check_PG.iloc[DMG_DS2_test.values > 0].iloc[:,
                         [1, 2, 3]].describe().T['mean'].values / DMG_tot[-1]
                         assert_allclose(ME_test, [0.5, 0.3, 0.2], atol=0.01)
 
-                        # the sum of DMG with correlated CSGs shall be either 0. 
+                        # the sum of DMG with correlated CSGs shall be either 0.
                         # or the total quantity
                         DMG_DS2_test = np.unique(
                             np.around(DMG_DS2_test * 10., decimals=0) / 10.,
@@ -3151,7 +3129,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                         DMG_DS2_test = DMG_check_PG.iloc[:, [1, 2, 3]].sum(
                             axis=1)
 
-                        # the proportion of each DS in DS2 shall follow the 
+                        # the proportion of each DS in DS2 shall follow the
                         # pre-assigned weights considering replacement
                         SIM_test = \
                         DMG_check_PG.iloc[DMG_DS2_test.values > 0].iloc[:,
@@ -3161,8 +3139,8 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                                 1.0 + P_rep / (1.0 - P_rep))
                         assert_allclose(SIM_test, SIM_ref, atol=0.02)
 
-                        # the sum of DMG with correlated CSGs shall be either 
-                        # 0. or more than the total quantity                
+                        # the sum of DMG with correlated CSGs shall be either
+                        # 0. or more than the total quantity
                         DMG_DS2_test = DMG_DS2_test.iloc[
                             DMG_DS2_test.values > 0]
                         # Even with perfect correlation, the generated random
@@ -3174,11 +3152,11 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                                    2] >= DMG_tot * 0.99
                         assert np.max(DMG_DS2_test.values) > DMG_tot
 
-                    # the first component has 3-1 CSGs in dir 1 and 2, 
+                    # the first component has 3-1 CSGs in dir 1 and 2,
                     # respectively
                     if k == 0:
                         dir_len = int(rel_len * 3 / 4)
-                    # the other components have 20-20 CSGs in dir 1 and 2, 
+                    # the other components have 20-20 CSGs in dir 1 and 2,
                     # respectively
                     else:
                         dir_len = int(rel_len / 2)
@@ -3204,7 +3182,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                     DS_ref_any = []
                     DS_test_all = []
                     DS_test_any = []
-                    # DS0            
+                    # DS0
                     DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
                                              lower=np.log(np.ones(ndim) * EDP),
                                              upper=np.ones(ndim) * np.inf)[0])
@@ -3384,10 +3362,10 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
 
         # ---------------------------------------------- check loss calculation
 
-        # No additional uncertainty is introduced when it comes to losses in 
-        # this test. The decision variables and the damaged quantities shall 
+        # No additional uncertainty is introduced when it comes to losses in
+        # this test. The decision variables and the damaged quantities shall
         # follow the same distribution and have the same correlation structure.
-        # The damaged quantities have already been verified, so now we use them 
+        # The damaged quantities have already been verified, so now we use them
         # as reference values for testing the decision variables.
 
         # COST and TIME and INJ
@@ -3410,7 +3388,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                 assert_allclose(dmg_corr.values, dv_corr.values, atol=0.001)
 
             # then check the distribution.
-            # After normalizing with the damaged quantities all decision 
+            # After normalizing with the damaged quantities all decision
             # variables in a given DS shall have the same value.
             dv = ((dv / dmg).describe().T).fillna(0.0)
 
@@ -3425,7 +3403,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
             qnt = np.array([PG._quantity.samples.values[:dims] for PG in
                             FG._performance_groups]).flatten()
 
-            # flag the samples where the damage exceeds the pre-defined limit 
+            # flag the samples where the damage exceeds the pre-defined limit
             # for red tagging
             dmg = DMG_check.loc[:, idx[FG._ID, :, :]]
             red_ref = dmg > 0.489 * qnt
@@ -3445,7 +3423,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
         # -------------------------------------------- check result aggregation
 
         # Aggregate results are checked in detail by other tests.
-        # Here we only focus on some simple checks to make sure the results 
+        # Here we only focus on some simple checks to make sure the results
         # make sense.
 
         S = A._SUMMARY
@@ -3464,16 +3442,16 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'casualties')])
+                        S.loc[:, ('injuries', 'sev. 1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'fatalities')])
-        
+                        S.loc[:, ('injuries', 'sev. 2')])
+
 def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
     """
-    Perform loss assessment with customized inputs that focus on testing the 
-    propagation of uncertainty in consequence functions and decision variables. 
-    Dispersions in other calculation parameters are reduced to negligible 
-    levels. This allows us to test the results against pre-defined reference 
+    Perform loss assessment with customized inputs that focus on testing the
+    propagation of uncertainty in consequence functions and decision variables.
+    Dispersions in other calculation parameters are reduced to negligible
+    levels. This allows us to test the results against pre-defined reference
     values in spite of the randomness involved in the calculations.
     """
 
@@ -3481,8 +3459,6 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_10.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_10.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     dep_list = ['IND', 'FG', 'PG', 'DIR', 'LOC', 'DS']
 
@@ -3506,8 +3482,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
         A = FEMA_P58_Assessment()
 
         with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, CMP_data, POP_data, 
-                          verbose=False)
+            A.read_inputs(DL_input, EDP_input, verbose=False)
 
         # set the dependencies
         A._AIM_in['dependencies']['rec_costs'] = dep_COST
@@ -3727,13 +3702,13 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
                 assert_allclose(DV_desc['std'].values[1::2], sig_ds2_ref,
                                 rtol=0.10)
 
-                # make sure that all damages correspond to positive 
+                # make sure that all damages correspond to positive
                 # reconstruction costs
                 assert np.all(np.min(DV) > 0.)
 
             elif DV_tag == 'time':
 
-                # cost consequences in DS1 are (truncated) normal for FG1 and 
+                # cost consequences in DS1 are (truncated) normal for FG1 and
                 # lognormal for FG2
                 # DS1 - FG1
                 mu_ds1_ref, var_ds1_ref = tnorm.stats(-1. / 0.32, 1000.,
@@ -3769,7 +3744,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
                     DV_desc_log['std'].values[::2][4:]) == pytest.approx(
                     0.32, rel=0.1)
 
-                # cost consequences in DS2 are lognormal for FG1 and 
+                # cost consequences in DS2 are lognormal for FG1 and
                 # (truncated) normal for FG2
                 # DS2 - FG1
                 mu_ds2_ref = np.exp(np.log(1.) + 0.72 ** 2. / 2.)
@@ -3805,15 +3780,15 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
                     DV_desc['std'].values[1::2][4:]) == pytest.approx(
                     sig_ds2_ref, rel=0.1)
 
-                # make sure that all damages correspond to positive 
+                # make sure that all damages correspond to positive
                 # reconstruction time
                 assert np.all(np.min(DV) > 0.)
 
             elif DV_tag in ['inj0', 'inj1']:
 
                 # Injuries follow a truncated normal distribution in all cases
-                # The beta values provided are coefficients of variation of the 
-                # non-truncated distribution. These provide the reference mean 
+                # The beta values provided are coefficients of variation of the
+                # non-truncated distribution. These provide the reference mean
                 # and standard deviation values for the truncated case.
                 mu_ds1, mu_ds2 = {'inj0': [0.5, 0.6], 'inj1': [0.1, 0.2]}[
                     DV_tag]
@@ -3821,10 +3796,10 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
                     {'inj0': [0.34, 0.74], 'inj1': [0.35, 0.75]}[DV_tag]
 
                 # DS1
-                # The affected population in DS1 per unit quantity (identical 
+                # The affected population in DS1 per unit quantity (identical
                 # for all FGs and injury levels)
-                p_aff = 0.05   
-                
+                p_aff = 0.05
+
                 mu_ref, var_ref = tnorm.stats(-1. / beta_ds1, (
                     1. - mu_ds1) / mu_ds1 / beta_ds1, loc=mu_ds1,
                                               scale=mu_ds1 * beta_ds1,
@@ -3839,9 +3814,9 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
                     sig_ref * p_aff, rel=0.1)
 
                 # DS2
-                # the affected population in DS1 per unit quantity (identical 
+                # the affected population in DS1 per unit quantity (identical
                 # for all FGs and injury levels)
-                p_aff = 0.1  
+                p_aff = 0.1
                 mu_ref, var_ref = tnorm.stats(-1. / beta_ds2, (
                     1. - mu_ds2) / mu_ds2 / beta_ds2, loc=mu_ds2,
                                               scale=mu_ds2 * beta_ds2,
@@ -3900,7 +3875,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
             for step in range(1, 5):
                 if sample_count[step] > 0:
                     assert mu_test[step] == pytest.approx(
-                        mu_ref[step], 
+                        mu_ref[step],
                         abs=5 * 0.4 / np.sqrt(sample_count[step]))
 
         # CORRELATIONS
@@ -3915,8 +3890,8 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
 
             if dv_tag == 'rep':
                 # transform the lognormal variables to log scale
-                log_flags = ([True, False] * 8 + 
-                             [False, True] * 4 + 
+                log_flags = ([True, False] * 8 +
+                             [False, True] * 4 +
                              [True, False] * 4)
                 for c, is_log in enumerate(log_flags):
                     if is_log:
@@ -3941,7 +3916,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
 
             DV_corr = DV.corr()
 
-            # use the correlations specified for the random variable as 
+            # use the correlations specified for the random variable as
             # reference (that we already verified earlier)
             COV_ref = RV.COV
             sig_ref = np.sqrt(np.diagonal(COV_ref))
@@ -3967,7 +3942,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
         # -------------------------------------------- check result aggregation
 
         # Aggregate results are checked in detail by other tests.
-        # Here we only focus on some simple checks to make sure the results 
+        # Here we only focus on some simple checks to make sure the results
         # make sense.
 
         S = A._SUMMARY
@@ -3986,20 +3961,20 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'casualties')])
+                        S.loc[:, ('injuries', 'sev. 1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'fatalities')])
+                        S.loc[:, ('injuries', 'sev. 2')])
 
         #print()
 
 
 def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
     """
-    Perform loss assessment with customized inputs that focus on testing the 
+    Perform loss assessment with customized inputs that focus on testing the
     propagation of uncertainty in consequence functions and decision variables
-    when not every component has injury and red tag consequences assigned to it. 
-    Dispersions in other calculation parameters are reduced to negligible 
-    levels. This allows us to test the results against pre-defined reference 
+    when not every component has injury and red tag consequences assigned to it.
+    Dispersions in other calculation parameters are reduced to negligible
+    levels. This allows us to test the results against pre-defined reference
     values in spite of the randomness involved in the calculations.
     """
 
@@ -4007,8 +3982,6 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_11.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_11.out"
-    CMP_data = base_input_path + 'DL data/json/'
-    POP_data = base_input_path + 'population data/' + "population_test_det.json"
 
     dep_list = ['IND', 'FG', 'PG', 'DIR', 'LOC', 'DS']
 
@@ -4032,8 +4005,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         A = FEMA_P58_Assessment()
 
         with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, CMP_data, POP_data,
-                          verbose=False)
+            A.read_inputs(DL_input, EDP_input, verbose=False)
 
         # set the dependencies
         A._AIM_in['dependencies']['rec_costs'] = dep_COST
@@ -4223,7 +4195,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         for dv_i, (DV, DV_tag) in enumerate(
             zip([DV_COST, DV_TIME, DV_INJ0, DV_INJ1],
                 ['cost', 'time', 'inj0', 'inj1'])):
-          
+
             DV_desc = DV.describe().T
             DV_desc_log = np.log(DV).describe().T
 
@@ -4253,13 +4225,13 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
                 assert_allclose(DV_desc['std'].values[1::2], sig_ds2_ref,
                                 rtol=0.10)
 
-                # make sure that all damages correspond to positive 
+                # make sure that all damages correspond to positive
                 # reconstruction costs
                 assert np.all(np.min(DV) > 0.)
 
             elif DV_tag == 'time':
 
-                # cost consequences in DS1 are (truncated) normal for FG1 and 
+                # cost consequences in DS1 are (truncated) normal for FG1 and
                 # lognormal for FG2
                 # DS1 - FG1
                 mu_ds1_ref, var_ds1_ref = tnorm.stats(-1. / 0.32, 1000.,
@@ -4295,7 +4267,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
                     DV_desc_log['std'].values[::2][4:]) == pytest.approx(
                     0.32, rel=0.1)
 
-                # cost consequences in DS2 are lognormal for FG1 and 
+                # cost consequences in DS2 are lognormal for FG1 and
                 # (truncated) normal for FG2
                 # DS2 - FG1
                 mu_ds2_ref = np.exp(np.log(1.) + 0.72 ** 2. / 2.)
@@ -4331,35 +4303,35 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
                     DV_desc['std'].values[1::2][4:]) == pytest.approx(
                     sig_ds2_ref, rel=0.1)
 
-                # make sure that all damages correspond to positive 
+                # make sure that all damages correspond to positive
                 # reconstruction time
                 assert np.all(np.min(DV) > 0.)
 
             elif DV_tag in ['inj0', 'inj1']:
 
                 # Injuries follow a truncated normal distribution in all cases
-                # The beta values provided are coefficients of variation of the 
-                # non-truncated distribution. These provide the reference mean 
+                # The beta values provided are coefficients of variation of the
+                # non-truncated distribution. These provide the reference mean
                 # and standard deviation values for the truncated case.
-                mu_ds1, mu_ds2 = {'inj0': [0.5, 0.6], 
+                mu_ds1, mu_ds2 = {'inj0': [0.5, 0.6],
                                   'inj1': [0.1, 0.2]}[DV_tag]
-                beta_ds1, beta_ds2 = {'inj0': [0.34, 0.74], 
+                beta_ds1, beta_ds2 = {'inj0': [0.34, 0.74],
                                       'inj1': [0.35, 0.75]}[DV_tag]
 
                 # DS1
-                # The affected population in DS1 per unit quantity (identical 
+                # The affected population in DS1 per unit quantity (identical
                 # for all FGs and injury levels)
                 p_aff = 0.05
 
                 mu_ref, var_ref = tnorm.stats(
-                    -1. / beta_ds1, (1. - mu_ds1) / mu_ds1 / beta_ds1, 
+                    -1. / beta_ds1, (1. - mu_ds1) / mu_ds1 / beta_ds1,
                     loc=mu_ds1,
                     scale=mu_ds1 * beta_ds1,
                     moments='mv')
                 sig_ref = np.sqrt(var_ref)
                 mu_ref = mu_ref * p_aff
-                sig_ref = sig_ref * p_aff            
-                assert_allclose(DV_desc['mean'].values[::2], 
+                sig_ref = sig_ref * p_aff
+                assert_allclose(DV_desc['mean'].values[::2],
                                 [np.nan]*4 + [mu_ref]*4,
                                 rtol=beta_ds1 / 10.)
                 assert_allclose(DV_desc['std'].values[::2],
@@ -4370,7 +4342,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
                     sig_ref, rel=0.1)
 
                 # DS2
-                # the affected population in DS1 per unit quantity (identical 
+                # the affected population in DS1 per unit quantity (identical
                 # for all FGs and injury levels)
                 p_aff = 0.1
                 mu_ref, var_ref = tnorm.stats(-1. / beta_ds2, (
@@ -4381,10 +4353,10 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
                 mu_ref = mu_ref * p_aff
                 sig_ref = sig_ref * p_aff
                 assert_allclose(DV_desc['mean'].values[1::2],
-                                [np.nan] * 4 + [mu_ref] * 4, 
+                                [np.nan] * 4 + [mu_ref] * 4,
                                 rtol=beta_ds2 / 10.)
                 assert_allclose(DV_desc['std'].values[1::2],
-                                [np.nan] * 4 + [sig_ref] * 4, 
+                                [np.nan] * 4 + [sig_ref] * 4,
                                 rtol=0.20)
                 assert np.mean(
                     DV_desc['std'].values[1::2][4:]) == pytest.approx(
@@ -4394,7 +4366,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         DV_RED = A._DV_dict['red_tag']
 
         DMG_norm = DMG_check / 25.
-        
+
         assert len(DV_RED.columns) == 8
 
         for i in range(8):
@@ -4459,7 +4431,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
                 for c, is_log in enumerate(log_flags):
                     if is_log:
                         DV.iloc[:, c] = np.log(DV.iloc[:, c])
-                        
+
             if dv_tag == 'inj':
                 # remove the columns with only nan values from DV
                 DV = pd.concat([DV.iloc[:,8:16], DV.iloc[:,24:32]], axis=1)
@@ -4479,7 +4451,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
 
             DV_corr = DV.corr()
 
-            # use the correlations specified for the random variable as 
+            # use the correlations specified for the random variable as
             # reference (that we already verified earlier)
             COV_ref = RV.COV
             sig_ref = np.sqrt(np.diagonal(COV_ref))
@@ -4505,7 +4477,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         # -------------------------------------------- check result aggregation
 
         # Aggregate results are checked in detail by other tests.
-        # Here we only focus on some simple checks to make sure the results 
+        # Here we only focus on some simple checks to make sure the results
         # make sense.
 
         S = A._SUMMARY
@@ -4524,8 +4496,8 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'casualties')])
+                        S.loc[:, ('injuries', 'sev. 1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'fatalities')])
+                        S.loc[:, ('injuries', 'sev. 2')])
 
         # print()

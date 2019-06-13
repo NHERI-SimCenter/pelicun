@@ -7,6 +7,7 @@
       "PFA": null,
       "PID": null
     },
+    "coupled_assessment": false,
     "detection_limits": {
       "PFA": null,
       "PID": null
@@ -20,7 +21,12 @@
       1.0,
       2.0,
       0.0
-    ]
+    ],
+    "response": {  
+      "coll_prob": "estimated", 
+      "CP_est_basis": "raw EDP",
+      "EDP_dist_basis": "all results",
+      "EDP_distribution": "lognormal"}
   },
   "units": {
     "force": 1.0,

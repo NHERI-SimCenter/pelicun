@@ -7,7 +7,7 @@
     "demand_type": "PFA",
     "directional": 0,
     "correlation": 0,
-    "offset": 1,
+    "offset": 0,
     "incomplete": 0,
     "locations": [
       1
