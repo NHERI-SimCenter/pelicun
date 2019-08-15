@@ -483,7 +483,7 @@ def test_create_HAZUS_json_files():
         # convert the files in the data folder
         os.mkdir(test_dir)
         os.mkdir(test_dir+'DL json/')
-        create_HAZUS_json_files(data_dir, test_dir)
+        create_HAZUS_EQ_json_files(data_dir, test_dir)
 
         # collect the prepared reference files
         ref_files = sorted(os.listdir(ref_dir+'DL json/'))
