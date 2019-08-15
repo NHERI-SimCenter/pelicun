@@ -53,7 +53,7 @@ else:
     string_types = str
 
 # get the absolute path of the pelicun directory
-pelicun_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pelicun_path = os.path.dirname(os.path.abspath(__file__))
 
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
