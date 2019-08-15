@@ -284,7 +284,7 @@ class Assessment(object):
         if ((self.beta_tot is not None) and
             (GI['response']['EDP_distribution'] != 'empirical')):
             # determine the covariance matrix with added uncertainty
-            if demand_RV.COV.shape is not ():
+            if demand_RV.COV.shape != ():
                 sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
                 COV_mod = np.outer(sig_mod, sig_mod) * demand_RV.corr
             else:
@@ -460,7 +460,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # demands 200
         GR = self._AIM_in['general']['response']
-        if GR['EDP_dist_basis'] is 'non-collapse results':
+        if GR['EDP_dist_basis'] == 'non-collapse results':
             discard_limits = self._AIM_in['general']['collapse_limits']
         else:
             discard_limits = None
@@ -1691,7 +1691,7 @@ class FEMA_P58_Assessment(Assessment):
             PG_set = FG._performance_groups
 
             DS_list = self._DMG.loc[:, idx[FG._ID, PG_set[0]._ID, :]].columns
-            DS_list = DS_list.levels[2][DS_list.labels[2]].values
+            DS_list = DS_list.levels[2][DS_list.codes[2]].values
 
             MI = pd.MultiIndex.from_product([[FG._ID, ],
                                              [pg._ID for pg in PG_set],
@@ -1819,7 +1819,7 @@ class FEMA_P58_Assessment(Assessment):
             PG_set = FG._performance_groups
 
             DS_list = self._DMG.loc[:, idx[FG._ID, PG_set[0]._ID, :]].columns
-            DS_list = DS_list.levels[2][DS_list.labels[2]].values
+            DS_list = DS_list.levels[2][DS_list.codes[2]].values
 
             for pg_i, PG in enumerate(PG_set):
 
@@ -1927,7 +1927,7 @@ class FEMA_P58_Assessment(Assessment):
             PG_set = FG._performance_groups
 
             DS_list = self._DMG.loc[:, idx[FG._ID, PG_set[0]._ID, :]].columns
-            DS_list = DS_list.levels[2][DS_list.labels[2]].values
+            DS_list = DS_list.levels[2][DS_list.codes[2]].values
 
             for pg_i, PG in enumerate(PG_set):
 
@@ -2232,7 +2232,7 @@ class HAZUS_Assessment(Assessment):
 
             SUMMARY.loc[ncID, ('reconstruction', 'cost')] = \
                 self._DV_dict['rec_cost'].sum(axis=1)
-            SUMMARY.loc[:, ('reconstruction', 'cost')] *= repl_cost
+            #SUMMARY.loc[:, ('reconstruction', 'cost')] *= repl_cost
 
         # reconstruction time
         if DVs['rec_time']:
@@ -2316,6 +2316,10 @@ class HAZUS_Assessment(Assessment):
         RVd = self._RV_dict
         DVs = self._AIM_in['decision_variables']
 
+        # use the building replacement cost to calculate the absolute
+        # reconstruction cost for component groups
+        repl_cost = self._AIM_in['general']['replacement_cost']
+
         # create a list for the fragility groups
         FG_dict = dict()
 
@@ -2365,7 +2369,7 @@ class HAZUS_Assessment(Assessment):
 
                             if DVs['rec_cost']:
                                 data = DS['repair_cost']
-                                f_median = prep_constant_median_DV(data)
+                                f_median = prep_constant_median_DV(data*repl_cost)
                                 CF_cost = ConsequenceFunction(
                                     DV_median=f_median,
                                     DV_distribution=None)
@@ -2651,7 +2655,7 @@ class HAZUS_Assessment(Assessment):
             PG_set = FG._performance_groups
 
             DS_list = self._DMG.loc[:, idx[FG._ID, PG_set[0]._ID, :]].columns
-            DS_list = DS_list.levels[2][DS_list.labels[2]].values
+            DS_list = DS_list.levels[2][DS_list.codes[2]].values
 
             for pg_i, PG in enumerate(PG_set):
 
@@ -2712,7 +2716,7 @@ class HAZUS_Assessment(Assessment):
             PG_set = FG._performance_groups
 
             DS_list = self._DMG.loc[:, idx[FG._ID, PG_set[0]._ID, :]].columns
-            DS_list = DS_list.levels[2][DS_list.labels[2]].values
+            DS_list = DS_list.levels[2][DS_list.codes[2]].values
 
             for pg_i, PG in enumerate(PG_set):
 

@@ -152,6 +152,7 @@ C = 1.
 
 # FEMA P58 specific
 #TODO: work around these and make them available only in the parser methods
+EA = ea
 SF = ft2
 LF = ft
 TN = ton

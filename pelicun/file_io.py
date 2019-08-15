@@ -128,27 +128,27 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         }
 
     # if not, use the default location
-    if path_CMP_data is "":
+    if path_CMP_data == "":
         warnings.warn(UserWarning(
             "The component database is not specified; using the default "
-            "{} data.".format(default_data_name[assessment_type])
+            "{} data.".format(default_data_name[AT])
         ))
         path_CMP_data = pelicun_path
-        if assessment_type == 'P58':
+        if AT == 'P58':
             path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
-        elif assessment_type == 'HAZUS':
+        elif AT == 'HAZUS':
             path_CMP_data += '/resources/HAZUS MH 2.1/DL json/'
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
 
-    if path_POP_data is "":
+    if path_POP_data == "":
         warnings.warn(UserWarning(
             "The population distribution is not specified; using the default "
-            "{} data.".format(default_data_name[assessment_type])
+            "{} data.".format(default_data_name[AT])
         ))
         path_POP_data = pelicun_path
-        if assessment_type == 'P58':
+        if AT == 'P58':
             path_POP_data += '/resources/FEMA P58 first edition/population.json'
-        elif assessment_type == 'HAZUS':
+        elif AT == 'HAZUS':
             path_POP_data += '/resources/HAZUS MH 2.1/population.json'
     data['data_sources'].update({'path_POP_data': path_POP_data})
 
@@ -596,7 +596,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 data['dependencies'].update({
                     target_att:dependency_to_acronym[DEP[source_att]]})
             elif dv_req == '' or DV[dv_req]:
-                if target_att is not 'fragilities':
+                if target_att != 'fragilities':
                     data['dependencies'].update({target_att: 'IND'})
                 else:
                     data['dependencies'].update({target_att: 'ATC'})
@@ -807,6 +807,8 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
     """
 
+    AT = assessment_type
+
     data = dict([(c_id, dict([(key, None) for key in [
         'ID',
         'name',
@@ -897,7 +899,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
             # FEMA P58 assessment. Rather than changing the locations themselves,
             # we assign an offset so that the results still get collected at the
             # appropriate story.
-            if assessment_type == 'P58':
+            if AT == 'P58':
                 c_data['offset'] = c_data['offset'] - 1
         elif EDP_type in [
             'Peak Floor Velocity',
@@ -1438,7 +1440,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
             warnings.warn(UserWarning(
                 'Error converting data for component {}'.format(comp_ID)))
 
-def create_HAZUS_json_files(data_dir, target_dir):
+def create_HAZUS_EQ_json_files(data_dir, target_dir):
     """
     Create JSON data files from publicly available HAZUS data.
 

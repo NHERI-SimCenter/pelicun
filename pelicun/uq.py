@@ -58,7 +58,8 @@ quantification in pelicun.
 import warnings
 import numpy as np
 import pandas as pd
-from scipy.stats import norm, truncnorm, multivariate_normal, multinomial, kde
+from scipy.stats import norm, truncnorm, multivariate_normal, multinomial
+from scipy.stats.mvn import mvndst
 from scipy.optimize import minimize
 from copy import deepcopy
 
@@ -268,7 +269,7 @@ def mvn_orthotope_density(mu, COV, lower=None, upper=None):
         correl = corr[np.tril_indices(ndim, -1)]
 
     # estimate the density
-    eps_alpha, alpha, __ = kde.mvn.mvndst(lower, upper, infin, correl)
+    eps_alpha, alpha, __ = mvndst(lower, upper, infin, correl)
 
     return alpha, eps_alpha
 
@@ -695,7 +696,6 @@ class RandomVariable(object):
                  distribution_kind=None,
                  theta=None, COV=None, corr_ref='pre', p_set=None,
                  truncation_limits=None):
-
         self._ID = ID
 
         self._dimension_tags = np.asarray(dimension_tags)
@@ -745,7 +745,6 @@ class RandomVariable(object):
             tr_limits = self._convert_limits(truncation_limits)
             self._tr_limits_pre, self._tr_limits_post = \
                 self._create_pre_post_tr_limits(tr_limits)
-
         else:
             self._theta = None
             self._COV = None
@@ -797,25 +796,28 @@ class RandomVariable(object):
 
         """
         if hasattr(self, '_ndim') and (limits is not None):
+            # convert single-element limits array into a nested
+            # structure that is easier to work with
+            if not isinstance(limits[0], (list, tuple, np.ndarray)):
+                limits[0] = [limits[0], ]
+            if not isinstance(limits[1], (list, tuple, np.ndarray)):
+                limits[1] = [limits[1], ]
+
             # assign a vector of None in place of a single None value
-            if (limits[0] is None) and (self._ndim > 1):
+            if (len(limits[0]) == 1) and (limits[0][0] is None):
                 limits[0] = [None for d in range(self._ndim)]
-            if (limits[1] is None) and (self._ndim > 1):
+            if (len(limits[1]) == 1) and (limits[1][0] is None):
                 limits[1] = [None for d in range(self._ndim)]
 
-            limits = np.asarray(limits)
-
             # replace None values with infinite limits
-            if self._ndim > 1:
-                limits[0][limits[0] == None] = -np.inf
-                limits[1][limits[1] == None] = np.inf
-            else:
-                if limits[0] == None:
-                    limits[0] = -np.inf
-                if limits[1] == None:
-                    limits[1] = np.inf
+            for l_i, l in enumerate(limits[0]):
+                if l is None:
+                    limits[0][l_i] = -np.inf
+            for l_i, l in enumerate(limits[1]):
+                if l is None:
+                    limits[1][l_i] = np.inf
 
-            limits = limits.astype(np.float64)
+            limits = np.array(limits, dtype=np.float64)
 
         return limits
 
@@ -835,7 +837,7 @@ class RandomVariable(object):
 
             # a single value or identical values means one setting
             # applies to all dims
-            if (CR.size == 1) or (np.unique(CR).size==1):
+            if (CR.size == 1) or (np.unique(CR).size == 1):
                 if CR.size > 1:
                     CR = CR[0]
                 if CR == 'pre':
@@ -848,15 +850,15 @@ class RandomVariable(object):
                 # otherwise assign the appropriate limits to each dim
                 tr_lower_pre, tr_lower_post = -np.ones((2,self._ndim))*np.inf
                 tr_upper_pre, tr_upper_post = np.ones((2,self._ndim))*np.inf
-                tr_lower_pre[CR=='pre'] = tr_lower[CR=='pre']
+                tr_lower_pre[CR == 'pre'] = tr_lower[CR == 'pre']
                 tr_upper_pre[CR == 'pre'] = tr_upper[CR == 'pre']
                 tr_lower_post[CR == 'post'] = tr_lower[CR == 'post']
-                tr_upper_post[CR=='post'] = tr_upper[CR=='post']
+                tr_upper_post[CR == 'post'] = tr_upper[CR == 'post']
 
                 trl_pre = np.asarray([tr_lower_pre, tr_upper_pre])
                 trl_post = np.asarray([tr_lower_post, tr_upper_post])
         else:
-            trl_pre, trl_post =  None, None
+            trl_pre, trl_post = None, None
 
         return trl_pre, trl_post
 
@@ -1409,7 +1411,6 @@ class RandomVariable(object):
             Estimate of the error in alpha.
 
         """
-
         # get the orthotope density within the truncation limits
         if (self.tr_lower_pre is None) and (self.tr_upper_pre is None):
             alpha_0 = 1.
