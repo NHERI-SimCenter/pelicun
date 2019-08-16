@@ -291,7 +291,7 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -318,7 +318,7 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -345,7 +345,7 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -372,7 +372,7 @@ def test_read_component_DL_data():
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -400,7 +400,7 @@ def test_read_component_DL_data():
     # read the component data
     with pytest.warns(UserWarning) as e_info:
         test_CMP = read_component_DL_data(
-            '../../resources/FEMA P58 first edition/DL json/',
+            '../resources/FEMA P58 first edition/DL json/',
             comp_info)
 
     assert test_CMP == {}
@@ -422,7 +422,7 @@ def test_read_component_DL_data():
     # read the component data
     with pytest.warns(UserWarning) as e_info:
         test_CMP = read_component_DL_data(
-            '../../resources/FEMA P58 first edition/DL json/',
+            '../resources/FEMA P58 first edition/DL json/',
             comp_info)
 
     assert test_CMP == {}
