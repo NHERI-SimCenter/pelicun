@@ -36,6 +36,7 @@
       "DSG-1": {
         "theta": 0.0017,
         "sig": 0.5,
+        "distribution_kind": "lognormal",
         "DS_set_kind": "single",
         "DS_set": {
           "DS-1": {
@@ -67,6 +68,7 @@
       "DSG-2": {
         "theta": 0.0035,
         "sig": 0.4,
+        "distribution_kind": "lognormal",
         "DS_set_kind": "single",
         "DS_set": {
           "DS-1": {
@@ -98,6 +100,7 @@
       "DSG-3": {
         "theta": 0.017,
         "sig": 0.4,
+        "distribution_kind": "lognormal",
         "DS_set_kind": "single",
         "DS_set": {
           "DS-1": {

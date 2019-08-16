@@ -124,11 +124,9 @@ def test_read_SimCenter_DL_input_non_standard_units():
                                           'test_DL_input_ns_units.json',
                                           verbose=False)
 
-    # make sure the paths under data sources point to the right locations
+    # make sure the path under data sources points to the right location
     assert test_DL['data_sources']['path_CMP_data'] == \
            pelicun_path + '/resources/FEMA P58 first edition/DL json/'
-    assert test_DL['data_sources']['path_POP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/population.json'
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate

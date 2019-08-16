@@ -24,6 +24,7 @@
     "length": 1.0,
     "area": 1.0,
     "volume": 1.0,
+    "speed": 1.0,
     "acceleration": 1.0
   },
   "components": {},

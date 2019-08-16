@@ -103,7 +103,8 @@ def test_FEMA_P58_Assessment_central_tendencies():
     sig = np.sqrt(np.diagonal(COV))
     assert_allclose(sig, np.array([0.3, 0.4, 0.5]), rtol=0.01)
     assert_allclose(COV / np.outer(sig, sig), np.ones((3, 3)), rtol=0.01)
-    assert RV_FRG._distribution_kind == 'lognormal'
+    for dist in RV_FRG._distribution_kind:
+        assert dist == 'lognormal'
 
     # RED
     RV_RED = A._RV_dict['DV_RED']

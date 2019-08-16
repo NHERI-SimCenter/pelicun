@@ -908,6 +908,7 @@ class RandomVariable(object):
                                 data[dim] = -np.inf
                         #else:
                         #    data[dim][data[dim]==np.log(min_float)] = -np.inf
+
         return data
 
     def _return_from_log(self, raw_data, distribution_list):

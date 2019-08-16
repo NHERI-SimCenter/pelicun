@@ -146,11 +146,17 @@ class Assessment(object):
             verbose=verbose)
 
         # EDP file
-        self._EDP_in = read_SimCenter_EDP_input(
-            path_EDP_input,
-            units=dict(PID=1.,
-                       PFA=self._AIM_in['units']['acceleration']),
-            verbose=verbose)
+        if self._hazard == 'EQ':
+            self._EDP_in = read_SimCenter_EDP_input(
+                path_EDP_input,
+                units=dict(PID=1.,
+                           PFA=self._AIM_in['units']['acceleration']),
+                verbose=verbose)
+        elif self._hazard == 'HU':
+            self._EDP_in = read_SimCenter_EDP_input(
+                path_EDP_input, EDP_kinds=('PWS',),
+                units=dict(PWS=self._AIM_in['units']['speed']),
+                verbose=verbose)
 
     def define_random_variables(self):
         """
@@ -310,6 +316,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # constants for the FEMA-P58 methodology
         self._inj_lvls = inj_lvls
+        self._hazard = 'EQ'
         self._assessment_type = 'P58'
 
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
@@ -963,7 +970,7 @@ class FEMA_P58_Assessment(Assessment):
         """
 
         # prepare the basic multivariate distribution data for one component subgroup considering all damage states
-        d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
+        d_theta, d_sig, d_tag, d_distr_kind = [np.array([]) for i in range(4)]
 
         s_dsg_keys = sorted(comp['DSG_set'].keys())
         for d_id in s_dsg_keys:
@@ -971,6 +978,7 @@ class FEMA_P58_Assessment(Assessment):
             d_theta = np.append(d_theta, DSG['theta'])
             d_sig = np.append(d_sig, DSG['sig'])
             d_tag = np.append(d_tag, comp['ID'] + '-' + str(d_id))
+            d_distr_kind = np.append(d_distr_kind, DSG['distribution_kind'])
         dims = len(d_theta)
 
         # get the total number of random variables for this fragility group
@@ -980,6 +988,7 @@ class FEMA_P58_Assessment(Assessment):
         c_theta = np.zeros(rv_count)
         c_tag = np.empty(rv_count, dtype=object)
         c_sig = np.zeros(rv_count)
+        c_distr_kind = np.empty(rv_count, dtype=object)
 
         pos_id = 0
         for l_id in comp['locations']:
@@ -990,6 +999,7 @@ class FEMA_P58_Assessment(Assessment):
                 c_sig[pos_id:pos_id + dims] = d_sig
                 c_tag[pos_id:pos_id + dims] = [
                     t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+                c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
                 pos_id += dims
 
         # create the covariance matrix
@@ -1001,7 +1011,7 @@ class FEMA_P58_Assessment(Assessment):
         if c_tag.size > 0:
             fragility_RV = RandomVariable(ID=300 + c_id,
                                           dimension_tags=c_tag,
-                                          distribution_kind='lognormal',
+                                          distribution_kind=c_distr_kind,
                                           theta=c_theta,
                                           COV=c_COV)
         else:
@@ -1972,13 +1982,26 @@ class FEMA_P58_Assessment(Assessment):
 
 class HAZUS_Assessment(Assessment):
     """
-    An Assessment class that implements the loss assessment method in HAZUS.
+    An Assessment class that implements the damage and loss assessment method
+    following the HAZUS Technical Manual and the HAZUS software.
+
+    Parameters
+    ----------
+    hazard:  {'EQ', 'HU'}
+        Identifies the type of hazard. EQ corresponds to earthquake, HU
+        corresponds to hurricane.
+        default: 'EQ'.
+    inj_lvls: int
+        Defines the discretization used to describe the severity of injuries.
+        The HAZUS earthquake methodology uses 4 levels.
+        default: 4
     """
-    def __init__(self, inj_lvls = 4):
+    def __init__(self, hazard='EQ', inj_lvls = 4):
         super(HAZUS_Assessment, self).__init__()
 
         self._inj_lvls = inj_lvls
-        self._assessment_type = 'HAZUS'
+        self._hazard = hazard
+        self._assessment_type = 'HAZUS_{}'.format(hazard)
 
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
@@ -2011,20 +2034,19 @@ class HAZUS_Assessment(Assessment):
         # read component and population data ----------------------------------
         # components
         self._FG_in = read_component_DL_data(
-            self._AIM_in['data_sources']['path_CMP_data'],
-                                             BIM['components'],
-            assessment_type=self._assessment_type,
-                                             verbose=verbose)
+            self._AIM_in['data_sources']['path_CMP_data'], BIM['components'],
+            assessment_type=self._assessment_type, verbose=verbose)
 
-        # population
-        POP = read_population_distribution(
-            self._AIM_in['data_sources']['path_POP_data'],
-            BIM['general']['occupancy_type'],
-            assessment_type=self._assessment_type,
-            verbose=verbose)
+        # population (if needed)
+        if self._AIM_in['decision_variables']['injuries']:
+            POP = read_population_distribution(
+                self._AIM_in['data_sources']['path_POP_data'],
+                BIM['general']['occupancy_type'],
+                assessment_type=self._assessment_type,
+                verbose=verbose)
 
-        POP['peak'] = BIM['general']['population']
-        self._POP_in = POP
+            POP['peak'] = BIM['general']['population']
+            self._POP_in = POP
 
     def define_random_variables(self):
         """
@@ -2119,14 +2141,16 @@ class HAZUS_Assessment(Assessment):
         # event time - month, weekday, and hour realizations
         self._TIME = self._sample_event_time()
 
-        # get the population conditioned on event time
-        self._POP = self._get_population()
+        # if we are interested in injuries...
+        if self._AIM_in['decision_variables']['injuries']:
+            # get the population conditioned on event time
+            self._POP = self._get_population()
 
         # collapses are handled as the ultimate DS in HAZUS
         self._ID_dict.update({'collapse': []})
 
         # select the non-collapse cases for further analyses
-        non_collapsed_IDs = self._POP.index.values.astype(int)
+        non_collapsed_IDs = self._TIME.index.values.astype(int)
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
         # damage in non-collapses
@@ -2193,14 +2217,22 @@ class HAZUS_Assessment(Assessment):
             ('event time', 'month'),
             ('event time', 'weekday?'),
             ('event time', 'hour'),
-            ('inhabitants', ''),
             ('reconstruction', 'cost'),
-            ('reconstruction', 'time'),
-            ('injuries', 'sev. 1'),
-            ('injuries', 'sev. 2'),
-            ('injuries', 'sev. 3'),
-            ('injuries', 'sev. 4'),
         ]
+
+        if DVs['rec_time']:
+            MI_raw += [
+                ('reconstruction', 'time'),
+            ]
+
+        if DVs['injuries']:
+            MI_raw += [
+                ('inhabitants', ''),
+                ('injuries', 'sev. 1'),
+                ('injuries', 'sev. 2'),
+                ('injuries', 'sev. 3'),
+                ('injuries', 'sev. 4'),
+            ]
 
         ncID = self._ID_dict['non-collapse']
         colID = self._ID_dict['collapse']
@@ -2224,7 +2256,8 @@ class HAZUS_Assessment(Assessment):
                 self._TIME.loc[:, prop] + offset
 
         # inhabitants
-        SUMMARY.loc[:, ('inhabitants', '')] = self._POP.sum(axis=1)
+        if DVs['injuries']:
+            SUMMARY.loc[:, ('inhabitants', '')] = self._POP.sum(axis=1)
 
         # reconstruction cost
         if DVs['rec_cost']:
@@ -2263,7 +2296,7 @@ class HAZUS_Assessment(Assessment):
         """
 
         # prepare the basic multivariate distribution data for one component subgroup considering all damage states
-        d_theta, d_sig, d_tag = [np.array([]) for i in range(3)]
+        d_theta, d_sig, d_tag, d_distr_kind = [np.array([]) for i in range(4)]
 
         s_dsg_keys = sorted(comp['DSG_set'].keys())
         for d_id in s_dsg_keys:
@@ -2271,6 +2304,7 @@ class HAZUS_Assessment(Assessment):
             d_theta = np.append(d_theta, DSG['theta'])
             d_sig = np.append(d_sig, DSG['sig'])
             d_tag = np.append(d_tag, comp['ID'] + '-' + str(d_id))
+            d_distr_kind = np.append(d_distr_kind, DSG['distribution_kind'])
         dims = len(d_theta)
 
         # get the total number of random variables for this fragility group
@@ -2281,6 +2315,7 @@ class HAZUS_Assessment(Assessment):
         c_theta = np.zeros(rv_count)
         c_tag = np.empty(rv_count, dtype=object)
         c_sig = np.zeros(rv_count)
+        c_distr_kind = np.empty(rv_count, dtype=object)
 
         pos_id = 0
         for l_id in comp['locations']:
@@ -2291,6 +2326,7 @@ class HAZUS_Assessment(Assessment):
                 c_sig[pos_id:pos_id + dims] = d_sig
                 c_tag[pos_id:pos_id + dims] = [
                     t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+                c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
                 pos_id += dims
 
         # create the covariance matrix
@@ -2303,7 +2339,7 @@ class HAZUS_Assessment(Assessment):
         if c_tag.size > 0:
             fragility_RV = RandomVariable(ID=300 + c_id,
                                           dimension_tags=c_tag,
-                                          distribution_kind='lognormal',
+                                          distribution_kind=c_distr_kind,
                                           theta=c_theta,
                                           COV=c_COV)
         else:

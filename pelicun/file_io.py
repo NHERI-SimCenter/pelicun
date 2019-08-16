@@ -115,47 +115,6 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     LM = jd['LossModel']
 
-    # data sources
-    # check if the user specified custom data sources
-    if 'DataSources' in LM.keys():
-        path_CMP_data = LM['DataSources'].get('ComponentDataFolder',"")
-        path_POP_data = LM['DataSources'].get('PopulationDataFile',"")
-
-    else:
-        path_CMP_data = ""
-        path_POP_data = ""
-
-    default_data_name = {
-        'P58': 'FEMA P58 first edition',
-        'HAZUS_EQ': 'HAZUS MH 2.1 earthquake',
-        'HAZUS_HU': 'HAZUS MH 2.1 hurricane'
-        }
-
-    # if not, use the default location
-    if path_CMP_data == "":
-        warnings.warn(UserWarning(
-            "The component database is not specified; using the default "
-            "{} data.".format(default_data_name[AT])
-        ))
-        path_CMP_data = pelicun_path
-        if AT == 'P58':
-            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
-        elif AT == 'HAZUS_EQ':
-            path_CMP_data += '/resources/HAZUS MH 2.1 earthquake/DL json/'
-    data['data_sources'].update({'path_CMP_data': path_CMP_data})
-
-    if path_POP_data == "":
-        warnings.warn(UserWarning(
-            "The population distribution is not specified; using the default "
-            "{} data.".format(default_data_name[AT])
-        ))
-        path_POP_data = pelicun_path
-        if AT == 'P58':
-            path_POP_data += '/resources/FEMA P58 first edition/population.json'
-        elif AT == 'HAZUS_EQ':
-            path_POP_data += '/resources/HAZUS MH 2.1 earthquake/population.json'
-    data['data_sources'].update({'path_POP_data': path_POP_data})
-
     # decision variables of interest
     if 'DecisionVariables' in LM.keys():
         DV = LM['DecisionVariables']
@@ -185,6 +144,51 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     DV = data['decision_variables']
 
+    # data sources
+    # check if the user specified custom data sources
+    if 'DataSources' in LM.keys():
+        path_CMP_data = LM['DataSources'].get('ComponentDataFolder', "")
+        path_POP_data = LM['DataSources'].get('PopulationDataFile', "")
+
+    else:
+        path_CMP_data = ""
+        path_POP_data = ""
+
+    default_data_name = {
+        'P58'     : 'FEMA P58 first edition',
+        'HAZUS_EQ': 'HAZUS MH 2.1 earthquake',
+        'HAZUS_HU': 'HAZUS MH 2.1 hurricane'
+    }
+
+    # if not, use the default location
+    if path_CMP_data == "":
+        warnings.warn(UserWarning(
+            "The component database is not specified; using the default "
+            "{} data.".format(default_data_name[AT])
+        ))
+        path_CMP_data = pelicun_path
+        if AT == 'P58':
+            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
+        elif AT == 'HAZUS_EQ':
+            path_CMP_data += '/resources/HAZUS MH 2.1 earthquake/DL json/'
+        elif AT == 'HAZUS_HU':
+            path_CMP_data += '/resources/HAZUS MH 2.1 hurricane/DL json/'
+    data['data_sources'].update({'path_CMP_data': path_CMP_data})
+
+    # The population data is only needed if we are interested in injuries
+    if data['decision_variables']['injuries']:
+        if path_POP_data == "":
+            warnings.warn(UserWarning(
+                "The population distribution is not specified; using the default "
+                "{} data.".format(default_data_name[AT])
+            ))
+            path_POP_data = pelicun_path
+            if AT == 'P58':
+                path_POP_data += '/resources/FEMA P58 first edition/population.json'
+            elif AT == 'HAZUS_EQ':
+                path_POP_data += '/resources/HAZUS MH 2.1 earthquake/population.json'
+        data['data_sources'].update({'path_POP_data': path_POP_data})
+
     # general information
     if 'GeneralInformation' in jd:
         GI = jd['GeneralInformation']
@@ -207,6 +211,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 'area': data['units']['length']**2.,
                 'volume': data['units']['length']**3.
             })
+            if 'speed' not in data['units'].keys():
+                data['units'].update({
+                    'speed': data['units']['length']})
             if 'acceleration' not in data['units'].keys():
                 data['units'].update({
                     #'acceleration': 1.0 })
@@ -220,6 +227,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             'length': globals()['m'],
             'area': globals()['m2'],
             'volume': globals()['m3'],
+            'speed': globals()['mps'],
             'acceleration': globals()['mps2'],
         })
 
@@ -273,13 +281,13 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'cov'         : float(comp['cov']),
                     'unit'        : [float(comp['unit_size']), comp['unit_type']],
                 }
-            elif AT == 'HAZUS_EQ':
+            elif AT.startswith('HAZUS'):
                 comp_data = {
                     'quantities'  : np.ones(1),
                     'csg_weights' : [1.0,],
                     'locations'   : [1,],
                     'dirs'        : [1,],
-                    'kind'        : ('structural' if comp['structural']
+                    'kind'        : ('structural' if comp.get('structural', True)
                                      else 'non-structural'),
                     'distribution': 'normal',
                     'cov'         : 1e-4,
@@ -351,7 +359,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     EDP_units = dict(
         # PID is not here because it is unitless
-        PFA = 'acceleration'
+        PFA = 'acceleration',
+        PWS = 'speed'
     )
 
     # other general info
@@ -366,7 +375,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 warnings.warn(UserWarning(
                     "Building replacement cost was not defined in the "
                     "input file."))
-            elif AT == 'HAZUS_EQ':
+            elif AT.startswith('HAZUS'):
                 raise ValueError("Building replacement cost was not defined in "
                                  "the input file.")
 
@@ -379,7 +388,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 warnings.warn(UserWarning(
                     "Building replacement time was not defined in the "
                     "input file."))
-            elif AT == 'HAZUS_EQ':
+            elif AT.startswith('HAZUS'):
                 raise ValueError("Building replacement time was not defined in "
                                  "the input file.")
 
@@ -423,10 +432,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             warnings.warn(UserWarning(
                 "Building damage characteristics were not defined in the "
                 "input file"))
-        elif AT == 'HAZUS_EQ' and DV['rec_cost']:
+        elif AT.startswith('HAZUS') and DV['rec_cost']:
             raise ValueError("Building replacement cost was not defined in "
                              "the input file.")
-        elif AT == 'HAZUS_EQ' and DV['rec_time']:
+        elif AT.startswith('HAZUS') and DV['rec_time']:
             raise ValueError("Building replacement time was not defined in "
                              "the input file.")
 
@@ -450,7 +459,12 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
         if 'detection_limits' not in data['general'].keys():
             data['general'].update({'detection_limits':{}})
-        for key in ['PID', 'PFA']:
+
+        if AT in ['P58', 'HAZUS_EQ']:
+            EDP_keys = ['PID', 'PFA']
+        elif AT in ['HAZUS_HU']:
+            EDP_keys = ['PWS',]
+        for key in EDP_keys:
             if key not in data['general']['detection_limits'].keys():
                 data['general']['detection_limits'].update({key: None})
 
@@ -487,15 +501,21 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
                 'yield_drift': 0.01
             })
-        elif AT == 'HAZUS_EQ':
+        elif AT.startswith('HAZUS'):
             warnings.warn(UserWarning(
                 "Building response characteristics were not defined in the "
                 "input file. Assuming no detection limits. All EDP samples are "
                 "used to define a multivariate lognormal EDP distribution"))
-            data['general'].update({
-                'detection_limits': dict(
-                    [(key, None) for key in ['PFA', 'PID']])
-            })
+            if AT == 'HAZUS_EQ':
+                data['general'].update({
+                    'detection_limits': dict(
+                        [(key, None) for key in ['PFA', 'PID']])
+                })
+            elif AT == 'HAZUS_HU':
+                data['general'].update({
+                    'detection_limits': dict(
+                        [(key, None) for key in ['PWS',]])
+                })
         data['general'].update({'response': {
             'EDP_distribution': 'lognormal',
             'coll_prob'       : 'estimated',
@@ -669,8 +689,7 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
     # read the collection of EDP inputs...
     # the read_csv method in pandas is sufficiently versatile to handle the
     # tabular format of dakota
-    EDP_raw = pd.read_csv(input_path, sep=r'\s+', header=0,
-                          index_col=0)
+    EDP_raw = pd.read_csv(input_path, sep=r'\s+', header=0, index_col=0)
     # set the index to be zero-based
     EDP_raw.index = EDP_raw.index - 1
 
@@ -905,6 +924,9 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
             # appropriate story.
             if AT == 'P58':
                 c_data['offset'] = c_data['offset'] - 1
+        elif EDP_type == 'Peak Gust Wind Speed':
+            demand_type = 'PWS'
+            demand_factor = mph
         elif EDP_type in [
             'Peak Floor Velocity',
             'Link Rotation Angle',
@@ -939,9 +961,12 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                 theta=DSG_i['MedianEDP'] * demand_factor,
                 sig=DSG_i['Beta'],
                 DS_set_kind=DS_set_kind[DSG_i['DSGroupType']],
-                # distribution_kind = curve_type[DSG_i['CurveType']],
+                distribution_kind = curve_type[DSG_i['CurveType']],
                 DS_set={}
             )
+            # sig needs to be scaled for normal distributions
+            if DSG_data['distribution_kind'] == 'normal':
+                DSG_data['sig'] = DSG_data['sig'] * demand_factor
 
             for DS_id, DS_i in enumerate(DSG_i['DamageStates']):
                 DS_data = {'description': DS_i['Description'],
