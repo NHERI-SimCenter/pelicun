@@ -48,6 +48,9 @@ This module has classes and methods that handle file input and output.
     read_SimCenter_EDP_input
     read_population_distribution
     read_component_DL_data
+    convert_P58_data_to_json
+    create_HAZUS_EQ_json_files
+    create_HAZUS_HU_json_files
     write_SimCenter_DL_output
 
 """
@@ -80,7 +83,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     ----------
     input_path: string
         Location of the DL input json file.
-    assessment_type: {'P58', 'HAZUS'}
+    assessment_type: {'P58', 'HAZUS_EQ', 'HAZUS_HU'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
     verbose: boolean
@@ -124,7 +127,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     default_data_name = {
         'P58': 'FEMA P58 first edition',
-        'HAZUS': 'HAZUS'
+        'HAZUS_EQ': 'HAZUS MH 2.1 earthquake',
+        'HAZUS_HU': 'HAZUS MH 2.1 hurricane'
         }
 
     # if not, use the default location
@@ -136,8 +140,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         path_CMP_data = pelicun_path
         if AT == 'P58':
             path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
-        elif AT == 'HAZUS':
-            path_CMP_data += '/resources/HAZUS MH 2.1/DL json/'
+        elif AT == 'HAZUS_EQ':
+            path_CMP_data += '/resources/HAZUS MH 2.1 earthquake/DL json/'
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
 
     if path_POP_data == "":
@@ -148,8 +152,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         path_POP_data = pelicun_path
         if AT == 'P58':
             path_POP_data += '/resources/FEMA P58 first edition/population.json'
-        elif AT == 'HAZUS':
-            path_POP_data += '/resources/HAZUS MH 2.1/population.json'
+        elif AT == 'HAZUS_EQ':
+            path_POP_data += '/resources/HAZUS MH 2.1 earthquake/population.json'
     data['data_sources'].update({'path_POP_data': path_POP_data})
 
     # decision variables of interest
@@ -269,7 +273,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'cov'         : float(comp['cov']),
                     'unit'        : [float(comp['unit_size']), comp['unit_type']],
                 }
-            elif AT == 'HAZUS':
+            elif AT == 'HAZUS_EQ':
                 comp_data = {
                     'quantities'  : np.ones(1),
                     'csg_weights' : [1.0,],
@@ -362,7 +366,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 warnings.warn(UserWarning(
                     "Building replacement cost was not defined in the "
                     "input file."))
-            elif AT == 'HAZUS':
+            elif AT == 'HAZUS_EQ':
                 raise ValueError("Building replacement cost was not defined in "
                                  "the input file.")
 
@@ -375,7 +379,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 warnings.warn(UserWarning(
                     "Building replacement time was not defined in the "
                     "input file."))
-            elif AT == 'HAZUS':
+            elif AT == 'HAZUS_EQ':
                 raise ValueError("Building replacement time was not defined in "
                                  "the input file.")
 
@@ -419,10 +423,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             warnings.warn(UserWarning(
                 "Building damage characteristics were not defined in the "
                 "input file"))
-        elif AT == 'HAZUS' and DV['rec_cost']:
+        elif AT == 'HAZUS_EQ' and DV['rec_cost']:
             raise ValueError("Building replacement cost was not defined in "
                              "the input file.")
-        elif AT == 'HAZUS' and DV['rec_time']:
+        elif AT == 'HAZUS_EQ' and DV['rec_time']:
             raise ValueError("Building replacement time was not defined in "
                              "the input file.")
 
@@ -483,7 +487,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
                 'yield_drift': 0.01
             })
-        elif AT == 'HAZUS':
+        elif AT == 'HAZUS_EQ':
             warnings.warn(UserWarning(
                 "Building response characteristics were not defined in the "
                 "input file. Assuming no detection limits. All EDP samples are "
@@ -526,7 +530,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif AT == 'P58' and DV['injuries']:
             warnings.warn(UserWarning(
                 "Occupancy type was not defined in the input file."))
-        elif AT == 'HAZUS' and DV['injuries']:
+        elif AT == 'HAZUS_EQ' and DV['injuries']:
             raise ValueError("Occupancy type was not defined in the input "
                              "file.")
 
@@ -665,7 +669,7 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
     # read the collection of EDP inputs...
     # the read_csv method in pandas is sufficiently versatile to handle the
     # tabular format of dakota
-    EDP_raw = pd.read_csv(input_path, sep='\s+', header=0,
+    EDP_raw = pd.read_csv(input_path, sep=r'\s+', header=0,
                           index_col=0)
     # set the index to be zero-based
     EDP_raw.index = EDP_raw.index - 1
@@ -722,7 +726,7 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
         Location of the population distribution json file.
     occupancy: string
         Identifies the occupancy category.
-    assessment_type: {'P58', 'HAZUS'}
+    assessment_type: {'P58', 'HAZUS_EQ'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
     verbose: boolean
@@ -742,7 +746,7 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
 
     # Convert the HAZUS occupancy classes to the broader categories used for
     # population distribution.
-    if AT == 'HAZUS':
+    if AT == 'HAZUS_EQ':
         base_occupancy = occupancy
         if base_occupancy[:3] == "RES":
             occupancy = "Residential"
@@ -792,7 +796,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         Location of the folder that contains the component data in JSON files.
     comp_info: dict
         Dictionary with additional information about the components.
-    assessment_type: {'P58', 'HAZUS'}
+    assessment_type: {'P58', 'HAZUS_EQ', 'HAZUS_HU'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
     verbose: boolean
@@ -1721,6 +1725,200 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
 
     with open(os.path.join(target_dir, 'population.json'), 'w') as f:
         json.dump(pop_output, f)
+
+def create_HAZUS_HU_json_files(data_dir, target_dir):
+    """
+    Create JSON data files from publicly available HAZUS data.
+
+    HAZUS damage and loss information is publicly available in the technical
+    manuals and the HAZUS software tool. The relevant data have been collected
+    in a series of Excel files (e.g., hu_Wood.xlsx) that are stored in the
+    'resources/HAZUS MH 2.1 hurricane' folder in the pelicun repo. Here we read
+    that file (or a file of similar format) and produce damage and loss data
+    for Fragility Groups in the common SimCenter JSON format.
+
+    The HAZUS hurricane methodology handles damage and losses at the assembly
+    level. In this implementation each building is represented by one Fragility
+    Group that describes the damage states and their consequences in a FEMA
+    P58-like framework but using the data from the HAZUS Technical Manual.
+
+    Note: HAZUS calculates lossess independently of damage using peak wind gust
+    speed as a controlling variable. We fitted a model to the curves in HAZUS
+    that assigns losses to each damage state and determines losses as a function
+    of building damage. Results shall be in good agreement with those of HAZUS
+    for the majority of building configurations. Exceptions and more details
+    are provided in the ... section of the documentation.
+
+    Parameters
+    ----------
+    data_dir: string
+        Path to the folder with the hazus_data_eq JSON file.
+    target_dir: string
+        Path to the folder where the results shall be saved. The population
+        distribution file will be saved here, the DL JSON files will be saved
+        to a 'DL json' subfolder.
+
+    """
+
+    # open the raw HAZUS data
+    df_wood = pd.read_excel(os.path.join(data_dir, 'hu_Wood.xlsx'))
+
+    # some general formatting to make file name generation easier
+    df_wood['shutters'] = df_wood['shutters'].astype(int)
+    df_wood['terr_rough'] = (df_wood['terr_rough'] * 100.).astype(int)
+
+    convert_building_type = {
+        'WSF1' : 'Wood Single-Family Homes 1 story',
+        'WSF2' : 'Wood Single-Family Homes 2+ stories',
+        'WMUH1': 'Wood Multi-Unit or Hotel or Motel 1 story',
+        'WMUH2': 'Wood Multi-Unit or Hotel or Motel 2 stories',
+        'WMUH3': 'Wood Multi-Unit or Hotel or Motel 3+ stories',
+    }
+
+    convert_bldg_char_names = {
+        'roof_shape'     : 'Roof Shape',
+        'sec_water_res'  : 'Secondary Water Resistance',
+        'roof_deck_attch': 'Roof Deck Attachment',
+        'roof_wall_conn' : 'Roof-Wall Connection',
+        'garage'         : 'Garage',
+        'shutters'       : 'Shutters',
+        'roof_cover'     : 'Roof Cover Type',
+        'roof_quality'   : 'Roof Cover Quality',
+        'terr_rough'     : 'Terrain',
+    }
+
+    convert_bldg_chars = {
+        1      : True,
+        0      : False,
+
+        'gab'  : 'gable',
+        'hip'  : 'hip',
+        'flt'  : 'flat',
+
+        '6d'   : '6d @ 6"/12"',
+        '8d'   : '8d @ 6"/12"',
+        '6s'   : '6d/8d mix @ 6"/6"',
+        '8s'   : '8D @ 6"/6"',
+
+        'tnail': 'Toe-nail',
+        'strap': 'Strap',
+
+        'no'   : 'None',
+        'wkd'  : 'Weak',
+        'std'  : 'Standard',
+        'sup'  : 'SFBC 1994',
+
+        'bur'  : 'BUR',
+        'spm'  : 'SPM',
+
+        'god'  : 'Good',
+        'por'  : 'Poor',
+
+        3      : 'Open',
+        15     : 'Light Suburban',
+        35     : 'Suburban',
+        70     : 'Light Trees',
+        100    : 'Trees',
+    }
+
+    convert_dist = {
+        'normal'   : 'Normal',
+        'lognormal': 'LogNormal',
+    }
+
+    convert_ds = {
+        1: 'Minor',
+        2: 'Moderate',
+        3: 'Severe',
+        4: 'Destruction',
+    }
+
+    for index, row in df_wood.iterrows():
+        print(index, end=' ')
+
+        json_output = {}
+
+        # define the name of the building damage and loss configuration
+        bldg_type = row["bldg_type"]
+
+        if bldg_type[:3] == "WSF":
+            cols_of_interest = ["bldg_type", "roof_shape", "sec_water_res",
+                                "roof_deck_attch", "roof_wall_conn", "garage",
+                                "shutters", "terr_rough"]
+        elif bldg_type[:4] == "WMUH":
+            cols_of_interest = ["bldg_type", "roof_shape", "roof_cover",
+                                "roof_quality", "sec_water_res",
+                                "roof_deck_attch", "roof_wall_conn", "shutters",
+                                "terr_rough"]
+
+        bldg_chars = row[cols_of_interest]
+
+        if np.isnan(bldg_chars["sec_water_res"]):
+            bldg_chars["sec_water_res"] = 'null'
+        else:
+            bldg_chars["sec_water_res"] = int(bldg_chars["sec_water_res"])
+
+        if bldg_type[:4] == "WMUH":
+            if not isinstance(bldg_chars["roof_cover"],
+                              string_types) and np.isnan(
+                bldg_chars["roof_cover"]):
+                bldg_chars["roof_cover"] = 'null'
+            if not isinstance(bldg_chars["roof_quality"],
+                              string_types) and np.isnan(
+                bldg_chars["roof_quality"]):
+                bldg_chars["roof_quality"] = 'null'
+
+        dl_id = "_".join(bldg_chars.astype(str))
+
+        json_output.update({'Name': dl_id})
+
+        # general information
+        json_output.update({
+            'GeneralInformation': {
+                'ID'           : index,
+                'Description'  : dl_id,
+                'Building type': convert_building_type[bldg_type],
+            }
+        })
+        for col in cols_of_interest:
+            if (col != 'bldg_type') and (bldg_chars[col] != 'null'):
+                json_output['GeneralInformation'].update({
+                    convert_bldg_char_names[col]: convert_bldg_chars[
+                        bldg_chars[col]]
+                })
+
+        # EDP info
+        json_output.update({
+            'EDP': {
+                'Type': 'Peak Gust Wind Speed',
+                'Unit': [1, 'mph']
+            }
+        })
+
+        # Damage States
+        json_output.update({'DSGroups': []})
+
+        for dsg_i in range(1, 5):
+            json_output['DSGroups'].append({
+                'MedianEDP'   : row['DS{}_mu'.format(dsg_i)],
+                'Beta'        : row['DS{}_sig'.format(dsg_i)],
+                'CurveType'   : convert_dist[row['DS{}_dist'.format(dsg_i)]],
+                'DSGroupType' : 'Single',
+                'DamageStates': [{
+                    'Weight'      : 1.0,
+                    'Consequences': {
+                        'ReconstructionCost': {
+                            'Amount': row[
+                                'L{}'.format(dsg_i)] if dsg_i < 4 else 1.0
+                        }
+                    },
+                    'Description' : convert_ds[dsg_i]
+                }]
+            })
+
+        with open(os.path.join(target_dir + '/DL json/', dl_id + '.json'),
+                  'w') as f:
+            json.dump(json_output, f, indent=2)
 
 def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
                               collapse_columns = True, stats_only=False):
