@@ -604,10 +604,11 @@ class FEMA_P58_Assessment(Assessment):
             # reconstruction cost and time for repairable cases
             DV_COST, DV_TIME = self._calc_repair_cost_and_time()
 
-            self._DV_dict.update({
-                'rec_cost': DV_COST,
-                'rec_time': DV_TIME,
-            })
+            if DVs['rec_cost']:
+                self._DV_dict.update({'rec_cost': DV_COST})
+
+            if DVs['rec_time']:
+                self._DV_dict.update({'rec_time': DV_TIME})
 
         # injuries due to collapse
         if DVs['injuries']:
@@ -2188,10 +2189,11 @@ class HAZUS_Assessment(Assessment):
             # reconstruction cost and time for repairable cases
             DV_COST, DV_TIME = self._calc_repair_cost_and_time()
 
-            self._DV_dict.update({
-                'rec_cost': DV_COST,
-                'rec_time': DV_TIME,
-            })
+            if DVs['rec_cost']:
+                self._DV_dict.update({'rec_cost': DV_COST})
+
+            if DVs['rec_time']:
+                self._DV_dict.update({'rec_time': DV_TIME})
 
         # injuries due to collapse
         if DVs['injuries']:
