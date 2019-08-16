@@ -103,8 +103,9 @@ m3 = m**3.
 
 ft3 = ft**3.
 
-# velocity
+# speed / velocity
 mps = m / sec
+mph = mile / h
 
 # acceleration
 mps2 = m / sec2
