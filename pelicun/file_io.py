@@ -543,50 +543,51 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             }
         })
 
-    if 'Inhabitants' in LM.keys():
-        if 'OccupancyType' in LM['Inhabitants'].keys():
-            data['general'].update({
-                'occupancy_type': LM['Inhabitants']['OccupancyType']})
-        elif AT == 'P58' and DV['injuries']:
+    if DV['injuries']:
+        if 'Inhabitants' in LM.keys():
+            if 'OccupancyType' in LM['Inhabitants'].keys():
+                data['general'].update({
+                    'occupancy_type': LM['Inhabitants']['OccupancyType']})
+            elif AT == 'P58' and DV['injuries']:
+                warnings.warn(UserWarning(
+                    "Occupancy type was not defined in the input file."))
+            elif AT == 'HAZUS_EQ' and DV['injuries']:
+                raise ValueError("Occupancy type was not defined in the input "
+                                 "file.")
+
+            if 'PeakPopulation' in LM['Inhabitants'].keys():
+                peak_pop = [float(pop) for pop in
+                                   LM['Inhabitants']['PeakPopulation'].split(',')]
+
+                # If the number of stories is specified and the population list
+                # does not provide values for every story...
+                # If only one value is provided, then it is assumed at every story.
+                # Otherwise, the values are assumed to correspond to the bottom
+                # stories and the upper ones are filled with zeros.
+                # A warning message is displayed in this case.
+                if 'stories' in data['general'].keys():
+                    stories = data['general']['stories']
+                    pop_in = len(peak_pop)
+                    for s in range(pop_in, stories):
+                        if pop_in == 1:
+                            peak_pop.append(peak_pop[0])
+                        else:
+                            peak_pop.append(0)
+
+                    if pop_in > 1 and pop_in != stories:
+                        warnings.warn(UserWarning(
+                            "Peak population was specified to some, but not all "
+                            "stories. The remaining stories are assumed to have "
+                            "zero population."
+                        ))
+
+                data['general'].update({'population': peak_pop})
+            elif DV['injuries']:
+                warnings.warn(UserWarning(
+                    "Peak population was not defined in the input file."))
+        else:
             warnings.warn(UserWarning(
-                "Occupancy type was not defined in the input file."))
-        elif AT == 'HAZUS_EQ' and DV['injuries']:
-            raise ValueError("Occupancy type was not defined in the input "
-                             "file.")
-
-        if 'PeakPopulation' in LM['Inhabitants'].keys():
-            peak_pop = [float(pop) for pop in
-                               LM['Inhabitants']['PeakPopulation'].split(',')]
-
-            # If the number of stories is specified and the population list
-            # does not provide values for every story...
-            # If only one value is provided, then it is assumed at every story.
-            # Otherwise, the values are assumed to correspond to the bottom
-            # stories and the upper ones are filled with zeros.
-            # A warning message is displayed in this case.
-            if 'stories' in data['general'].keys():
-                stories = data['general']['stories']
-                pop_in = len(peak_pop)
-                for s in range(pop_in, stories):
-                    if pop_in == 1:
-                        peak_pop.append(peak_pop[0])
-                    else:
-                        peak_pop.append(0)
-
-                if pop_in > 1 and pop_in != stories:
-                    warnings.warn(UserWarning(
-                        "Peak population was specified to some, but not all "
-                        "stories. The remaining stories are assumed to have "
-                        "zero population."
-                    ))
-
-            data['general'].update({'population': peak_pop})
-        elif DV['injuries']:
-            warnings.warn(UserWarning(
-                "Peak population was not defined in the input file."))
-    elif DV['injuries']:
-        warnings.warn(UserWarning(
-            "Information about inhabitants was not defined in the input file."))
+                "Information about inhabitants was not defined in the input file."))
 
     # dependencies
     # We assume 'Independent' for all unspecified fields except for the
