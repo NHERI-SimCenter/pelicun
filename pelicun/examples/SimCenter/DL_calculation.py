@@ -182,7 +182,7 @@ def write_DM_output(DM_file_path, DMG_df):
 
 	# Now determine the probability of being in a damage state for individual 
 	# components / component assemblies...
-	DMG_mean = DMG_df.describe().loc['mean',:]
+	DMG_mean = DMG_df.describe().loc['mean',:]	
 
 	# and save the results in the output json file.
 	for FG in sorted(DMG_mean.index.get_level_values('FG').unique()):
@@ -192,8 +192,8 @@ def write_DM_output(DM_file_path, DMG_df):
 	    	DMG_mean.loc[idx[FG],:].index.get_level_values('PG').unique()):
 	        DM[str(FG)].update({str(PG):{}})
 	        
-	        for DS in sorted(
-	        	DMG_mean.loc[idx[FG, PG],:].index.get_level_values('DS').unique()):
+	        for DS in sorted(	        	
+	        	DMG_mean.loc[idx[FG],:].loc[idx[:,PG],:].index.get_level_values('DS').unique()):
 	            DM[str(FG)][str(PG)].update({str(DS): DMG_mean.loc[(FG,PG,DS)]})            
 
 	with open(DM_file_path, 'w') as f:
@@ -264,63 +264,47 @@ def run_pelicun(DL_input_path, EDP_input_path, EVENT_input_path=None,
 				os.remove(posixpath.join(output_path, filename))
 			except:
 				pass
-
-	"""
-	# delete output files from previous runs (if needed)
-	files_to_delete = [
-		'DL_summary.csv',
-        'DL_summary_stats.csv',
-        'DMG.csv',
-        'DMG_agg.csv',
-        'DV_red_tag.csv',
-        'DV_red_tag_agg.csv',
-        'DV_rec_cost.csv',
-        'DV_rec_cost_agg.csv',
-        'DV_rec_time.csv',
-        'DV_rec_time_agg.csv',
-        'DV_injuries_0.csv',
-        'DV_injuries_0_agg.csv',
-        'DV_injuries_1.csv',
-        'DV_injuries_1_agg.csv',
-	]
-	for file_name in files_to_delete:
-		try:
-			os.remove(posixpath.join(output_path, file_name))
-		except:
-			pass
-	"""
 	
+	single_stripe = True
 	# If the event file is specified, we expect a multi-stripe analysis...
 	if EVENT_input_path is not None:
 		EVENT_input_path = os.path.abspath(EVENT_input_path)
 
 		# Collect stripe and rate information for every event
 		with open(EVENT_input_path, 'r') as f:
-			event_list = json.load(f)['Events'][0]['Events']
+			event_list = json.load(f)['Events'][0]
 
-		df_event = pd.DataFrame(columns=['name', 'stripe', 'rate'], 
+		if (('Events' in event_list.keys()) and 
+		    ('stripe' in event_list['Events'][0].keys())):
+			
+			event_list = event_list['Events']
+
+			df_event = pd.DataFrame(columns=['name', 'stripe', 'rate'], 
 								index=np.arange(len(event_list)))
 
-		for evt_i, event in enumerate(event_list):
-			df_event.iloc[evt_i] = [event['name'], event['stripe'], event['rate']]
+			for evt_i, event in enumerate(event_list):
+				df_event.iloc[evt_i] = [event['name'], event['stripe'], event['rate']]
 
-		# Create a separate EDP input for each stripe
-		EDP_input_full = pd.read_csv(EDP_input_path, sep='\s+', header=0, 
-									 index_col=0)
+			# Create a separate EDP input for each stripe
+			EDP_input_full = pd.read_csv(EDP_input_path, sep='\s+', header=0, 
+										 index_col=0)
 
-		EDP_input_full.to_csv(EDP_input_path[:-4]+'_1.out', sep=' ')
+			EDP_input_full.to_csv(EDP_input_path[:-4]+'_1.out', sep=' ')
 
-		stripes = df_event['stripe'].unique()
-		EDP_files = []
-		for stripe in stripes:
-			events = df_event[df_event['stripe']==stripe]['name'].values
+			stripes = df_event['stripe'].unique()
+			EDP_files = []
+			for stripe in stripes:
+				events = df_event[df_event['stripe']==stripe]['name'].values
 
-			EDP_input = EDP_input_full[EDP_input_full['MultipleEvent'].isin(events)]
+				EDP_input = EDP_input_full[EDP_input_full['MultipleEvent'].isin(events)]
 
-			EDP_files.append(EDP_input_path[:-4]+'_{}.out'.format(stripe))
+				EDP_files.append(EDP_input_path[:-4]+'_{}.out'.format(stripe))
 
-			EDP_input.to_csv(EDP_files[-1], sep=' ')
-	else:
+				EDP_input.to_csv(EDP_files[-1], sep=' ')
+
+			single_stripe = False
+
+	if single_stripe:
 		stripes = [1]
 		EDP_files = [EDP_input_path]	
 	
@@ -350,7 +334,10 @@ def run_pelicun(DL_input_path, EDP_input_path, EVENT_input_path=None,
 		if DL_method == 'FEMA P58':
 			A = FEMA_P58_Assessment()
 		elif DL_method == 'HAZUS MH':
-			A = HAZUS_Assessment()
+			if DL_input['Events'][0]['EventClassification'] == 'Earthquake':
+				A = HAZUS_Assessment(hazard = 'EQ')
+			elif DL_input['Events'][0]['EventClassification'] == 'Wind':
+				A = HAZUS_Assessment(hazard = 'HU')
 
 		A.read_inputs(DL_input_path, EDP_files[s_i], verbose=False)
 
