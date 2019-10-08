@@ -1860,7 +1860,7 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
     }
 
     for index, row in df_wood.iterrows():
-        print(index, end=' ')
+        #print(index, end=' ')
 
         json_output = {}
 
