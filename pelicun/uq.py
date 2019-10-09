@@ -55,16 +55,13 @@ quantification in pelicun.
 
 """
 
+from .base import *
+
 import warnings
-import numpy as np
-import pandas as pd
 from scipy.stats import norm, truncnorm, multivariate_normal, multinomial
 from scipy.stats.mvn import mvndst
-from scipy.optimize import minimize
+from scipy.optimize import minimize, differential_evolution, shgo, dual_annealing, basinhopping
 from copy import deepcopy
-
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
 
 def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
     """
@@ -226,6 +223,7 @@ def mvn_orthotope_density(mu, COV, lower=None, upper=None):
         Estimate of the error in alpha.
 
     """
+
     # process the inputs and get the number of dimensions
     mu = np.asarray(mu)
     if mu.shape == ():
@@ -347,6 +345,7 @@ def tmvn_MLE(samples,
 
     verbose = False
     if verbose:
+        print('\ndetection limits:')
         print(det_lower)
         print(det_upper)
     # extract some basic information about the number of dimensions and the
@@ -360,27 +359,72 @@ def tmvn_MLE(samples,
         ndims, nsamples = samples.shape
         samplesT = np.transpose(samples)
 
+    mu_hat = np.mean(samplesT, axis=0)
+    # replace zero standard dev with negligible standard dev
+    if ndims == 1:
+        sig_hat = np.maximum(1e-6, np.std(samplesT, axis=0))
+    else:
+        sig_hat = np.std(samplesT, axis=0)
+        sig_zero_id = np.where(sig_hat == 0.0)[0]
+        sig_hat[sig_zero_id] = 1e-6 * np.abs(mu_hat[sig_zero_id])
+
+    if (det_lower is not None) and (det_upper is not None):
+        det_upper_adj = (det_upper - mu_hat) / sig_hat
+        det_lower_adj = (det_lower - mu_hat) / sig_hat
+
+    if (tr_lower is not None) and (tr_upper is not None):
+        tr_upper_adj = (tr_upper - mu_hat) / sig_hat
+        tr_lower_adj = (tr_lower - mu_hat) / sig_hat
+
+    if verbose:
+        print('\nmethod of moments estimates:')
+        print(mu_hat)
+        print(sig_hat)
+
+    samplesT = (samplesT - mu_hat) / sig_hat
+
+    mu_hatc = np.mean(samplesT, axis=0)
+    sig_hatc = np.std(samplesT, axis=0)
+
+    if verbose:
+        print('\nstandardized estimates:')
+        print(mu_hatc)
+        print(sig_hatc)
+
     # define initial values of distribution parameters using simple estimates
     if ndims == 1:
-        mu_init = np.mean(samples)
+        #mu_init = np.mean(samples)
+        mu_init = mu_hatc
         # use biased estimate for std, because MLE will converge to that anyway
-        sig_init = np.std(samples, ddof=0)
+        #sig_init = np.std(samples, ddof=0)
+        sig_init = sig_hatc
         # replace zero variance with negligible variance
         if sig_init == 0.0:
             sig_init = 1e-6 * np.abs(mu_init)
+        rho_init=()
         # prepare a vector of initial values
         inits = np.asarray([mu_init, sig_init])
     else:
-        mu_init = np.mean(samples, axis=1)
+        #mu_init = np.mean(samples, axis=1)
+        mu_init = mu_hatc
         # use biased estimate, see comment above
-        sig_init = np.std(samples, axis=1, ddof=0)
+        #sig_init = np.std(samples, axis=1, ddof=0)
+        sig_init = sig_hatc
         # replace zero variance with negligible variance
         sig_zero_id = np.where(sig_init == 0.0)[0]
         sig_init[sig_zero_id] = 1e-6 * np.abs(mu_init[sig_zero_id])
-        # create the correlation matrix
-        rho_init = np.corrcoef(samples)
-        # replace nan corrcoef with zero correlation
-        rho_init[np.where(np.isnan(rho_init))] = 0.0
+        # try to create the correlation matrix
+        rho_init = np.corrcoef(np.transpose(samplesT))
+        # If there is not enough samples, or the samples are not from a
+        # multivariate normal distribution, the rho values might be nan.
+        # Rather than trying to patch it, in this case, we assume uncorrelated
+        # samples and make sure that at least the mu and sig values will be
+        # OK.
+        if np.isnan(np.sum(rho_init.flatten())):
+            rho_init = np.zeros(rho_init.shape)
+            #TODO: show a warning message to let the user know there is an issue
+            # replace nan corrcoef with zero correlation
+            #rho_init[np.where(np.isnan(rho_init))] = 0.0
         np.fill_diagonal(rho_init,1.0)
         # collect the independent values (i.e. elements above the main
         # diagonal) from the correlation matrix in a list
@@ -389,7 +433,12 @@ def tmvn_MLE(samples,
         # save the ids of the elements below the main diagonal for future use
         rho_init_ids2 = rho_init_ids[::-1]
         # prepare a vector of initial values
-        inits=np.concatenate([mu_init, sig_init, rho_init_list])
+        # if there is too few samples, we do not fit the correlation matrix
+        fit_rho = nsamples > ndims**2.0+2.0
+        if fit_rho:
+            inits = np.concatenate([mu_init, sig_init, rho_init_list])
+        else:
+            inits = np.concatenate([mu_init, sig_init])
 
     # If the distribution is censored or truncated, check if the number of
     # samples is greater than the number of unknowns. If not, show a warning.
@@ -408,29 +457,35 @@ def tmvn_MLE(samples,
 
     # define the bounds for the distribution parameters
     # mu is not bounded
-    mu_bounds = [(-np.inf, np.inf) for t in range(ndims)]
+    #mu_bounds = [(-np.inf, np.inf) for t in range(ndims)]
+    mu_bounds = [(-10.0, 10.0) for t in range(ndims)]
     # sig is bounded below at (0
-    sig_bounds = [(np.nextafter(0,1), np.inf) for s in range(ndims)]
+    #sig_bounds = [(np.nextafter(0,1), np.inf) for s in range(ndims)]
+    sig_bounds = [(0.05, 20.0) for s in range(ndims)]
     # rho is bounded on both sides by (-1,1)
     # Note that -1.0 and 1.0 are not allowed to avoid numerical problems due to
     # a singular and/or non-positive definite covariance matrix
-    if ndims > 1:
+    if ((ndims > 1) and (fit_rho)):
         rho_bounds = [(-1.+1e-3, 1.-1e-3) for r in range(len(rho_init_list))]
     else:
-        # there is no need for rho bounds in a univariate case
+        # there is no need for rho bounds in a univariate case and when we do not fit rho
         rho_bounds = []
     # create a lower and an upper bounds vector
+    #bounds = mu_bounds + sig_bounds + rho_bounds
     bounds = mu_bounds + sig_bounds + rho_bounds
     bnd_lower, bnd_upper = np.transpose(bounds)
     if verbose:
-        print('bounds:')
-        print(mu_bounds)
+        print('\nbounds:')
+        print(bounds)
         print(sig_bounds)
-        print(rho_bounds)
+        if fit_rho: print(rho_bounds)
+
+        print('\ninitial values:')
+        print(inits)
 
     # create a convenience function that converts a vector of distribution
     # parameters to the standard mu and COV arrays
-    def _get_mu_COV(params, unbiased=False):
+    def _get_mu_COV(params, rho, unbiased=False):
         """
         The unbiased flag controls if the bias in standard deviation
         estimates shall be corrected during conversion.
@@ -442,40 +497,59 @@ def tmvn_MLE(samples,
             sig = params[ndims:2*ndims]
             if unbiased:
                 sig = sig * nsamples / (nsamples-1)
-            rho_list = params[2*ndims:]
 
             # reconstruct the covariance matrix
             COV = np.outer(sig, sig)
-            # add correlation estimates above...
-            COV[rho_init_ids] = COV[rho_init_ids] * rho_list
-            # and below the main diagonal
-            COV[rho_init_ids2] = COV[rho_init_ids2] * rho_list
+            if len(params) > 2*ndims:
+                rho_list = params[2*ndims:]
+                # add correlation estimates above...
+                COV[rho_init_ids] = COV[rho_init_ids] * rho_list
+                # and below the main diagonal
+                COV[rho_init_ids2] = COV[rho_init_ids2] * rho_list
+            else:
+                COV = np.outer(sig, sig) * rho
 
         return mu, COV
 
     # create the negative log likelihood function for censored data from a
     # truncated multivariate normal distribution
-    def _neg_log_likelihood(params):
+    def _neg_log_likelihood(params, rho, enforce_bounds=False):
+
+        verbose_NLL = False
+        #if verbose_NLL: print()
+        params_to_show = params[:3]
+        #params_to_show = np.sum(params) # this is useful when there are many
 
         # first, check if the parameters are within the pre-defined bounds
-        if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
-            # if they are not, then return an infinite value to discourage the
-            # optimization algorithm from going in that direction
-            return np.inf
+        if enforce_bounds:
+            if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
+                # if they are not, then return an infinite value to discourage the
+                # optimization algorithm from going in that direction
+                if verbose_NLL: print(params_to_show, 'out of bounds', 1e10)
+                return 1e10
+
+        # return inf if there is nan in params:
+        if np.isnan(np.sum(params)):
+            if verbose_NLL: print(params_to_show, 'nan in params', 1e10)
+            return 1e10
 
         # reconstruct the mu and COV arrays from the parameters
-        mu, COV = _get_mu_COV(params)
+        mu, COV = _get_mu_COV(params, rho)
+        sig = params[ndims:2*ndims]
 
-        if ndims > 2:
+        if ndims >= 2:
             pos_sem_def = np.all(np.linalg.eigvals(COV) >= 0.)
             if not pos_sem_def:
-                return np.inf
+                if verbose_NLL: print(params_to_show, 'COV not pos sem def', 1e10)
+                return 1e10
 
         # calculate the probability density within the truncation limits
         if (tr_lower is not None) and (tr_upper is not None):
-            alpha, eps_alpha = mvn_orthotope_density(mu, COV,
-                                                     tr_lower, tr_upper)
 
+            alpha, eps_alpha = mvn_orthotope_density(mu, COV,
+                                                     tr_lower_adj,
+                                                     tr_upper_adj)
+            #if verbose: print(tr_lower_adj, tr_upper_adj, mu, COV, alpha)
             # If the error in the alpha estimate is too large, then we are
             # beyond the applicability limits of the function used for
             # estimating alpha. Show a warning message and try to find another
@@ -493,7 +567,9 @@ def tmvn_MLE(samples,
                         'accuracy.'
                     ))
                     msg[0] = True
-                return np.inf
+
+                if verbose_NLL: print(params_to_show, 'alpha estimate not applicable in truncs', 1e10)
+                return 1e10
 
             # If a lower limit was prescribed for alpha, it should also be
             # enforced here
@@ -505,7 +581,9 @@ def tmvn_MLE(samples,
                         'prescribed minimum limit.'
                     ))
                     msg[1] = True
-                return np.inf
+
+                if verbose_NLL: print(params_to_show, 'not enough prob mass within truncs', 1e10)
+                return 1e10
 
         else:
             alpha, eps_alpha = 1., 0.
@@ -521,9 +599,11 @@ def tmvn_MLE(samples,
 
         # calculate the likelihoods corresponding to censored data (if any)
         if censored_count > 0:
+
             # calculate the probability density within the detection limits
             det_alpha, eps_alpha = mvn_orthotope_density(mu, COV,
-                                                         det_lower, det_upper)
+                                                         det_lower_adj,
+                                                         det_upper_adj)
             # Similarly to alpha above, make sure that det_alpha is estimated
             # with sufficient accuracy.
             if det_alpha <= 100.*eps_alpha:
@@ -536,13 +616,22 @@ def tmvn_MLE(samples,
                         '(alpha: '+str(det_alpha)+' eps: '+str(eps_alpha)+')'
                     )
                     msg[2] = True
-                return np. inf
+
+                if verbose_NLL: print(params_to_show, 'alpha estimate not applicable in dets', 1e10)
+                return 1e10
 
             # calculate the likelihood of censoring a sample
             cen_likelihood = (alpha - det_alpha) / alpha
 
             # make sure that the likelihood is a positive number
             cen_likelihood = max(cen_likelihood, np.nextafter(0,1))
+
+            if verbose_NLL :
+                pass
+                #print('dets and cen_liks')
+                #print(det_lower, det_lower_adj)
+                #print(det_upper, det_upper_adj)
+                #print(det_alpha, cen_likelihood)
 
         else:
             # If the data is not censored, use 1.0 for cen_likelihood to get a
@@ -564,31 +653,85 @@ def tmvn_MLE(samples,
         #print(mu[-4:], NLL)
         #print(np.sqrt(np.diagonal(COV))[-4:],NLL)
 
-
+        if verbose_NLL: pass
+        #print(params_to_show, 'all good', NLL)
         return NLL
 
     # initialize the message flags
     msg = [False, False, False]
+    if verbose: print(_neg_log_likelihood(inits, rho_init))
+
+    # perturbation
+    #inits[:ndims] = inits[:ndims]+np.random.uniform(low=-0.5, high=0.5, size=ndims)
+    #inits[ndims:2*ndims] += 0.5
+
+    if verbose: t_0 = time.time()
+    # minimize the negative log-likelihood function
+    #out = minimize(_neg_log_likelihood, inits, args=(rho_init, True),
+    #               bounds=bounds, method='TNC')
+
+    out_d = differential_evolution(_neg_log_likelihood, mu_bounds + sig_bounds,
+                                   args=(rho_init,),
+                                   maxiter=200,
+                                   polish=False)
+    if verbose:
+        print(out_d)
+        #print(out.fun, out.nfev, out.nit, out.message, out.x)
+        print('runtime: ', time.time() - t_0)
 
     # minimize the negative log-likelihood function using the adaptive
-    # Nelder-Mead algorithm (Gao and Han, 2012)
-    out = minimize(_neg_log_likelihood, inits, method='Nelder-Mead',
-                   options={'maxfev': 400*ndims,
-                            'xatol': np.max(inits[:ndims])*0.1,
-                            'fatol': 5e-5 * ndims,
-                            'adaptive': True})
-    if verbose: print(out.fun, out.nfev, 400*ndims)
-
-    # reconstruct the mu and COV arrays from the solutions and return them
-    mu, COV = _get_mu_COV(out.x, unbiased=True)
+    # Adaptive Nelder-Mead algorithm (Gao and Han, 2012)
+    out_m = minimize(_neg_log_likelihood, np.concatenate([out_d.x, inits[2*ndims:]]),
+                   args=(rho_init,True), method='Nelder-Mead',
+                   options=dict(maxfev=1000*ndims,
+                                xatol = 0.001,
+                                fatol = 1e-10,
+                                adaptive=True)
+                   )
 
     if verbose:
-        pp.pprint(list(zip(mu,mu_init)))
+        print(out_m)
+        #print(out.fun, out.nfev, out.nit, out.message, out.x)
+        print('runtime: ', time.time() - t_0)
+
+    # reconstruct the mu and COV arrays from the solutions and return them
+    mu, COV = _get_mu_COV(out_m.x, rho_init, unbiased=True)
+
+    if verbose:
+        if ndims >= 2:
+            print('mu vs mu_init')
+            show_matrix(list(zip(mu,mu_init)))
+            sig = np.sqrt(np.diagonal(COV))
+            print('sig vs sig_init')
+            show_matrix(list(zip(sig,sig_init)))
+            rho = (COV/np.outer(sig,sig))[-8:,-8:]
+            print('rho')
+            show_matrix(rho)
+            print('rho_init')
+            show_matrix(rho_init[-8:,-8:])
+        else:
+            print('mu vs mu_init')
+            print(mu, mu_init)
+            sig = np.sqrt(COV)
+            print('sig vs sig_init')
+            print(sig, sig_init)
+
+    if ndims >= 2:
         sig = np.sqrt(np.diagonal(COV))
-        pp.pprint(list(zip(sig,sig_init)))
-        rho = (COV/np.outer(sig,sig))[-4:,-4:]
-        pp.pprint(rho)
-        pp.pprint(list(zip(rho,rho_init[-4:,-4:])))
+        rho = (COV / np.outer(sig, sig))
+        sig = sig * sig_hat
+        COV = np.outer(sig, sig) * rho
+    else:
+        sig = np.sqrt(COV)
+        sig = sig*sig_hat
+        COV = sig**2.0
+    mu = mu_hat + mu * sig_hat
+
+    if verbose:
+        print('\nfinal values:')
+        print(mu)
+        print(sig)
+        print(COV)
 
     return mu, COV
 
