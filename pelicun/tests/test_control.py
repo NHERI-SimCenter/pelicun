@@ -1305,7 +1305,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     col_target = 1.0 - mvn_od(theta_PID, COV_PID,
                               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
 
-    assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.15)
+    assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1, abs=0.05)
 
     # DMG
     realization_count = float(A._AIM_in['general']['realizations'])

@@ -978,8 +978,8 @@ def test_RandomVariable_fit_distribution_simple():
     mu, COV = RV.fit_distribution('normal')
 
     # compare results
-    assert_allclose(mu, mu_ref, rtol=1e-2)
-    assert_allclose(COV, COV_ref, rtol=1e-2)
+    assert_allclose(mu, mu_ref, rtol=1e-2, atol=1e-2)
+    assert_allclose(COV, COV_ref, rtol=1e-2, atol=1e-2)
 
 def test_RandomVariable_fit_distribution_truncated():
     """
@@ -1151,8 +1151,8 @@ def test_RandomVariable_fit_distribution_log_and_linear():
     mu, COV = RV.fit_distribution(['normal', 'lognormal', 'normal'])
 
     # compare results
-    assert_allclose(mu, mu_ref, rtol=1e-2)
-    assert_allclose(COV, COV_ref, rtol=1e-2)
+    assert_allclose(mu, mu_ref, rtol=1e-2, atol=1e-2)
+    assert_allclose(COV, COV_ref, rtol=1e-2, atol=1e-2)
 
 def test_RandomVariable_fit_distribution_lognormal():
     """
@@ -1203,8 +1203,8 @@ def test_RandomVariable_fit_distribution_lognormal():
     mu, COV = RV.fit_distribution('lognormal')
 
     # compare results
-    assert_allclose(mu, mu_ref, rtol=1e-2)
-    assert_allclose(COV, COV_ref, rtol=1e-2)
+    assert_allclose(mu, mu_ref, rtol=1e-2, atol=1e-2)
+    assert_allclose(COV, COV_ref, rtol=1e-2, atol=1e-2)
 
 def test_RandomVariable_sample_distribution_mixed_normal():
     """
