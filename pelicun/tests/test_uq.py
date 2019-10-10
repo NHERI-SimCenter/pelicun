@@ -955,8 +955,8 @@ def test_RandomVariable_fit_distribution_simple():
     mu, var = RV.fit_distribution('normal')
 
     # compare results
-    assert mu == pytest.approx(mu_ref, rel=1e-3)
-    assert var == pytest.approx(var_ref, rel=1e-3)
+    assert mu == pytest.approx(mu_ref, rel=1e-2)
+    assert var == pytest.approx(var_ref, rel=1e-2)
 
     # multivariate case
     # generate raw data
@@ -978,8 +978,8 @@ def test_RandomVariable_fit_distribution_simple():
     mu, COV = RV.fit_distribution('normal')
 
     # compare results
-    assert_allclose(mu, mu_ref, rtol=1e-3)
-    assert_allclose(COV, COV_ref, rtol=1e-3)
+    assert_allclose(mu, mu_ref, rtol=1e-2)
+    assert_allclose(COV, COV_ref, rtol=1e-2)
 
 def test_RandomVariable_fit_distribution_truncated():
     """
@@ -1006,8 +1006,8 @@ def test_RandomVariable_fit_distribution_truncated():
                                   truncation_limits=[tr_lower, tr_upper])
 
     # compare results
-    assert mu == pytest.approx(mu_ref, rel=1e-3)
-    assert var == pytest.approx(var_ref, rel=1e-3)
+    assert mu == pytest.approx(mu_ref, rel=1e-2)
+    assert var == pytest.approx(var_ref, rel=1e-2)
 
     # multivariate case
     # generate raw data
@@ -1075,8 +1075,8 @@ def test_RandomVariable_fit_distribution_truncated_and_censored():
                                   truncation_limits=[tr_lower, tr_upper])
 
     # compare results
-    assert mu == pytest.approx(mu_ref, rel=1e-3)
-    assert var == pytest.approx(var_ref, rel=1e-3)
+    assert mu == pytest.approx(mu_ref, rel=1e-2)
+    assert var == pytest.approx(var_ref, rel=1e-2)
 
     # multivariate case
     # generate raw data
@@ -1151,8 +1151,8 @@ def test_RandomVariable_fit_distribution_log_and_linear():
     mu, COV = RV.fit_distribution(['normal', 'lognormal', 'normal'])
 
     # compare results
-    assert_allclose(mu, mu_ref, rtol=1e-3)
-    assert_allclose(COV, COV_ref, rtol=1e-3)
+    assert_allclose(mu, mu_ref, rtol=1e-2)
+    assert_allclose(COV, COV_ref, rtol=1e-2)
 
 def test_RandomVariable_fit_distribution_lognormal():
     """
@@ -1176,8 +1176,8 @@ def test_RandomVariable_fit_distribution_lognormal():
     mu, var = RV.fit_distribution('lognormal', truncation_limits=[-5., 100.])
 
     # compare results
-    assert mu == pytest.approx(mu_ref, rel=1e-3)
-    assert var == pytest.approx(var_ref, rel=1e-3)
+    assert mu == pytest.approx(mu_ref, rel=1e-2)
+    assert var == pytest.approx(var_ref, rel=1e-2)
 
     # multivariate case
     # generate raw data
@@ -1203,8 +1203,8 @@ def test_RandomVariable_fit_distribution_lognormal():
     mu, COV = RV.fit_distribution('lognormal')
 
     # compare results
-    assert_allclose(mu, mu_ref, rtol=1e-3)
-    assert_allclose(COV, COV_ref, rtol=1e-3)
+    assert_allclose(mu, mu_ref, rtol=1e-2)
+    assert_allclose(COV, COV_ref, rtol=1e-2)
 
 def test_RandomVariable_sample_distribution_mixed_normal():
     """
