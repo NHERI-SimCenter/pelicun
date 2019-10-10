@@ -1668,7 +1668,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     P_test = P_test[np.where(P_test > 10)]
     P_test = P_test / realization_count
 
-    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(P_target[:4], P_test[:4], atol=0.05)
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 

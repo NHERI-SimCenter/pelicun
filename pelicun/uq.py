@@ -60,7 +60,7 @@ from .base import *
 import warnings
 from scipy.stats import norm, truncnorm, multivariate_normal, multinomial
 from scipy.stats.mvn import mvndst
-from scipy.optimize import minimize, differential_evolution, shgo, dual_annealing, basinhopping
+from scipy.optimize import minimize, differential_evolution
 from copy import deepcopy
 
 def tmvn_rvs(mu, COV, lower=None, upper=None, size=1):
