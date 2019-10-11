@@ -55,7 +55,7 @@ This module has classes and methods that handle file input and output.
 
 """
 
-import numpy as np
+from .base import *
 import pandas as pd
 import json
 import xml.etree.ElementTree as ET
