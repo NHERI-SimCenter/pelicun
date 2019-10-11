@@ -895,7 +895,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         'ID',
         'name',
         'description',
-        'kind',
+        #'kind',
         'demand_type',
         'directional',
         'correlation',
@@ -903,8 +903,8 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         'incomplete',
         'locations',
         'quantities',
-        'csg_weights',
-        'dir_weights',
+        #'csg_weights',
+        #'dir_weights',
         'directions',
         'distribution_kind',
         'cov',
@@ -941,22 +941,45 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
         # Get the parameters from the BIM component info
         ci_data = comp_info[c_id]
-        c_data['kind'] = ci_data['kind']
-        c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
-        c_data['quantities'] = (np.asarray(ci_data['quantities']) * c_data[
-            'unit']).tolist()
-        c_data['distribution_kind'] = ci_data['distribution']
-        c_data['csg_weights'] = ci_data['csg_weights']
-        c_data['directions'] = ci_data['dirs']
         c_data['locations'] = ci_data['locations']
-        c_data['cov'] = ci_data['cov']
+        c_data['directions'] = ci_data['directions']
+
+        c_data['unit'] = [globals()[u] for u in ci_data['unit']]
+        c_data['quantities'] = [(np.asarray(qnt) * u).tolist()
+                                for qnt, u
+                                in list(zip(ci_data['quantities'],
+                                            c_data['unit']))]
+        if len(set(c_data['unit'])) != 1:
+            raise ValueError(
+                "Multiple types of units specified for fragility group {}. "
+                "Make sure that every component group in a fragility group is "
+                "defined using the same unit.".format(c_id))
+        c_data['unit'] = c_data['unit'][0]
+
+        c_data['distribution_kind'] = ci_data['distribution']
+        c_data['cov'] = [float_or_None(cov) for cov in ci_data['cov']]
+
+        # replace N/A distribution with normal and negligible cov
+        c_data['cov'] = [0.0001 if dk == 'N/A' else cov
+                         for cov,dk in list(zip(c_data['cov'],
+                                                c_data['distribution_kind']))]
+        c_data['distribution_kind'] = ['normal' if dk == 'N/A' else dk
+                                       for dk in c_data['distribution_kind']]
+        c_data['cov'] = [0.0001 if cov==None else cov
+                         for cov in c_data['cov']]
+
+        #c_data['kind'] = ci_data['kind']
+        #c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
+        #c_data['quantities'] = (np.asarray(ci_data['quantities']) * c_data[
+        #    'unit']).tolist()
+        #c_data['csg_weights'] = ci_data['csg_weights']
 
         # calculate the quantity weights in each direction
-        dirs = np.asarray(c_data['directions'], dtype=np.int)
-        u_dirs = np.unique(dirs)
-        weights = np.asarray(c_data['csg_weights'])
-        c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)])
-                                 for d_i in u_dirs]
+        #dirs = np.asarray(c_data['directions'], dtype=np.int)
+        #u_dirs = np.unique(dirs)
+        #weights = np.asarray(c_data['csg_weights'])
+        #c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)])
+        #                         for d_i in u_dirs]
 
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
@@ -1015,6 +1038,8 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
         # load the damage state group information
         c_data['DSG_set'] = dict()
+        QNT_unit = DL_data['QuantityUnit']
+        data_unit = QNT_unit[0] * globals()[QNT_unit[1]]
         for DSG_id, DSG_i in enumerate(DL_DSG):
             DSG_data = dict(
                 theta=DSG_i['MedianEDP'] * demand_factor,
@@ -1045,12 +1070,10 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                         }})
 
                         # convert the units to standard ones
-                        DS_data['repair_cost']['quantity_lower'] *= c_data[
-                            'unit']
-                        DS_data['repair_cost']['quantity_upper'] *= c_data[
-                            'unit']
-                        DS_data['repair_cost']['median_min'] /= c_data['unit']
-                        DS_data['repair_cost']['median_max'] /= c_data['unit']
+                        DS_data['repair_cost']['quantity_lower'] *= data_unit
+                        DS_data['repair_cost']['quantity_upper'] *= data_unit
+                        DS_data['repair_cost']['median_min'] /= data_unit
+                        DS_data['repair_cost']['median_max'] /= data_unit
                     else:
                         DS_data.update({'repair_cost': DS_CC['Amount']})
 
@@ -1067,10 +1090,10 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                         }})
 
                         # convert the units to standard ones
-                        DS_data['repair_time']['quantity_lower'] *= c_data['unit']
-                        DS_data['repair_time']['quantity_upper'] *= c_data['unit']
-                        DS_data['repair_time']['median_min'] /= c_data['unit']
-                        DS_data['repair_time']['median_max'] /= c_data['unit']
+                        DS_data['repair_time']['quantity_lower'] *= data_unit
+                        DS_data['repair_time']['quantity_upper'] *= data_unit
+                        DS_data['repair_time']['median_min'] /= data_unit
+                        DS_data['repair_time']['median_max'] /= data_unit
                     else:
                         DS_data.update({'repair_time': DS_CT['Amount']})
 
@@ -1107,7 +1130,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                     DS_data.update({'affected_area': affected_area})
 
                     # convert the units to standard ones
-                    DS_data['affected_area'] /= c_data['unit']
+                    DS_data['affected_area'] /= data_unit
 
                 DSG_data['DS_set'].update({'DS-' + str(DS_id + 1): DS_data})
 
