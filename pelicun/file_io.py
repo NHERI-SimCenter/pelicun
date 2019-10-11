@@ -56,18 +56,21 @@ This module has classes and methods that handle file input and output.
 """
 
 from .base import *
-import pandas as pd
+
 import json
 import xml.etree.ElementTree as ET
 from distutils.util import strtobool
-import pprint
 from copy import deepcopy
 
 import warnings
 
-from .base import *
-
-pp = pprint.PrettyPrinter(indent=4)
+# this is a convenience function for converting strings to float or None
+def float_or_None(string):
+    try:
+        res = float(string)
+        return res
+    except:
+        return None
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
@@ -97,10 +100,6 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         A dictionary with all the damage and loss data.
 
     """
-
-    # this is a convenience function for converting strings to float or None
-    def float_or_None(text):
-        return float(text) if text != '' else None
 
     AT = assessment_type
 
