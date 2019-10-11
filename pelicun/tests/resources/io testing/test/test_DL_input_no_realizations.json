@@ -12,89 +12,105 @@
         },
         "year": 1945
     },
-    "LossModel": {
-        "BuildingDamage": {
-            "CollapseLimits": {
-                "PFA": "1.5",
-                "PID": "0.1"
-            },
-            "IrrepairableResidualDrift": {
-                "Median": "0.10",
-                "Sig": "0.3"
-            },
-            "ReplacementCost": "450000",
-            "ReplacementTime": "180"
-        },
-        "BuildingResponse": {
+    "DamageAndLoss": {
+        "ResponseModel":{
             "DetectionLimits": {
                 "PFA": "2.0",
                 "PID": "0.15"
             },
-            "YieldDriftRatio": "0.01"
+            "AdditionalUncertainty": {
+                "GroundMotion": "0.2",
+                "Modeling": "0.1"
+            }
+        },
+        "DamageModel":{
+            "IrrepairableResidualDrift":{
+                "YieldDriftRatio":"0.01",
+                "Median": "0.10",
+                "Beta": "0.3"
+            },
+            "CollapseLimits": {
+                "PFA": "1.5",
+                "PID": "0.1"
+            }
+        },
+        "LossModel":{
+            "ReplacementCost": "450000",
+            "ReplacementTime": "180",
+            "DecisionVariables": {
+                "Injuries": true,
+                "ReconstructionCost": true,
+                "ReconstructionTime": true,
+                "RedTag": true
+            },
+            "Inhabitants": {
+                "OccupancyType": "Multi-Unit Residential",
+                "PeakPopulation": "0, 2, 2"
+            }
         },
         "CollapseModes": [
             {
                 "affected_area": "1.0, 1.0, 1.0",
                 "injuries": "0.1, 0.9",
                 "name": "complete",
-                "w": "0.2"
+                "weight": "0.2"
             },
             {
                 "affected_area": "1.0, 0.2, 0.2",
                 "injuries": "0.4, 0.5",
                 "name": "partial",
-                "w": "0.8"
+                "weight": "0.8"
             }
         ],
-        "Components": [            
-            {
-                "ID": "B1071.011",
-                "cov": "0.01",
-                "directions": "0, 0, 1, 1",
-                "distribution": "normal",
-                "name": "light framed wood walls",
-                "quantity": "0, 12.6, 12.6, 0",
-                "structural": true,
-                "unit_size": "100",
-                "unit_type": "SF",
-                "weights": "0.285, 0.285, 0.215, 0.215"
-            },
-            {
-                "ID": "B3011.012",
-                "cov": "0.01",
-                "directions": "0",
-                "distribution": "normal",
-                "name": "clay tile roof",
-                "quantity": "0, 0, 0, 14.10",
-                "structural": true,
-                "unit_size": "100",
-                "unit_type": "SF",
-                "weights": "1.0"
-            },
-            {
-                "ID": "C1011.011a",
-                "cov": "0.01",
-                "directions": "0, 0, 1, 1",
-                "distribution": "lognormal",
-                "name": "gypsum wall partitions",
-                "quantity": "0, 1.42, 1.42, 0",
-                "structural": false,
-                "unit_size": "100",
-                "unit_type": "LF",
-                "weights": "0.285, 0.285, 0.215, 0.215"
-            }            
-        ],
-        "DecisionVariables": {
-            "Injuries": true,
-            "ReconstructionCost": true,
-            "ReconstructionTime": true,
-            "RedTag": true
+        "Components": {
+            "B1071.011": [
+                {
+                    "location": "2, 3",
+                    "direction": "1",
+                    "median_quantity": "359.1, 359.1",
+                    "unit": "ft2",
+                    "distribution": "normal",
+                    "cov": "0.01"
+                },
+                {
+                    "location": "2, 3",
+                    "direction": "2",
+                    "median_quantity": "270.9, 270.9",
+                    "unit": "ft2",
+                    "distribution": "normal",
+                    "cov": "0.01"
+                }
+            ],
+            "B3011.012": [
+                {
+                    "location": "4",
+                    "direction": "1",
+                    "median_quantity": "1410.0",
+                    "unit": "ft2",
+                    "distribution": "normal",
+                    "cov": "0.01"
+                }
+            ],
+            "C1011.011a": [
+                {
+                    "location": "2, 3",
+                    "direction": "1",
+                    "median_quantity": "40.47, 40.47",
+                    "unit": "ft",
+                    "distribution": "normal",
+                    "cov": "0.01"
+                },
+                {
+                    "location": "2, 3",
+                    "direction": "2",
+                    "median_quantity": "30.53, 30.53",
+                    "unit": "ft",
+                    "distribution": "normal",
+                    "cov": "0.01"
+                }
+            ]
         },
-        "Inhabitants": {
-            "OccupancyType": "Multi-Unit Residential",
-            "PeakPopulation": "0, 2, 2"
-        },
-        "LossModelDependencies": {
+        "Dependencies": {
             "CostAndTime": false,
             "Fragilities": "per ATC recommendation",
             "Injuries": "btw. Directions",
@@ -103,12 +119,6 @@
             "ReconstructionCosts": "btw. Performance Groups",
             "ReconstructionTimes": "btw. Floors",
             "RedTagProbabilities": "btw. Damage States"
-        },
-        "UncertaintyQuantification": {
-            "AdditionalUncertainty": {
-                "GroundMotion": "0.2",
-                "Modeling": "0.1"
-            }
         }
     }
 }

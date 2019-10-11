@@ -12,13 +12,12 @@
       "PFA": 19.6133,
       "PID": 0.15
     },
-    "yield_drift": 0.01,
     "added_uncertainty": {
       "beta_gm": 0.0001,
       "beta_m": 0.0001
     },
-    "response": {  
-      "coll_prob": "estimated", 
+    "response": {
+      "coll_prob": "estimated",
       "CP_est_basis": "raw EDP",
       "EDP_dist_basis": "all results",
       "EDP_distribution": "lognormal"}

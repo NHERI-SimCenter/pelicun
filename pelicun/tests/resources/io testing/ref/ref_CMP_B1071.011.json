@@ -3,35 +3,21 @@
     "ID": "B1071.011",
     "name": "Light framed wood walls with structural panel sheathing, stucco no hold-downs",
     "description": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with no hold-downs. Three layer 7/8\" stucco with 1/2-inch chop strand fibers applied over wire mesh fastened with 1.25 -inch long staples.",
-    "kind": "structural",
     "demand_type": "PID",
     "directional": 1,
     "correlation": 0,
     "offset": 0,
     "incomplete": 0,
-    "locations": [
-      2,
-      3
-    ],
+    "locations": [2, 3, 2, 3],
     "quantities": [
-      9.290303999999997,
-      9.290303999999997
-    ],
-    "csg_weights": [
-      0.5,
-      0.5
-    ],
-    "dir_weights": [
-      0.5,
-      0.5
-    ],
-    "directions": [
-      0,
-      1
-    ],
-    "distribution_kind": "normal",
-    "cov": 0.1,
-    "unit": 9.290303999999997,
+      [4.645151999999999],
+      [4.645151999999999],
+      [4.645151999999999],
+      [4.645151999999999]],
+    "directions": [1, 1, 2, 2],
+    "distribution_kind": ["normal", "normal", "normal", "normal"],
+    "cov": [0.1, 0.1, 0.1, 0.1],
+    "unit": 0.09290303999999998,
     "DSG_set": {
       "DSG-1": {
         "theta": 0.0017,
@@ -125,7 +111,7 @@
             "red_tag": {
               "theta": 0.25,
               "cov": 0.5
-            }           
+            }
           }
         }
       }

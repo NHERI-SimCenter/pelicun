@@ -76,12 +76,11 @@ def test_read_SimCenter_DL_input_minimum_input():
     # make sure the paths under data sources point to the right locations
     assert test_DL['data_sources']['path_CMP_data'] == \
            pelicun_path + '/resources/FEMA P58 first edition/DL json/'
-    assert test_DL['data_sources']['path_POP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/population.json'
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys())+list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
 
 def test_read_SimCenter_DL_input_full_input():
@@ -107,7 +106,8 @@ def test_read_SimCenter_DL_input_full_input():
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys()) + list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
 def test_read_SimCenter_DL_input_non_standard_units():
     """
@@ -130,7 +130,8 @@ def test_read_SimCenter_DL_input_non_standard_units():
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys()) + list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
 def test_read_SimCenter_DL_input_unknown_unit():
     """
@@ -172,25 +173,20 @@ def test_read_SimCenter_DL_input_injuries_only():
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys()) + list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
-    # now test if warnings are shown if other pieces of data are missing
+    # now test if an error is shown if other pieces of data are missing
 
     # load the reference results
     with open('resources/io testing/ref/'
                          'ref_DL_input_injuries_missing_data.json') as f:
         ref_DL = json.load(f)
 
-    with pytest.warns(UserWarning) as e_info:
+    with pytest.raises(ValueError) as e_info:
         test_DL = read_SimCenter_DL_input(
             'resources/io testing/test/test_DL_input_injuries_missing_data.json',
             verbose=False)
-
-    # remove the data_sources entry (it has already been tested)
-    test_DL.pop('data_sources', None)
-
-    # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
 
 
 def test_read_SimCenter_DL_input_unknown_component_unit():
@@ -276,15 +272,18 @@ def test_read_component_DL_data():
     # basic case with a typical component
     comp_info = {
         "B1071.011": {
-            "quantities"  : [1.0, 1.0],
-            "csg_weights" : [0.5, 0.5],
-            "dirs"        : [0, 1],
-            "kind"        : "structural",
-            "distribution": "normal",
-            "cov"         : 0.1,
-            "unit"        : [100.0, "SF"],
-            "locations"   : [2, 3]
-        },
+            "locations": [2, 3, 2, 3],
+            "directions": [1, 1, 2, 2],
+            "quantities": [
+                [50.0,],
+                [50.0,],
+                [50.0,],
+                [50.0,],
+            ],
+            "cov"         : ["0.1", "0.1", "0.1", "0.1"],
+            "distribution": ["normal", "normal", "normal", "normal"],
+            "unit"        : ["ft2", "ft2", "ft2", "ft2"]
+        }
     }
 
     # read the component data
@@ -298,20 +297,22 @@ def test_read_component_DL_data():
         ref_CMP = json.load(f)
 
         # check if the returned dictionary is appropriate
-    assert test_CMP == ref_CMP
+    for key in set(list(ref_CMP.keys())+list(test_CMP.keys())):
+        assert ref_CMP[key] == test_CMP[key]
 
     # acceleration-sensitive component with injuries
     comp_info = {
         "C3032.001a": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
-            "dirs"        : [0, 1, 1, 0],
-            "kind"        : "non-structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [250.0, "SF"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities"  : [
+                [25.0, 100.0],
+                [50.0, 75.0],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : ["ft2", "ft2"]
+        }
     }
 
     # read the component data
@@ -325,20 +326,22 @@ def test_read_component_DL_data():
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
-    assert test_CMP == ref_CMP
+    for key in set(list(ref_CMP.keys()) + list(test_CMP.keys())):
+        assert ref_CMP[key] == test_CMP[key]
 
     # component with simultaneous damage states
     comp_info = {
         "D1014.011": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.2, 0.1, 0.1, 0.6],
-            "dirs"        : [0, 0, 1, 1],
-            "kind"        : "non-structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities"  : [
+                [2.0, 1.0,],
+                [1.0, 6.0,],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : ["ea", "ea"]
+        }
     }
 
     # read the component data
@@ -357,15 +360,16 @@ def test_read_component_DL_data():
     # component with mutually exclusive damage states
     comp_info = {
         "B1035.051": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.2, 0.1, 0.1, 0.6],
-            "dirs"        : [0, 0, 1, 1],
-            "kind"        : "structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities"  : [
+                [2.0, 1.0, ],
+                [1.0, 6.0, ],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : ["ea", "ea"]
+        }
     }
 
     # read the component data
@@ -384,15 +388,16 @@ def test_read_component_DL_data():
     # an incomplete component shall not get parsed and shall produce a warning
     comp_info = {
         "E2022.023": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
-            "dirs"        : [0, 1, 1, 0],
-            "kind"        : "non-structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities"  : [
+                [2.0, 1.0, ],
+                [1.0, 6.0, ],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : ["ea", "ea"]
+        }
     }
 
     # read the component data
@@ -406,15 +411,16 @@ def test_read_component_DL_data():
     # a component with unknown EDP shall not get parsed and shall produce a warning
     comp_info = {
         "B1042.001a": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
-            "dirs"        : [0, 1, 1, 0],
-            "kind"        : "structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities"  : [
+                [2.0, 1.0, ],
+                [1.0, 6.0, ],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : ["ea", "ea"]
+        }
     }
 
     # read the component data

@@ -3,36 +3,18 @@
     "ID": "D1014.011",
     "name": "Traction Elevator \u2013 Applies to most California Installations 1976 or later, most western states installations 1982 or later and most other U.S installations 1998 or later.",
     "description": "Costing per elevator.  Elevator demand parameter shall be defined as the peak floor acceleration at the first floor.  The elevator fragility for a multiple story building should only be entered once on the first floor.",
-    "kind": "non-structural",
     "demand_type": "PFA",
     "directional": 0,
     "correlation": 0,
     "offset": -1,
     "incomplete": 0,
     "locations": [
-      1
+      1, 1
     ],
-    "quantities": [
-      1.0
-    ],
-    "csg_weights": [
-      0.2,
-      0.1,
-      0.1,
-      0.6
-    ],
-    "dir_weights": [
-      0.30000000000000004,
-      0.7
-    ],
-    "directions": [
-      0,
-      0,
-      1,
-      1
-    ],
-    "distribution_kind": "normal",
-    "cov": 1.0,
+    "quantities": [[2.0, 1.0], [1.0, 6.0]],
+    "directions": [1, 2],
+    "distribution_kind": ["normal", "normal"],
+    "cov": [1.0, 1.0],
     "unit": 1.0,
     "DSG_set": {
       "DSG-1": {

@@ -3,36 +3,18 @@
     "ID": "B1035.051",
     "name": "Pre-Northridge WUF-B beam-column joint, beam both sides of column, beam depth <= W27",
     "description": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
-    "kind": "structural",
     "demand_type": "PID",
     "directional": 1,
     "correlation": 0,
     "offset": 0,
     "incomplete": 0,
     "locations": [
-      1
+      1, 1
     ],
-    "quantities": [
-      1.0
-    ],
-    "csg_weights": [
-      0.2,
-      0.1,
-      0.1,
-      0.6
-    ],
-    "dir_weights": [
-      0.30000000000000004,
-      0.7
-    ],
-    "directions": [
-      0,
-      0,
-      1,
-      1
-    ],
-    "distribution_kind": "normal",
-    "cov": 1.0,
+    "quantities": [[2.0, 1.0], [1.0, 6.0]],
+    "directions": [1, 2],
+    "distribution_kind": ["normal", "normal"],
+    "cov": [1.0, 1.0],
     "unit": 1.0,
     "DSG_set": {
       "DSG-1": {
