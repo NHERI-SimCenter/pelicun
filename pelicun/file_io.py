@@ -597,9 +597,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             data['general'].update({'response': {}})
         if ((damage is not None) and (coll_prob is not None)):
             data['general']['response'].update({
-                'coll_prob'   : res_description.get('Approach',
+                'coll_prob'   : coll_prob.get('Value',
                                                     'estimated'),
-                'CP_est_basis': res_description.get('BasisOfEstimate',
+                'CP_est_basis': coll_prob.get('BasisOfEstimate',
                                                     'raw EDP')})
             if data['general']['response']['coll_prob'] != 'estimated':
                 data['general']['response']['coll_prob'] = \
