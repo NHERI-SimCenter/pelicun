@@ -1,1 +1,84 @@
-{"Name": "NSA-HC-COM3", "GeneralInformation": {"ID": "NSA-HC-COM3", "Description": "NSA-HC-COM3"}, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"]}, "DSGroups": [{"MedianEDP": 0.3, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.01}}, "Description": "Slight"}]}, {"MedianEDP": 0.6, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.05}}, "Description": "Moderate"}]}, {"MedianEDP": 1.2, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.15}}, "Description": "Extensive"}]}, {"MedianEDP": 2.4, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.5}}, "Description": "Complete"}]}]}
+{
+  "Name": "NSA-HC-COM3",
+  "GeneralInformation": {
+    "ID": "NSA-HC-COM3",
+    "Description": "NSA-HC-COM3"
+  },
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.3,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.01
+            }
+          },
+          "Description": "Slight"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.6,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.05
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 1.2,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.15
+            }
+          },
+          "Description": "Extensive"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.4,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.5
+            }
+          },
+          "Description": "Complete"
+        }
+      ]
+    }
+  ]
+}

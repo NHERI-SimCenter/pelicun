@@ -1,1 +1,84 @@
-{"Name": "NSA-MC-RES5", "GeneralInformation": {"ID": "NSA-MC-RES5", "Description": "NSA-MC-RES5"}, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"]}, "DSGroups": [{"MedianEDP": 0.25, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.008}}, "Description": "Slight"}]}, {"MedianEDP": 0.5, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.040999999999999995}}, "Description": "Moderate"}]}, {"MedianEDP": 1.0, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.124}}, "Description": "Extensive"}]}, {"MedianEDP": 2.0, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "Consequences": {"ReconstructionCost": {"Amount": 0.41200000000000003}}, "Description": "Complete"}]}]}
+{
+  "Name": "NSA-MC-RES5",
+  "GeneralInformation": {
+    "ID": "NSA-MC-RES5",
+    "Description": "NSA-MC-RES5"
+  },
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.25,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.008
+            }
+          },
+          "Description": "Slight"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.5,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.040999999999999995
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 1.0,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.124
+            }
+          },
+          "Description": "Extensive"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.0,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.41200000000000003
+            }
+          },
+          "Description": "Complete"
+        }
+      ]
+    }
+  ]
+}

@@ -1760,7 +1760,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
 
                     with open(os.path.join(target_dir + 'DL json/',
                                            dl_id + '.json'), 'w') as f:
-                        json.dump(json_output, f)
+                        json.dump(json_output, f, indent=2)
 
             # second, nonstructural acceleration sensitive fragility groups
             json_output = {}
@@ -1814,7 +1814,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
             with open(
                 os.path.join(target_dir + 'DL json/', dl_id + '.json'),
                 'w') as f:
-                json.dump(json_output, f)
+                json.dump(json_output, f, indent=2)
 
                 # third, nonstructural drift sensitive fragility groups
         json_output = {}
@@ -1866,7 +1866,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
 
         with open(os.path.join(target_dir + 'DL json/', dl_id + '.json'),
                   'w') as f:
-            json.dump(json_output, f)
+            json.dump(json_output, f, indent=2)
 
     # finally, prepare the population distribution data
     PD_data = raw_data['Population_Distribution']
@@ -1896,7 +1896,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
         }})
 
     with open(os.path.join(target_dir, 'population.json'), 'w') as f:
-        json.dump(pop_output, f)
+        json.dump(pop_output, f, indent=2)
 
 def create_HAZUS_HU_json_files(data_dir, target_dir):
     """
