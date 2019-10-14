@@ -354,15 +354,16 @@ class FEMA_P58_Assessment(Assessment):
             BIM['components'],
             assessment_type=self._assessment_type, verbose=verbose)
 
-        # population
-        POP = read_population_distribution(
-            self._AIM_in['data_sources']['path_POP_data'],
-            BIM['general']['occupancy_type'],
-            assessment_type=self._assessment_type,
-            verbose=verbose)
+        # population (if needed)
+        if self._AIM_in['decision_variables']['injuries']:
+            POP = read_population_distribution(
+                self._AIM_in['data_sources']['path_POP_data'],
+                BIM['general']['occupancy_type'],
+                assessment_type=self._assessment_type,
+                verbose=verbose)
 
-        POP['peak'] = BIM['general']['population']
-        self._POP_in = POP
+            POP['peak'] = BIM['general']['population']
+            self._POP_in = POP
 
     def define_random_variables(self):
         """
@@ -397,7 +398,7 @@ class FEMA_P58_Assessment(Assessment):
         Describe the uncertainty in the EDP limit that corresponds to
         exceedance of each Damage State. EDP limits are grouped by Fragility
         Groups. Consequently, correlation between fragility limits are
-        currently are limited within Fragility Groups. See
+        currently limited within Fragility Groups. See
         _create_RV_fragilities() for details.
 
         4. Reconstruction cost and time
@@ -529,16 +530,17 @@ class FEMA_P58_Assessment(Assessment):
         # event time - month, weekday, and hour realizations
         self._TIME = self._sample_event_time()
 
-        # get the population conditioned on event time
-        self._POP = self._get_population()
+        # get the population conditioned on event time (if needed)
+        if self._AIM_in['decision_variables']['injuries']:
+            self._POP = self._get_population()
 
         # collapses
         self._COL, collapsed_IDs = self._calc_collapses()
         self._ID_dict.update({'collapse':collapsed_IDs})
 
         # select the non-collapse cases for further analyses
-        non_collapsed_IDs = self._POP[
-            ~self._POP.index.isin(collapsed_IDs)].index.values.astype(int)
+        non_collapsed_IDs = self._TIME[
+            ~self._TIME.index.isin(collapsed_IDs)].index.values.astype(int)
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
         # damage in non-collapses
@@ -594,7 +596,7 @@ class FEMA_P58_Assessment(Assessment):
             irrepairable_IDs = self._calc_irrepairable()
 
             # collect the IDs of repairable realizations
-            P_NC = self._POP.loc[self._ID_dict['non-collapse']]
+            P_NC = self._TIME.loc[self._ID_dict['non-collapse']]
             repairable_IDs = P_NC[
                 ~P_NC.index.isin(irrepairable_IDs)].index.values.astype(int)
 
@@ -672,9 +674,6 @@ class FEMA_P58_Assessment(Assessment):
             SUMMARY.loc[:, ('event time', prop)] = \
                 self._TIME.loc[:, prop] + offset
 
-        # inhabitants
-        SUMMARY.loc[:, ('inhabitants', '')] = self._POP.sum(axis=1)
-
         # collapses
         SUMMARY.loc[:, ('collapses', 'collapsed?')] = self._COL.iloc[:, 0]
 
@@ -731,6 +730,10 @@ class FEMA_P58_Assessment(Assessment):
 
         # injuries
         if DVs['injuries']:
+
+            # inhabitants
+            SUMMARY.loc[:, ('inhabitants', '')] = self._POP.sum(axis=1)
+
             if 'CM' in self._COL.columns:
                 SUMMARY.loc[colID, ('collapses', 'mode')] = self._COL.loc[:, 'CM']
 
