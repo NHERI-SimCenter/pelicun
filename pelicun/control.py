@@ -1834,7 +1834,7 @@ class FEMA_P58_Assessment(Assessment):
         RV_irrep = RandomVariable(ID=-1, dimension_tags=['RED_irrep', ],
                                   distribution_kind='lognormal',
                                   theta=irrep_frag['Median'],
-                                  COV=irrep_frag['Sig'] ** 2.
+                                  COV=irrep_frag['Beta'] ** 2.
                                   )
         RED_irrep = RV_irrep.sample_distribution(NC_samples)['RED_irrep'].values
 
