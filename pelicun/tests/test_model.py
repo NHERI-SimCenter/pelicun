@@ -739,7 +739,7 @@ def test_FragilityGroup_description_and_name():
                           fragility_functions=FF,
                           DSG_set=None)
 
-    FG = FragilityGroup(ID=1, kind='structural', demand_type='PID',
+    FG = FragilityGroup(ID=1, demand_type='PID',
                         performance_groups = [PG, ],
                         name=ref_name, description=ref_desc)
 

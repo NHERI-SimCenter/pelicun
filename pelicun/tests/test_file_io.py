@@ -272,17 +272,17 @@ def test_read_component_DL_data():
     # basic case with a typical component
     comp_info = {
         "B1071.011": {
-            "locations": [2, 3, 2, 3],
-            "directions": [1, 1, 2, 2],
-            "quantities": [
-                [50.0,],
-                [50.0,],
-                [50.0,],
-                [50.0,],
-            ],
+            "locations": [2, 2, 3, 3],
+            "directions": [1, 2, 1, 2],
+            "quantities": [50.0, 50.0, 50.0, 50.0],
+            "csg_weights" : [
+                [1.0,],
+                [1.0,],
+                [1.0,],
+                [1.0,]],
             "cov"         : ["0.1", "0.1", "0.1", "0.1"],
             "distribution": ["normal", "normal", "normal", "normal"],
-            "unit"        : ["ft2", "ft2", "ft2", "ft2"]
+            "unit"        : "ft2"
         }
     }
 
@@ -296,7 +296,7 @@ def test_read_component_DL_data():
               'r') as f:
         ref_CMP = json.load(f)
 
-        # check if the returned dictionary is appropriate
+    # check if the returned dictionary is appropriate
     for key in set(list(ref_CMP.keys())+list(test_CMP.keys())):
         assert ref_CMP[key] == test_CMP[key]
 
@@ -305,13 +305,14 @@ def test_read_component_DL_data():
         "C3032.001a": {
             "locations"   : [1, 1],
             "directions"  : [1, 2],
-            "quantities"  : [
-                [25.0, 100.0],
-                [50.0, 75.0],
+            "quantities"  : [125.0, 125.0],
+            "csg_weights" : [
+                [0.2, 0.8],
+                [0.4, 0.6],
             ],
             "cov"         : ["1.0", "1.0"],
             "distribution": ["normal", "normal"],
-            "unit"        : ["ft2", "ft2"]
+            "unit"        : "ft2"
         }
     }
 
@@ -334,13 +335,14 @@ def test_read_component_DL_data():
         "D1014.011": {
             "locations"   : [1, 1],
             "directions"  : [1, 2],
-            "quantities"  : [
-                [2.0, 1.0,],
-                [1.0, 6.0,],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
             ],
             "cov"         : ["1.0", "1.0"],
             "distribution": ["normal", "normal"],
-            "unit"        : ["ea", "ea"]
+            "unit"        : "ea"
         }
     }
 
@@ -355,20 +357,21 @@ def test_read_component_DL_data():
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
-    assert test_CMP["D1014.011"] == ref_CMP["D1014.011"]
+    assert ref_CMP["D1014.011"] == test_CMP["D1014.011"]
 
     # component with mutually exclusive damage states
     comp_info = {
         "B1035.051": {
             "locations"   : [1, 1],
             "directions"  : [1, 2],
-            "quantities"  : [
-                [2.0, 1.0, ],
-                [1.0, 6.0, ],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
             ],
             "cov"         : ["1.0", "1.0"],
             "distribution": ["normal", "normal"],
-            "unit"        : ["ea", "ea"]
+            "unit"        : "ea"
         }
     }
 
@@ -390,13 +393,14 @@ def test_read_component_DL_data():
         "E2022.023": {
             "locations"   : [1, 1],
             "directions"  : [1, 2],
-            "quantities"  : [
-                [2.0, 1.0, ],
-                [1.0, 6.0, ],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
             ],
             "cov"         : ["1.0", "1.0"],
             "distribution": ["normal", "normal"],
-            "unit"        : ["ea", "ea"]
+            "unit"        : "ea"
         }
     }
 
@@ -413,13 +417,14 @@ def test_read_component_DL_data():
         "B1042.001a": {
             "locations"   : [1, 1],
             "directions"  : [1, 2],
-            "quantities"  : [
-                [2.0, 1.0, ],
-                [1.0, 6.0, ],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
             ],
             "cov"         : ["1.0", "1.0"],
             "distribution": ["normal", "normal"],
-            "unit"        : ["ea", "ea"]
+            "unit"        : "ea"
         }
     }
 

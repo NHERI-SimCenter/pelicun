@@ -883,7 +883,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
         P_test = P_test[np.where(P_test > 10)]
         P_test = P_test / 10000.
 
-        assert_allclose(P_target, P_test, atol=0.02)
+        assert_allclose(P_target, P_test, atol=0.025)
         assert_allclose(C_target, C_test, rtol=0.001)
         assert_allclose(T_target, T_test, rtol=0.001)
 
@@ -1669,8 +1669,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     P_test = P_test / realization_count
 
     assert_allclose(P_target[:4], P_test[:4], atol=0.05)
-    assert_allclose(C_target, C_test, rtol=0.001)
-    assert_allclose(T_target, T_test, rtol=0.001)
+    assert_allclose(C_target[:4], C_test[:4], rtol=0.001)
+    assert_allclose(T_target[:4], T_test[:4], rtol=0.001)
 
     # PG 2021
     P_target = [
@@ -1824,7 +1824,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
         ('red tagged?', ''), 'count'] / realization_count
 
-    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.02)
+    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.03)
 
 def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     """
@@ -2481,7 +2481,6 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_9.out"
 
     for dep in ['IND', 'PG', 'DIR', 'LOC', 'ATC', 'CSG', 'DS']:
-        #print(dep, end=' ')
 
         A = FEMA_P58_Assessment()
 
