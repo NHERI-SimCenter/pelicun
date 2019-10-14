@@ -336,7 +336,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'quantities'  : [],
                     'unit'        : [],
                     'distribution': [],
-                    'cov'         : []
+                    'cov'         : [],
+                    'csg_weights':  [],
                 }
 
                 for comp in frag_group:
@@ -350,11 +351,11 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                                    for dir_ in comp['direction'].split(',')])
                     qnts = [float(qnt)
                             for qnt in comp['median_quantity'].split(',')]
+                    csg_weights = (qnts / np.sum(qnts)).tolist()
+                    qnts = np.sum(qnts)
 
                     pg_count = len(locs) * len(dirs)
 
-                    comp_data['directions'] = (comp_data['directions'] +
-                                               [d for d in dirs for l in locs])
                     comp_data['locations'] = (comp_data['locations'] +
                                                [l for l in locs for d in dirs])
                     comp_data['directions'] = (comp_data['directions'] +
@@ -365,12 +366,25 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                         raise ValueError(
                             "Unknown unit for component {}: {}".format(fg_id,
                                                                        unit))
-
                     for i in range(pg_count):
                         comp_data['quantities'].append(qnts)
+                        comp_data['csg_weights'].append(csg_weights)
                         comp_data['unit'].append(unit)
                         comp_data['distribution'].append(comp['distribution'])
                         comp_data['cov'].append(comp.get('cov', None))
+
+                sorted_ids = np.argsort(comp_data['locations'])
+                for key in ['locations', 'directions', 'quantities',
+                            'csg_weights', 'distribution', 'cov']:
+                    comp_data[key] = [comp_data[key][s_id] for s_id in sorted_ids]
+
+                if len(set(comp_data['unit'])) != 1:
+                    raise ValueError(
+                        "Multiple types of units specified for fragility group "
+                        "{}. Make sure that every component group in a "
+                        "fragility group is defined using the same "
+                        "unit.".format(fg_id))
+                comp_data['unit'] = comp_data['unit'][0]
 
             elif AT.startswith('HAZUS'):
                 comp_data = {
@@ -379,7 +393,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'quantities'  : [1, ],
                     'unit'        : ['ea',],
                     'distribution': ['N/A',],
-                    'cov'         : [None,]
+                    'cov'         : [None,],
+                    'csg_weights' : [1.0,]
                 }
 
                 # some basic pre-processing
@@ -939,7 +954,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         'incomplete',
         'locations',
         'quantities',
-        #'csg_weights',
+        'csg_weights',
         #'dir_weights',
         'directions',
         'distribution_kind',
@@ -980,17 +995,10 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         c_data['locations'] = ci_data['locations']
         c_data['directions'] = ci_data['directions']
 
-        c_data['unit'] = [globals()[u] for u in ci_data['unit']]
-        c_data['quantities'] = [(np.asarray(qnt) * u).tolist()
-                                for qnt, u
-                                in list(zip(ci_data['quantities'],
-                                            c_data['unit']))]
-        if len(set(c_data['unit'])) != 1:
-            raise ValueError(
-                "Multiple types of units specified for fragility group {}. "
-                "Make sure that every component group in a fragility group is "
-                "defined using the same unit.".format(c_id))
-        c_data['unit'] = c_data['unit'][0]
+        c_data['unit'] = globals()[ci_data['unit']]
+        c_data['quantities'] = [(np.asarray(qnt) * c_data['unit']).tolist()
+                                for qnt in ci_data['quantities']]
+        c_data['csg_weights'] = ci_data['csg_weights']
 
         c_data['distribution_kind'] = ci_data['distribution']
         c_data['cov'] = [float_or_None(cov) for cov in ci_data['cov']]
@@ -1008,7 +1016,6 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         #c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
         #c_data['quantities'] = (np.asarray(ci_data['quantities']) * c_data[
         #    'unit']).tolist()
-        #c_data['csg_weights'] = ci_data['csg_weights']
 
         # calculate the quantity weights in each direction
         #dirs = np.asarray(c_data['directions'], dtype=np.int)
