@@ -924,28 +924,31 @@ class FEMA_P58_Assessment(Assessment):
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id in s_fg_keys:
             comp = self._FG_in[c_id]
+
             u_dirs = np.unique(comp['directions'])
 
-            dir_weights = comp['dir_weights']
-            theta_list = []
-            [[theta_list.append(qnt * dw) for dw in dir_weights]
-             for qnt in comp['quantities']]
+            #dir_weights = comp['dir_weights']
+            #theta_list = []
+            #[[theta_list.append(qnt * dw)
+            #  for dw in dir_weights] for qnt in comp['quantities']]
+
+            theta_list = comp['quantities']
             q_theta = np.append(q_theta, theta_list)
 
-            if comp['distribution_kind'] == 'normal':
-                q_sig = np.append(q_sig, (
-                    comp['cov'] * np.asarray(theta_list)).tolist())
-            else:
-                q_sig = np.append(q_sig, (
-                    np.ones(len(theta_list)) * comp['cov']).tolist())
+            dist_list = comp['distribution_kind']
+            q_dist = np.append(q_dist, dist_list)
 
-            q_tag = np.append(q_tag,
-                              [[c_id + '-QNT-' + str(s_i) + '-' + str(d_i)
-                                for d_i in u_dirs]
-                               for s_i in comp['locations']])
-            q_dist = np.append(q_dist,
-                               [[comp['distribution_kind'] for d_i in u_dirs]
-                                for s_i in comp['locations']])
+            cov_list = comp['cov']
+            for theta, dk, cov in list(zip(theta_list, dist_list, cov_list)):
+                if dk == 'normal':
+                    q_sig = np.append(q_sig, [cov*theta,])
+                else:
+                    q_sig = np.append(q_sig, [cov, ])
+
+            q_tag = np.append(q_tag, [c_id + '-QNT-' + str(s_i) + '-' + str(d_i)
+                                      for s_i, d_i
+                                      in list(zip(comp['locations'],
+                                                  comp['directions']))])
 
         dims = len(q_theta)
         rho = self._create_correlation_matrix(rho_qnt)
@@ -1001,7 +1004,8 @@ class FEMA_P58_Assessment(Assessment):
         dims = len(d_theta)
 
         # get the total number of random variables for this fragility group
-        rv_count = len(comp['locations']) * len(comp['directions']) * dims
+        #rv_count = len(comp['locations']) * len(comp['directions']) * dims
+        rv_count = sum([len(csg_w) for csg_w in comp['csg_weights']]) * dims
 
         # create the (empty) input arrays for the RV
         c_theta = np.zeros(rv_count)
@@ -1010,14 +1014,27 @@ class FEMA_P58_Assessment(Assessment):
         c_distr_kind = np.empty(rv_count, dtype=object)
 
         pos_id = 0
-        for l_id in comp['locations']:
+        #for l_id in comp['locations']:
+        #    # for each location-direction pair)
+        #    for d_id, __ in enumerate(comp['directions']):
+        #        # for each component-subgroup
+        #        c_theta[pos_id:pos_id + dims] = d_theta
+        #        c_sig[pos_id:pos_id + dims] = d_sig
+        #        c_tag[pos_id:pos_id + dims] = [
+        #            t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+        #        c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
+        #        pos_id += dims
+
+        for l_id, d_id, csg_list in zip(comp['locations'], comp['directions'],
+                                        comp['csg_weights']):
             # for each location-direction pair)
-            for d_id, __ in enumerate(comp['directions']):
+            for csg_id, __ in enumerate(csg_list):
                 # for each component-subgroup
                 c_theta[pos_id:pos_id + dims] = d_theta
                 c_sig[pos_id:pos_id + dims] = d_sig
                 c_tag[pos_id:pos_id + dims] = [
-                    t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+                    t + '-LOC-{}-DIR-{}-CSG-{}'.format(l_id, d_id, csg_id)
+                    for t in d_tag]
                 c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
                 pos_id += dims
 
@@ -1064,13 +1081,12 @@ class FEMA_P58_Assessment(Assessment):
                                       comp['ID'] + '-' + str(dsg_i) + '-' + str(
                                           ds_i))
 
-            for loc in comp['locations']:
-                for dir_ in np.unique(comp['directions']):
-                    f_theta = np.append(f_theta, d_theta)
-                    f_sig = np.append(f_sig, d_sig)
-                    f_tag = np.append(f_tag,
-                                      [t + '-LOC-{}-DIR-{}'.format(loc, dir_)
-                                       for t in d_tag])
+            for loc, dir_ in zip(comp['locations'], comp['directions']):
+                f_theta = np.append(f_theta, d_theta)
+                f_sig = np.append(f_sig, d_sig)
+                f_tag = np.append(f_tag,
+                                  [t + '-LOC-{}-DIR-{}'.format(loc, dir_)
+                                   for t in d_tag])
 
         rho = self._create_correlation_matrix(rho_target, c_target=-1,
                                               include_DSG=True,
@@ -1132,14 +1148,14 @@ class FEMA_P58_Assessment(Assessment):
                                               dsg_i) + '-' + str(
                                               ds_i) + '-{}'.format(name))
 
-                for loc in comp['locations']:
-                    for dir_ in np.unique(comp['directions']):
-                        f_sig = np.append(f_sig, d_sig)
-                        f_dkind = np.append(f_dkind, d_dkind)
-                        f_tag = np.append(f_tag,
-                                          [t + '-LOC-{}-DIR-{}'.format(loc,
-                                                                       dir_)
-                                           for t in d_tag])
+                for loc, dir_ in zip(comp['locations'], comp['directions']):
+                    f_sig = np.append(f_sig, d_sig)
+                    f_dkind = np.append(f_dkind, d_dkind)
+                    f_tag = np.append(f_tag,
+                                      [t + '-LOC-{}-DIR-{}'.format(loc,
+                                                                   dir_)
+                                       for t in d_tag])
+
             ct_sig = np.append(ct_sig, f_sig)
             ct_tag = np.append(ct_tag, f_tag)
             ct_dkind = np.append(ct_dkind, f_dkind)
@@ -1229,14 +1245,13 @@ class FEMA_P58_Assessment(Assessment):
                                           (comp['ID'] + '-' + str(dsg_i) + '-' +
                                            str(ds_i) + '-{}'.format(i_lvl)))
 
-                for loc in comp['locations']:
-                    for dir_ in np.unique(comp['directions']):
-                        f_theta = np.append(f_theta, d_theta)
-                        f_sig = np.append(f_sig, d_sig)
-                        f_tag = np.append(f_tag,
-                                          [t + '-LOC-{}-DIR-{}'.format(loc,
-                                                                       dir_)
-                                           for t in d_tag])
+                for loc, dir_ in zip(comp['locations'], comp['directions']):
+                    f_theta = np.append(f_theta, d_theta)
+                    f_sig = np.append(f_sig, d_sig)
+                    f_tag = np.append(f_tag,
+                                      [t + '-LOC-{}-DIR-{}'.format(loc,
+                                                                   dir_)
+                                       for t in d_tag])
 
             full_theta = np.append(full_theta, f_theta)
             full_sig = np.append(full_sig, f_sig)
@@ -2329,7 +2344,8 @@ class HAZUS_Assessment(Assessment):
 
         # get the total number of random variables for this fragility group
         # TODO: add the possibility of multiple locations and directions
-        rv_count = len(comp['locations']) * len(comp['directions']) * dims
+        #rv_count = len(comp['locations']) * len(comp['directions']) * dims
+        rv_count = sum([len(csg_w) for csg_w in comp['csg_weights']]) * dims
 
         # create the (empty) input arrays for the RV
         c_theta = np.zeros(rv_count)
@@ -2338,14 +2354,27 @@ class HAZUS_Assessment(Assessment):
         c_distr_kind = np.empty(rv_count, dtype=object)
 
         pos_id = 0
-        for l_id in comp['locations']:
+        #for l_id in comp['locations']:
+        #    # for each location-direction pair)
+        #    for d_id, __ in enumerate(comp['directions']):
+        #        # for each component-subgroup
+        #        c_theta[pos_id:pos_id + dims] = d_theta
+        #        c_sig[pos_id:pos_id + dims] = d_sig
+        #        c_tag[pos_id:pos_id + dims] = [
+        #            t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+        #        c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
+        #        pos_id += dims
+
+        for l_id, d_id, csg_list in zip(comp['locations'], comp['directions'],
+                                        comp['csg_weights']):
             # for each location-direction pair)
-            for d_id, __ in enumerate(comp['directions']):
+            for csg_id, __ in enumerate(csg_list):
                 # for each component-subgroup
                 c_theta[pos_id:pos_id + dims] = d_theta
                 c_sig[pos_id:pos_id + dims] = d_sig
                 c_tag[pos_id:pos_id + dims] = [
-                    t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+                    t + '-LOC-{}-DIR-{}-CSG-{}'.format(l_id, d_id, csg_id)
+                    for t in d_tag]
                 c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
                 pos_id += dims
 
