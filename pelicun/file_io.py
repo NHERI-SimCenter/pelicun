@@ -72,6 +72,33 @@ def float_or_None(string):
     except:
         return None
 
+def int_or_None(string):
+    try:
+        res = int(string)
+        return res
+    except:
+        return None
+
+def process_loc(string, stories):
+    try:
+        res = int(string)
+        return [res, ]
+    except:
+        if "-" in string:
+            s_low, s_high = string.split('-')
+            s_low = process_loc(s_low, stories)
+            s_high = process_loc(s_high, stories)
+            return list(range(s_low[0], s_high[0]+1))
+        elif string == "all":
+            return list(range(1, stories+1))
+        elif string == "top":
+            return [stories,]
+        elif string == "roof":
+            return [stories+1,]
+        else:
+            return None
+
+
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
     Read the damage and loss input information from a json file.
@@ -313,16 +340,25 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 }
 
                 for comp in frag_group:
-                    locs = [int(loc_) for loc_ in comp['location'].split(',')]
-                    dirs = [int(dir_) for dir_ in comp['direction'].split(',')]
-                    qnts = [float(qnt) for qnt in comp['median_quantity'].split(',')]
+                    locs = []
+                    for loc_ in comp['location'].split(','):
+                        for l in process_loc(loc_, data['general']['stories']):
+                            locs.append(l)
+                    locs.sort()
+
+                    dirs = sorted([int_or_None(dir_)
+                                   for dir_ in comp['direction'].split(',')])
+                    qnts = [float(qnt)
+                            for qnt in comp['median_quantity'].split(',')]
 
                     pg_count = len(locs) * len(dirs)
 
                     comp_data['directions'] = (comp_data['directions'] +
                                                [d for d in dirs for l in locs])
                     comp_data['locations'] = (comp_data['locations'] +
-                                              locs * len(dirs))
+                                               [l for l in locs for d in dirs])
+                    comp_data['directions'] = (comp_data['directions'] +
+                                              dirs * len(locs))
 
                     unit = comp['unit']
                     if unit not in globals().keys():
