@@ -35,15 +35,12 @@
   "components": {
     "B1071.011": {
       "cov": ["0.01", "0.01", "0.01", "0.01"],
-      "directions": [1, 1, 2, 2],
+      "directions": [1, 2, 1, 2],
       "distribution": ["normal", "normal", "normal", "normal"],
-      "locations": [2, 3, 2, 3],
-      "quantities": [
-        [359.1, 359.1],
-        [359.1, 359.1],
-        [270.9, 270.9],
-        [270.9, 270.9]],
-      "unit": ["ft2", "ft2", "ft2", "ft2"]
+      "locations": [2, 2, 3, 3],
+      "quantities": [718.2, 541.8, 718.2, 541.8],
+      "csg_weights": [[0.5, 0.5], [0.5, 0.5], [0.5, 0.5], [0.5, 0.5]],
+      "unit": "ft2"
     }
   },
   "collapse_modes": {
