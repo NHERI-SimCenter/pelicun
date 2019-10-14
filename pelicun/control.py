@@ -1324,151 +1324,152 @@ class FEMA_P58_Assessment(Assessment):
 
             # one group for each of the stories prescribed by the user
             PG_locations = comp['locations']
-            PG_directions = np.unique(comp['directions'])
-            for loc in PG_locations:
-                for dir_ in PG_directions:
-                    PG_ID = 1000 * FG_ID + 10 * loc + dir_
+            PG_directions = comp['directions']
+            PG_csg_lists = comp['csg_weights']
+            for loc, dir_, csg_list in zip(PG_locations, PG_directions,
+                                           PG_csg_lists):
+                PG_ID = 1000 * FG_ID + 10 * loc + dir_
 
-                    # get the quantity
-                    QNT = RandomVariableSubset(
-                        RVd['QNT'],
-                        tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
+                # get the quantity
+                QNT = RandomVariableSubset(
+                    RVd['QNT'],
+                    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
 
-                    # create the damage objects
-                    # consequences are calculated on a performance group level
+                # create the damage objects
+                # consequences are calculated on a performance group level
 
-                    # create a list for the damage state groups and their tags
-                    DSG_list = []
-                    d_tags = []
-                    s_dsg_keys = sorted(comp['DSG_set'].keys())
-                    for dsg_i, DSG_ID in enumerate(s_dsg_keys):
-                        DSG = comp['DSG_set'][DSG_ID]
-                        d_tags.append(c_id + '-' + DSG_ID)
+                # create a list for the damage state groups and their tags
+                DSG_list = []
+                d_tags = []
+                s_dsg_keys = sorted(comp['DSG_set'].keys())
+                for dsg_i, DSG_ID in enumerate(s_dsg_keys):
+                    DSG = comp['DSG_set'][DSG_ID]
+                    d_tags.append(c_id + '-' + DSG_ID)
 
-                        # create a list for the damage states
-                        DS_set = []
+                    # create a list for the damage states
+                    DS_set = []
 
-                        s_ds_keys = sorted(DSG['DS_set'].keys())
-                        for ds_i, DS_ID in enumerate(s_ds_keys):
-                            DS = DSG['DS_set'][DS_ID]
+                    s_ds_keys = sorted(DSG['DS_set'].keys())
+                    for ds_i, DS_ID in enumerate(s_ds_keys):
+                        DS = DSG['DS_set'][DS_ID]
 
-                            # create the consequence functions
-                            if DVs['rec_cost']:
-                                data = DS['repair_cost']
-                                f_median = prep_bounded_linear_median_DV(
-                                    **{k: data.get(k, None) for k in
-                                       ('median_max', 'median_min',
-                                        'quantity_lower', 'quantity_upper')})
+                        # create the consequence functions
+                        if DVs['rec_cost']:
+                            data = DS['repair_cost']
+                            f_median = prep_bounded_linear_median_DV(
+                                **{k: data.get(k, None) for k in
+                                   ('median_max', 'median_min',
+                                    'quantity_lower', 'quantity_upper')})
+                            cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                     '-cost' + \
+                                     '-LOC-{}-DIR-{}'.format(loc, dir_)
+                            CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                                         tags=cf_tag)
+                            CF_cost = ConsequenceFunction(DV_median=f_median,
+                                                          DV_distribution=CF_RV)
+                        else:
+                            CF_cost = None
+
+                        if DVs['rec_time']:
+                            data = DS['repair_time']
+                            f_median = prep_bounded_linear_median_DV(
+                                **{k: data.get(k, None) for k in
+                                   ('median_max', 'median_min', 'quantity_lower',
+                                    'quantity_upper')})
+                            cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                     '-time' + \
+                                     '-LOC-{}-DIR-{}'.format(loc, dir_)
+                            CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                                         tags=cf_tag)
+                            CF_time = ConsequenceFunction(DV_median=f_median,
+                                                          DV_distribution=CF_RV)
+                        else:
+                            CF_time = None
+
+                        if (DVs['red_tag']) and ('red_tag' in DS.keys()):
+                            data = DS['red_tag']
+                            if data['theta'] > 0:
+                                f_median = prep_constant_median_DV(data['theta'])
                                 cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
-                                         '-cost' + \
                                          '-LOC-{}-DIR-{}'.format(loc, dir_)
-                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                CF_RV = RandomVariableSubset(RVd['DV_RED'],
                                                              tags=cf_tag)
-                                CF_cost = ConsequenceFunction(DV_median=f_median,
-                                                              DV_distribution=CF_RV)
-                            else:
-                                CF_cost = None
-
-                            if DVs['rec_time']:
-                                data = DS['repair_time']
-                                f_median = prep_bounded_linear_median_DV(
-                                    **{k: data.get(k, None) for k in
-                                       ('median_max', 'median_min', 'quantity_lower',
-                                        'quantity_upper')})
-                                cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
-                                         '-time' + \
-                                         '-LOC-{}-DIR-{}'.format(loc, dir_)
-                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
-                                                             tags=cf_tag)
-                                CF_time = ConsequenceFunction(DV_median=f_median,
-                                                              DV_distribution=CF_RV)
-                            else:
-                                CF_time = None
-
-                            if (DVs['red_tag']) and ('red_tag' in DS.keys()):
-                                data = DS['red_tag']
-                                if data['theta'] > 0:
-                                    f_median = prep_constant_median_DV(data['theta'])
-                                    cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
-                                             '-LOC-{}-DIR-{}'.format(loc, dir_)
-                                    CF_RV = RandomVariableSubset(RVd['DV_RED'],
-                                                                 tags=cf_tag)
-                                    CF_red_tag = ConsequenceFunction(DV_median=f_median,
-                                                                     DV_distribution=CF_RV)
-                                else:
-                                    CF_red_tag = None
+                                CF_red_tag = ConsequenceFunction(DV_median=f_median,
+                                                                 DV_distribution=CF_RV)
                             else:
                                 CF_red_tag = None
+                        else:
+                            CF_red_tag = None
 
-                            if (DVs['injuries']) and ('injuries' in DS.keys()):
-                                CF_inj_set = []
-                                for inj_i, theta in enumerate(DS['injuries']['theta']):
-                                    if theta > 0.:
-                                        f_median = prep_constant_median_DV(theta)
-                                        cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
-                                                 '-{}-LOC-{}-DIR-{}'.format(inj_i, loc, dir_)
-                                        CF_RV = RandomVariableSubset(RVd['DV_INJ'],
-                                                                     tags=cf_tag)
-                                        CF_inj_set.append(ConsequenceFunction(
-                                            DV_median=f_median,
-                                            DV_distribution=CF_RV))
-                                    else:
-                                        CF_inj_set.append(None)
-                            else:
-                                CF_inj_set = [None,]
+                        if (DVs['injuries']) and ('injuries' in DS.keys()):
+                            CF_inj_set = []
+                            for inj_i, theta in enumerate(DS['injuries']['theta']):
+                                if theta > 0.:
+                                    f_median = prep_constant_median_DV(theta)
+                                    cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                             '-{}-LOC-{}-DIR-{}'.format(inj_i, loc, dir_)
+                                    CF_RV = RandomVariableSubset(RVd['DV_INJ'],
+                                                                 tags=cf_tag)
+                                    CF_inj_set.append(ConsequenceFunction(
+                                        DV_median=f_median,
+                                        DV_distribution=CF_RV))
+                                else:
+                                    CF_inj_set.append(None)
+                        else:
+                            CF_inj_set = [None,]
 
-                            # add the DS to the list
-                            if 'affected_area' in DS.keys():
-                                AA = DS['affected_area']
-                            else:
-                                AA = 0.0
-                            # TODO: make this smarter by making affected_area a property of DS
-                            DS_set.append(DamageState(ID=ds_i + 1,
-                                                      description=DS['description'],
-                                                      weight=DS['weight'],
-                                                      affected_area=AA,
-                                                      repair_cost_CF=CF_cost,
-                                                      reconstruction_time_CF=CF_time,
-                                                      red_tag_CF=CF_red_tag,
-                                                      injuries_CF_set=CF_inj_set
-                                                      ))
+                        # add the DS to the list
+                        if 'affected_area' in DS.keys():
+                            AA = DS['affected_area']
+                        else:
+                            AA = 0.0
+                        # TODO: make this smarter by making affected_area a property of DS
+                        DS_set.append(DamageState(
+                            ID=ds_i + 1,
+                            description=DS['description'],
+                            weight=DS['weight'],
+                            affected_area=AA,
+                            repair_cost_CF=CF_cost,
+                            reconstruction_time_CF=CF_time,
+                            red_tag_CF=CF_red_tag,
+                            injuries_CF_set=CF_inj_set))
 
-                        # add the DSG to the list
-                        DSG_list.append(DamageStateGroup(ID=dsg_i + 1,
-                                                         DS_set=DS_set,
-                                                         DS_set_kind=DSG[
-                                                             'DS_set_kind']
-                                                         ))
+                    # add the DSG to the list
+                    DSG_list.append(DamageStateGroup(
+                        ID=dsg_i + 1,
+                        DS_set=DS_set,
+                        DS_set_kind=DSG['DS_set_kind']))
 
-                    # create the fragility functions
-                    FF_set = []
-                    CSG_this = np.where(comp['directions']==dir_)[0]
-                    PG_weights = np.asarray(comp['csg_weights'])[CSG_this]
-                    # normalize the weights
-                    PG_weights /= sum(PG_weights)
-                    for csg_id in CSG_this:
-                        # assign the appropriate random variable to the fragility
-                        # function
-                        ff_tags = [t + '-LOC-{}-CSG-{}'.format(loc, csg_id)
-                                   for t in d_tags]
-                        EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
-                                                         tags=ff_tags)
-                        FF_set.append(FragilityFunction(EDP_limit))
+                # create the fragility functions
+                FF_set = []
+                #CSG_this = np.where(comp['directions']==dir_)[0]
+                #PG_weights = np.asarray(comp['csg_weights'])[CSG_this]
+                # normalize the weights
+                #PG_weights /= sum(PG_weights)
+                for csg_id, __ in enumerate(csg_list):
+                    # assign the appropriate random variable to the fragility
+                    # function
+                    ff_tags = [t + '-LOC-{}-DIR-{}-CSG-{}'.format(loc, dir_,
+                                                                  csg_id)
+                               for t in d_tags]
+                    EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
+                                                     tags=ff_tags)
+                    FF_set.append(FragilityFunction(EDP_limit))
 
-                    # create the performance group
-                    PG = PerformanceGroup(ID=PG_ID,
-                                          location=loc,
-                                          quantity=QNT,
-                                          fragility_functions=FF_set,
-                                          DSG_set=DSG_list,
-                                          csg_weights=PG_weights,
-                                          direction=dir_
-                                          )
-                    performance_groups.append(PG)
+                # create the performance group
+                PG = PerformanceGroup(ID=PG_ID,
+                                      location=loc,
+                                      quantity=QNT,
+                                      fragility_functions=FF_set,
+                                      DSG_set=DSG_list,
+                                      csg_weights=csg_list,
+                                      direction=dir_
+                                      )
+                performance_groups.append(PG)
 
             # create the fragility group
             FG = FragilityGroup(ID=FG_ID,
-                                kind=comp['kind'],
+                                #kind=comp['kind'],
                                 demand_type=comp['demand_type'],
                                 performance_groups=performance_groups,
                                 directional=comp['directional'],
@@ -2419,119 +2420,121 @@ class HAZUS_Assessment(Assessment):
 
             # one group for each of the stories prescribed by the user
             PG_locations = comp['locations']
-            PG_directions = np.unique(comp['directions'])
-            for loc in PG_locations:
-                for dir_ in PG_directions:
-                    PG_ID = 1000 * FG_ID + 10 * loc + dir_
+            PG_directions = comp['directions']
+            PG_csg_lists = comp['csg_weights']
+            for loc, dir_, csg_list in zip(PG_locations, PG_directions,
+                                           PG_csg_lists):
+                PG_ID = 1000 * FG_ID + 10 * loc + dir_
 
-                    # get the quantity
-                    QNT = None
-                    #QNT = RandomVariableSubset(
-                    #    RVd['QNT'],
-                    #    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
+                # get the quantity
+                QNT = None
+                #QNT = RandomVariableSubset(
+                #    RVd['QNT'],
+                #    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
 
-                    # create the damage objects
-                    # consequences are calculated on a performance group level
+                # create the damage objects
+                # consequences are calculated on a performance group level
 
-                    # create a list for the damage state groups and their tags
-                    DSG_list = []
-                    d_tags = []
-                    s_dsg_keys = sorted(comp['DSG_set'].keys())
-                    for dsg_i, DSG_ID in enumerate(s_dsg_keys):
-                        DSG = comp['DSG_set'][DSG_ID]
-                        d_tags.append(c_id + '-' + DSG_ID)
+                # create a list for the damage state groups and their tags
+                DSG_list = []
+                d_tags = []
+                s_dsg_keys = sorted(comp['DSG_set'].keys())
+                for dsg_i, DSG_ID in enumerate(s_dsg_keys):
+                    DSG = comp['DSG_set'][DSG_ID]
+                    d_tags.append(c_id + '-' + DSG_ID)
 
-                        # create a list for the damage states
-                        DS_set = []
+                    # create a list for the damage states
+                    DS_set = []
 
-                        s_ds_keys = sorted(DSG['DS_set'].keys())
-                        for ds_i, DS_ID in enumerate(s_ds_keys):
-                            DS = DSG['DS_set'][DS_ID]
+                    s_ds_keys = sorted(DSG['DS_set'].keys())
+                    for ds_i, DS_ID in enumerate(s_ds_keys):
+                        DS = DSG['DS_set'][DS_ID]
 
-                            # create the consequence functions
-                            # note: consequences in HAZUS are conditioned on
-                            # damage with no added uncertainty
+                        # create the consequence functions
+                        # note: consequences in HAZUS are conditioned on
+                        # damage with no added uncertainty
 
-                            if DVs['rec_cost']:
-                                data = DS['repair_cost']
-                                f_median = prep_constant_median_DV(data*repl_cost)
-                                CF_cost = ConsequenceFunction(
-                                    DV_median=f_median,
-                                    DV_distribution=None)
-                            else:
-                                CF_cost = None
+                        if DVs['rec_cost']:
+                            data = DS['repair_cost']
+                            f_median = prep_constant_median_DV(data*repl_cost)
+                            CF_cost = ConsequenceFunction(
+                                DV_median=f_median,
+                                DV_distribution=None)
+                        else:
+                            CF_cost = None
 
-                            if DVs['rec_time'] and ('repair_time' in DS.keys()):
-                                data = DS['repair_time']
-                                f_median = prep_constant_median_DV(data)
-                                CF_time = ConsequenceFunction(
-                                    DV_median=f_median,
-                                    DV_distribution=None)
-                            else:
-                                CF_time = None
+                        if DVs['rec_time'] and ('repair_time' in DS.keys()):
+                            data = DS['repair_time']
+                            f_median = prep_constant_median_DV(data)
+                            CF_time = ConsequenceFunction(
+                                DV_median=f_median,
+                                DV_distribution=None)
+                        else:
+                            CF_time = None
 
-                            # note: no red tag in HAZUS assessments
+                        # note: no red tag in HAZUS assessments
 
-                            if (DVs['injuries']) and ('injuries' in DS.keys()):
-                                CF_inj_set = []
-                                for inj_i, theta in enumerate(
-                                    DS['injuries']):
-                                    if theta > 0.:
-                                        f_median = prep_constant_median_DV(
-                                            theta)
-                                        CF_inj_set.append(ConsequenceFunction(
-                                            DV_median=f_median,
-                                            DV_distribution=None))
-                                    else:
-                                        CF_inj_set.append(None)
-                            else:
-                                CF_inj_set = [None, ]
+                        if (DVs['injuries']) and ('injuries' in DS.keys()):
+                            CF_inj_set = []
+                            for inj_i, theta in enumerate(
+                                DS['injuries']):
+                                if theta > 0.:
+                                    f_median = prep_constant_median_DV(
+                                        theta)
+                                    CF_inj_set.append(ConsequenceFunction(
+                                        DV_median=f_median,
+                                        DV_distribution=None))
+                                else:
+                                    CF_inj_set.append(None)
+                        else:
+                            CF_inj_set = [None, ]
 
-                            DS_set.append(DamageState(ID=ds_i + 1,
-                                                      description=DS[
-                                                          'description'],
-                                                      weight=DS['weight'],
-                                                      repair_cost_CF=CF_cost,
-                                                      reconstruction_time_CF=CF_time,
-                                                      injuries_CF_set=CF_inj_set
-                                                      ))
+                        DS_set.append(DamageState(ID=ds_i + 1,
+                                                  description=DS[
+                                                      'description'],
+                                                  weight=DS['weight'],
+                                                  repair_cost_CF=CF_cost,
+                                                  reconstruction_time_CF=CF_time,
+                                                  injuries_CF_set=CF_inj_set
+                                                  ))
 
-                        # add the DSG to the list
-                        DSG_list.append(DamageStateGroup(ID=dsg_i + 1,
-                                                         DS_set=DS_set,
-                                                         DS_set_kind=DSG[
-                                                             'DS_set_kind']
-                                                         ))
+                    # add the DSG to the list
+                    DSG_list.append(DamageStateGroup(ID=dsg_i + 1,
+                                                     DS_set=DS_set,
+                                                     DS_set_kind=DSG[
+                                                         'DS_set_kind']
+                                                     ))
 
-                    # create the fragility functions
-                    FF_set = []
-                    CSG_this = np.where(comp['directions'] == dir_)[0]
-                    PG_weights = np.asarray(comp['csg_weights'])[CSG_this]
-                    # normalize the weights
-                    PG_weights /= sum(PG_weights)
-                    for csg_id in CSG_this:
-                        # assign the appropriate random variable to the fragility
-                        # function
-                        ff_tags = [t + '-LOC-{}-CSG-{}'.format(loc, csg_id)
-                                   for t in d_tags]
-                        EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
-                                                         tags=ff_tags)
-                        FF_set.append(FragilityFunction(EDP_limit))
+                # create the fragility functions
+                FF_set = []
+                #CSG_this = np.where(comp['directions'] == dir_)[0]
+                #PG_weights = np.asarray(comp['csg_weights'])[CSG_this]
+                # normalize the weights
+                #PG_weights /= sum(PG_weights)
+                for csg_id, __ in enumerate(csg_list):
+                    # assign the appropriate random variable to the fragility
+                    # function
+                    ff_tags = [t + '-LOC-{}-DIR-{}-CSG-{}'.format(loc, dir_,
+                                                                  csg_id)
+                               for t in d_tags]
+                    EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
+                                                     tags=ff_tags)
+                    FF_set.append(FragilityFunction(EDP_limit))
 
-                    # create the performance group
-                    PG = PerformanceGroup(ID=PG_ID,
-                                          location=loc,
-                                          quantity=QNT,
-                                          fragility_functions=FF_set,
-                                          DSG_set=DSG_list,
-                                          csg_weights=PG_weights,
-                                          direction=dir_
-                                          )
-                    performance_groups.append(PG)
+                # create the performance group
+                PG = PerformanceGroup(ID=PG_ID,
+                                      location=loc,
+                                      quantity=QNT,
+                                      fragility_functions=FF_set,
+                                      DSG_set=DSG_list,
+                                      csg_weights=csg_list,
+                                      direction=dir_
+                                      )
+                performance_groups.append(PG)
 
             # create the fragility group
             FG = FragilityGroup(ID=FG_ID,
-                                kind=comp['kind'],
+                                #kind=comp['kind'],
                                 demand_type=comp['demand_type'],
                                 performance_groups=performance_groups,
                                 directional=comp['directional'],
