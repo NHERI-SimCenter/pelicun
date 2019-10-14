@@ -1,0 +1,209 @@
+{
+  "Name": "Exterior Wall - Cold formed steel walls with wood structural panel sheathing, interior - gypsum board",
+  "QuantityUnit": [
+    100,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B2011.001a",
+    "Description": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2\" to 6\" OC at perimeter and 12\" OC EW in field.  ",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:49:48.4142102-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "Copy of B1061.001a for use as an exterior wall."
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.004,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                3965.0,
+                2440.0
+              ],
+              "Quantity": [
+                6.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.317,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.0932,
+                1.9046
+              ],
+              "Quantity": [
+                6.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4037,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Sheathing faster pull through or tear out.  (20% of fasteners.)",
+          "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace 20% of fasteners, replace gypsum wall board, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.001-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0226,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                4200.0,
+                2975.0
+              ],
+              "Quantity": [
+                6.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3974,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.2756,
+                2.3208
+              ],
+              "Quantity": [
+                6.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4695,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Failure of structural panels.  ",
+          "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace sheathing, replace gypsum wall board, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.001-DS2-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0267,
+      "Beta": 0.25,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.1,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                5400.0,
+                3825.0
+              ],
+              "Quantity": [
+                6.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1098,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                4.2115,
+                2.9839
+              ],
+              "Quantity": [
+                6.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.273,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Failure of wall.",
+          "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Provide shoring.  Modify mechanical and electrical as required for repair work.  Replace metal stud framing, boundary elements, sheathing, replace gypsum wall board, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.001-DS3-1.JPG"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "Name": "Hybrid stair assembly with steel stringers and concrete treads and landings with seismic joints that accommodate drift.",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C2011.031a",
+    "Description": "Stair consists of steel stringers with precast treads rigidly linked to stringer",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:17.5824571-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                480.0,
+                320.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.9899,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.5294,
+                0.353
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 1.021,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Localized steel yielding.",
+          "RepairMeasures": "Protect surrounding space.  Minor repair of finishes.  Modify or relocate mechanical and electrical as required for repair work.  Repair finishes."
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                3240.0,
+                2160.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5798,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.5735,
+                2.3823
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.6314,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Buckling of steel, weld cracking.",
+          "RepairMeasures": "Protect floor, cut out damaged areas, reweld.  Repair finishes.  Modify or relocate mechanical and electrical as required for repair work.  Repair finishes."
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.75,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                25140.0,
+                16760.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3831,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                27.7279,
+                18.4853
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4574,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Loss of live load capacity.  ",
+          "RepairMeasures": "Protect area, remove damaged stair including landings and handrails.  Remove and reinstall damaged soffit and mechanical systems.  Replace stair, landings, and handrail.  Modify or relocate mechanical and electrical as required for repair work.  Repair finishes."
+        }
+      ]
+    }
+  ]
+}

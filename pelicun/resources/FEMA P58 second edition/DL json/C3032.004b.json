@@ -1,0 +1,251 @@
+{
+  "Name": "Suspended Ceiling, SDC D,E,F (Ip=1.5), Area (A): 250 < A < 1000, Vert & Lat support",
+  "QuantityUnit": [
+    600,
+    "SF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "C3032.004b",
+    "Description": "Costing for each 600 SF Unit, Suspended Lay-in Acoustic Tile Ceiling, Support:  Vertical hanging wire, diagonal wires, and compression posts, 2 inch wide ledger support angles at wall and oversize holes around tile openings.  Includes lighting fixtures in suspended ceiling.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:33.3397285-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Superior",
+    "Documentation": "Marginal",
+    "Rationality": "Average"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.76,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                1740.0,
+                522.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5508,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.5732,
+                0.4627
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.6049,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "5 % of ceiling grid and tile damage.  ",
+          "RepairMeasures": "Reinstall, repair, or replace 5% of the ceiling area.",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.26,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                13620.0,
+                4086.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5183,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                12.3891,
+                3.6964
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5755,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "30% of ceiling grid and tile damage.",
+          "RepairMeasures": "Replace 30% of the ceiling area.",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.44,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.1,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                28020.0,
+                8406.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2026,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                25.5538,
+                7.6705
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3218,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "50% of ceiling grid and tile damage.",
+          "RepairMeasures": "Replace the entire ceiling ",
+          "AffectedArea": [
+            650,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

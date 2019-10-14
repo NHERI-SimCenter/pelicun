@@ -1307,7 +1307,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
             return False
 
     src_df = pd.read_excel(
-        os.path.join(data_dir, 'FEMAP58ED1_fragility_data.xlsx'))
+        os.path.join(data_dir, 'PACT_fragility_data.xlsx'))
     ID_list = src_df['NISTIR Classification']
 
     XML_list = [f for f in os.listdir(data_dir+'DL xml/') if f.endswith('.xml')]

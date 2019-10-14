@@ -1,0 +1,209 @@
+{
+  "Name": "Prefabricated steel stair with steel treads and landings with seismic joints that accommodate drift.",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C2011.001a",
+    "Description": "Flexible stair with seismic interstory slip joint.  Steel prefab stringers, steel or concrete filled pan treads.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:14.6943238-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                4340.0,
+                1302.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4586,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.3813,
+                1.0135
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5223,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Non structural damage, local steel yielding.",
+          "RepairMeasures": "Patch, paint.",
+          "DamageImageName": "C2011.001a-DS1-1.jpg"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                11100.0,
+                3330.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4859,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                8.6157,
+                2.5597
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5465,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Structural damage but live load capacity remains intact.  Buckling of steel, weld cracking.",
+          "RepairMeasures": "Removal and replacement of damaged components.  Field repair of damage (such as welding).  Repair finsihes.",
+          "DamageImageName": "C2011.001a-DS2-1.jpg"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.75,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                33900.0,
+                10170.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2351,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                26.471,
+                7.9756
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3432,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Loss of live load capacity.  Connection and or weld fracture.",
+          "RepairMeasures": "Replace stair and handrail.  Repair and replace affected soffits and floor finishes.",
+          "DamageImageName": "C2011.001a-DS2-1.jpg"
+        }
+      ]
+    }
+  ]
+}

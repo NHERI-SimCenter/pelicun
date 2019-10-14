@@ -1,0 +1,151 @@
+{
+  "Name": "Reinforced concrete flat slabs drop panel or drop capital- columns without shear reinforcing  0<Vg/Vo<0.4, with continuity reinf",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1049.041b",
+    "Description": "Costing is on a per joint basis.",
+    "Author": "John Wallace",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:49:33.3847204-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "Fragilities were based on judgment due to lack of test data.  The only available data were from a specimen that was constructed using ACI 318-89"
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.025,
+      "Beta": 0.5,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                43476.0,
+                28984.0
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3475,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                37.0825,
+                24.7217
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4281,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Yield strain of the slab flexural reinforcement has been exceeded.  Spalling of concrete may or may not occur.  Slab exhibits large enough crack widths to allow epoxy injection.",
+          "RepairMeasures": "Remove furnishings, ceilings and mechanical, electrical and plumping systems (as necessary) 5 feet either side of damaged area.  Replace and repair finishes.  Replace furnishings, ceilings and mechanical, electrical and plumping systems (as necessary).",
+          "DamageImageName": "B1049.041a-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.042,
+      "Beta": 0.5,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.2,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                48276.0,
+                32184.0
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3266,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                41.1766,
+                27.451
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4113,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Punching occurs causing significant spalling of concrete.",
+          "RepairMeasures": "Prepare work area for epoxy injection, inject epoxy into 40 feet of crack (30 feet top, 10 feet bottom of slab) per 100 square feet of floor panel.  Fabricate new structural steel shear head (column capital) that attaches to the column beneath the slab. ",
+          "DamageImageName": "B1049.041a-DS2-1.JPG"
+        }
+      ]
+    }
+  ]
+}

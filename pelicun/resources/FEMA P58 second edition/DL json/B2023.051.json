@@ -1,0 +1,131 @@
+{
+  "Name": "Storefront, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Full tempered, Details: 1 in. (25 mm) FT IGU [1/4 in. (6 mm) inner and outer panes], Planar Specimen; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 1.89:1 sealant = dry",
+  "QuantityUnit": [
+    30,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B2023.051",
+    "Description": "None",
+    "Author": "By User",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:06.2218663-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "Median demand of 10% is intentional.  Physical testing did not cause frame or glass cracking damage at 10% drift."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.05,
+      "Beta": 0.29,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2955.0,
+                1576.0
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1185,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.3046,
+                0.6962
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2767,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Panel damage (no glass damage).",
+          "RepairMeasures": "Remove panel, repair frame, replace panel."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.16,
+      "Beta": 1.0,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2955.0,
+                1576.0
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1185,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.3046,
+                0.6962
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2767,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Glass cracks.",
+          "RepairMeasures": "Remove panel, replace glass, replace panel."
+        }
+      ]
+    }
+  ]
+}

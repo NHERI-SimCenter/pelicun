@@ -1,0 +1,206 @@
+{
+  "Name": "Post-Northridge RBS connection with welded web, beam one side of column only, beam depth >= W30",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1035.002",
+    "Description": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
+    "Author": "Greg Deierlein",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:48:49.8387881-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.03,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                23000.0,
+                15640.0
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3321,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                13.5294,
+                9.2
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4157,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Local beam flange and web buckling. ",
+          "RepairMeasures": "The likely repair state is heat straightening of the buckled flanges and web.  Repair and replace partitions at connection."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.04,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.5,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                40500.0,
+                27540.0
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.284,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                23.8235,
+                16.2
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3784,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "DS1 plus lateral-torsional distortion of beam in hinge region. ",
+          "RepairMeasures": "Repair will necessitate removal and replacement of distorted and or fractured portion of beam.   Repair and replace partitions at connection."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.05,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.5,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                40500.0,
+                27540.0
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.284,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                23.8235,
+                16.2
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3784,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Low-cycle fatigue fracture in buckled region of RBS.",
+          "RepairMeasures": "Repair will necessitate removal and replacement of distorted and/or fractured portion of beam.  Repair and replace partitions at connection."
+        }
+      ]
+    }
+  ]
+}

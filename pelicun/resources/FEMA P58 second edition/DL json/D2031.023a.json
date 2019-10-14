@@ -1,0 +1,83 @@
+{
+  "Name": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC D,E,F, PIPING FRAGILITY",
+  "QuantityUnit": [
+    1000,
+    "LF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D2031.023a",
+    "Description": "Costing based upon 1000 ft segments of pipe",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:53:04.1884734-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 3.0,
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                6700.0,
+                2010.0
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3142,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                7.0942,
+                2.1283
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4015,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Joints break - 1 break per 1000 feet of pipe.",
+          "RepairMeasures": "Replace failed 20 ft pipe sections including supports - one per 1000 LF."
+        }
+      ]
+    }
+  ]
+}

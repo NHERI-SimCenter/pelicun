@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>41d7fc83-de80-4838-a15e-ef43ea795152</UniqueID>
+  <ID>C3021.001o</ID>
+  <Description>The user needs to review the fragilities of all piping modeled in the ceiling of the floor and input the peak floor acceleration value for the pipe with the lowest median peak floor acceleration value, along with the associated total dispersion (beta).  Flooring type assumed to be carpet. Available costs are per one square foot of floor area.  </Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Generic Floor Covering - Flooding of floor caused by failure of pipe - Hospitality - Dry</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:50:27.7454073-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>None
+Import errors:
+ Warning, Data missing: C3021.001o:DS1: Could not parse median - using 500
+Warning, Data missing: C3021.001o:DS1: Could not parse dispersion - using 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Flooding of all or a portion of the total floor associated with a major leakage of a pipe.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace or dry out of the affected flooring materials, equipment and contents.  Remove areas that could be affected by mold.  Potentially considerable downtime.  Cleanup and replacement of all water damaged items on floor.  User must establish area of floor with flooding.  Default recommendation is flooding of total floor area.  Damage to unit floor area shall be entered to consequence which is multiplied by PACT "Fragility Unit of Measure".</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>204.89</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.407</EnergyDispersion>
+        <CarbonMedian>14.64</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.407</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>500</LowerQuantity>
+          <MaxAmount>55.8</MaxAmount>
+          <UpperQuantity>2000</UpperQuantity>
+          <MinAmount>16.74</MinAmount>
+          <Uncertainty>0.3212</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>500</LowerQuantity>
+          <MaxAmount>0.0542</MaxAmount>
+          <UpperQuantity>2000</UpperQuantity>
+          <MinAmount>0.0163</MinAmount>
+          <Uncertainty>0.407</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>500</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

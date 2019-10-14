@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>7ac84556-0521-4b53-872c-f5566b0741d9</UniqueID>
+  <ID>B1052.012</ID>
+  <Description>Costing for each 225 ft^2 Wall Panel</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Special reinforced masonry walls with fully grouted cells, 16" thick, shear dominated, greater than 12' tall</Name>
+  <Author>Benson Shing</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>Marginal</DataRelevance>
+    <Documentation>Average</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:43.6316454-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>First occurrence of major diagonal cracks.  Cracks remain closed with hardly noticeable residual crack widths after load removal. </Description>
+      <DamageImageName>B1051.001-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Epoxy injection at cracks.  Paint each side.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>26462.25</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.2634</EnergyDispersion>
+        <CarbonMedian>1122.75</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.2634</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>11962.5</MaxAmount>
+          <UpperQuantity>14</UpperQuantity>
+          <MinAmount>6380</MinAmount>
+          <Uncertainty>0.0831</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>10.1961</MaxAmount>
+          <UpperQuantity>14</UpperQuantity>
+          <MinAmount>5.4346</MinAmount>
+          <Uncertainty>0.2634</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0036</Median>
+      <Beta>0.59</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Wide diagonal cracks with typically one or more cracks in each direction.  Crushing or spalling at wall toes. </Description>
+      <DamageImageName>B1051.001-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Shore.  Demolish existing wall.  Construct new wall. </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>139603.5</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.2727</EnergyDispersion>
+        <CarbonMedian>9600.75</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.2727</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>27150</MaxAmount>
+          <UpperQuantity>14</UpperQuantity>
+          <MinAmount>15385</MinAmount>
+          <Uncertainty>0.109</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>23.1541</MaxAmount>
+          <UpperQuantity>14</UpperQuantity>
+          <MinAmount>13.1193</MinAmount>
+          <Uncertainty>0.2727</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0059</Median>
+      <Beta>0.51</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

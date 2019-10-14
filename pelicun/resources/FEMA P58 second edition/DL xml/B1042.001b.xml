@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>172b995a-b7fb-433a-adf5-179c3f5513df</UniqueID>
+  <ID>B1042.001b</ID>
+  <Description>None</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Concrete link beam, diagonally reinforced, aspect ratio between 2.0 and 4.0, beam &lt; 16" wide and depth &lt; 30"</Name>
+  <Author>John Wallace</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Link Beam Chord Rotation</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:34.6353451-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: B1042.001b: B1042.001b: DS2 overlaps DS3 in the range of 0.005075 to 0.0301 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Residual cracks no greater than 1/16 inch.  Cracks are mainly at the beam to wall interface, some limited flexural cracking.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Epoxy inject cracks (200 to 240 inches in length).</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>19219.92</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.5732</EnergyDispersion>
+        <CarbonMedian>810.12</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.5732</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>12693.6</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>8462.4</MinAmount>
+          <Uncertainty>0.5158</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>10.8269</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>7.2179</MinAmount>
+          <Uncertainty>0.5732</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0203</Median>
+      <Beta>0.39</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Residual cracks greater than 1/8 inch and minor spalling of concrete.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Epoxy inject cracks (600 to 720 inches) and slab (300 inches), replace spalled concrete.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>72256.77</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.4443</EnergyDispersion>
+        <CarbonMedian>5254.77</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.4443</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>33408</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>22272</MinAmount>
+          <Uncertainty>0.3673</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>28.4951</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>18.9967</MinAmount>
+          <Uncertainty>0.4443</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0394</Median>
+      <Beta>0.35</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Significant strength degradation (&lt;0.8Vn), buckling or fracture of diagonal reinforcing, crushing of concrete.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Chip away damaged concrete, attached mechanical couplers to the diagonal bars still embedded in the wall, replace damaged or fractured reinforcing.  Replace damaged concrete.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>154504.78</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.4527</EnergyDispersion>
+        <CarbonMedian>8457.52</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.4527</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>49884</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>33256</MinAmount>
+          <Uncertainty>0.3774</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>42.5482</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>28.3654</MinAmount>
+          <Uncertainty>0.4527</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0602</Median>
+      <Beta>1</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

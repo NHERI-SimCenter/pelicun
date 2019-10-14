@@ -1,0 +1,209 @@
+{
+  "Name": "Monolithic cast-in-place and precast concrete stairs with no seismic joints - replace with prefabricated steel stair if replacement is required.",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C2011.021d",
+    "Description": "Cast in place concrete stair, no seismic interstory drift joint",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:17.2175666-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                840.0,
+                560.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.8015,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.9265,
+                0.6177
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.8396,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Local concrete cracking, localized concrete spalling",
+          "RepairMeasures": "Protect surrounding space, epoxy inject cracks, repair finishes.  Modify or relocate mechanical and electrical as required for repair work.  Repair finishes.",
+          "DamageImageName": "C2011.011a-DS1-1.jpg"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                4440.0,
+                2960.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5694,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                4.8971,
+                3.2647
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.6218,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Extensive concrete cracking, concrete crushing",
+          "RepairMeasures": "Protect floor, cut out damaged areas, repair buckled rebar, patch / cast concrete, repair finishes.  Modify or relocate mechanical and electrical as required for repair work.  Repair finishes.",
+          "DamageImageName": "C2011.011a-DS2-1.jpg"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.75,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                29940.0,
+                19960.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3432,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                33.0221,
+                22.0147
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4246,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Loss of live load capacity.  ",
+          "RepairMeasures": NaN,
+          "DamageImageName": "C2011.011a-DS2-1.jpg"
+        }
+      ]
+    }
+  ]
+}

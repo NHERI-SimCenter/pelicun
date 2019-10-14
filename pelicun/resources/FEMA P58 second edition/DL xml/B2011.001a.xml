@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>0124b9bf-9344-4072-a50c-2cc1107a84e1</UniqueID>
+  <ID>B2011.001a</ID>
+  <Description>Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2" to 6" OC at perimeter and 12" OC EW in field.  </Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Exterior Wall - Cold formed steel walls with wood structural panel sheathing, interior - gypsum board</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:48.4142102-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Copy of B1061.001a for use as an exterior wall.
+Import errors:
+ Warning: B2011.001a: B2011.001a: DS2 overlaps DS3 in the range of 0.0904 to 0.1068 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Sheathing faster pull through or tear out.  (20% of fasteners.)</Description>
+      <DamageImageName>B1061.001-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace 20% of fasteners, replace gypsum wall board, tape and sand, repaint.  </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>19180</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.4037</EnergyDispersion>
+        <CarbonMedian>1773</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.4037</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>6</LowerQuantity>
+          <MaxAmount>3965</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>2440</MinAmount>
+          <Uncertainty>0.317</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>6</LowerQuantity>
+          <MaxAmount>3.0932</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>1.9046</MinAmount>
+          <Uncertainty>0.4037</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.004</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Failure of structural panels.  </Description>
+      <DamageImageName>B1061.001-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace sheathing, replace gypsum wall board, tape and sand, repaint.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>21960</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.4695</EnergyDispersion>
+        <CarbonMedian>1911</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.4695</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>6</LowerQuantity>
+          <MaxAmount>4200</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>2975</MinAmount>
+          <Uncertainty>0.3974</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>6</LowerQuantity>
+          <MaxAmount>3.2756</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>2.3208</MinAmount>
+          <Uncertainty>0.4695</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0226</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Failure of wall.</Description>
+      <DamageImageName>B1061.001-DS3-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Provide shoring.  Modify mechanical and electrical as required for repair work.  Replace metal stud framing, boundary elements, sheathing, replace gypsum wall board, tape and sand, repaint.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.1</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>39329</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.273</EnergyDispersion>
+        <CarbonMedian>2485</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.273</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>6</LowerQuantity>
+          <MaxAmount>5400</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>3825</MinAmount>
+          <Uncertainty>0.1098</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>6</LowerQuantity>
+          <MaxAmount>4.2115</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>2.9839</MinAmount>
+          <Uncertainty>0.273</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0267</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>
