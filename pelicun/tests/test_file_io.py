@@ -227,7 +227,7 @@ def test_read_SimCenter_EDP_input():
 
     # read the input file
     test_EDP = read_SimCenter_EDP_input(
-        'resources/io testing/test/test_EDP_input.csv',
+        'resources/io testing/test/test_EDP_input.out',
         EDP_kinds=('PID', 'PFA', 'RD', 'PRD'),
         units = dict(PID=1., PFA=9.81, RD=1., PRD=0.2),
         verbose=False)
