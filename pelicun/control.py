@@ -817,16 +817,31 @@ class FEMA_P58_Assessment(Assessment):
                 else:
                     DS_count = 1
 
-                for loc in comp['locations']:
-                    if include_CSG:
-                        u_dirs = comp['directions']
-                    else:
-                        u_dirs = np.unique(comp['directions'])
+                #for loc in comp['locations']:
+                #    if include_CSG:
+                #        u_dirs = comp['directions']
+                #    else:
+                #        u_dirs = np.unique(comp['directions'])
+                #    c_L_D_list.append([])
+                #    for dir_ in u_dirs:
+                #        c_DS_list.append(DS_count)
+                #        for ds_i in range(DS_count):
+                #            c_L_D_list[-1].append(dir_)
+
+                for loc_u in np.unique(comp['locations']):
                     c_L_D_list.append([])
-                    for dir_ in u_dirs:
-                        c_DS_list.append(DS_count)
-                        for ds_i in range(DS_count):
-                            c_L_D_list[-1].append(dir_)
+                    for loc, dir, csg_weights in zip(comp['locations'],
+                                                     comp['directions'],
+                                                     comp['csg_weights']):
+                        if loc == loc_u:
+                            if include_CSG:
+                                csg_list = csg_weights
+                            else:
+                                csg_list = [1.0,]
+                            for csg_ in csg_list:
+                                c_DS_list.append(DS_count)
+                                for ds_i in range(DS_count):
+                                    c_L_D_list[-1].append(dir)
 
                 c_dims = sum([len(loc) for loc in c_L_D_list])
                 dims.append(c_dims)
