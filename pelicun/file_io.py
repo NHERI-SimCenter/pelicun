@@ -391,10 +391,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'locations'    : [1, ],
                     'directions'   : [1, ],
                     'quantities'  : [1, ],
-                    'unit'        : ['ea',],
+                    'unit'        : 'ea',
                     'distribution': ['N/A',],
                     'cov'         : [None,],
-                    'csg_weights' : [1.0,]
+                    'csg_weights' : [[1.0,],]
                 }
 
                 # some basic pre-processing
@@ -1081,7 +1081,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
         # load the damage state group information
         c_data['DSG_set'] = dict()
-        QNT_unit = DL_data['QuantityUnit']
+        QNT_unit = DL_data.get('QuantityUnit', [1, 'ea'])
         data_unit = QNT_unit[0] * globals()[QNT_unit[1]]
         for DSG_id, DSG_i in enumerate(DL_DSG):
             DSG_data = dict(
