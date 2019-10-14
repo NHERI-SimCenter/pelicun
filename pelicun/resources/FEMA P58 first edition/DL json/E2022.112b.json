@@ -1,1 +1,77 @@
-{"Name": "Vertical Filing Cabinet, 2 drawer, anchored laterally", "QuantityUnit": [1, "EA"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Velocity", "Unit": [1, "mps"], "Offset": 0}, "GeneralInformation": {"ID": "E2022.112b", "Description": "Filing cabinet, anchored laterally.  Cabinet has 2 drawers and is 15\" deep x 24\" tall", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:49:01.1175683-07:00", "Approved": true, "Incomplete": true, "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."}, "Ratings": {"DataQuality": "Not Rated", "DataRelevance": "Not Rated", "Documentation": "Not Rated", "Rationality": "Not Rated"}, "DSGroups": [{"MedianEDP": "Undefined", "Beta": "Undefined", "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}}, "Description": "Filing cabinet falls over and contents are scattered.  Likely damage to file cabinet.  ", "RepairMeasures": "Replace filing cabinet and refile / replace contents.  "}]}]}
+{
+  "Name": "Vertical Filing Cabinet, 2 drawer, anchored laterally",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Velocity",
+    "Unit": [
+      1,
+      "mps"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "E2022.112b",
+    "Description": "Filing cabinet, anchored laterally.  Cabinet has 2 drawers and is 15\" deep x 24\" tall",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:49:01.1175683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Filing cabinet falls over and contents are scattered.  Likely damage to file cabinet.  ",
+          "RepairMeasures": "Replace filing cabinet and refile / replace contents.  "
+        }
+      ]
+    }
+  ]
+}

@@ -1,1 +1,124 @@
-{"Name": "Air Handling Unit - Capacity: <5000 CFM - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Anchorage fragility only", "QuantityUnit": [4000, "CF"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "D3052.013a", "Description": "Costing is per unit and is based upon 4000 CFM.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:33.5315683-07:00", "Approved": true, "Incomplete": true, "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."}, "Ratings": {"DataQuality": "Average", "DataRelevance": "Average", "Documentation": "Superior", "Rationality": "Superior"}, "DSGroups": [{"MedianEDP": "Undefined", "Beta": "Undefined", "CurveType": "LogNormal", "DSGroupType": "MutuallyExclusive", "DamageStates": [{"Weight": 0.7, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [1100.0, 900.0], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.4523, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [3.4537, 2.8263], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.4515, "Bounds": [0, "None"]}}, "Description": "Anchorage failure.", "RepairMeasures": "Repair anchorage and concrete pad and remount equipment.", "DamageImageName": "D3052.011c-DS1-1.JPG"}, {"Weight": 0.3, "LongLeadTime": true, "Consequences": {"ReconstructionCost": {"Amount": [33220.0, 27180.0], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.1751, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [37.4745, 18.5255], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.176, "Bounds": [0, "None"]}}, "Description": "Anchorage failure & Equipment damaged beyond repair.", "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad."}]}]}
+{
+  "Name": "Air Handling Unit - Capacity: <5000 CFM - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Anchorage fragility only",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D3052.013a",
+    "Description": "Costing is per unit and is based upon 4000 CFM.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:33.5315683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.7,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                1100.0,
+                900.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4523,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.4537,
+                2.8263
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4515,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure.",
+          "RepairMeasures": "Repair anchorage and concrete pad and remount equipment.",
+          "DamageImageName": "D3052.011c-DS1-1.JPG"
+        },
+        {
+          "Weight": 0.3,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                33220.0,
+                27180.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1751,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                37.4745,
+                18.5255
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.176,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure & Equipment damaged beyond repair.",
+          "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad."
+        }
+      ]
+    }
+  ]
+}

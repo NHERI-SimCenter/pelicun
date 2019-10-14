@@ -1,1 +1,77 @@
-{"Name": "Storefront, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Full tempered, Details: 1 in. (25 mm) FT IGU [1/4 in. (6 mm) inner and outer panes], Planar Specimen; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 1.88:1 sealant = dry", "QuantityUnit": [30, "SF"], "Directional": true, "Correlated": false, "EDP": {"Type": "Story Drift Ratio", "Unit": [1, "ea"], "Offset": 0}, "GeneralInformation": {"ID": "B2023.055", "Description": "None", "Author": "By User", "Official": true, "DateCreated": "2012-10-12T16:47:59.1205683-07:00", "Approved": true, "Incomplete": true, "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  User to confirm damage state, repair, lead time, and casuatly data.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."}, "Ratings": {"DataQuality": "Not Rated", "DataRelevance": "Not Rated", "Documentation": "Not Rated", "Rationality": "Not Rated"}, "DSGroups": [{"MedianEDP": "Undefined", "Beta": "Undefined", "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}}, "Description": "DATA NOT PROVIDED", "RepairMeasures": "DATA NOT KNOWN"}]}]}
+{
+  "Name": "Storefront, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Full tempered, Details: 1 in. (25 mm) FT IGU [1/4 in. (6 mm) inner and outer panes], Planar Specimen; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 1.88:1 sealant = dry",
+  "QuantityUnit": [
+    30,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B2023.055",
+    "Description": "None",
+    "Author": "By User",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:59.1205683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  User to confirm damage state, repair, lead time, and casuatly data.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "DATA NOT PROVIDED",
+          "RepairMeasures": "DATA NOT KNOWN"
+        }
+      ]
+    }
+  ]
+}

@@ -1,1 +1,251 @@
-{"Name": "Suspended Ceiling, SDC D,E,F (Ip=1.5), Area (A): A < 250, Vert & Lat support", "QuantityUnit": [250, "SF"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 1}, "GeneralInformation": {"ID": "C3032.004a", "Description": "Costing for each 250 SF Unit, Suspended Lay-in Acoustic Tile Ceiling, Support:  Vertical hanging wire, diagonal wires, and compression posts, 2 inch wide ledger support angles at wall and oversize holes around tile openings", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:09.9005683-07:00", "Approved": true, "Incomplete": false, "Notes": "None"}, "Ratings": {"DataQuality": "Marginal", "DataRelevance": "Superior", "Documentation": "Marginal", "Rationality": "Average"}, "DSGroups": [{"MedianEDP": 1.2, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"Injuries": [{"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}], "ReconstructionCost": {"Amount": [471.25, 326.25], "Quantity": [1.0, 10.0], "CurveType": "Normal", "Beta": 0.5508, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [1.5912, 1.1363], "Quantity": [1.0, 10.0], "CurveType": "Normal", "Beta": 0.5852, "Bounds": [0, "None"]}}, "Description": "5 % of tiles dislodge and fall.", "RepairMeasures": "Reinstall new acoustic tile for 5% or area.", "AffectedArea": [0, "SF"]}]}, {"MedianEDP": 2.0, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"Injuries": [{"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}], "ReconstructionCost": {"Amount": [3932.5, 2722.5], "Quantity": [1.0, 10.0], "CurveType": "LogNormal", "Beta": 0.5043, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [12.3471, 8.551], "Quantity": [1.0, 10.0], "CurveType": "LogNormal", "Beta": 0.5065, "Bounds": [0, "None"]}}, "Description": "30% of tiles dislodge and fall and t-bar grid damaged.", "RepairMeasures": "Reinstall new acoustic tile and ceiling grids for 30% of area.", "AffectedArea": [0, "SF"]}]}, {"MedianEDP": 3.0, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"Injuries": [{"Amount": 0.1, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}], "ReconstructionCost": {"Amount": [7832.5, 5422.5], "Quantity": [1.0, 10.0], "CurveType": "LogNormal", "Beta": 0.2046, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [24.6706, 17.1098], "Quantity": [1.0, 10.0], "CurveType": "LogNormal", "Beta": 0.2064, "Bounds": [0, "None"]}}, "Description": "Total ceiling and grid collapse.", "RepairMeasures": "Totally replace ceiling and grid.", "AffectedArea": [250, "SF"]}]}]}
+{
+  "Name": "Suspended Ceiling, SDC D,E,F (Ip=1.5), Area (A): A < 250, Vert & Lat support",
+  "QuantityUnit": [
+    250,
+    "SF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "C3032.004a",
+    "Description": "Costing for each 250 SF Unit, Suspended Lay-in Acoustic Tile Ceiling, Support:  Vertical hanging wire, diagonal wires, and compression posts, 2 inch wide ledger support angles at wall and oversize holes around tile openings",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:09.9005683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Superior",
+    "Documentation": "Marginal",
+    "Rationality": "Average"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.2,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                471.25,
+                326.25
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5508,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.5912,
+                1.1363
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5852,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "5 % of tiles dislodge and fall.",
+          "RepairMeasures": "Reinstall new acoustic tile for 5% or area.",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.0,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                3932.5,
+                2722.5
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5043,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                12.3471,
+                8.551
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5065,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "30% of tiles dislodge and fall and t-bar grid damaged.",
+          "RepairMeasures": "Reinstall new acoustic tile and ceiling grids for 30% of area.",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 3.0,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.1,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                7832.5,
+                5422.5
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2046,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                24.6706,
+                17.1098
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2064,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Total ceiling and grid collapse.",
+          "RepairMeasures": "Totally replace ceiling and grid.",
+          "AffectedArea": [
+            250,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

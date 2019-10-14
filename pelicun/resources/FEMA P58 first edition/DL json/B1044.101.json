@@ -1,1 +1,209 @@
-{"Name": "Slender Concrete Wall, 18\" thick, 12' high, 15' long", "QuantityUnit": [144, "SF"], "Directional": true, "Correlated": false, "EDP": {"Type": "Story Drift Ratio", "Unit": [1, "ea"], "Offset": 0}, "GeneralInformation": {"ID": "B1044.101", "Description": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:47:48.6905683-07:00", "Approved": true, "Incomplete": false, "Notes": "None"}, "Ratings": {"DataQuality": "Superior", "DataRelevance": "Superior", "Documentation": "Superior", "Rationality": "Superior"}, "DSGroups": [{"MedianEDP": 0.0084, "Beta": 0.5, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": [10764.0, 6620.0], "Quantity": [1.67, 5.0], "CurveType": "LogNormal", "Beta": 0.28, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [28.03, 17.3], "Quantity": [1.67, 5.0], "CurveType": "LogNormal", "Beta": 0.281, "Bounds": [0, "None"]}}, "Description": "Spalling of cover, vertical cracks greater than 1/16 inch.", "RepairMeasures": "Epoxy inject cracks and patch spalled concrete.", "DamageImageName": "B1044.091-DS1-1.JPG"}]}, {"MedianEDP": 0.012, "Beta": 0.45, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.25, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": [29304.0, 20800.0], "Quantity": [1.67, 5.0], "CurveType": "Normal", "Beta": 0.212, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [76.0, 53.9], "Quantity": [1.67, 5.0], "CurveType": "Normal", "Beta": 0.207, "Bounds": [0, "None"]}}, "Description": "Exposed longitudinal reinforcing.", "RepairMeasures": "Shore wall, remove all concrete in damaged regions, replace concrete.  ", "DamageImageName": "B1044.091-DS2-1.JPG"}]}, {"MedianEDP": 0.019, "Beta": 0.5, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.1, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": [51818.4, 36700.0], "Quantity": [1.67, 5.0], "CurveType": "LogNormal", "Beta": 0.156, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [134.67, 95.6], "Quantity": [1.67, 5.0], "CurveType": "LogNormal", "Beta": 0.155, "Bounds": [0, "None"]}}, "Description": "Core concrete damage, buckled reinforcing, fractured reinforcing, shear failure, web failure, bond slip", "RepairMeasures": "Replace wall or reinforce with R/C jacket if possible.  Shore floor and wall, remove damaged concrete and steel within one development length of damaged region, replace removed concrete and steel.", "DamageImageName": "B1044.091-DS3-1.JPG"}]}]}
+{
+  "Name": "Slender Concrete Wall, 18\" thick, 12' high, 15' long",
+  "QuantityUnit": [
+    144,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1044.101",
+    "Description": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:48.6905683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.0084,
+      "Beta": 0.5,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                10764.0,
+                6620.0
+              ],
+              "Quantity": [
+                1.67,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.28,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                28.03,
+                17.3
+              ],
+              "Quantity": [
+                1.67,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.281,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Spalling of cover, vertical cracks greater than 1/16 inch.",
+          "RepairMeasures": "Epoxy inject cracks and patch spalled concrete.",
+          "DamageImageName": "B1044.091-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.012,
+      "Beta": 0.45,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                29304.0,
+                20800.0
+              ],
+              "Quantity": [
+                1.67,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.212,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                76.0,
+                53.9
+              ],
+              "Quantity": [
+                1.67,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.207,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Exposed longitudinal reinforcing.",
+          "RepairMeasures": "Shore wall, remove all concrete in damaged regions, replace concrete.  ",
+          "DamageImageName": "B1044.091-DS2-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.019,
+      "Beta": 0.5,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.1,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                51818.4,
+                36700.0
+              ],
+              "Quantity": [
+                1.67,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.156,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                134.67,
+                95.6
+              ],
+              "Quantity": [
+                1.67,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.155,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Core concrete damage, buckled reinforcing, fractured reinforcing, shear failure, web failure, bond slip",
+          "RepairMeasures": "Replace wall or reinforce with R/C jacket if possible.  Shore floor and wall, remove damaged concrete and steel within one development length of damaged region, replace removed concrete and steel.",
+          "DamageImageName": "B1044.091-DS3-1.JPG"
+        }
+      ]
+    }
+  ]
+}

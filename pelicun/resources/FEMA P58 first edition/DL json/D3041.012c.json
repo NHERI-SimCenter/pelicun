@@ -1,1 +1,179 @@
-{"Name": "HVAC Galvanized Sheet Metal Ducting -  6 sq. ft cross sectional area or greater, SDC D, E, or F", "QuantityUnit": [1000, "LF"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 1}, "GeneralInformation": {"ID": "D3041.012c", "Description": "Costing based upon 1000 ft segments of duct", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:28.5535683-07:00", "Approved": true, "Incomplete": false, "Notes": "None"}, "Ratings": {"DataQuality": "Marginal", "DataRelevance": "Superior", "Documentation": "Marginal", "Rationality": "Marginal"}, "DSGroups": [{"MedianEDP": 3.75, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"Injuries": [{"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}], "ReconstructionCost": {"Amount": [1900.0, 570.0], "Quantity": [250.0, 500.0], "CurveType": "LogNormal", "Beta": 0.256, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [4.3471, 1.0612], "Quantity": [250.0, 500.0], "CurveType": "LogNormal", "Beta": 0.1803, "Bounds": [0, "None"]}}, "Description": "Individual supports fail and duct sags - 1 failed support per 1000 feet of ducting", "RepairMeasures": "Replace failed supports and repair ducting in vicinity of failed supports.", "AffectedArea": [0, "SF"]}]}, {"MedianEDP": 4.5, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"Injuries": [{"Amount": 0.1, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}], "ReconstructionCost": {"Amount": [15900.0, 4770.0], "Quantity": [250.0, 500.0], "CurveType": "LogNormal", "Beta": 0.0806, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [39.6412, 12.1435], "Quantity": [250.0, 500.0], "CurveType": "Normal", "Beta": 0.078, "Bounds": [0, "None"]}}, "Description": "Several adjacent supports fail and sections of ducting fall - 60 feet of ducting fail and fall per 1000 foot of ducting", "RepairMeasures": "Replace sections of failed ducting and supports.", "AffectedArea": [50, "SF"]}]}]}
+{
+  "Name": "HVAC Galvanized Sheet Metal Ducting -  6 sq. ft cross sectional area or greater, SDC D, E, or F",
+  "QuantityUnit": [
+    1000,
+    "LF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D3041.012c",
+    "Description": "Costing based upon 1000 ft segments of duct",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:28.5535683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Superior",
+    "Documentation": "Marginal",
+    "Rationality": "Marginal"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 3.75,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                1900.0,
+                570.0
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.256,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                4.3471,
+                1.0612
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1803,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Individual supports fail and duct sags - 1 failed support per 1000 feet of ducting",
+          "RepairMeasures": "Replace failed supports and repair ducting in vicinity of failed supports.",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 4.5,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.1,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                15900.0,
+                4770.0
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.0806,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                39.6412,
+                12.1435
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.078,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Several adjacent supports fail and sections of ducting fall - 60 feet of ducting fail and fall per 1000 foot of ducting",
+          "RepairMeasures": "Replace sections of failed ducting and supports.",
+          "AffectedArea": [
+            50,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

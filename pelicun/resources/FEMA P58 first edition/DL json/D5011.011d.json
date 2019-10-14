@@ -1,1 +1,83 @@
-{"Name": "Transformer/primary service - Capacity: 750 to 1500 kVA - Unanchored equipment that is not vibration isolated - Equipment fragility only", "QuantityUnit": [1000, "KV"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "D5011.011d", "Description": "Costing is per unit and is based upon 1000 kVa.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:40.0575683-07:00", "Approved": true, "Incomplete": false, "Notes": "None"}, "Ratings": {"DataQuality": "Superior", "DataRelevance": "Average", "Documentation": "Superior", "Rationality": "Superior"}, "DSGroups": [{"MedianEDP": 1.01, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [62700.0, 51300.0], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.1825, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [71.8824, 36.1176], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.1768, "Bounds": [0, "None"]}}, "Description": "Damaged, inoperative", "RepairMeasures": "Service and repair existing transformer."}]}]}
+{
+  "Name": "Transformer/primary service - Capacity: 750 to 1500 kVA - Unanchored equipment that is not vibration isolated - Equipment fragility only",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D5011.011d",
+    "Description": "Costing is per unit and is based upon 1000 kVa.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:40.0575683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.01,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                62700.0,
+                51300.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1825,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                71.8824,
+                36.1176
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1768,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative",
+          "RepairMeasures": "Service and repair existing transformer."
+        }
+      ]
+    }
+  ]
+}

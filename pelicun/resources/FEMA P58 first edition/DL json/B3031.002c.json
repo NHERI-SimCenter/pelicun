@@ -1,1 +1,151 @@
-{"Name": "Masonry Chimney - unreinforced, non industrial, above roof 15 ft, replace with framing", "QuantityUnit": [1, "EA"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "B3031.002c", "Description": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequest elevated floors.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:01.0065683-07:00", "Approved": true, "Incomplete": false, "Notes": "Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  "}, "Ratings": {"DataQuality": "Not Rated", "DataRelevance": "Not Rated", "Documentation": "Not Rated", "Rationality": "Not Rated"}, "DSGroups": [{"MedianEDP": 0.35, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.25, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": [14382.5, 11767.5], "Quantity": [1.0, 10.0], "CurveType": "Normal", "Beta": 0.1643, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [33.8365, 27.6835], "Quantity": [1.0, 10.0], "CurveType": "Normal", "Beta": 0.1643, "Bounds": [0, "None"]}}, "Description": "Cracking with offset > 1/16\"", "RepairMeasures": "Rebuild above break or replace entire chimney.\nAddl comments (edit or delete as necessary):  Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ", "DamageImageName": "B3031.001a-DS1-1.jpg"}]}, {"MedianEDP": 0.5, "Beta": 0.6, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.5, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": [16997.5, 10460.0], "Quantity": [1.0, 10.0], "CurveType": "Normal", "Beta": 0.1643, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [39.9894, 24.6071], "Quantity": [1.0, 10.0], "CurveType": "Normal", "Beta": 0.1643, "Bounds": [0, "None"]}}, "Description": "Toppling of all or a portion of the chimney.", "RepairMeasures": "Rebuild above break or replace entire chimney.", "DamageImageName": "B3031.001a-DS2-1.jpg"}]}]}
+{
+  "Name": "Masonry Chimney - unreinforced, non industrial, above roof 15 ft, replace with framing",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B3031.002c",
+    "Description": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequest elevated floors.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:01.0065683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  "
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.35,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                14382.5,
+                11767.5
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1643,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                33.8365,
+                27.6835
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1643,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Cracking with offset > 1/16\"",
+          "RepairMeasures": "Rebuild above break or replace entire chimney.\nAddl comments (edit or delete as necessary):  Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ",
+          "DamageImageName": "B3031.001a-DS1-1.jpg"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.5,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.5,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                16997.5,
+                10460.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1643,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                39.9894,
+                24.6071
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1643,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Toppling of all or a portion of the chimney.",
+          "RepairMeasures": "Rebuild above break or replace entire chimney.",
+          "DamageImageName": "B3031.001a-DS2-1.jpg"
+        }
+      ]
+    }
+  ]
+}

@@ -1,1 +1,203 @@
-{"Name": "Cold formed steel walls with wood structural panel sheathing, exterior - stucco one side", "QuantityUnit": [100, "SF"], "Directional": true, "Correlated": false, "EDP": {"Type": "Story Drift Ratio", "Unit": [1, "ea"], "Offset": 0}, "GeneralInformation": {"ID": "B1061.001b", "Description": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2\" to 6\" OC at perimeter and 12\" OC EW in field.  ", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:47:52.3995683-07:00", "Approved": true, "Incomplete": true, "Notes": "None"}, "Ratings": {"DataQuality": "Superior", "DataRelevance": "Superior", "Documentation": "Superior", "Rationality": "Superior"}, "DSGroups": [{"MedianEDP": 0.4, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": [4051.6667, 2181.6667], "Quantity": [2.0, 30.0], "CurveType": "Normal", "Beta": 0.2474, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [10.4567, 5.5433], "Quantity": [2.0, 30.0], "CurveType": "Normal", "Beta": 0.3192, "Bounds": [0, "None"]}}, "Description": "Sheathing faster pull through or tear out.  (20% of fasteners.)", "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace 20% of fasteners, replace gypsum wall board, stucco, tape and sand, repaint.  ", "DamageImageName": "B1061.001-DS1-1.JPG"}]}, {"MedianEDP": 2.26, "Beta": 0.3, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.25, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": [4530.0, 2831.25], "Quantity": [2.0, 30.0], "CurveType": "LogNormal", "Beta": 0.2689, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [11.9837, 7.5203], "Quantity": [2.0, 30.0], "CurveType": "LogNormal", "Beta": 0.2707, "Bounds": [0, "None"]}}, "Description": "Failure of structural panels.  ", "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace sheathing, replace gypsum wall board, stucco, tape and sand, repaint.  ", "DamageImageName": "B1061.001-DS2-1.JPG"}]}, {"MedianEDP": 2.67, "Beta": 0.25, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"RedTag": {"Amount": 0.1, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, "ReconstructionCost": {"Amount": "Undefined", "Quantity": [2.0, 30.0], "CurveType": "Normal", "Beta": 0.0935, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": "Undefined", "Quantity": [2.0, 30.0], "CurveType": "Normal", "Beta": 0.1003, "Bounds": [0, "None"]}}, "Description": "Failure of wall.", "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Provide shoring.  Modify mechanical and electrical as required for repair work.  Replace metal stud framing, boundary elements, sheathing, replace gypsum wall board, stucco, tape and sand, repaint.  ", "DamageImageName": "B1061.001-DS3-1.JPG"}]}]}
+{
+  "Name": "Cold formed steel walls with wood structural panel sheathing, exterior - stucco one side",
+  "QuantityUnit": [
+    100,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1061.001b",
+    "Description": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2\" to 6\" OC at perimeter and 12\" OC EW in field.  ",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:52.3995683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.4,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                4051.6667,
+                2181.6667
+              ],
+              "Quantity": [
+                2.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2474,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                10.4567,
+                5.5433
+              ],
+              "Quantity": [
+                2.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3192,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Sheathing faster pull through or tear out.  (20% of fasteners.)",
+          "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace 20% of fasteners, replace gypsum wall board, stucco, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.001-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.26,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                4530.0,
+                2831.25
+              ],
+              "Quantity": [
+                2.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2689,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                11.9837,
+                7.5203
+              ],
+              "Quantity": [
+                2.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2707,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Failure of structural panels.  ",
+          "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace sheathing, replace gypsum wall board, stucco, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.001-DS2-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.67,
+      "Beta": 0.25,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.1,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                2.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.0935,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                2.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1003,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Failure of wall.",
+          "RepairMeasures": "Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Provide shoring.  Modify mechanical and electrical as required for repair work.  Replace metal stud framing, boundary elements, sheathing, replace gypsum wall board, stucco, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.001-DS3-1.JPG"
+        }
+      ]
+    }
+  ]
+}

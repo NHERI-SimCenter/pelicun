@@ -1,1 +1,84 @@
-{"Name": "Control Panel - Capacity: all - Unanchored equipment that is not vibration isolated - Equipment fragility only", "QuantityUnit": [1, "EA"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "D3067.011a", "Description": "Costing is per unit.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:35.6475683-07:00", "Approved": true, "Incomplete": false, "Notes": "None"}, "Ratings": {"DataQuality": "Superior", "DataRelevance": "Average", "Documentation": "Superior", "Rationality": "Superior"}, "DSGroups": [{"MedianEDP": 0.69, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [4565.0, 3735.0], "Quantity": [3.0, 10.0], "CurveType": "Normal", "Beta": 0.1826, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [11.6378, 9.5222], "Quantity": [3.0, 10.0], "CurveType": "Normal", "Beta": 0.1825, "Bounds": [0, "None"]}}, "Description": "Damaged, inoperative", "RepairMeasures": "Replace some components (relays, circuit boards).", "DamageImageName": "D3067.011a-DS1-1.JPG"}]}]}
+{
+  "Name": "Control Panel - Capacity: all - Unanchored equipment that is not vibration isolated - Equipment fragility only",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D3067.011a",
+    "Description": "Costing is per unit.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:35.6475683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.69,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                4565.0,
+                3735.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1826,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                11.6378,
+                9.5222
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1825,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative",
+          "RepairMeasures": "Replace some components (relays, circuit boards).",
+          "DamageImageName": "D3067.011a-DS1-1.JPG"
+        }
+      ]
+    }
+  ]
+}

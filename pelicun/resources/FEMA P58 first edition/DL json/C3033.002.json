@@ -1,1 +1,101 @@
-{"Name": "Recessed lighting in suspended ceiling - with independent support wires", "QuantityUnit": [1, "EA"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 1}, "GeneralInformation": {"ID": "C3033.002", "Description": "2ft by 4ft lighting fixture recessed in a suspended ceiling.  Fragility is for casualty evaluation only.  Ceiling lighting cost consequence has been included in the suspended ceiling fragilities.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:10.6935683-07:00", "Approved": true, "Incomplete": true, "Notes": "  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."}, "Ratings": {"DataQuality": "Not Rated", "DataRelevance": "Not Rated", "Documentation": "Not Rated", "Rationality": "Not Rated"}, "DSGroups": [{"MedianEDP": 1.5, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"Injuries": [{"Amount": 0.75, "Beta": 0.5, "CurveType": "Normal", "Bounds": [0.0, 1.0]}, {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}], "ReconstructionCost": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}}, "Description": "Not Applicable.", "RepairMeasures": "Not applicable.", "AffectedArea": [10, "SF"]}]}]}
+{
+  "Name": "Recessed lighting in suspended ceiling - with independent support wires",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "C3033.002",
+    "Description": "2ft by 4ft lighting fixture recessed in a suspended ceiling.  Fragility is for casualty evaluation only.  Ceiling lighting cost consequence has been included in the suspended ceiling fragilities.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:10.6935683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.5,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.75,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Not Applicable.",
+          "RepairMeasures": "Not applicable.",
+          "AffectedArea": [
+            10,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,1 +1,83 @@
-{"Name": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC D,E,F, BRACING FRAGILITY", "QuantityUnit": [1000, "LF"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "D2031.023b", "Description": "Costing based upon 1000 ft segments of pipe", "Author": "Undefined", "Official": true, "DateCreated": "2012-10-12T16:49:10.6725683-07:00", "Approved": true, "Incomplete": true, "Notes": "Yes"}, "Ratings": {"DataQuality": "Undefined", "DataRelevance": "Undefined", "Documentation": "Undefined", "Rationality": "Undefined"}, "DSGroups": [{"MedianEDP": 2.25, "Beta": "Undefined", "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [800.0, 240.0], "Quantity": [250.0, 500.0], "CurveType": "LogNormal", "Beta": 0.7056, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [2.3565, 0.7094], "Quantity": [250.0, 500.0], "CurveType": "LogNormal", "Beta": 0.704, "Bounds": [0, "None"]}}, "Description": "Isolated support failure w/o leakage - 0.5 supports fail per 1000 feet of pipe (assuming supports every 20 feet)", "RepairMeasures": "NO"}]}]}
+{
+  "Name": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC D,E,F, BRACING FRAGILITY",
+  "QuantityUnit": [
+    1000,
+    "LF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D2031.023b",
+    "Description": "Costing based upon 1000 ft segments of pipe",
+    "Author": "Undefined",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:49:10.6725683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "Yes"
+  },
+  "Ratings": {
+    "DataQuality": "Undefined",
+    "DataRelevance": "Undefined",
+    "Documentation": "Undefined",
+    "Rationality": "Undefined"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 2.25,
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                800.0,
+                240.0
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.7056,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                2.3565,
+                0.7094
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.704,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Isolated support failure w/o leakage - 0.5 supports fail per 1000 feet of pipe (assuming supports every 20 feet)",
+          "RepairMeasures": "NO"
+        }
+      ]
+    }
+  ]
+}

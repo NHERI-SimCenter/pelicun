@@ -1,1 +1,204 @@
-{"Name": "Compressor - Capacity: Large non medical air supply - Vibration isolated equipment that is not snubbed or restrained - Combined anchorage/isolator & equipment fragility", "QuantityUnit": [1, "EA"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "D3032.012f", "Description": "Costing is per unit.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:22.9495683-07:00", "Approved": true, "Incomplete": true, "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."}, "Ratings": {"DataQuality": "Average", "DataRelevance": "Average", "Documentation": "Superior", "Rationality": "Superior"}, "DSGroups": [{"MedianEDP": "Undefined", "Beta": "Undefined", "CurveType": "LogNormal", "DSGroupType": "MutuallyExclusive", "DamageStates": [{"Weight": 0.35, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [935.0, 765.0], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.4444, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [2.9367, 2.4033], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.4434, "Bounds": [0, "None"]}}, "Description": "Anchorage failure.", "RepairMeasures": "Repair anchorage and concrete pad and remount equipment.", "DamageImageName": "D3032.011a-DS1-1.JPG"}, {"Weight": 0.15, "LongLeadTime": true, "Consequences": {"ReconstructionCost": {"Amount": [9735.0, 7965.0], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.2183, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [30.5365, 24.9835], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.2183, "Bounds": [0, "None"]}}, "Description": "Anchorage failure & Equipment damaged beyond repair.", "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad."}, {"Weight": 0.25, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [3300.0, 2700.0], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.1713, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [10.3512, 8.4688], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.1715, "Bounds": [0, "None"]}}, "Description": "Motor damaged but anchorage is OK.", "RepairMeasures": "Repair Motor - Anchorage and Concrete do not require replacement"}, {"Weight": 0.25, "LongLeadTime": true, "Consequences": {"ReconstructionCost": {"Amount": [8800.0, 7200.0], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.193, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [27.6098, 22.5902], "Quantity": [1.0, 4.0], "CurveType": "LogNormal", "Beta": 0.193, "Bounds": [0, "None"]}}, "Description": "Equipment damaged beyond repair but anchorage is OK.", "RepairMeasures": "Replace and install equipment including new anchorage if anchorage is post-installed."}]}]}
+{
+  "Name": "Compressor - Capacity: Large non medical air supply - Vibration isolated equipment that is not snubbed or restrained - Combined anchorage/isolator & equipment fragility",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D3032.012f",
+    "Description": "Costing is per unit.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:22.9495683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.35,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                935.0,
+                765.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4444,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                2.9367,
+                2.4033
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4434,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure.",
+          "RepairMeasures": "Repair anchorage and concrete pad and remount equipment.",
+          "DamageImageName": "D3032.011a-DS1-1.JPG"
+        },
+        {
+          "Weight": 0.15,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                9735.0,
+                7965.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2183,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                30.5365,
+                24.9835
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2183,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure & Equipment damaged beyond repair.",
+          "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad."
+        },
+        {
+          "Weight": 0.25,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                3300.0,
+                2700.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1713,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                10.3512,
+                8.4688
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1715,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Motor damaged but anchorage is OK.",
+          "RepairMeasures": "Repair Motor - Anchorage and Concrete do not require replacement"
+        },
+        {
+          "Weight": 0.25,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                8800.0,
+                7200.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.193,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                27.6098,
+                22.5902
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.193,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Equipment damaged beyond repair but anchorage is OK.",
+          "RepairMeasures": "Replace and install equipment including new anchorage if anchorage is post-installed."
+        }
+      ]
+    }
+  ]
+}

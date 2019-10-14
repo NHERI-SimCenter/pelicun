@@ -1,1 +1,97 @@
-{"Name": "Bookcase, 6 shelves, unanchored laterally", "QuantityUnit": [1, "EA"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Velocity", "Unit": [1, "mps"], "Offset": 0}, "GeneralInformation": {"ID": "E2022.106a", "Description": "Standard bookcase, unanchored laterally.  Bookcase is 12-5/8\" deep x 81-1/4\" tall", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:49:00.2825683-07:00", "Approved": true, "Incomplete": true, "Notes": "Peak floor velocity limit is calculated as a function of the aspect ratio of the filing cabinet and the building period, T.  At the ground floor the fragility will be based upon the ground motion only.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."}, "Ratings": {"DataQuality": "Not Rated", "DataRelevance": "Not Rated", "Documentation": "Not Rated", "Rationality": "Not Rated"}, "DSGroups": [{"MedianEDP": 0.251, "Beta": 0.5, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"Injuries": [{"Amount": "Undefined", "Beta": 0.5, "CurveType": "Normal"}, {"Amount": 0.0, "Beta": 0.0, "CurveType": "Normal", "Bounds": [0.0, 1.0]}], "ReconstructionCost": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": "Undefined", "Quantity": [1.0, 1.0], "CurveType": "Normal", "Beta": 0.5, "Bounds": [0, "None"]}}, "Description": "Book case falls over and contents are scattered.  Likely damage to bookcase.  ", "RepairMeasures": "Replace bookcase and restack / replace contents.  ", "AffectedArea": [20, "SF"]}]}]}
+{
+  "Name": "Bookcase, 6 shelves, unanchored laterally",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Velocity",
+    "Unit": [
+      1,
+      "mps"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "E2022.106a",
+    "Description": "Standard bookcase, unanchored laterally.  Bookcase is 12-5/8\" deep x 81-1/4\" tall",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:49:00.2825683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "Peak floor velocity limit is calculated as a function of the aspect ratio of the filing cabinet and the building period, T.  At the ground floor the fragility will be based upon the ground motion only.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.251,
+      "Beta": 0.5,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": "Undefined",
+                "Beta": 0.5,
+                "CurveType": "Normal"
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Book case falls over and contents are scattered.  Likely damage to bookcase.  ",
+          "RepairMeasures": "Replace bookcase and restack / replace contents.  ",
+          "AffectedArea": [
+            20,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

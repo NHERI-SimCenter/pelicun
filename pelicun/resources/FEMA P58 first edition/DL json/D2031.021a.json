@@ -1,1 +1,83 @@
-{"Name": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC A,B, PIPING FRAGILITY", "QuantityUnit": [1000, "LF"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "D2031.021a", "Description": "Costing based upon 1000 ft segments of pipe", "Author": "Undefined", "Official": true, "DateCreated": "2012-10-12T16:49:09.3445683-07:00", "Approved": true, "Incomplete": true, "Notes": "Yes"}, "Ratings": {"DataQuality": "Undefined", "DataRelevance": "Undefined", "Documentation": "Undefined", "Rationality": "Undefined"}, "DSGroups": [{"MedianEDP": 2.25, "Beta": "Undefined", "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [6700.0, 2010.0], "Quantity": [250.0, 500.0], "CurveType": "Normal", "Beta": 0.3142, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [19.7029, 5.9088], "Quantity": [250.0, 500.0], "CurveType": "Normal", "Beta": 0.3143, "Bounds": [0, "None"]}}, "Description": "Joints break - 1 break per 1000 feet of pipe", "RepairMeasures": "NO"}]}]}
+{
+  "Name": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC A,B, PIPING FRAGILITY",
+  "QuantityUnit": [
+    1000,
+    "LF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D2031.021a",
+    "Description": "Costing based upon 1000 ft segments of pipe",
+    "Author": "Undefined",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:49:09.3445683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "Yes"
+  },
+  "Ratings": {
+    "DataQuality": "Undefined",
+    "DataRelevance": "Undefined",
+    "Documentation": "Undefined",
+    "Rationality": "Undefined"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 2.25,
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                6700.0,
+                2010.0
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3142,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                19.7029,
+                5.9088
+              ],
+              "Quantity": [
+                250.0,
+                500.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3143,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Joints break - 1 break per 1000 feet of pipe",
+          "RepairMeasures": "NO"
+        }
+      ]
+    }
+  ]
+}

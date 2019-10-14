@@ -1,1 +1,83 @@
-{"Name": "Low Voltage Switchgear - Capacity: 750 to <1200 Amp - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Equipment fragility only", "QuantityUnit": [800, "AP"], "Directional": false, "Correlated": false, "EDP": {"Type": "Peak Floor Acceleration", "Unit": [1, "g"], "Offset": 0}, "GeneralInformation": {"ID": "D5012.023h", "Description": "Costing is per unit and is based upon 800 Amp.", "Author": "Not Given", "Official": true, "DateCreated": "2012-10-12T16:48:45.1425683-07:00", "Approved": true, "Incomplete": false, "Notes": "None"}, "Ratings": {"DataQuality": "Superior", "DataRelevance": "Average", "Documentation": "Superior", "Rationality": "Superior"}, "DSGroups": [{"MedianEDP": 2.4, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [32560.0, 26640.0], "Quantity": [3.0, 10.0], "CurveType": "Normal", "Beta": 0.0728, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [37.2863, 18.7137], "Quantity": [3.0, 10.0], "CurveType": "Normal", "Beta": 0.0741, "Bounds": [0, "None"]}}, "Description": "Damaged, inoperative but anchorage is OK.", "RepairMeasures": "Replace fiberglass insulator supporting the vertical bus bars in the rear of the switchgear assembly"}]}]}
+{
+  "Name": "Low Voltage Switchgear - Capacity: 750 to <1200 Amp - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Equipment fragility only",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D5012.023h",
+    "Description": "Costing is per unit and is based upon 800 Amp.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:45.1425683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 2.4,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                32560.0,
+                26640.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.0728,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                37.2863,
+                18.7137
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.0741,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative but anchorage is OK.",
+          "RepairMeasures": "Replace fiberglass insulator supporting the vertical bus bars in the rear of the switchgear assembly"
+        }
+      ]
+    }
+  ]
+}

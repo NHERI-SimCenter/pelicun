@@ -1234,6 +1234,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
         'Radians'  : 'rad',
         'g'        : 'g',
         'meter/sec': 'mps'
+
     }
 
     convert_DSG_type = {
@@ -1337,6 +1338,9 @@ def convert_P58_data_to_json(data_dir, target_dir):
             QU = row['Fragility Unit of Measure']
             QU = QU.split(' ')
             if is_float(QU[1]):
+                if QU[0] in ['TN', 'AP', 'CF', 'KV']:
+                    QU[0] = 'ea'
+                    QU[1] = 1
                 json_output.update({'QuantityUnit': [int(QU[1]), QU[0]]})
             else:
                 json_output.update({'QuantityUnit': [0, 'Undefined']})
@@ -1606,7 +1610,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 incomplete_count += 1
 
             with open(os.path.join(target_dir, comp_ID + '.json'),'w') as f:
-                json.dump(json_output, f)
+                json.dump(json_output, f, indent=2)
 
         except:
             warnings.warn(UserWarning(

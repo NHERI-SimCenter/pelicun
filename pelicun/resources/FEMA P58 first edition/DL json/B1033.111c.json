@@ -1,1 +1,83 @@
-{"Name": "Steel Buckling Restrained Brace (BRB), Single Diagonal Brace, Weight of brace > 100 plf.", "QuantityUnit": [1, "EA"], "Directional": true, "Correlated": false, "EDP": {"Type": "Story Drift Ratio", "Unit": [1, "ea"], "Offset": 0}, "GeneralInformation": {"ID": "B1033.111c", "Description": "None", "Author": "John Wallace", "Official": true, "DateCreated": "2012-10-12T16:47:42.0815683-07:00", "Approved": true, "Incomplete": false, "Notes": "None"}, "Ratings": {"DataQuality": "Not Rated", "DataRelevance": "Not Rated", "Documentation": "Not Rated", "Rationality": "Not Rated"}, "DSGroups": [{"MedianEDP": 0.02, "Beta": 0.4, "CurveType": "LogNormal", "DSGroupType": "Single", "DamageStates": [{"Weight": 1.0, "LongLeadTime": false, "Consequences": {"ReconstructionCost": {"Amount": [70401.5591, 47873.0602], "Quantity": [3.0, 7.0], "CurveType": "Normal", "Beta": 0.2841, "Bounds": [0, "None"]}, "ReconstructionTime": {"Amount": [187.5475, 127.4715], "Quantity": [3.0, 7.0], "CurveType": "Normal", "Beta": 0.2835, "Bounds": [0, "None"]}}, "Description": "Fracture of brace or gusset.  Buckling of gusset.  Severe yielding of beams and columns adjacent to the gusset with possibility of local buckling and cracking in the yielded areas.  Severe loss of lateral resistance.", "RepairMeasures": "Brace and gusset are severely damaged with significant loss in stiffness and resistance, and both likely require replacement. Yielding and local buckling of beams and columns may be repaired by heat straightening, stiffeners or reinforcement, if there is no cracking or tearing. If cracking or tearing has initiated more substantial repair is needed."}]}]}
+{
+  "Name": "Steel Buckling Restrained Brace (BRB), Single Diagonal Brace, Weight of brace > 100 plf.",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1033.111c",
+    "Description": "None",
+    "Author": "John Wallace",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:42.0815683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.02,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                70401.5591,
+                47873.0602
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2841,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                187.5475,
+                127.4715
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2835,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Fracture of brace or gusset.  Buckling of gusset.  Severe yielding of beams and columns adjacent to the gusset with possibility of local buckling and cracking in the yielded areas.  Severe loss of lateral resistance.",
+          "RepairMeasures": "Brace and gusset are severely damaged with significant loss in stiffness and resistance, and both likely require replacement. Yielding and local buckling of beams and columns may be repaired by heat straightening, stiffeners or reinforcement, if there is no cracking or tearing. If cracking or tearing has initiated more substantial repair is needed."
+        }
+      ]
+    }
+  ]
+}
