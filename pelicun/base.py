@@ -57,6 +57,8 @@ import time
 import numpy as np
 import pandas as pd
 
+idx = pd.IndexSlice
+
 # set printing options
 import pprint
 pp = pprint.PrettyPrinter(indent=4, width=300)

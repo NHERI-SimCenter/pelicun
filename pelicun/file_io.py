@@ -772,7 +772,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     return data
 
-def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
+def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
                              units = dict(PID=1., PFA=1.),
                              verbose=False):
     """
@@ -809,9 +809,15 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
     data = {}
 
     # read the collection of EDP inputs...
-    # the read_csv method in pandas is sufficiently versatile to handle the
-    # tabular format of dakota
-    EDP_raw = pd.read_csv(input_path, sep=r'\s+', header=0, index_col=0)
+    # If the file name ends with csv, we assume a standard csv file
+    if input_path[-3:] == 'csv':
+        EDP_raw = pd.read_csv(input_path, header=0, index_col=0)
+
+    # otherwise, we assume that a dakota file is provided...
+    else:
+        # the read_csv method in pandas is sufficiently versatile to handle the
+        # tabular format of dakota
+        EDP_raw = pd.read_csv(input_path, sep=r'\s+', header=0, index_col=0)
     # set the index to be zero-based
     EDP_raw.index = EDP_raw.index - 1
 
