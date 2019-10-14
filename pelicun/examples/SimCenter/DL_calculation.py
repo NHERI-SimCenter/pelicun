@@ -107,7 +107,7 @@ def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
 	with open(BIMfile, 'r') as f:
 		BIM = json.load(f)
 		Pcol = norm.cdf(np.log(num_collapses/theta)/beta)
-		BIM['LossModel']['BuildingResponse']['CollapseProbability'] = Pcol
+		BIM['DamageAndLoss']['BuildingResponse']['CollapseProbability'] = Pcol
 	f.close()
 
 	outfilename = 'BIM_{}.json'.format(RPi)
@@ -180,7 +180,7 @@ def auto_populate(DL_input_path, DL_method, realization_count):
 		ot = ap_Occupancy[BIM_in['occupancy']]
 
 		loss_dict = {
-			'DLMethod': DL_method,
+			'_method': DL_method,
 			'BuildingDamage': {
 				'ReplacementCost': BIM_in['replacementCost'],
 				'ReplacementTime': BIM_in['replacementTime'],
@@ -226,15 +226,15 @@ def auto_populate(DL_input_path, DL_method, realization_count):
 
 		# Meta-variables
 		V_asd = 0.6 * V_ult
-		
+
 		# Flood risk // need high water zone for this
-		FR = True 
+		FR = True
 
 		# Hurricane-prone region
 		HPR = V_ult > 115.0
 
 		# Wind Borne Debris
-		WBD = ((HPR) and 
+		WBD = ((HPR) and
 			   ((V_ult > 140.0) or ((V_ult > 130.0) and (FR))))
 
 		# attributes for WSF 1-2
@@ -247,7 +247,7 @@ def auto_populate(DL_input_path, DL_method, realization_count):
 			RDA = '8s' # 8d @ 6"/6"
 		else:
 			RDA = '8d' # 8d @ 6"/12"
-		
+
 		# Roof-wall connection // need to add year condition later
 		if HPR:
 			RWC = 'strap' # Strap
@@ -291,7 +291,7 @@ def auto_populate(DL_input_path, DL_method, realization_count):
 				)
 
 		loss_dict = {
-			'DLMethod': DL_method,
+			'_method': DL_method,
 			'BuildingDamage': {
 				'ReplacementCost': 100,
 			},
@@ -311,7 +311,7 @@ def auto_populate(DL_input_path, DL_method, realization_count):
 			}
 		}
 
-	DL_input.update({'LossModel':loss_dict})
+	DL_input.update({'DamageAndLoss':loss_dict})
 
 	DL_ap_path = DL_input_path[:-5]+'_ap.json'
 
@@ -517,19 +517,19 @@ def run_pelicun(DL_input_path, EDP_input_path,
 			DL_input = json.load(f)
 
 		# check if the DL input file has information about the loss model
-		if 'LossModel' in DL_input:
+		if 'DamageAndLoss' in DL_input:
 			pass
 		else:
 			# if the loss model is not defined, give a warning
 			print('WARNING No loss model defined in the BIM file. Trying to auto-populate.')
 
 			# and try to auto-populate the loss model using the BIM information
-			DL_input, DL_input_path = auto_populate(DL_input_path, 
-													DL_method, 
+			DL_input, DL_input_path = auto_populate(DL_input_path,
+													DL_method,
 													realization_count)
 
 
-		DL_method = DL_input['LossModel']['DLMethod']
+		DL_method = DL_input['DamageAndLoss']['_method']
 
 		stripe_str = '' if len(stripes) == 1 else str(stripe)+'_'
 
@@ -582,7 +582,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 				posixpath.join(output_path,
 				'{}EDP.csv'.format(stripe_str)), A._EDP_dict[EDPs[0]]._RV.samples,
 				index_name='#Num', collapse_columns=False)
-			
+
 			write_SimCenter_DL_output(
 				posixpath.join(output_path,
 				'{}DMG.csv'.format(stripe_str)), DMG_mod,
@@ -597,7 +597,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 			for DV_mod, DV_name in zip(DV_mods, DV_names):
 				write_SimCenter_DL_output(
 				posixpath.join(output_path, DV_name+'.csv'), DV_mod,
-				index_name='#Num', collapse_columns=False)				
+				index_name='#Num', collapse_columns=False)
 
 				write_SimCenter_DL_output(
 				posixpath.join(output_path, DV_name+'_agg.csv'),
