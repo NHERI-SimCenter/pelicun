@@ -57,9 +57,10 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 import pelicunPBE
 from pelicunPBE.control import FEMA_P58_Assessment, HAZUS_Assessment
-from pelicunPBE.file_io import write_SimCenter_DL_output
+from pelicunPBE.file_io import write_SimCenter_DL_output, write_SimCenter_DM_output, write_SimCenter_DV_output
+from pelicunPBE.auto import auto_populate
 
-# temporary functions ----
+# START temporary functions ----
 
 # FUNCTION: neg_log_likelihood -------------------------------------------------
 # objective function for evaluating negative log likelihood of observing the given collapses
@@ -116,7 +117,7 @@ def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
 
 	return outfilename
 
-# temporary functions ----
+# END temporary functions ----
 
 def replace_FG_IDs_with_FG_names(assessment, df):
 	FG_list = sorted(assessment._FG_dict.keys())
@@ -125,296 +126,6 @@ def replace_FG_IDs_with_FG_names(assessment, df):
 		zip(np.arange(1, len(FG_list) + 1), FG_list))
 
 	return df.rename(columns=new_col_names)
-
-ap_DesignLevel = {
-	1950: 'Pre-Code',
-	1970: 'Low-Code',
-	1990: 'Moderate-Code',
-	2100: 'High-Code'
-}
-
-ap_Occupancy = {
-	'Residential': "RES1",
-	'Retail': "COM1"
-}
-
-ap_RoofType = {
-	'hip': 'hip',
-	'hipped': 'hip',
-	'gabled': 'gab',
-	'gable': 'gab',
-	'flat': 'hip'   # we need to change this later!
-}
-
-convert_design_level = {
-        'High-Code'    : 'HC',
-        'Moderate-Code': 'MC',
-        'Low-Code'     : 'LC',
-        'Pre-Code'     : 'PC'
-    }
-
-convert_dv_name = {
-	'DV_rec_cost': 'Reconstruction Cost',
-	'DV_rec_time': 'Reconstruction Time',
-	'DV_injuries_0': 'Injuries lvl. 1',
-	'DV_injuries_1': 'Injuries lvl. 2',
-	'DV_injuries_2': 'Injuries lvl. 3',
-	'DV_injuries_3': 'Injuries lvl. 4',
-	'DV_red_tag': 'Red Tag ',
-}
-
-def auto_populate(DL_input_path, DL_method, realization_count):
-
-	with open(DL_input_path, 'r') as f:
-		DL_input = json.load(f)
-
-	if 'GeneralInformation' in DL_input.keys():
-		BIM_in = DL_input['GeneralInformation']
-	elif 'GI' in DL_input.keys():
-		BIM_in = DL_input['GI']
-
-	# HAZUS Earthquake
-	if DL_method == 'HAZUS MH EQ':
-
-		bt = BIM_in['structType']
-		ot = ap_Occupancy[BIM_in['occupancy']]
-
-		loss_dict = {
-			'_method': DL_method,
-			'BuildingDamage': {
-				'ReplacementCost': BIM_in['replacementCost'],
-				'ReplacementTime': BIM_in['replacementTime'],
-				'StructureType': bt,
-			},
-			'UncertaintyQuantification': {
-				'Realizations': realization_count
-			},
-			'Inhabitants': {
-				'PeakPopulation': "1",
-				'OccupancyType': ot
-			},
-			'Components': []
-		}
-
-		year_built = BIM_in['yearBuilt']
-		for year in sorted(ap_DesignLevel.keys()):
-			if year_built <= year:
-				loss_dict['BuildingDamage'].update(
-					{'DesignLevel': ap_DesignLevel[year]})
-				break
-		dl = convert_design_level[loss_dict['BuildingDamage']['DesignLevel']]
-
-		components = [
-			{'ID': 'S-{}-{}-{}'.format(bt, dl ,ot), 'structural': True},
-			{'ID': 'NSA-{}-{}'.format(dl ,ot),      'structural': False},
-			{'ID': 'NSD-{}'.format(ot),             'structural': False}
-		]
-
-		loss_dict['Components'] = components
-
-	# HAZUS Hurricane
-	elif DL_method == 'HAZUS MH HU':
-
-		# Building characteristics
-		year_built = int(BIM_in['yearBuilt'])
-		roof_type = ap_RoofType[BIM_in['roofType']]
-		occupancy = BIM_in['occupancy']
-		stories = int(BIM_in['stories'])
-		bldg_desc = BIM_in['buildingDescription']
-		struct_type = BIM_in['structureType']
-		V_ult = BIM_in['V_design']
-
-		# Meta-variables
-		V_asd = 0.6 * V_ult
-
-		# Flood risk // need high water zone for this
-		FR = True
-
-		# Hurricane-prone region
-		HPR = V_ult > 115.0
-
-		# Wind Borne Debris
-		WBD = ((HPR) and
-			   ((V_ult > 140.0) or ((V_ult > 130.0) and (FR))))
-
-		# attributes for WSF 1-2
-
-		# Secondary water resistance
-		SWR = np.random.binomial(1, 0.6) == 1
-
-		# Roof deck attachment //need to add year condition later
-		if V_ult > 130.0:
-			RDA = '8s' # 8d @ 6"/6"
-		else:
-			RDA = '8d' # 8d @ 6"/12"
-
-		# Roof-wall connection // need to add year condition later
-		if HPR:
-			RWC = 'strap' # Strap
-		else:
-			RWC = 'tnail' # Toe-nail
-
-		# Shutters // need to add year condition later
-		shutters = WBD
-
-		# Garage // need to add AG building descr later
-		if shutters:
-			if True:
-				garage = 'sup' # SFBC 1994
-			else:
-				garage = 'no'  # None
-		else:
-			if True:
-				if year_built > 1989:
-					garage = 'std' # Standard
-				else:
-					garage = 'wkd' # Weak
-			else:
-				garage = 'no' # None
-
-		# Terrain // need to add terrain checks later (perhaps to the BIM)
-		         #// assume suburban for now
-		terrain = 35
-
-		# temp fix
-		stories = min(stories, 2)
-
-		bldg_config = 'WSF{stories}_{roof_shape}_{SWR}_{RDA}_{RWC}_{garage}_{shutters}_{terrain}'.format(
-				stories = stories,
-				roof_shape = roof_type,
-				SWR = int(SWR),
-				RDA = RDA,
-				RWC = RWC,
-				garage = garage,
-				shutters=int(shutters),
-				terrain=terrain
-				)
-
-		loss_dict = {
-			'_method': DL_method,
-			'BuildingDamage': {
-				'ReplacementCost': 100,
-			},
-			"BuildingResponse": {
-	            "EDP_Distribution": "empirical"
-	        },
-	        "Components": [
-	            {
-	                "ID": bldg_config #"WSF2_gab_1_6s_tnail_no_1_35"
-	            }
-	        ],
-	        "DecisionVariables": {
-	            "ReconstructionCost": True
-	        },
-			'UncertaintyQuantification': {
-				'Realizations': realization_count
-			}
-		}
-
-	DL_input.update({'DamageAndLoss':loss_dict})
-
-	DL_ap_path = DL_input_path[:-5]+'_ap.json'
-
-	with open(DL_ap_path, 'w') as f:
-		json.dump(DL_input, f, indent = 2)
-
-	return DL_input, DL_ap_path
-
-def write_DM_output(DM_file_path, DMG_df):
-
-	# Start with the probability of being in a particular damage state.
-	# Here, the damage state of the building (asset) is defined as the highest
-	# damage state among the building components/component groups. This works
-	# well for a HAZUS assessment, but something more sophisticated is needed
-	# for a FEMA P58 assessment.
-
-	# Determine the probability of DS exceedance by collecting the DS from all
-	# components and assigning ones to all lower damage states.
-	DMG_agg = DMG_df.T.groupby('DS').sum().T
-	DMG_agg[DMG_agg > 0.0] = DMG_agg[DMG_agg > 0.0] / DMG_agg[DMG_agg > 0.0]
-
-	cols = DMG_agg.columns
-	for i in range(len(cols)):
-	    filter = np.where(DMG_agg.iloc[:,i].values > 0.0)[0]
-	    DMG_agg.iloc[filter,idx[0:i]] = 1.0
-
-	# The P(DS=ds) probability is determined by subtracting consecutive DS
-	# exceedance probabilites. This will not work well for a FEMA P58 assessment
-	# with Damage State Groups that include multiple Damage States.
-	DMG_agg_mean = DMG_agg.describe().loc['mean',:]
-	DS_0 = 1.0 - DMG_agg_mean['1-1']
-	for i in range(len(DMG_agg_mean.index)-1):
-	    DMG_agg_mean.iloc[i] = DMG_agg_mean.iloc[i] - DMG_agg_mean.iloc[i+1]
-
-	# Add the probability of no damage for convenience.
-	DMG_agg_mean['0'] = DS_0
-	DMG_agg_mean = DMG_agg_mean.sort_index()
-
-	# Save the results in the output json file
-	DM = {'aggregate': {}}
-
-	for id in DMG_agg_mean.index:
-	    DM['aggregate'].update({str(id): DMG_agg_mean[id]})
-
-	# Now determine the probability of being in a damage state for individual
-	# components / component assemblies...
-	DMG_mean = DMG_df.describe().loc['mean',:]
-
-	# and save the results in the output json file.
-	for FG in sorted(DMG_mean.index.get_level_values('FG').unique()):
-	    DM.update({str(FG):{}})
-
-	    for PG in sorted(
-	    	DMG_mean.loc[idx[FG],:].index.get_level_values('PG').unique()):
-	        DM[str(FG)].update({str(PG):{}})
-
-	        for DS in sorted(
-	        	DMG_mean.loc[idx[FG],:].loc[idx[:,PG],:].index.get_level_values('DS').unique()):
-	            DM[str(FG)][str(PG)].update({str(DS): DMG_mean.loc[(FG,PG,DS)]})
-
-	with open(DM_file_path, 'w') as f:
-		json.dump(DM, f, indent = 2)
-
-def write_DV_output(DV_file_path, DV_df, DV_name):
-
-	DV_name = convert_dv_name[DV_name]
-
-	try:
-		with open(DV_file_path, 'r') as f:
-			DV = json.load(f)
-	except:
-		DV = {}
-
-	DV.update({DV_name: {}})
-
-	DV_i = DV[DV_name]
-
-	try:
-		DV_tot = DV_df.sum(axis=1).describe([0.1,0.5,0.9]).drop('count')
-		DV_i.update({'total':{}})
-		for stat in DV_tot.index:
-			DV_i['total'].update({stat: DV_tot.loc[stat]})
-
-		DV_stats = DV_df.describe([0.1,0.5,0.9]).drop('count')
-		for FG in sorted(DV_stats.columns.get_level_values('FG').unique()):
-		    DV_i.update({str(FG):{}})
-
-		    for PG in sorted(
-		    	DV_stats.loc[:,idx[FG]].columns.get_level_values('PG').unique()):
-		        DV_i[str(FG)].update({str(PG):{}})
-
-		        for DS in sorted(
-		        	DV_stats.loc[:,idx[FG, PG]].columns.get_level_values('DS').unique()):
-		            DV_i[str(FG)][str(PG)].update({str(DS): {}})
-		            DV_stats_i = DV_stats.loc[:,(FG,PG,DS)]
-		            for stat in DV_stats_i.index:
-		            	DV_i[str(FG)][str(PG)][str(DS)].update({
-		            		stat: DV_stats_i.loc[stat]})
-	except:
-		pass
-
-	with open(DV_file_path, 'w') as f:
-		json.dump(DV, f, indent = 2)
 
 def run_pelicun(DL_input_path, EDP_input_path,
 	DL_method, realization_count,
@@ -536,10 +247,8 @@ def run_pelicun(DL_input_path, EDP_input_path,
 		if DL_method == 'FEMA P58':
 			A = FEMA_P58_Assessment()
 		elif DL_method in ['HAZUS MH EQ', 'HAZUS MH']:
-			#if DL_input['Events'][0]['EventClassification'] == 'Earthquake':
 			A = HAZUS_Assessment(hazard = 'EQ')
 		elif DL_method == 'HAZUS MH HU':
-			#elif DL_input['Events'][0]['EventClassification'] == 'Wind':
 			A = HAZUS_Assessment(hazard = 'HU')
 
 		A.read_inputs(DL_input_path, EDP_files[s_i], verbose=False) # make DL inputs into array of all BIM files
@@ -566,8 +275,8 @@ def run_pelicun(DL_input_path, EDP_input_path,
 					DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i]))
 					DV_names.append('{}DV_{}_{}'.format(stripe_str, key, i))
 
-		#try:
-		if False:
+		try:
+		#if False:
 			write_SimCenter_DL_output(
 				posixpath.join(output_path,
 				'{}DL_summary.csv'.format(stripe_str)), A._SUMMARY,
@@ -604,22 +313,20 @@ def run_pelicun(DL_input_path, EDP_input_path,
 				DV_mod.T.groupby(level=0).aggregate(np.sum).T,
 				index_name='#Num', collapse_columns=False)
 
-		if True:
+		#if True:
 			# create the DM.json file
 			if DL_method.startswith('HAZUS'):
-				write_DM_output(posixpath.join(output_path, stripe_str+DM_file),
+				write_SimCenter_DM_output(posixpath.join(output_path, stripe_str+DM_file),
 					DMG_mod)
 
 			# create the DV.json file
 			for DV_mod, DV_name in zip(DV_mods, DV_names):
 				if DL_method.startswith('HAZUS'):
-					write_DV_output(posixpath.join(output_path, stripe_str+DV_file),
+					write_SimCenter_DV_output(posixpath.join(output_path, stripe_str+DV_file),
 						DV_mod, DV_name)
 
-
-
-		#except:
-		#	print("ERROR when trying to create DL output files.")
+		except:
+			print("ERROR when trying to create DL output files.")
 
 	return 0
 
