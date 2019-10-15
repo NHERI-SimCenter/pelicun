@@ -106,7 +106,7 @@ def process_loc(string, stories):
         elif string == "top":
             return [stories,]
         elif string == "roof":
-            return [stories+1,]
+            return [stories,]
         else:
             return None
 
