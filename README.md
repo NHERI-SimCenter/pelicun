@@ -61,19 +61,19 @@ pip install pelicun
 - Migrated to the latest version of Python, numpy, scipy, and pandas see setup.py for required minimum versions of those tools.
 - Python 2.x is no longer supported.
 - Improve DL input structure to
-	= make it easier to define complex performance models
-	= make input files easier to read
-	= support custom, non-PACT units for component quantities
-	= support different component quantities on every floor
+    = make it easier to define complex performance models
+    = make input files easier to read
+    = support custom, non-PACT units for component quantities
+    = support different component quantities on every floor
 - Updated FEMA P58 DL data to use ea for equipment instead of units such as KV, CF, AP, TN.
 - Added FEMA P58 2nd edition DL data.
 - Supported EDP inputs in standard csv format.
 - Add a function that produces SimCenter DM and DV json output files.
 - Add a differential evolution algorithm to the EDP fitting function to do a better job at finding the global optimum.
 - Enhance DL_calculation.py to handle multi-stripe analysis (significant contributions by Joanna Zou):
-	= recognize stripe_ID and occurrence rate in BIM/EVENT file
-	= fit a collapse fragility function to empirical collapse probabilities
-	= perform loss assessment for each stripe independently and produce corresponding outputs
+    = recognize stripe_ID and occurrence rate in BIM/EVENT file
+    = fit a collapse fragility function to empirical collapse probabilities
+    = perform loss assessment for each stripe independently and produce corresponding outputs
 
 ## License
 
