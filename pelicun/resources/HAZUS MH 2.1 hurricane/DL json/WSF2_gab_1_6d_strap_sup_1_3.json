@@ -1,0 +1,92 @@
+{
+  "Name": "WSF2_gab_1_6d_strap_sup_1_3",
+  "GeneralInformation": {
+    "ID": 1015,
+    "Description": "WSF2_gab_1_6d_strap_sup_1_3",
+    "Building type": "Wood Single-Family Homes 2+ stories",
+    "Roof Shape": "gable",
+    "Secondary Water Resistance": true,
+    "Roof Deck Attachment": "6d @ 6\"/12\"",
+    "Roof-Wall Connection": "Strap",
+    "Garage": "SFBC 1994",
+    "Shutters": true,
+    "Terrain": "Open"
+  },
+  "EDP": {
+    "Type": "Peak Gust Wind Speed",
+    "Unit": [
+      1,
+      "mph"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 93.11952650267985,
+      "Beta": 13.38936811449794,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 2.095960327852531e-05
+            }
+          },
+          "Description": "Minor"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 110.4077953511412,
+      "Beta": 0.1386576186716922,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.1876152160443901
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 129.1832087515055,
+      "Beta": 0.1239826734798458,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.1877844166828173
+            }
+          },
+          "Description": "Severe"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 147.6273398421659,
+      "Beta": 0.1115980847542849,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1.0
+            }
+          },
+          "Description": "Destruction"
+        }
+      ]
+    }
+  ]
+}

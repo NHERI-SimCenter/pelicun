@@ -1,0 +1,92 @@
+{
+  "Name": "WSF1_hip_0_6d_tnail_sup_1_100",
+  "GeneralInformation": {
+    "ID": 444,
+    "Description": "WSF1_hip_0_6d_tnail_sup_1_100",
+    "Building type": "Wood Single-Family Homes 1 story",
+    "Roof Shape": "hip",
+    "Secondary Water Resistance": false,
+    "Roof Deck Attachment": "6d @ 6\"/12\"",
+    "Roof-Wall Connection": "Toe-nail",
+    "Garage": "SFBC 1994",
+    "Shutters": true,
+    "Terrain": "Trees"
+  },
+  "EDP": {
+    "Type": "Peak Gust Wind Speed",
+    "Unit": [
+      1,
+      "mph"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 129.781663978685,
+      "Beta": 17.85796840795991,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.02880528365205075
+            }
+          },
+          "Description": "Minor"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 157.6629851572235,
+      "Beta": 19.75074271102293,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.181212990454977
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 180.3735472750392,
+      "Beta": 20.59788171543562,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.7710348185385391
+            }
+          },
+          "Description": "Severe"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 199.6192586914067,
+      "Beta": 0.1137954112882491,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1.0
+            }
+          },
+          "Description": "Destruction"
+        }
+      ]
+    }
+  ]
+}

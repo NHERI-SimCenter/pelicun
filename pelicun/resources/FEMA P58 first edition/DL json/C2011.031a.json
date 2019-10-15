@@ -1,0 +1,194 @@
+{
+  "Name": "Hybrid stair assembly with steel stringers and concrete treads and landings with seismic joints that accommodate drift.",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C2011.031a",
+    "Description": "Stair consists of steel stringers with precast treads rigidly linked to stringer",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:03.0085683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                520.0,
+                320.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.9899,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.4294,
+                0.8804
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.9897,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Localized steel yielding.",
+          "RepairMeasures": "TBD"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Buckling of steel, weld cracking.",
+          "RepairMeasures": "TBD"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.1,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Loss of live load capacity.  ",
+          "RepairMeasures": "TBD"
+        }
+      ]
+    }
+  ]
+}

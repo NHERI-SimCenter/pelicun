@@ -1,0 +1,197 @@
+{
+  "Name": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN laminated, 2-sided SSG, Center Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
+  "QuantityUnit": [
+    30,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B2022.022",
+    "Description": "None",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:49:54.0375227-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.0392,
+      "Beta": 0.29,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                2055.0,
+                1096.0
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1668,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.9052,
+                0.4821
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3005,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Glass cracking.",
+          "RepairMeasures": "Replace cracked glass panel.  ",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0434,
+      "Beta": 0.25,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.02,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "RedTag": {
+              "Amount": 0.9,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                2055.0,
+                1096.0
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1668,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.9052,
+                0.4821
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3005,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Glass falls from frame.",
+          "RepairMeasures": NaN,
+          "AffectedArea": [
+            36,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

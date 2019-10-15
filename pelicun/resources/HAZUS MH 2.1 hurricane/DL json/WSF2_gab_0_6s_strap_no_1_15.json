@@ -1,0 +1,92 @@
+{
+  "Name": "WSF2_gab_0_6s_strap_no_1_15",
+  "GeneralInformation": {
+    "ID": 856,
+    "Description": "WSF2_gab_0_6s_strap_no_1_15",
+    "Building type": "Wood Single-Family Homes 2+ stories",
+    "Roof Shape": "gable",
+    "Secondary Water Resistance": false,
+    "Roof Deck Attachment": "6d/8d mix @ 6\"/6\"",
+    "Roof-Wall Connection": "Strap",
+    "Garage": "None",
+    "Shutters": true,
+    "Terrain": "Light Suburban"
+  },
+  "EDP": {
+    "Type": "Peak Gust Wind Speed",
+    "Unit": [
+      1,
+      "mph"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 113.0876652525846,
+      "Beta": 16.05493702082208,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1e-10
+            }
+          },
+          "Description": "Minor"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 138.1552562974004,
+      "Beta": 17.19659464015632,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.2572798713865512
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 156.6181570741047,
+      "Beta": 17.49293641414151,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.8388075418657398
+            }
+          },
+          "Description": "Severe"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 167.2397561598713,
+      "Beta": 19.30360258601886,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1.0
+            }
+          },
+          "Description": "Destruction"
+        }
+      ]
+    }
+  ]
+}

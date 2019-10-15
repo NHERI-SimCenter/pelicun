@@ -1,0 +1,91 @@
+{
+  "Name": "WMUH1_gab_null_null_0_6d_strap_1_100",
+  "GeneralInformation": {
+    "ID": 2204,
+    "Description": "WMUH1_gab_null_null_0_6d_strap_1_100",
+    "Building type": "Wood Multi-Unit or Hotel or Motel 1 story",
+    "Roof Shape": "gable",
+    "Secondary Water Resistance": false,
+    "Roof Deck Attachment": "6d @ 6\"/12\"",
+    "Roof-Wall Connection": "Strap",
+    "Shutters": true,
+    "Terrain": "Trees"
+  },
+  "EDP": {
+    "Type": "Peak Gust Wind Speed",
+    "Unit": [
+      1,
+      "mph"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 123.2707697921987,
+      "Beta": 16.99642084685594,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1.000000013351432e-10
+            }
+          },
+          "Description": "Minor"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 144.2230752858093,
+      "Beta": 0.1301689199632684,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.1762987656651712
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 164.9377091826885,
+      "Beta": 0.1156573717122794,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.291105088617732
+            }
+          },
+          "Description": "Severe"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 200.994627663238,
+      "Beta": 0.1239462265885823,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1.0
+            }
+          },
+          "Description": "Destruction"
+        }
+      ]
+    }
+  ]
+}

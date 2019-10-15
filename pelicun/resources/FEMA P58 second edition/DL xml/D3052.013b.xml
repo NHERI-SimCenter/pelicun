@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>df7fb27f-3f35-464f-aff7-414f1f0afafa</UniqueID>
+  <ID>D3052.013b</ID>
+  <Description>Costing is per unit and is based upon 4000 CFM.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Air Handling Unit - Capacity: &lt;5000 CFM - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Equipment fragility only</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Average</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:51:31.4187513-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Equipment does not function but anchorage is OK. Damage to attached ducting or piping.</Description>
+      <DamageImageName>D3052.011b-DS1-1.JPG</DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Equipment does not function but anchorage is OK. Damage to attached ducting or piping.</Description>
+          <DamageImageName>D3052.011b-DS1-1.JPG</DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Repair attached ducting or piping.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>1344.48</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.2921</EnergyDispersion>
+            <CarbonMedian>70.65</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.2921</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>1100</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>900</MinAmount>
+              <Uncertainty>0.1511</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>0.4705</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>0.2353</MinAmount>
+              <Uncertainty>0.2921</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.67</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Equipment does not function but anchorage is OK. Equipment damaged beyond repair.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace equipment.  Remove, repair offsite, and reinstall air handler.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>true</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>186138.86</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.2998</EnergyDispersion>
+            <CarbonMedian>16028.86</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.2998</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>32120</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>26280</MinAmount>
+              <Uncertainty>0.1655</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>10.3059</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>3.4353</MinAmount>
+              <Uncertainty>0.2998</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.33</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>1.54</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

@@ -1,0 +1,92 @@
+{
+  "Name": "WMUH3_flt_bur_god_null_6d_tnail_0_100",
+  "GeneralInformation": {
+    "ID": 1849,
+    "Description": "WMUH3_flt_bur_god_null_6d_tnail_0_100",
+    "Building type": "Wood Multi-Unit or Hotel or Motel 3+ stories",
+    "Roof Shape": "flat",
+    "Roof Cover Type": "BUR",
+    "Roof Cover Quality": "Good",
+    "Roof Deck Attachment": "6d @ 6\"/12\"",
+    "Roof-Wall Connection": "Toe-nail",
+    "Shutters": false,
+    "Terrain": "Trees"
+  },
+  "EDP": {
+    "Type": "Peak Gust Wind Speed",
+    "Unit": [
+      1,
+      "mph"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 142.3493613684875,
+      "Beta": 21.28018946763841,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.8830498141735922
+            }
+          },
+          "Description": "Minor"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 154.4528602437269,
+      "Beta": 0.1339545427909668,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.988554749428263
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 179.6155186354279,
+      "Beta": 0.1153529194978051,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.988554749428263
+            }
+          },
+          "Description": "Severe"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 205.0041662089644,
+      "Beta": 0.1132848101441976,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1.0
+            }
+          },
+          "Description": "Destruction"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "Name": "WMUH1_hip_null_null_1_6s_tnail_0_3",
+  "GeneralInformation": {
+    "ID": 2445,
+    "Description": "WMUH1_hip_null_null_1_6s_tnail_0_3",
+    "Building type": "Wood Multi-Unit or Hotel or Motel 1 story",
+    "Roof Shape": "hip",
+    "Secondary Water Resistance": true,
+    "Roof Deck Attachment": "6d/8d mix @ 6\"/6\"",
+    "Roof-Wall Connection": "Toe-nail",
+    "Shutters": false,
+    "Terrain": "Open"
+  },
+  "EDP": {
+    "Type": "Peak Gust Wind Speed",
+    "Unit": [
+      1,
+      "mph"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 118.8908286229053,
+      "Beta": 15.38021617538198,
+      "CurveType": "Normal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.01181920474070696
+            }
+          },
+          "Description": "Minor"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 137.3240346375667,
+      "Beta": 0.1053003605207938,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.01841027711491734
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 147.2891578011557,
+      "Beta": 0.09156909236577461,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.4207296093735652
+            }
+          },
+          "Description": "Severe"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 149.029454729772,
+      "Beta": 0.09263546160347445,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 1.0
+            }
+          },
+          "Description": "Destruction"
+        }
+      ]
+    }
+  ]
+}

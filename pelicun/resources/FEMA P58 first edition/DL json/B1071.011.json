@@ -1,0 +1,209 @@
+{
+  "Name": "Light framed wood walls with structural panel sheathing, stucco no hold-downs",
+  "QuantityUnit": [
+    100,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1071.011",
+    "Description": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with no hold-downs. Three layer 7/8\" stucco with 1/2-inch chop strand fibers applied over wire mesh fastened with 1.25 -inch long staples.",
+    "Author": "Andre Filiatrault",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:52.8555683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "None",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.0017,
+      "Beta": 0.5,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                2760.0,
+                1840.0
+              ],
+              "Quantity": [
+                9.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2566,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                7.1726,
+                4.8275
+              ],
+              "Quantity": [
+                9.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1899,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Cracking of stucco.",
+          "RepairMeasures": "Clean stucco cracks. Fill cracks with cement compound. Repaint wall to hide cracks.",
+          "DamageImageName": "B1071.002-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0035,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.35,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                3300.0,
+                2200.0
+              ],
+              "Quantity": [
+                9.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3691,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                8.402,
+                5.598
+              ],
+              "Quantity": [
+                9.0,
+                30.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3807,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Spalling of stucco, separation of stucco and sheathing from studs. ",
+          "RepairMeasures": "Remove loose stucco and patch spalled areas with stucco. Repaint to hide repairs.",
+          "DamageImageName": "B1071.002-DS2-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.017,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                5400.0,
+                3600.0
+              ],
+              "Quantity": [
+                9.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1098,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                13.2941,
+                8.7059
+              ],
+              "Quantity": [
+                9.0,
+                30.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1097,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Fracture of studs, major sill plate cracking.",
+          "RepairMeasures": "Remove and replace studs, plates, sheathing, and stucco. Shore as required.",
+          "DamageImageName": "B1071.002-DS3-1.JPG"
+        }
+      ]
+    }
+  ]
+}

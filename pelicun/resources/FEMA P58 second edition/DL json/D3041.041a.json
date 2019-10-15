@@ -1,0 +1,83 @@
+{
+  "Name": "Variable Air Volume (VAV) box with in-line coil, SDC A or B",
+  "QuantityUnit": [
+    10,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D3041.041a",
+    "Description": "Costing per 10 units",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:51:25.3473585-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "One failure is expected per 10 units."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Superior",
+    "Documentation": "Marginal",
+    "Rationality": "Marginal"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.9,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                16500.0,
+                13500.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2942,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                19.4117,
+                15.8823
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.386,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Coil damages connection to plumbing.  Leakage of hot water.",
+          "RepairMeasures": "Replace coil and cleanup  water damage."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>ea9dbdaa-2e83-431f-b78e-51edae77b65f</UniqueID>
+  <ID>D4011.022a</ID>
+  <Description>Costing based upon 1000 ft segments of pipe, horizontal main and branches</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Fire Sprinkler Water Piping - Horizontal Mains and Branches - Old Style Victaulic - Thin Wall Steel - No bracing, SDC C, PIPING FRAGILITY</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Marginal</DataQuality>
+    <DataRelevance>Marginal</DataRelevance>
+    <Documentation>Marginal</Documentation>
+    <Rationality>Marginal</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:51:38.7190212-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>One failure is expected per 1000 feet of pipe.  Allowance included for MEP modifications for repair.</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Spraying &amp; Dripping Leakage at joints -  0.02 leaks per 20 ft section of pipe.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace leaking joints and minor water cleanup.  </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>864.5</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.6953</EnergyDispersion>
+        <CarbonMedian>33</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.6953</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>385</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>315</MinAmount>
+          <Uncertainty>0.6488</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>0.4512</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>0.3688</MinAmount>
+          <Uncertainty>0.6953</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>1.1</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Joints Break - Major Leakage - 0.02 breaks  per 20 ft section of pipe.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace 20 ft section of pipe, joints and major water cleanup at leaking joints.  </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>9221.5</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.4763</EnergyDispersion>
+        <CarbonMedian>363.5</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.4763</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>2915</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>2385</MinAmount>
+          <Uncertainty>0.4054</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>0.9368</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>0.3132</MinAmount>
+          <Uncertainty>0.4763</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.4</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

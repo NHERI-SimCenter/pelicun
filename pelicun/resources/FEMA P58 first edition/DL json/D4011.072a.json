@@ -1,0 +1,131 @@
+{
+  "Name": "Fire Sprinkler Drop Standard Threaded Steel - No Ceiling - 6 ft. long drop maximum, SDC C",
+  "QuantityUnit": [
+    100,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D4011.072a",
+    "Description": "Costing per 100 units, Standard threaded steel drop, 6 ft. long drop maximum",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:39.0155683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "One failure is expected per 100 units."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Marginal",
+    "Rationality": "Marginal"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.5,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                550.0,
+                450.0
+              ],
+              "Quantity": [
+                10.0,
+                50.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3665,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.1412,
+                0.8588
+              ],
+              "Quantity": [
+                10.0,
+                50.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3367,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Spraying & Dripping Leakage at drop joints -  0.01 leaks per drop",
+          "RepairMeasures": "Replace sprinkler drops and minor water cleanup at broken joints."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.25,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                550.0,
+                450.0
+              ],
+              "Quantity": [
+                10.0,
+                50.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3665,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.1412,
+                0.8588
+              ],
+              "Quantity": [
+                10.0,
+                50.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3367,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Drop Joints Break - Major Leakage - 0.01 breaks  per drop",
+          "RepairMeasures": "Replace sprinkler drops and major water cleanup at broken joints"
+        }
+      ]
+    }
+  ]
+}

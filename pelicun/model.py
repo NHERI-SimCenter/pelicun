@@ -744,8 +744,6 @@ class FragilityGroup(object):
     Parameters
     ----------
     ID: int
-    kind: {'structural','non-structural'}
-        Defines the type of components in the Fragility Group (FG).
     demand_type: {'PID', 'PFA', 'PSD', 'PSA', 'ePGA', 'PGD'}
         The type of Engineering Demand Parameter (EDP) that controls the damage
         of the components in the FG. See Demand for acronym descriptions.
@@ -779,11 +777,10 @@ class FragilityGroup(object):
         Provides a detailed description of the fragility group.
     """
 
-    def __init__(self, ID, kind, demand_type, performance_groups,
+    def __init__(self, ID, demand_type, performance_groups,
                  directional=True, correlation=True, demand_location_offset=0,
                  incomplete=False, name='', description=''):
         self._ID = ID
-        self._kind = kind
         self._demand_type = demand_type
         self._performance_groups = performance_groups
         self._directional = directional

@@ -1,0 +1,179 @@
+{
+  "Name": "HVAC Fan In Line Fan, Fan independently supported and vibration isolators, SDC D, E, F (OSHPD or sim)",
+  "QuantityUnit": [
+    10,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D3041.001d",
+    "Description": "Costing per 10 units",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:51:14.2024731-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "One failure is expected per 10 units."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Superior",
+    "Documentation": "Marginal",
+    "Rationality": "Marginal"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 2.25,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                7700.0,
+                6300.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3425,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                9.0585,
+                7.4115
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.424,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Bellows fails at fans.",
+          "RepairMeasures": "Replace failed bellows.",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.6,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.1,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.05,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                29700.0,
+                24300.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.0925,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                12.7055,
+                6.3525
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2666,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Fan dislodges from isolators and drops.",
+          "RepairMeasures": "Replace fan, isolators and section of ducting to which fan is connected.",
+          "AffectedArea": [
+            10,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

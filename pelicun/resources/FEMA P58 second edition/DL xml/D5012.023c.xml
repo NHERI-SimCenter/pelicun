@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>3c38c850-501e-4d91-8710-b505215a9abc</UniqueID>
+  <ID>D5012.023c</ID>
+  <Description>Costing is per unit and is based upon 225 Amp.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Low Voltage Switchgear - Capacity: 100 to &lt;350 Amp - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Combined anchorage/isolator &amp; equipment fragility</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:51:58.3080621-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.
+Import errors:
+ Warning, Data missing: D5012.023c:DS1: Could not parse median - using 500
+Warning, Data missing: D5012.023c:DS1: Could not parse dispersion - using 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Anchorage failure.</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Anchorage failure.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Repair anchorage and concrete pad and remount equipment.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>1908.68</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.3773</EnergyDispersion>
+            <CarbonMedian>64.88</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.3773</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>550</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>450</MinAmount>
+              <Uncertainty>0.2825</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>0.647</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>0.5294</MinAmount>
+              <Uncertainty>0.3773</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.35</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Anchorage failure &amp; Equipment damaged beyond repair.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace equipment including attached utilities in addition to repairing anchorage and concrete pad.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>38109.07</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.2985</EnergyDispersion>
+            <CarbonMedian>2057.28</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.2985</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>10752.5</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>8797.5</MinAmount>
+              <Uncertainty>0.1631</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>3.45</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>1.15</MinAmount>
+              <Uncertainty>0.2985</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.15</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Damaged, Inoperative but anchorage is OK.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace fiberglass insulator supporting the vertical bus bars in the rear of the switchgear assembly</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>36200.39</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.2953</EnergyDispersion>
+            <CarbonMedian>1992.39</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.2953</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>10202.5</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>8347.5</MinAmount>
+              <Uncertainty>0.1572</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>3.2736</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>1.0912</MinAmount>
+              <Uncertainty>0.2953</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.5</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>500</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

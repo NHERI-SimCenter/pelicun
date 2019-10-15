@@ -1,0 +1,178 @@
+{
+  "Name": "S-C2M-MC-AGR1",
+  "GeneralInformation": {
+    "ID": "S-C2M-MC-AGR1",
+    "Description": "S-C2M-MC-AGR1"
+  },
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "rad"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.0027,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0005
+              },
+              {
+                "Amount": 0.0
+              },
+              {
+                "Amount": 0.0
+              },
+              {
+                "Amount": 0.0
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": 0.008
+            },
+            "ReconstructionTime": {
+              "Amount": 2
+            }
+          },
+          "Description": "Slight"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0056,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0025
+              },
+              {
+                "Amount": 0.0003
+              },
+              {
+                "Amount": 0.0
+              },
+              {
+                "Amount": 0.0
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": 0.046
+            },
+            "ReconstructionTime": {
+              "Amount": 10
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0154,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.01
+              },
+              {
+                "Amount": 0.001
+              },
+              {
+                "Amount": 1e-05
+              },
+              {
+                "Amount": 1e-05
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": 0.231
+            },
+            "ReconstructionTime": {
+              "Amount": 30
+            }
+          },
+          "Description": "Extensive"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.04,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.9,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.05
+              },
+              {
+                "Amount": 0.01
+              },
+              {
+                "Amount": 0.0001
+              },
+              {
+                "Amount": 0.0001
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": 0.462
+            },
+            "ReconstructionTime": {
+              "Amount": 60
+            }
+          },
+          "Description": "Complete"
+        },
+        {
+          "Weight": 0.1,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.4
+              },
+              {
+                "Amount": 0.2
+              },
+              {
+                "Amount": 0.05
+              },
+              {
+                "Amount": 0.1
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": 0.462
+            },
+            "ReconstructionTime": {
+              "Amount": 60
+            }
+          },
+          "Description": "Collapse"
+        }
+      ]
+    }
+  ]
+}

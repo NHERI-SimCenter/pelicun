@@ -1,0 +1,84 @@
+{
+  "Name": "NSA-PC-GOV1",
+  "GeneralInformation": {
+    "ID": "NSA-PC-GOV1",
+    "Description": "NSA-PC-GOV1"
+  },
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.2,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.01
+            }
+          },
+          "Description": "Slight"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.4,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.049
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.8,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.14800000000000002
+            }
+          },
+          "Description": "Extensive"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 1.6,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.493
+            }
+          },
+          "Description": "Complete"
+        }
+      ]
+    }
+  ]
+}

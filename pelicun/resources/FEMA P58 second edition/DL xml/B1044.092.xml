@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>57dc22ef-3b0b-4172-8e0e-a67961f54d6c</UniqueID>
+  <ID>B1044.092</ID>
+  <Description>Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Slender Concrete Wall, 12" thick, 12' high, 20' long</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Effective Drift</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:26.3438333-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: B1044.092: B1044.092: DS1 overlaps DS2 in the range of 0.0372 to 0.0744 - Make sure damage states are minimally overlapping
+Warning: B1044.092: B1044.092: DS2 overlaps DS3 in the range of 0.002325 to 0.0032 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Spalling of cover, vertical cracks greater than 1/16 inch.</Description>
+      <DamageImageName>B1044.091-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Epoxy inject cracks and patch spalled concrete.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>34747.2</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.4001</EnergyDispersion>
+        <CarbonMedian>1471.68</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.4001</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>6570</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>4467.6</MinAmount>
+          <Uncertainty>0.3124</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>5.1137</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>3.4751</MinAmount>
+          <Uncertainty>0.4001</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0093</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Exposed longitudinal reinforcing.</Description>
+      <DamageImageName>B1044.091-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Shore wall, remove all concrete in damaged regions, replace concrete.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>139459.68</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.3446</EnergyDispersion>
+        <CarbonMedian>6779.52</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.3446</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>21402</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>14553.36</MinAmount>
+          <Uncertainty>0.2372</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>16.685</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>11.3471</MinAmount>
+          <Uncertainty>0.3446</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0128</Median>
+      <Beta>0.35</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Core concrete damage, buckled reinforcing, fractured reinforcing, shear failure, web failure, bond slip</Description>
+      <DamageImageName>B1044.091-DS3-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace wall or reinforce with R/C jacket if possible.  Shore floor and wall, remove damaged concrete and steel within one development length of damaged region, replace removed concrete and steel.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.1</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>160328.16</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.2895</EnergyDispersion>
+        <CarbonMedian>7912.8</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.2895</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>49027.5</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>33338.7</MinAmount>
+          <Uncertainty>0.1459</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>38.2137</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>25.9857</MinAmount>
+          <Uncertainty>0.2895</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0186</Median>
+      <Beta>0.45</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

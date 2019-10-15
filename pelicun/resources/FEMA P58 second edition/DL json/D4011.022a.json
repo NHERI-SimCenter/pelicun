@@ -1,0 +1,131 @@
+{
+  "Name": "Fire Sprinkler Water Piping - Horizontal Mains and Branches - Old Style Victaulic - Thin Wall Steel - No bracing, SDC C, PIPING FRAGILITY",
+  "QuantityUnit": [
+    1000,
+    "LF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D4011.022a",
+    "Description": "Costing based upon 1000 ft segments of pipe, horizontal main and branches",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:51:38.7190212-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "One failure is expected per 1000 feet of pipe.  Allowance included for MEP modifications for repair."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Marginal",
+    "Rationality": "Marginal"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.1,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                385.0,
+                315.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.6488,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.4512,
+                0.3688
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.6953,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Spraying & Dripping Leakage at joints -  0.02 leaks per 20 ft section of pipe.",
+          "RepairMeasures": "Replace leaking joints and minor water cleanup.  "
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.4,
+      "Beta": 0.5,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2915.0,
+                2385.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4054,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.9368,
+                0.3132
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4763,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Joints Break - Major Leakage - 0.02 breaks  per 20 ft section of pipe.",
+          "RepairMeasures": "Replace 20 ft section of pipe, joints and major water cleanup at leaking joints.  "
+        }
+      ]
+    }
+  ]
+}

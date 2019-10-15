@@ -13,8 +13,8 @@
       "PID": null
     },
     "added_uncertainty": {
-      "beta_gm": null,
-      "beta_m": null
+      "beta_gm": 0.0001,
+      "beta_m": 0.0001
     },
     "occupancy_type": "Multi-Unit Residential",
     "population": [
@@ -22,8 +22,8 @@
       2.0,
       0.0
     ],
-    "response": {  
-      "coll_prob": "estimated", 
+    "response": {
+      "coll_prob": "estimated",
       "CP_est_basis": "raw EDP",
       "EDP_dist_basis": "all results",
       "EDP_distribution": "lognormal"}
@@ -35,39 +35,18 @@
     "time": 1.0,
     "area": 1.0,
     "volume": 1.0,
+    "speed": 1.0,
     "acceleration": 1.0
   },
   "components": {
     "B1071.011": {
-      "quantities": [
-        12.6,
-        12.6,
-        12.6
-      ],
-      "csg_weights": [
-        0.285,
-        0.285,
-        0.215,
-        0.215
-      ],
-      "dirs": [
-        0,
-        0,
-        1,
-        1
-      ],
-      "kind": "structural",
-      "distribution": "normal",
-      "cov": 0.01,
-      "unit": [
-        100.0,
-        "SF"
-      ],
-      "locations": [
-        1, 
-        2,
-        3
-      ]
+      "cov": ["0.01", "0.01", "0.01", "0.01"],
+      "directions": [1, 2, 1, 2],
+      "distribution": ["normal", "normal", "normal", "normal"],
+      "locations": [2, 2, 3, 3],
+      "quantities": [718.2, 541.8, 718.2, 541.8],
+      "csg_weights": [[0.5, 0.5], [0.5, 0.5], [0.5, 0.5], [0.5, 0.5]],
+      "unit": "ft2"
     }
   },
   "collapse_modes": {

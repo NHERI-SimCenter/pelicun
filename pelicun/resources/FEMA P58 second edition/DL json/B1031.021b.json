@@ -1,0 +1,195 @@
+{
+  "Name": "Welded column splices, Column 150 plf < W < 300 plf",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1031.021b",
+    "Description": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.",
+    "Author": "Greg Deierlein",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:48:28.0633227-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "Fracture is not expected where weld has adequate toughness and the maximum weld root stress is below 1.5Fu from column P/A+M/S under story drift using A and S from weld root area.  "
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.02,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.95,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.25,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3536,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Ductile fracture of the groove weld flange splice.   Damage in field is either obscured or deemed to not warrant repair.  No repair conducted.",
+          "RepairMeasures": "Repair would involve gouging out the material adjacent to the fracture and repairing with a new groove weld.  Field condition is deemed to not warrant repair by field observation.  This Damage State is Mutually Exclusive with DS2.  See fragility DS1 and DS2 probabilities.",
+          "DamageImageName": "B1031.021a-DS1-1.JPG"
+        },
+        {
+          "Weight": 0.05,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                13182.0,
+                8112.0
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2994,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                9.6927,
+                5.9647
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.39,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Ductile fracture of the groove weld flange splice. ",
+          "RepairMeasures": "Repair would involve gouging out the material adjacent to the fracture and repairing with a new groove weld. ",
+          "DamageImageName": "B1031.021a-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.05,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.02,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                16008.0,
+                11339.0
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2687,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                11.7706,
+                8.3375
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.367,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "DS1 followed by complete failure of the web splice plate and dislocation of the two column segments on either side of the splice.  ",
+          "RepairMeasures": " Repair may not be practically feasible, but would require either realignment or replacement of adjacent column segments and rewelding of splice.",
+          "DamageImageName": "B1031.021a-DS2-1.JPG"
+        }
+      ]
+    }
+  ]
+}

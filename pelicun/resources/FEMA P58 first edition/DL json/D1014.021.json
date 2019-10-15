@@ -1,0 +1,203 @@
+{
+  "Name": "Hydraulic Elevator \u2013 Applies to most California Installations 1976 or later, most western states installations postdating 1982 and most U.S installations postdating 1998.",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D1014.021",
+    "Description": "Costing per elevator.  Elevator demand parameter shall be defined as the peak floor acceleration at the first floor.  The elevator fragility for a multiple story building should only be entered once on the first floor.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:11.6035683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.5,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Simultaneous",
+      "DamageStates": [
+        {
+          "Weight": 0.3,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                868.0,
+                868.0
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.82,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                2.55,
+                2.55
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.82,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged controls.",
+          "RepairMeasures": "Multiple repairs possible (% change of each):  Repair damaged controls (100%)"
+        },
+        {
+          "Weight": 0.49,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                3180.0,
+                3180.0
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.32,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                9.36,
+                9.36
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.32,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged vane and hoist-way switches, and or bent cab stabilizers, and or damaged car guide shoes.",
+          "RepairMeasures": "Multiple repairs possible (% change of each):  Repair damaged vane and hoist-way switches (41%), and or repair bent cab stabilizers (41%), and or repair damaged car guide shoes (41%). "
+        },
+        {
+          "Weight": 0.44,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                6060.0,
+                6060.0
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.44,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                17.8,
+                17.8
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.44,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged entrance and car door, and or flooring damage.",
+          "RepairMeasures": "Multiple repairs possible (% change of each):  Repair damage to doors (68%), and or repair flooring (46%)"
+        },
+        {
+          "Weight": 0.37,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                1880.0,
+                1880.0
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.23,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                5.53,
+                5.53
+              ],
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.23,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Oil leak in hydraulic line, and or hydraulic tank failure.",
+          "RepairMeasures": "Multiple repairs possible (% change of each):  Repair oil leak in hydraulic line (27%), and or hydraulic tank failure (81%)"
+        }
+      ]
+    }
+  ]
+}

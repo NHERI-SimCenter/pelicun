@@ -1,0 +1,163 @@
+{
+  "Name": "Cooling Tower - Capacity: 350 to <750 Ton - Vibration isolated equipment that is not snubbed or restrained - Combined anchorage/isolator & equipment fragility",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D3031.022i",
+    "Description": "Costing is per unit and is based upon 500 Ton.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:54.2924408-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.35,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2420.0,
+                1980.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.297,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.8541,
+                0.6989
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3882,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure.",
+          "RepairMeasures": "Repair anchorage and concrete pad and remount equipment."
+        },
+        {
+          "Weight": 0.15,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                145640.0,
+                119160.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1784,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                9.3458,
+                2.3364
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3072,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure & Equipment damaged beyond repair.",
+          "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad.  Cooling tower removed, repaired offsite, and reinstalled."
+        },
+        {
+          "Weight": 0.5,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                143220.0,
+                117180.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1764,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                9.1906,
+                2.2976
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.306,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged equipment and attached piping but anchorage OK.",
+          "RepairMeasures": "Repair damaged equipment and attached piping.  Cooling tower removed, repaired offsite, and reinstalled."
+        }
+      ]
+    }
+  ]
+}

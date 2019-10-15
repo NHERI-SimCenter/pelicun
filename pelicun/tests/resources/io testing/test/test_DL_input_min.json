@@ -3,9 +3,11 @@
         "planArea": 100.0,
         "stories": 3
     },
-    "LossModel": {
-        "UncertaintyQuantification": {            
-            "Realizations": "20000"
+    "DamageAndLoss": {
+        "ResponseModel":{
+            "ResponseDescription": {
+                "Realizations": "20000"
+            }
         }
     }
 }

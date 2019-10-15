@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>7c277062-3d07-4033-b336-a0f4385227b1</UniqueID>
+  <ID>D5092.023c</ID>
+  <Description>Costing is per unit.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Battery Charger - Capacity: all - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Combined anchorage/isolator &amp; equipment fragility</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:52:14.1104817-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.
+Import errors:
+ Warning, Data missing: D5092.023c:DS1: Could not parse median - using 500
+Warning, Data missing: D5092.023c:DS1: Could not parse dispersion - using 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Anchorage failure.</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Anchorage failure.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Repair anchorage and concrete pad (if floor mounted and wall if wall mounted) and remount equipment.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>3091.5</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.3201</EnergyDispersion>
+            <CarbonMedian>103.43</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.3201</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>910</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>630</MinAmount>
+              <Uncertainty>0.1998</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>1.0706</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>0.7411</MinAmount>
+              <Uncertainty>0.3201</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.35</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Anchorage failure &amp; Equipment damaged beyond repair.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace equipment including attached utilities in addition to repairing anchorage and concrete pad / wall.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>51828.76</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.282</EnergyDispersion>
+            <CarbonMedian>2664.45</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.282</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>16705</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>11565</MinAmount>
+              <Uncertainty>0.1306</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>19.6529</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>13.6058</MinAmount>
+              <Uncertainty>0.282</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.15</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Equipment is damaged and inoperative.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Service for intermittent voltage output or for blown surge suppressor.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>48737.26</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.2803</EnergyDispersion>
+            <CarbonMedian>2561.02</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.2803</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>15795</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>10935</MinAmount>
+              <Uncertainty>0.1267</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>18.5823</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>12.8647</MinAmount>
+              <Uncertainty>0.2803</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.25</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Equipment is damaged and inoperative.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace equipment.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>48737.26</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.2803</EnergyDispersion>
+            <CarbonMedian>2561.02</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.2803</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>15795</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>10935</MinAmount>
+              <Uncertainty>0.1267</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>18.5823</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>12.8647</MinAmount>
+              <Uncertainty>0.2803</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.25</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>500</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

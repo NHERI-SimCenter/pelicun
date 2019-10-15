@@ -1,0 +1,131 @@
+{
+  "Name": "Storefront, Config: Monolithic, Lamination: Not laminated, Glass Type: Full tempered, Details: 3/8 in. (10 mm) FT monolithic, Corner Cond. Specimen, Short side; glass-frame clearance = 0.5 in. (13 mm); aspect ratio = 2.72:1 sealant = wet",
+  "QuantityUnit": [
+    30,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B2023.034",
+    "Description": "None",
+    "Author": "By User",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:05.5370718-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.036,
+      "Beta": 0.75,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2055.0,
+                1096.0
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1668,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.9052,
+                0.4821
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3005,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Glass cracking.",
+          "RepairMeasures": "Remove glass, replace frame, reinstall glass"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.05,
+      "Beta": 1.0,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2055.0,
+                1096.0
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1668,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.9052,
+                0.4821
+              ],
+              "Quantity": [
+                20.0,
+                100.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3005,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Frame Damage",
+          "RepairMeasures": "Remove and replace frame and glass."
+        }
+      ]
+    }
+  ]
+}

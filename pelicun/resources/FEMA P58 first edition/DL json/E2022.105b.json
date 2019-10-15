@@ -1,0 +1,97 @@
+{
+  "Name": "Bookcase, 5 shelves, anchored laterally",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "E2022.105b",
+    "Description": "Standard bookcase, anched laterally.  Bookcase is 12-5/8\" deep x 71\" tall.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:49:00.0195683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": "Undefined",
+                "Beta": 0.5,
+                "CurveType": "Normal"
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": "Undefined",
+              "Quantity": [
+                1.0,
+                1.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Book case falls over and contents are scattered.  Likely damage to bookcase.  ",
+          "RepairMeasures": "Replace bookcase and restack / replace contents.  ",
+          "AffectedArea": [
+            10,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

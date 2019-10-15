@@ -10,7 +10,8 @@
     "coupled_assessment": false,
     "irrepairable_res_drift": {
       "Median": 0.1,
-      "Sig": 0.3
+      "Beta": 0.3,
+      "YieldDriftRatio": 0.01
     },
     "replacement_cost": 450000.0,
     "replacement_time": 180.0,
@@ -29,8 +30,8 @@
       2.0,
       2.0
     ],
-    "response": {  
-      "coll_prob": "estimated", 
+    "response": {
+      "coll_prob": "estimated",
       "CP_est_basis": "raw EDP",
       "EDP_dist_basis": "all results",
       "EDP_distribution": "lognormal"}
@@ -42,87 +43,36 @@
     "time": 1.0,
     "area": 1.0,
     "volume": 1.0,
+    "speed": 1.0,
     "acceleration": 1.0
   },
   "components": {
     "B1071.011": {
-      "quantities": [
-        12.6,
-        12.6
-      ],
-      "csg_weights": [
-        0.285,
-        0.285,
-        0.215,
-        0.215
-      ],
-      "dirs": [
-        0,
-        0,
-        1,
-        1
-      ],
-      "kind": "structural",
-      "distribution": "normal",
-      "cov": 0.01,
-      "unit": [
-        100.0,
-        "SF"
-      ],
-      "locations": [
-        2,
-        3
-      ]
+      "cov": ["0.01", "0.01", "0.01", "0.01"],
+      "directions": [1, 2, 1, 2],
+      "distribution": ["normal", "normal", "normal", "normal"],
+      "locations": [2, 2, 3, 3],
+      "quantities": [718.2, 541.8, 718.2,541.8],
+      "csg_weights": [[0.5, 0.5], [0.5, 0.5], [0.5, 0.5], [0.5, 0.5]],
+      "unit": "ft2"
     },
     "B3011.012": {
-      "quantities": [
-        14.1
-      ],
-      "csg_weights": [
-        1.0
-      ],
-      "dirs": [
-        0
-      ],
-      "kind": "structural",
-      "distribution": "normal",
-      "cov": 0.01,
-      "unit": [
-        100.0,
-        "SF"
-      ],
-      "locations": [
-        4
-      ]
+      "cov": ["0.01"],
+      "directions": [1],
+      "distribution": ["normal"],
+      "locations": [4],
+      "quantities": [1410.0],
+      "csg_weights": [[1.0]],
+      "unit": "ft2"
     },
     "C1011.011a": {
-      "quantities": [
-        1.42,
-        1.42
-      ],
-      "csg_weights": [
-        0.285,
-        0.285,
-        0.215,
-        0.215
-      ],
-      "dirs": [
-        0,
-        0,
-        1,
-        1
-      ],
-      "kind": "non-structural",
-      "distribution": "lognormal",
-      "cov": 0.01,
-      "unit": [
-        100.0,
-        "LF"
-      ],
-      "locations": [
-        2,
-        3
-      ]
+      "cov": ["0.01", "0.01", "0.01", "0.01"],
+      "directions": [1, 2, 1, 2],
+      "distribution": ["normal", "normal", "normal", "normal"],
+      "locations": [2, 2, 3, 3],
+      "quantities": [80.94, 61.06, 80.94, 61.06],
+      "csg_weights": [[0.5, 0.5], [0.5, 0.5], [0.5, 0.5], [0.5, 0.5]],
+      "unit": "ft"
     }
   },
   "collapse_modes": {

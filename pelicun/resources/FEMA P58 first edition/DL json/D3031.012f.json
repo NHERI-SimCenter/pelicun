@@ -1,0 +1,163 @@
+{
+  "Name": "Chiller - Capacity: 100 to <350 Ton - Vibration isolated equipment that is not snubbed or restrained - Combined anchorage/isolator & equipment fragility",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D3031.012f",
+    "Description": "Costing is per unit and is based upon 250 Ton.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:14.0985683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.35,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                1650.0,
+                1350.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3984,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                5.4706,
+                4.5294
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3775,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure.",
+          "RepairMeasures": "Repair anchorage and concrete pad and remount equipment."
+        },
+        {
+          "Weight": 0.15,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                169950.0,
+                139050.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1733,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                193.4706,
+                96.5294
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1729,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure & Equipment damaged beyond repair.",
+          "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad."
+        },
+        {
+          "Weight": 0.5,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                168300.0,
+                137700.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1711,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                192.0,
+                96.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1716,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, Inoperative but anchorage is OK",
+          "RepairMeasures": "Repair chiller and attached piping."
+        }
+      ]
+    }
+  ]
+}

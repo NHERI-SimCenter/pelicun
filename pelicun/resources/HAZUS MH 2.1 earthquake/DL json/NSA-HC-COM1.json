@@ -1,0 +1,84 @@
+{
+  "Name": "NSA-HC-COM1",
+  "GeneralInformation": {
+    "ID": "NSA-HC-COM1",
+    "Description": "NSA-HC-COM1"
+  },
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.3,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.008
+            }
+          },
+          "Description": "Slight"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.6,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.044000000000000004
+            }
+          },
+          "Description": "Moderate"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 1.2,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.129
+            }
+          },
+          "Description": "Extensive"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 2.4,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": 0.431
+            }
+          },
+          "Description": "Complete"
+        }
+      ]
+    }
+  ]
+}

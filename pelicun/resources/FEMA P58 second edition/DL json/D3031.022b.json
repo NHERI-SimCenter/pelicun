@@ -1,0 +1,83 @@
+{
+  "Name": "Cooling Tower - Capacity: < 100 Ton - Vibration isolated equipment that is not snubbed or restrained - Equipment fragility only",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D3031.022b",
+    "Description": "Costing is per unit and is based upon 75 Ton.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:51.5312694-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.97,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                26070.0,
+                21330.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.172,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                8.3647,
+                2.7883
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3034,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged equipment and attached piping but anchorage is OK.",
+          "RepairMeasures": "Repair damaged equipment and attached piping.  Cooling tower removed, repaired offsite, and reinstalled."
+        }
+      ]
+    }
+  ]
+}

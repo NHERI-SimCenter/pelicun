@@ -76,12 +76,11 @@ def test_read_SimCenter_DL_input_minimum_input():
     # make sure the paths under data sources point to the right locations
     assert test_DL['data_sources']['path_CMP_data'] == \
            pelicun_path + '/resources/FEMA P58 first edition/DL json/'
-    assert test_DL['data_sources']['path_POP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/population.json'
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys())+list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
 
 def test_read_SimCenter_DL_input_full_input():
@@ -107,7 +106,8 @@ def test_read_SimCenter_DL_input_full_input():
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys()) + list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
 def test_read_SimCenter_DL_input_non_standard_units():
     """
@@ -124,15 +124,14 @@ def test_read_SimCenter_DL_input_non_standard_units():
                                           'test_DL_input_ns_units.json',
                                           verbose=False)
 
-    # make sure the paths under data sources point to the right locations
+    # make sure the path under data sources points to the right location
     assert test_DL['data_sources']['path_CMP_data'] == \
            pelicun_path + '/resources/FEMA P58 first edition/DL json/'
-    assert test_DL['data_sources']['path_POP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/population.json'
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys()) + list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
 def test_read_SimCenter_DL_input_unknown_unit():
     """
@@ -174,25 +173,20 @@ def test_read_SimCenter_DL_input_injuries_only():
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
+    for key in set(list(ref_DL.keys()) + list(test_DL.keys())):
+        assert ref_DL[key] == test_DL[key]
 
-    # now test if warnings are shown if other pieces of data are missing
+    # now test if an error is shown if other pieces of data are missing
 
     # load the reference results
     with open('resources/io testing/ref/'
                          'ref_DL_input_injuries_missing_data.json') as f:
         ref_DL = json.load(f)
 
-    with pytest.warns(UserWarning) as e_info:
+    with pytest.raises(ValueError) as e_info:
         test_DL = read_SimCenter_DL_input(
             'resources/io testing/test/test_DL_input_injuries_missing_data.json',
             verbose=False)
-
-    # remove the data_sources entry (it has already been tested)
-    test_DL.pop('data_sources', None)
-
-    # check if the returned dictionary is appropriate
-    assert ref_DL == test_DL
 
 
 def test_read_SimCenter_DL_input_unknown_component_unit():
@@ -233,7 +227,7 @@ def test_read_SimCenter_EDP_input():
 
     # read the input file
     test_EDP = read_SimCenter_EDP_input(
-        'resources/io testing/test/test_EDP_input.csv',
+        'resources/io testing/test/test_EDP_input.out',
         EDP_kinds=('PID', 'PFA', 'RD', 'PRD'),
         units = dict(PID=1., PFA=9.81, RD=1., PRD=0.2),
         verbose=False)
@@ -278,20 +272,23 @@ def test_read_component_DL_data():
     # basic case with a typical component
     comp_info = {
         "B1071.011": {
-            "quantities"  : [1.0, 1.0],
-            "csg_weights" : [0.5, 0.5],
-            "dirs"        : [0, 1],
-            "kind"        : "structural",
-            "distribution": "normal",
-            "cov"         : 0.1,
-            "unit"        : [100.0, "SF"],
-            "locations"   : [2, 3]
-        },
+            "locations": [2, 2, 3, 3],
+            "directions": [1, 2, 1, 2],
+            "quantities": [50.0, 50.0, 50.0, 50.0],
+            "csg_weights" : [
+                [1.0,],
+                [1.0,],
+                [1.0,],
+                [1.0,]],
+            "cov"         : ["0.1", "0.1", "0.1", "0.1"],
+            "distribution": ["normal", "normal", "normal", "normal"],
+            "unit"        : "ft2"
+        }
     }
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -299,26 +296,29 @@ def test_read_component_DL_data():
               'r') as f:
         ref_CMP = json.load(f)
 
-        # check if the returned dictionary is appropriate
-    assert test_CMP == ref_CMP
+    # check if the returned dictionary is appropriate
+    for key in set(list(ref_CMP.keys())+list(test_CMP.keys())):
+        assert ref_CMP[key] == test_CMP[key]
 
     # acceleration-sensitive component with injuries
     comp_info = {
         "C3032.001a": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
-            "dirs"        : [0, 1, 1, 0],
-            "kind"        : "non-structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [250.0, "SF"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities"  : [125.0, 125.0],
+            "csg_weights" : [
+                [0.2, 0.8],
+                [0.4, 0.6],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : "ft2"
+        }
     }
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -327,25 +327,28 @@ def test_read_component_DL_data():
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
-    assert test_CMP == ref_CMP
+    for key in set(list(ref_CMP.keys()) + list(test_CMP.keys())):
+        assert ref_CMP[key] == test_CMP[key]
 
     # component with simultaneous damage states
     comp_info = {
         "D1014.011": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.2, 0.1, 0.1, 0.6],
-            "dirs"        : [0, 0, 1, 1],
-            "kind"        : "non-structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : "ea"
+        }
     }
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -354,25 +357,27 @@ def test_read_component_DL_data():
         ref_CMP = json.load(f)
 
     # check if the returned dictionary is appropriate
-    assert test_CMP["D1014.011"] == ref_CMP["D1014.011"]
+    assert ref_CMP["D1014.011"] == test_CMP["D1014.011"]
 
     # component with mutually exclusive damage states
     comp_info = {
         "B1035.051": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.2, 0.1, 0.1, 0.6],
-            "dirs"        : [0, 0, 1, 1],
-            "kind"        : "structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : "ea"
+        }
     }
 
     # read the component data
     test_CMP = read_component_DL_data(
-        '../../resources/FEMA P58 first edition/DL json/',
+        '../resources/FEMA P58 first edition/DL json/',
         comp_info)
 
     # load the reference results
@@ -386,21 +391,23 @@ def test_read_component_DL_data():
     # an incomplete component shall not get parsed and shall produce a warning
     comp_info = {
         "E2022.023": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
-            "dirs"        : [0, 1, 1, 0],
-            "kind"        : "non-structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : "ea"
+        }
     }
 
     # read the component data
     with pytest.warns(UserWarning) as e_info:
         test_CMP = read_component_DL_data(
-            '../../resources/FEMA P58 first edition/DL json/',
+            '../resources/FEMA P58 first edition/DL json/',
             comp_info)
 
     assert test_CMP == {}
@@ -408,21 +415,23 @@ def test_read_component_DL_data():
     # a component with unknown EDP shall not get parsed and shall produce a warning
     comp_info = {
         "B1042.001a": {
-            "quantities"  : [1.0],
-            "csg_weights" : [0.1, 0.2, 0.3, 0.4],
-            "dirs"        : [0, 1, 1, 0],
-            "kind"        : "structural",
-            "distribution": "normal",
-            "cov"         : 1.0,
-            "unit"        : [1.0, "ea"],
-            "locations"   : [1]
-        },
+            "locations"   : [1, 1],
+            "directions"  : [1, 2],
+            "quantities" : [3.0, 7.0],
+            "csg_weights": [
+                [2./3., 1./3.],
+                [1./7., 6./7.],
+            ],
+            "cov"         : ["1.0", "1.0"],
+            "distribution": ["normal", "normal"],
+            "unit"        : "ea"
+        }
     }
 
     # read the component data
     with pytest.warns(UserWarning) as e_info:
         test_CMP = read_component_DL_data(
-            '../../resources/FEMA P58 first edition/DL json/',
+            '../resources/FEMA P58 first edition/DL json/',
             comp_info)
 
     assert test_CMP == {}
@@ -483,7 +492,7 @@ def test_create_HAZUS_json_files():
         # convert the files in the data folder
         os.mkdir(test_dir)
         os.mkdir(test_dir+'DL json/')
-        create_HAZUS_json_files(data_dir, test_dir)
+        create_HAZUS_EQ_json_files(data_dir, test_dir)
 
         # collect the prepared reference files
         ref_files = sorted(os.listdir(ref_dir+'DL json/'))

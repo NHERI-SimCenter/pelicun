@@ -1,0 +1,123 @@
+{
+  "Name": "Cooling Tower - Capacity: 100 to <350 Ton - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Anchorage fragility only",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D3031.023d",
+    "Description": "Costing is per unit and is based upon 250 Ton.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:20.0085683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.7,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                1650.0,
+                1350.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3984,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                5.1806,
+                4.2394
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3984,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure.",
+          "RepairMeasures": "Repair anchorage and concrete pad and remount equipment."
+        },
+        {
+          "Weight": 0.3,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                87450.0,
+                71550.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1787,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                99.9412,
+                50.0588
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1825,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure & Equipment damaged beyond repair.",
+          "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad."
+        }
+      ]
+    }
+  ]
+}

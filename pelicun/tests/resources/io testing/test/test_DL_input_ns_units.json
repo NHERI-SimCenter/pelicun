@@ -7,30 +7,33 @@
             "length": "ft",
             "temperature": "C",
             "time": "sec",
+            "speed": "mph",
             "acceleration": "g"
         }
     },
-    "LossModel": {
-        "BuildingDamage": {
-            "CollapseLimits": {
-                "PFA": "1.5",
-                "PID": "0.1"
-            }
-        },
-        "BuildingResponse": {
+    "DamageAndLoss": {
+        "ResponseModel":{
+            "ResponseDescription": {
+                "Realizations": "20000"
+            },
             "DetectionLimits": {
                 "PFA": "2.0",
                 "PID": "0.15"
             }
         },
-        "DecisionVariables": {
-            "Injuries": false,
-            "ReconstructionCost": true,
-            "ReconstructionTime": false,
-            "RedTag": false
+        "DamageModel":{
+            "CollapseLimits": {
+                "PFA": "1.5",
+                "PID": "0.1"
+            }
         },
-        "UncertaintyQuantification": {            
-            "Realizations": "20000"
+        "LossModel":{
+            "DecisionVariables": {
+                "Injuries": false,
+                "ReconstructionCost": true,
+                "ReconstructionTime": false,
+                "RedTag": false
+            }
         }
     }
 }

@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>9c722cdd-44a2-4e63-838a-330de379918c</UniqueID>
+  <ID>D3031.022a</ID>
+  <Description>Costing is per unit and is based upon 75 Ton.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Cooling Tower - Capacity: &lt; 100 Ton - Vibration isolated equipment that is not snubbed or restrained - Anchorage fragility only</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Average</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:50:51.0324191-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.
+Import errors:
+ Warning, Data missing: D3031.022a:DS1: Could not parse median - using 500
+Warning, Data missing: D3031.022a:DS1: Could not parse dispersion - using 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Anchorage failure.</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Anchorage failure.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Repair anchorage and concrete pad and remount equipment.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>3225.95</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.5168</EnergyDispersion>
+            <CarbonMedian>110.49</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.5168</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>1100</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>900</MinAmount>
+              <Uncertainty>0.4523</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>0.1294</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>0.1058</MinAmount>
+              <Uncertainty>0.5168</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.7</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Anchorage failure &amp; Equipment damaged beyond repair.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace equipment including attached utilities in addition to repairing anchorage and concrete pad.  Cooling tower removed, repaired offsite, and reinstalled.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>true</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>153673.4</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.3101</EnergyDispersion>
+            <CarbonMedian>13054.34</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.3101</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>27170</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>22230</MinAmount>
+              <Uncertainty>0.1834</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>3.1965</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>2.6153</MinAmount>
+              <Uncertainty>0.3101</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.3</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>500</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

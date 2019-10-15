@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>114f9700-1a7d-4409-8d8b-f5771efe067c</UniqueID>
+  <ID>D5092.023b</ID>
+  <Description>Costing is per unit.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Battery Charger - Capacity: all - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Equipment fragility only</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:52:13.62753-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Damaged, inoperative but anchorage is OK.</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Damaged, inoperative but anchorage is OK.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Service for intermittent voltage output or for blown surge suppressor.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>3872.09</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.2929</EnergyDispersion>
+            <CarbonMedian>203.47</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.2929</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>1040</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>720</MinAmount>
+              <Uncertainty>0.1527</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>1.2236</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>0.8471</MinAmount>
+              <Uncertainty>0.2929</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.5</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Damaged, inoperative but anchorage is OK. Equipment damaged beyond repair.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace equipment.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>48737.26</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.2803</EnergyDispersion>
+            <CarbonMedian>2561.02</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.2803</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>15795</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>10935</MinAmount>
+              <Uncertainty>0.1267</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>18.5823</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>12.8647</MinAmount>
+              <Uncertainty>0.2803</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.5</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>2.7</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

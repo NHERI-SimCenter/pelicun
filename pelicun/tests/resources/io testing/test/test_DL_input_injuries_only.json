@@ -1,6 +1,6 @@
 {
-    "GeneralInformation": { 
-        "stories": 2,       
+    "GeneralInformation": {
+        "stories": 2,
         "units": {
             "force": "N",
             "length": "m",
@@ -8,17 +8,22 @@
             "time": "sec"
         }
     },
-    "LossModel": {
-        "BuildingDamage": {
-            "CollapseLimits": {
-                "PFA": "",
-                "PID": ""
+    "DamageAndLoss": {
+        "ResponseModel":{
+            "ResponseDescription": {
+                "Realizations": "20000"
             }
         },
-        "BuildingResponse":{
-            "DetectionLimits": {
-                "PFA": "",
-                "PID": ""
+        "LossModel":{
+            "DecisionVariables": {
+                "Injuries": true,
+                "ReconstructionCost": false,
+                "ReconstructionTime": false,
+                "RedTag": false
+            },
+            "Inhabitants": {
+                "OccupancyType": "Multi-Unit Residential",
+                "PeakPopulation": "2"
             }
         },
         "CollapseModes": [
@@ -26,45 +31,34 @@
                 "affected_area": "1.0, 1.0",
                 "injuries": "0.1, 0.9",
                 "name": "complete",
-                "w": "0.2"
+                "weight": "0.2"
             }
         ],
-        "Components": [            
-            {
-                "ID": "B1071.011",
-                "cov": "0.01",
-                "directions": "0, 0, 1, 1",
-                "distribution": "normal",
-                "name": "light framed wood walls",
-                "quantity": "0.0, 12.6",
-                "structural": true,
-                "unit_size": "100",
-                "unit_type": "SF",
-                "weights": "0.285, 0.285, 0.215, 0.215"
-            }           
-        ],
-        "DecisionVariables": {
-            "Injuries": true,
-            "ReconstructionCost": false,
-            "ReconstructionTime": false,
-            "RedTag": false
-        },
-        "Inhabitants": {
-            "OccupancyType": "Multi-Unit Residential",
-            "PeakPopulation": "2"
-        },
-        "LossModelDependencies": {
+        "Components": {
+            "B1071.011": [
+                {
+                    "location": "2, 3",
+                    "direction": "1",
+                    "median_quantity": "359.1, 359.1",
+                    "unit": "ft2",
+                    "distribution": "normal",
+                    "cov": "0.01"
+                },
+                {
+                    "location": "2, 3",
+                    "direction": "2",
+                    "median_quantity": "270.9, 270.9",
+                    "unit": "ft2",
+                    "distribution": "normal",
+                    "cov": "0.01"
+                }
+            ]
+        }
+        "Dependencies": {
             "Fragilities": "per ATC recommendation",
             "Injuries": "btw. Directions",
             "InjurySeverities": true,
             "Quantities": "btw. Fragility Groups"
-        },
-        "UncertaintyQuantification": {
-            "AdditionalUncertainty": {
-                "GroundMotion": "",
-                "Modeling": ""
-            },
-            "Realizations": "20000"
         }
     }
 }

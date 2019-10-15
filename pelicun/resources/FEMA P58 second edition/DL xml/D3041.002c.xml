@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>7d6e0e35-75fe-4e87-84b6-b040ebbdc465</UniqueID>
+  <ID>D3041.002c</ID>
+  <Description>Costing per 10 units</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>HVAC Fan In Line Fan, Fan independently supported but not on vibration isolators, SDC D, E, F</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Marginal</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Marginal</Documentation>
+    <Rationality>Marginal</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:51:15.4173516-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>One failure is expected per 10 units.</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Bellows fails at fans.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace failed bellows.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>18649.4</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.424</EnergyDispersion>
+        <CarbonMedian>1566.4</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.424</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>7700</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>6300</MinAmount>
+          <Uncertainty>0.3425</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>9.0585</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>7.4115</MinAmount>
+          <Uncertainty>0.424</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.25</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

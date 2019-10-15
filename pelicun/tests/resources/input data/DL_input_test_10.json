@@ -9,68 +9,70 @@
             "time": "sec"
         }
     },
-    "LossModel": {
-        "BuildingDamage": {
+    "DamageAndLoss": {
+        "ResponseModel": {
+            "ResponseDescription": {
+                "EDP_Distribution": "lognormal",
+                "BasisOfEstimate": "all results",
+                "Realizations": "10000"
+            }
+        },
+        "DamageModel": {
+            "IrrepairableResidualDrift": {
+                "Median": "10.",
+                "Beta": "0.0001"
+            },
             "CollapseLimits": {
                 "PID": "0.10"
             },
-            "IrrepairableResidualDrift": {
-                "Median": "10.",
-                "Sig": "0.0001"
-            },
+            "CollapseProbability": {
+                "Value": "estimated",
+                "BasisOfEstimate": "sampled EDP"
+            }
+        },
+        "LossModel": {
             "ReplacementCost": "30000000",
-            "ReplacementTime": "30000"
-        },  
-        "BuildingResponse": {            
-            "EDP_Distribution": "lognormal",
-            "BasisOfEDP_Distribution": "all results",
-            "CollapseProbability": "estimated",
-            "BasisOfCPEstimate": "sampled EDP"
-        },   
+            "ReplacementTime": "30000",
+            "DecisionVariables": {
+                "Injuries": true,
+                "ReconstructionCost": true,
+                "ReconstructionTime": true,
+                "RedTag": true
+            },
+            "Inhabitants": {
+                "OccupancyType": "Hospitality",
+                "PeakPopulation": "10, 10",
+                "PopulationDataFile": "resources/population data/population_test_det.json"
+            }
+        },
         "CollapseModes": [
             {
                 "affected_area": "1.0",
                 "injuries": "0.1, 0.9",
                 "name": "complete",
-                "w": "1.0"
+                "weight": "1.0"
             }
         ],
-        "Components": [
-            {
-                "ID": "T0004.001",
-                "cov": "0.0001",
-                "directions": "1, 2, 1, 2, 1, 2, 1, 2",
-                "distribution": "normal",
-                "name": "drift sensitive test comp 1",
-                "quantity": "5.3821, 5.3821",
-                "structural": true,
-                "unit_size": "100",
-                "unit_type": "SF",
-                "weights": "0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125"
-            },
-            {
-                "ID": "T0004.002",
-                "cov": "0.0001",
-                "directions": "1, 2, 1, 2, 1, 2, 1, 2",
-                "distribution": "normal",
-                "name": "drift sensitive test comp 2",
-                "quantity": "5.3821, 5.3821",
-                "structural": true,
-                "unit_size": "100",
-                "unit_type": "SF",
-                "weights": "0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125, 0.125"
-            }
-        ],
-        "DataSources": {
-            "ComponentDataFolder": "resources/DL data/json/",
-            "PopulationDataFile": "resources/population data/population_test_det.json"
-        },         
-        "Inhabitants": {
-            "OccupancyType": "Hospitality",
-            "PeakPopulation": "10"
-        },
-        "UncertaintyQuantification": {            
-            "Realizations": "10000"
+        "ComponentDataFolder": "resources/DL data/json/",
+        "Components": {
+            "T0004.001": [
+                {
+                    "location": "1, 2",
+                    "direction": "1, 2",
+                    "median_quantity": "67.27625, 67.27625, 67.27625, 67.27625",
+                    "unit": "ft2",
+                    "distribution": "N/A"
+                }
+            ],
+            "T0004.002": [
+                {
+                    "location": "1, 2",
+                    "direction": "1, 2",
+                    "median_quantity": "67.27625, 67.27625, 67.27625, 67.27625",
+                    "unit": "ft2",
+                    "distribution": "N/A"
+                }
+            ]
         }
     }
 }

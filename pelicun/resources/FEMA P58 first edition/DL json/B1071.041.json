@@ -1,0 +1,179 @@
+{
+  "Name": "Exterior Wall - Type: Gypsum with wood studs, Full Height, Fixed Below, Fixed Above",
+  "QuantityUnit": [
+    100,
+    "LF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1071.041",
+    "Description": "Costing based upon 13'x100' Panels",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:53.0655683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "Copy of C1011.011a for use as an exterior wall."
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.0021,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                6490.0,
+                5310.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3978,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                14.7353,
+                11.2647
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.7803,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Screws pop-out, minor cracking of wall board, warping or cracking of tape.",
+          "RepairMeasures": "Retape joints, paste and repaint both sides of  full 100 foot length of wall board."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0071,
+      "Beta": 0.45,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                20680.0,
+                16920.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.0969,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                57.5294,
+                46.4706
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.0937,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Moderate cracking or crushing of gypsum wall boards (typically in corners and in corners of openings).",
+          "RepairMeasures": "Remove full 100 foot length of wall board (both sides), install new wall board (both sides), tape, paste and repaint."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.012,
+      "Beta": 0.45,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                32230.0,
+                26370.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1402,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                99.6176,
+                82.3824
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1634,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Significant cracking and/or crushing of gypsum wall boards- buckling of studs and tearing of tracks.",
+          "RepairMeasures": "Remove and replace full 100 foot length of metal stud wall, both sides of the gypsum wall board and any embedded utilities, and tape, paste and repaint."
+        }
+      ]
+    }
+  ]
+}

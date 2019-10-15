@@ -52,8 +52,31 @@ if sys.version.startswith('2'):
 else:
     string_types = str
 
+# import libraries for other modules
+import time
+import numpy as np
+import pandas as pd
+
+idx = pd.IndexSlice
+
+# set printing options
+import pprint
+pp = pprint.PrettyPrinter(indent=4, width=300)
+
+pd.options.display.max_rows = 20
+pd.options.display.max_columns = None
+pd.options.display.expand_frame_repr = True
+pd.options.display.width = 300
+
+# print a matrix in a nice way using a DataFrame
+def show_matrix(data, describe=False):
+    if describe:
+        pp.pprint(pd.DataFrame(data).describe(percentiles=[0.01,0.1,0.5,0.9,0.99]))
+    else:
+        pp.pprint(pd.DataFrame(data))
+
 # get the absolute path of the pelicun directory
-pelicun_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pelicun_path = os.path.dirname(os.path.abspath(__file__))
 
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
@@ -103,8 +126,9 @@ m3 = m**3.
 
 ft3 = ft**3.
 
-# velocity
+# speed / velocity
 mps = m / sec
+mph = mile / h
 
 # acceleration
 mps2 = m / sec2
@@ -152,6 +176,7 @@ C = 1.
 
 # FEMA P58 specific
 #TODO: work around these and make them available only in the parser methods
+EA = ea
 SF = ft2
 LF = ft
 TN = ton

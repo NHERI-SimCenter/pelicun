@@ -1,0 +1,163 @@
+{
+  "Name": "Low Voltage Switchgear - Capacity: 100 to <350 Amp - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Combined anchorage/isolator & equipment fragility",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D5012.023c",
+    "Description": "Costing is per unit and is based upon 225 Amp.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:44.2155683-07:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component."
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.35,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                550.0,
+                450.0
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2825,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.7269,
+                1.4131
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.283,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure.",
+          "RepairMeasures": "Repair anchorage and concrete pad and remount equipment."
+        },
+        {
+          "Weight": 0.15,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                10752.5,
+                8797.5
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1631,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                12.0667,
+                5.9333
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1673,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Anchorage failure & Equipment damaged beyond repair.",
+          "RepairMeasures": "Replace equipment including attached utilities in addition to repairing anchorage and concrete pad."
+        },
+        {
+          "Weight": 0.5,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                10202.5,
+                8347.5
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1572,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                11.9098,
+                6.0902
+              ],
+              "Quantity": [
+                3.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1277,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, Inoperative but anchorage is OK",
+          "RepairMeasures": "Replace fiberglass insulator supporting the vertical bus bars in the rear of the switchgear assembly"
+        }
+      ]
+    }
+  ]
+}

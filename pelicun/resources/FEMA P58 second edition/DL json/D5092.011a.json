@@ -1,0 +1,163 @@
+{
+  "Name": "Battery Rack - Capacity: all - Unanchored equipment that is not vibration isolated - Equipment fragility only",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D5092.011a",
+    "Description": "Costing is per unit.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:52:10.7008227-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.11,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Simultaneous",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                14400.0,
+                9600.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.0962,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                19.0589,
+                12.7059
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2679,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative. Batteries fall, crack cases, dislodge conductors, or are otherwise damaged.",
+          "RepairMeasures": "Replace batteries."
+        },
+        {
+          "Weight": 0.5,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                900.0,
+                600.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2855,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.1911,
+                0.7941
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3795,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Batteries spill battery acid.",
+          "RepairMeasures": "Clean up spilled acid."
+        },
+        {
+          "Weight": 0.1,
+          "LongLeadTime": true,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                3780.0,
+                2520.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2403,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                5.0029,
+                3.3353
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3467,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Battery rack collapses.",
+          "RepairMeasures": "Replace battery rack."
+        }
+      ]
+    }
+  ]
+}

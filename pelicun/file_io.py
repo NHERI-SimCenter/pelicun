@@ -48,23 +48,68 @@ This module has classes and methods that handle file input and output.
     read_SimCenter_EDP_input
     read_population_distribution
     read_component_DL_data
+    convert_P58_data_to_json
+    create_HAZUS_EQ_json_files
+    create_HAZUS_HU_json_files
     write_SimCenter_DL_output
+    write_SimCenter_DM_output
+    write_SimCenter_DV_output
 
 """
 
-import numpy as np
-import pandas as pd
+from .base import *
+
 import json
 import xml.etree.ElementTree as ET
 from distutils.util import strtobool
-import pprint
 from copy import deepcopy
 
 import warnings
 
-from .base import *
+convert_dv_name = {
+    'DV_rec_cost': 'Reconstruction Cost',
+    'DV_rec_time': 'Reconstruction Time',
+    'DV_injuries_0': 'Injuries lvl. 1',
+    'DV_injuries_1': 'Injuries lvl. 2',
+    'DV_injuries_2': 'Injuries lvl. 3',
+    'DV_injuries_3': 'Injuries lvl. 4',
+    'DV_red_tag': 'Red Tag ',
+}
 
-pp = pprint.PrettyPrinter(indent=4)
+# this is a convenience function for converting strings to float or None
+def float_or_None(string):
+    try:
+        res = float(string)
+        return res
+    except:
+        return None
+
+def int_or_None(string):
+    try:
+        res = int(string)
+        return res
+    except:
+        return None
+
+def process_loc(string, stories):
+    try:
+        res = int(string)
+        return [res, ]
+    except:
+        if "-" in string:
+            s_low, s_high = string.split('-')
+            s_low = process_loc(s_low, stories)
+            s_high = process_loc(s_high, stories)
+            return list(range(s_low[0], s_high[0]+1))
+        elif string == "all":
+            return list(range(1, stories+1))
+        elif string == "top":
+            return [stories,]
+        elif string == "roof":
+            return [stories,]
+        else:
+            return None
+
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
@@ -80,7 +125,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     ----------
     input_path: string
         Location of the DL input json file.
-    assessment_type: {'P58', 'HAZUS'}
+    assessment_type: {'P58', 'HAZUS_EQ', 'HAZUS_HU'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
     verbose: boolean
@@ -95,10 +140,6 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     """
 
-    # this is a convenience function for converting strings to float or None
-    def float_or_None(text):
-        return float(text) if text != '' else None
-
     AT = assessment_type
 
     with open(input_path, 'r') as f:
@@ -110,82 +151,120 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         'decision_variables', 'dependencies', 'data_sources',
     ]])
 
-    LM = jd['LossModel']
+    # create a few internal variables for convenience
+    DL_input = jd['DamageAndLoss']
 
-    # data sources
-    # check if the user specified custom data sources
-    if 'DataSources' in LM.keys():
-        path_CMP_data = LM['DataSources'].get('ComponentDataFolder',"")
-        path_POP_data = LM['DataSources'].get('PopulationDataFile',"")
+    response = DL_input.get('ResponseModel',None)
+    if response is not None:
+        res_description = response.get('ResponseDescription', None)
+        det_lims = response.get('DetectionLimits', None)
+        uncertainty = response.get('AdditionalUncertainty', None)
 
     else:
-        path_CMP_data = ""
-        path_POP_data = ""
+        res_description = None
+        det_lims = None
+        uncertainty = None
 
-    default_data_name = {
-        'P58': 'FEMA P58 first edition',
-        'HAZUS': 'HAZUS'
-        }
+    damage = DL_input.get('DamageModel',None)
+    if damage is not None:
+        irrep_res_drift = damage.get('IrrepairableResidualDrift', None)
+        coll_prob = damage.get('CollapseProbability', None)
+        coll_lims = damage.get('CollapseLimits', None)
+        design_lvl = damage.get('DesignLevel', None)
+        struct_type = damage.get('StructureType', None)
 
-    # if not, use the default location
-    if path_CMP_data is "":
-        warnings.warn(UserWarning(
-            "The component database is not specified; using the default "
-            "{} data.".format(default_data_name[assessment_type])
-        ))
-        path_CMP_data = pelicun_path
-        if assessment_type == 'P58':
-            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
-        elif assessment_type == 'HAZUS':
-            path_CMP_data += '/resources/HAZUS MH 2.1/DL json/'
-    data['data_sources'].update({'path_CMP_data': path_CMP_data})
+    else:
+        irrep_res_drift = None
+        coll_prob = None
+        coll_lims = None
+        design_lvl = None
+        struct_type = None
 
-    if path_POP_data is "":
-        warnings.warn(UserWarning(
-            "The population distribution is not specified; using the default "
-            "{} data.".format(default_data_name[assessment_type])
-        ))
-        path_POP_data = pelicun_path
-        if assessment_type == 'P58':
-            path_POP_data += '/resources/FEMA P58 first edition/population.json'
-        elif assessment_type == 'HAZUS':
-            path_POP_data += '/resources/HAZUS MH 2.1/population.json'
-    data['data_sources'].update({'path_POP_data': path_POP_data})
+    loss = DL_input.get('LossModel', None)
+    if loss is not None:
+        repl_cost = loss.get('ReplacementCost', None)
+        repl_time = loss.get('ReplacementTime', None)
+        dec_vars = loss.get('DecisionVariables', None)
+        inhabitants = loss.get('Inhabitants', None)
+
+    else:
+        repl_cost = None
+        repl_time = None
+        dec_vars = None
+        inhabitants = None
+
+    depends = DL_input.get('Dependencies', None)
+    components = DL_input.get('Components', None)
+    coll_modes = DL_input.get('CollapseModes', None)
 
     # decision variables of interest
-    if 'DecisionVariables' in LM.keys():
-        DV = LM['DecisionVariables']
-        for target_att, source_att in [
-            ['injuries', 'Injuries'],
-            ['rec_cost', 'ReconstructionCost'],
-            ['rec_time', 'ReconstructionTime'],
-            ['red_tag', 'RedTag'],
-        ]:
-            if source_att in DV.keys():
-                val = bool(DV[source_att])
-            else:
-                val = False
+    if dec_vars is not None:
+        for target_att, source_att in [ ['injuries', 'Injuries'],
+                                        ['rec_cost', 'ReconstructionCost'],
+                                        ['rec_time', 'ReconstructionTime'],
+                                        ['red_tag', 'RedTag'], ]:
+            val = bool(dec_vars.get(source_att, False))
             data['decision_variables'].update({target_att: val})
     else:
         warnings.warn(UserWarning(
             "No decision variables specified in the input file. Assuming that "
-            "all decision variables shall be calculated."))
-        data['decision_variables'].update({
-            'injuries': True,
-            'rec_cost': True,
-            'rec_time': True,
-        })
+            "only reconstruction cost and time needs to be calculated."))
+        data['decision_variables'].update({ 'injuries': False,
+                                            'rec_cost': True,
+                                            'rec_time': True,})
         # red tag is only used by P58 now
         if AT == 'P58':
-            data['decision_variables'].update({'red_tag': True})
+            data['decision_variables'].update({'red_tag': False})
 
-    DV = data['decision_variables']
+    dec_vars = data['decision_variables']
+
+    # data sources
+    # check if the user specified custom data sources
+    path_CMP_data = DL_input.get("ComponentDataFolder", "")
+
+    if inhabitants is not None:
+        path_POP_data = inhabitants.get("PopulationDataFile", "")
+    else:
+        path_POP_data = ""
+
+
+    # if not, use the default location
+    default_data_name = {
+        'P58'     : 'FEMA P58 first edition',
+        'HAZUS_EQ': 'HAZUS MH 2.1 earthquake',
+        'HAZUS_HU': 'HAZUS MH 2.1 hurricane'
+    }
+
+    if path_CMP_data == "":
+        warnings.warn(UserWarning(
+            "The component database is not specified; using the default "
+            "{} data.".format(default_data_name[AT])
+        ))
+        path_CMP_data = pelicun_path
+        if AT == 'P58':
+            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
+        elif AT == 'HAZUS_EQ':
+            path_CMP_data += '/resources/HAZUS MH 2.1 earthquake/DL json/'
+        elif AT == 'HAZUS_HU':
+            path_CMP_data += '/resources/HAZUS MH 2.1 hurricane/DL json/'
+    data['data_sources'].update({'path_CMP_data': path_CMP_data})
+
+    # The population data is only needed if we are interested in injuries
+    if data['decision_variables']['injuries']:
+        if path_POP_data == "":
+            warnings.warn(UserWarning(
+                "The population distribution is not specified; using the default "
+                "{} data.".format(default_data_name[AT])
+            ))
+            path_POP_data = pelicun_path
+            if AT == 'P58':
+                path_POP_data += '/resources/FEMA P58 first edition/population.json'
+            elif AT == 'HAZUS_EQ':
+                path_POP_data += '/resources/HAZUS MH 2.1 earthquake/population.json'
+        data['data_sources'].update({'path_POP_data': path_POP_data})
 
     # general information
-    if 'GeneralInformation' in jd:
-        GI = jd['GeneralInformation']
-    else:
-        GI = None
+    GI = jd.get("GeneralInformation", None)
 
     # units
     if (GI is not None) and ('units' in GI.keys()):
@@ -203,6 +282,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 'area': data['units']['length']**2.,
                 'volume': data['units']['length']**3.
             })
+            if 'speed' not in data['units'].keys():
+                data['units'].update({
+                    'speed': data['units']['length']})
             if 'acceleration' not in data['units'].keys():
                 data['units'].update({
                     #'acceleration': 1.0 })
@@ -216,6 +298,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             'length': globals()['m'],
             'area': globals()['m2'],
             'volume': globals()['m3'],
+            'speed': globals()['mps'],
             'acceleration': globals()['mps2'],
         })
 
@@ -238,76 +321,115 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 att_value = f_conv(GI[source_att]) * f_unit
                 data['general'].update({target_att: att_value})
             else:
-                if (dv_req != '') and ((dv_req == 'all') or DV[dv_req]):
+                if (dv_req != '') and ((dv_req == 'all') or dec_vars[dv_req]):
                     raise ValueError(
                         "{} has to be specified in the DL input file to "
                         "estimate {} decision variable(s).".format(source_att,
                                                                    dv_req))
 
     # is this a coupled assessment?
-    data['general'].update({'coupled_assessment':
-                            LM.get('CoupledDLAssessment', False)})
+    if res_description is not None:
+        data['general'].update({'coupled_assessment':
+                            res_description.get('CoupledAssessment', False)})
+    else:
+        data['general'].update({'coupled_assessment': False})
 
     # components
     # Having components defined is not necessary, but if a component is defined
     # then all of its attributes need to be specified. Note that the required
     # set of attributes depends on the type of assessment.
-    if 'Components' in LM.keys():
-        for comp in LM['Components']:
+    if components is not None:
+        for fg_id, frag_group in components.items():
             if AT == 'P58':
+                # TODO: allow location and direction inputs with '-' in them
                 comp_data = {
-                    'quantities'  :
-                        np.array([float(qnt) for qnt in
-                                  comp['quantity'].split(',')]),
-                    'csg_weights' :
-                        [float(wgt) for wgt in comp['weights'].split(',')],
-                    'dirs'        :
-                        [int(dir_) for dir_ in comp['directions'].split(',')],
-                    'kind'        : ('structural' if comp['structural']
-                                     else 'non-structural'),
-                    'distribution': comp['distribution'],
-                    'cov'         : float(comp['cov']),
-                    'unit'        : [float(comp['unit_size']), comp['unit_type']],
-                }
-            elif AT == 'HAZUS':
-                comp_data = {
-                    'quantities'  : np.ones(1),
-                    'csg_weights' : [1.0,],
-                    'locations'   : [1,],
-                    'dirs'        : [1,],
-                    'kind'        : ('structural' if comp['structural']
-                                     else 'non-structural'),
-                    'distribution': 'normal',
-                    'cov'         : 1e-4,
-                    'unit'        : [1.0, 'ea']
+                    'locations'   : [],
+                    'directions'  : [],
+                    'quantities'  : [],
+                    'unit'        : [],
+                    'distribution': [],
+                    'cov'         : [],
+                    'csg_weights':  [],
                 }
 
-            if AT == 'P58':
+                for comp in frag_group:
+                    locs = []
+                    for loc_ in comp['location'].split(','):
+                        for l in process_loc(loc_, data['general']['stories']):
+                            locs.append(l)
+                    locs.sort()
+
+                    dirs = sorted([int_or_None(dir_)
+                                   for dir_ in comp['direction'].split(',')])
+                    qnts = [float(qnt)
+                            for qnt in comp['median_quantity'].split(',')]
+                    csg_weights = (qnts / np.sum(qnts)).tolist()
+                    qnts = np.sum(qnts)
+
+                    pg_count = len(locs) * len(dirs)
+
+                    comp_data['locations'] = (comp_data['locations'] +
+                                               [l for l in locs for d in dirs])
+                    comp_data['directions'] = (comp_data['directions'] +
+                                              dirs * len(locs))
+
+                    unit = comp['unit']
+                    if unit not in globals().keys():
+                        raise ValueError(
+                            "Unknown unit for component {}: {}".format(fg_id,
+                                                                       unit))
+                    for i in range(pg_count):
+                        comp_data['quantities'].append(qnts)
+                        comp_data['csg_weights'].append(csg_weights)
+                        comp_data['unit'].append(unit)
+                        comp_data['distribution'].append(comp['distribution'])
+                        comp_data['cov'].append(comp.get('cov', None))
+
+                sorted_ids = np.argsort(comp_data['locations'])
+                for key in ['locations', 'directions', 'quantities',
+                            'csg_weights', 'distribution', 'cov']:
+                    comp_data[key] = [comp_data[key][s_id] for s_id in sorted_ids]
+
+                if len(set(comp_data['unit'])) != 1:
+                    raise ValueError(
+                        "Multiple types of units specified for fragility group "
+                        "{}. Make sure that every component group in a "
+                        "fragility group is defined using the same "
+                        "unit.".format(fg_id))
+                comp_data['unit'] = comp_data['unit'][0]
+
+            elif AT.startswith('HAZUS'):
+                comp_data = {
+                    'locations'    : [1, ],
+                    'directions'   : [1, ],
+                    'quantities'  : [1, ],
+                    'unit'        : 'ea',
+                    'distribution': ['N/A',],
+                    'cov'         : [None,],
+                    'csg_weights' : [[1.0,],]
+                }
+
+                # some basic pre-processing
                 # sort the dirs and their weights to have better structured
                 # matrices later
-                dir_order = np.argsort(comp_data['dirs'])
-                comp_data['dirs'] = [comp_data['dirs'][d_i] for d_i
-                                     in dir_order]
-                comp_data['csg_weights'] = [comp_data['csg_weights'][d_i]
-                                            for d_i in dir_order]
+                #dir_order = np.argsort(comp_data['directions'])
+                #comp_data['directions'] = [comp_data['directions'][d_i] for d_i
+                #                     in dir_order]
 
                 # get the location(s) of components based on non-zero quantities
-                comp_data.update({
-                    'locations':(np.where(comp_data['quantities'] > 0.)[0]+1).tolist()
-                })
+                #comp_data.update({
+                #    'locations': (np.where(comp_data['quantities'] > 0.)[
+                #                      0] + 1).tolist()
+                #})
                 # remove the zeros from the quantities
-                nonzero = comp_data['quantities'] > 0.
-                comp_data['quantities'] = comp_data['quantities'][nonzero].tolist()
+                #nonzero = comp_data['quantities'] > 0.
+                #comp_data['quantities'] = comp_data['quantities'][
+                #    nonzero].tolist()
 
                 # scale the quantities according to the specified unit
-                unit_kind = comp_data['unit'][1]
-                if unit_kind not in globals().keys():
-                    raise ValueError(
-                        "Unknown unit for component {}: {}".format(
-                            comp['ID'], unit_kind))
 
-            # store the component data
-            data['components'].update({comp['ID']: comp_data})
+                # store the component data
+            data['components'].update({fg_id: comp_data})
     else:
         warnings.warn(UserWarning(
             "No components were defined in the input file."))
@@ -317,10 +439,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     if AT == 'P58':
         # Having collapse modes defined is not necessary, but if a collapse mode
         # is defined, then all of its attributes need to be specified.
-        if 'CollapseModes' in LM.keys():
-            for coll_mode in LM['CollapseModes']:
+        if coll_modes is not None:
+            for coll_mode in coll_modes:
                 cm_data = {
-                    'w'            : float(coll_mode['w']),
+                    'w'            : float(coll_mode['weight']),
                     'injuries'     : [float(inj) for inj in
                                       coll_mode['injuries'].split(',')],
                     'affected_area': [float(cfar) for cfar in
@@ -336,181 +458,81 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 "No collapse modes were defined in the input file."))
 
     # the number of realizations has to be specified in the file
-    if (('UncertaintyQuantification' in LM) and
-        ('Realizations' in LM['UncertaintyQuantification'])):
-            data['general'].update({
-                'realizations': int(LM['UncertaintyQuantification'][
-                                        'Realizations'])})
+    if res_description is not None:
+        realizations = res_description.get("Realizations", None)
+        if realizations is not None:
+            data['general'].update({'realizations': int(realizations)})
     else:
         raise ValueError(
             "Number of realizations is not specified in the input file.")
 
     EDP_units = dict(
         # PID is not here because it is unitless
-        PFA = 'acceleration'
+        PFA = 'acceleration',
+        PWS = 'speed'
     )
+    if AT in ['P58', 'HAZUS_EQ']:
+        EDP_keys = ['PID', 'PFA']
+    elif AT in ['HAZUS_HU']:
+        EDP_keys = ['PWS', ]
 
-    # other general info
-    if 'BuildingDamage' in LM.keys():
+    # response model info ------------------------------------------------------
+    if response is None:
+        warnings.warn(UserWarning(
+            "Response model characteristics were not defined in the input "
+            "file"))
 
-        if 'ReplacementCost' in LM['BuildingDamage'].keys():
-            data['general'].update({
-                'replacement_cost': float_or_None(
-                    LM['BuildingDamage']['ReplacementCost'])})
-        elif DV['rec_cost']:
-            if AT == 'P58':
-                warnings.warn(UserWarning(
-                    "Building replacement cost was not defined in the "
-                    "input file."))
-            elif AT == 'HAZUS':
-                raise ValueError("Building replacement cost was not defined in "
-                                 "the input file.")
-
-        if 'ReplacementTime' in LM['BuildingDamage'].keys():
-            data['general'].update({
-                'replacement_time': float_or_None(
-                    LM['BuildingDamage']['ReplacementTime'])})
-        elif DV['rec_time']:
-            if AT == 'P58':
-                warnings.warn(UserWarning(
-                    "Building replacement time was not defined in the "
-                    "input file."))
-            elif AT == 'HAZUS':
-                raise ValueError("Building replacement time was not defined in "
-                                 "the input file.")
-
-        if AT == 'P58':
-            if 'CollapseLimits' in LM['BuildingDamage'].keys():
-                data['general'].update({
-                    'collapse_limits':
-                        dict([(key, float_or_None(value)) for key, value in
-                              LM['BuildingDamage']['CollapseLimits'].items()])})
-                # scale the limits by the units
-                DGCL = data['general']['collapse_limits']
-                for EDP_kind, value in DGCL.items():
-                    if (EDP_kind in EDP_units.keys()) and (value is not None):
-                        f_EDP = data['units'][EDP_units[EDP_kind]]
-                        DGCL[EDP_kind] = DGCL[EDP_kind] * f_EDP
-            else:
-                warnings.warn(UserWarning(
-                    "Collapse EDP limits were not defined in the input file. "
-                    "No EDP limits are assumed."))
-            # make sure that PID and PFA collapse limits are identified
-            if 'collapse_limits' not in data['general'].keys():
-                data['general'].update({'collapse_limits':{}})
-            for key in ['PID', 'PFA']:
-                if key not in data['general']['collapse_limits'].keys():
-                    data['general']['collapse_limits'].update({key: None})
-
-
-            if 'IrrepairableResidualDrift' in LM['BuildingDamage'].keys():
-                data['general'].update({
-                    'irrepairable_res_drift':
-                        dict([(key, float_or_None(value)) for key, value in
-                              LM['BuildingDamage'][
-                                  'IrrepairableResidualDrift'].items()])})
-            elif DV['rec_cost'] or DV['rec_time']:
-                warnings.warn(UserWarning(
-                    "Residual drift limits corresponding to irrepairable "
-                    "damage were not defined in the input file. We assume that "
-                    "damage is repairable regardless of the residual drift."))
+    # detection limits
+    if ((response is not None) and (det_lims is not None)):
+        data['general'].update({
+            'detection_limits':
+                dict([(key, float_or_None(value)) for key, value in
+                      det_lims.items()])})
+        DGDL = data['general']['detection_limits']
+        # scale the limits by the units
+        for EDP_kind, value in DGDL.items():
+            if (EDP_kind in EDP_units.keys()) and (value is not None):
+                f_EDP = data['units'][EDP_units[EDP_kind]]
+                DGDL[EDP_kind] = DGDL[EDP_kind] * f_EDP
     else:
-        if AT == 'P58':
-            warnings.warn(UserWarning(
-                "Building damage characteristics were not defined in the "
-                "input file"))
-        elif AT == 'HAZUS' and DV['rec_cost']:
-            raise ValueError("Building replacement cost was not defined in "
-                             "the input file.")
-        elif AT == 'HAZUS' and DV['rec_time']:
-            raise ValueError("Building replacement time was not defined in "
-                             "the input file.")
+        warnings.warn(UserWarning(
+            "EDP detection limits were not defined in the input file. "
+            "Assuming no detection limits."))
 
-    if 'BuildingResponse' in LM.keys():
-        LMBR = LM['BuildingResponse']
-        if 'DetectionLimits' in LMBR.keys():
-            data['general'].update({
-                'detection_limits':
-                    dict([(key, float_or_None(value)) for key, value in
-                          LMBR['DetectionLimits'].items()])})
-            DGDL = data['general']['detection_limits']
-            # scale the limits by the units
-            for EDP_kind, value in DGDL.items():
-                if (EDP_kind in EDP_units.keys()) and (value is not None):
-                    f_EDP = data['units'][EDP_units[EDP_kind]]
-                    DGDL[EDP_kind] = DGDL[EDP_kind] * f_EDP
-        else:
-            warnings.warn(UserWarning(
-                "EDP detection limits were not defined in the input file. "
-                "Assuming no detection limits."))
+        data['general'].update({'detection_limits':{}})
+    # make sure that PID and PFA detection limits are initialized
+    for key in EDP_keys:
+        if key not in data['general']['detection_limits'].keys():
+            data['general']['detection_limits'].update({key: None})
 
-        if 'detection_limits' not in data['general'].keys():
-            data['general'].update({'detection_limits':{}})
-        for key in ['PID', 'PFA']:
-            if key not in data['general']['detection_limits'].keys():
-                data['general']['detection_limits'].update({key: None})
-
-        if AT == 'P58':
-            if 'YieldDriftRatio' in LMBR.keys():
-                data['general'].update({
-                    'yield_drift': float_or_None(
-                        LMBR['YieldDriftRatio'])})
-            elif DV['rec_cost'] or DV['rec_time']:
-                warnings.warn(UserWarning(
-                    "Yield drift ratio was not defined in the input file. "
-                    "Assuming a yield drift ratio of 0.01 radian."))
-                data['general'].update({'yield_drift': 0.01})
-
+    # response description
+    if ((response is not None) and (res_description is not None)):
+        #TODO: move the collapse-related data to another field
         data['general'].update({'response': {
-            'EDP_distribution': LMBR.get('EDP_Distribution', 'lognormal'),
-            'coll_prob': LMBR.get('CollapseProbability', 'estimated'),
-            'CP_est_basis': LMBR.get('BasisOfCPEstimate', 'raw EDP'),
-            'EDP_dist_basis':
-                LMBR.get('BasisOfEDP_Distribution', 'all results')}})
-        if data['general']['response']['coll_prob'] != 'estimated':
-            data['general']['response']['coll_prob'] = \
-                float(data['general']['response']['coll_prob'])
-
+            'EDP_distribution': res_description.get('EDP_Distribution',
+                                                    'lognormal'),
+            'EDP_dist_basis':   res_description.get('BasisOfEDP_Distribution',
+                                                    'all results')}})
     else:
-        if AT == 'P58':
-            warnings.warn(UserWarning(
-                "Building response characteristics were not defined in the "
-                "input file. Assuming no detection limits, a yield drift "
-                "ratio of 0.01 radian. Collapse probability is estimated "
-                "using raw EDP samples and all EDP samples are used to "
-                "define a multivariate lognormal EDP distribution."))
-            data['general'].update({
-                'detection_limits': dict([(key, None) for key in ['PFA', 'PID']]),
-                'yield_drift': 0.01
-            })
-        elif AT == 'HAZUS':
-            warnings.warn(UserWarning(
-                "Building response characteristics were not defined in the "
-                "input file. Assuming no detection limits. All EDP samples are "
-                "used to define a multivariate lognormal EDP distribution"))
-            data['general'].update({
-                'detection_limits': dict(
-                    [(key, None) for key in ['PFA', 'PID']])
-            })
+        warnings.warn(UserWarning(
+            "EDP estimation method was not defined in the input file. All EDP "
+            "samples are used to define a multivariate lognormal EDP "
+            "distribution."))
+
         data['general'].update({'response': {
             'EDP_distribution': 'lognormal',
-            'coll_prob'       : 'estimated',
-            'CP_est_basis'    : 'raw EDP',
             'EDP_dist_basis'  : 'all results'}})
 
-    if 'AdditionalUncertainty' in LM['UncertaintyQuantification'].keys():
+    # additional uncertainty
+    if ((response is not None) and (uncertainty is not None)):
         data['general'].update({
             'added_uncertainty': {
-                'beta_gm': float_or_None(
-                    LM['UncertaintyQuantification']['AdditionalUncertainty'][
-                        'GroundMotion']),
-                'beta_m' : float_or_None(
-                    LM['UncertaintyQuantification']['AdditionalUncertainty'][
-                        'Modeling'])}})
+                'beta_gm': float_or_None(uncertainty['GroundMotion']),
+                'beta_m' : float_or_None(uncertainty['Modeling'])}})
     else:
         warnings.warn(UserWarning(
             "No additional uncertainties were defined in the input file. "
-            "Assuming that EDPs already include all ground motion and modeling "
+            "Assuming that EDPs already include all ground motion and model "
             "uncertainty."))
         data['general'].update({
             'added_uncertainty': {
@@ -519,52 +541,178 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             }
         })
 
-    if 'Inhabitants' in LM.keys():
-        if 'OccupancyType' in LM['Inhabitants'].keys():
+    # damage model info --------------------------------------------------------
+    if damage is None:
+        if AT == 'P58':
+            warnings.warn(UserWarning(
+                "Damage model characteristics were not defined in the "
+                "input file"))
+        elif AT.startswith('HAZUS'):
+            pass
+
+    # P58-specific things
+    if AT == 'P58':
+        # EDP limits for collapse
+        if ((damage is not None) and (coll_lims is not None)):
+            # load the limits
             data['general'].update({
-                'occupancy_type': LM['Inhabitants']['OccupancyType']})
-        elif AT == 'P58' and DV['injuries']:
+                'collapse_limits':
+                    dict([(key, float_or_None(value)) for key, value
+                          in coll_lims.items()])})
+
+            # scale the limits according to their units
+            DGCL = data['general']['collapse_limits']
+            for EDP_kind, value in DGCL.items():
+                if (EDP_kind in EDP_units.keys()) and (value is not None):
+                    f_EDP = data['units'][EDP_units[EDP_kind]]
+                    DGCL[EDP_kind] = DGCL[EDP_kind] * f_EDP
+        else:
             warnings.warn(UserWarning(
-                "Occupancy type was not defined in the input file."))
-        elif AT == 'HAZUS' and DV['injuries']:
-            raise ValueError("Occupancy type was not defined in the input "
-                             "file.")
+                "Collapse EDP limits were not defined in the input file. "
+                "No EDP limits are assumed."))
 
-        if 'PeakPopulation' in LM['Inhabitants'].keys():
-            peak_pop = [float(pop) for pop in
-                               LM['Inhabitants']['PeakPopulation'].split(',')]
+            data['general'].update({'collapse_limits': {}})
 
-            # If the number of stories is specified and the population list
-            # does not provide values for every story...
-            # If only one value is provided, then it is assumed at every story.
-            # Otherwise, the values are assumed to correspond to the bottom
-            # stories and the upper ones are filled with zeros.
-            # A warning message is displayed in this case.
-            if 'stories' in data['general'].keys():
-                stories = data['general']['stories']
-                pop_in = len(peak_pop)
-                for s in range(pop_in, stories):
-                    if pop_in == 1:
-                        peak_pop.append(peak_pop[0])
-                    else:
-                        peak_pop.append(0)
+        # make sure that PID and PFA collapse limits are initialized
+        for key in EDP_keys:
+            if key not in data['general']['collapse_limits'].keys():
+                data['general']['collapse_limits'].update({key: None})
 
-                if pop_in > 1 and pop_in != stories:
-                    warnings.warn(UserWarning(
-                        "Peak population was specified to some, but not all "
-                        "stories. The remaining stories are assumed to have "
-                        "zero population."
-                    ))
+        # irrepairable drift
+        if ((damage is not None) and (irrep_res_drift is not None)):
+            data['general'].update({
+                'irrepairable_res_drift':
+                    dict([(key, float_or_None(value)) for key, value in
+                          irrep_res_drift.items()])})
+            # TODO: move this in the irrepairable part of general
+            yield_drift = irrep_res_drift.get("YieldDriftRatio", None)
+            if yield_drift is not None:
+                data['general'].update({
+                    'yield_drift': float_or_None(yield_drift)})
+            elif ((data['decision_variables']['rec_cost']) or
+                  (data['decision_variables']['rec_time'])):
+                warnings.warn(UserWarning(
+                    "Yield drift ratio was not defined in the input file. "
+                    "Assuming a yield drift ratio of 0.01 radian."))
+                data['general'].update({'yield_drift': 0.01})
 
-            data['general'].update({'population': peak_pop})
-        elif DV['injuries']:
+        elif ((data['decision_variables']['rec_cost']) or
+              (data['decision_variables']['rec_time'])):
             warnings.warn(UserWarning(
-                "Peak population was not defined in the input file."))
-    elif DV['injuries']:
+                "Residual drift limits corresponding to irrepairable "
+                "damage were not defined in the input file. We assume that "
+                "damage is repairable regardless of the residual drift."))
+            # we might need to have a default yield drift here
+
+        # collapse probability
+        if 'response' not in data['general'].keys():
+            data['general'].update({'response': {}})
+        if ((damage is not None) and (coll_prob is not None)):
+            data['general']['response'].update({
+                'coll_prob'   : coll_prob.get('Value',
+                                                    'estimated'),
+                'CP_est_basis': coll_prob.get('BasisOfEstimate',
+                                                    'raw EDP')})
+            if data['general']['response']['coll_prob'] != 'estimated':
+                data['general']['response']['coll_prob'] = \
+                    float_or_None(data['general']['response']['coll_prob'])
+        else:
+            warnings.warn(UserWarning(
+                "Collapse probability estimation method was not defined in the "
+                "input file. Collapse probability is estimated using raw EDP "
+                "samples."))
+            data['general']['response'].update({
+                'coll_prob'       : 'estimated',
+                'CP_est_basis'    : 'raw EDP'})
+
+    # loss model info ----------------------------------------------------------
+    if loss is None:
         warnings.warn(UserWarning(
-            "Information about inhabitants was not defined in the input file."))
+            "Loss model characteristics were not defined in the input file"))
 
-    # dependencies
+    # replacement cost
+    if ((loss is not None) and (repl_cost is not None)):
+        data['general'].update({
+            'replacement_cost': float_or_None(repl_cost)})
+    elif data['decision_variables']['rec_cost']:
+        if AT == 'P58':
+            warnings.warn(UserWarning(
+                "Building replacement cost was not defined in the "
+                "input file."))
+        elif AT.startswith('HAZUS'):
+            raise ValueError(
+                "Building replacement cost was not defined in the input "
+                "file.")
+
+    # replacement time
+    if ((loss is not None) and (repl_time is not None)):
+        data['general'].update({
+            'replacement_time': float_or_None(repl_time)})
+    elif data['decision_variables']['rec_time']:
+        if AT == 'P58':
+            warnings.warn(UserWarning(
+                "Building replacement cost was not defined in the "
+                "input file."))
+        elif AT.startswith('HAZUS'):
+            raise ValueError(
+                "Building replacement cost was not defined in the input "
+                "file.")
+
+    # inhabitants
+    if data['decision_variables']['injuries']:
+        if ((loss is not None) and (inhabitants is not None)):
+
+            # occupancy type
+            occupancy = inhabitants.get("OccupancyType", None)
+            if occupancy is not None:
+                data['general'].update({'occupancy_type': occupancy})
+            else:
+                raise ValueError("Occupancy type was not defined in the input "
+                                 "file.")
+
+            # peak population
+            peak_pop = inhabitants.get("PeakPopulation", None)
+            if peak_pop is not None:
+                peak_pop = [float_or_None(pop) for pop in peak_pop.split(',')]
+
+                # If the number of stories is specified...
+                if 'stories' in data['general'].keys():
+                    stories = data['general']['stories']
+                    pop_in = len(peak_pop)
+
+                    # and the population list does not provide values
+                    # for every story:
+                    for s in range(pop_in, stories):
+                        # If only one value is provided, then it is assumed to
+                        # be the population on every story.
+                        if pop_in == 1:
+                            peak_pop.append(peak_pop[0])
+
+                        # Otherwise, the values are assumed to correspond to
+                        # the bottom stories and the upper ones are filled with
+                        # zeros. A warning message is displayed in this case.
+                        else:
+                            peak_pop.append(0)
+
+                    if pop_in > 1 and pop_in != stories:
+                        warnings.warn(UserWarning(
+                            "Peak population was specified to some, but not all "
+                            "stories. The remaining stories are assumed to have "
+                            "zero population."
+                        ))
+
+                data['general'].update({'population': peak_pop})
+            else:
+                raise ValueError(
+                    "Peak population was not defined in the input file.")
+        else:
+            raise ValueError(
+                "Information about inhabitants was not defined in the input "
+                "file.")
+
+    # dependencies -------------------------------------------------------------
+
+    # set defaults
     # We assume 'Independent' for all unspecified fields except for the
     # fragilities where 'per ATC recommendation' is the default setting.
     dependency_to_acronym = {
@@ -579,10 +727,6 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     }
 
     if AT == 'P58':
-        if 'LossModelDependencies' in LM:
-            DEP = LM['LossModelDependencies']
-        else:
-            DEP = None
 
         for target_att, source_att, dv_req in [
             ['quantities', 'Quantities', ''],
@@ -590,13 +734,13 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             ['injuries', 'Injuries', 'injuries'],
             ['rec_costs', 'ReconstructionCosts', 'rec_cost'],
             ['rec_times', 'ReconstructionTimes', 'rec_time'],
-            ['red_tags', 'RedTagProbabilities', 'red_tag'],
-        ]:
-            if (DEP is not None) and (source_att in DEP.keys()):
+            ['red_tags', 'RedTagProbabilities', 'red_tag'],]:
+
+            if ((depends is not None) and (source_att in depends.keys())):
                 data['dependencies'].update({
-                    target_att:dependency_to_acronym[DEP[source_att]]})
-            elif dv_req == '' or DV[dv_req]:
-                if target_att is not 'fragilities':
+                    target_att:dependency_to_acronym[depends[source_att]]})
+            elif dv_req == '' or data['decision_variables'][dv_req]:
+                if target_att != 'fragilities':
                     data['dependencies'].update({target_att: 'IND'})
                 else:
                     data['dependencies'].update({target_att: 'ATC'})
@@ -605,28 +749,30 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     "Correlation between {} was not ".format(source_att)+
                     "defined in the input file. Using default values."))
 
-        if (DEP is not None) and ('CostAndTime' in DEP.keys()):
-            data['dependencies'].update({'cost_and_time': bool(DEP['CostAndTime'])})
-        elif DV['rec_cost'] or DV['rec_time']:
+        if ((depends is not None) and ('CostAndTime' in depends.keys())):
+            data['dependencies'].update({
+                'cost_and_time': bool(depends['CostAndTime'])})
+        elif ((data['decision_variables']['rec_cost']) or
+              (data['decision_variables']['rec_time'])):
             data['dependencies'].update({'cost_and_time': False})
             warnings.warn(UserWarning(
-                "Correlation between reconstruction cost and time was not defined "
-                "in the input file. Using default values."))
+                "Correlation between reconstruction cost and time was not "
+                "defined in the input file. Using default values."))
 
-        if (DEP is not None) and ('InjurySeverities' in DEP.keys()):
-            data['dependencies'].update({'injury_lvls':
-                                             bool(DEP['InjurySeverities'])})
-        elif DV['injuries']:
+        if ((depends is not None) and ('InjurySeverities' in depends.keys())):
+            data['dependencies'].update({
+                'injury_lvls': bool(depends['InjurySeverities'])})
+        elif data['decision_variables']['injuries']:
             data['dependencies'].update({'injury_lvls': False})
             warnings.warn(UserWarning(
-                "Correlation between injury levels was not defined in the input "
-                "file. Using default values."))
+                "Correlation between injury levels was not defined in the "
+                "input file. Using default values."))
 
     if verbose: pp.pprint(data)
 
     return data
 
-def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
+def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
                              units = dict(PID=1., PFA=1.),
                              verbose=False):
     """
@@ -663,10 +809,15 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID','PFA'),
     data = {}
 
     # read the collection of EDP inputs...
-    # the read_csv method in pandas is sufficiently versatile to handle the
-    # tabular format of dakota
-    EDP_raw = pd.read_csv(input_path, sep='\s+', header=0,
-                          index_col=0)
+    # If the file name ends with csv, we assume a standard csv file
+    if input_path[-3:] == 'csv':
+        EDP_raw = pd.read_csv(input_path, header=0, index_col=0)
+
+    # otherwise, we assume that a dakota file is provided...
+    else:
+        # the read_csv method in pandas is sufficiently versatile to handle the
+        # tabular format of dakota
+        EDP_raw = pd.read_csv(input_path, sep=r'\s+', header=0, index_col=0)
     # set the index to be zero-based
     EDP_raw.index = EDP_raw.index - 1
 
@@ -722,7 +873,7 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
         Location of the population distribution json file.
     occupancy: string
         Identifies the occupancy category.
-    assessment_type: {'P58', 'HAZUS'}
+    assessment_type: {'P58', 'HAZUS_EQ'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
     verbose: boolean
@@ -742,7 +893,7 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
 
     # Convert the HAZUS occupancy classes to the broader categories used for
     # population distribution.
-    if AT == 'HAZUS':
+    if AT == 'HAZUS_EQ':
         base_occupancy = occupancy
         if base_occupancy[:3] == "RES":
             occupancy = "Residential"
@@ -792,7 +943,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         Location of the folder that contains the component data in JSON files.
     comp_info: dict
         Dictionary with additional information about the components.
-    assessment_type: {'P58', 'HAZUS'}
+    assessment_type: {'P58', 'HAZUS_EQ', 'HAZUS_HU'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
     verbose: boolean
@@ -807,11 +958,13 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
     """
 
+    AT = assessment_type
+
     data = dict([(c_id, dict([(key, None) for key in [
         'ID',
         'name',
         'description',
-        'kind',
+        #'kind',
         'demand_type',
         'directional',
         'correlation',
@@ -820,7 +973,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         'locations',
         'quantities',
         'csg_weights',
-        'dir_weights',
+        #'dir_weights',
         'directions',
         'distribution_kind',
         'cov',
@@ -857,22 +1010,37 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
         # Get the parameters from the BIM component info
         ci_data = comp_info[c_id]
-        c_data['kind'] = ci_data['kind']
-        c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
-        c_data['quantities'] = (np.asarray(ci_data['quantities']) * c_data[
-            'unit']).tolist()
-        c_data['distribution_kind'] = ci_data['distribution']
-        c_data['csg_weights'] = ci_data['csg_weights']
-        c_data['directions'] = ci_data['dirs']
         c_data['locations'] = ci_data['locations']
-        c_data['cov'] = ci_data['cov']
+        c_data['directions'] = ci_data['directions']
+
+        c_data['unit'] = globals()[ci_data['unit']]
+        c_data['quantities'] = [(np.asarray(qnt) * c_data['unit']).tolist()
+                                for qnt in ci_data['quantities']]
+        c_data['csg_weights'] = ci_data['csg_weights']
+
+        c_data['distribution_kind'] = ci_data['distribution']
+        c_data['cov'] = [float_or_None(cov) for cov in ci_data['cov']]
+
+        # replace N/A distribution with normal and negligible cov
+        c_data['cov'] = [0.0001 if dk == 'N/A' else cov
+                         for cov,dk in list(zip(c_data['cov'],
+                                                c_data['distribution_kind']))]
+        c_data['distribution_kind'] = ['normal' if dk == 'N/A' else dk
+                                       for dk in c_data['distribution_kind']]
+        c_data['cov'] = [0.0001 if cov==None else cov
+                         for cov in c_data['cov']]
+
+        #c_data['kind'] = ci_data['kind']
+        #c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
+        #c_data['quantities'] = (np.asarray(ci_data['quantities']) * c_data[
+        #    'unit']).tolist()
 
         # calculate the quantity weights in each direction
-        dirs = np.asarray(c_data['directions'], dtype=np.int)
-        u_dirs = np.unique(dirs)
-        weights = np.asarray(c_data['csg_weights'])
-        c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)])
-                                 for d_i in u_dirs]
+        #dirs = np.asarray(c_data['directions'], dtype=np.int)
+        #u_dirs = np.unique(dirs)
+        #weights = np.asarray(c_data['csg_weights'])
+        #c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)])
+        #                         for d_i in u_dirs]
 
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
@@ -897,8 +1065,11 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
             # FEMA P58 assessment. Rather than changing the locations themselves,
             # we assign an offset so that the results still get collected at the
             # appropriate story.
-            if assessment_type == 'P58':
+            if AT == 'P58':
                 c_data['offset'] = c_data['offset'] - 1
+        elif EDP_type == 'Peak Gust Wind Speed':
+            demand_type = 'PWS'
+            demand_factor = mph
         elif EDP_type in [
             'Peak Floor Velocity',
             'Link Rotation Angle',
@@ -928,14 +1099,19 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
         # load the damage state group information
         c_data['DSG_set'] = dict()
+        QNT_unit = DL_data.get('QuantityUnit', [1, 'ea'])
+        data_unit = QNT_unit[0] * globals()[QNT_unit[1]]
         for DSG_id, DSG_i in enumerate(DL_DSG):
             DSG_data = dict(
                 theta=DSG_i['MedianEDP'] * demand_factor,
                 sig=DSG_i['Beta'],
                 DS_set_kind=DS_set_kind[DSG_i['DSGroupType']],
-                # distribution_kind = curve_type[DSG_i['CurveType']],
+                distribution_kind = curve_type[DSG_i['CurveType']],
                 DS_set={}
             )
+            # sig needs to be scaled for normal distributions
+            if DSG_data['distribution_kind'] == 'normal':
+                DSG_data['sig'] = DSG_data['sig'] * demand_factor
 
             for DS_id, DS_i in enumerate(DSG_i['DamageStates']):
                 DS_data = {'description': DS_i['Description'],
@@ -955,12 +1131,10 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                         }})
 
                         # convert the units to standard ones
-                        DS_data['repair_cost']['quantity_lower'] *= c_data[
-                            'unit']
-                        DS_data['repair_cost']['quantity_upper'] *= c_data[
-                            'unit']
-                        DS_data['repair_cost']['median_min'] /= c_data['unit']
-                        DS_data['repair_cost']['median_max'] /= c_data['unit']
+                        DS_data['repair_cost']['quantity_lower'] *= data_unit
+                        DS_data['repair_cost']['quantity_upper'] *= data_unit
+                        DS_data['repair_cost']['median_min'] /= data_unit
+                        DS_data['repair_cost']['median_max'] /= data_unit
                     else:
                         DS_data.update({'repair_cost': DS_CC['Amount']})
 
@@ -977,10 +1151,10 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                         }})
 
                         # convert the units to standard ones
-                        DS_data['repair_time']['quantity_lower'] *= c_data['unit']
-                        DS_data['repair_time']['quantity_upper'] *= c_data['unit']
-                        DS_data['repair_time']['median_min'] /= c_data['unit']
-                        DS_data['repair_time']['median_max'] /= c_data['unit']
+                        DS_data['repair_time']['quantity_lower'] *= data_unit
+                        DS_data['repair_time']['quantity_upper'] *= data_unit
+                        DS_data['repair_time']['median_min'] /= data_unit
+                        DS_data['repair_time']['median_max'] /= data_unit
                     else:
                         DS_data.update({'repair_time': DS_CT['Amount']})
 
@@ -1017,7 +1191,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                     DS_data.update({'affected_area': affected_area})
 
                     # convert the units to standard ones
-                    DS_data['affected_area'] /= c_data['unit']
+                    DS_data['affected_area'] /= data_unit
 
                 DSG_data['DS_set'].update({'DS-' + str(DS_id + 1): DS_data})
 
@@ -1060,6 +1234,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
         'Radians'  : 'rad',
         'g'        : 'g',
         'meter/sec': 'mps'
+
     }
 
     convert_DSG_type = {
@@ -1132,7 +1307,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
             return False
 
     src_df = pd.read_excel(
-        os.path.join(data_dir, 'FEMAP58ED1_fragility_data.xlsx'))
+        os.path.join(data_dir, 'PACT_fragility_data.xlsx'))
     ID_list = src_df['NISTIR Classification']
 
     XML_list = [f for f in os.listdir(data_dir+'DL xml/') if f.endswith('.xml')]
@@ -1163,6 +1338,9 @@ def convert_P58_data_to_json(data_dir, target_dir):
             QU = row['Fragility Unit of Measure']
             QU = QU.split(' ')
             if is_float(QU[1]):
+                if QU[0] in ['TN', 'AP', 'CF', 'KV']:
+                    QU[0] = 'ea'
+                    QU[1] = 1
                 json_output.update({'QuantityUnit': [int(QU[1]), QU[0]]})
             else:
                 json_output.update({'QuantityUnit': [0, 'Undefined']})
@@ -1432,13 +1610,13 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 incomplete_count += 1
 
             with open(os.path.join(target_dir, comp_ID + '.json'),'w') as f:
-                json.dump(json_output, f)
+                json.dump(json_output, f, indent=2)
 
         except:
             warnings.warn(UserWarning(
                 'Error converting data for component {}'.format(comp_ID)))
 
-def create_HAZUS_json_files(data_dir, target_dir):
+def create_HAZUS_EQ_json_files(data_dir, target_dir):
     """
     Create JSON data files from publicly available HAZUS data.
 
@@ -1582,7 +1760,7 @@ def create_HAZUS_json_files(data_dir, target_dir):
 
                     with open(os.path.join(target_dir + 'DL json/',
                                            dl_id + '.json'), 'w') as f:
-                        json.dump(json_output, f)
+                        json.dump(json_output, f, indent=2)
 
             # second, nonstructural acceleration sensitive fragility groups
             json_output = {}
@@ -1636,7 +1814,7 @@ def create_HAZUS_json_files(data_dir, target_dir):
             with open(
                 os.path.join(target_dir + 'DL json/', dl_id + '.json'),
                 'w') as f:
-                json.dump(json_output, f)
+                json.dump(json_output, f, indent=2)
 
                 # third, nonstructural drift sensitive fragility groups
         json_output = {}
@@ -1688,7 +1866,7 @@ def create_HAZUS_json_files(data_dir, target_dir):
 
         with open(os.path.join(target_dir + 'DL json/', dl_id + '.json'),
                   'w') as f:
-            json.dump(json_output, f)
+            json.dump(json_output, f, indent=2)
 
     # finally, prepare the population distribution data
     PD_data = raw_data['Population_Distribution']
@@ -1718,7 +1896,201 @@ def create_HAZUS_json_files(data_dir, target_dir):
         }})
 
     with open(os.path.join(target_dir, 'population.json'), 'w') as f:
-        json.dump(pop_output, f)
+        json.dump(pop_output, f, indent=2)
+
+def create_HAZUS_HU_json_files(data_dir, target_dir):
+    """
+    Create JSON data files from publicly available HAZUS data.
+
+    HAZUS damage and loss information is publicly available in the technical
+    manuals and the HAZUS software tool. The relevant data have been collected
+    in a series of Excel files (e.g., hu_Wood.xlsx) that are stored in the
+    'resources/HAZUS MH 2.1 hurricane' folder in the pelicun repo. Here we read
+    that file (or a file of similar format) and produce damage and loss data
+    for Fragility Groups in the common SimCenter JSON format.
+
+    The HAZUS hurricane methodology handles damage and losses at the assembly
+    level. In this implementation each building is represented by one Fragility
+    Group that describes the damage states and their consequences in a FEMA
+    P58-like framework but using the data from the HAZUS Technical Manual.
+
+    Note: HAZUS calculates lossess independently of damage using peak wind gust
+    speed as a controlling variable. We fitted a model to the curves in HAZUS
+    that assigns losses to each damage state and determines losses as a function
+    of building damage. Results shall be in good agreement with those of HAZUS
+    for the majority of building configurations. Exceptions and more details
+    are provided in the ... section of the documentation.
+
+    Parameters
+    ----------
+    data_dir: string
+        Path to the folder with the hazus_data_eq JSON file.
+    target_dir: string
+        Path to the folder where the results shall be saved. The population
+        distribution file will be saved here, the DL JSON files will be saved
+        to a 'DL json' subfolder.
+
+    """
+
+    # open the raw HAZUS data
+    df_wood = pd.read_excel(os.path.join(data_dir, 'hu_Wood.xlsx'))
+
+    # some general formatting to make file name generation easier
+    df_wood['shutters'] = df_wood['shutters'].astype(int)
+    df_wood['terr_rough'] = (df_wood['terr_rough'] * 100.).astype(int)
+
+    convert_building_type = {
+        'WSF1' : 'Wood Single-Family Homes 1 story',
+        'WSF2' : 'Wood Single-Family Homes 2+ stories',
+        'WMUH1': 'Wood Multi-Unit or Hotel or Motel 1 story',
+        'WMUH2': 'Wood Multi-Unit or Hotel or Motel 2 stories',
+        'WMUH3': 'Wood Multi-Unit or Hotel or Motel 3+ stories',
+    }
+
+    convert_bldg_char_names = {
+        'roof_shape'     : 'Roof Shape',
+        'sec_water_res'  : 'Secondary Water Resistance',
+        'roof_deck_attch': 'Roof Deck Attachment',
+        'roof_wall_conn' : 'Roof-Wall Connection',
+        'garage'         : 'Garage',
+        'shutters'       : 'Shutters',
+        'roof_cover'     : 'Roof Cover Type',
+        'roof_quality'   : 'Roof Cover Quality',
+        'terr_rough'     : 'Terrain',
+    }
+
+    convert_bldg_chars = {
+        1      : True,
+        0      : False,
+
+        'gab'  : 'gable',
+        'hip'  : 'hip',
+        'flt'  : 'flat',
+
+        '6d'   : '6d @ 6"/12"',
+        '8d'   : '8d @ 6"/12"',
+        '6s'   : '6d/8d mix @ 6"/6"',
+        '8s'   : '8D @ 6"/6"',
+
+        'tnail': 'Toe-nail',
+        'strap': 'Strap',
+
+        'no'   : 'None',
+        'wkd'  : 'Weak',
+        'std'  : 'Standard',
+        'sup'  : 'SFBC 1994',
+
+        'bur'  : 'BUR',
+        'spm'  : 'SPM',
+
+        'god'  : 'Good',
+        'por'  : 'Poor',
+
+        3      : 'Open',
+        15     : 'Light Suburban',
+        35     : 'Suburban',
+        70     : 'Light Trees',
+        100    : 'Trees',
+    }
+
+    convert_dist = {
+        'normal'   : 'Normal',
+        'lognormal': 'LogNormal',
+    }
+
+    convert_ds = {
+        1: 'Minor',
+        2: 'Moderate',
+        3: 'Severe',
+        4: 'Destruction',
+    }
+
+    for index, row in df_wood.iterrows():
+        #print(index, end=' ')
+
+        json_output = {}
+
+        # define the name of the building damage and loss configuration
+        bldg_type = row["bldg_type"]
+
+        if bldg_type[:3] == "WSF":
+            cols_of_interest = ["bldg_type", "roof_shape", "sec_water_res",
+                                "roof_deck_attch", "roof_wall_conn", "garage",
+                                "shutters", "terr_rough"]
+        elif bldg_type[:4] == "WMUH":
+            cols_of_interest = ["bldg_type", "roof_shape", "roof_cover",
+                                "roof_quality", "sec_water_res",
+                                "roof_deck_attch", "roof_wall_conn", "shutters",
+                                "terr_rough"]
+
+        bldg_chars = row[cols_of_interest]
+
+        if np.isnan(bldg_chars["sec_water_res"]):
+            bldg_chars["sec_water_res"] = 'null'
+        else:
+            bldg_chars["sec_water_res"] = int(bldg_chars["sec_water_res"])
+
+        if bldg_type[:4] == "WMUH":
+            if not isinstance(bldg_chars["roof_cover"],
+                              string_types) and np.isnan(
+                bldg_chars["roof_cover"]):
+                bldg_chars["roof_cover"] = 'null'
+            if not isinstance(bldg_chars["roof_quality"],
+                              string_types) and np.isnan(
+                bldg_chars["roof_quality"]):
+                bldg_chars["roof_quality"] = 'null'
+
+        dl_id = "_".join(bldg_chars.astype(str))
+
+        json_output.update({'Name': dl_id})
+
+        # general information
+        json_output.update({
+            'GeneralInformation': {
+                'ID'           : index,
+                'Description'  : dl_id,
+                'Building type': convert_building_type[bldg_type],
+            }
+        })
+        for col in cols_of_interest:
+            if (col != 'bldg_type') and (bldg_chars[col] != 'null'):
+                json_output['GeneralInformation'].update({
+                    convert_bldg_char_names[col]: convert_bldg_chars[
+                        bldg_chars[col]]
+                })
+
+        # EDP info
+        json_output.update({
+            'EDP': {
+                'Type': 'Peak Gust Wind Speed',
+                'Unit': [1, 'mph']
+            }
+        })
+
+        # Damage States
+        json_output.update({'DSGroups': []})
+
+        for dsg_i in range(1, 5):
+            json_output['DSGroups'].append({
+                'MedianEDP'   : row['DS{}_mu'.format(dsg_i)],
+                'Beta'        : row['DS{}_sig'.format(dsg_i)],
+                'CurveType'   : convert_dist[row['DS{}_dist'.format(dsg_i)]],
+                'DSGroupType' : 'Single',
+                'DamageStates': [{
+                    'Weight'      : 1.0,
+                    'Consequences': {
+                        'ReconstructionCost': {
+                            'Amount': row[
+                                'L{}'.format(dsg_i)] if dsg_i < 4 else 1.0
+                        }
+                    },
+                    'Description' : convert_ds[dsg_i]
+                }]
+            })
+
+        with open(os.path.join(target_dir + '/DL json/', dl_id + '.json'),
+                  'w') as f:
+            json.dump(json_output, f, indent=2)
 
 def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
                               collapse_columns = True, stats_only=False):
@@ -1745,3 +2117,99 @@ def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
     # write the results in a csv file
     # TODO: provide other file formats
     output_df.to_csv(output_path)
+
+def write_SimCenter_DM_output(DM_file_path, DMG_df):
+
+    # Start with the probability of being in a particular damage state.
+    # Here, the damage state of the building (asset) is defined as the highest
+    # damage state among the building components/component groups. This works
+    # well for a HAZUS assessment, but something more sophisticated is needed
+    # for a FEMA P58 assessment.
+
+    # Determine the probability of DS exceedance by collecting the DS from all
+    # components and assigning ones to all lower damage states.
+    DMG_agg = DMG_df.T.groupby('DS').sum().T
+    DMG_agg[DMG_agg > 0.0] = DMG_agg[DMG_agg > 0.0] / DMG_agg[DMG_agg > 0.0]
+
+    cols = DMG_agg.columns
+    for i in range(len(cols)):
+        filter = np.where(DMG_agg.iloc[:,i].values > 0.0)[0]
+        DMG_agg.iloc[filter,idx[0:i]] = 1.0
+
+    # The P(DS=ds) probability is determined by subtracting consecutive DS
+    # exceedance probabilites. This will not work well for a FEMA P58 assessment
+    # with Damage State Groups that include multiple Damage States.
+    DMG_agg_mean = DMG_agg.describe().loc['mean',:]
+    DS_0 = 1.0 - DMG_agg_mean['1-1']
+    for i in range(len(DMG_agg_mean.index)-1):
+        DMG_agg_mean.iloc[i] = DMG_agg_mean.iloc[i] - DMG_agg_mean.iloc[i+1]
+
+    # Add the probability of no damage for convenience.
+    DMG_agg_mean['0'] = DS_0
+    DMG_agg_mean = DMG_agg_mean.sort_index()
+
+    # Save the results in the output json file
+    DM = {'aggregate': {}}
+
+    for id in DMG_agg_mean.index:
+        DM['aggregate'].update({str(id): DMG_agg_mean[id]})
+
+    # Now determine the probability of being in a damage state for individual
+    # components / component assemblies...
+    DMG_mean = DMG_df.describe().loc['mean',:]
+
+    # and save the results in the output json file.
+    for FG in sorted(DMG_mean.index.get_level_values('FG').unique()):
+        DM.update({str(FG):{}})
+
+        for PG in sorted(
+            DMG_mean.loc[idx[FG],:].index.get_level_values('PG').unique()):
+            DM[str(FG)].update({str(PG):{}})
+
+            for DS in sorted(
+                DMG_mean.loc[idx[FG],:].loc[idx[:,PG],:].index.get_level_values('DS').unique()):
+                DM[str(FG)][str(PG)].update({str(DS): DMG_mean.loc[(FG,PG,DS)]})
+
+    with open(DM_file_path, 'w') as f:
+        json.dump(DM, f, indent = 2)
+
+def write_SimCenter_DV_output(DV_file_path, DV_df, DV_name):
+
+    DV_name = convert_dv_name[DV_name]
+
+    try:
+        with open(DV_file_path, 'r') as f:
+            DV = json.load(f)
+    except:
+        DV = {}
+
+    DV.update({DV_name: {}})
+
+    DV_i = DV[DV_name]
+
+    try:
+        DV_tot = DV_df.sum(axis=1).describe([0.1,0.5,0.9]).drop('count')
+        DV_i.update({'total':{}})
+        for stat in DV_tot.index:
+            DV_i['total'].update({stat: DV_tot.loc[stat]})
+
+        DV_stats = DV_df.describe([0.1,0.5,0.9]).drop('count')
+        for FG in sorted(DV_stats.columns.get_level_values('FG').unique()):
+            DV_i.update({str(FG):{}})
+
+            for PG in sorted(
+                DV_stats.loc[:,idx[FG]].columns.get_level_values('PG').unique()):
+                DV_i[str(FG)].update({str(PG):{}})
+
+                for DS in sorted(
+                    DV_stats.loc[:,idx[FG, PG]].columns.get_level_values('DS').unique()):
+                    DV_i[str(FG)][str(PG)].update({str(DS): {}})
+                    DV_stats_i = DV_stats.loc[:,(FG,PG,DS)]
+                    for stat in DV_stats_i.index:
+                        DV_i[str(FG)][str(PG)][str(DS)].update({
+                            stat: DV_stats_i.loc[stat]})
+    except:
+        pass
+
+    with open(DV_file_path, 'w') as f:
+        json.dump(DV, f, indent = 2)

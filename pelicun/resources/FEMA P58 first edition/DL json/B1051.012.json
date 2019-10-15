@@ -1,0 +1,151 @@
+{
+  "Name": "Ordinary reinforced masonry walls with partially grouted cells, shear dominated, 8\" to 12\"' thick, greater than 12 foot tall",
+  "QuantityUnit": [
+    225,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1051.012",
+    "Description": "Costing for each 225 ft^2 Wall Panel",
+    "Author": "Benson Shing",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:51.3485683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "None",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.002,
+      "Beta": 0.86,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                10245.0,
+                6830.0
+              ],
+              "Quantity": [
+                6.0,
+                20.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.0776,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                27.1203,
+                17.8797
+              ],
+              "Quantity": [
+                6.0,
+                20.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.078,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "First occurrence of major diagonal cracks.  Cracks remain closed with hardly noticeable residual crack widths after load removal. ",
+          "RepairMeasures": "Grout wall.  Epoxy injection.  Paint each side. ",
+          "DamageImageName": "B1051.001-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0033,
+      "Beta": 0.77,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                18960.0,
+                12640.0
+              ],
+              "Quantity": [
+                6.0,
+                20.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1259,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                51.3006,
+                34.1994
+              ],
+              "Quantity": [
+                6.0,
+                20.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1325,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Wide diagonal cracks with typically one or more cracks in each direction.  Crushing or spalling at wall toes. ",
+          "RepairMeasures": "Shore.  Demolish existing wall.  Construct new wall. ",
+          "DamageImageName": "B1051.001-DS2-1.JPG"
+        }
+      ]
+    }
+  ]
+}

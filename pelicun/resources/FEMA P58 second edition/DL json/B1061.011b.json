@@ -1,0 +1,151 @@
+{
+  "Name": "Cold formed steel walls with flat strap X-bracing, exterior - stucco one side",
+  "QuantityUnit": [
+    100,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1061.011b",
+    "Description": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 4.5 inch x 33 mil flat strap X-bracing on one side.  Straps attached to gussets with No. 8 screws.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:49:45.539073-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Superior",
+    "Documentation": "Average",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.0139,
+      "Beta": 0.25,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.2,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                3997.5,
+                2460.0
+              ],
+              "Quantity": [
+                3.0,
+                8.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.199,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.8754,
+                2.3831
+              ],
+              "Quantity": [
+                3.0,
+                8.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3195,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Local buckling of chord studs.",
+          "RepairMeasures": "Remove damaged wall, ceilings, X bracing as necessary, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace gypsum wall board, stucco, metal stud framing as needed, reinstall X bracing as required, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.011-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0179,
+      "Beta": 0.25,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.1,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                5900.0,
+                4179.1667
+              ],
+              "Quantity": [
+                3.0,
+                8.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1312,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                5.7244,
+                4.0542
+              ],
+              "Quantity": [
+                3.0,
+                8.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.2823,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Failure of many framing members and collapse.",
+          "RepairMeasures": "Remove damaged wall, ceilings, X bracing as necessary, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace gypsum wall board, stucco, boundary elements, metal stud framing, install X bracing, tape and sand, repaint.  ",
+          "DamageImageName": "B1061.011-DS2-1.JPG"
+        }
+      ]
+    }
+  ]
+}

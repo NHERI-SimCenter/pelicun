@@ -1,0 +1,107 @@
+{
+  "Name": "HVAC Drops / Diffusers without ceilings - supported by ducting only - No independent safety wires, SDC A or B",
+  "QuantityUnit": [
+    10,
+    "EA"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D3041.032a",
+    "Description": "Costing per 10 units, unit supported by ducting only, no independent safety wires",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:51:23.7445188-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "One failure is expected per 10 units."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Superior",
+    "Documentation": "Marginal",
+    "Rationality": "Marginal"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 1.5,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.1,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": [
+                3300.0,
+                2700.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2066,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.8819,
+                3.1761
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3243,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "HVAC drops or diffusers dislodges and falls.",
+          "RepairMeasures": "Replace diffuser/drop and sections of ceiling and ducting in vicinity to which diffuser/drop is connected.",
+          "AffectedArea": [
+            4,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

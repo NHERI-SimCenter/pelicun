@@ -1,0 +1,131 @@
+{
+  "Name": "Wall Partition, Type: Gypsum + Ceramic Tile, Full Height, Fixed Below, Fixed Above",
+  "QuantityUnit": [
+    100,
+    "LF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C3011.002a",
+    "Description": "Costing based upon 9'x100' Panels",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:03.9155683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.0021,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                9360.0,
+                5760.0
+              ],
+              "Quantity": [
+                0.1111,
+                1.1111
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2208,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                24.3529,
+                13.7647
+              ],
+              "Quantity": [
+                0.1111,
+                1.1111
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1803,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Minor cracked joints and tile.",
+          "RepairMeasures": "Carefully remove cracked tile and grout at cracked joints, install new ceramic tile and re-grout joints for 10% of  full 100 foot length of wall.  Existing wall board will remain in place."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0071,
+      "Beta": 0.45,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                37908.0,
+                23328.0
+              ],
+              "Quantity": [
+                0.1111,
+                1.1111
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.0948,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                115.7294,
+                72.8471
+              ],
+              "Quantity": [
+                0.1111,
+                1.1111
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.078,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Cracked joints and tile.",
+          "RepairMeasures": "Install ceramic tile and grout all joints for full 100 foot length of wall.  Note: gypsum wall board will also be removed and replaced which means the removal of ceramic tile will be part of the gypsum wall board removal. "
+        }
+      ]
+    }
+  ]
+}

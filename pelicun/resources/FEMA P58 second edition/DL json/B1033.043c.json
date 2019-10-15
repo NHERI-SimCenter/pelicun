@@ -1,0 +1,206 @@
+{
+  "Name": "Special Concentric Braced Frame w double angle braces, X Brace, Brace w > 100 PLF",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1033.043c",
+    "Description": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:48:40.0457269-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Average",
+    "Documentation": "Marginal",
+    "Rationality": "Average"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.00256,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                46151.9526,
+                31383.3278
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3245,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                30.5417,
+                20.7684
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4096,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Buckling of the brace has begun but does not exceed the depth of the brace.  Initial yielding of the gusset has begun.  Yielding has initiated in framing at gusset plates but no buckling has occurred.  Residual buckling of the brace has occurred but is barely noticeable to the naked eye and does not exceed half the brace depth.  Residual drift is slight.",
+          "RepairMeasures": "Brace damage is largely aesthetic.  Heat straightening may be desirable but replacement would be for aesthetic reasons.  Gusset has minor loss of strength and stiffness and straightening or repair may be desirable aesthetic reasons."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0048,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.6,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                95006.2454,
+                64604.2469
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2649,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                62.8718,
+                42.7528
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3643,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Buckling of brace in excess of the brace depth.  Initiation of yielding and out-of-plane deformation of the gusset.  Initiation of cracking of welds of gusset.  Initiation of yielding in beams and columns adjacent to gusset.",
+          "RepairMeasures": "Brace has lost significant axial capacity, and replacement braces is likely required.  The gusset plate may have significant deformation and replacement may also be needed. Local beam and column yielding has occurred and straightening may be desirable for aesthetic reasons."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.0112,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.4,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                101881.2454,
+                69279.2469
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2616,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                67.4214,
+                45.8465
+              ],
+              "Quantity": [
+                3.0,
+                7.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3618,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Fracture of brace or gusset.  Buckling of gusset.  Severe yielding of beams and columns adjacent to the gusset with possibility of local buckling and cracking in the yielded areas.",
+          "RepairMeasures": "Brace and gusset are severely damaged with significant loss in stiffness and resistance, and both likely require replacement. Yielding and local buckling of beams and columns may be repaired by heat straightening, stiffeners or reinforcement, if there is no cracking or tearing. If cracking or tearing has initiated more substantial repair is needed"
+        }
+      ]
+    }
+  ]
+}

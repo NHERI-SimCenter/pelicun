@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>f09bd0af-765a-4e72-a7cb-622b2951dea0</UniqueID>
+  <ID>B2023.031</ID>
+  <Description>None</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Storefront, Config: Monolithic, Lamination: Not laminated, Glass Type: Full tempered, Details: 3/8 in. (10 mm) FT monolithic, Planar Specimen; glass-frame clearance = 0.5 in. (13 mm); aspect ratio = 1.93:1 sealant = wet</Name>
+  <Author>By User</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:50:04.4973838-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: B2023.031: B2023.031: DS1 overlaps DS2 in the range of 0.104 to 0.208 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Glass cracking.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove glass, replace frame, reinstall glass</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>23784</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.3005</EnergyDispersion>
+        <CarbonMedian>1024.8</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.3005</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>2055</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>1096</MinAmount>
+          <Uncertainty>0.1668</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>0.9052</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>0.4821</MinAmount>
+          <Uncertainty>0.3005</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.03</Median>
+      <Beta>1</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Frame Damage</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove and replace frame and glass.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>23784</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.3005</EnergyDispersion>
+        <CarbonMedian>1024.8</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.3005</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>2055</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>1096</MinAmount>
+          <Uncertainty>0.1668</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>0.9052</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>0.4821</MinAmount>
+          <Uncertainty>0.3005</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.052</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

@@ -1,0 +1,179 @@
+{
+  "Name": "Wall Partition, Type: Gypsum with metal studs, Full Height, Fixed Below, Fixed Above",
+  "QuantityUnit": [
+    100,
+    "LF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C1011.001a",
+    "Description": "Quantity is based upon 13'x100' Panels.  Quantity of wall damaged varies by damage state.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:12.9758395-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.005,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2677.5,
+                1428.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4814,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                2.1256,
+                1.1518
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.5424,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Screw pop-out, cracking of wall board, warping or cracking of tape, slight crushing of wall panel at corners.",
+          "RepairMeasures": "Retape joints, paste and repaint.  May require cutting and replacing corner sections of board.  Repair 5% wallboard, 10% retape, 25% repaint."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.01,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                6825.0,
+                3640.0
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5559,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                5.2832,
+                2.8007
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.6095,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Moderate cracking or crushing of gypsum wall boards (typically in corners).  Moderate corner gap openings, bending of boundary studs.",
+          "RepairMeasures": "Remove and replace 10% of wall board (both sides), retape and paste 25% of wall, paint 50% of wall.  Replace boundary studs of approximately 5 intersections per 100 ft of wall length."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.021,
+      "Beta": 0.2,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                10500.0,
+                7437.5
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1959,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                8.124,
+                5.737
+              ],
+              "Quantity": [
+                1.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3176,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Buckling of studs and tearing of tracks.  Tearing or bending of top track, tearing at corners with transverse walls, large gap openings, walls displaced.",
+          "RepairMeasures": "Remove and replace 50% of length of metal stud wall, 50% of both sides of the gypsum, and any embedded utilities.  Retape and paste as required.  Repaint 100%."
+        }
+      ]
+    }
+  ]
+}

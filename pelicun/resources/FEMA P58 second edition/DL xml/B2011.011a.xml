@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>454b5c88-0cfa-4ee1-92ea-f4a6a814af40</UniqueID>
+  <ID>B2011.011a</ID>
+  <Description>Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 4.5 inch x 33 mil flat strap X-bracing on one side.  Straps attached to gussets with No. 8 screws.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Exterior Wall - Cold formed steel walls with flat strap X-bracing, interior - gypsum board</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Average</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Average</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:49.0500194-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Copy of B1061.011a for use as an exterior wall.</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Local buckling of chord studs.</Description>
+      <DamageImageName>B1061.011-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, X bracing as necessary, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace gypsum wall board, metal stud framing as needed, reinstall X bracing as required, tape and sand, repaint.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.2</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>25284</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.3468</EnergyDispersion>
+        <CarbonMedian>1954</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.3468</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>4051.6667</MaxAmount>
+          <UpperQuantity>6</UpperQuantity>
+          <MinAmount>2493.3333</MinAmount>
+          <Uncertainty>0.2404</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>3.1588</MaxAmount>
+          <UpperQuantity>6</UpperQuantity>
+          <MinAmount>1.9442</MinAmount>
+          <Uncertainty>0.3468</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0139</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Failure of many framing members and collapse.</Description>
+      <DamageImageName>B1061.011-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, X bracing as necessary, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace gypsum wall board, boundary elements, metal stud framing, install X bracing, tape and sand, repaint.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.1</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>36474</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.2683</EnergyDispersion>
+        <CarbonMedian>2326</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.2683</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>4530</MaxAmount>
+          <UpperQuantity>6</UpperQuantity>
+          <MinAmount>3208.75</MinAmount>
+          <Uncertainty>0.0973</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>3.5285</MaxAmount>
+          <UpperQuantity>6</UpperQuantity>
+          <MinAmount>2.4987</MinAmount>
+          <Uncertainty>0.2683</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0179</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

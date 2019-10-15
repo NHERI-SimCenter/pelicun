@@ -1,0 +1,131 @@
+{
+  "Name": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY",
+  "QuantityUnit": [
+    1000,
+    "LF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 1
+  },
+  "GeneralInformation": {
+    "ID": "D2022.011a",
+    "Description": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:52:52.0426881-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work."
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.55,
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                319.0,
+                261.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.7637,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.3378,
+                0.2764
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.8036,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Small Leakage at joints - 1 leak per 1000 feet of pipe.",
+          "RepairMeasures": "Retighten flange bolts at leaking joints.  One repair per 1000 LF."
+        }
+      ]
+    },
+    {
+      "MedianEDP": 1.1,
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                2915.0,
+                2385.0
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4054,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.5612,
+                0.1403
+              ],
+              "Quantity": [
+                1.0,
+                4.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4763,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Large Leakage w/ major repair  - 1 leak per 1000 feet of pipe.",
+          "RepairMeasures": "Replace 20 foot sections of pipe where breaks occur.  One repair per 1000 LF."
+        }
+      ]
+    }
+  ]
+}

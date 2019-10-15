@@ -1,0 +1,123 @@
+{
+  "Name": "Precast Concrete Panels 4.5 inches thick - in plane deformation",
+  "QuantityUnit": [
+    30,
+    "LF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B2011.201a",
+    "Description": "Costing is based upon 30'x13' panels.",
+    "Author": "By User",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:49:51.9901371-08:00",
+    "Approved": true,
+    "Incomplete": true,
+    "Notes": "Determine fragility story drift median demand in accordance with Chapter 7 of Volume 2."
+  },
+  "Ratings": {
+    "DataQuality": "By User",
+    "DataRelevance": "By User",
+    "Documentation": "By User",
+    "Rationality": "By User"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "Undefined",
+      "Beta": "Undefined",
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.5,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                16472.3,
+                10136.8
+              ],
+              "Quantity": [
+                2.0,
+                8.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1946,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                2.4232,
+                1.4915
+              ],
+              "Quantity": [
+                2.0,
+                8.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3168,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Cladding units damaged by impact at corners at  column covers.  Damage in field is either attributed to natural edge chipping / damage,  or is deemed to not warrant full repair.  Repair assumes cosmetic chip patching.",
+          "RepairMeasures": "By User, Repair cost assumed to equal 20% of DS2."
+        },
+        {
+          "Weight": 0.5,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                82361.5,
+                50684.0
+              ],
+              "Quantity": [
+                2.0,
+                8.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1946,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                12.1161,
+                7.4576
+              ],
+              "Quantity": [
+                2.0,
+                8.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3168,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Cladding units damaged by impact at corners at  column covers.",
+          "RepairMeasures": "By User, Cost listed assumed the replacement of the panel"
+        }
+      ]
+    }
+  ]
+}

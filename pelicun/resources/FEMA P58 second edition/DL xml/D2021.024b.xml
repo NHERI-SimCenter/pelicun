@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>6fd0909d-09d3-45bd-8540-c0af54b46d66</UniqueID>
+  <ID>D2021.024b</ID>
+  <Description>Potable water.  Costing based upon 1000 ft segments.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Cold or Hot Potable Water Piping (dia &gt; 2.5 inches), SDC D,E,F (OSPHD or sim), BRACING FRAGILITY</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:52:51.4707453-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Lateral Brace Failure - 1 failure per 1000 feet of pipe.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Retighten flange bolts at leaking joints.  One joint per 1000 LF.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>1104.76</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.6953</EnergyDispersion>
+        <CarbonMedian>40.01</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.6953</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>700</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>210</MinAmount>
+          <Uncertainty>0.6488</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>0.7412</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>0.2224</MinAmount>
+          <Uncertainty>0.6953</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>1.5</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Vertical Brace Failure - 1 failure per 1000 feet of pipe.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace 20 foot sections of pipe where breaks occur.  One repair per 1000 LF.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>0</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.6953</EnergyDispersion>
+        <CarbonMedian>0</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.6953</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>700</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>210</MinAmount>
+          <Uncertainty>0.6488</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>0.7412</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>0.2224</MinAmount>
+          <Uncertainty>0.6953</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.25</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

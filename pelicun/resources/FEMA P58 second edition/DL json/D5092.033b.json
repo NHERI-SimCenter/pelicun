@@ -1,0 +1,204 @@
+{
+  "Name": "Diesel generator - Capacity: 100 to <350 kVA - Equipment that is either hard anchored or is vibration isolated with seismic snubbers/restraints - Equipment fragility only",
+  "QuantityUnit": [
+    1,
+    "ea"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "D5092.033b",
+    "Description": "Costing is per unit and is based upon 250 kVa.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:52:22.9425984-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 2.0,
+      "Beta": 0.2,
+      "CurveType": "LogNormal",
+      "DSGroupType": "MutuallyExclusive",
+      "DamageStates": [
+        {
+          "Weight": 0.7,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                260.0,
+                180.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1713,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.2677,
+                0.1853
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3031,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative but anchorage is OK. Pipes and nozzles damaged.",
+          "RepairMeasures": "Repair fracture pipes and damaged nozzles.",
+          "DamageImageName": "D5092.031b-DS1-1.JPG"
+        },
+        {
+          "Weight": 0.1,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                3250.0,
+                2250.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1705,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                3.3456,
+                2.3161
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3026,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative but anchorage is OK. Drive shaft misalignment.",
+          "RepairMeasures": "Overhaul because of drive shaft misalignment."
+        },
+        {
+          "Weight": 0.1,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                650.0,
+                450.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1673,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.6691,
+                0.4632
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3008,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative but anchorage is OK. Minor electrical damage, e.g., failed relay.",
+          "RepairMeasures": "Minor electrical repair e.g., replace relay."
+        },
+        {
+          "Weight": 0.1,
+          "LongLeadTime": false,
+          "Consequences": {
+            "ReconstructionCost": {
+              "Amount": [
+                650.0,
+                450.0
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.1673,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                0.6691,
+                0.4632
+              ],
+              "Quantity": [
+                1.0,
+                5.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.3008,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Damaged, inoperative but anchorage is OK. Exhaust line disconnected at expansion bellows.",
+          "RepairMeasures": "Reconnect exhaust line."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "Name": "Wall Partition, Type: High End Marble or Wood Panel, Full Height, Fixed Below, Slip Track Above w/ returns (friction connection)",
+  "QuantityUnit": [
+    100,
+    "LF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C3011.003c",
+    "Description": "Costing based upon 9'x100' Panels",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:21.8071893-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Superior",
+    "DataRelevance": "Superior",
+    "Documentation": "Superior",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.002,
+      "Beta": 0.7,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.0,
+                "Beta": 0.0,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                36000.0,
+                10800.0
+              ],
+              "Quantity": [
+                1.0,
+                3.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.2601,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                33.3265,
+                9.9794
+              ],
+              "Quantity": [
+                1.0,
+                3.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3608,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "minor cracked joints and minor cracks in marble / wood paneling.",
+          "RepairMeasures": "Carefully remove cracked marble/paneling and grout at cracked joints, and install new marble/paneling and re-grout joints for 10% of full 100 foot length of wall.  Existing wall board will remain place.",
+          "AffectedArea": [
+            0,
+            "SF"
+          ]
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.005,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": 0.1,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              },
+              {
+                "Amount": 0.05,
+                "Beta": 0.5,
+                "CurveType": "Normal",
+                "Bounds": [
+                  0.0,
+                  1.0
+                ]
+              }
+            ],
+            "RedTag": {
+              "Amount": 0.5,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                90000.0,
+                27000.0
+              ],
+              "Quantity": [
+                1.0,
+                3.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3151,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                83.3612,
+                24.9935
+              ],
+              "Quantity": [
+                1.0,
+                3.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4022,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "significant cracks in marble / wood paneling.",
+          "RepairMeasures": "Install new marble/paneling for full 100 foot length of wall.  Note: the gypsum wall board will also be removed and replaced which means the removal of the marble/paneling will be part of the gypsum wall board removal. ",
+          "AffectedArea": [
+            100,
+            "SF"
+          ]
+        }
+      ]
+    }
+  ]
+}

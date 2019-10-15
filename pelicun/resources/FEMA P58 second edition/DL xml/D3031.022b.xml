@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>c428f63e-ee49-4551-a239-bd735dad1571</UniqueID>
+  <ID>D3031.022b</ID>
+  <Description>Costing is per unit and is based upon 75 Ton.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Cooling Tower - Capacity: &lt; 100 Ton - Vibration isolated equipment that is not snubbed or restrained - Equipment fragility only</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Average</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:50:51.5312694-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Damaged equipment and attached piping but anchorage is OK.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Repair damaged equipment and attached piping.  Cooling tower removed, repaired offsite, and reinstalled.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>150447.45</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.3034</EnergyDispersion>
+        <CarbonMedian>12943.84</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.3034</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>26070</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>21330</MinAmount>
+          <Uncertainty>0.172</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>8.3647</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>2.7883</MinAmount>
+          <Uncertainty>0.3034</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.97</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

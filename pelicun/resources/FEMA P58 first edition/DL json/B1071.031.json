@@ -1,0 +1,93 @@
+{
+  "Name": "Wood walls with diagonal let-in bracing",
+  "QuantityUnit": [
+    100,
+    "SF"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B1071.031",
+    "Description": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  Stud wall framing consists of 2 x 4\u2019s at 16 inches on center with double top plates and single sill plate. Diagonal bracing includes 2 forms. Block-bracing consists of diagonal blocking between studs that extends from the top of one edge of the panel to the bottom of the opposite edge. Diagonal bracing may also consist of let-in bracing for which a 1x or 2x brace (with same inclination as described for block-bracing) is recessed into studs. Walls may be sheathed with horizontal or vertical lumber siding.",
+    "Author": "Andre Filiatrault",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:47:53.0025683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Average",
+    "DataRelevance": "Average",
+    "Documentation": "Superior",
+    "Rationality": "Superior"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.01,
+      "Beta": 0.4,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.25,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                5690.0,
+                3793.3333
+              ],
+              "Quantity": [
+                8.64,
+                28.8
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1053,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                14.4173,
+                9.5827
+              ],
+              "Quantity": [
+                8.64,
+                28.8
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.1003,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Failure of diagonal bracing.",
+          "RepairMeasures": "Remove and replace sheathing studs, plates and bracing and replace with new stud wall construction of plywood, hold-downs, etc. Provide shoring as required.",
+          "DamageImageName": "B1071.031-DS1-1.JPG"
+        }
+      ]
+    }
+  ]
+}

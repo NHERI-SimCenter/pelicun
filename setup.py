@@ -31,9 +31,9 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=[
-        'numpy>=1.15.1',
-        'scipy>=1.1',
-        'pandas>=0.20',
+        'numpy>=1.17.0',
+        'scipy>=1.3.0',
+        'pandas>=0.25.0',
     ],
     classifiers = [
         'Programming Language :: Python',
@@ -48,9 +48,8 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Unix',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Scientific/Engineering',
         ],
     extras_require={

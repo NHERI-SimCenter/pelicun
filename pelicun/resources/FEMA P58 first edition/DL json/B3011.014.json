@@ -1,0 +1,151 @@
+{
+  "Name": "Clay tile roof, unsecured tiles",
+  "QuantityUnit": [
+    100,
+    "SF"
+  ],
+  "Directional": false,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Peak Floor Acceleration",
+    "Unit": [
+      1,
+      "g"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "B3011.014",
+    "Description": "Costing per roofing square (100 SF)",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2012-10-12T16:48:00.2175683-07:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "None"
+  },
+  "Ratings": {
+    "DataQuality": "Not Rated",
+    "DataRelevance": "Not Rated",
+    "Documentation": "Not Rated",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.4,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                1425.0,
+                760.0
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5149,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                4.3971,
+                2.4412
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4707,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Minor damage; tiles dislodged.",
+          "RepairMeasures": "Replace and install dislodged tiles (assume 5% of area)",
+          "DamageImageName": "B3011.011-DS1-1.JPG"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.5,
+      "Beta": 0.3,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.5,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                2325.0,
+                1240.0
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4691,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                7.2794,
+                4.0882
+              ],
+              "Quantity": [
+                5.0,
+                20.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.4396,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Major portion of tile dislodged.",
+          "RepairMeasures": "Replace and install dislodged tiles.",
+          "DamageImageName": "B3011.011-DS2-1.JPG"
+        }
+      ]
+    }
+  ]
+}

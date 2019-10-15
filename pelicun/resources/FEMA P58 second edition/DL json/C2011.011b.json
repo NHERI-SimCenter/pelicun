@@ -1,0 +1,209 @@
+{
+  "Name": "Non-monolithic precast concrete stair assembly with concrete stringers and treads with no seismic joint.",
+  "QuantityUnit": [
+    1,
+    "EA"
+  ],
+  "Directional": true,
+  "Correlated": false,
+  "EDP": {
+    "Type": "Story Drift Ratio",
+    "Unit": [
+      1,
+      "ea"
+    ],
+    "Offset": 0
+  },
+  "GeneralInformation": {
+    "ID": "C2011.011b",
+    "Description": "Rigid stair without seismic interstory drift joint.  Precast concrete stair.",
+    "Author": "Not Given",
+    "Official": true,
+    "DateCreated": "2019-02-19T17:50:15.7630031-08:00",
+    "Approved": true,
+    "Incomplete": false,
+    "Notes": "Confirm median demand and dispersion values.  Base document noted that there was insufficient data to establish median demand or dispersion values.  The median demand and dispersion values listed are from a best fit approximation of the data performed by MKA."
+  },
+  "Ratings": {
+    "DataQuality": "Marginal",
+    "DataRelevance": "Marginal",
+    "Documentation": "Average",
+    "Rationality": "Not Rated"
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": 0.005,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                1400.0,
+                420.0
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.8015,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                1.5442,
+                0.4633
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.8396,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Non structural damage, local concrete cracking, localized concrete spalling, localized rebar yielding.",
+          "RepairMeasures": "Patch, paint, epoxy injection.  Repair finishes.",
+          "DamageImageName": "C2011.011a-DS1-1.jpg"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.017,
+      "Beta": 0.6,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.0,
+              "Beta": 0.0,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                7400.0,
+                2220.0
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.5694,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                8.1618,
+                2.4485
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "LogNormal",
+              "Beta": 0.6218,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Structural damage but live load capacity remains intact.  Extensive concrete cracking, concrete crushing, buckling of rebar.",
+          "RepairMeasures": "Remove damaged components, install replacement components.",
+          "DamageImageName": "C2011.011a-DS2-1.jpg"
+        }
+      ]
+    },
+    {
+      "MedianEDP": 0.028,
+      "Beta": 0.45,
+      "CurveType": "LogNormal",
+      "DSGroupType": "Single",
+      "DamageStates": [
+        {
+          "Weight": 1.0,
+          "LongLeadTime": false,
+          "Consequences": {
+            "RedTag": {
+              "Amount": 0.75,
+              "Beta": 0.5,
+              "CurveType": "Normal",
+              "Bounds": [
+                0.0,
+                1.0
+              ]
+            },
+            "ReconstructionCost": {
+              "Amount": [
+                45900.0,
+                13770.0
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.3613,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            },
+            "ReconstructionTime": {
+              "Amount": [
+                50.625,
+                15.1875
+              ],
+              "Quantity": [
+                5.0,
+                10.0
+              ],
+              "CurveType": "Normal",
+              "Beta": 0.4394,
+              "Bounds": [
+                0,
+                "None"
+              ]
+            }
+          },
+          "Description": "Loss of live load capacity.  Extensive concrete crushing, connection failure.",
+          "RepairMeasures": "Replace stair and handrail.  Repair and replace affected soffits and floor finishes.",
+          "DamageImageName": "C2011.011a-DS2-1.jpg"
+        }
+      ]
+    }
+  ]
+}
