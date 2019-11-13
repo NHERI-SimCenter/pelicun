@@ -149,8 +149,10 @@ class Assessment(object):
         if self._hazard == 'EQ':
             self._EDP_in = read_SimCenter_EDP_input(
                 path_EDP_input,
+                EDP_kinds=('PID', 'PFA', 'PGV'),
                 units=dict(PID=1.,
-                           PFA=self._AIM_in['units']['acceleration']),
+                           PFA=self._AIM_in['units']['acceleration'],
+                           PGV=self._AIM_in['units']['speed']),
                 verbose=verbose)
         elif self._hazard == 'HU':
             self._EDP_in = read_SimCenter_EDP_input(
@@ -478,7 +480,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # sample the random variables -----------------------------------------
         realization_count = self._AIM_in['general']['realizations']
-        is_coupled = self._AIM_in['general']
+        is_coupled = self._AIM_in['general']['coupled_assessment']
 
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:

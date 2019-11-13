@@ -127,6 +127,7 @@ m3 = m**3.
 ft3 = ft**3.
 
 # speed / velocity
+cmps = cm / sec
 mps = m / sec
 mph = mile / h
 

@@ -472,7 +472,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         PWS = 'speed'
     )
     if AT in ['P58', 'HAZUS_EQ']:
-        EDP_keys = ['PID', 'PFA']
+        EDP_keys = ['PID', 'PFA','PGV']
     elif AT in ['HAZUS_HU']:
         EDP_keys = ['PWS', ]
 
@@ -1070,6 +1070,9 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         elif EDP_type == 'Peak Gust Wind Speed':
             demand_type = 'PWS'
             demand_factor = mph
+        elif EDP_type == 'Peak Ground Velocity':
+            demand_type = 'PGV'
+            demand_factor = cmps
         elif EDP_type in [
             'Peak Floor Velocity',
             'Link Rotation Angle',
@@ -1318,8 +1321,8 @@ def convert_P58_data_to_json(data_dir, target_dir):
 
         comp_ID = filename[:-4]
 
-        try:
-        #if True:
+        #try:
+        if True:
             tree = ET.parse(os.path.join(data_dir+'DL xml/', comp_ID + '.xml'))
             root = tree.getroot()
 
@@ -1612,9 +1615,9 @@ def convert_P58_data_to_json(data_dir, target_dir):
             with open(os.path.join(target_dir, comp_ID + '.json'),'w') as f:
                 json.dump(json_output, f, indent=2)
 
-        except:
-            warnings.warn(UserWarning(
-                'Error converting data for component {}'.format(comp_ID)))
+        #except:
+        #    warnings.warn(UserWarning(
+        #        'Error converting data for component {}'.format(comp_ID)))
 
 def create_HAZUS_EQ_json_files(data_dir, target_dir):
     """
