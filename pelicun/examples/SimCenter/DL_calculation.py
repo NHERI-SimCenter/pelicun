@@ -234,8 +234,11 @@ def run_pelicun(DL_input_path, EDP_input_path,
 			# if the loss model is not defined, give a warning
 			print('WARNING No loss model defined in the BIM file. Trying to auto-populate.')
 
+			EDP_input_path = EDP_files[s_i]
+
 			# and try to auto-populate the loss model using the BIM information
 			DL_input, DL_input_path = auto_populate(DL_input_path,
+													EDP_input_path,
 													DL_method,
 													realization_count)
 
