@@ -46,6 +46,7 @@ This module has classes and methods that auto-populate loss models.
 
 """
 
+from .base import *
 import json
 
 ap_DesignLevel = {
@@ -56,8 +57,19 @@ ap_DesignLevel = {
 }
 
 ap_Occupancy = {
-    'Residential': "RES1",
-    'Retail': "COM1"
+    'Other/Unknown': 'RES1',
+    'Residential - Single-Family': 'RES1',
+    'Residential - Town-Home': 'RES3',
+    'Residential - Multi-Family': 'RES3',
+    'Residential - Mixed Use': 'RES3',
+    'Office': 'COM4',
+    'Hotel': 'RES4',
+    'School': 'EDU1',
+    'Industrial - Light': 'IND2',
+    'Industrial - Warehouse': 'IND2',
+    'Industrial - Heavy': 'IND1',
+    'Retail': 'COM1',
+    'Parking' : 'COM10'
 }
 
 ap_RoofType = {
@@ -89,40 +101,69 @@ def auto_populate(DL_input_path, DL_method, realization_count):
     if DL_method == 'HAZUS MH EQ':
 
         bt = BIM_in['structType']
+
+        if bt == 'RV.structType':
+            bt = EDP_input['structType'].values[0]
+
+        year_built = BIM_in['yearBuilt']
+        stories = BIM_in['numStory']
+
+        if bt not in ['W1', 'W2']:
+            if stories <= 3:
+                bt += 'L'
+            elif stories <= 7:
+                bt += 'M'
+            else:
+                bt += 'H'
+
         ot = ap_Occupancy[BIM_in['occupancy']]
 
         loss_dict = {
             '_method': DL_method,
-            'BuildingDamage': {
+            'DamageModel': {
+                'StructureType': bt
+            },
+            'LossModel': {
+                'DecisionVariables': {
+                    'ReconstructionCost': True,
+                    'ReconstructionTime': True,
+                    'Injuries': False
+                },
+                'Inhabitants': {
+                    'OccupancyType': ot,
+                    'PeakPopulation': '1'
+                },
                 'ReplacementCost': BIM_in['replacementCost'],
-                'ReplacementTime': BIM_in['replacementTime'],
-                'StructureType': bt,
+                'ReplacementTime': BIM_in['replacementTime']
             },
-            'UncertaintyQuantification': {
+            'ResponseModel': {
+                'ResponseDescription': {
                 'Realizations': realization_count
-            },
-            'Inhabitants': {
-                'PeakPopulation': "1",
-                'OccupancyType': ot
-            },
-            'Components': []
+                },
+                "AdditionalUncertainty": {
+                    "GroundMotion": "0.15",
+                    "Modeling"    : "0.30"
+                }
+            }
         }
 
-        year_built = BIM_in['yearBuilt']
+
         for year in sorted(ap_DesignLevel.keys()):
             if year_built <= year:
-                loss_dict['BuildingDamage'].update(
+                loss_dict['DamageModel'].update(
                     {'DesignLevel': ap_DesignLevel[year]})
                 break
-        dl = convert_design_level[loss_dict['BuildingDamage']['DesignLevel']]
+        dl = convert_design_level[loss_dict['DamageModel']['DesignLevel']]
+        if 'C3' in bt:
+            if dl not in ['LC', 'PC']:
+                dl = 'LC'
 
-        components = [
-            {'ID': 'S-{}-{}-{}'.format(bt, dl ,ot), 'structural': True},
-            {'ID': 'NSA-{}-{}'.format(dl ,ot),      'structural': False},
-            {'ID': 'NSD-{}'.format(ot),             'structural': False}
-        ]
-
-        loss_dict['Components'] = components
+        loss_dict.update({
+            'Components': {
+                'S-{}-{}-{}'.format(bt, dl ,ot) : [],
+                'NSA-{}-{}'.format(dl ,ot): [],
+                'NSD-{}'.format(ot): []
+            }})
 
     # HAZUS Hurricane
     elif DL_method == 'HAZUS MH HU':
