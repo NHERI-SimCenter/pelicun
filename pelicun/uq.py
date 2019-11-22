@@ -385,8 +385,12 @@ def tmvn_MLE(samples,
 
     mu_hatc = np.mean(samplesT, axis=0)
     sig_hatc = np.std(samplesT, axis=0)
-    sig_zero_id = np.where(sig_hatc == 0.0)[0]
-    sig_hatc[sig_zero_id] = 0.999
+    if ndims == 1:
+        if sig_hatc == 0:
+            sig_hatc = 0.999
+    else:
+        sig_zero_id = np.where(sig_hatc == 0.0)[0]
+        sig_hatc[sig_zero_id] = 0.999
 
     if verbose:
         print('\nstandardized estimates:')
