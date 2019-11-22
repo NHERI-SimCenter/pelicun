@@ -165,9 +165,27 @@ def auto_populate(DL_input_path, EDP_input_path,
 
         loss_dict.update({
             'Components': {
-                'S-{}-{}-{}'.format(bt, dl ,ot) : [],
-                'NSA-{}-{}'.format(dl ,ot): [],
-                'NSD-{}'.format(ot): []
+                'S-{}-{}-{}'.format(bt, dl ,ot) : [
+                    {'location': 'all',
+                     'direction': '1, 2',
+                     'median_quantity': '{q}'.format(q = 0.5/stories),
+                     'unit': 'ea',
+                     'distribution': 'N/A'
+                    }],
+                'NSA-{}-{}'.format(dl ,ot): [
+                    {'location': 'all',
+                     'direction': '1',
+                     'median_quantity': '{q}'.format(q = 1.0/stories),
+                     'unit': 'ea',
+                     'distribution': 'N/A'
+                    }],
+                'NSD-{}'.format(ot): [
+                    {'location': 'all',
+                     'direction': '1, 2',
+                     'median_quantity': '{q}'.format(q = 0.5/stories),
+                     'unit': 'ea',
+                     'distribution': 'N/A'
+                    }]
             }})
 
     # HAZUS Hurricane
