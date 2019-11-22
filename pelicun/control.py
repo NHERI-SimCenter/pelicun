@@ -595,7 +595,10 @@ class FEMA_P58_Assessment(Assessment):
         # reconstruction cost and time
         if DVs['rec_cost'] or DVs['rec_time']:
             # irrepairable cases
-            irrepairable_IDs = self._calc_irrepairable()
+            if 'irrepairable_res_drift' in self._AIM_in['general']:
+                irrepairable_IDs = self._calc_irrepairable()
+            else:
+                irrepairable_IDs = np.array([])
 
             # collect the IDs of repairable realizations
             P_NC = self._TIME.loc[self._ID_dict['non-collapse']]
