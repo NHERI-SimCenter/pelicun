@@ -1757,6 +1757,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
 
                     # General info
                     json_output.update({
+                        'Directional': True,
                         'GeneralInformation': {
                             'ID'         : dl_id,
                             'Description': dl_id,
@@ -1836,6 +1837,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
 
             # General info
             json_output.update({
+                'Directional': False,
                 'GeneralInformation': {
                     'ID'         : dl_id,
                     'Description': dl_id,
@@ -1890,6 +1892,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
 
         # General info
         json_output.update({
+            'Directional': True,
             'GeneralInformation': {
                 'ID'         : dl_id,
                 'Description': dl_id,
