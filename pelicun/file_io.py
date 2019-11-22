@@ -265,6 +265,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     # general information
     GI = jd.get("GeneralInformation", None)
+    if GI is None:
+        GI = jd.get("GI", None)
 
     # units
     if (GI is not None) and ('units' in GI.keys()):
@@ -326,6 +328,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                         "{} has to be specified in the DL input file to "
                         "estimate {} decision variable(s).".format(source_att,
                                                                    dv_req))
+    elif AT.startswith('HAZUS'):
+        data['general'].update({'stories': int(GI['stories'])})
 
     # is this a coupled assessment?
     if res_description is not None:
@@ -382,7 +386,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                         comp_data['quantities'].append(qnts)
                         comp_data['csg_weights'].append(csg_weights)
                         comp_data['unit'].append(unit)
-                        comp_data['distribution'].append(comp['distribution'])
+                        comp_data['distribution'].append(comp.get('distribution', 'N/A'))
                         comp_data['cov'].append(comp.get('cov', None))
 
                 sorted_ids = np.argsort(comp_data['locations'])
@@ -400,14 +404,73 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
             elif AT.startswith('HAZUS'):
                 comp_data = {
-                    'locations'    : [1, ],
-                    'directions'   : [1, ],
-                    'quantities'  : [1, ],
-                    'unit'        : 'ea',
-                    'distribution': ['N/A',],
-                    'cov'         : [None,],
-                    'csg_weights' : [[1.0,],]
+                    'locations'   : [],
+                    'directions'  : [],
+                    'quantities'  : [],
+                    'unit'        : [],
+                    'distribution': [],
+                    'cov'         : [],
+                    'csg_weights':  [],
                 }
+
+                for comp in frag_group:
+                    if 'location' in comp:
+                        locs = []
+                        for loc_ in comp['location'].split(','):
+                            for l in process_loc(loc_, data['general']['stories']):
+                                locs.append(l)
+                        locs.sort()
+                    else:
+                        locs = [1,]
+
+                    if 'direction' in comp:
+                        dirs = sorted([int_or_None(dir_)
+                                       for dir_ in comp['direction'].split(',')])
+                    else:
+                        dirs = [1, ]
+
+                    if 'median_quantity' in comp:    
+                        qnts = [float(qnt)
+                                for qnt in comp['median_quantity'].split(',')]
+                        csg_weights = (qnts / np.sum(qnts)).tolist()
+                        qnts = np.sum(qnts)
+
+                    pg_count = len(locs) * len(dirs)
+
+                    comp_data['locations'] = (comp_data['locations'] +
+                                               [l for l in locs for d in dirs])
+                    comp_data['directions'] = (comp_data['directions'] +
+                                              dirs * len(locs))
+
+                    if 'unit' in comp:
+                        unit = comp['unit']
+                        if unit not in globals().keys():
+                            raise ValueError(
+                                "Unknown unit for component {}: {}".format(fg_id,
+                                                                           unit))
+                    else:
+                        unit = 'ea'
+
+                    for i in range(pg_count):
+                        comp_data['quantities'].append(qnts)
+                        comp_data['csg_weights'].append(csg_weights)
+                        comp_data['unit'].append(unit)
+                        comp_data['distribution'].append(comp.get('distribution', 'N/A'))
+                        comp_data['cov'].append(comp.get('cov', None))
+
+                sorted_ids = np.argsort(comp_data['locations'])
+                for key in ['locations', 'directions', 'quantities',
+                            'csg_weights', 'distribution', 'cov']:
+                    comp_data[key] = [comp_data[key][s_id] for s_id in sorted_ids]
+
+                if len(set(comp_data['unit'])) != 1:
+                    print(comp_data['unit'])
+                    raise ValueError(
+                        "Multiple types of units specified for fragility group "
+                        "{}. Make sure that every component group in a "
+                        "fragility group is defined using the same "
+                        "unit.".format(fg_id))
+                comp_data['unit'] = comp_data['unit'][0]
 
                 # some basic pre-processing
                 # sort the dirs and their weights to have better structured
