@@ -789,47 +789,45 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         'per ATC recommendation' : 'ATC',
     }
 
-    if AT == 'P58':
+    for target_att, source_att, dv_req in [
+        ['quantities', 'Quantities', ''],
+        ['fragilities', 'Fragilities', ''],
+        ['injuries', 'Injuries', 'injuries'],
+        ['rec_costs', 'ReconstructionCosts', 'rec_cost'],
+        ['rec_times', 'ReconstructionTimes', 'rec_time'],
+        ['red_tags', 'RedTagProbabilities', 'red_tag'],]:
 
-        for target_att, source_att, dv_req in [
-            ['quantities', 'Quantities', ''],
-            ['fragilities', 'Fragilities', ''],
-            ['injuries', 'Injuries', 'injuries'],
-            ['rec_costs', 'ReconstructionCosts', 'rec_cost'],
-            ['rec_times', 'ReconstructionTimes', 'rec_time'],
-            ['red_tags', 'RedTagProbabilities', 'red_tag'],]:
-
-            if ((depends is not None) and (source_att in depends.keys())):
-                data['dependencies'].update({
-                    target_att:dependency_to_acronym[depends[source_att]]})
-            elif dv_req == '' or data['decision_variables'][dv_req]:
-                if target_att != 'fragilities':
-                    data['dependencies'].update({target_att: 'IND'})
-                else:
-                    data['dependencies'].update({target_att: 'ATC'})
-
-                warnings.warn(UserWarning(
-                    "Correlation between {} was not ".format(source_att)+
-                    "defined in the input file. Using default values."))
-
-        if ((depends is not None) and ('CostAndTime' in depends.keys())):
+        if ((depends is not None) and (source_att in depends.keys())):
             data['dependencies'].update({
-                'cost_and_time': bool(depends['CostAndTime'])})
-        elif ((data['decision_variables']['rec_cost']) or
-              (data['decision_variables']['rec_time'])):
-            data['dependencies'].update({'cost_and_time': False})
+                target_att:dependency_to_acronym[depends[source_att]]})
+        elif dv_req == '' or data['decision_variables'][dv_req]:
+            if target_att != 'fragilities':
+                data['dependencies'].update({target_att: 'IND'})
+            else:
+                data['dependencies'].update({target_att: 'ATC'})
+
             warnings.warn(UserWarning(
-                "Correlation between reconstruction cost and time was not "
+                "Correlation between {} was not ".format(source_att)+
                 "defined in the input file. Using default values."))
 
-        if ((depends is not None) and ('InjurySeverities' in depends.keys())):
-            data['dependencies'].update({
-                'injury_lvls': bool(depends['InjurySeverities'])})
-        elif data['decision_variables']['injuries']:
-            data['dependencies'].update({'injury_lvls': False})
-            warnings.warn(UserWarning(
-                "Correlation between injury levels was not defined in the "
-                "input file. Using default values."))
+    if ((depends is not None) and ('CostAndTime' in depends.keys())):
+        data['dependencies'].update({
+            'cost_and_time': bool(depends['CostAndTime'])})
+    elif ((data['decision_variables']['rec_cost']) or
+          (data['decision_variables']['rec_time'])):
+        data['dependencies'].update({'cost_and_time': False})
+        warnings.warn(UserWarning(
+            "Correlation between reconstruction cost and time was not "
+            "defined in the input file. Using default values."))
+
+    if ((depends is not None) and ('InjurySeverities' in depends.keys())):
+        data['dependencies'].update({
+            'injury_lvls': bool(depends['InjurySeverities'])})
+    elif data['decision_variables']['injuries']:
+        data['dependencies'].update({'injury_lvls': False})
+        warnings.warn(UserWarning(
+            "Correlation between injury levels was not defined in the "
+            "input file. Using default values."))
 
     if verbose: pp.pprint(data)
 
