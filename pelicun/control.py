@@ -2116,8 +2116,14 @@ class HAZUS_Assessment(Assessment):
         """
         super(HAZUS_Assessment, self).define_random_variables()
 
+        DEP = self._AIM_in['dependencies']
+
         # create the random variables -----------------------------------------
         self._RV_dict = {}
+
+        # quantities 100
+        self._RV_dict.update({
+            'QNT': self._create_RV_quantities(DEP['quantities'])})
 
         # fragilities 300
         s_fg_keys = sorted(self._FG_in.keys())
@@ -2126,7 +2132,7 @@ class HAZUS_Assessment(Assessment):
 
             self._RV_dict.update({
                 'FR-' + c_name:
-                    self._create_RV_fragilities(c_id, comp,'PG')})
+                    self._create_RV_fragilities(c_id, comp,DEP['fragilities'])})
 
         # demands 200
         self._RV_dict.update({'EDP': self._create_RV_demands()})
@@ -2322,6 +2328,224 @@ class HAZUS_Assessment(Assessment):
 
         self._SUMMARY = SUMMARY.dropna(axis=1, how='all')
 
+    def _create_correlation_matrix(self, rho_target, c_target=-1,
+                                   include_CSG=False,
+                                   include_DSG=False, include_DS=False):
+        """
+
+        Parameters
+        ----------
+        rho_target
+        c_target
+        include_CSG
+        include_DSG
+        include_DS
+
+        Returns
+        -------
+
+        """
+
+        # set the correlation structure
+        rho_FG, rho_PG, rho_LOC, rho_DIR, rho_CSG, rho_DS = np.zeros(6)
+
+        if rho_target in ['FG', 'PG', 'DIR', 'LOC', 'CSG', 'ATC', 'DS']:
+            rho_DS = 1.0
+        if rho_target in ['FG', 'PG', 'DIR', 'LOC', 'CSG']:
+            rho_CSG = 1.0
+        if rho_target in ['FG', 'PG', 'DIR']:
+            rho_DIR = 1.0
+        if rho_target in ['FG', 'PG', 'LOC']:
+            rho_LOC = 1.0
+        if rho_target in ['FG', 'PG']:
+            rho_PG = 1.0
+        if rho_target == 'FG':
+            rho_FG = 1.0
+
+        L_D_list = []
+        dims = []
+        DS_list = []
+        ATC_rho = []
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id, c_name in enumerate(s_fg_keys):
+            comp = self._FG_in[c_name]
+
+            if ((c_target == -1) or (c_id == c_target)):
+                c_L_D_list = []
+                c_DS_list = []
+                ATC_rho.append(comp['correlation'])
+
+                if include_DSG:
+                    DS_count = 0
+                    s_dsg_keys = sorted(comp['DSG_set'].keys())
+                    for dsg_i in s_dsg_keys:
+                        DSG = comp['DSG_set'][dsg_i]
+                        if include_DS:
+                            DS_count += len(DSG['DS_set'])
+                        else:
+                            DS_count += 1
+                else:
+                    DS_count = 1
+
+                #for loc in comp['locations']:
+                #    if include_CSG:
+                #        u_dirs = comp['directions']
+                #    else:
+                #        u_dirs = np.unique(comp['directions'])
+                #    c_L_D_list.append([])
+                #    for dir_ in u_dirs:
+                #        c_DS_list.append(DS_count)
+                #        for ds_i in range(DS_count):
+                #            c_L_D_list[-1].append(dir_)
+
+                for loc_u in np.unique(comp['locations']):
+                    c_L_D_list.append([])
+                    for loc, dir, csg_weights in zip(comp['locations'],
+                                                     comp['directions'],
+                                                     comp['csg_weights']):
+                        if loc == loc_u:
+                            if include_CSG:
+                                csg_list = csg_weights
+                            else:
+                                csg_list = [1.0,]
+                            for csg_ in csg_list:
+                                c_DS_list.append(DS_count)
+                                for ds_i in range(DS_count):
+                                    c_L_D_list[-1].append(dir)
+
+                c_dims = sum([len(loc) for loc in c_L_D_list])
+                dims.append(c_dims)
+                L_D_list.append(c_L_D_list)
+                DS_list.append(c_DS_list)
+
+        rho = np.ones((sum(dims), sum(dims))) * rho_FG
+
+        f_pos_id = 0
+        for c_id, (c_L_D_list, c_dims, c_DS_list) in enumerate(
+            zip(L_D_list, dims, DS_list)):
+            c_rho = np.ones((c_dims, c_dims)) * rho_PG
+
+            # dependencies btw directions
+            if rho_DIR != 0:
+                c_pos_id = 0
+                for loc_D_list in c_L_D_list:
+                    l_dim = len(loc_D_list)
+                    c_rho[c_pos_id:c_pos_id + l_dim,
+                    c_pos_id:c_pos_id + l_dim] = rho_DIR
+                    c_pos_id = c_pos_id + l_dim
+
+            # dependencies btw locations
+            if rho_LOC != 0:
+                flat_dirs = []
+                [[flat_dirs.append(dir_i) for dir_i in dirs] for dirs in
+                 c_L_D_list]
+                flat_dirs = np.array(flat_dirs)
+                for u_dir in np.unique(flat_dirs):
+                    dir_ids = np.where(flat_dirs == u_dir)[0]
+                    for i in dir_ids:
+                        for j in dir_ids:
+                            c_rho[i, j] = rho_LOC
+
+            if ((rho_CSG != 0) or (rho_target == 'ATC')):
+                c_pos_id = 0
+                if rho_target == 'ATC':
+                    rho_to_use = float(ATC_rho[c_id])
+                else:
+                    rho_to_use = rho_CSG
+                for loc_D_list in c_L_D_list:
+                    flat_dirs = np.array(loc_D_list)
+                    for u_dir in np.unique(flat_dirs):
+                        dir_ids = np.where(flat_dirs == u_dir)[0]
+                        for i in dir_ids:
+                            for j in dir_ids:
+                                c_rho[c_pos_id + i, c_pos_id + j] = rho_to_use
+                    c_pos_id = c_pos_id + len(loc_D_list)
+
+            if rho_DS != 0:
+                c_pos_id = 0
+                for l_dim in c_DS_list:
+                    c_rho[c_pos_id:c_pos_id + l_dim,
+                          c_pos_id:c_pos_id + l_dim] = rho_DS
+                    c_pos_id = c_pos_id + l_dim
+
+            rho[f_pos_id:f_pos_id + c_dims,
+                f_pos_id:f_pos_id + c_dims] = c_rho
+            f_pos_id = f_pos_id + c_dims
+
+        np.fill_diagonal(rho, 1.0)
+
+        return rho
+
+    def _create_RV_quantities(self, rho_qnt):
+        """
+
+        Parameters
+        ----------
+        rho_qnt
+
+        Returns
+        -------
+
+        """
+
+        q_theta, q_sig, q_tag, q_dist = [np.array([]) for i in range(4)]
+
+        # collect the parameters for each quantity dimension
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id in s_fg_keys:
+            comp = self._FG_in[c_id]
+
+            u_dirs = np.unique(comp['directions'])
+
+            #dir_weights = comp['dir_weights']
+            #theta_list = []
+            #[[theta_list.append(qnt * dw)
+            #  for dw in dir_weights] for qnt in comp['quantities']]
+
+            theta_list = comp['quantities']
+            q_theta = np.append(q_theta, theta_list)
+
+            dist_list = comp['distribution_kind']
+            q_dist = np.append(q_dist, dist_list)
+
+            cov_list = comp['cov']
+            for theta, dk, cov in list(zip(theta_list, dist_list, cov_list)):
+                if dk == 'normal':
+                    q_sig = np.append(q_sig, [cov*theta,])
+                else:
+                    q_sig = np.append(q_sig, [cov, ])
+
+            q_tag = np.append(q_tag, [c_id + '-QNT-' + str(s_i) + '-' + str(d_i)
+                                      for s_i, d_i
+                                      in list(zip(comp['locations'],
+                                                  comp['directions']))])
+        dims = len(q_theta)
+        rho = self._create_correlation_matrix(rho_qnt)
+        q_COV = np.outer(q_sig, q_sig) * rho
+
+        # add lower limits to ensure only positive quantities
+        # zero is probably too low, and it might make sense to introduce upper
+        # limits as well
+        tr_lower = [0. for d in range(dims)]
+        tr_upper = [None for d in range(dims)]
+        # to avoid truncations affecting other dimensions when rho_QNT is large,
+        # assign a post-truncation correlation structure
+        corr_ref = 'post'
+
+        # create a random variable for component quantities in performance groups
+        if q_tag.size > 0:
+            quantity_RV = RandomVariable(ID=100,
+                                         dimension_tags=q_tag,
+                                         distribution_kind=q_dist,
+                                         theta=q_theta,
+                                         COV=q_COV,
+                                         truncation_limits=[tr_lower, tr_upper],
+                                         corr_ref=corr_ref)
+        else:
+            quantity_RV = None
+
+        return quantity_RV
+
     def _create_RV_fragilities(self, c_id, comp, rho_fr):
         """
 
@@ -2432,10 +2656,10 @@ class HAZUS_Assessment(Assessment):
                 PG_ID = 1000 * FG_ID + 10 * loc + dir_
 
                 # get the quantity
-                QNT = None
-                #QNT = RandomVariableSubset(
-                #    RVd['QNT'],
-                #    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
+                #QNT = None
+                QNT = RandomVariableSubset(
+                    RVd['QNT'],
+                    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
 
                 # create the damage objects
                 # consequences are calculated on a performance group level
@@ -2645,24 +2869,41 @@ class HAZUS_Assessment(Assessment):
                 else:
                     PG_qnt = pd.DataFrame(np.ones(NC_samples),index=ncID)
 
-                # get the corresponding demands
-                demand_ID = (FG._demand_type +
+                # get the corresponding demands                 
+                if not FG._directional:
+                    demand_ID_list = []
+
+                    for demand_ID in self._EDP_dict.keys():
+                        if demand_ID[:3] == FG._demand_type:
+                            demand_data = demand_ID.split('-')
+                            if int(demand_data[2]) == PG._location:
+                                demand_ID_list.append(demand_ID)                            
+
+                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
+                    if len(demand_ID_list)>1:
+                        for demand_ID in demand_ID_list[1:]:
+                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]                            
+                            EDP_samples = np.maximum(new_samples.values,
+                                                     EDP_samples.values)
+
+                else:
+                    demand_ID = (FG._demand_type +
                              '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
-                if demand_ID in self._EDP_dict.keys():
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
-                else:
-                    # If the required demand is not available, then we are most
-                    # likely analyzing a 3D structure using results from a 2D
-                    # simulation. The best thing we can do in that particular
-                    # case is to use the EDP from the 1 direction for all other
-                    # directions.
-                    demand_ID = (FG._demand_type +
-                                 '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
 
-                csg_w_list = PG._csg_weights
+                    if demand_ID in self._EDP_dict.keys():
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                    else:
+                        # If the required demand is not available, then we are most
+                        # likely analyzing a 3D structure using results from a 2D
+                        # simulation. The best thing we can do in that particular
+                        # case is to use the EDP from the 1 direction for all other
+                        # directions.
+                        demand_ID = (FG._demand_type +
+                                     '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
 
+                csg_w_list = np.array(PG._csg_weights)
                 for csg_i, csg_w in enumerate(csg_w_list):
                     DSG_df = PG._FF_set[csg_i].DSG_given_EDP(EDP_samples)
 
