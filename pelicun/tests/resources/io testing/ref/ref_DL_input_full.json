@@ -5,6 +5,7 @@
     "realizations": 20000,
     "collapse_limits": {
       "PFA": 1.5,
+      "PGV": null,
       "PID": 0.1
     },
     "coupled_assessment": false,
@@ -17,6 +18,7 @@
     "replacement_time": 180.0,
     "detection_limits": {
       "PFA": 2.0,
+      "PGV": null,
       "PID": 0.15
     },
     "yield_drift": 0.01,

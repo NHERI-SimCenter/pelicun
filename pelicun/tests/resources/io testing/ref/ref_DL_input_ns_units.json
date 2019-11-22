@@ -5,11 +5,13 @@
     "realizations": 20000,
     "collapse_limits": {
       "PFA": 14.709975,
+      "PGV": null,
       "PID": 0.1
     },
     "coupled_assessment": false,
     "detection_limits": {
       "PFA": 19.6133,
+      "PGV": null,
       "PID": 0.15
     },
     "added_uncertainty": {
