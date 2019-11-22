@@ -1,5 +1,6 @@
 {
   "Name": "S-URML-PC-IND1",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "S-URML-PC-IND1",
     "Description": "S-URML-PC-IND1"

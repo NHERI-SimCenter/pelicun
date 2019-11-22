@@ -1,5 +1,6 @@
 {
   "Name": "NSD-RES5",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "NSD-RES5",
     "Description": "NSD-RES5"

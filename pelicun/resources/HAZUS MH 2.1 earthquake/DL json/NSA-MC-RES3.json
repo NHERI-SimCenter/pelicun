@@ -1,5 +1,6 @@
 {
   "Name": "NSA-MC-RES3",
+  "Directional": false,
   "GeneralInformation": {
     "ID": "NSA-MC-RES3",
     "Description": "NSA-MC-RES3"

@@ -1,5 +1,6 @@
 {
   "Name": "S-S3-MC-RES6",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "S-S3-MC-RES6",
     "Description": "S-S3-MC-RES6"
