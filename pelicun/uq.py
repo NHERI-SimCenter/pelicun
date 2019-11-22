@@ -385,6 +385,8 @@ def tmvn_MLE(samples,
 
     mu_hatc = np.mean(samplesT, axis=0)
     sig_hatc = np.std(samplesT, axis=0)
+    sig_zero_id = np.where(sig_hatc == 0.0)[0]
+    sig_hatc[sig_zero_id] = 0.999
 
     if verbose:
         print('\nstandardized estimates:')
@@ -394,7 +396,8 @@ def tmvn_MLE(samples,
     # define initial values of distribution parameters using simple estimates
     if ndims == 1:
         #mu_init = np.mean(samples)
-        mu_init = mu_hatc
+        # we perturb the mu to improve optimization
+        mu_init = mu_hatc + sig_hatc*0.1
         # use biased estimate for std, because MLE will converge to that anyway
         #sig_init = np.std(samples, ddof=0)
         sig_init = sig_hatc
@@ -402,6 +405,7 @@ def tmvn_MLE(samples,
         if sig_init == 0.0:
             sig_init = 1e-6 * np.abs(mu_init)
         rho_init=()
+        fit_rho = False
         # prepare a vector of initial values
         inits = np.asarray([mu_init, sig_init])
     else:
@@ -434,7 +438,7 @@ def tmvn_MLE(samples,
         rho_init_ids2 = rho_init_ids[::-1]
         # prepare a vector of initial values
         # if there is too few samples, we do not fit the correlation matrix
-        fit_rho = nsamples > ndims**2.0+2.0
+        fit_rho = nsamples > 2.0*ndims**2.0
         if fit_rho:
             inits = np.concatenate([mu_init, sig_init, rho_init_list])
         else:
@@ -653,8 +657,9 @@ def tmvn_MLE(samples,
         #print(mu[-4:], NLL)
         #print(np.sqrt(np.diagonal(COV))[-4:],NLL)
 
-        if verbose_NLL: pass
-        #print(params_to_show, 'all good', NLL)
+        if verbose_NLL:
+          pass
+          #print(params_to_show, 'all good', NLL)
         return NLL
 
     # initialize the message flags
@@ -670,21 +675,32 @@ def tmvn_MLE(samples,
     #out = minimize(_neg_log_likelihood, inits, args=(rho_init, True),
     #               bounds=bounds, method='TNC')
 
-    out_d = differential_evolution(_neg_log_likelihood, mu_bounds + sig_bounds,
-                                   args=(rho_init,),
-                                   maxiter=200,
-                                   polish=False)
-    if verbose:
-        print(out_d)
-        #print(out.fun, out.nfev, out.nit, out.message, out.x)
-        print('runtime: ', time.time() - t_0)
+    # Global optimization with a more sophisticated method is only
+    # reasonable if we have a sufficiently large number of samples.
+    # Considering the size of the covariance matrix, we are looking for at least
+    # ndims^2 samples to use differential evolution.
+    if nsamples > 2.0 * ndims**2.0:
 
-    # minimize the negative log-likelihood function using the adaptive
+        out_d = differential_evolution(_neg_log_likelihood, mu_bounds + sig_bounds,
+                                       args=(rho_init,),
+                                       maxiter=200,
+                                       polish=False)
+        mu_sig_vals = out_d.x
+
+        if verbose:
+            print(out_d)
+            # print(out.fun, out.nfev, out.nit, out.message, out.x)
+            print('runtime: ', time.time() - t_0)
+    else:
+        mu_sig_vals = np.array(inits[:2*ndims])
+
+    # Minimize the negative log-likelihood function using the adaptive
     # Adaptive Nelder-Mead algorithm (Gao and Han, 2012)
-    out_m = minimize(_neg_log_likelihood, np.concatenate([out_d.x, inits[2*ndims:]]),
+    out_m = minimize(_neg_log_likelihood,
+                     np.concatenate([mu_sig_vals, inits[2*ndims:]]),
                    args=(rho_init,True), method='Nelder-Mead',
                    options=dict(maxfev=1000*ndims,
-                                xatol = 0.001,
+                                xatol = 0.01,
                                 fatol = 1e-10,
                                 adaptive=True)
                    )
