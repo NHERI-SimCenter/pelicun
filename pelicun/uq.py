@@ -504,7 +504,7 @@ def tmvn_MLE(samples,
             mu = params[:ndims]
             sig = params[ndims:2*ndims]
             if unbiased:
-                sig = sig * nsamples / (nsamples-1)
+                sig = sig * np.sqrt(nsamples / (nsamples-1))
 
             # reconstruct the covariance matrix
             COV = np.outer(sig, sig)
