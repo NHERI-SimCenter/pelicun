@@ -1518,7 +1518,7 @@ class FEMA_P58_Assessment(Assessment):
             PG_csg_lists = comp['csg_weights']
             for loc, dir_, csg_list in zip(PG_locations, PG_directions,
                                            PG_csg_lists):
-                PG_ID = 1000 * FG_ID + 10 * loc + dir_
+                PG_ID = 10000 * FG_ID + 10 * loc + dir_
 
                 # get the quantity
                 QNT = RandomVariableSubset(
@@ -2839,7 +2839,7 @@ class HAZUS_Assessment(Assessment):
             PG_csg_lists = comp['csg_weights']
             for loc, dir_, csg_list in zip(PG_locations, PG_directions,
                                            PG_csg_lists):
-                PG_ID = 1000 * FG_ID + 10 * loc + dir_
+                PG_ID = 10000 * FG_ID + 10 * loc + dir_
 
                 # get the quantity
                 #QNT = None
