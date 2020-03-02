@@ -529,12 +529,12 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             "Number of realizations is not specified in the input file.")
 
     EDP_units = dict(
-        # PID is not here because it is unitless
+        # PID, RID, and MID are not here because they are unitless
         PFA = 'acceleration',
         PWS = 'speed'
     )
     if AT in ['P58', 'HAZUS_EQ']:
-        EDP_keys = ['PID', 'PFA','PGV']
+        EDP_keys = ['PID', 'PFA', 'PGV', 'RID', 'PMD']
     elif AT in ['HAZUS_HU']:
         EDP_keys = ['PWS', ]
 
@@ -1106,6 +1106,10 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         elif EDP_type == 'Peak Ground Velocity':
             demand_type = 'PGV'
             demand_factor = cmps
+        elif EDP_type == 'Mega Drift Ratio':
+            demand_type = 'PMD'
+        elif EDP_type == 'Residual Drift Ratio':
+            demand_type = 'RID'
         elif EDP_type in [
             'Peak Floor Velocity',
             'Link Rotation Angle',
