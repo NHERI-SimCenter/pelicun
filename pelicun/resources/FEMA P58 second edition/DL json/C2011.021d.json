@@ -200,7 +200,7 @@
             }
           },
           "Description": "Loss of live load capacity.  ",
-          "RepairMeasures": NaN,
+          "RepairMeasures": "",
           "DamageImageName": "C2011.011a-DS2-1.jpg"
         }
       ]

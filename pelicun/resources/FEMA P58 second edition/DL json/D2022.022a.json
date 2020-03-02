@@ -123,7 +123,7 @@
             }
           },
           "Description": "Pipe Break - 1 break per 1000 feet of pipe.",
-          "RepairMeasures": NaN
+          "RepairMeasures": ""
         }
       ]
     }

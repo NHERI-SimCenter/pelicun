@@ -185,7 +185,7 @@
             }
           },
           "Description": "Glass falls from frame.",
-          "RepairMeasures": NaN,
+          "RepairMeasures": "",
           "AffectedArea": [
             36,
             "SF"

@@ -1512,6 +1512,12 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 DS_list = DSG['DamageStates']
                 DSG['DamageStates'] = []
                 for DS in DS_list:
+
+                    # avoid having NaN as repair measures
+                    repair_measures = row['DS {}, Repair Description'.format(DS[-1])]
+                    if not isinstance(repair_measures, str):
+                        repair_measures = ""
+
                     DSG['DamageStates'].append({
                         'Weight'        :
                             float(row['DS {}, Probability'.format(DS[-1])]),
@@ -1521,10 +1527,9 @@ def convert_P58_data_to_json(data_dir, target_dir):
                         'Consequences'  : {},
                         'Description'   :
                             row['DS {}, Description'.format(DS[-1])],
-                        'RepairMeasures':
-                            row['DS {}, Repair Description'.format(DS[-1])],
+                        'RepairMeasures': repair_measures
                     })
-
+                    
                     IMG = row['DS{}, Illustrations'.format(DS[-1])]
                     if IMG not in ['none', np.nan]:
                         DSG['DamageStates'][-1].update({'DamageImageName': IMG})
