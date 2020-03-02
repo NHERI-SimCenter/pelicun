@@ -450,18 +450,19 @@ def tmvn_MLE(samples,
 
     # If the distribution is censored or truncated, check if the number of
     # samples is greater than the number of unknowns. If not, show a warning.
-    if (((tr_lower is not None) or (tr_upper is not None)
-        or (det_lower is not None) or (det_upper is not None))
-       and (len(inits) >= nsamples)):
-        if verbose: print('samples:',nsamples,'unknowns:',len(inits))
-        warnings.warn(UserWarning(
-            "The number of samples is less than the number of unknowns. There "
-            "is no unique solution available for such a case. Expect a poor "
-            "estimate of the distribution (especially the covariance matrix). "
-            "Either provide more samples, or relax the assumed dependencies "
-            "between variables, or remove the truncation/detection limits to "
-            "improve the situation."
-        ))
+    if fit_rho:
+        if (((tr_lower is not None) or (tr_upper is not None)
+            or (det_lower is not None) or (det_upper is not None))
+           and (len(inits) >= nsamples)):
+            if verbose: print('samples:',nsamples,'unknowns:',len(inits))
+            show_warning(
+                "The number of samples is less than the number of unknowns. There "
+                "is no unique solution available for such a case. Expect a poor "
+                "estimate of the distribution (especially the covariance matrix). "
+                "Either provide more samples, or relax the assumed dependencies "
+                "between variables, or remove the truncation/detection limits to "
+                "improve the situation."
+            )
 
     # define the bounds for the distribution parameters
     # mu is not bounded
