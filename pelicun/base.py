@@ -83,9 +83,6 @@ def show_matrix(data, describe=False):
     else:
         pp.pprint(pd.DataFrame(data))
 
-# get the absolute path of the pelicun directory
-pelicun_path = os.path.dirname(os.path.abspath(__file__))
-
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
     if '\\' in filename:
@@ -163,15 +160,23 @@ mile2 = mile**2.
 # volume
 m3 = m**3.
 
+inch3 = inch**3.
 ft3 = ft**3.
+
 
 # speed / velocity
 cmps = cm / sec
 mps = m / sec
 mph = mile / h
 
+inchps = inch / sec
+ftps = ft / sec
+
 # acceleration
 mps2 = m / sec2
+
+inchps2 = inch / sec2
+ftps2 = ft / sec2
 
 g = 9.80665 * mps2
 
