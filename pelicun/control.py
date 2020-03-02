@@ -87,6 +87,13 @@ class Assessment(object):
 
         self._assessment_type = 'generic'
 
+        # initialize the log file
+        set_log_file('pelicun_log.txt')
+        
+        log_msg(log_div)
+        log_msg('Assessement Started')
+        log_msg(log_div)
+
     @property
     def beta_tot(self):
         """
@@ -140,12 +147,100 @@ class Assessment(object):
         """
 
         # read SimCenter inputs -----------------------------------------------
+        log_msg(log_div)
+        log_msg('Reading inputs...')
+
         # BIM file
+        log_msg('\tBIM file...')
         self._AIM_in = read_SimCenter_DL_input(
             path_DL_input, assessment_type=self._assessment_type,
             verbose=verbose)
 
+        data = self._AIM_in
+
+        log_msg()
+        log_msg('\t\tGlobal attributes / settings:')
+        for att in ['stories', 'coupled_assessment', 'realizations']:
+            log_msg('\t\t\t{}: {}'.format(att, data['general'][att]))
+
+        log_msg()
+        log_msg('\t\tPrescribed Decision Variables:')
+        for dv, val in data['decision_variables'].items():
+            if val:
+                log_msg('\t\t\t{}'.format(dv))
+
+        log_msg()
+        log_msg("\t\tDamage and Loss Data Dir:")
+        log_msg('\t\t\t{}'.format(data['data_sources']['path_CMP_data']))
+
+        if data['decision_variables']['injuries']:
+            log_msg()
+            log_msg("\t\tPopulation Data Dir:")
+            log_msg('\t\t\t{}'.format(data['data_sources']['path_POP_data']))
+
+        log_msg()
+        log_msg('\t\tUnits:')
+        for dv, val in data['unit_names'].items():
+            log_msg('\t\t\t{}: {} ({})'.format(dv, val, data['units'][dv]))
+
+        log_msg()
+        log_msg('\t\tResponse Model:')
+        log_msg('\t\t\tDetection Limits:')
+        for dl_name, dl in data['general']['detection_limits'].items():
+            log_msg('\t\t\t\t{}: {}'.format(dl_name, dl))
+        for att, val in data['general']['response'].items():
+            log_msg()
+            log_msg('\t\t\t{}: {}'.format(att, val))
+        log_msg()
+        log_msg('\t\t\tAdditional Uncertainty:')
+        for att, val in data['general']['added_uncertainty'].items():
+            log_msg('\t\t\t\t{}: {}'.format(att, val))
+
+        log_msg()
+        log_msg('\t\tPerformance Model:')
+        log_msg('\t\t\t\tloc\tdir\tqnt\tdist\tcov\tcgw')
+        for comp_id, comp_data in data['components'].items():
+            log_msg('\t\t{} [{}]:'.format(comp_id, comp_data['unit']))
+            if False: #TODO: control this with a verbose flag
+                for i in range(len(comp_data['locations'])):
+                    log_msg('\t\t\t\t{}\t{}\t{}\t{}\t{}\t{}'.format(*[comp_data[att][i] for att in ['locations', 'directions', 'quantities', 'distribution', 'cov', 'csg_weights']]))
+
+        log_msg()
+        log_msg('\t\tDamage Model:')
+        log_msg('\t\t\tCollapse Limits:')
+        for cl_name, cl in data['general']['collapse_limits'].items():
+            log_msg('\t\t\t\t{}: {}'.format(cl_name, cl))
+        log_msg()
+        log_msg('\t\t\tIrrepairable Residual Drift:')
+        for att, val in data['general']['irrepairable_res_drift'].items():
+            log_msg('\t\t\t\t{}: {}'.format(att, val))
+        log_msg()
+        log_msg('\t\t\tCollapse Probability:')
+        if data['general']['response']['coll_prob'] == 'estimated':
+            log_msg('\t\t\t\tEstimated based on {}'.format(data['general']['response']['CP_est_basis']))
+        else:
+            log_msg('\t\t\t\tPrescribed: {}'.format(data['general']['response']['coll_prob']))
+
+        log_msg()
+        log_msg('\t\tLoss Model:')
+        for att in ['replacement_cost', 'replacement_time', 'population']:
+            if att in data['general'].keys():
+                log_msg('\t\t\t{}: {}'.format(att, data['general'][att]))
+
+        log_msg()
+        log_msg('\t\tCollapse Modes:')
+        for cmode, cmode_data in data['collapse_modes'].items():
+            log_msg('\t\t\t{}'.format(cmode))
+            for att, val in cmode_data.items():
+                log_msg('\t\t\t  {}: {}'.format(att, val))
+
+        log_msg()
+        log_msg('\t\tDependencies:')
+        for att, val in data['dependencies'].items():        
+            log_msg('\t\t\t{}: {}'.format(att, val))
+
         # EDP file
+        log_msg('\tEDP file...')
         if self._hazard == 'EQ':
             self._EDP_in = read_SimCenter_EDP_input(
                 path_EDP_input,
@@ -160,25 +255,41 @@ class Assessment(object):
                 units=dict(PWS=self._AIM_in['units']['speed']),
                 verbose=verbose)
 
+        data = self._EDP_in
+
+        log_msg('\t\tEDP types:')
+        for EDP_kind in data.keys():
+            log_msg('\t\t\t{}'.format(EDP_kind))
+            for EDP_data in data[EDP_kind]:
+                if False: #TODO: control this with a verbose flag
+                    log_msg('\t\t\t\t{} {}'.format(EDP_data['location'], EDP_data['direction']))
+
+        log_msg()
+        log_msg('\t\tnumber of samples: {}'.format(len(data[list(data.keys())[0]][0]['raw_data'])))        
+
     def define_random_variables(self):
         """
         Define the random variables used for loss assessment.
 
         """
-        pass
+        log_msg(log_div)
+        log_msg('Defining random variables...')
 
     def define_loss_model(self):
         """
         Create the stochastic loss model based on the inputs provided earlier.
 
         """
-        pass
+        log_msg(log_div)
+        log_msg('Creating the damage and loss model...')
 
     def calculate_damage(self):
         """
         Characterize the damage experienced in each random event realization.
 
         """
+        log_msg(log_div)
+        log_msg('Calculating damage...')
         self._ID_dict = {}
 
     def calculate_losses(self):
@@ -186,6 +297,8 @@ class Assessment(object):
         Characterize the consequences of damage in each random event realization.
 
         """
+        log_msg(log_div)
+        log_msg('Calculating losses...')
         self._DV_dict = {}
 
     def write_outputs(self):
@@ -193,7 +306,8 @@ class Assessment(object):
         Export the results.
 
         """
-        pass
+        log_msg(log_div)
+        log_msg('Exporting outputs...')
 
     def _create_RV_demands(self):
 
@@ -206,6 +320,7 @@ class Assessment(object):
         collapse_limits = []
         GI = self._AIM_in['general']
         s_edp_keys = sorted(self._EDP_in.keys())
+
         for d_id in s_edp_keys:
             d_list = self._EDP_in[d_id]
             for i in range(len(d_list)):
@@ -240,13 +355,22 @@ class Assessment(object):
                                 axis=0)
             demand_data = demand_data[EDP_filter]
 
+            log_msg('\t\t{} considered collapsed out of {} raw samples'.format(
+                list(EDP_filter).count(False), len(EDP_filter)))
+
             # Third, we censor the EDPs that are beyond the detection limit.
             EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
                                  np.all(demand_data < detection_limits[1], axis=1)],
                                 axis=0)
+
+            log_msg('\t\t{} are beyond the detection limits out of {} non-collapse samples'.format(
+                list(EDP_filter).count(False), len(EDP_filter)))
+
             censored_count = len(EDP_filter) - sum(EDP_filter)
             demand_data = demand_data[EDP_filter]
             demand_data = np.transpose(demand_data)
+
+            log_msg('\t\tNumber of EDP dimensions: {}'.format(len(d_tags)))
 
             # Fourth, we create the random variable
             demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
@@ -261,8 +385,10 @@ class Assessment(object):
             target_dist = GI['response']['EDP_distribution']
 
             if target_dist == 'lognormal':
+                log_msg('\t\tFitting a lognormal distribution to samples...')
                 demand_RV.fit_distribution('lognormal')
             elif target_dist == 'truncated lognormal':
+                log_msg('\t\tFitting a truncated lognormal distribution to samples...')
                 demand_RV.fit_distribution('lognormal', collapse_limits)
 
         # This is a special case when only a one sample is provided.
@@ -291,6 +417,7 @@ class Assessment(object):
         # adding uncertainty by increasing its variance is not possible.
         if ((self.beta_tot is not None) and
             (GI['response']['EDP_distribution'] != 'empirical')):
+            log_msg('Considering additional sources of uncertainty...')
             # determine the covariance matrix with added uncertainty
             if demand_RV.COV.shape != ():
                 sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
@@ -320,6 +447,10 @@ class FEMA_P58_Assessment(Assessment):
         self._inj_lvls = inj_lvls
         self._hazard = 'EQ'
         self._assessment_type = 'P58'
+
+        log_msg('type: FEMA P58 Assessment')
+        log_msg('hazard: {}'.format(self._hazard))
+        log_msg(log_div)
 
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
@@ -351,13 +482,21 @@ class FEMA_P58_Assessment(Assessment):
 
         # read component and population data ----------------------------------
         # components
+        log_msg('\tDamage and Loss data files...')
         self._FG_in = read_component_DL_data(
             self._AIM_in['data_sources']['path_CMP_data'],
             BIM['components'],
             assessment_type=self._assessment_type, verbose=verbose)
 
+        data = self._FG_in
+
+        log_msg('\t\tAvailable Fragility Groups:')
+        for key, val in data.items():
+            log_msg('\t\t\t{} demand:{} PGs: {}'.format(key, val['demand_type'], len(val['locations']))) 
+
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
+            log_msg('\tPopulation data files...')
             POP = read_population_distribution(
                 self._AIM_in['data_sources']['path_POP_data'],
                 BIM['general']['occupancy_type'],
@@ -437,10 +576,14 @@ class FEMA_P58_Assessment(Assessment):
         self._RV_dict = {}
 
         # quantities 100
+        log_msg('\tQuantities...')
         self._RV_dict.update({'QNT':
                               self._create_RV_quantities(DEP['quantities'])})
 
+        log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+
         # fragilities 300
+        log_msg('\tDamage State Limits...')
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id, c_name in enumerate(s_fg_keys):
             comp = self._FG_in[c_name]
@@ -450,25 +593,43 @@ class FEMA_P58_Assessment(Assessment):
                     self._create_RV_fragilities(c_id, comp,
                                                 DEP['fragilities'])})
 
+        log_msg('\t\tRV dimensions:')
+        for key, val in self._RV_dict.items():
+            if 'FR-' in key:
+                log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+
         # consequences 400
         DVs = self._AIM_in['decision_variables']
 
         if DVs['red_tag']:
+            log_msg('\tRed Tag Thresholds...')
             self._RV_dict.update({'DV_RED':
                                   self._create_RV_red_tags(DEP['red_tags'])})
+
+            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_RED'].theta)))
+
         if DVs['rec_time'] or DVs['rec_cost']:
+            log_msg('\tReconstruction Costs and Times...')
             self._RV_dict.update({'DV_REP':
                                   self._create_RV_repairs(
                                     DEP['rec_costs'],
                                     DEP['rec_times'],
                                     DEP['cost_and_time'])})
+
+            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
+
         if DVs['injuries']:
+            log_msg('\tInjury Probabilities...')
             self._RV_dict.update({'DV_INJ':
                                   self._create_RV_injuries(
                                     DEP['injuries'],
                                     DEP['injury_lvls'])})
 
+            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_INJ'].theta)))
+
         # demands 200
+        log_msg('\tEDPs...')
+
         GR = self._AIM_in['general']['response']
         if GR['EDP_dist_basis'] == 'non-collapse results':
             discard_limits = self._AIM_in['general']['collapse_limits']
@@ -479,6 +640,9 @@ class FEMA_P58_Assessment(Assessment):
             'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
+        log_msg()
+        log_msg('Sampling the random variables...')
+
         realization_count = self._AIM_in['general']['realizations']
         is_coupled = self._AIM_in['general']['coupled_assessment']
 
@@ -486,6 +650,7 @@ class FEMA_P58_Assessment(Assessment):
         for r_i in s_rv_keys:
             rv = self._RV_dict[r_i]
             if rv is not None:
+                log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
                     sample_size=realization_count, preserve_order=is_coupled)
 
@@ -530,15 +695,21 @@ class FEMA_P58_Assessment(Assessment):
         super(FEMA_P58_Assessment, self).calculate_damage()
 
         # event time - month, weekday, and hour realizations
+        log_msg('\tSampling event time...')
         self._TIME = self._sample_event_time()
 
         # get the population conditioned on event time (if needed)
         if self._AIM_in['decision_variables']['injuries']:
+            log_msg('\tSampling the population...')
             self._POP = self._get_population()
 
         # collapses
+        log_msg('\tCalculating the number of collapses...')
         self._COL, collapsed_IDs = self._calc_collapses()
         self._ID_dict.update({'collapse':collapsed_IDs})
+        log_msg('\t\t{} out of {} collapsed.'.format(
+            len(collapsed_IDs), 
+            self._AIM_in['general']['realizations']))
 
         # select the non-collapse cases for further analyses
         non_collapsed_IDs = self._TIME[
@@ -546,6 +717,7 @@ class FEMA_P58_Assessment(Assessment):
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
         # damage in non-collapses
+        log_msg('\tCalculating the damage in the non-collapsed cases...')
         self._DMG = self._calc_damage()
 
     def calculate_losses(self):
@@ -588,6 +760,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # red tag probability
         if DVs['red_tag']:
+            log_msg('\tAssigning Red Tags...')
             DV_RED = self._calc_red_tag()
 
             self._DV_dict.update({'red_tag': DV_RED})
@@ -596,7 +769,10 @@ class FEMA_P58_Assessment(Assessment):
         if DVs['rec_cost'] or DVs['rec_time']:
             # irrepairable cases
             if 'irrepairable_res_drift' in self._AIM_in['general']:
+                log_msg('\tIdentifying Irrepairable Cases...')
                 irrepairable_IDs = self._calc_irrepairable()
+                log_msg('\t\t{} out of {} non-collapsed cases are irrepairable.'.format(
+                    len(irrepairable_IDs), len(self._ID_dict['non-collapse'])))
             else:
                 irrepairable_IDs = np.array([])
 
@@ -609,6 +785,7 @@ class FEMA_P58_Assessment(Assessment):
             self._ID_dict.update({'irrepairable': irrepairable_IDs})
 
             # reconstruction cost and time for repairable cases
+            log_msg('\tCalculating Reconstruction cost and time...')
             DV_COST, DV_TIME = self._calc_repair_cost_and_time()
 
             if DVs['rec_cost']:
@@ -619,9 +796,11 @@ class FEMA_P58_Assessment(Assessment):
 
         # injuries due to collapse
         if DVs['injuries']:
+            log_msg('\tCalculating Injuries in Collapsed Cases...')
             COL_INJ = self._calc_collapse_injuries()
 
             # injuries in non-collapsed cases
+            log_msg('\tCalculating Injuries in Non-Collapsed Cases...')
             DV_INJ_dict = self._calc_non_collapse_injuries()
 
             # store results
@@ -637,6 +816,9 @@ class FEMA_P58_Assessment(Assessment):
         -------
 
         """
+
+        log_msg(log_div)
+        log_msg('Aggregating results...')
 
         DVs = self._AIM_in['decision_variables']
 
@@ -1320,6 +1502,7 @@ class FEMA_P58_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id in s_fg_keys:
+            log_msg('\t{}...'.format(c_id))
             comp = self._FG_in[c_id]
 
             FG_ID = len(FG_dict.keys())+1
@@ -1620,6 +1803,7 @@ class FEMA_P58_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups

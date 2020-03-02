@@ -54,6 +54,7 @@ else:
 
 # import libraries for other modules
 import time
+from time import gmtime, strftime
 import numpy as np
 import pandas as pd
 
@@ -67,6 +68,13 @@ pd.options.display.max_rows = 20
 pd.options.display.max_columns = None
 pd.options.display.expand_frame_repr = True
 pd.options.display.width = 300
+
+log_file = None
+
+log_div = '-' * (80-21)  # 21 to have a total length of 80 with the time added
+
+# get the absolute path of the pelicun directory
+pelicun_path = os.path.dirname(os.path.abspath(__file__))
 
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
@@ -87,6 +95,37 @@ def _warning(message, category, filename, lineno, file=None, line=None):
     python_file = '/'.join(file_path[-3:])
     print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
 warnings.showwarning = _warning
+
+def show_warning(warning_msg):
+    warnings.warn(UserWarning(warning_msg))
+
+def set_log_file(filepath):
+    globals()['log_file'] = filepath
+    with open(filepath, 'w') as f:
+        f.write('pelicun\n')
+
+def log_msg(msg='', prepend_timestamp=True):
+    """
+    Print a message to the screen with the current time as prefix
+
+    The time is in ISO-8601 format, e.g. 2018-06-16T20:24:04Z
+
+    Parameters
+    ----------
+    msg: string
+       Message to print.
+
+    """
+    if prepend_timestamp:
+        formatted_msg = '{} {}'.format(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime()), msg)
+    else:
+        formatted_msg = msg
+
+    print(formatted_msg)
+
+    if globals()['log_file'] is not None:
+        with open(globals()['log_file'], 'a') as f:
+            f.write('\n'+formatted_msg)
 
 # Constants for unit conversion
 
