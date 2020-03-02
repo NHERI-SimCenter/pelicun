@@ -1828,23 +1828,41 @@ class FEMA_P58_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                PG_qnt = PG._quantity.samples.loc[ncID]
+                PG_qnt = PG._quantity.samples.loc[ncID]                
 
-                # get the corresponding demands
-                demand_ID = (FG._demand_type +
+                # get the corresponding demands                 
+                if not FG._directional:
+                    demand_ID_list = []
+
+                    for demand_ID in self._EDP_dict.keys():
+                        if demand_ID[:3] == FG._demand_type:                            
+                            demand_data = demand_ID.split('-')                            
+                            if int(demand_data[2]) == PG._location + FG._demand_location_offset:
+                                demand_ID_list.append(demand_ID)                            
+
+                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]                    
+                    if len(demand_ID_list)>1:
+                        for demand_ID in demand_ID_list[1:]:
+                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]                            
+                            EDP_samples = np.maximum(new_samples.values,
+                                                     EDP_samples.values)
+
+                else:
+                    demand_ID = (FG._demand_type +
                              '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
-                if demand_ID in self._EDP_dict.keys():
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
-                else:
-                    # If the required demand is not available, then we are most
-                    # likely analyzing a 3D structure using results from a 2D
-                    # simulation. The best thing we can do in that particular
-                    # case is to use the EDP from the 1 direction for all other
-                    # directions.
-                    demand_ID = (FG._demand_type +
-                                 '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+
+                    if demand_ID in self._EDP_dict.keys():
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                    else:
+                        # If the required demand is not available, then we are most
+                        # likely analyzing a 3D structure using results from a 2D
+                        # simulation. The best thing we can do in that particular
+                        # case is to use the EDP from the 1 direction for all other
+                        # directions.
+                        demand_ID = (FG._demand_type +
+                                     '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
 
                 csg_w_list = PG._csg_weights
 
