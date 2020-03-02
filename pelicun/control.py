@@ -3081,7 +3081,7 @@ class HAZUS_Assessment(Assessment):
                     for demand_ID in self._EDP_dict.keys():
                         if demand_ID[:3] == FG._demand_type:
                             demand_data = demand_ID.split('-')
-                            if int(demand_data[2]) == PG._location:
+                            if int(demand_data[2]) == PG._location + FG._demand_location_offset:
                                 demand_ID_list.append(demand_ID)                            
 
                     EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
