@@ -2000,18 +2000,18 @@ class FEMA_P58_Assessment(Assessment):
 
         # determine which realizations lead to irrepairable damage
         # get the max residual drifts
-        RED_max = None
+        RID_max = None
         PID_max = None
         s_edp_keys = sorted(self._EDP_dict.keys())
         for demand_ID in s_edp_keys:
             demand = self._EDP_dict[demand_ID]
             kind = demand_ID[:3]
-            if kind == 'RED':
+            if kind == 'RID':
                 r_max = demand.samples.loc[ncID].values
-                if RED_max is None:
-                    RED_max = r_max
+                if RID_max is None:
+                    RID_max = r_max
                 else:
-                    RED_max = np.max((RED_max, r_max), axis=0)
+                    RID_max = np.max((RID_max, r_max), axis=0)
             elif kind == 'PID':
                 d_max = demand.samples.loc[ncID].values
                 if PID_max is None:
@@ -2019,24 +2019,25 @@ class FEMA_P58_Assessment(Assessment):
                 else:
                     PID_max = np.max((PID_max, d_max), axis=0)
 
-        if (RED_max is None) and (PID_max is not None):
-            # we need to estimate residual drifts based on peak drifts
-            RED_max = np.zeros(NC_samples)
+        if RID_max is None:
+            if PID_max is not None:
+                # we need to estimate residual drifts based on peak drifts
+                RID_max = np.zeros(NC_samples)
 
-            # based on Appendix C in FEMA P-58
-            delta_y = self._AIM_in['general']['yield_drift']
-            small = PID_max < delta_y
-            medium = PID_max < 4 * delta_y
-            large = PID_max >= 4 * delta_y
+                # based on Appendix C in FEMA P-58
+                delta_y = self._AIM_in['general']['yield_drift']
+                small = PID_max < delta_y
+                medium = PID_max < 4 * delta_y
+                large = PID_max >= 4 * delta_y
 
-            RED_max[large] = PID_max[large] - 3 * delta_y
-            RED_max[medium] = 0.3 * (PID_max[medium] - delta_y)
-            RED_max[small] = 0.
-        else:
-            # If no drift data is available, then we cannot provide an estimate
-            # of irrepairability. We assume that all non-collapse realizations
-            # are repairable in this case.
-            return np.array([])
+                RID_max[large] = PID_max[large] - 3 * delta_y
+                RID_max[medium] = 0.3 * (PID_max[medium] - delta_y)
+                RID_max[small] = 0.
+            else:
+                # If no drift data is available, then we cannot provide an estimate
+                # of irrepairability. We assume that all non-collapse realizations
+                # are repairable in this case.
+                return np.array([])
 
         # get the probabilities of irrepairability
         irrep_frag = self._AIM_in['general']['irrepairable_res_drift']
@@ -2048,7 +2049,7 @@ class FEMA_P58_Assessment(Assessment):
         RED_irrep = RV_irrep.sample_distribution(NC_samples)['RED_irrep'].values
 
         # determine if the realizations are repairable
-        irrepairable = RED_max > RED_irrep
+        irrepairable = RID_max > RED_irrep
         irrepairable_IDs = ncID[np.where(irrepairable)[0]]
 
         return irrepairable_IDs
