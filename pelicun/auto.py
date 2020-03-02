@@ -111,7 +111,7 @@ def auto_populate(DL_input_path, EDP_input_path,
 
         year_built = BIM_in['yearBuilt']
         stories = BIM_in['numStory']
-        DL_input['GI'].update({'stories':stories})
+        BIM_in.update({'stories':stories})
 
         if bt not in ['W1', 'W2']:
             if stories <= 3:
