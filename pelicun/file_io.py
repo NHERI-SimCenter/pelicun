@@ -404,6 +404,25 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                         "unit.".format(fg_id))
                 comp_data['unit'] = comp_data['unit'][0]
 
+                # aggregate PGs that are in the same loc & dir
+                PG_loc_dir_list = list(zip(comp_data['locations'], comp_data['directions']))
+                to_aggregate = set([x for x in PG_loc_dir_list if PG_loc_dir_list.count(x) > 1])
+                for combo in to_aggregate:
+                    PG_loc_dir_list = list(zip(comp_data['locations'], comp_data['directions']))
+                    combo_ids = [i for i,e in enumerate(PG_loc_dir_list) if e==combo]                    
+
+                    c_base = combo_ids[0]
+                    comp_data['csg_weights'][c_base] = list(np.array(comp_data['csg_weights'][c_base]) * comp_data['quantities'][c_base])
+                    for ci in combo_ids[1:]:
+                        comp_data['quantities'][c_base] += comp_data['quantities'][ci]
+                        comp_data['csg_weights'][c_base] += list(np.array(comp_data['csg_weights'][ci]) * comp_data['quantities'][ci])
+                    comp_data['csg_weights'][c_base] = list(np.array(comp_data['csg_weights'][c_base]) / comp_data['quantities'][c_base])
+
+                    for ci in combo_ids[1:][::-1]:
+                        for key in ['locations', 'directions', 'quantities', 
+                        'csg_weights', 'distribution', 'cov']:
+                            del comp_data[key][ci]               
+
             elif AT.startswith('HAZUS'):
                 comp_data = {
                     'locations'   : [],
