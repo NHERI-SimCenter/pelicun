@@ -305,13 +305,139 @@ class Assessment(object):
         log_msg('Calculating losses...')
         self._DV_dict = {}
 
-    def write_outputs(self):
+    def save_outputs(self, output_path, DM_file, DV_file, suffix=""):
         """
         Export the results.
 
         """
+        def replace_FG_IDs_with_FG_names(df):
+            FG_list = sorted(self._FG_dict.keys())
+            new_col_names = dict(
+                (fg_id, fg_name) for (fg_id, fg_name) in
+                zip(np.arange(1, len(FG_list) + 1), FG_list))
+
+            return df.rename(columns=new_col_names)
+
         log_msg(log_div)
-        log_msg('Exporting outputs...')
+        log_msg('Saving outputs...')
+
+        log_msg('\tConverting EDP samples to input units...')
+        EDPs = sorted(self._EDP_dict.keys())
+        EDP_samples = self._EDP_dict[EDPs[0]]._RV.samples.copy()
+        cols = EDP_samples.columns
+        for col_i, col in enumerate(cols):
+            if 'PFA' in col:
+                scale_factor = self._AIM_in['units']['acceleration']
+            elif ('PGV' in col) or ('PWS' in col):
+                scale_factor = self._AIM_in['units']['speed']
+            else:
+                scale_factor = 1.0
+
+            if scale_factor != 1.0:
+                EDP_samples.iloc[:, col_i] = EDP_samples.iloc[:, col_i].div(scale_factor)
+
+        log_msg('\tConverting damaged quantities to input units...')
+        DMG_scaled = self._DMG.copy()
+        cols = DMG_scaled.columns.get_level_values(0)        
+        FG_list = sorted(self._FG_dict.keys())
+        for col_i, col in enumerate(cols):
+            FG_name = FG_list[col-1]
+            scale_factor = self._FG_dict[FG_name]._unit
+            if scale_factor != 1.0:
+                DMG_scaled.iloc[:,col_i] = DMG_scaled.iloc[:,col_i].div(scale_factor)
+
+        log_msg('\tReplacing headers with FG names...')        
+        DMG_mod = replace_FG_IDs_with_FG_names(DMG_scaled)
+        DV_mods, DV_names = [], []
+        for key in self._DV_dict.keys():
+            if key != 'injuries':
+                DV_mods.append(replace_FG_IDs_with_FG_names(self._DV_dict[key]))
+                DV_names.append('{}DV_{}'.format(suffix, key))
+            else:
+                for i in range(2 if self._assessment_type == 'P58' else 4):
+                    DV_mods.append(replace_FG_IDs_with_FG_names(self._DV_dict[key][i]))
+                    DV_names.append('{}DV_{}_{}'.format(suffix, key, i))
+
+        #try:
+        if True:
+            log_msg('\tSaving files:')
+            log_msg('\t\tSummary')
+            write_SimCenter_DL_output(
+                output_path, '{}DL_summary.csv'.format(suffix), 
+                self._SUMMARY, index_name='#Num', collapse_columns=True)
+
+            log_msg('\t\tSummary statistics')
+            write_SimCenter_DL_output(
+                output_path, '{}DL_summary_stats.csv'.format(suffix), 
+                self._SUMMARY, index_name='attribute', collapse_columns=True,  
+                stats_only=True)
+
+            log_msg('\t\tEDP values')
+            write_SimCenter_DL_output(
+                output_path, '{}EDP.csv'.format(suffix), 
+                EDP_samples, index_name='#Num', 
+                collapse_columns=False)
+
+            log_msg('\t\tEDP statistics')
+            write_SimCenter_DL_output(
+                output_path, '{}EDP_stats.csv'.format(suffix), 
+                EDP_samples, index_name='#Num', 
+                collapse_columns=False, stats_only=True)
+
+            log_msg('\t\tDamaged quantities')
+            write_SimCenter_DL_output(
+                output_path, '{}DMG.csv'.format(suffix), 
+                DMG_mod, index_name='#Num', collapse_columns=False)
+
+            log_msg('\t\tDamage statistics')
+            write_SimCenter_DL_output(
+                output_path, '{}DMG_stats.csv'.format(suffix), 
+                DMG_mod, index_name='#Num', 
+                collapse_columns=False, stats_only=True)
+
+            log_msg('\t\tDamaged quantities - aggregated')
+            write_SimCenter_DL_output(
+                output_path, '{}DMG_agg.csv'.format(suffix),
+                DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
+                index_name='#Num', collapse_columns=False)
+
+            for DV_mod, DV_name in zip(DV_mods, DV_names):
+                log_msg('\t\tDecision variable {}'.format(DV_name))
+                write_SimCenter_DL_output(
+                    output_path, '{}{}.csv'.format(suffix, DV_name), 
+                    DV_mod, index_name='#Num', collapse_columns=False)
+
+                DV_mod_agg = DV_mod.T.groupby(level=0).aggregate(np.sum).T
+
+                log_msg('\t\tDecision variable {} - aggregated'.format(DV_name))
+                write_SimCenter_DL_output(
+                    output_path, '{}{}_agg.csv'.format(suffix, DV_name),
+                    DV_mod_agg, index_name='#Num', collapse_columns=False)
+
+                log_msg('\t\tAggregated statistics for {}'.format(DV_name))
+                write_SimCenter_DL_output(
+                    output_path, '{}{}_agg_stats.csv'.format(suffix, DV_name), 
+                    DV_mod_agg, index_name='#Num', collapse_columns=False, 
+                    stats_only=True)
+
+            #if True:
+            # create the DM.json file
+            if self._assessment_type.startswith('HAZUS'):
+                log_msg('\t\tSimCenter DM file')
+                write_SimCenter_DM_output(
+                    output_path, suffix+DM_file,
+                    DMG_mod)
+
+            # create the DV.json file
+            for DV_mod, DV_name in zip(DV_mods, DV_names):
+                if self._assessment_type.startswith('HAZUS'):
+                    log_msg('\t\tSimCenter DV file {}'.format(DV_name))
+                    write_SimCenter_DV_output(
+                        output_path, suffix+DV_file,
+                        DV_mod, DV_name)
+
+        #except:
+        #    print("ERROR when trying to create DL output files.")
 
     def _create_RV_demands(self):
 
@@ -940,14 +1066,14 @@ class FEMA_P58_Assessment(Assessment):
 
         self._SUMMARY = SUMMARY.dropna(axis=1,how='all')
 
-    def write_outputs(self):
+    def save_outputs(self, *args, **kwargs):
         """
 
         Returns
         -------
 
         """
-        super(FEMA_P58_Assessment, self).write_outputs()
+        super(FEMA_P58_Assessment, self).save_outputs(*args, **kwargs)
 
     def _create_correlation_matrix(self, rho_target, c_target=-1,
                                    include_CSG=False,
@@ -2534,6 +2660,15 @@ class HAZUS_Assessment(Assessment):
                     self._DV_dict['injuries'][sev_id].sum(axis=1)
 
         self._SUMMARY = SUMMARY.dropna(axis=1, how='all')
+
+    def save_outputs(self, *args, **kwargs):
+        """
+
+        Returns
+        -------
+
+        """
+        super(HAZUS_Assessment, self).save_outputs(*args, **kwargs)
 
     def _create_correlation_matrix(self, rho_target, c_target=-1,
                                    include_CSG=False,

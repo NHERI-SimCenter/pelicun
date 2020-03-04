@@ -59,7 +59,7 @@ This module has classes and methods that handle file input and output.
 
 from .base import *
 
-import json
+import json, csv, posixpath
 import xml.etree.ElementTree as ET
 from distutils.util import strtobool
 from copy import deepcopy
@@ -2159,7 +2159,7 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
                   'w') as f:
             json.dump(json_output, f, indent=2)
 
-def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
+def write_SimCenter_DL_output(output_dir, output_filename, output_df, index_name='#Num',
                               collapse_columns = True, stats_only=False):
 
     output_df = deepcopy(output_df)
@@ -2183,9 +2183,9 @@ def write_SimCenter_DL_output(output_path, output_df, index_name='#Num',
 
     # write the results in a csv file
     # TODO: provide other file formats
-    output_df.to_csv(output_path)
+    output_df.to_csv(posixpath.join(output_dir, output_filename))
 
-def write_SimCenter_DM_output(DM_file_path, DMG_df):
+def write_SimCenter_DM_output(output_dir, DM_filename, DMG_df):
 
     # Start with the probability of being in a particular damage state.
     # Here, the damage state of the building (asset) is defined as the highest
@@ -2237,10 +2237,10 @@ def write_SimCenter_DM_output(DM_file_path, DMG_df):
                 DMG_mean.loc[idx[FG],:].loc[idx[:,PG],:].index.get_level_values('DS').unique()):
                 DM[str(FG)][str(PG)].update({str(DS): DMG_mean.loc[(FG,PG,DS)]})
 
-    with open(DM_file_path, 'w') as f:
+    with open(posixpath.join(output_dir, DM_filename), 'w') as f:
         json.dump(DM, f, indent = 2)
 
-def write_SimCenter_DV_output(DV_file_path, DV_df, DV_name):
+def write_SimCenter_DV_output(output_dir, DV_filename, DV_df, DV_name):
 
     DV_name = convert_dv_name[DV_name]
 
@@ -2278,5 +2278,5 @@ def write_SimCenter_DV_output(DV_file_path, DV_df, DV_name):
     except:
         pass
 
-    with open(DV_file_path, 'w') as f:
+    with open(posixpath.join(output_dir, DV_filename), 'w') as f:
         json.dump(DV, f, indent = 2)
