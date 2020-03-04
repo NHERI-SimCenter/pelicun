@@ -1094,6 +1094,11 @@ class RandomVariable(object):
             data = raw_data
             if distribution_list == 'lognormal':
                 data = np.exp(raw_data)
+        elif distribution_list.shape == (1,):
+            if distribution_list[0] == 'lognormal':
+                data = np.exp(raw_data)
+            else:
+                data = raw_data
         else:
             data = raw_data
             for dim, dk in enumerate(distribution_list):
