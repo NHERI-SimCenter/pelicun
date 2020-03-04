@@ -46,6 +46,7 @@ This module has classes and methods that control the loss assessment.
 
     Assessment
     FEMA_P58_Assessment
+    HAZUS_Assessment
 
 """
 
