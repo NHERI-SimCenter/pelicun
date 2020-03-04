@@ -118,7 +118,7 @@ def log_msg(msg='', prepend_timestamp=True):
     else:
         formatted_msg = msg
 
-    print(formatted_msg)
+    #print(formatted_msg)
 
     if globals()['log_file'] is not None:
         with open(globals()['log_file'], 'a') as f:
