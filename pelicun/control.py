@@ -1800,7 +1800,8 @@ class FEMA_P58_Assessment(Assessment):
                                 demand_location_offset=comp['offset'],
                                 incomplete=comp['incomplete'],
                                 name=str(FG_ID) + ' - ' + comp['ID'],
-                                description=comp['description']
+                                description=comp['description'],
+                                unit=comp['unit']
                                 )
 
             FG_dict.update({comp['ID']:FG})
