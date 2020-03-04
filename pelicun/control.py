@@ -1408,23 +1408,25 @@ class FEMA_P58_Assessment(Assessment):
                                   [t + '-LOC-{}-DIR-{}'.format(loc, dir_)
                                    for t in d_tag])
 
+
+
         rho = self._create_correlation_matrix(rho_target, c_target=-1,
                                               include_DSG=True,
                                               include_DS=True)
 
-        # remove the unnecessary fields
-        to_remove = np.where(f_theta == 0)[0]
-        rho = np.delete(rho, to_remove, axis=0)
-        rho = np.delete(rho, to_remove, axis=1)
+        if not np.all(f_theta==0.):
+            # remove the unnecessary fields
+            to_remove = np.where(f_theta == 0)[0]
+            rho = np.delete(rho, to_remove, axis=0)
+            rho = np.delete(rho, to_remove, axis=1)
 
-        f_theta, f_sig, f_tag = [np.delete(f_vals, to_remove)
-                                 for f_vals in [f_theta, f_sig, f_tag]]
+            f_theta, f_sig, f_tag = [np.delete(f_vals, to_remove)
+                                     for f_vals in [f_theta, f_sig, f_tag]]
 
-        f_COV = np.outer(f_sig, f_sig) * rho
+            f_COV = np.outer(f_sig, f_sig) * rho
 
-        tr_upper = 1. + (1. - f_theta) / f_theta
+            tr_upper = 1. + (1. - f_theta) / f_theta
 
-        if f_tag.size > 0:
             red_tag_RV = RandomVariable(ID=400,
                                         dimension_tags=f_tag,
                                         distribution_kind='normal',
