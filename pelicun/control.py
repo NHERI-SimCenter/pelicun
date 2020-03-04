@@ -1978,8 +1978,9 @@ class FEMA_P58_Assessment(Assessment):
                     if len(demand_ID_list)>1:
                         for demand_ID in demand_ID_list[1:]:
                             new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]                            
-                            EDP_samples = np.maximum(new_samples.values,
-                                                     EDP_samples.values)
+                            EDP_samples.update(
+                                pd.Series(np.maximum(new_samples.values,EDP_samples.values),
+                                          index=EDP_samples.index))
 
                 else:
                     demand_ID = (FG._demand_type +
