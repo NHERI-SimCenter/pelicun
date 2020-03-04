@@ -120,14 +120,6 @@ def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
 
 # END temporary functions ----
 
-def replace_FG_IDs_with_FG_names(assessment, df):
-	FG_list = sorted(assessment._FG_dict.keys())
-	new_col_names = dict(
-		(fg_id, fg_name) for (fg_id, fg_name) in
-		zip(np.arange(1, len(FG_list) + 1), FG_list))
-
-	return df.rename(columns=new_col_names)
-
 def run_pelicun(DL_input_path, EDP_input_path,
 	DL_method, realization_count,
 	output_path=None, DM_file = 'DM.json', DV_file = 'DV.json'):
@@ -267,70 +259,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
 		A.aggregate_results()
 
-		EDPs = sorted(A._EDP_dict.keys())
-		DMG_mod = replace_FG_IDs_with_FG_names(A, A._DMG)
-		DV_mods, DV_names = [], []
-		for key in A._DV_dict.keys():
-			if key != 'injuries':
-				DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key]))
-				DV_names.append('{}DV_{}'.format(stripe_str, key))
-			else:
-				for i in range(2 if DL_method == 'FEMA P58' else 4):
-					DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i]))
-					DV_names.append('{}DV_{}_{}'.format(stripe_str, key, i))
-
-		try:
-		#if False:
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DL_summary.csv'.format(stripe_str)), A._SUMMARY,
-				index_name='#Num', collapse_columns=True)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DL_summary_stats.csv'.format(stripe_str)), A._SUMMARY,
-				index_name='attribute', collapse_columns=True,  stats_only=True)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}EDP.csv'.format(stripe_str)), A._EDP_dict[EDPs[0]]._RV.samples,
-				index_name='#Num', collapse_columns=False)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DMG.csv'.format(stripe_str)), DMG_mod,
-				index_name='#Num', collapse_columns=False)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DMG_agg.csv'.format(stripe_str)),
-				DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
-				index_name='#Num', collapse_columns=False)
-
-			for DV_mod, DV_name in zip(DV_mods, DV_names):
-				write_SimCenter_DL_output(
-				posixpath.join(output_path, DV_name+'.csv'), DV_mod,
-				index_name='#Num', collapse_columns=False)
-
-				write_SimCenter_DL_output(
-				posixpath.join(output_path, DV_name+'_agg.csv'),
-				DV_mod.T.groupby(level=0).aggregate(np.sum).T,
-				index_name='#Num', collapse_columns=False)
-
-		#if True:
-			# create the DM.json file
-			if DL_method.startswith('HAZUS'):
-				write_SimCenter_DM_output(posixpath.join(output_path, stripe_str+DM_file),
-					DMG_mod)
-
-			# create the DV.json file
-			for DV_mod, DV_name in zip(DV_mods, DV_names):
-				if DL_method.startswith('HAZUS'):
-					write_SimCenter_DV_output(posixpath.join(output_path, stripe_str+DV_file),
-						DV_mod, DV_name)
-
-		except:
-			print("ERROR when trying to create DL output files.")
+		A.save_outputs(output_path, DM_file, DV_file, stripe_str)
 
 	return 0
 
