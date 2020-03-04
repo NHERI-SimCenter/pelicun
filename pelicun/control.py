@@ -207,19 +207,20 @@ class Assessment(object):
 
         log_msg()
         log_msg('\t\tDamage Model:')
-        log_msg('\t\t\tCollapse Limits:')
-        for cl_name, cl in data['general']['collapse_limits'].items():
-            log_msg('\t\t\t\t{}: {}'.format(cl_name, cl))
-        log_msg()
-        log_msg('\t\t\tIrrepairable Residual Drift:')
-        for att, val in data['general']['irrepairable_res_drift'].items():
-            log_msg('\t\t\t\t{}: {}'.format(att, val))
-        log_msg()
-        log_msg('\t\t\tCollapse Probability:')
-        if data['general']['response']['coll_prob'] == 'estimated':
-            log_msg('\t\t\t\tEstimated based on {}'.format(data['general']['response']['CP_est_basis']))
-        else:
-            log_msg('\t\t\t\tPrescribed: {}'.format(data['general']['response']['coll_prob']))
+        if self._assessment_type == 'P58':
+            log_msg('\t\t\tCollapse Limits:')
+            for cl_name, cl in data['general']['collapse_limits'].items():
+                log_msg('\t\t\t\t{}: {}'.format(cl_name, cl))
+            log_msg()
+            log_msg('\t\t\tIrrepairable Residual Drift:')
+            for att, val in data['general']['irrepairable_res_drift'].items():
+                log_msg('\t\t\t\t{}: {}'.format(att, val))
+            log_msg()
+            log_msg('\t\t\tCollapse Probability:')
+            if data['general']['response']['coll_prob'] == 'estimated':
+                log_msg('\t\t\t\tEstimated based on {}'.format(data['general']['response']['CP_est_basis']))
+            else:
+                log_msg('\t\t\t\tPrescribed: {}'.format(data['general']['response']['coll_prob']))
 
         log_msg()
         log_msg('\t\tLoss Model:')
