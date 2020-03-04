@@ -1947,13 +1947,13 @@ class FEMA_P58_Assessment(Assessment):
             DS_list = []
             for DSG in PG_set[0]._DSG_set:
                 for DS in DSG._DS_set:
-                    DS_list.append(str(DSG._ID) + '-' + str(DS._ID))
+                    DS_list.append(str(DSG._ID) + '_' + str(DS._ID))
             d_count = len(DS_list)
 
             MI = pd.MultiIndex.from_product([[FG._ID, ],
                                              [pg._ID for pg in PG_set],
                                              DS_list],
-                                            names=['FG', 'PG', 'DS'])
+                                            names=['FG', 'PG', 'DSG_DS'])
 
             FG_damages = pd.DataFrame(np.zeros((NC_samples, len(MI))),
                                       columns=MI,
@@ -2007,7 +2007,7 @@ class FEMA_P58_Assessment(Assessment):
                         in_this_DSG = DSG_df[DSG_df.values == DSG._ID].index
                         if DSG._DS_set_kind == 'single':
                             DS = DSG._DS_set[0]
-                            DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                            DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                             FG_damages.loc[in_this_DSG,
                                            (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'mutually exclusive':
@@ -2019,7 +2019,7 @@ class FEMA_P58_Assessment(Assessment):
                             DS_df = DS_RV.sample_distribution(
                                 len(in_this_DSG)) + 1
                             for DS in DSG._DS_set:
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = DS_df[DS_df.values == DS._ID].index
                                 FG_damages.loc[in_this_DSG[in_this_DS],
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
@@ -2042,7 +2042,7 @@ class FEMA_P58_Assessment(Assessment):
                                     np.where(any_DS == False)[0]]
 
                             for ds_i, DS in enumerate(DSG._DS_set):
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = which_DS[:, ds_i]
                                 FG_damages.loc[in_this_DSG[in_this_DS], (
                                 FG._ID, PG_ID, DS_tag)] += csg_w
@@ -2084,12 +2084,12 @@ class FEMA_P58_Assessment(Assessment):
             MI = pd.MultiIndex.from_product([[FG._ID, ],
                                              [pg._ID for pg in PG_set],
                                              DS_list],
-                                            names=['FG', 'PG', 'DS'])
+                                            names=['FG', 'PG', 'DSG_DS'])
 
             FG_RED = pd.DataFrame(np.zeros((NC_samples, len(MI))),
                                   columns=MI,
                                   index=ncID)
-
+            
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
@@ -3119,7 +3119,8 @@ class HAZUS_Assessment(Assessment):
                                 demand_location_offset=comp['offset'],
                                 incomplete=comp['incomplete'],
                                 name=str(FG_ID) + ' - ' + comp['ID'],
-                                description=comp['description']
+                                description=comp['description'],
+                                unit=comp['unit']
                                 )
 
             FG_dict.update({comp['ID']: FG})
@@ -3197,13 +3198,13 @@ class HAZUS_Assessment(Assessment):
             DS_list = []
             for DSG in PG_set[0]._DSG_set:
                 for DS in DSG._DS_set:
-                    DS_list.append(str(DSG._ID) + '-' + str(DS._ID))
+                    DS_list.append(str(DSG._ID) + '_' + str(DS._ID))
             d_count = len(DS_list)
 
             MI = pd.MultiIndex.from_product([[FG._ID, ],
                                              [pg._ID for pg in PG_set],
                                              DS_list],
-                                            names=['FG', 'PG', 'DS'])
+                                            names=['FG', 'PG', 'DSG_DS'])
 
             FG_damages = pd.DataFrame(np.zeros((NC_samples, len(MI))),
                                       columns=MI,
@@ -3259,7 +3260,7 @@ class HAZUS_Assessment(Assessment):
                         in_this_DSG = DSG_df[DSG_df.values == DSG._ID].index
                         if DSG._DS_set_kind == 'single':
                             DS = DSG._DS_set[0]
-                            DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                            DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                             FG_damages.loc[in_this_DSG,
                                            (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'mutually exclusive':
@@ -3271,7 +3272,7 @@ class HAZUS_Assessment(Assessment):
                             DS_df = DS_RV.sample_distribution(
                                 len(in_this_DSG)) + 1
                             for DS in DSG._DS_set:
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = DS_df[DS_df.values == DS._ID].index
                                 FG_damages.loc[in_this_DSG[in_this_DS],
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
@@ -3294,7 +3295,7 @@ class HAZUS_Assessment(Assessment):
                                     np.where(any_DS == False)[0]]
 
                             for ds_i, DS in enumerate(DSG._DS_set):
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = which_DS[:, ds_i]
                                 FG_damages.loc[in_this_DSG[in_this_DS], (
                                     FG._ID, PG_ID, DS_tag)] += csg_w

@@ -2195,7 +2195,7 @@ def write_SimCenter_DM_output(output_dir, DM_filename, DMG_df):
 
     # Determine the probability of DS exceedance by collecting the DS from all
     # components and assigning ones to all lower damage states.
-    DMG_agg = DMG_df.T.groupby('DS').sum().T
+    DMG_agg = DMG_df.T.groupby('DSG_DS').sum().T
     DMG_agg[DMG_agg > 0.0] = DMG_agg[DMG_agg > 0.0] / DMG_agg[DMG_agg > 0.0]
 
     cols = DMG_agg.columns
@@ -2207,7 +2207,7 @@ def write_SimCenter_DM_output(output_dir, DM_filename, DMG_df):
     # exceedance probabilites. This will not work well for a FEMA P58 assessment
     # with Damage State Groups that include multiple Damage States.
     DMG_agg_mean = DMG_agg.describe().loc['mean',:]
-    DS_0 = 1.0 - DMG_agg_mean['1-1']
+    DS_0 = 1.0 - DMG_agg_mean['1_1']
     for i in range(len(DMG_agg_mean.index)-1):
         DMG_agg_mean.iloc[i] = DMG_agg_mean.iloc[i] - DMG_agg_mean.iloc[i+1]
 
@@ -2234,7 +2234,7 @@ def write_SimCenter_DM_output(output_dir, DM_filename, DMG_df):
             DM[str(FG)].update({str(PG):{}})
 
             for DS in sorted(
-                DMG_mean.loc[idx[FG],:].loc[idx[:,PG],:].index.get_level_values('DS').unique()):
+                DMG_mean.loc[idx[FG],:].loc[idx[:,PG],:].index.get_level_values('DSG_DS').unique()):
                 DM[str(FG)][str(PG)].update({str(DS): DMG_mean.loc[(FG,PG,DS)]})
 
     with open(posixpath.join(output_dir, DM_filename), 'w') as f:
@@ -2269,7 +2269,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, DV_df, DV_name):
                 DV_i[str(FG)].update({str(PG):{}})
 
                 for DS in sorted(
-                    DV_stats.loc[:,idx[FG, PG]].columns.get_level_values('DS').unique()):
+                    DV_stats.loc[:,idx[FG, PG]].columns.get_level_values('DSG_DS').unique()):
                     DV_i[str(FG)][str(PG)].update({str(DS): {}})
                     DV_stats_i = DV_stats.loc[:,(FG,PG,DS)]
                     for stat in DV_stats_i.index:
