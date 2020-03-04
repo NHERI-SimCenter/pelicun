@@ -736,7 +736,10 @@ class FEMA_P58_Assessment(Assessment):
             self._RV_dict.update({'DV_RED':
                                   self._create_RV_red_tags(DEP['red_tags'])})
 
-            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_RED'].theta)))
+            if self._RV_dict['DV_RED'] is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_RED'].theta)))
+            else:
+                log_msg('\t\tNone of the component damage states trigger red tags')
 
         if DVs['rec_time'] or DVs['rec_cost']:
             log_msg('\tReconstruction Costs and Times...')
