@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# Joanna J. Zou
 
 # imports for Python 2.X support
 from __future__ import division, print_function
