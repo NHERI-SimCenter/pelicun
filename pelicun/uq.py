@@ -425,14 +425,18 @@ def tmvn_MLE(samples,
         rho_init = np.corrcoef(np.transpose(samplesT))
         # If there is not enough samples, or the samples are not from a
         # multivariate normal distribution, the rho values might be nan.
-        # Rather than trying to patch it, in this case, we assume uncorrelated
-        # samples and make sure that at least the mu and sig values will be
-        # OK.
-        if np.isnan(np.sum(rho_init.flatten())):
+        # First, we replace the nan values with zeros. Then, check if the
+        # resulting matrix is positive semidefinite. If not, then rather than
+        # trying to patch it, in this case, we assume uncorrelated
+        # samples and make sure that at least the mu and sig values will be OK.
+        rho_init = np.nan_to_num(rho_init)
+        pos_sem_def = np.all(np.linalg.eigvals(rho_init) >= 0.)
+        if not pos_sem_def:
+        #if np.isnan(np.sum(rho_init.flatten())):
+            show_warning("The number of samples is not sufficient to estimate "
+                "the correlation matrix. We assume uncorrelated EDPs.")
             rho_init = np.zeros(rho_init.shape)
-            #TODO: show a warning message to let the user know there is an issue
-            # replace nan corrcoef with zero correlation
-            #rho_init[np.where(np.isnan(rho_init))] = 0.0
+            #rho_init = np.ones(rho_init.shape)*0.0       #*0.7
         np.fill_diagonal(rho_init,1.0)
         # collect the independent values (i.e. elements above the main
         # diagonal) from the correlation matrix in a list
@@ -548,6 +552,7 @@ def tmvn_MLE(samples,
 
         if ndims >= 2:
             pos_sem_def = np.all(np.linalg.eigvals(COV) >= 0.)
+            #TODO: replace this with Cholesky decomposition check
             if not pos_sem_def:
                 if verbose_NLL: print(params_to_show, 'COV not pos sem def', 1e10)
                 return 1e10
@@ -669,6 +674,7 @@ def tmvn_MLE(samples,
 
     # initialize the message flags
     msg = [False, False, False]
+
     if verbose: print(_neg_log_likelihood(inits, rho_init))
 
     # perturbation
@@ -701,22 +707,25 @@ def tmvn_MLE(samples,
 
     # Minimize the negative log-likelihood function using the adaptive
     # Adaptive Nelder-Mead algorithm (Gao and Han, 2012)
-    out_m = minimize(_neg_log_likelihood,
-                     np.concatenate([mu_sig_vals, inits[2*ndims:]]),
-                   args=(rho_init,True), method='Nelder-Mead',
-                   options=dict(maxfev=1000*ndims,
-                                xatol = 0.01,
-                                fatol = 1e-10,
-                                adaptive=True)
-                   )
+    if nsamples > ndims:
+        out_m = minimize(_neg_log_likelihood,
+                         np.concatenate([mu_sig_vals, inits[2*ndims:]]),
+                       args=(rho_init,True), method='Nelder-Mead',
+                       options=dict(maxfev=min(1000*ndims, 10000),
+                                    xatol = 0.01,
+                                    fatol = 1e-10,
+                                    adaptive=True)
+                       )
 
-    if verbose:
-        print(out_m)
-        #print(out.fun, out.nfev, out.nit, out.message, out.x)
-        print('runtime: ', time.time() - t_0)
+        if verbose:
+            print(out_m)
+            #print(out.fun, out.nfev, out.nit, out.message, out.x)
+            print('runtime: ', time.time() - t_0)
 
-    # reconstruct the mu and COV arrays from the solutions and return them
-    mu, COV = _get_mu_COV(out_m.x, rho_init, unbiased=True)
+        # reconstruct the mu and COV arrays from the solutions and return them
+        mu, COV = _get_mu_COV(out_m.x, rho_init, unbiased=True)
+    else:
+        mu, COV = _get_mu_COV(mu_sig_vals, rho_init, unbiased=True)
 
     if verbose:
         if ndims >= 2:
