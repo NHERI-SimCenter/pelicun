@@ -389,7 +389,7 @@ def test_MVN_MLE_minimum_sample_size():
     available.
 
     """
-    dims = 4
+    dims = 8
     ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.5
@@ -398,7 +398,7 @@ def test_MVN_MLE_minimum_sample_size():
 
     tr_lower = ref_mean + ref_std * (-2.)
 
-    samples = tmvn_rvs(ref_mean, ref_COV, lower=tr_lower, size=7)
+    samples = tmvn_rvs(ref_mean, ref_COV, lower=tr_lower, size=3)
 
     with pytest.warns(UserWarning) as e_info:
         tmvn_MLE(np.transpose(samples), tr_lower=tr_lower)

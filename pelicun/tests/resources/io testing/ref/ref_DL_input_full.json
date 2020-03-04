@@ -6,7 +6,9 @@
     "collapse_limits": {
       "PFA": 1.5,
       "PGV": null,
-      "PID": 0.1
+      "PID": 0.1,
+      "PMD": null,
+      "RID": null
     },
     "coupled_assessment": false,
     "irrepairable_res_drift": {
@@ -19,7 +21,9 @@
     "detection_limits": {
       "PFA": 2.0,
       "PGV": null,
-      "PID": 0.15
+      "PID": 0.15,
+      "PMD": null,
+      "RID": null
     },
     "yield_drift": 0.01,
     "added_uncertainty": {
@@ -37,6 +41,16 @@
       "CP_est_basis": "raw EDP",
       "EDP_dist_basis": "all results",
       "EDP_distribution": "lognormal"}
+  },
+  "unit_names": {
+    "acceleration": "mps2",
+    "area": "m2",
+    "force": "N",
+    "length": "m",
+    "speed": "mps",
+    "temperature": "C",
+    "time": "sec",
+    "volume": "m3"
   },
   "units": {
     "force": 1.0,

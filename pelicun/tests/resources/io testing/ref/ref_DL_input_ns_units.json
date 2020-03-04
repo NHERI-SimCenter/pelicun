@@ -6,23 +6,37 @@
     "collapse_limits": {
       "PFA": 14.709975,
       "PGV": null,
-      "PID": 0.1
+      "PID": 0.1,
+      "PMD": null,
+      "RID": null
     },
     "coupled_assessment": false,
     "detection_limits": {
       "PFA": 19.6133,
       "PGV": null,
-      "PID": 0.15
+      "PID": 0.15,
+      "PMD": null,
+      "RID": null
     },
     "added_uncertainty": {
-      "beta_gm": 0.0001,
-      "beta_m": 0.0001
+      "beta_gm": null,
+      "beta_m": null
     },
     "response": {
       "coll_prob": "estimated",
       "CP_est_basis": "raw EDP",
       "EDP_dist_basis": "all results",
       "EDP_distribution": "lognormal"}
+  },
+  "unit_names": {
+    "acceleration": "g",
+    "area": "ft2",
+    "force": "N",
+    "length": "ft",
+    "speed": "mph",
+    "temperature": "C",
+    "time": "sec",
+    "volume": "ft3"
   },
   "units": {
     "force": 1.0,

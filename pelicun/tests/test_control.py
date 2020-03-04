@@ -87,7 +87,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
     # EDP
     RV_EDP = A._RV_dict['EDP']
     assert RV_EDP.theta == pytest.approx(0.5 * g)
-    assert RV_EDP.COV == pytest.approx(np.sqrt(2) * 1e-4)
+    assert RV_EDP.COV == pytest.approx(0., abs=1e-10)
     assert RV_EDP._distribution_kind == 'lognormal'
 
     # QNT
@@ -1862,7 +1862,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
     COV = deepcopy(RV_EDP.COV)
     sig = np.sqrt(np.diagonal(COV))
-    assert_allclose(sig, np.ones(8) * np.sqrt(2e-8), rtol=0.1)
+    assert_allclose(sig, np.zeros(8), atol=1e-4)
     rho_target = np.zeros((8, 8))
     np.fill_diagonal(rho_target, 1.0)
     COV_target = rho_target * 3e-8
