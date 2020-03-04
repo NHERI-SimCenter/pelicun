@@ -779,7 +779,7 @@ class FragilityGroup(object):
 
     def __init__(self, ID, demand_type, performance_groups,
                  directional=True, correlation=True, demand_location_offset=0,
-                 incomplete=False, name='', description=''):
+                 incomplete=False, name='', description='', unit="ea"):
         self._ID = ID
         self._demand_type = demand_type
         self._performance_groups = performance_groups
@@ -789,6 +789,7 @@ class FragilityGroup(object):
         self._incomplete = incomplete
         self._name = name
         self._description = description
+        self._unit = unit
 
     @property
     def description(self):
