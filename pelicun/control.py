@@ -214,8 +214,11 @@ class Assessment(object):
                 log_msg('\t\t\t\t{}: {}'.format(cl_name, cl))
             log_msg()
             log_msg('\t\t\tIrrepairable Residual Drift:')
-            for att, val in data['general']['irrepairable_res_drift'].items():
-                log_msg('\t\t\t\t{}: {}'.format(att, val))
+            if 'irrepairable_res_drift' in data['general']:
+                for att, val in data['general']['irrepairable_res_drift'].items():
+                    log_msg('\t\t\t\t{}: {}'.format(att, val))
+            else:
+                log_msg('\t\t\t\tnot considered')
             log_msg()
             log_msg('\t\t\tCollapse Probability:')
             if data['general']['response']['coll_prob'] == 'estimated':
