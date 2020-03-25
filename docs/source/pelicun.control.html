@@ -1,0 +1,716 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pelicun.control module &mdash; pelicun 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pelicun.file_io module" href="pelicun.file_io.html" />
+    <link rel="prev" title="pelicun.base module" href="pelicun.base.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pelicun
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Copyright and license</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pelicun.html">API documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pelicun.html#modules">Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pelicun.base.html">base</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelicun.file_io.html">file_io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelicun.model.html">model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pelicun.uq.html">uq</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="pelicun.html">API documentation:</a> &raquo;</li>
+        
+      <li>pelicun.control module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/pelicun.control.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pelicun.control">
+<span id="pelicun-control-module"></span><h1>pelicun.control module<a class="headerlink" href="#module-pelicun.control" title="Permalink to this headline">¶</a></h1>
+<p>This module has classes and methods that control the loss assessment.</p>
+<p class="rubric">Contents</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment" title="pelicun.control.Assessment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Assessment</span></code></a>()</p></td>
+<td><p>A high-level class that collects features common to all supported loss assessment methods.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment" title="pelicun.control.FEMA_P58_Assessment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FEMA_P58_Assessment</span></code></a>([inj_lvls])</p></td>
+<td><p>An Assessment class that implements the loss assessment method in FEMA P58.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment" title="pelicun.control.HAZUS_Assessment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HAZUS_Assessment</span></code></a>([hazard, inj_lvls])</p></td>
+<td><p>An Assessment class that implements the damage and loss assessment method following the HAZUS Technical Manual and the HAZUS software.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="pelicun.control.Assessment">
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.control.</code><code class="sig-name descname">Assessment</code><a class="reference internal" href="../_modules/pelicun/control.html#Assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A high-level class that collects features common to all supported loss
+assessment methods. This class will only rarely be called directly when
+using pelicun.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#pelicun.control.Assessment.beta_tot" title="pelicun.control.Assessment.beta_tot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_tot</span></code></a></dt><dd><p>Calculate the total additional uncertainty for post processing.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.calculate_damage" title="pelicun.control.Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>(self)</p></td>
+<td><p>Characterize the damage experienced in each random event realization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.calculate_losses" title="pelicun.control.Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>(self)</p></td>
+<td><p>Characterize the consequences of damage in each random event realization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.define_loss_model" title="pelicun.control.Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>(self)</p></td>
+<td><p>Create the stochastic loss model based on the inputs provided earlier.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.define_random_variables" title="pelicun.control.Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>(self)</p></td>
+<td><p>Define the random variables used for loss assessment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.read_inputs" title="pelicun.control.Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(self, path_DL_input, path_EDP_input)</p></td>
+<td><p>Read and process the input files to describe the loss assessment task.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.save_outputs" title="pelicun.control.Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(self, output_path, DM_file, DV_file)</p></td>
+<td><p>Export the results.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pelicun.control.Assessment.beta_tot">
+<em class="property">property </em><code class="sig-name descname">beta_tot</code><a class="headerlink" href="#pelicun.control.Assessment.beta_tot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the total additional uncertainty for post processing.</p>
+<p>The total additional uncertainty is the squared root of sum of squared
+uncertainties corresponding to ground motion and modeling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>beta_total: float</dt><dd><p>The total uncertainty (logarithmic EDP standard deviation) to add
+to the EDP distribution. Returns None if no additional uncertainty
+is assigned.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.Assessment.read_inputs">
+<code class="sig-name descname">read_inputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">path_DL_input</em>, <em class="sig-param">path_EDP_input</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#Assessment.read_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and process the input files to describe the loss assessment task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path_DL_input: string</strong></dt><dd><p>Location of the Damage and Loss input file. The file is expected to
+be a JSON with data stored in a standard format described in detail
+in the Input section of the documentation.</p>
+</dd>
+<dt><strong>path_EDP_input: string</strong></dt><dd><p>Location of the EDP input file. The file is expected to follow the
+output formatting of Dakota. The Input section of the documentation
+provides more information about the expected formatting.</p>
+</dd>
+<dt><strong>verbose: boolean, default: False</strong></dt><dd><p>If True, the method echoes the information read from the files.
+This can be useful to ensure that the information in the file is
+properly read by the method.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.Assessment.define_random_variables">
+<code class="sig-name descname">define_random_variables</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#Assessment.define_random_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the random variables used for loss assessment.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.Assessment.define_loss_model">
+<code class="sig-name descname">define_loss_model</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#Assessment.define_loss_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the stochastic loss model based on the inputs provided earlier.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.Assessment.calculate_damage">
+<code class="sig-name descname">calculate_damage</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#Assessment.calculate_damage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Characterize the damage experienced in each random event realization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.Assessment.calculate_losses">
+<code class="sig-name descname">calculate_losses</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#Assessment.calculate_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Characterize the consequences of damage in each random event realization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.Assessment.save_outputs">
+<code class="sig-name descname">save_outputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">output_path</em>, <em class="sig-param">DM_file</em>, <em class="sig-param">DV_file</em>, <em class="sig-param">suffix=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#Assessment.save_outputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the results.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pelicun.control.FEMA_P58_Assessment">
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.control.</code><code class="sig-name descname">FEMA_P58_Assessment</code><span class="sig-paren">(</span><em class="sig-param">inj_lvls=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelicun.control.Assessment" title="pelicun.control.Assessment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pelicun.control.Assessment</span></code></a></p>
+<p>An Assessment class that implements the loss assessment method in FEMA P58.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_tot</span></code></dt><dd><p>Calculate the total additional uncertainty for post processing.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.aggregate_results" title="pelicun.control.FEMA_P58_Assessment.aggregate_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_results</span></code></a>(self)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.calculate_damage" title="pelicun.control.FEMA_P58_Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>(self)</p></td>
+<td><p>Characterize the damage experienced in each random event realization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.calculate_losses" title="pelicun.control.FEMA_P58_Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>(self)</p></td>
+<td><p>Characterize the consequences of damage in each random event realization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.define_loss_model" title="pelicun.control.FEMA_P58_Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>(self)</p></td>
+<td><p>Create the stochastic loss model based on the inputs provided earlier.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.define_random_variables" title="pelicun.control.FEMA_P58_Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>(self)</p></td>
+<td><p>Define the random variables used for loss assessment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.read_inputs" title="pelicun.control.FEMA_P58_Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(self, path_DL_input, path_EDP_input)</p></td>
+<td><p>Read and process the input files to describe the loss assessment task.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.save_outputs" title="pelicun.control.FEMA_P58_Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(self, \*args, \*\*kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pelicun.control.FEMA_P58_Assessment.read_inputs">
+<code class="sig-name descname">read_inputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">path_DL_input</em>, <em class="sig-param">path_EDP_input</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment.read_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and process the input files to describe the loss assessment task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path_DL_input: string</strong></dt><dd><p>Location of the Damage and Loss input file. The file is expected to
+be a JSON with data stored in a standard format described in detail
+in the Input section of the documentation.</p>
+</dd>
+<dt><strong>path_EDP_input: string</strong></dt><dd><p>Location of the EDP input file. The file is expected to follow the
+output formatting of Dakota. The Input section of the documentation
+provides more information about the expected formatting.</p>
+</dd>
+<dt><strong>verbose: boolean, default: False</strong></dt><dd><p>If True, the method echoes the information read from the files.
+This can be useful to ensure that the information in the file is
+properly read by the method.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.FEMA_P58_Assessment.define_random_variables">
+<code class="sig-name descname">define_random_variables</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment.define_random_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the random variables used for loss assessment.</p>
+<p>Following the FEMA P58 methodology, the groups of parameters below are
+considered random. Simple correlation structures within each group can
+be specified through the DL input file. The random decision variables
+are only created and used later if those particular decision variables
+are requested in the input file.</p>
+<ol class="arabic simple">
+<li><p>Demand (EDP) distribution</p></li>
+</ol>
+<p>Describe the uncertainty in the demands. Unlike other random variables,
+the EDPs are characterized by the EDP input data provided earlier. All
+EDPs are handled in one multivariate lognormal distribution. If more
+than one sample is provided, the distribution is fit to the EDP data.
+Otherwise, the provided data point is assumed to be the median value
+and the additional uncertainty prescribed describes the dispersion. See
+_create_RV_demands() for more details.</p>
+<ol class="arabic simple" start="2">
+<li><p>Component quantities</p></li>
+</ol>
+<p>Describe the uncertainty in the quantity of components in each
+Performance Group. All Fragility Groups are handled in the same
+multivariate distribution. Consequently, correlation between various
+groups of component quantities can be specified. See
+_create_RV_quantities() for details.</p>
+<ol class="arabic simple" start="3">
+<li><p>Fragility EDP limits</p></li>
+</ol>
+<p>Describe the uncertainty in the EDP limit that corresponds to
+exceedance of each Damage State. EDP limits are grouped by Fragility
+Groups. Consequently, correlation between fragility limits are
+currently limited within Fragility Groups. See
+_create_RV_fragilities() for details.</p>
+<ol class="arabic simple" start="4">
+<li><p>Reconstruction cost and time</p></li>
+</ol>
+<p>Describe the uncertainty in the cost and duration of reconstruction of
+each component conditioned on the damage state of the component. All
+Fragility Groups are handled in the same multivariate distribution.
+Consequently, correlation between various groups of component
+reconstruction time and cost estimates can be specified. See
+_create_RV_repairs() for details.</p>
+<ol class="arabic simple" start="5">
+<li><p>Damaged component proportions that trigger a red tag</p></li>
+</ol>
+<p>Describe the uncertainty in the amount of damaged components needed to
+trigger a red tag for the building. All Fragility Groups are handled in
+the same multivariate distribution. Consequently, correlation between
+various groups of component proportion limits can be specified. See
+_create_RV_red_tags() for details.</p>
+<ol class="arabic simple" start="6">
+<li><p>Injuries</p></li>
+</ol>
+<p>Describe the uncertainty in the proportion of people in the affected
+area getting injuries exceeding a certain level of severity. FEMA P58
+uses two severity levels: injury and fatality. Both levels for all
+Fragility Groups are handled in the same multivariate distribution.
+Consequently, correlation between various groups of component injury
+expectations can be specified. See _create_RV_injuries() for details.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.FEMA_P58_Assessment.define_loss_model">
+<code class="sig-name descname">define_loss_model</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment.define_loss_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the stochastic loss model based on the inputs provided earlier.</p>
+<p>Following the FEMA P58 methodology, the components specified in the
+Damage and Loss input file are used to create Fragility Groups. Each
+Fragility Group corresponds to a component that might be present in
+the building at several locations. See _create_fragility_groups() for
+more details about the creation of Fragility Groups.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.FEMA_P58_Assessment.calculate_damage">
+<code class="sig-name descname">calculate_damage</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment.calculate_damage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Characterize the damage experienced in each random event realization.</p>
+<p>First, the time of the event (month, weekday/weekend, hour) is randomly
+generated for each realization. Given the event time, the number of
+people present at each floor of the building is calculated.</p>
+<p>Second, the realizations that led to collapse are filtered. See
+_calc_collapses() for more details on collapse estimation.</p>
+<p>Finally, the realizations that did not lead to building collapse are
+further investigated and the quantities of components in each damage
+state are estimated. See _calc_damage() for more details on damage
+estimation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.FEMA_P58_Assessment.calculate_losses">
+<code class="sig-name descname">calculate_losses</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment.calculate_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Characterize the consequences of damage in each random event realization.</p>
+<p>For the sake of efficiency, only the decision variables requested in
+the input file are estimated. The following consequences are handled by
+this method:</p>
+<p>Reconstruction time and cost
+Estimate the irrepairable cases based on residual drift magnitude and
+the provided irrepairable drift limits. Realizations that led to
+irrepairable damage or collapse are assigned the replacement cost and
+time of the building when reconstruction cost and time is estimated.
+Repairable cases get a cost and time estimate for each Damage State in
+each Performance Group. For more information about estimating
+irrepairability see _calc_irrepairable() and reconstruction cost and
+time see _calc_repair_cost_and_time() methods.</p>
+<p>Injuries
+Collapse-induced injuries are based on the collapse modes and
+corresponding injury characterization. Injuries conditioned on no
+collapse are based on the affected area and the probability of
+injuries of various severity specified in the component data file. For
+more information about estimating injuries conditioned on collapse and
+no collapse, see _calc_collapse_injuries() and
+_calc_non_collapse_injuries, respectively.</p>
+<p>Red Tag
+The probability of getting an unsafe placard or red tag is a function
+of the amount of damage experienced in various Damage States for each
+Performance Group. The damage limits that trigger an unsafe placard are
+specified in the component data file. For more information on
+assigning red tags to realizations see the _calc_red_tag() method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.FEMA_P58_Assessment.aggregate_results">
+<code class="sig-name descname">aggregate_results</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment.aggregate_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.aggregate_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.FEMA_P58_Assessment.save_outputs">
+<code class="sig-name descname">save_outputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#FEMA_P58_Assessment.save_outputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pelicun.control.HAZUS_Assessment">
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.control.</code><code class="sig-name descname">HAZUS_Assessment</code><span class="sig-paren">(</span><em class="sig-param">hazard='EQ'</em>, <em class="sig-param">inj_lvls=4</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pelicun.control.Assessment" title="pelicun.control.Assessment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pelicun.control.Assessment</span></code></a></p>
+<p>An Assessment class that implements the damage and loss assessment method
+following the HAZUS Technical Manual and the HAZUS software.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>hazard:  {‘EQ’, ‘HU’}</strong></dt><dd><p>Identifies the type of hazard. EQ corresponds to earthquake, HU
+corresponds to hurricane.
+default: ‘EQ’.</p>
+</dd>
+<dt><strong>inj_lvls: int</strong></dt><dd><p>Defines the discretization used to describe the severity of injuries.
+The HAZUS earthquake methodology uses 4 levels.
+default: 4</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">beta_tot</span></code></dt><dd><p>Calculate the total additional uncertainty for post processing.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.aggregate_results" title="pelicun.control.HAZUS_Assessment.aggregate_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_results</span></code></a>(self)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.calculate_damage" title="pelicun.control.HAZUS_Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>(self)</p></td>
+<td><p>Characterize the damage experienced in each random event realization.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.calculate_losses" title="pelicun.control.HAZUS_Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>(self)</p></td>
+<td><p>Characterize the consequences of damage in each random event realization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.define_loss_model" title="pelicun.control.HAZUS_Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>(self)</p></td>
+<td><p>Create the stochastic loss model based on the inputs provided earlier.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.define_random_variables" title="pelicun.control.HAZUS_Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>(self)</p></td>
+<td><p>Define the random variables used for loss assessment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.read_inputs" title="pelicun.control.HAZUS_Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(self, path_DL_input, path_EDP_input)</p></td>
+<td><p>Read and process the input files to describe the loss assessment task.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.save_outputs" title="pelicun.control.HAZUS_Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(self, \*args, \*\*kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="pelicun.control.HAZUS_Assessment.read_inputs">
+<code class="sig-name descname">read_inputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">path_DL_input</em>, <em class="sig-param">path_EDP_input</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment.read_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and process the input files to describe the loss assessment task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path_DL_input: string</strong></dt><dd><p>Location of the Damage and Loss input file. The file is expected to
+be a JSON with data stored in a standard format described in detail
+in the Input section of the documentation.</p>
+</dd>
+<dt><strong>path_EDP_input: string</strong></dt><dd><p>Location of the EDP input file. The file is expected to follow the
+output formatting of Dakota. The Input section of the documentation
+provides more information about the expected formatting.</p>
+</dd>
+<dt><strong>verbose: boolean, default: False</strong></dt><dd><p>If True, the method echoes the information read from the files.
+This can be useful to ensure that the information in the file is
+properly read by the method.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.HAZUS_Assessment.define_random_variables">
+<code class="sig-name descname">define_random_variables</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment.define_random_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the random variables used for loss assessment.</p>
+<p>Following the HAZUS methodology, only the groups of parameters below
+are considered random. Correlations within groups are not considered
+because each Fragility Group has only one Performance Group with a
+in this implementation.</p>
+<ol class="arabic simple">
+<li><p>Demand (EDP) distribution</p></li>
+</ol>
+<p>Describe the uncertainty in the demands. Unlike other random variables,
+the EDPs are characterized by the EDP input data provided earlier. All
+EDPs are handled in one multivariate lognormal distribution. If more
+than one sample is provided, the distribution is fit to the EDP data.
+Otherwise, the provided data point is assumed to be the median value
+and the additional uncertainty prescribed describes the dispersion. See
+_create_RV_demands() for more details.</p>
+<ol class="arabic simple" start="2">
+<li><p>Fragility EDP limits</p></li>
+</ol>
+<p>Describe the uncertainty in the EDP limit that corresponds to
+exceedance of each Damage State. EDP limits are grouped by Fragility
+Groups. See _create_RV_fragilities() for details.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.HAZUS_Assessment.define_loss_model">
+<code class="sig-name descname">define_loss_model</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment.define_loss_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the stochastic loss model based on the inputs provided earlier.</p>
+<p>Following the HAZUS methodology, the component assemblies specified in
+the Damage and Loss input file are used to create Fragility Groups.
+Each Fragility Group corresponds to one assembly that represents every
+component of the given type in the structure. See
+_create_fragility_groups() for more details about the creation of
+Fragility Groups.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.HAZUS_Assessment.calculate_damage">
+<code class="sig-name descname">calculate_damage</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment.calculate_damage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Characterize the damage experienced in each random event realization.</p>
+<p>First, the time of the event (month, weekday/weekend, hour) is randomly
+generated for each realization. Given the event time, the number of
+people present at each floor of the building is calculated.</p>
+<p>Next, the quantities of components in each damage state are estimated.
+See _calc_damage() for more details on damage estimation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.HAZUS_Assessment.calculate_losses">
+<code class="sig-name descname">calculate_losses</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment.calculate_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Characterize the consequences of damage in each random event realization.</p>
+<p>For the sake of efficiency, only the decision variables requested in
+the input file are estimated. The following consequences are handled by
+this method for a HAZUS assessment:</p>
+<p>Reconstruction time and cost
+Get a cost and time estimate for each Damage State in each Performance
+Group. For more information about estimating reconstruction cost and
+time see _calc_repair_cost_and_time() methods.</p>
+<p>Injuries
+The number of injuries are based on the probability of injuries of
+various severity specified in the component data file. For more
+information about estimating injuries _calc_non_collapse_injuries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.HAZUS_Assessment.aggregate_results">
+<code class="sig-name descname">aggregate_results</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment.aggregate_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.aggregate_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pelicun.control.HAZUS_Assessment.save_outputs">
+<code class="sig-name descname">save_outputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pelicun/control.html#HAZUS_Assessment.save_outputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pelicun.file_io.html" class="btn btn-neutral float-right" title="pelicun.file_io module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="pelicun.base.html" class="btn btn-neutral float-left" title="pelicun.base module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

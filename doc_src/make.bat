@@ -13,6 +13,13 @@ set SPHINXPROJ=pelicun
 
 if "%1" == "" goto help
 
+if "%1" == "github" (
+	%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
+    robocopy %BUILDDIR%/html ../docs /E > nul
+    echo.Generated files copied to ../docs
+    goto end
+)
+
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
 	echo.

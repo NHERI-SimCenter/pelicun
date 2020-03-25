@@ -1,0 +1,1003 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pelicun.model &mdash; pelicun 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pelicun
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/pelicun.html">API documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pelicun.model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pelicun.model</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module has classes and methods that define and access the model used for</span>
+<span class="sd">loss assessment.</span>
+
+<span class="sd">.. rubric:: Contents</span>
+
+<span class="sd">.. autosummary::</span>
+
+<span class="sd">    FragilityFunction</span>
+<span class="sd">    ConsequenceFunction</span>
+<span class="sd">    DamageState</span>
+<span class="sd">    DamageStateGroup</span>
+<span class="sd">    PerformanceGroup</span>
+<span class="sd">    FragilityGroup</span>
+
+<span class="sd">    prep_constant_median_DV</span>
+<span class="sd">    prep_bounded_linear_median_DV</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">.uq</span> <span class="k">import</span> <span class="n">RandomVariableSubset</span>
+
+<div class="viewcode-block" id="FragilityFunction"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityFunction">[docs]</a><span class="k">class</span> <span class="nc">FragilityFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describes the relationship between asset response and damage.</span>
+
+<span class="sd">    Asset response is characterized by a Demand value that represents an</span>
+<span class="sd">    engineering demand parameter (EDP). Only a scalar EDP is supported</span>
+<span class="sd">    currently. The damage is characterized by a set of DamageStateGroup (DSG)</span>
+<span class="sd">    objects. For each DSG, the corresponding EDP limit (i.e. the EDP at which</span>
+<span class="sd">    the asset is assumed to experience damage described by the DSG) is</span>
+<span class="sd">    considered uncertain; hence, it is described by a random variable. The</span>
+<span class="sd">    random variables that describe EDP limits for the set of DSGs are not</span>
+<span class="sd">    independent.</span>
+
+<span class="sd">    We assume that the EDP limit will be approximated by a normal or lognormal</span>
+<span class="sd">    distribution for each DSG and these variables together form a multivariate</span>
+<span class="sd">    normal distribution. Following common practice, the correlation between</span>
+<span class="sd">    variables is assumed perfect by default, but the framework allows the</span>
+<span class="sd">    users to explore other, more realistic options.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    EDP_limit: RandomVariableSubset</span>
+<span class="sd">        A multidimensional random variable that might be defined as a subset</span>
+<span class="sd">        of a bigger correlated group of variables or a complete set of</span>
+<span class="sd">        variables created only for this Fragility Function (FF). The number of</span>
+<span class="sd">        dimensions shall be equal to the number of DSGs handled by the</span>
+<span class="sd">        FF.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP_limit</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span> <span class="o">=</span> <span class="n">EDP_limit</span>
+
+<div class="viewcode-block" id="FragilityFunction.P_exc"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityFunction.P_exc">[docs]</a>    <span class="k">def</span> <span class="nf">P_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the probability of damage exceedance.</span>
+
+<span class="sd">        Calculate the probability of exceeding the damage corresponding to the</span>
+<span class="sd">        DSG identified by the DSG_ID conditioned on a particular EDP value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        EDP: float scalar or ndarray</span>
+<span class="sd">            Single EDP or numpy array of EDP values.</span>
+<span class="sd">        DSG_ID: int</span>
+<span class="sd">            Identifies the conditioning DSG. The DSG numbering is 1-based,</span>
+<span class="sd">            because zero typically corresponds to the undamaged state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        P_exc: float scalar or ndarray</span>
+<span class="sd">            DSG exceedance probability at the given EDP point(s).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">EDP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">EDP</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">nvals</span> <span class="o">=</span> <span class="n">EDP</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="c1"># The exceedance probability corresponding to no damage is 1.</span>
+        <span class="c1"># Although this is trivial, returning 1 for DSG_ID=0 makes using P_exc</span>
+        <span class="c1"># more convenient.</span>
+        <span class="k">if</span> <span class="n">DSG_ID</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">P_exc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">EDP</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># prepare the limits for the density calculation</span>
+            <span class="n">ndims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+
+            <span class="n">limit_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ndims</span><span class="p">,</span> <span class="n">nvals</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">limit_list</span><span class="p">[</span><span class="n">DSG_ID</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">EDP</span>
+            <span class="n">limit_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">limit_list</span><span class="p">)</span>
+
+            <span class="c1"># get the pointer for the orthotope density function to save time</span>
+            <span class="n">RVS_od</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">orthotope_density</span>
+            <span class="n">P_exc</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">RVS_od</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">limit</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                                     <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">limit_list</span><span class="p">])</span>
+
+        <span class="c1"># if EDP was a scalar, make sure that the result is also a scalar</span>
+        <span class="k">if</span> <span class="n">EDP</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">P_exc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">P_exc</span></div>
+
+<div class="viewcode-block" id="FragilityFunction.DSG_given_EDP"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityFunction.DSG_given_EDP">[docs]</a>    <span class="k">def</span> <span class="nf">DSG_given_EDP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">force_resampling</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given an EDP, get a damage level based on the fragility function.</span>
+
+<span class="sd">        The damage is evaluated by sampling the joint distribution of</span>
+<span class="sd">        fragilities corresponding to all possible damage levels and checking</span>
+<span class="sd">        which damage level the given EDP falls into. This approach allows for</span>
+<span class="sd">        efficient damage state evaluation for a large number of EDP</span>
+<span class="sd">        realizations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        EDP: float scalar or ndarray or Series</span>
+<span class="sd">            Single EDP, or numpy array or pandas Series of EDP values.</span>
+<span class="sd">        force_resampling: bool, optional, default: False</span>
+<span class="sd">            If True, the probability distribution is resampled before</span>
+<span class="sd">            evaluating the damage for each EDP. This is not recommended if the</span>
+<span class="sd">            fragility functions are correlated with other sources of</span>
+<span class="sd">            uncertainty because those variables will also be resampled in this</span>
+<span class="sd">            case. If False, which is the default approach, we assume that</span>
+<span class="sd">            the random variable has already been sampled and the number of</span>
+<span class="sd">            samples greater or equal to the number of EDP values.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DSG_ID: Series</span>
+<span class="sd">            Identifies the damage that corresponds to the given EDP. A DSG_ID</span>
+<span class="sd">            of 0 means no damage.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get the number of samples needed</span>
+        <span class="n">nsamples</span> <span class="o">=</span> <span class="n">EDP</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="c1"># if there are no samples or resampling is forced, then sample the</span>
+        <span class="c1"># distribution first</span>
+        <span class="k">if</span> <span class="n">force_resampling</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">sample_distribution</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">nsamples</span><span class="p">)</span>
+
+        <span class="c1"># if the number of samples is not sufficiently large, raise an error</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nsamples</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;Damage evaluation requires at least as many samples of the &#39;</span>
+                <span class="s1">&#39;joint distribution defined by the fragility functions as &#39;</span>
+                <span class="s1">&#39;many EDP values are provided to the DSG_given_EDP function. &#39;</span>
+                <span class="s1">&#39;You might want to consider setting force_resampling to True &#39;</span>
+                <span class="s1">&#39;or sampling the distribution before calling the DSG_given_EDP &#39;</span>
+                <span class="s1">&#39;function.&#39;</span><span class="p">)</span>
+
+        <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">samples</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">EDP</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+            <span class="n">EDP</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">EDP</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;EDP&#39;</span><span class="p">)</span>
+
+        <span class="n">nstates</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">EDP</span><span class="o">.</span><span class="n">index</span><span class="p">,:]</span>
+
+        <span class="n">sample_cols</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">col_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sample_cols</span><span class="p">)</span>
+        <span class="n">ordered_cols</span> <span class="o">=</span> <span class="n">sample_cols</span><span class="p">[</span><span class="n">col_order</span><span class="p">]</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">ordered_cols</span><span class="p">]</span>
+
+        <span class="n">EXC</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">EDP</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.</span>
+
+        <span class="n">DSG_ID</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">index</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;DSG_ID&#39;</span><span class="p">,</span>
+                           <span class="n">index</span><span class="o">=</span><span class="n">samples</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nstates</span><span class="p">):</span>
+            <span class="n">DSG_ID</span><span class="p">[</span><span class="n">EXC</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="n">s</span><span class="p">]]</span> <span class="o">=</span> <span class="n">s</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">DSG_ID</span></div></div>
+
+<div class="viewcode-block" id="prep_constant_median_DV"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.prep_constant_median_DV">[docs]</a><span class="k">def</span> <span class="nf">prep_constant_median_DV</span><span class="p">(</span><span class="n">median</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a constant median Decision Variable (DV) function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    median: float</span>
+<span class="sd">        The median DV for a consequence function with fixed median.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f: callable</span>
+<span class="sd">        A function that returns the constant median DV for all component</span>
+<span class="sd">        quantities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">median</span>
+
+    <span class="k">return</span> <span class="n">f</span></div>
+
+<div class="viewcode-block" id="prep_bounded_linear_median_DV"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.prep_bounded_linear_median_DV">[docs]</a><span class="k">def</span> <span class="nf">prep_bounded_linear_median_DV</span><span class="p">(</span><span class="n">median_max</span><span class="p">,</span> <span class="n">median_min</span><span class="p">,</span> <span class="n">quantity_lower</span><span class="p">,</span>
+                                  <span class="n">quantity_upper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a bounded linear median Decision Variable (DV) function.</span>
+
+<span class="sd">    The median DV equals the min and max values when the quantity is</span>
+<span class="sd">    outside of the prescribed quantity bounds. When the quantity is within the</span>
+<span class="sd">    bounds, the returned median is calculated by a linear function with a</span>
+<span class="sd">    negative slope between max and min values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    median_max: float, optional</span>
+<span class="sd">    median_min: float, optional</span>
+<span class="sd">        Minimum and maximum limits that define the bounded_linear median DV</span>
+<span class="sd">        function.</span>
+<span class="sd">    quantity_lower: float, optional</span>
+<span class="sd">    quantity_upper: float, optional</span>
+<span class="sd">        Lower and upper bounds of component quantity that define the</span>
+<span class="sd">        bounded_linear median DV function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f: callable</span>
+<span class="sd">        A function that returns the median DV given the quantity of damaged</span>
+<span class="sd">        components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">quantity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;A bounded linear median Decision Variable function called &#39;</span>
+                <span class="s1">&#39;without specifying the quantity of damaged components&#39;</span><span class="p">)</span>
+
+        <span class="n">q_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># calculate the median consequence given the quantity of damaged</span>
+        <span class="c1"># components</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">q_array</span><span class="p">,</span>
+                           <span class="p">[</span><span class="n">quantity_lower</span><span class="p">,</span> <span class="n">quantity_upper</span><span class="p">],</span>
+                           <span class="p">[</span><span class="n">median_max</span><span class="p">,</span> <span class="n">median_min</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">return</span> <span class="n">f</span></div>
+
+<div class="viewcode-block" id="ConsequenceFunction"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.ConsequenceFunction">[docs]</a><span class="k">class</span> <span class="nc">ConsequenceFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Describes the relationship between damage and a decision variable.</span>
+
+<span class="sd">    Indicates the distribution of a quantified Decision Variable (DV)</span>
+<span class="sd">    conditioned on a component, an element, or the system reaching a given</span>
+<span class="sd">    damage state (DS). DV can be reconstruction cost, repair time, casualties,</span>
+<span class="sd">    injuries, etc. Its distribution might depend on the quantity of damaged</span>
+<span class="sd">    components.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    DV_median: callable</span>
+<span class="sd">        Describes the median DV as an f(quantity) function of the total</span>
+<span class="sd">        quantity of damaged components. Use the prep_constant_median_DV, and</span>
+<span class="sd">        prep_bounded_linear_median_DV helper functions to conveniently</span>
+<span class="sd">        prescribe the typical FEMA P-58 functions.</span>
+<span class="sd">    DV_distribution: RandomVariableSubset</span>
+<span class="sd">        A one-dimensional random variable (or a one-dimensional subset of a</span>
+<span class="sd">        multi-dimensional random variable) that characterizes the uncertainty</span>
+<span class="sd">        in the DV. The distribution shall be normalized by the median DV (i.e.</span>
+<span class="sd">        the RVS is expected to have a unit median). Truncation can be used to</span>
+<span class="sd">        prescribe lower and upper limits for the DV, such as the (0,1) domain</span>
+<span class="sd">        needed for red tag evaluation.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DV_median</span><span class="p">,</span> <span class="n">DV_distribution</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_DV_median</span> <span class="o">=</span> <span class="n">DV_median</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span> <span class="o">=</span> <span class="n">DV_distribution</span>
+
+<div class="viewcode-block" id="ConsequenceFunction.median"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.ConsequenceFunction.median">[docs]</a>    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the value of the median DV.</span>
+
+<span class="sd">        The median DV corresponds to the component damage state (DS). If the</span>
+<span class="sd">        damage consequence depends on the quantity of damaged components, the</span>
+<span class="sd">        total quantity of damaged components shall be specified through the</span>
+<span class="sd">        quantity parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity: float scalar or ndarray, optional</span>
+<span class="sd">            Total quantity of damaged components that determines the magnitude</span>
+<span class="sd">            of median DV. Not needed for consequence functions with a fixed</span>
+<span class="sd">            median DV.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        median: float scalar or ndarray</span>
+<span class="sd">            A single scalar for fixed median; a scalar or an array depending on</span>
+<span class="sd">            the shape of the quantity parameter for bounded_linear median.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_median</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConsequenceFunction.sample_unit_DV"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.ConsequenceFunction.sample_unit_DV">[docs]</a>    <span class="k">def</span> <span class="nf">sample_unit_DV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                       <span class="n">force_resampling</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample the decision variable quantity per component unit.</span>
+
+<span class="sd">        The Unit Decision Variable (UDV) corresponds to the component Damage</span>
+<span class="sd">        State (DS). It shall be multiplied by the quantity of damaged</span>
+<span class="sd">        components to get the total DV that corresponds to the quantity of the</span>
+<span class="sd">        damaged components in the asset. If the DV depends on the total</span>
+<span class="sd">        quantity of damaged components, that value shall be specified through</span>
+<span class="sd">        the quantity parameter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity: float scalar, ndarray or Series, optional, default: None</span>
+<span class="sd">            Total quantity of damaged components that determines the magnitude</span>
+<span class="sd">            of median DV. Not needed for consequence functions with a fixed</span>
+<span class="sd">            median DV.</span>
+<span class="sd">        sample_size: int, optional, default: 1</span>
+<span class="sd">            Number of samples drawn from the DV distribution. The default value</span>
+<span class="sd">            yields one sample. If quantity is an array with more than one</span>
+<span class="sd">            element, the sample_size parameter is ignored.</span>
+<span class="sd">        force_resampling: bool, optional, default: False</span>
+<span class="sd">            If True, the DV distribution (and the corresponding RV if there</span>
+<span class="sd">            are correlations) is resampled even if there are samples already</span>
+<span class="sd">            available. This is not recommended if the DV distribution is</span>
+<span class="sd">            correlated with other sources of uncertainty because those</span>
+<span class="sd">            variables will also be resampled in this case. If False, which is</span>
+<span class="sd">            the default approach, we assume that the random variable has</span>
+<span class="sd">            already been sampled and the number of samples is greater or equal</span>
+<span class="sd">            to the number of samples requested.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        unit_DV: float scalar or ndarray</span>
+<span class="sd">            Unit DV samples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get the median DV conditioned on the provided quantities</span>
+        <span class="n">median</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">quantity</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">quantity</span><span class="p">))</span>
+
+        <span class="c1"># if the distribution is None, then there is no uncertainty in the DV</span>
+        <span class="c1"># and the median values are the samples</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">median</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if there are more than one quantities defined, infer the number of</span>
+            <span class="c1"># samples from the number of quantities</span>
+            <span class="k">if</span> <span class="n">quantity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+                    <span class="n">quantity</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;QNT&#39;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">quantity</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">sample_size</span> <span class="o">=</span> <span class="n">quantity</span><span class="o">.</span><span class="n">size</span>
+                <span class="k">elif</span> <span class="n">sample_size</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">quantity</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span> <span class="o">*</span> <span class="n">quantity</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                         <span class="n">name</span><span class="o">=</span><span class="s1">&#39;QNT&#39;</span><span class="p">)</span>
+
+            <span class="c1"># if there are no samples or resampling is forced, then sample the</span>
+            <span class="c1"># distribution first</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">force_resampling</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">sample_distribution</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+            <span class="c1"># if the number of samples is not sufficiently large, raise an error</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">sample_size</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;Consequence evaluation requires at least as many samples of &#39;</span>
+                    <span class="s1">&#39;the Decision Variable distribution as many samples are &#39;</span>
+                    <span class="s1">&#39;requested or as many quantity values are provided to the &#39;</span>
+                    <span class="s1">&#39;sample_unit_DV function. You might want to consider setting &#39;</span>
+                    <span class="s1">&#39;force_resampling to True or sampling the distribution before &#39;</span>
+                    <span class="s1">&#39;calling the sample_unit_DV function.&#39;</span><span class="p">)</span>
+
+            <span class="c1"># get the samples</span>
+            <span class="k">if</span> <span class="n">quantity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantity</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">sample_size</span><span class="p">]</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span> <span class="o">*</span> <span class="n">median</span>
+
+            <span class="k">return</span> <span class="n">samples</span></div></div>
+
+
+<div class="viewcode-block" id="DamageState"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState">[docs]</a><span class="k">class</span> <span class="nc">DamageState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Characterizes one type of damage that corresponds to a particular DSG.</span>
+
+<span class="sd">    The occurrence of damage is evaluated at the DSG. The DS describes one of</span>
+<span class="sd">    the possibly several types of damages that belong to the same DSG and the</span>
+<span class="sd">    consequences of such damage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    ID:int</span>
+<span class="sd">    weight: float, optional, default: 1.0</span>
+<span class="sd">        Describes the probability of DS occurrence, conditioned on the damage</span>
+<span class="sd">        being in the DSG linked to this DS. This information is only used for</span>
+<span class="sd">        DSGs with multiple DS corresponding to them. The weights of the set of</span>
+<span class="sd">        DS shall sum up to 1.0 if they are mutually exclusive. When the set of</span>
+<span class="sd">        DS occur simultaneously, the sum of weights typically exceeds 1.0.</span>
+<span class="sd">    description: str, optional</span>
+<span class="sd">        Provides a short description of the damage state.</span>
+<span class="sd">    affected_area: float, optional, default: 0.</span>
+<span class="sd">        Defines the area over which life safety hazards from this DS exist.</span>
+<span class="sd">    repair_cost_CF: ConsequenceFunction, optional</span>
+<span class="sd">        A consequence function that describes the cost necessary to restore the</span>
+<span class="sd">        component to its pre-disaster condition.</span>
+<span class="sd">    reconstruction_time_CF: ConsequenceFunction, optional</span>
+<span class="sd">        A consequence function that describes the time, necessary to repair the</span>
+<span class="sd">        damaged component to its pre-disaster condition.</span>
+<span class="sd">    injuries_CF_set: ConsequenceFunction array, optional</span>
+<span class="sd">        A set of consequence functions; each describes the number of people</span>
+<span class="sd">        expected to experience injury of a particular severity when the</span>
+<span class="sd">        component is in this DS. Any number of injury-levels can be considered.</span>
+<span class="sd">    red_tag_CF: ConsequenceFunction, optional</span>
+<span class="sd">        A consequence function that describes the proportion of components</span>
+<span class="sd">        (within a Performance Group) that needs to be damaged to trigger an</span>
+<span class="sd">        unsafe placard (i.e. red tag) for the building during post-disaster</span>
+<span class="sd">        inspection.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                 <span class="n">repair_cost_CF</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reconstruction_time_CF</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">injuries_CF_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">affected_area</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">red_tag_CF</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ID</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_weight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_repair_cost_CF</span> <span class="o">=</span> <span class="n">repair_cost_CF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_time_CF</span> <span class="o">=</span> <span class="n">reconstruction_time_CF</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_injuries_CF_set</span> <span class="o">=</span> <span class="n">injuries_CF_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_affected_area</span> <span class="o">=</span> <span class="n">affected_area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_red_tag_CF</span> <span class="o">=</span> <span class="n">red_tag_CF</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the damage description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the weight of DS among the set of damage states in the DSG.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weight</span>
+
+<div class="viewcode-block" id="DamageState.unit_repair_cost"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.unit_repair_cost">[docs]</a>    <span class="k">def</span> <span class="nf">unit_repair_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample the repair cost distribution and return the unit repair costs.</span>
+
+<span class="sd">        The unit repair costs shall be multiplied by the quantity of damaged</span>
+<span class="sd">        components to get the total repair costs for the components in this DS.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity: float scalar, ndarray or Series, optional, default: None</span>
+<span class="sd">            Total quantity of damaged components that determines the median</span>
+<span class="sd">            repair cost. Not used for repair cost models with fixed median.</span>
+<span class="sd">        sample_size: int, optional, default: 1</span>
+<span class="sd">            Number of samples drawn from the repair cost distribution. The</span>
+<span class="sd">            default value yields one sample.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        unit_repair_cost: float scalar or ndarray</span>
+<span class="sd">            Unit repair cost samples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repair_cost_CF</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_repair_cost_CF</span><span class="o">.</span><span class="n">sample_unit_DV</span><span class="p">(</span><span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="p">,</span>
+                                                         <span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span>
+                                                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="DamageState.unit_reconstruction_time"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.unit_reconstruction_time">[docs]</a>    <span class="k">def</span> <span class="nf">unit_reconstruction_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample the reconstruction time distribution and return the unit</span>
+<span class="sd">        reconstruction times.</span>
+
+<span class="sd">        The unit reconstruction times shall be multiplied by the quantity of</span>
+<span class="sd">        damaged components to get the total reconstruction time for the</span>
+<span class="sd">        components in this DS.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity: float scalar, ndarray or Series, optional, default: None</span>
+<span class="sd">            Total quantity of damaged components that determines the magnitude</span>
+<span class="sd">            of median reconstruction time. Not used for reconstruction time</span>
+<span class="sd">            models with fixed median.</span>
+<span class="sd">        sample_size: int, optional, default: 1</span>
+<span class="sd">            Number of samples drawn from the reconstruction time distribution.</span>
+<span class="sd">            The default value yields one sample.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        unit_reconstruction_time: float scalar or ndarray</span>
+<span class="sd">            Unit reconstruction time samples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_time_CF</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reconstruction_time_CF</span><span class="o">.</span><span class="n">sample_unit_DV</span><span class="p">(</span>
+                <span class="n">quantity</span><span class="o">=</span><span class="n">quantity</span><span class="p">,</span>
+                <span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="DamageState.red_tag_dmg_limit"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.red_tag_dmg_limit">[docs]</a>    <span class="k">def</span> <span class="nf">red_tag_dmg_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample the red tag consequence function and return the proportion of</span>
+<span class="sd">        components that needs to be damaged to trigger a red tag.</span>
+
+<span class="sd">        The red tag consequence function is assumed to have a fixed median</span>
+<span class="sd">        value that does not depend on the quantity of damaged components.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_size: int, optional, default: 1</span>
+<span class="sd">            Number of samples drawn from the red tag consequence distribution.</span>
+<span class="sd">            The default value yields one sample.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        red_tag_trigger: float scalar or ndarray</span>
+<span class="sd">            Samples of damaged component proportions that trigger a red tag.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_red_tag_CF</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_red_tag_CF</span><span class="o">.</span><span class="n">sample_unit_DV</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span>
+                                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="DamageState.unit_injuries"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.unit_injuries">[docs]</a>    <span class="k">def</span> <span class="nf">unit_injuries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">severity_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample the injury consequence function that corresponds to the</span>
+<span class="sd">        specified level of severity and return the injuries per component unit.</span>
+
+<span class="sd">        The injury consequence function is assumed to have a fixed median</span>
+<span class="sd">        value that does not depend on the quantity of damaged components (i.e.</span>
+<span class="sd">        the number of injuries per component unit does not change with the</span>
+<span class="sd">        quantity of components.)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        severity_level: int, optional, default: 1</span>
+<span class="sd">            Identifies which injury consequence to sample. The indexing of</span>
+<span class="sd">            severity levels is zero-based.</span>
+<span class="sd">        sample_size: int, optional, default: 1</span>
+<span class="sd">            Number of samples drawn from the injury consequence distribution.</span>
+<span class="sd">            The default value yields one sample.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        unit_injuries: float scalar or ndarray</span>
+<span class="sd">            Unit injury samples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_injuries_CF_set</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">severity_level</span><span class="p">:</span>
+            <span class="n">CF</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_injuries_CF_set</span><span class="p">[</span><span class="n">severity_level</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">CF</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">CF</span><span class="o">.</span><span class="n">sample_unit_DV</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+
+<div class="viewcode-block" id="DamageStateGroup"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageStateGroup">[docs]</a><span class="k">class</span> <span class="nc">DamageStateGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A set of similar component damages that are controlled by the same EDP.</span>
+
+<span class="sd">    Damages are described in detail by the set of Damage State objects.</span>
+<span class="sd">    Damages in a DSG are assumed to occur at the same EDP magnitude. A Damage</span>
+<span class="sd">    State Group (DSG) might have only a single DS in the simplest case.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ID: int</span>
+<span class="sd">    DS_set: DamageState array</span>
+<span class="sd">    DS_set_kind: {&#39;single&#39;, &#39;mutually_exclusive&#39;, &#39;simultaneous&#39;}</span>
+<span class="sd">        Specifies the relationship among the DS in the set. When only one DS is</span>
+<span class="sd">        defined, use the &#39;single&#39; option to improve calculation efficiency.</span>
+<span class="sd">        When multiple DS are present, the &#39;mutually_exclusive&#39; option assumes</span>
+<span class="sd">        that the occurrence of one DS precludes the occurrence of another DS.</span>
+<span class="sd">        In such a case, the weights of the DS in the set shall sum up to 1.0.</span>
+<span class="sd">        In a &#39;simultaneous&#39; case the DS are independent and unrelated. Hence,</span>
+<span class="sd">        they can occur at the same time and at least one of them has to occur.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">DS_set</span><span class="p">,</span> <span class="n">DS_set_kind</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="n">ID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_DS_set</span> <span class="o">=</span> <span class="n">DS_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_DS_set_kind</span> <span class="o">=</span> <span class="n">DS_set_kind</span></div>
+
+<div class="viewcode-block" id="PerformanceGroup"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.PerformanceGroup">[docs]</a><span class="k">class</span> <span class="nc">PerformanceGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A group of similar components that experience the same demands.</span>
+
+<span class="sd">    FEMA P-58: Performance Groups (PGs) are a sub-categorization of fragility</span>
+<span class="sd">    groups. A performance group is a subset of fragility group components that</span>
+<span class="sd">    are subjected to the same demands (e.g. story drift, floor acceleration,</span>
+<span class="sd">    etc.).</span>
+
+<span class="sd">    In buildings, most performance groups shall be organized by story level.</span>
+<span class="sd">    There is no need to separate performance groups by direction, because the</span>
+<span class="sd">    direction of components within a group can be specified during definition,</span>
+<span class="sd">    and it will be taken into consideration in the analysis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ID: int</span>
+<span class="sd">    location: int</span>
+<span class="sd">        Identifies the location of the components that belong to the PG. In a</span>
+<span class="sd">        building, location shall typically refer to the story of the building.</span>
+<span class="sd">        The location assigned to each PG shall be in agreement with the</span>
+<span class="sd">        locations assigned to the Demand objects.</span>
+<span class="sd">    quantity: RandomVariableSubset</span>
+<span class="sd">        Specifies the quantity of components that belong to this PG.</span>
+<span class="sd">        Uncertainty in component quantities is considered by assigning a</span>
+<span class="sd">        random variable to this property.</span>
+<span class="sd">    fragility_functions: FragilityFunction list</span>
+<span class="sd">        Each fragility function describes the probability that the damage in</span>
+<span class="sd">        a subset of components will meet or exceed the damages described by</span>
+<span class="sd">        each damage state group in the DSG_set. Each is a multi-dimensional</span>
+<span class="sd">        function if there is more than one DSG. The number of functions shall</span>
+<span class="sd">        match the number of subsets defined by the `csg_weights` parameter.</span>
+<span class="sd">    DSG_set: DamageStateGroup array</span>
+<span class="sd">        A set of sequential Damage State Groups that describe the plausible set</span>
+<span class="sd">        of damage states of the components in the FG.</span>
+<span class="sd">    csg_weights: float ndarray, optional, default: [1.0]</span>
+<span class="sd">        Identifies subgroups of components within a PG, each of which have</span>
+<span class="sd">        perfectly correlated behavior. Correlation between the damage and</span>
+<span class="sd">        consequences among subgroups is controlled by the `correlation`</span>
+<span class="sd">        parameter of the FragilityGroup that the PG belongs to. Note that if</span>
+<span class="sd">        the components are assumed to have perfectly correlated behavior at the</span>
+<span class="sd">        PG level, assigning several subgroups to the PG is unnecessary. This</span>
+<span class="sd">        input shall be a list of weights that are applied to the quantity</span>
+<span class="sd">        of components to define the amount of components in each subgroup. The</span>
+<span class="sd">        sum of assigned weights shall be 1.0.</span>
+<span class="sd">    directions: int ndarray, optional, default: [0]</span>
+<span class="sd">        Identifies the direction of each subgroup of components within the PG.</span>
+<span class="sd">        The number of directions shall be identical to the number of</span>
+<span class="sd">        csg_weights assigned. In buildings, directions typically correspond to</span>
+<span class="sd">        the orientation of components in plane. Hence, using 0 or 1 to identify</span>
+<span class="sd">        &#39;X&#39; or &#39;Y&#39; is recommended. These directions shall be in agreement with</span>
+<span class="sd">        the directions assigned to Demand objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">fragility_functions</span><span class="p">,</span> <span class="n">DSG_set</span><span class="p">,</span>
+                 <span class="n">csg_weights</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">direction</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="n">ID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_quantity</span> <span class="o">=</span> <span class="n">quantity</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fragility_functions</span><span class="p">)</span> <span class="o">==</span> <span class="n">FragilityFunction</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_FF_set</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragility_functions</span><span class="p">,]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_FF_set</span> <span class="o">=</span> <span class="n">fragility_functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_DSG_set</span> <span class="o">=</span> <span class="n">DSG_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_csg_weights</span> <span class="o">=</span> <span class="n">csg_weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_direction</span> <span class="o">=</span> <span class="n">direction</span>
+
+<div class="viewcode-block" id="PerformanceGroup.P_exc"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.PerformanceGroup.P_exc">[docs]</a>    <span class="k">def</span> <span class="nf">P_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a convenience function that provides a shortcut to</span>
+<span class="sd">        fragility_function.P_exc(). It calculates the exceedance probability</span>
+<span class="sd">        of a given DSG conditioned on the provided EDP value(s). The fragility</span>
+<span class="sd">        functions assigned to the first subset are used for this calculation</span>
+<span class="sd">        because P_exc shall be identical among subsets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        EDP: float scalar or ndarray</span>
+<span class="sd">            Single EDP or numpy array of EDP values.</span>
+<span class="sd">        DSG_ID: int</span>
+<span class="sd">            Identifies the DSG of interest.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        P_exc: float scalar or ndarray</span>
+<span class="sd">            Exceedance probability of the given DSG at the EDP point(s).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FF_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">P_exc</span><span class="p">(</span><span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FragilityGroup"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityGroup">[docs]</a><span class="k">class</span> <span class="nc">FragilityGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Groups a set of similar components from a loss-assessment perspective.</span>
+
+<span class="sd">    Characterizes a set of structural or non-structural components that have</span>
+<span class="sd">    similar construction characteristics, similar potential modes of damage,</span>
+<span class="sd">    similar probability of incurring those modes of damage, and similar</span>
+<span class="sd">    potential consequences resulting from their damage.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ID: int</span>
+<span class="sd">    demand_type: {&#39;PID&#39;, &#39;PFA&#39;, &#39;PSD&#39;, &#39;PSA&#39;, &#39;ePGA&#39;, &#39;PGD&#39;}</span>
+<span class="sd">        The type of Engineering Demand Parameter (EDP) that controls the damage</span>
+<span class="sd">        of the components in the FG. See Demand for acronym descriptions.</span>
+<span class="sd">    performance_groups: PerformanceGroup array</span>
+<span class="sd">        A list of performance groups that contain the components characterized</span>
+<span class="sd">        by the FG.</span>
+<span class="sd">    directional: bool, optional, default: True</span>
+<span class="sd">        Determines whether the components in the FG are sensitive to the</span>
+<span class="sd">        directionality of the EDP.</span>
+<span class="sd">    correlation: bool, optional, default: True</span>
+<span class="sd">        Determines whether the components within a Performance Group (PG) will</span>
+<span class="sd">        have correlated or uncorrelated damage. Correlated damage means that</span>
+<span class="sd">        all components will have the same damage state. In the uncorrelated</span>
+<span class="sd">        case, each component in the performance group will have its damage</span>
+<span class="sd">        state evaluated independently. Correlated damage reduces the required</span>
+<span class="sd">        computational effort for the calculation. Incorrect correlation</span>
+<span class="sd">        modeling will only slightly affect the mean estimates, but might</span>
+<span class="sd">        significantly change the dispersion of results.</span>
+<span class="sd">    demand_location_offset: int, optional, default: 0</span>
+<span class="sd">        Indicates if the location for the demand shall be different from the</span>
+<span class="sd">        location of the components. Damage to components of the ceiling, for</span>
+<span class="sd">        example, is controlled by demands on the floor above the one that the</span>
+<span class="sd">        components belong to. This can be indicated by setting the</span>
+<span class="sd">        demand_location_offset to 1 for such an FG.</span>
+<span class="sd">    incomplete: bool, optional, default: False</span>
+<span class="sd">        Indicates that the FG information is not complete and corresponding</span>
+<span class="sd">        results shall be treated with caution.</span>
+<span class="sd">    name: str, optional, default: &#39;&#39;</span>
+<span class="sd">        Provides a short description of the fragility group.</span>
+<span class="sd">    description: str, optional, default: &#39;&#39;</span>
+<span class="sd">        Provides a detailed description of the fragility group.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">demand_type</span><span class="p">,</span> <span class="n">performance_groups</span><span class="p">,</span>
+                 <span class="n">directional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">demand_location_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">incomplete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;ea&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="n">ID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_demand_type</span> <span class="o">=</span> <span class="n">demand_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_performance_groups</span> <span class="o">=</span> <span class="n">performance_groups</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_directional</span> <span class="o">=</span> <span class="n">directional</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_correlation</span> <span class="o">=</span> <span class="n">correlation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_demand_location_offset</span> <span class="o">=</span> <span class="n">demand_location_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_incomplete</span> <span class="o">=</span> <span class="n">incomplete</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span> <span class="o">=</span> <span class="n">unit</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the fragility group description.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_description</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the name of the fragility group.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

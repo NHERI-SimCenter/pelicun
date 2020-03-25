@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pelicun.base &mdash; pelicun 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> pelicun
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">Copyright and license</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/pelicun.html">API documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pelicun.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pelicun.base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines constants, basic classes and methods for pelicun.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># imports for Python 2.X support</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;2&#39;</span><span class="p">):</span>
+    <span class="nb">range</span><span class="o">=</span><span class="n">xrange</span>
+    <span class="n">string_types</span> <span class="o">=</span> <span class="n">basestring</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">string_types</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="c1"># import libraries for other modules</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">gmtime</span><span class="p">,</span> <span class="n">strftime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">idx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span>
+
+<span class="c1"># set printing options</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_rows</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_columns</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">expand_frame_repr</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">300</span>
+
+<span class="n">log_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">log_div</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">80</span><span class="o">-</span><span class="mi">21</span><span class="p">)</span>  <span class="c1"># 21 to have a total length of 80 with the time added</span>
+
+<span class="c1"># get the absolute path of the pelicun directory</span>
+<span class="n">pelicun_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+<span class="c1"># print a matrix in a nice way using a DataFrame</span>
+<span class="k">def</span> <span class="nf">show_matrix</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">describe</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">describe</span><span class="p">:</span>
+        <span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span><span class="n">percentiles</span><span class="o">=</span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.9</span><span class="p">,</span><span class="mf">0.99</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+<span class="c1"># Monkeypatch warnings to get prettier messages</span>
+<span class="k">def</span> <span class="nf">_warning</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+    <span class="n">python_file</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">file_path</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING in </span><span class="si">{}</span><span class="s1"> at line </span><span class="si">{}</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">python_file</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">_warning</span>
+
+<span class="k">def</span> <span class="nf">show_warning</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">):</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">set_log_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;log_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filepath</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;pelicun</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="log_msg"><a class="viewcode-back" href="../../source/pelicun.base.html#pelicun.base.log_msg">[docs]</a><span class="k">def</span> <span class="nf">log_msg</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">prepend_timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Print a message to the screen with the current time as prefix</span>
+
+<span class="sd">    The time is in ISO-8601 format, e.g. 2018-06-16T20:24:04Z</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    msg: string</span>
+<span class="sd">       Message to print.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">prepend_timestamp</span><span class="p">:</span>
+        <span class="n">formatted_msg</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%SZ&#39;</span><span class="p">,</span> <span class="n">gmtime</span><span class="p">()),</span> <span class="n">msg</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">formatted_msg</span> <span class="o">=</span> <span class="n">msg</span>
+
+    <span class="c1">#print(formatted_msg)</span>
+
+    <span class="k">if</span> <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;log_file&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;log_file&#39;</span><span class="p">],</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="n">formatted_msg</span><span class="p">)</span></div>
+
+<span class="c1"># Constants for unit conversion</span>
+
+<span class="c1"># time</span>
+<span class="n">sec</span> <span class="o">=</span> <span class="mf">1.</span>
+
+<span class="n">minute</span> <span class="o">=</span> <span class="mf">60.</span> <span class="o">*</span> <span class="n">sec</span>
+<span class="n">h</span> <span class="o">=</span> <span class="mf">60.</span> <span class="o">*</span> <span class="n">minute</span>
+<span class="n">day</span> <span class="o">=</span> <span class="mf">24.</span> <span class="o">*</span> <span class="n">h</span>
+
+<span class="n">sec2</span> <span class="o">=</span> <span class="n">sec</span><span class="o">**</span><span class="mf">2.</span>
+
+<span class="c1"># distance, area, volume</span>
+<span class="n">m</span> <span class="o">=</span> <span class="mf">1.</span>
+
+<span class="n">mm</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="n">m</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">m</span>
+<span class="n">km</span> <span class="o">=</span> <span class="mf">1000.</span> <span class="o">*</span> <span class="n">m</span>
+
+<span class="n">inch</span> <span class="o">=</span> <span class="mf">0.0254</span>
+<span class="n">ft</span> <span class="o">=</span> <span class="mf">12.</span> <span class="o">*</span> <span class="n">inch</span>
+<span class="n">mile</span> <span class="o">=</span> <span class="mf">5280.</span> <span class="o">*</span> <span class="n">ft</span>
+
+<span class="c1"># area</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">m</span><span class="o">**</span><span class="mf">2.</span>
+
+<span class="n">mm2</span> <span class="o">=</span> <span class="n">mm</span><span class="o">**</span><span class="mf">2.</span>
+<span class="n">cm2</span> <span class="o">=</span> <span class="n">cm</span><span class="o">**</span><span class="mf">2.</span>
+<span class="n">km2</span> <span class="o">=</span> <span class="n">km</span><span class="o">**</span><span class="mf">2.</span>
+
+<span class="n">inch2</span> <span class="o">=</span> <span class="n">inch</span><span class="o">**</span><span class="mf">2.</span>
+<span class="n">ft2</span> <span class="o">=</span> <span class="n">ft</span><span class="o">**</span><span class="mf">2.</span>
+<span class="n">mile2</span> <span class="o">=</span> <span class="n">mile</span><span class="o">**</span><span class="mf">2.</span>
+
+<span class="c1"># volume</span>
+<span class="n">m3</span> <span class="o">=</span> <span class="n">m</span><span class="o">**</span><span class="mf">3.</span>
+
+<span class="n">inch3</span> <span class="o">=</span> <span class="n">inch</span><span class="o">**</span><span class="mf">3.</span>
+<span class="n">ft3</span> <span class="o">=</span> <span class="n">ft</span><span class="o">**</span><span class="mf">3.</span>
+
+
+<span class="c1"># speed / velocity</span>
+<span class="n">cmps</span> <span class="o">=</span> <span class="n">cm</span> <span class="o">/</span> <span class="n">sec</span>
+<span class="n">mps</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">sec</span>
+<span class="n">mph</span> <span class="o">=</span> <span class="n">mile</span> <span class="o">/</span> <span class="n">h</span>
+
+<span class="n">inchps</span> <span class="o">=</span> <span class="n">inch</span> <span class="o">/</span> <span class="n">sec</span>
+<span class="n">ftps</span> <span class="o">=</span> <span class="n">ft</span> <span class="o">/</span> <span class="n">sec</span>
+
+<span class="c1"># acceleration</span>
+<span class="n">mps2</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="n">sec2</span>
+
+<span class="n">inchps2</span> <span class="o">=</span> <span class="n">inch</span> <span class="o">/</span> <span class="n">sec2</span>
+<span class="n">ftps2</span> <span class="o">=</span> <span class="n">ft</span> <span class="o">/</span> <span class="n">sec2</span>
+
+<span class="n">g</span> <span class="o">=</span> <span class="mf">9.80665</span> <span class="o">*</span> <span class="n">mps2</span>
+
+<span class="c1"># mass</span>
+<span class="n">kg</span> <span class="o">=</span> <span class="mf">1.</span>
+
+<span class="n">ton</span> <span class="o">=</span> <span class="mf">1000.</span> <span class="o">*</span> <span class="n">kg</span>
+
+<span class="n">lb</span> <span class="o">=</span> <span class="mf">0.453592</span> <span class="o">*</span> <span class="n">kg</span>
+
+<span class="c1"># force</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">kg</span> <span class="o">*</span> <span class="n">m</span> <span class="o">/</span> <span class="n">sec2</span>
+
+<span class="n">kN</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">N</span>
+
+<span class="n">lbf</span> <span class="o">=</span> <span class="n">lb</span> <span class="o">*</span> <span class="n">g</span>
+<span class="n">kip</span> <span class="o">=</span> <span class="mf">1000.</span> <span class="o">*</span> <span class="n">lbf</span>
+<span class="n">kips</span> <span class="o">=</span> <span class="n">kip</span>
+
+<span class="c1"># pressure / stress</span>
+<span class="n">Pa</span> <span class="o">=</span> <span class="n">N</span> <span class="o">/</span> <span class="n">m2</span>
+
+<span class="n">kPa</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">Pa</span>
+<span class="n">MPa</span> <span class="o">=</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="n">Pa</span>
+<span class="n">GPa</span> <span class="o">=</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="n">Pa</span>
+
+<span class="n">psi</span> <span class="o">=</span> <span class="n">lbf</span> <span class="o">/</span> <span class="n">inch2</span>
+<span class="n">ksi</span> <span class="o">=</span> <span class="mf">1e3</span> <span class="o">*</span> <span class="n">psi</span>
+<span class="n">Mpsi</span> <span class="o">=</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="n">psi</span>
+
+<span class="c1"># misc</span>
+<span class="n">A</span> <span class="o">=</span> <span class="mf">1.</span>
+
+<span class="n">V</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="n">kV</span> <span class="o">=</span> <span class="mf">1000.</span> <span class="o">*</span> <span class="n">V</span>
+
+<span class="n">ea</span> <span class="o">=</span> <span class="mf">1.</span>
+
+<span class="n">rad</span> <span class="o">=</span> <span class="mf">1.</span>
+
+<span class="n">C</span> <span class="o">=</span> <span class="mf">1.</span>
+
+<span class="c1"># FEMA P58 specific</span>
+<span class="c1">#TODO: work around these and make them available only in the parser methods</span>
+<span class="n">EA</span> <span class="o">=</span> <span class="n">ea</span>
+<span class="n">SF</span> <span class="o">=</span> <span class="n">ft2</span>
+<span class="n">LF</span> <span class="o">=</span> <span class="n">ft</span>
+<span class="n">TN</span> <span class="o">=</span> <span class="n">ton</span>
+<span class="n">AP</span> <span class="o">=</span> <span class="n">A</span>
+<span class="n">CF</span> <span class="o">=</span> <span class="n">ft3</span> <span class="o">/</span> <span class="n">minute</span>
+<span class="n">KV</span> <span class="o">=</span> <span class="n">kV</span> <span class="o">*</span> <span class="n">A</span>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
