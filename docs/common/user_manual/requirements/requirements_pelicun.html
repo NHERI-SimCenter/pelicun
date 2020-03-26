@@ -1,0 +1,723 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>General &mdash; pelicun  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/about.html">2. About pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/architecture/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/how_to_extend/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/verification/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/coding_style/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/API/API.html">5. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>General</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/common/user_manual/requirements/requirements_pelicun.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p>The following table outlines the features that are currently available in pelicun and the requirements that will drive future development. We present these requirements to inform the community about our plans. We welcome suggestions for useful features that are missing from the list below. Go to Bugs &amp; Feature Requests (:numref:lblBugs) to let us know about additional features you would like to see.</p>
+<p>The original set of requirements came from grand challenge reports (<strong>GC</strong>). These were broken into smaller sets of deliverable features by senior faculty associated with the project (<strong>SP</strong>). Additional requirements have come from users (<strong>U</strong>).</p>
+<p>The priority column provides information about the relative importance of the features: <strong>M</strong> - mandatory, <strong>D</strong> - desirable, <strong>O</strong> - optional, <strong>P</strong> - possible.</p>
+<div class="section" id="general">
+<h1>General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h1>
+<table class="colwidths-given docutils align-default" id="id1">
+<caption><span class="caption-text">Requirements - General</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 1%" />
+<col style="width: 96%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>#</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Priority</p></th>
+<th class="head"><p>Version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p><strong>Existing Assessment Methods</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>1.1</p></td>
+<td><p><em>Implement the high-fidelity FEMA-P58 loss assessment methodology</em></p></td>
+<td><p>GC</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>1.1.1</p></td>
+<td><p>Implement the scenario-based assessment from FEMA-P58</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.1.2</p></td>
+<td><p>Implement the time-based assessment from FEMA-P58</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>1.2</p></td>
+<td><p><em>Implement the efficient loss assessment methodologies from HAZUS</em></p></td>
+<td><p>GC</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.1</p></td>
+<td><p>Implement the assessment of buildings under earthquake hazard from HAZUS</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-even"><td><p>1.2.4</p></td>
+<td><p>Implement the assessment of buildings under hurricane wind hazard from HAZUS</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.2.5</p></td>
+<td><p>Implement the assessment of buildings under storm surge hazard from HAZUS</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>1.2.6</p></td>
+<td><p>Implement the assessment of a potable water network under earthquake hazard from HAZUS</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>1.3</p></td>
+<td><p><em>Implement advanced methods for recovery time estimation</em></p></td>
+<td><p>UF</p></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p><strong>Control</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>2.1</p></td>
+<td><p><em>Analysis &amp; Data</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>2.1.1</p></td>
+<td><p>Allow users to set the number of realizations</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.1.2</p></td>
+<td><p>Allow users to customize fragility and consequence function parameters</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.1.3</p></td>
+<td><p>Allow users to specify dependencies between logically similar parts of the stochastic models</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.2</p></td>
+<td><p><em>Response Model</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>2.2.1</p></td>
+<td><p>Allow users to specify the added uncertainty to EDPs (increase in log-standard dev.)</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.2.2</p></td>
+<td><p>Allow users to specify the EDP ranges that correspond to reliable simulation results</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.2.3</p></td>
+<td><p>Allow users to specify the type of distribution they want to fit to the empirical EDP data</p></td>
+<td><p>UF</p></td>
+<td><p>D</p></td>
+<td><p>1.2</p></td>
+</tr>
+<tr class="row-even"><td><p>2.2.4</p></td>
+<td><p>Allow users to choose if they want to fit a distribution only to the non-collapsed EDPs</p></td>
+<td><p>UF</p></td>
+<td><p>M</p></td>
+<td><p>1.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.3</p></td>
+<td><p><em>Performance Model</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>2.3.1</p></td>
+<td><p>Allow users to prescribe a different number of inhabitants on each floor</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.3.2</p></td>
+<td><p>Allow users to customize the temporal distribution of inhabitants</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.3.3</p></td>
+<td><p>Allow users to prescribe different component quantities for each floor in each direction</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.3.4</p></td>
+<td><p>Allow users to specify the number of component groups and their quantities in each performance group</p></td>
+<td><p>UF</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.4</p></td>
+<td><p><em>Damage Model</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>2.4.1</p></td>
+<td><p>Allow users to specify the residual drift limits that determine irrepairability</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.4.2</p></td>
+<td><p>Allow users to specify the yield drift value that is used to estimate residual drifts from peak drifts</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.4.3</p></td>
+<td><p>Allow users to specify the EDP limits that are used to determine collapse probability</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.4.4</p></td>
+<td><p>Allow users to specify arbitrary collapse modes and their likelihood</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>2.4.5</p></td>
+<td><p>Allow users to prescribe the collapse probability of the structure</p></td>
+<td><p>UF</p></td>
+<td><p>M</p></td>
+<td><p>1.2</p></td>
+</tr>
+<tr class="row-even"><td><p>2.5</p></td>
+<td><p><em>Loss Model</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>2.5.1</p></td>
+<td><p>Allow users to decide which DVs to calculate</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>2.5.2</p></td>
+<td><p>Allow users to specify the likelihood of various injuries in each collapse mode</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="databases-files">
+<h1>Databases &amp; Files<a class="headerlink" href="#databases-files" title="Permalink to this headline">¶</a></h1>
+<table class="colwidths-given docutils align-default" id="id2">
+<caption><span class="caption-text">Requirements - Databases &amp; Files</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 1%" />
+<col style="width: 96%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>#</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Priority</p></th>
+<th class="head"><p>Version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><strong>Data Sources</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>3.1</p></td>
+<td><p><em>Make the component fragility and consequence functions from FEMA P58 available</em></p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>3.1.1</p></td>
+<td><p>FEMA P58 First Edition</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.1.1</p></td>
+<td><p>FEMA P58 Second Edition</p></td>
+<td><p>UF</p></td>
+<td><p>M</p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-even"><td><p>3.2</p></td>
+<td><p><em>Make the building fragility and consequence functions from HAZUS available</em></p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>3.2.1</p></td>
+<td><p>HAZUS earthquake damage, reconstruction cost and time</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-even"><td><p>3.2.2</p></td>
+<td><p>HAZUS hurricane wind damage, reconstruction cost and time</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.2.3</p></td>
+<td><p>HAZUS storm surge damage, reconstruction cost and time</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p><strong>Data Storage</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>4.1</p></td>
+<td><p><em>Generic JSON format</em></p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>4.1.1</p></td>
+<td><p>Develop a generic JSON data format for component fragility and consequence functions</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-even"><td><p>4.1.2</p></td>
+<td><p>Store FEMA P58 and HAZUS component data in the new JSON format and make them available</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>4.2</p></td>
+<td><p><em>UnQLite Database</em></p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>4.2.1</p></td>
+<td><p>Store the JSON files in an UnQLite database for each data source</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>2.1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="stochastic-models">
+<h1>Stochastic Models<a class="headerlink" href="#stochastic-models" title="Permalink to this headline">¶</a></h1>
+<table class="colwidths-given docutils align-default" id="id3">
+<caption><span class="caption-text">Requirements - Stochastic Models</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 1%" />
+<col style="width: 96%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+<col style="width: 1%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>#</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Priority</p></th>
+<th class="head"><p>Version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>5</p></td>
+<td><p><strong>Response Model</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>5.1</p></td>
+<td><p><em>EDP (re-)sampling</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>5.1.1</p></td>
+<td><p>Enable coupled assessment by using raw EDP values as-is</p></td>
+<td><p>UF</p></td>
+<td><p>M</p></td>
+<td><p>1.2</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p><strong>Performance Model</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p><strong>Damage Model</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>7.1</p></td>
+<td><p><em>Collapse estimation</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>7.1.1</p></td>
+<td><p>Estimate collapse probability of the structure using EDP limits and the joint distribution of EDPs</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>7.1.2</p></td>
+<td><p>Estimate the collapse probability of the structure using empirical (raw) EDP data</p></td>
+<td><p>UF</p></td>
+<td><p>M</p></td>
+<td><p>1.2</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p><strong>Loss Model</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>8.1</p></td>
+<td><p><em>Consequence functions for buildings</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>8.1.1</p></td>
+<td><p>Implement functions for reconstruction cost and time as per FEMA P58</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>8.1.2</p></td>
+<td><p>Implement functions for red tag triggering as per FEMA P58</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.1.3</p></td>
+<td><p>Implement functions for injuries and fatalities as per FEMA P58</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>8.1.4</p></td>
+<td><p>Implement functions for reconstruction cost and time as per HAZUS earthquake</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.1.5</p></td>
+<td><p>Implement functions for debris as per HAZUS earthquake</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>8.1.6</p></td>
+<td><p>Implement functions for business interruption as per HAZUS earthquake</p></td>
+<td><p>SP</p></td>
+<td><p>D</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>8.1.7</p></td>
+<td><p>Implement functions for reconstruction cost and time as per HAZUS wind</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-even"><td><p>8.1.8</p></td>
+<td><p>Implement functions for reconstruction cost and time as per HAZUS storm surge</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>8.2</p></td>
+<td><p><em>Consequence functions for other assets</em></p></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>8.1.4</p></td>
+<td><p>Implement functions for reconstruction cost and time for potable water pipes as per HAZUS earthquake</p></td>
+<td><p>SP</p></td>
+<td><p>M</p></td>
+<td><p>2.0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

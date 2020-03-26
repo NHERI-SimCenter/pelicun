@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pelicun.model &mdash; pelicun 1.0.0 documentation</title>
+  <title>pelicun.model &mdash; pelicun  documentation</title>
   
 
   
@@ -45,22 +45,21 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pelicun
+            <a href="../../index.html">
           
 
+          
+            
+            <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
           
           </a>
 
           
             
-            
-              <div class="version">
-                1.0.0
-              </div>
             
           
 
@@ -83,12 +82,29 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features.html">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../license.html">Copyright and license</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/pelicun.html">API documentation</a></li>
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/about/pelicun/about.html">2. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
 </ul>
 
             
@@ -215,7 +231,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">.uq</span> <span class="k">import</span> <span class="n">RandomVariableSubset</span>
 
-<div class="viewcode-block" id="FragilityFunction"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityFunction">[docs]</a><span class="k">class</span> <span class="nc">FragilityFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="FragilityFunction"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.FragilityFunction">[docs]</a><span class="k">class</span> <span class="nc">FragilityFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Describes the relationship between asset response and damage.</span>
 
@@ -248,7 +264,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP_limit</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span> <span class="o">=</span> <span class="n">EDP_limit</span>
 
-<div class="viewcode-block" id="FragilityFunction.P_exc"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityFunction.P_exc">[docs]</a>    <span class="k">def</span> <span class="nf">P_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">):</span>
+<div class="viewcode-block" id="FragilityFunction.P_exc"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.FragilityFunction.P_exc">[docs]</a>    <span class="k">def</span> <span class="nf">P_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the probability of damage exceedance.</span>
 
@@ -296,7 +312,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">P_exc</span></div>
 
-<div class="viewcode-block" id="FragilityFunction.DSG_given_EDP"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityFunction.DSG_given_EDP">[docs]</a>    <span class="k">def</span> <span class="nf">DSG_given_EDP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">force_resampling</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="FragilityFunction.DSG_given_EDP"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.FragilityFunction.DSG_given_EDP">[docs]</a>    <span class="k">def</span> <span class="nf">DSG_given_EDP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">force_resampling</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given an EDP, get a damage level based on the fragility function.</span>
 
@@ -368,7 +384,7 @@
 
         <span class="k">return</span> <span class="n">DSG_ID</span></div></div>
 
-<div class="viewcode-block" id="prep_constant_median_DV"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.prep_constant_median_DV">[docs]</a><span class="k">def</span> <span class="nf">prep_constant_median_DV</span><span class="p">(</span><span class="n">median</span><span class="p">):</span>
+<div class="viewcode-block" id="prep_constant_median_DV"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.prep_constant_median_DV">[docs]</a><span class="k">def</span> <span class="nf">prep_constant_median_DV</span><span class="p">(</span><span class="n">median</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a constant median Decision Variable (DV) function.</span>
 
@@ -388,7 +404,7 @@
 
     <span class="k">return</span> <span class="n">f</span></div>
 
-<div class="viewcode-block" id="prep_bounded_linear_median_DV"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.prep_bounded_linear_median_DV">[docs]</a><span class="k">def</span> <span class="nf">prep_bounded_linear_median_DV</span><span class="p">(</span><span class="n">median_max</span><span class="p">,</span> <span class="n">median_min</span><span class="p">,</span> <span class="n">quantity_lower</span><span class="p">,</span>
+<div class="viewcode-block" id="prep_bounded_linear_median_DV"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.prep_bounded_linear_median_DV">[docs]</a><span class="k">def</span> <span class="nf">prep_bounded_linear_median_DV</span><span class="p">(</span><span class="n">median_max</span><span class="p">,</span> <span class="n">median_min</span><span class="p">,</span> <span class="n">quantity_lower</span><span class="p">,</span>
                                   <span class="n">quantity_upper</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a bounded linear median Decision Variable (DV) function.</span>
@@ -433,7 +449,7 @@
 
     <span class="k">return</span> <span class="n">f</span></div>
 
-<div class="viewcode-block" id="ConsequenceFunction"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.ConsequenceFunction">[docs]</a><span class="k">class</span> <span class="nc">ConsequenceFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ConsequenceFunction"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.ConsequenceFunction">[docs]</a><span class="k">class</span> <span class="nc">ConsequenceFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Describes the relationship between damage and a decision variable.</span>
 
@@ -466,7 +482,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_DV_median</span> <span class="o">=</span> <span class="n">DV_median</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span> <span class="o">=</span> <span class="n">DV_distribution</span>
 
-<div class="viewcode-block" id="ConsequenceFunction.median"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.ConsequenceFunction.median">[docs]</a>    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ConsequenceFunction.median"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.ConsequenceFunction.median">[docs]</a>    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the value of the median DV.</span>
 
@@ -491,7 +507,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_median</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ConsequenceFunction.sample_unit_DV"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.ConsequenceFunction.sample_unit_DV">[docs]</a>    <span class="k">def</span> <span class="nf">sample_unit_DV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="ConsequenceFunction.sample_unit_DV"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.ConsequenceFunction.sample_unit_DV">[docs]</a>    <span class="k">def</span> <span class="nf">sample_unit_DV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                        <span class="n">force_resampling</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample the decision variable quantity per component unit.</span>
@@ -576,7 +592,7 @@
             <span class="k">return</span> <span class="n">samples</span></div></div>
 
 
-<div class="viewcode-block" id="DamageState"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState">[docs]</a><span class="k">class</span> <span class="nc">DamageState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DamageState"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.DamageState">[docs]</a><span class="k">class</span> <span class="nc">DamageState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Characterizes one type of damage that corresponds to a particular DSG.</span>
 
@@ -642,7 +658,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weight</span>
 
-<div class="viewcode-block" id="DamageState.unit_repair_cost"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.unit_repair_cost">[docs]</a>    <span class="k">def</span> <span class="nf">unit_repair_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DamageState.unit_repair_cost"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.DamageState.unit_repair_cost">[docs]</a>    <span class="k">def</span> <span class="nf">unit_repair_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample the repair cost distribution and return the unit repair costs.</span>
 
@@ -672,7 +688,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="DamageState.unit_reconstruction_time"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.unit_reconstruction_time">[docs]</a>    <span class="k">def</span> <span class="nf">unit_reconstruction_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<div class="viewcode-block" id="DamageState.unit_reconstruction_time"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.DamageState.unit_reconstruction_time">[docs]</a>    <span class="k">def</span> <span class="nf">unit_reconstruction_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample the reconstruction time distribution and return the unit</span>
@@ -706,7 +722,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="DamageState.red_tag_dmg_limit"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.red_tag_dmg_limit">[docs]</a>    <span class="k">def</span> <span class="nf">red_tag_dmg_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DamageState.red_tag_dmg_limit"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.DamageState.red_tag_dmg_limit">[docs]</a>    <span class="k">def</span> <span class="nf">red_tag_dmg_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample the red tag consequence function and return the proportion of</span>
 <span class="sd">        components that needs to be damaged to trigger a red tag.</span>
@@ -733,7 +749,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="DamageState.unit_injuries"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageState.unit_injuries">[docs]</a>    <span class="k">def</span> <span class="nf">unit_injuries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">severity_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="DamageState.unit_injuries"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.DamageState.unit_injuries">[docs]</a>    <span class="k">def</span> <span class="nf">unit_injuries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">severity_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample the injury consequence function that corresponds to the</span>
 <span class="sd">        specified level of severity and return the injuries per component unit.</span>
@@ -769,7 +785,7 @@
         <span class="k">return</span> <span class="n">output</span></div></div>
 
 
-<div class="viewcode-block" id="DamageStateGroup"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.DamageStateGroup">[docs]</a><span class="k">class</span> <span class="nc">DamageStateGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="DamageStateGroup"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.DamageStateGroup">[docs]</a><span class="k">class</span> <span class="nc">DamageStateGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A set of similar component damages that are controlled by the same EDP.</span>
 
@@ -796,7 +812,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_DS_set</span> <span class="o">=</span> <span class="n">DS_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DS_set_kind</span> <span class="o">=</span> <span class="n">DS_set_kind</span></div>
 
-<div class="viewcode-block" id="PerformanceGroup"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.PerformanceGroup">[docs]</a><span class="k">class</span> <span class="nc">PerformanceGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PerformanceGroup"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.PerformanceGroup">[docs]</a><span class="k">class</span> <span class="nc">PerformanceGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A group of similar components that experience the same demands.</span>
 
@@ -863,7 +879,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_csg_weights</span> <span class="o">=</span> <span class="n">csg_weights</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_direction</span> <span class="o">=</span> <span class="n">direction</span>
 
-<div class="viewcode-block" id="PerformanceGroup.P_exc"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.PerformanceGroup.P_exc">[docs]</a>    <span class="k">def</span> <span class="nf">P_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">):</span>
+<div class="viewcode-block" id="PerformanceGroup.P_exc"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.PerformanceGroup.P_exc">[docs]</a>    <span class="k">def</span> <span class="nf">P_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is a convenience function that provides a shortcut to</span>
 <span class="sd">        fragility_function.P_exc(). It calculates the exceedance probability</span>
@@ -886,7 +902,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_FF_set</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">P_exc</span><span class="p">(</span><span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="FragilityGroup"><a class="viewcode-back" href="../../source/pelicun.model.html#pelicun.model.FragilityGroup">[docs]</a><span class="k">class</span> <span class="nc">FragilityGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="FragilityGroup"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.FragilityGroup">[docs]</a><span class="k">class</span> <span class="nc">FragilityGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Groups a set of similar components from a loss-assessment perspective.</span>
 

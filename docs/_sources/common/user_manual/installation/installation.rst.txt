@@ -1,0 +1,13 @@
+.. _lblInstallation:
+
+************
+Installation
+************
+
+.. only:: desktop_app
+
+  .. include:: installation_desktop.rst
+
+.. only:: pelicun
+
+  .. include:: installation_pelicun.rst

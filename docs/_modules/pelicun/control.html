@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pelicun.control &mdash; pelicun 1.0.0 documentation</title>
+  <title>pelicun.control &mdash; pelicun  documentation</title>
   
 
   
@@ -45,22 +45,21 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pelicun
+            <a href="../../index.html">
           
 
+          
+            
+            <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
           
           </a>
 
           
             
-            
-              <div class="version">
-                1.0.0
-              </div>
             
           
 
@@ -83,12 +82,29 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features.html">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../license.html">Copyright and license</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/pelicun.html">API documentation</a></li>
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/about/pelicun/about.html">2. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
 </ul>
 
             
@@ -210,7 +226,7 @@
 <span class="kn">from</span> <span class="nn">.file_io</span> <span class="k">import</span> <span class="o">*</span>
 
 
-<div class="viewcode-block" id="Assessment"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.Assessment">[docs]</a><span class="k">class</span> <span class="nc">Assessment</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Assessment"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment">[docs]</a><span class="k">class</span> <span class="nc">Assessment</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A high-level class that collects features common to all supported loss</span>
 <span class="sd">    assessment methods. This class will only rarely be called directly when</span>
@@ -281,7 +297,7 @@
 
         <span class="k">return</span> <span class="n">beta_total</span>
 
-<div class="viewcode-block" id="Assessment.read_inputs"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.Assessment.read_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">read_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_DL_input</span><span class="p">,</span> <span class="n">path_EDP_input</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Assessment.read_inputs"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment.read_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">read_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_DL_input</span><span class="p">,</span> <span class="n">path_EDP_input</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read and process the input files to describe the loss assessment task.</span>
 
@@ -428,7 +444,7 @@
         <span class="n">log_msg</span><span class="p">()</span>
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">number of samples: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;raw_data&#39;</span><span class="p">])))</span>        </div>
 
-<div class="viewcode-block" id="Assessment.define_random_variables"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.Assessment.define_random_variables">[docs]</a>    <span class="k">def</span> <span class="nf">define_random_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Assessment.define_random_variables"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment.define_random_variables">[docs]</a>    <span class="k">def</span> <span class="nf">define_random_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define the random variables used for loss assessment.</span>
 
@@ -436,7 +452,7 @@
         <span class="n">log_msg</span><span class="p">(</span><span class="n">log_div</span><span class="p">)</span>
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Defining random variables...&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Assessment.define_loss_model"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.Assessment.define_loss_model">[docs]</a>    <span class="k">def</span> <span class="nf">define_loss_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Assessment.define_loss_model"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment.define_loss_model">[docs]</a>    <span class="k">def</span> <span class="nf">define_loss_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the stochastic loss model based on the inputs provided earlier.</span>
 
@@ -444,7 +460,7 @@
         <span class="n">log_msg</span><span class="p">(</span><span class="n">log_div</span><span class="p">)</span>
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Creating the damage and loss model...&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Assessment.calculate_damage"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.Assessment.calculate_damage">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Assessment.calculate_damage"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment.calculate_damage">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Characterize the damage experienced in each random event realization.</span>
 
@@ -453,7 +469,7 @@
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Calculating damage...&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ID_dict</span> <span class="o">=</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="Assessment.calculate_losses"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.Assessment.calculate_losses">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Assessment.calculate_losses"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment.calculate_losses">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Characterize the consequences of damage in each random event realization.</span>
 
@@ -462,7 +478,7 @@
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Calculating losses...&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DV_dict</span> <span class="o">=</span> <span class="p">{}</span></div>
 
-<div class="viewcode-block" id="Assessment.save_outputs"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.Assessment.save_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">save_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">DM_file</span><span class="p">,</span> <span class="n">DV_file</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="Assessment.save_outputs"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment.save_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">save_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">DM_file</span><span class="p">,</span> <span class="n">DV_file</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Export the results.</span>
 
@@ -723,7 +739,7 @@
         <span class="k">return</span> <span class="n">demand_RV</span></div>
 
 
-<div class="viewcode-block" id="FEMA_P58_Assessment"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment">[docs]</a><span class="k">class</span> <span class="nc">FEMA_P58_Assessment</span><span class="p">(</span><span class="n">Assessment</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment">[docs]</a><span class="k">class</span> <span class="nc">FEMA_P58_Assessment</span><span class="p">(</span><span class="n">Assessment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An Assessment class that implements the loss assessment method in FEMA P58.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -739,7 +755,7 @@
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;hazard: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hazard</span><span class="p">))</span>
         <span class="n">log_msg</span><span class="p">(</span><span class="n">log_div</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FEMA_P58_Assessment.read_inputs"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment.read_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">read_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_DL_input</span><span class="p">,</span> <span class="n">path_EDP_input</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment.read_inputs"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment.read_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">read_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_DL_input</span><span class="p">,</span> <span class="n">path_EDP_input</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read and process the input files to describe the loss assessment task.</span>
 
@@ -793,7 +809,7 @@
             <span class="n">POP</span><span class="p">[</span><span class="s1">&#39;peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;population&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_POP_in</span> <span class="o">=</span> <span class="n">POP</span></div>
 
-<div class="viewcode-block" id="FEMA_P58_Assessment.define_random_variables"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment.define_random_variables">[docs]</a>    <span class="k">def</span> <span class="nf">define_random_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment.define_random_variables"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment.define_random_variables">[docs]</a>    <span class="k">def</span> <span class="nf">define_random_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define the random variables used for loss assessment.</span>
 
@@ -944,7 +960,7 @@
                 <span class="n">rv</span><span class="o">.</span><span class="n">sample_distribution</span><span class="p">(</span>
                     <span class="n">sample_size</span><span class="o">=</span><span class="n">realization_count</span><span class="p">,</span> <span class="n">preserve_order</span><span class="o">=</span><span class="n">is_coupled</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FEMA_P58_Assessment.define_loss_model"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment.define_loss_model">[docs]</a>    <span class="k">def</span> <span class="nf">define_loss_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment.define_loss_model"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment.define_loss_model">[docs]</a>    <span class="k">def</span> <span class="nf">define_loss_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the stochastic loss model based on the inputs provided earlier.</span>
 
@@ -965,7 +981,7 @@
             <span class="p">[(</span><span class="n">tag</span><span class="p">,</span> <span class="n">RandomVariableSubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_RV_dict</span><span class="p">[</span><span class="s1">&#39;EDP&#39;</span><span class="p">],</span><span class="n">tags</span><span class="o">=</span><span class="n">tag</span><span class="p">))</span>
              <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RV_dict</span><span class="p">[</span><span class="s1">&#39;EDP&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_dimension_tags</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="FEMA_P58_Assessment.calculate_damage"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment.calculate_damage">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment.calculate_damage"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment.calculate_damage">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Characterize the damage experienced in each random event realization.</span>
 
@@ -1010,7 +1026,7 @@
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Calculating the damage in the non-collapsed cases...&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DMG</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_damage</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="FEMA_P58_Assessment.calculate_losses"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment.calculate_losses">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment.calculate_losses"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment.calculate_losses">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Characterize the consequences of damage in each random event realization.</span>
 
@@ -1099,7 +1115,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_DV_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;injuries&#39;</span><span class="p">:</span> <span class="n">DV_INJ_dict</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="FEMA_P58_Assessment.aggregate_results"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment.aggregate_results">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment.aggregate_results"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment.aggregate_results">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Returns</span>
@@ -1226,7 +1242,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_SUMMARY</span> <span class="o">=</span> <span class="n">SUMMARY</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FEMA_P58_Assessment.save_outputs"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.FEMA_P58_Assessment.save_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">save_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="FEMA_P58_Assessment.save_outputs"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.FEMA_P58_Assessment.save_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">save_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Returns</span>
@@ -2517,7 +2533,7 @@
         <span class="k">return</span> <span class="n">DV_INJ_dict</span></div>
 
 
-<div class="viewcode-block" id="HAZUS_Assessment"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment">[docs]</a><span class="k">class</span> <span class="nc">HAZUS_Assessment</span><span class="p">(</span><span class="n">Assessment</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment">[docs]</a><span class="k">class</span> <span class="nc">HAZUS_Assessment</span><span class="p">(</span><span class="n">Assessment</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An Assessment class that implements the damage and loss assessment method</span>
 <span class="sd">    following the HAZUS Technical Manual and the HAZUS software.</span>
@@ -2540,7 +2556,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_hazard</span> <span class="o">=</span> <span class="n">hazard</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_assessment_type</span> <span class="o">=</span> <span class="s1">&#39;HAZUS_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hazard</span><span class="p">)</span>
 
-<div class="viewcode-block" id="HAZUS_Assessment.read_inputs"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment.read_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">read_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_DL_input</span><span class="p">,</span> <span class="n">path_EDP_input</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment.read_inputs"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment.read_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">read_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_DL_input</span><span class="p">,</span> <span class="n">path_EDP_input</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read and process the input files to describe the loss assessment task.</span>
 
@@ -2585,7 +2601,7 @@
             <span class="n">POP</span><span class="p">[</span><span class="s1">&#39;peak&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;population&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_POP_in</span> <span class="o">=</span> <span class="n">POP</span></div>
 
-<div class="viewcode-block" id="HAZUS_Assessment.define_random_variables"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment.define_random_variables">[docs]</a>    <span class="k">def</span> <span class="nf">define_random_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment.define_random_variables"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment.define_random_variables">[docs]</a>    <span class="k">def</span> <span class="nf">define_random_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Define the random variables used for loss assessment.</span>
 
@@ -2645,7 +2661,7 @@
                 <span class="n">rv</span><span class="o">.</span><span class="n">sample_distribution</span><span class="p">(</span>
                     <span class="n">sample_size</span><span class="o">=</span><span class="n">realization_count</span><span class="p">,</span> <span class="n">preserve_order</span><span class="o">=</span><span class="n">is_coupled</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HAZUS_Assessment.define_loss_model"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment.define_loss_model">[docs]</a>    <span class="k">def</span> <span class="nf">define_loss_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment.define_loss_model"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment.define_loss_model">[docs]</a>    <span class="k">def</span> <span class="nf">define_loss_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the stochastic loss model based on the inputs provided earlier.</span>
 
@@ -2667,7 +2683,7 @@
             <span class="p">[(</span><span class="n">tag</span><span class="p">,</span> <span class="n">RandomVariableSubset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_RV_dict</span><span class="p">[</span><span class="s1">&#39;EDP&#39;</span><span class="p">],</span> <span class="n">tags</span><span class="o">=</span><span class="n">tag</span><span class="p">))</span>
              <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RV_dict</span><span class="p">[</span><span class="s1">&#39;EDP&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">_dimension_tags</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="HAZUS_Assessment.calculate_damage"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment.calculate_damage">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment.calculate_damage"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment.calculate_damage">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_damage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Characterize the damage experienced in each random event realization.</span>
 
@@ -2699,7 +2715,7 @@
         <span class="c1"># damage in non-collapses</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DMG</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_damage</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="HAZUS_Assessment.calculate_losses"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment.calculate_losses">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment.calculate_losses"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment.calculate_losses">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Characterize the consequences of damage in each random event realization.</span>
 
@@ -2747,7 +2763,7 @@
             <span class="c1"># store result</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_DV_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;injuries&#39;</span><span class="p">:</span> <span class="n">DV_INJ_dict</span><span class="p">})</span></div>
 
-<div class="viewcode-block" id="HAZUS_Assessment.aggregate_results"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment.aggregate_results">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment.aggregate_results"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment.aggregate_results">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Returns</span>
@@ -2825,7 +2841,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_SUMMARY</span> <span class="o">=</span> <span class="n">SUMMARY</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HAZUS_Assessment.save_outputs"><a class="viewcode-back" href="../../source/pelicun.control.html#pelicun.control.HAZUS_Assessment.save_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">save_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="HAZUS_Assessment.save_outputs"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.HAZUS_Assessment.save_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">save_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Returns</span>

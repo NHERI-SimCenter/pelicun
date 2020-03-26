@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>License &mdash; pelicun 1.0.0 documentation</title>
+  <title>pelicun library &mdash; pelicun  documentation</title>
   
 
   
@@ -36,7 +36,7 @@
   <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview" href="overview.html" /> 
+    <link rel="next" title="1. Acknowledgments" href="common/user_manual/ack.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -46,22 +46,21 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
 
           
-            <a href="#" class="icon icon-home"> pelicun
+            <a href="#">
           
 
+          
+            
+            <img src="_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
           
           </a>
 
           
             
-            
-              <div class="version">
-                1.0.0
-              </div>
             
           
 
@@ -84,12 +83,29 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">Copyright and license</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/pelicun.html">API documentation</a></li>
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/about/pelicun/about.html">2. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
 </ul>
 
             
@@ -135,7 +151,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>License</li>
+      <li>pelicun library</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -154,40 +170,48 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="figure align-default">
-<a class="reference internal image-reference" href="_images/logo.PNG"><img alt="logo" src="_images/logo.PNG" style="width: 352.0px; height: 93.0px;" /></a>
-</div>
-<p>Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters</p>
-<p><em>pelicun</em> is a Python package that provides tools for assessment of damage and losses due to natural hazards. It uses a stochastic damage and loss model that is based on the methodology described in FEMA P58 (FEMA, 2012). While FEMA P58 aims to assess the seismic performance of a building, with <em>pelicun</em> we want to develop a more versatile, hazard-agnostic tool that will eventually provide loss estimates for other types of assets (e.g. bridges, facilities, pipelines) and lifelines. The underlying loss model was designed with these objectives in mind and it will be gradually extended to have such functionality.</p>
-<p>Currently, the scenario assessment from the FEMA P58 methodology is built-in the tool. Detailed documentation of the available methods and their use is available at <a class="reference external" href="http://pelicun.readthedocs.io">http://pelicun.readthedocs.io</a></p>
-<div class="toctree-wrapper compound">
+  <div class="section" id="full-tool-name">
+<h1>pelicun library<a class="headerlink" href="#full-tool-name" title="Permalink to this headline">¶</a></h1>
+<p>The pelicun library is an open-source implementation of the pelicun framework in a Python package. It provides tools for assessment of damage and losses due to natural disasters. Its basis is the stochastic damage and loss model described in FEMA P58. While FEMA P58 aims to assess the seismic performance of a building, with the pelicun library we provide a more versatile, hazard agnostic tool that can estimate losses for several types of assets in the built environment.</p>
+<p>This document covers the features and capabilities of Version 2.0.9  of the tool. Users are encouraged to comment on what additional features and capabilities they would like to see in future versions of the application through the <a class="reference external" href="https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=7.0">Message Board</a>.</p>
+<div class="toctree-wrapper compound" id="lbl-user-manual">
+<p class="caption"><span class="caption-text">User Manual</span><a class="headerlink" href="#lbl-user-manual" title="Permalink to this toctree">¶</a></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">Copyright and license</a></li>
-<li class="toctree-l1"><a class="reference internal" href="source/pelicun.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/about/pelicun/about.html">2. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/license.html">9. Copyright and License</a></li>
 </ul>
 </div>
-<div class="section" id="license">
-<h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
-<p><em>pelicun</em> is distributed under the BSD 3-Clause license, see LICENSE.</p>
+<div class="toctree-wrapper compound" id="lbl-technical-manual">
+<p class="caption"><span class="caption-text">Technical Manual</span><a class="headerlink" href="#lbl-technical-manual" title="Permalink to this toctree">¶</a></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+</ul>
 </div>
-<div class="section" id="acknowledgement">
-<h1>Acknowledgement<a class="headerlink" href="#acknowledgement" title="Permalink to this headline">¶</a></h1>
-<p>This material is based upon work supported by the National Science Foundation under Grant No. 1612843. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.</p>
+<div class="toctree-wrapper compound" id="lbl-developer-manual">
+<p class="caption"><span class="caption-text">Developer Manual</span><a class="headerlink" href="#lbl-developer-manual" title="Permalink to this toctree">¶</a></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="developers">
+<h1>Developers<a class="headerlink" href="#developers" title="Permalink to this headline">¶</a></h1>
+<p>Adam Zsarnóczay</p>
 </div>
 <div class="section" id="contact">
 <h1>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h1>
 <p>Adam Zsarnóczay, NHERI SimCenter, Stanford University, <a class="reference external" href="mailto:adamzs&#37;&#52;&#48;stanford&#46;edu">adamzs<span>&#64;</span>stanford<span>&#46;</span>edu</a></p>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
 </div>
 
 
@@ -195,13 +219,6 @@
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pelicun.file_io &mdash; pelicun 1.0.0 documentation</title>
+  <title>pelicun.file_io &mdash; pelicun  documentation</title>
   
 
   
@@ -45,22 +45,21 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pelicun
+            <a href="../../index.html">
           
 
+          
+            
+            <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
           
           </a>
 
           
             
-            
-              <div class="version">
-                1.0.0
-              </div>
             
           
 
@@ -83,12 +82,29 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features.html">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../license.html">Copyright and license</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/pelicun.html">API documentation</a></li>
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/about/pelicun/about.html">2. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
 </ul>
 
             
@@ -265,7 +281,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="read_SimCenter_DL_input"><a class="viewcode-back" href="../../source/pelicun.file_io.html#pelicun.file_io.read_SimCenter_DL_input">[docs]</a><span class="k">def</span> <span class="nf">read_SimCenter_DL_input</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">assessment_type</span><span class="o">=</span><span class="s1">&#39;P58&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="read_SimCenter_DL_input"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_file_io.html#pelicun.file_io.read_SimCenter_DL_input">[docs]</a><span class="k">def</span> <span class="nf">read_SimCenter_DL_input</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">assessment_type</span><span class="o">=</span><span class="s1">&#39;P58&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read the damage and loss input information from a json file.</span>
 
@@ -977,7 +993,7 @@
 
     <span class="k">return</span> <span class="n">data</span></div>
 
-<div class="viewcode-block" id="read_SimCenter_EDP_input"><a class="viewcode-back" href="../../source/pelicun.file_io.html#pelicun.file_io.read_SimCenter_EDP_input">[docs]</a><span class="k">def</span> <span class="nf">read_SimCenter_EDP_input</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">EDP_kinds</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;PID&#39;</span><span class="p">,</span> <span class="s1">&#39;PFA&#39;</span><span class="p">),</span>
+<div class="viewcode-block" id="read_SimCenter_EDP_input"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_file_io.html#pelicun.file_io.read_SimCenter_EDP_input">[docs]</a><span class="k">def</span> <span class="nf">read_SimCenter_EDP_input</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="n">EDP_kinds</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;PID&#39;</span><span class="p">,</span> <span class="s1">&#39;PFA&#39;</span><span class="p">),</span>
                              <span class="n">units</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">PID</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">PFA</span><span class="o">=</span><span class="mf">1.</span><span class="p">),</span>
                              <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1053,7 +1069,7 @@
 
     <span class="k">return</span> <span class="n">data</span></div>
 
-<div class="viewcode-block" id="read_population_distribution"><a class="viewcode-back" href="../../source/pelicun.file_io.html#pelicun.file_io.read_population_distribution">[docs]</a><span class="k">def</span> <span class="nf">read_population_distribution</span><span class="p">(</span><span class="n">path_POP</span><span class="p">,</span> <span class="n">occupancy</span><span class="p">,</span> <span class="n">assessment_type</span><span class="o">=</span><span class="s1">&#39;P58&#39;</span><span class="p">,</span>
+<div class="viewcode-block" id="read_population_distribution"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_file_io.html#pelicun.file_io.read_population_distribution">[docs]</a><span class="k">def</span> <span class="nf">read_population_distribution</span><span class="p">(</span><span class="n">path_POP</span><span class="p">,</span> <span class="n">occupancy</span><span class="p">,</span> <span class="n">assessment_type</span><span class="o">=</span><span class="s1">&#39;P58&#39;</span><span class="p">,</span>
     <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read the population distribution from an external json file.</span>
@@ -1128,7 +1144,7 @@
     <span class="k">return</span> <span class="n">data</span></div>
 
 
-<div class="viewcode-block" id="read_component_DL_data"><a class="viewcode-back" href="../../source/pelicun.file_io.html#pelicun.file_io.read_component_DL_data">[docs]</a><span class="k">def</span> <span class="nf">read_component_DL_data</span><span class="p">(</span><span class="n">path_CMP</span><span class="p">,</span> <span class="n">comp_info</span><span class="p">,</span> <span class="n">assessment_type</span><span class="o">=</span><span class="s1">&#39;P58&#39;</span><span class="p">,</span>
+<div class="viewcode-block" id="read_component_DL_data"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_file_io.html#pelicun.file_io.read_component_DL_data">[docs]</a><span class="k">def</span> <span class="nf">read_component_DL_data</span><span class="p">(</span><span class="n">path_CMP</span><span class="p">,</span> <span class="n">comp_info</span><span class="p">,</span> <span class="n">assessment_type</span><span class="o">=</span><span class="s1">&#39;P58&#39;</span><span class="p">,</span>
     <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read the damage and loss data for the components of the asset.</span>
@@ -1417,7 +1433,7 @@
 
     <span class="k">return</span> <span class="n">data</span></div>
 
-<div class="viewcode-block" id="convert_P58_data_to_json"><a class="viewcode-back" href="../../source/pelicun.file_io.html#pelicun.file_io.convert_P58_data_to_json">[docs]</a><span class="k">def</span> <span class="nf">convert_P58_data_to_json</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="convert_P58_data_to_json"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_file_io.html#pelicun.file_io.convert_P58_data_to_json">[docs]</a><span class="k">def</span> <span class="nf">convert_P58_data_to_json</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create JSON data files from publicly available P58 data.</span>
 
@@ -1834,7 +1850,7 @@
         <span class="c1">#    warnings.warn(UserWarning(</span>
         <span class="c1">#        &#39;Error converting data for component {}&#39;.format(comp_ID)))</span>
 
-<div class="viewcode-block" id="create_HAZUS_EQ_json_files"><a class="viewcode-back" href="../../source/pelicun.file_io.html#pelicun.file_io.create_HAZUS_EQ_json_files">[docs]</a><span class="k">def</span> <span class="nf">create_HAZUS_EQ_json_files</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="create_HAZUS_EQ_json_files"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_file_io.html#pelicun.file_io.create_HAZUS_EQ_json_files">[docs]</a><span class="k">def</span> <span class="nf">create_HAZUS_EQ_json_files</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create JSON data files from publicly available HAZUS data.</span>
 
@@ -2119,7 +2135,7 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target_dir</span><span class="p">,</span> <span class="s1">&#39;population.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">pop_output</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="create_HAZUS_HU_json_files"><a class="viewcode-back" href="../../source/pelicun.file_io.html#pelicun.file_io.create_HAZUS_HU_json_files">[docs]</a><span class="k">def</span> <span class="nf">create_HAZUS_HU_json_files</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="create_HAZUS_HU_json_files"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_file_io.html#pelicun.file_io.create_HAZUS_HU_json_files">[docs]</a><span class="k">def</span> <span class="nf">create_HAZUS_HU_json_files</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">target_dir</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create JSON data files from publicly available HAZUS data.</span>
 

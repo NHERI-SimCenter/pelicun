@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pelicun.uq &mdash; pelicun 1.0.0 documentation</title>
+  <title>pelicun.uq &mdash; pelicun  documentation</title>
   
 
   
@@ -45,22 +45,21 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
 
           
-            <a href="../../index.html" class="icon icon-home"> pelicun
+            <a href="../../index.html">
           
 
+          
+            
+            <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
           
           </a>
 
           
             
-            
-              <div class="version">
-                1.0.0
-              </div>
             
           
 
@@ -83,12 +82,29 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features.html">Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../license.html">Copyright and license</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../source/pelicun.html">API documentation</a></li>
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/about/pelicun/about.html">2. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
 </ul>
 
             
@@ -217,7 +233,7 @@
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="k">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">differential_evolution</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
 
-<div class="viewcode-block" id="tmvn_rvs"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.tmvn_rvs">[docs]</a><span class="k">def</span> <span class="nf">tmvn_rvs</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">COV</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="tmvn_rvs"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.tmvn_rvs">[docs]</a><span class="k">def</span> <span class="nf">tmvn_rvs</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">COV</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sample a truncated MVN distribution.</span>
 
@@ -342,7 +358,7 @@
 
     <span class="k">return</span> <span class="n">samples</span></div>
 
-<div class="viewcode-block" id="mvn_orthotope_density"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.mvn_orthotope_density">[docs]</a><span class="k">def</span> <span class="nf">mvn_orthotope_density</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">COV</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="mvn_orthotope_density"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.mvn_orthotope_density">[docs]</a><span class="k">def</span> <span class="nf">mvn_orthotope_density</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">COV</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Estimate the probability density within a hyperrectangle for an MVN distr.</span>
 
@@ -425,7 +441,7 @@
 
     <span class="k">return</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">eps_alpha</span></div>
 
-<div class="viewcode-block" id="tmvn_MLE"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.tmvn_MLE">[docs]</a><span class="k">def</span> <span class="nf">tmvn_MLE</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span>
+<div class="viewcode-block" id="tmvn_MLE"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.tmvn_MLE">[docs]</a><span class="k">def</span> <span class="nf">tmvn_MLE</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span>
              <span class="n">tr_lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tr_upper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">censored_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">det_lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">det_upper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">alpha_lim</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -920,7 +936,7 @@
     <span class="k">return</span> <span class="n">mu</span><span class="p">,</span> <span class="n">COV</span></div>
 
 
-<div class="viewcode-block" id="RandomVariable"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.RandomVariable">[docs]</a><span class="k">class</span> <span class="nc">RandomVariable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomVariable"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.RandomVariable">[docs]</a><span class="k">class</span> <span class="nc">RandomVariable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Characterizes a Random Variable (RV) that represents a source of</span>
 <span class="sd">    uncertainty in the calculation.</span>
@@ -1502,7 +1518,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="RandomVariable.fit_distribution"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.RandomVariable.fit_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">fit_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distribution_kind</span><span class="p">,</span> <span class="n">truncation_limits</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomVariable.fit_distribution"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.RandomVariable.fit_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">fit_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distribution_kind</span><span class="p">,</span> <span class="n">truncation_limits</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate the parameters of a probability distribution from raw data.</span>
 
@@ -1589,7 +1605,7 @@
 
         <span class="k">return</span> <span class="n">theta</span><span class="p">,</span> <span class="n">COV</span></div>
 
-<div class="viewcode-block" id="RandomVariable.sample_distribution"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.RandomVariable.sample_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">sample_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">preserve_order</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomVariable.sample_distribution"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.RandomVariable.sample_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">sample_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">preserve_order</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample the probability distribution assigned to the random variable.</span>
 
@@ -1710,7 +1726,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span></div>
 
-<div class="viewcode-block" id="RandomVariable.orthotope_density"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.RandomVariable.orthotope_density">[docs]</a>    <span class="k">def</span> <span class="nf">orthotope_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomVariable.orthotope_density"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.RandomVariable.orthotope_density">[docs]</a>    <span class="k">def</span> <span class="nf">orthotope_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimate the probability density within an orthotope for a TMVN distr.</span>
 
@@ -1790,7 +1806,7 @@
         <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">alpha</span> <span class="o">/</span> <span class="n">alpha_0</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">eps_alpha</span> <span class="o">/</span> <span class="n">alpha_0</span></div></div>
 
 
-<div class="viewcode-block" id="RandomVariableSubset"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.RandomVariableSubset">[docs]</a><span class="k">class</span> <span class="nc">RandomVariableSubset</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomVariableSubset"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.RandomVariableSubset">[docs]</a><span class="k">class</span> <span class="nc">RandomVariableSubset</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Provides convenient access to a subset of components of a RandomVariable.</span>
 
@@ -1836,7 +1852,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="RandomVariableSubset.sample_distribution"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.RandomVariableSubset.sample_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">sample_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">preserve_order</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomVariableSubset.sample_distribution"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.RandomVariableSubset.sample_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">sample_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">,</span> <span class="n">preserve_order</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sample the probability distribution assigned to the connected RV.</span>
 
@@ -1863,7 +1879,7 @@
 
         <span class="k">return</span> <span class="n">samples</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_tags</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="RandomVariableSubset.orthotope_density"><a class="viewcode-back" href="../../source/pelicun.uq.html#pelicun.uq.RandomVariableSubset.orthotope_density">[docs]</a>    <span class="k">def</span> <span class="nf">orthotope_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomVariableSubset.orthotope_density"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.RandomVariableSubset.orthotope_density">[docs]</a>    <span class="k">def</span> <span class="nf">orthotope_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the density within the orthotope in the marginal pdf of the RVS.</span>
 
