@@ -249,7 +249,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     if inhabitants is not None:
         path_POP_data = inhabitants.get("PopulationDataFile", "")
     else:
-        path_POP_data = ""       
+        path_POP_data = ""
 
     if data['decision_variables']['injuries']:
         if path_POP_data == "":
@@ -283,11 +283,11 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             if 'volume' not in data['unit_names']:
                 data['unit_names'].update({
                     'volume': data['unit_names']['length']+'3'})
-            
+
             if 'speed' not in data['unit_names'].keys():
                 data['unit_names'].update({
                     'speed': data['unit_names']['length']+'ps'})
-            
+
             if 'acceleration' not in data['unit_names'].keys():
                 data['unit_names'].update({
                     #'acceleration': 1.0 })
@@ -409,7 +409,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 to_aggregate = set([x for x in PG_loc_dir_list if PG_loc_dir_list.count(x) > 1])
                 for combo in to_aggregate:
                     PG_loc_dir_list = list(zip(comp_data['locations'], comp_data['directions']))
-                    combo_ids = [i for i,e in enumerate(PG_loc_dir_list) if e==combo]                    
+                    combo_ids = [i for i,e in enumerate(PG_loc_dir_list) if e==combo]
 
                     c_base = combo_ids[0]
                     comp_data['csg_weights'][c_base] = list(np.array(comp_data['csg_weights'][c_base]) * comp_data['quantities'][c_base])
@@ -419,9 +419,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     comp_data['csg_weights'][c_base] = list(np.array(comp_data['csg_weights'][c_base]) / comp_data['quantities'][c_base])
 
                     for ci in combo_ids[1:][::-1]:
-                        for key in ['locations', 'directions', 'quantities', 
+                        for key in ['locations', 'directions', 'quantities',
                         'csg_weights', 'distribution', 'cov']:
-                            del comp_data[key][ci]               
+                            del comp_data[key][ci]
 
             elif AT.startswith('HAZUS'):
                 comp_data = {
@@ -450,7 +450,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     else:
                         dirs = [1, ]
 
-                    if 'median_quantity' in comp:    
+                    if 'median_quantity' in comp:
                         qnts = [float(qnt)
                                 for qnt in comp['median_quantity'].split(',')]
                         csg_weights = (qnts / np.sum(qnts)).tolist()
@@ -576,7 +576,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 DGDL[EDP_kind] = DGDL[EDP_kind] * f_EDP
     else:
         data['general'].update({'detection_limits':{}})
-    
+
     # make sure that detection limits are initialized
     for key in EDP_keys:
         if key not in data['general']['detection_limits'].keys():
@@ -669,17 +669,15 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             data['general'].update({'response': {}})
         if ((damage is not None) and (coll_prob is not None)):
             data['general']['response'].update({
-                'coll_prob'   : coll_prob.get('Value',
-                                                    'estimated'),
-                'CP_est_basis': coll_prob.get('BasisOfEstimate',
-                                                    'raw EDP')})
+                'coll_prob'   : coll_prob.get('Value', 'estimated'),
+                'CP_est_basis': coll_prob.get('BasisOfEstimate', 'raw EDP')})
             if data['general']['response']['coll_prob'] != 'estimated':
                 data['general']['response']['coll_prob'] = \
                     float_or_None(data['general']['response']['coll_prob'])
         else:
             data['general']['response'].update({
                 'coll_prob'       : 'estimated',
-                'CP_est_basis'    : 'raw EDP'}) 
+                'CP_est_basis'    : 'raw EDP'})
 
     # loss model info ----------------------------------------------------------
     if loss is None:
