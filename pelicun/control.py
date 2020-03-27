@@ -308,7 +308,7 @@ class Assessment(object):
         log_msg('Calculating losses...')
         self._DV_dict = {}
 
-    def save_outputs(self, output_path, DM_file, DV_file, suffix=""):
+    def save_outputs(self, output_path, DM_file, DV_file, suffix="", detailed_results=True):
         """
         Export the results.
 
@@ -364,64 +364,67 @@ class Assessment(object):
         #try:
         if True:
             log_msg('\tSaving files:')
-            log_msg('\t\tSummary')
-            write_SimCenter_DL_output(
-                output_path, '{}DL_summary.csv'.format(suffix), 
-                self._SUMMARY, index_name='#Num', collapse_columns=True)
-
-            log_msg('\t\tSummary statistics')
-            write_SimCenter_DL_output(
-                output_path, '{}DL_summary_stats.csv'.format(suffix), 
-                self._SUMMARY, index_name='attribute', collapse_columns=True,  
-                stats_only=True)
-
-            log_msg('\t\tEDP values')
-            write_SimCenter_DL_output(
-                output_path, '{}EDP.csv'.format(suffix), 
-                EDP_samples, index_name='#Num', 
-                collapse_columns=False)
-
-            log_msg('\t\tEDP statistics')
-            write_SimCenter_DL_output(
-                output_path, '{}EDP_stats.csv'.format(suffix), 
-                EDP_samples, index_name='#Num', 
-                collapse_columns=False, stats_only=True)
-
-            log_msg('\t\tDamaged quantities')
-            write_SimCenter_DL_output(
-                output_path, '{}DMG.csv'.format(suffix), 
-                DMG_mod, index_name='#Num', collapse_columns=False)
-
-            log_msg('\t\tDamage statistics')
-            write_SimCenter_DL_output(
-                output_path, '{}DMG_stats.csv'.format(suffix), 
-                DMG_mod, index_name='#Num', 
-                collapse_columns=False, stats_only=True)
-
-            log_msg('\t\tDamaged quantities - aggregated')
-            write_SimCenter_DL_output(
-                output_path, '{}DMG_agg.csv'.format(suffix),
-                DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
-                index_name='#Num', collapse_columns=False)
-
-            for DV_mod, DV_name in zip(DV_mods, DV_names):
-                log_msg('\t\tDecision variable {}'.format(DV_name))
+            if not detailed_results:
+                log_msg('\t\tOnly saving the main results.')
+            else:
+                log_msg('\t\tSummary')
                 write_SimCenter_DL_output(
-                    output_path, '{}{}.csv'.format(suffix, DV_name), 
-                    DV_mod, index_name='#Num', collapse_columns=False)
+                    output_path, '{}DL_summary.csv'.format(suffix),
+                    self._SUMMARY, index_name='#Num', collapse_columns=True)
 
-                DV_mod_agg = DV_mod.T.groupby(level=0).aggregate(np.sum).T
-
-                log_msg('\t\tDecision variable {} - aggregated'.format(DV_name))
+                log_msg('\t\tSummary statistics')
                 write_SimCenter_DL_output(
-                    output_path, '{}{}_agg.csv'.format(suffix, DV_name),
-                    DV_mod_agg, index_name='#Num', collapse_columns=False)
-
-                log_msg('\t\tAggregated statistics for {}'.format(DV_name))
-                write_SimCenter_DL_output(
-                    output_path, '{}{}_agg_stats.csv'.format(suffix, DV_name), 
-                    DV_mod_agg, index_name='#Num', collapse_columns=False, 
+                    output_path, '{}DL_summary_stats.csv'.format(suffix),
+                    self._SUMMARY, index_name='attribute', collapse_columns=True,
                     stats_only=True)
+
+                log_msg('\t\tEDP values')
+                write_SimCenter_DL_output(
+                    output_path, '{}EDP.csv'.format(suffix),
+                    EDP_samples, index_name='#Num',
+                    collapse_columns=False)
+
+                log_msg('\t\tEDP statistics')
+                write_SimCenter_DL_output(
+                    output_path, '{}EDP_stats.csv'.format(suffix),
+                    EDP_samples, index_name='#Num',
+                    collapse_columns=False, stats_only=True)
+
+                log_msg('\t\tDamaged quantities')
+                write_SimCenter_DL_output(
+                    output_path, '{}DMG.csv'.format(suffix),
+                    DMG_mod, index_name='#Num', collapse_columns=False)
+
+                log_msg('\t\tDamage statistics')
+                write_SimCenter_DL_output(
+                    output_path, '{}DMG_stats.csv'.format(suffix),
+                    DMG_mod, index_name='#Num',
+                    collapse_columns=False, stats_only=True)
+
+                log_msg('\t\tDamaged quantities - aggregated')
+                write_SimCenter_DL_output(
+                    output_path, '{}DMG_agg.csv'.format(suffix),
+                    DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
+                    index_name='#Num', collapse_columns=False)
+
+                for DV_mod, DV_name in zip(DV_mods, DV_names):
+                    log_msg('\t\tDecision variable {}'.format(DV_name))
+                    write_SimCenter_DL_output(
+                        output_path, '{}{}.csv'.format(suffix, DV_name),
+                        DV_mod, index_name='#Num', collapse_columns=False)
+
+                    DV_mod_agg = DV_mod.T.groupby(level=0).aggregate(np.sum).T
+
+                    log_msg('\t\tDecision variable {} - aggregated'.format(DV_name))
+                    write_SimCenter_DL_output(
+                        output_path, '{}{}_agg.csv'.format(suffix, DV_name),
+                        DV_mod_agg, index_name='#Num', collapse_columns=False)
+
+                    log_msg('\t\tAggregated statistics for {}'.format(DV_name))
+                    write_SimCenter_DL_output(
+                        output_path, '{}{}_agg_stats.csv'.format(suffix, DV_name),
+                        DV_mod_agg, index_name='#Num', collapse_columns=False,
+                        stats_only=True)
 
             #if True:
             # create the DM.json file
