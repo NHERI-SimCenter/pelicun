@@ -345,9 +345,11 @@ def tmvn_MLE(samples,
 
     verbose = False
     if verbose:
-        print('\ndetection limits:')
-        print(det_lower)
-        print(det_upper)
+        log_msg('------------ DETAILS OF MLE FITTING --------------')
+        log_msg('Detection limits: [low; up]')
+        for low, up in zip(det_lower, det_upper):
+            log_msg('[{}; {}]'.format(low, up))
+
     # extract some basic information about the number of dimensions and the
     # number of samples from raw data
     samples = np.asarray(samples)
@@ -358,6 +360,10 @@ def tmvn_MLE(samples,
     else:
         ndims, nsamples = samples.shape
         samplesT = np.transpose(samples)
+    if verbose:
+        log_msg('')
+        log_msg('Number of dimensions: {}'.format(ndims))
+        log_msg('Number of samples: {}'.format(nsamples))
 
     mu_hat = np.mean(samplesT, axis=0)
     # replace zero standard dev with negligible standard dev
@@ -377,9 +383,13 @@ def tmvn_MLE(samples,
         tr_lower_adj = (tr_lower - mu_hat) / sig_hat
 
     if verbose:
-        print('\nmethod of moments estimates:')
-        print(mu_hat)
-        print(sig_hat)
+        log_msg('')
+        log_msg('Method of moments estimates: [mu, sig]')
+        if ndims == 1:
+            log_msg(f"[{mu_hat}, {sig_hat}]")
+        else:
+            for mu_i, sig_i in zip(mu_hat, sig_hat):
+                log_msg(f"[{mu_i}, {sig_i}]")
 
     samplesT = (samplesT - mu_hat) / sig_hat
 
@@ -393,9 +403,10 @@ def tmvn_MLE(samples,
         sig_hatc[sig_zero_id] = 0.999
 
     if verbose:
-        print('\nstandardized estimates:')
-        print(mu_hatc)
-        print(sig_hatc)
+        log_msg('')
+        log_msg('Standardized estimates: [mu, sig]')
+        for mu_i, sig_i in zip(mu_hatc, sig_hatc):
+            log_msg('[{}, {}]'.format(mu_i, sig_i))
 
     # define initial values of distribution parameters using simple estimates
     if ndims == 1:
@@ -461,7 +472,7 @@ def tmvn_MLE(samples,
         if (((tr_lower is not None) or (tr_upper is not None)
             or (det_lower is not None) or (det_upper is not None))
            and (len(inits) >= nsamples)):
-            if verbose: print('samples:',nsamples,'unknowns:',len(inits))
+            if verbose: log_msg('samples:',nsamples,'unknowns:',len(inits))
             show_warning(
                 "The number of samples is less than the number of unknowns. There "
                 "is no unique solution available for such a case. Expect a poor "
@@ -491,13 +502,17 @@ def tmvn_MLE(samples,
     bounds = mu_bounds + sig_bounds + rho_bounds
     bnd_lower, bnd_upper = np.transpose(bounds)
     if verbose:
-        print('\nbounds:')
-        print(bounds)
-        print(sig_bounds)
-        if fit_rho: print(rho_bounds)
+        log_msg('')
+        log_msg('Bounds: [mu, sig]')
+        for mu_i, sig_i in zip(bounds, sig_bounds):
+            log_msg('[{}, {}]'.format(mu_i, sig_i))
 
-        print('\ninitial values:')
-        print(inits)
+        if fit_rho:
+            log_msg(rho_bounds)
+
+        log_msg('')
+        log_msg('Initial values:')
+        [log_msg(i) for i in inits]
 
     # create a convenience function that converts a vector of distribution
     # parameters to the standard mu and COV arrays
@@ -532,8 +547,8 @@ def tmvn_MLE(samples,
     def _neg_log_likelihood(params, rho, enforce_bounds=False):
 
         verbose_NLL = False
-        #if verbose_NLL: print()
-        params_to_show = params[:3]
+        #if verbose_NLL: log_msg()
+        params_to_show = params[:6]
         #params_to_show = np.sum(params) # this is useful when there are many
 
         # first, check if the parameters are within the pre-defined bounds
@@ -541,12 +556,12 @@ def tmvn_MLE(samples,
             if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
                 # if they are not, then return an infinite value to discourage the
                 # optimization algorithm from going in that direction
-                if verbose_NLL: print(params_to_show, 'out of bounds', 1e10)
+                if verbose_NLL: log_msg(params_to_show, 'out of bounds', 1e10)
                 return 1e10
 
         # return inf if there is nan in params:
         if np.isnan(np.sum(params)):
-            if verbose_NLL: print(params_to_show, 'nan in params', 1e10)
+            if verbose_NLL: log_msg(params_to_show, 'nan in params', 1e10)
             return 1e10
 
         # reconstruct the mu and COV arrays from the parameters
@@ -557,7 +572,7 @@ def tmvn_MLE(samples,
             pos_sem_def = np.all(np.linalg.eigvals(COV) >= 0.)
             #TODO: replace this with Cholesky decomposition check
             if not pos_sem_def:
-                if verbose_NLL: print(params_to_show, 'COV not pos sem def', 1e10)
+                if verbose_NLL: log_msg(params_to_show, 'COV not pos sem def', 1e10)
                 return 1e10
 
         # calculate the probability density within the truncation limits
@@ -566,7 +581,7 @@ def tmvn_MLE(samples,
             alpha, eps_alpha = mvn_orthotope_density(mu, COV,
                                                      tr_lower_adj,
                                                      tr_upper_adj)
-            #if verbose: print(tr_lower_adj, tr_upper_adj, mu, COV, alpha)
+            #if verbose: log_msg(tr_lower_adj, tr_upper_adj, mu, COV, alpha)
             # If the error in the alpha estimate is too large, then we are
             # beyond the applicability limits of the function used for
             # estimating alpha. Show a warning message and try to find another
@@ -585,7 +600,7 @@ def tmvn_MLE(samples,
                     ))
                     msg[0] = True
 
-                if verbose_NLL: print(params_to_show, 'alpha estimate not applicable in truncs', 1e10)
+                if verbose_NLL: log_msg(params_to_show, 'alpha estimate not applicable in truncs', 1e10)
                 return 1e10
 
             # If a lower limit was prescribed for alpha, it should also be
@@ -599,7 +614,7 @@ def tmvn_MLE(samples,
                     ))
                     msg[1] = True
 
-                if verbose_NLL: print(params_to_show, 'not enough prob mass within truncs', 1e10)
+                if verbose_NLL: log_msg(params_to_show, 'not enough prob mass within truncs', 1e10)
                 return 1e10
 
         else:
@@ -634,7 +649,7 @@ def tmvn_MLE(samples,
                     )
                     msg[2] = True
 
-                if verbose_NLL: print(params_to_show, 'alpha estimate not applicable in dets', 1e10)
+                if verbose_NLL: log_msg(params_to_show, 'alpha estimate not applicable in dets', 1e10)
                 return 1e10
 
             # calculate the likelihood of censoring a sample
@@ -645,10 +660,10 @@ def tmvn_MLE(samples,
 
             if verbose_NLL :
                 pass
-                #print('dets and cen_liks')
-                #print(det_lower, det_lower_adj)
-                #print(det_upper, det_upper_adj)
-                #print(det_alpha, cen_likelihood)
+                #log_msg('dets and cen_liks')
+                #log_msg(det_lower, det_lower_adj)
+                #log_msg(det_upper, det_upper_adj)
+                #log_msg(det_alpha, cen_likelihood)
 
         else:
             # If the data is not censored, use 1.0 for cen_likelihood to get a
@@ -667,24 +682,26 @@ def tmvn_MLE(samples,
 
         # normalize the likelihoods with the sample count
         NLL = NLL/nsamples
-        #print(mu[-4:], NLL)
-        #print(np.sqrt(np.diagonal(COV))[-4:],NLL)
+        #log_msg(mu[-4:], NLL)
+        #log_msg(np.sqrt(np.diagonal(COV))[-4:],NLL)
 
-        if verbose_NLL:
-          pass
-          #print(params_to_show, 'all good', NLL)
+        if verbose_NLL: log_msg(f"{params_to_show} 'all good' {NLL}")
+
         return NLL
 
     # initialize the message flags
     msg = [False, False, False]
 
-    if verbose: print(_neg_log_likelihood(inits, rho_init))
+    if verbose:
+        log_msg('')
+        log_msg('Initial NLL value: {}'.format(_neg_log_likelihood(inits, rho_init)))
 
     # perturbation
     #inits[:ndims] = inits[:ndims]+np.random.uniform(low=-0.5, high=0.5, size=ndims)
     #inits[ndims:2*ndims] += 0.5
 
-    if verbose: t_0 = time.time()
+    if verbose:
+        t_0 = time.time()
     # minimize the negative log-likelihood function
     #out = minimize(_neg_log_likelihood, inits, args=(rho_init, True),
     #               bounds=bounds, method='TNC')
@@ -705,9 +722,9 @@ def tmvn_MLE(samples,
         mu_sig_vals = out_d.x
 
         if verbose:
-            print(out_d)
-            # print(out.fun, out.nfev, out.nit, out.message, out.x)
-            print('runtime: ', time.time() - t_0)
+            log_msg(out_d)
+            # log_msg(out.fun, out.nfev, out.nit, out.message, out.x)
+            log_msg('runtime: ', time.time() - t_0)
     else:
         mu_sig_vals = np.array(inits[:2*ndims])
 
@@ -723,11 +740,13 @@ def tmvn_MLE(samples,
                                     fatol = 1e-10,
                                     adaptive=True)
                        )
-
+        #print(out_m.nfev, out_m.nit)
         if verbose:
-            print(out_m)
-            #print(out.fun, out.nfev, out.nit, out.message, out.x)
-            print('runtime: ', time.time() - t_0)
+            log_msg('')
+            log_msg('Nelder-Mead minimization results:')
+            log_msg('\t{}'.format(out_m.message))
+            log_msg('\tfun: {}'.format(out_m.fun))
+            log_msg('runtime: {}'.format(time.time() - t_0))
 
         # reconstruct the mu and COV arrays from the solutions and return them
         mu, COV = _get_mu_COV(out_m.x, rho_init, unbiased=True)
@@ -736,22 +755,22 @@ def tmvn_MLE(samples,
 
     if verbose:
         if ndims >= 2:
-            print('mu vs mu_init')
+            log_msg('mu vs mu_init')
             show_matrix(list(zip(mu,mu_init)))
             sig = np.sqrt(np.diagonal(COV))
-            print('sig vs sig_init')
+            log_msg('sig vs sig_init')
             show_matrix(list(zip(sig,sig_init)))
             rho = (COV/np.outer(sig,sig))[-8:,-8:]
-            print('rho')
+            log_msg('rho')
             show_matrix(rho)
-            print('rho_init')
+            log_msg('rho_init')
             show_matrix(rho_init[-8:,-8:])
         else:
-            print('mu vs mu_init')
-            print(mu, mu_init)
+            log_msg('mu vs mu_init')
+            log_msg(mu, mu_init)
             sig = np.sqrt(COV)
-            print('sig vs sig_init')
-            print(sig, sig_init)
+            log_msg('sig vs sig_init')
+            log_msg(sig, sig_init)
 
     if ndims >= 2:
         sig = np.sqrt(np.diagonal(COV))
@@ -765,10 +784,12 @@ def tmvn_MLE(samples,
     mu = mu_hat + mu * sig_hat
 
     if verbose:
-        print('\nfinal values:')
-        print(mu)
-        print(sig)
-        print(COV)
+        log_msg('')
+        log_msg('Final values: [mu, sig]')
+        for mu_i, sig_i in zip(mu, sig):
+            log_msg('[{}, {}]'.format(mu_i, sig_i))
+
+        #log_msg(COV)
 
     return mu, COV
 
