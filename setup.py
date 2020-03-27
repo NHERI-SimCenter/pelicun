@@ -18,7 +18,7 @@ long_description = read('README.md')
 setup(
     name='pelicun',
     version=pelicun.__version__,
-    url='http://github.com/NHERI-SimCenter/pelicun/',
+    url='http://nheri-simcenter.github.io/pelicun/',
     license='BSD License',
     author='Adam Zsarnóczay',
     tests_require=['pytest'],
@@ -33,7 +33,7 @@ setup(
     install_requires=[
         'numpy>=1.17.0',
         'scipy>=1.3.0',
-        'pandas>=0.25.0',
+        'pandas>=1.0.0',
     ],
     classifiers = [
         'Programming Language :: Python',

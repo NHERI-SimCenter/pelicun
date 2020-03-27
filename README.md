@@ -1,6 +1,5 @@
-<img src="https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/master/docs/figures/logo.PNG" alt="pelicun" height="100"/>
+<img src="https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/master/doc_src/common/figures/pelicun-Logo-white.png" alt="pelicun" height="100"/>
 
-[![Documentation Status](https://readthedocs.org/projects/pelicun/badge/?version=latest)](http://pelicun.readthedocs.io/en/latest/?badge=latest)
 [![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
 [![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
 
@@ -12,7 +11,7 @@ Probabilistic Estimation of Losses, Injuries, and Community resilience Under Nat
 
 `pelicun` is a Python package that provides tools for assessment of damage and losses due to natural hazards. It uses a stochastic damage and loss model that is based on the methodology described in FEMA P58 (FEMA, 2012). While FEMA P58 aims to assess the seismic performance of a building, with `pelicun` we provide a more versatile, hazard-agnostic tool that estimates losses for several types of assets in the built environment.
 
-Detailed documentation of the available methods and their use is available at http://pelicun.readthedocs.io
+Detailed documentation of the available methods and their use is available at http://nheri-simcenter.github.io/pelicun
 
 ## What can I use it for?
 
@@ -42,7 +41,7 @@ Detailed documentation of the available methods and their use is available at ht
 
 - `scipy` >= 1.3.0
 
-- `pandas` >= 0.25.0
+- `pandas` >= 1.0.0
 
 We recommend installing these using `pip`.
 
