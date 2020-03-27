@@ -1,11 +1,20 @@
-<img src="https://raw.githubusercontent.com/zsarnoczay/pelicun/master/doc_src/common/figures/pelicun-Logo-white.png" alt="pelicun" height="150"/>
+<p align="center">
+	<img src="https://raw.githubusercontent.com/zsarnoczay/pelicun/master/doc_src/common/figures/pelicun-Logo-white.png" 
+		alt="pelicun" align="middle" height="200"/>
+</p>
 
-[![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
-[![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
+<p align="center">
+	[![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
+	[![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
+</p>
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2558558.svg)](https://doi.org/10.5281/zenodo.2558558)
+<p align="center">
+	[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2558558.svg)](https://doi.org/10.5281/zenodo.2558558)
+</p>
 
-Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters
+<p align="center">
+	<b>Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters</b>
+</p>
 
 ## What is it?
 
