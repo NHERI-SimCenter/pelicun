@@ -361,7 +361,7 @@ elif app_name == 'pelicun':
 	html_logo = 'common/figures/pelicun-Logo-grey.png' 
 
 	html_theme_options = {
-		#'analytics_id': 'UA-158130480-3',
+		'analytics_id': 'UA-158130480-7',
 		'logo_only': True,
 		'prev_next_buttons_location': None,
 		'style_nav_header_background': '#F2F2F2'
