@@ -90,7 +90,7 @@ class Assessment(object):
 
         # initialize the log file
         set_log_file('pelicun_log.txt')
-        
+
         log_msg(log_div)
         log_msg('Assessement Started')
         log_msg(log_div)
@@ -241,7 +241,7 @@ class Assessment(object):
 
         log_msg()
         log_msg('\t\tDependencies:')
-        for att, val in data['dependencies'].items():        
+        for att, val in data['dependencies'].items():
             log_msg('\t\t\t{}: {}'.format(att, val))
 
         # EDP file
@@ -272,7 +272,7 @@ class Assessment(object):
                     log_msg('\t\t\t\t{} {}'.format(EDP_data['location'], EDP_data['direction']))
 
         log_msg()
-        log_msg('\t\tnumber of samples: {}'.format(len(data[list(data.keys())[0]][0]['raw_data'])))        
+        log_msg('\t\tnumber of samples: {}'.format(len(data[list(data.keys())[0]][0]['raw_data'])))
 
     def define_random_variables(self):
         """
@@ -341,7 +341,7 @@ class Assessment(object):
 
         log_msg('\tConverting damaged quantities to input units...')
         DMG_scaled = self._DMG.copy()
-        cols = DMG_scaled.columns.get_level_values(0)        
+        cols = DMG_scaled.columns.get_level_values(0)
         FG_list = sorted(self._FG_dict.keys())
         for col_i, col in enumerate(cols):
             FG_name = FG_list[col-1]
@@ -349,7 +349,7 @@ class Assessment(object):
             if scale_factor != 1.0:
                 DMG_scaled.iloc[:,col_i] = DMG_scaled.iloc[:,col_i].div(scale_factor)
 
-        log_msg('\tReplacing headers with FG names...')        
+        log_msg('\tReplacing headers with FG names...')
         DMG_mod = replace_FG_IDs_with_FG_names(DMG_scaled)
         DV_mods, DV_names = [], []
         for key in self._DV_dict.keys():
@@ -628,7 +628,7 @@ class FEMA_P58_Assessment(Assessment):
 
         log_msg('\t\tAvailable Fragility Groups:')
         for key, val in data.items():
-            log_msg('\t\t\t{} demand:{} PGs: {}'.format(key, val['demand_type'], len(val['locations']))) 
+            log_msg('\t\t\t{} demand:{} PGs: {}'.format(key, val['demand_type'], len(val['locations'])))
 
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
@@ -847,7 +847,7 @@ class FEMA_P58_Assessment(Assessment):
         self._COL, collapsed_IDs = self._calc_collapses()
         self._ID_dict.update({'collapse':collapsed_IDs})
         log_msg('\t\t{} out of {} collapsed.'.format(
-            len(collapsed_IDs), 
+            len(collapsed_IDs),
             self._AIM_in['general']['realizations']))
 
         # select the non-collapse cases for further analyses
@@ -1968,22 +1968,22 @@ class FEMA_P58_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                PG_qnt = PG._quantity.samples.loc[ncID]                
+                PG_qnt = PG._quantity.samples.loc[ncID]
 
-                # get the corresponding demands                 
+                # get the corresponding demands
                 if not FG._directional:
                     demand_ID_list = []
 
                     for demand_ID in self._EDP_dict.keys():
-                        if demand_ID[:3] == FG._demand_type:                            
-                            demand_data = demand_ID.split('-')                            
+                        if demand_ID[:3] == FG._demand_type:
+                            demand_data = demand_ID.split('-')
                             if int(demand_data[2]) == PG._location + FG._demand_location_offset:
-                                demand_ID_list.append(demand_ID)                            
+                                demand_ID_list.append(demand_ID)
 
-                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]                    
+                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
                     if len(demand_ID_list)>1:
                         for demand_ID in demand_ID_list[1:]:
-                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]                            
+                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
                             EDP_samples.update(
                                 pd.Series(np.maximum(new_samples.values,EDP_samples.values),
                                           index=EDP_samples.index))
@@ -2096,7 +2096,7 @@ class FEMA_P58_Assessment(Assessment):
             FG_RED = pd.DataFrame(np.zeros((NC_samples, len(MI))),
                                   columns=MI,
                                   index=ncID)
-            
+
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
@@ -3261,7 +3261,7 @@ class HAZUS_Assessment(Assessment):
                 else:
                     PG_qnt = pd.DataFrame(np.ones(NC_samples),index=ncID)
 
-                # get the corresponding demands                 
+                # get the corresponding demands
                 if not FG._directional:
                     demand_ID_list = []
 
@@ -3269,12 +3269,12 @@ class HAZUS_Assessment(Assessment):
                         if demand_ID[:3] == FG._demand_type:
                             demand_data = demand_ID.split('-')
                             if int(demand_data[2]) == PG._location + FG._demand_location_offset:
-                                demand_ID_list.append(demand_ID)                            
+                                demand_ID_list.append(demand_ID)
 
                     EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
                     if len(demand_ID_list)>1:
                         for demand_ID in demand_ID_list[1:]:
-                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]                            
+                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
                             EDP_samples = np.maximum(new_samples.values,
                                                      EDP_samples.values)
 
