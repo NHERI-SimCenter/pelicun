@@ -48,8 +48,6 @@ from datetime import datetime
 from time import strftime
 
 # import libraries for other modules
-import time
-from time import gmtime, strftime
 import numpy as np
 import pandas as pd
 
@@ -109,7 +107,7 @@ def log_msg(msg='', prepend_timestamp=True):
 
     """
     if prepend_timestamp:
-        formatted_msg = '{} {}'.format(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime()), msg)
+        formatted_msg = '{} {}'.format(datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%fZ')[:-4], msg)
     else:
         formatted_msg = msg
 
