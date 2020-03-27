@@ -414,7 +414,9 @@ def tmvn_MLE(samples,
         inits = np.asarray([mu_init, sig_init])
     else:
         #mu_init = np.mean(samples, axis=1)
-        mu_init = mu_hatc
+        #mu_init = mu_hatc
+        # we perturb the mu to improve optimization
+        mu_init = mu_hatc + sig_hatc*0.1
         # use biased estimate, see comment above
         #sig_init = np.std(samples, axis=1, ddof=0)
         sig_init = sig_hatc
@@ -447,6 +449,7 @@ def tmvn_MLE(samples,
         # prepare a vector of initial values
         # if there is too few samples, we do not fit the correlation matrix
         fit_rho = nsamples > 2.0*ndims**2.0
+        fit_rho = False
         if fit_rho:
             inits = np.concatenate([mu_init, sig_init, rho_init_list])
         else:
@@ -690,7 +693,10 @@ def tmvn_MLE(samples,
     # reasonable if we have a sufficiently large number of samples.
     # Considering the size of the covariance matrix, we are looking for at least
     # ndims^2 samples to use differential evolution.
-    if nsamples > 2.0 * ndims**2.0:
+    # This is turned off for now, will come back later as an optional method
+    # that the user can control directly
+    if False:
+    #if nsamples > 2.0 * ndims**2.0:
 
         out_d = differential_evolution(_neg_log_likelihood, mu_bounds + sig_bounds,
                                        args=(rho_init,),
@@ -711,7 +717,8 @@ def tmvn_MLE(samples,
         out_m = minimize(_neg_log_likelihood,
                          np.concatenate([mu_sig_vals, inits[2*ndims:]]),
                        args=(rho_init,True), method='Nelder-Mead',
-                       options=dict(maxfev=min(1000*ndims, 10000),
+                       options=dict(maxiter=500,
+                                    maxfev=2000,
                                     xatol = 0.01,
                                     fatol = 1e-10,
                                     adaptive=True)
