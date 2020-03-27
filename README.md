@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/zsarnoczay/pelicun/master/doc_src/common/figures/pelicun-Logo-white.png" alt="pelicun" height="100"/>
+<img src="https://raw.githubusercontent.com/zsarnoczay/pelicun/master/doc_src/common/figures/pelicun-Logo-white.png" alt="pelicun" height="150"/>
 
 [![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
 [![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
