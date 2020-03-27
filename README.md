@@ -4,14 +4,15 @@
 </p>
 
 <p align="center">
-	<a href="https://travis-ci.org/NHERI-SimCenter/pelicun", alt="build">
+	<a href="https://travis-ci.org/NHERI-SimCenter/pelicun", alt="TravisCI">
 		<img src="https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master" /></a>
-	[![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
-	[![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
+	<a href="https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master", alt="Coverage Status">
+		<img src="https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master" /></a>
 </p>
 
 <p align="center">
-	[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2558558.svg)](https://doi.org/10.5281/zenodo.2558558)
+	<a href="https://doi.org/10.5281/zenodo.2558558", alt="DOI">
+		<img src="https://zenodo.org/badge/DOI/10.5281/zenodo.2558558.svg" /></a>
 </p>
 
 <p align="center">
