@@ -38,17 +38,17 @@
 # Adam Zsarnóczay
 # Joanna J. Zou
 
-# imports for Python 2.X support
-from __future__ import division, print_function
-import os, sys
-import warnings
-if sys.version.startswith('2'):
-    range=xrange
-    string_types = basestring
-else:
-    string_types = str
+from time import gmtime, strftime
 
-import json, ntpath, posixpath, argparse
+def log_msg(msg):
+
+	formatted_msg = '{} {}'.format(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime()), msg)
+
+	print(formatted_msg)
+
+log_msg('First line of DL_calculation')
+
+import sys, os, json, ntpath, posixpath, argparse
 import numpy as np
 import pandas as pd
 
