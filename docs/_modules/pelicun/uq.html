@@ -515,9 +515,11 @@
 
     <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">detection limits:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">det_lower</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">det_upper</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;------------ DETAILS OF MLE FITTING --------------&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Detection limits: [low; up]&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">low</span><span class="p">,</span> <span class="n">up</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">det_lower</span><span class="p">,</span> <span class="n">det_upper</span><span class="p">):</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">; </span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">up</span><span class="p">))</span>
+
     <span class="c1"># extract some basic information about the number of dimensions and the</span>
     <span class="c1"># number of samples from raw data</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
@@ -528,6 +530,10 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ndims</span><span class="p">,</span> <span class="n">nsamples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">samplesT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Number of dimensions: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ndims</span><span class="p">))</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Number of samples: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nsamples</span><span class="p">))</span>
 
     <span class="n">mu_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samplesT</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="c1"># replace zero standard dev with negligible standard dev</span>
@@ -547,9 +553,13 @@
         <span class="n">tr_lower_adj</span> <span class="o">=</span> <span class="p">(</span><span class="n">tr_lower</span> <span class="o">-</span> <span class="n">mu_hat</span><span class="p">)</span> <span class="o">/</span> <span class="n">sig_hat</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">method of moments estimates:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">mu_hat</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">sig_hat</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Method of moments estimates: [mu, sig]&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;[</span><span class="si">{mu_hat}</span><span class="s2">, </span><span class="si">{sig_hat}</span><span class="s2">]&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">mu_i</span><span class="p">,</span> <span class="n">sig_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mu_hat</span><span class="p">,</span> <span class="n">sig_hat</span><span class="p">):</span>
+                <span class="n">log_msg</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;[</span><span class="si">{mu_i}</span><span class="s2">, </span><span class="si">{sig_i}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
     <span class="n">samplesT</span> <span class="o">=</span> <span class="p">(</span><span class="n">samplesT</span> <span class="o">-</span> <span class="n">mu_hat</span><span class="p">)</span> <span class="o">/</span> <span class="n">sig_hat</span>
 
@@ -563,9 +573,10 @@
         <span class="n">sig_hatc</span><span class="p">[</span><span class="n">sig_zero_id</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.999</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">standardized estimates:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">mu_hatc</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">sig_hatc</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Standardized estimates: [mu, sig]&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mu_i</span><span class="p">,</span> <span class="n">sig_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mu_hatc</span><span class="p">,</span> <span class="n">sig_hatc</span><span class="p">):</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">sig_i</span><span class="p">))</span>
 
     <span class="c1"># define initial values of distribution parameters using simple estimates</span>
     <span class="k">if</span> <span class="n">ndims</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -584,7 +595,9 @@
         <span class="n">inits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">mu_init</span><span class="p">,</span> <span class="n">sig_init</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1">#mu_init = np.mean(samples, axis=1)</span>
-        <span class="n">mu_init</span> <span class="o">=</span> <span class="n">mu_hatc</span>
+        <span class="c1">#mu_init = mu_hatc</span>
+        <span class="c1"># we perturb the mu to improve optimization</span>
+        <span class="n">mu_init</span> <span class="o">=</span> <span class="n">mu_hatc</span> <span class="o">+</span> <span class="n">sig_hatc</span><span class="o">*</span><span class="mf">0.1</span>
         <span class="c1"># use biased estimate, see comment above</span>
         <span class="c1">#sig_init = np.std(samples, axis=1, ddof=0)</span>
         <span class="n">sig_init</span> <span class="o">=</span> <span class="n">sig_hatc</span>
@@ -617,6 +630,7 @@
         <span class="c1"># prepare a vector of initial values</span>
         <span class="c1"># if there is too few samples, we do not fit the correlation matrix</span>
         <span class="n">fit_rho</span> <span class="o">=</span> <span class="n">nsamples</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="o">*</span><span class="n">ndims</span><span class="o">**</span><span class="mf">2.0</span>
+        <span class="n">fit_rho</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">fit_rho</span><span class="p">:</span>
             <span class="n">inits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">mu_init</span><span class="p">,</span> <span class="n">sig_init</span><span class="p">,</span> <span class="n">rho_init_list</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -628,7 +642,7 @@
         <span class="k">if</span> <span class="p">(((</span><span class="n">tr_lower</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">tr_upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
             <span class="ow">or</span> <span class="p">(</span><span class="n">det_lower</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">det_upper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">))</span>
            <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inits</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">nsamples</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;samples:&#39;</span><span class="p">,</span><span class="n">nsamples</span><span class="p">,</span><span class="s1">&#39;unknowns:&#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">inits</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;samples:&#39;</span><span class="p">,</span><span class="n">nsamples</span><span class="p">,</span><span class="s1">&#39;unknowns:&#39;</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">inits</span><span class="p">))</span>
             <span class="n">show_warning</span><span class="p">(</span>
                 <span class="s2">&quot;The number of samples is less than the number of unknowns. There &quot;</span>
                 <span class="s2">&quot;is no unique solution available for such a case. Expect a poor &quot;</span>
@@ -658,13 +672,17 @@
     <span class="n">bounds</span> <span class="o">=</span> <span class="n">mu_bounds</span> <span class="o">+</span> <span class="n">sig_bounds</span> <span class="o">+</span> <span class="n">rho_bounds</span>
     <span class="n">bnd_lower</span><span class="p">,</span> <span class="n">bnd_upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">bounds:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">sig_bounds</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">fit_rho</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">rho_bounds</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Bounds: [mu, sig]&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mu_i</span><span class="p">,</span> <span class="n">sig_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">sig_bounds</span><span class="p">):</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">sig_i</span><span class="p">))</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">initial values:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">inits</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fit_rho</span><span class="p">:</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="n">rho_bounds</span><span class="p">)</span>
+
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Initial values:&#39;</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">log_msg</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inits</span><span class="p">]</span>
 
     <span class="c1"># create a convenience function that converts a vector of distribution</span>
     <span class="c1"># parameters to the standard mu and COV arrays</span>
@@ -699,8 +717,8 @@
     <span class="k">def</span> <span class="nf">_neg_log_likelihood</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">enforce_bounds</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="n">verbose_NLL</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="c1">#if verbose_NLL: print()</span>
-        <span class="n">params_to_show</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="c1">#if verbose_NLL: log_msg()</span>
+        <span class="n">params_to_show</span> <span class="o">=</span> <span class="n">params</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span>
         <span class="c1">#params_to_show = np.sum(params) # this is useful when there are many</span>
 
         <span class="c1"># first, check if the parameters are within the pre-defined bounds</span>
@@ -708,12 +726,12 @@
             <span class="k">if</span> <span class="p">((</span><span class="n">params</span> <span class="o">&gt;</span> <span class="n">bnd_lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">params</span> <span class="o">&lt;</span> <span class="n">bnd_upper</span><span class="p">))</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
                 <span class="c1"># if they are not, then return an infinite value to discourage the</span>
                 <span class="c1"># optimization algorithm from going in that direction</span>
-                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;out of bounds&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;out of bounds&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
                 <span class="k">return</span> <span class="mf">1e10</span>
 
         <span class="c1"># return inf if there is nan in params:</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">params</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;nan in params&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;nan in params&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
             <span class="k">return</span> <span class="mf">1e10</span>
 
         <span class="c1"># reconstruct the mu and COV arrays from the parameters</span>
@@ -724,7 +742,7 @@
             <span class="n">pos_sem_def</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">COV</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">0.</span><span class="p">)</span>
             <span class="c1">#TODO: replace this with Cholesky decomposition check</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">pos_sem_def</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;COV not pos sem def&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;COV not pos sem def&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
                 <span class="k">return</span> <span class="mf">1e10</span>
 
         <span class="c1"># calculate the probability density within the truncation limits</span>
@@ -733,7 +751,7 @@
             <span class="n">alpha</span><span class="p">,</span> <span class="n">eps_alpha</span> <span class="o">=</span> <span class="n">mvn_orthotope_density</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">COV</span><span class="p">,</span>
                                                      <span class="n">tr_lower_adj</span><span class="p">,</span>
                                                      <span class="n">tr_upper_adj</span><span class="p">)</span>
-            <span class="c1">#if verbose: print(tr_lower_adj, tr_upper_adj, mu, COV, alpha)</span>
+            <span class="c1">#if verbose: log_msg(tr_lower_adj, tr_upper_adj, mu, COV, alpha)</span>
             <span class="c1"># If the error in the alpha estimate is too large, then we are</span>
             <span class="c1"># beyond the applicability limits of the function used for</span>
             <span class="c1"># estimating alpha. Show a warning message and try to find another</span>
@@ -752,7 +770,7 @@
                     <span class="p">))</span>
                     <span class="n">msg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;alpha estimate not applicable in truncs&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;alpha estimate not applicable in truncs&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
                 <span class="k">return</span> <span class="mf">1e10</span>
 
             <span class="c1"># If a lower limit was prescribed for alpha, it should also be</span>
@@ -766,7 +784,7 @@
                     <span class="p">))</span>
                     <span class="n">msg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;not enough prob mass within truncs&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;not enough prob mass within truncs&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
                 <span class="k">return</span> <span class="mf">1e10</span>
 
         <span class="k">else</span><span class="p">:</span>
@@ -801,7 +819,7 @@
                     <span class="p">)</span>
                     <span class="n">msg</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
-                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;alpha estimate not applicable in dets&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="n">params_to_show</span><span class="p">,</span> <span class="s1">&#39;alpha estimate not applicable in dets&#39;</span><span class="p">,</span> <span class="mf">1e10</span><span class="p">)</span>
                 <span class="k">return</span> <span class="mf">1e10</span>
 
             <span class="c1"># calculate the likelihood of censoring a sample</span>
@@ -812,10 +830,10 @@
 
             <span class="k">if</span> <span class="n">verbose_NLL</span> <span class="p">:</span>
                 <span class="k">pass</span>
-                <span class="c1">#print(&#39;dets and cen_liks&#39;)</span>
-                <span class="c1">#print(det_lower, det_lower_adj)</span>
-                <span class="c1">#print(det_upper, det_upper_adj)</span>
-                <span class="c1">#print(det_alpha, cen_likelihood)</span>
+                <span class="c1">#log_msg(&#39;dets and cen_liks&#39;)</span>
+                <span class="c1">#log_msg(det_lower, det_lower_adj)</span>
+                <span class="c1">#log_msg(det_upper, det_upper_adj)</span>
+                <span class="c1">#log_msg(det_alpha, cen_likelihood)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># If the data is not censored, use 1.0 for cen_likelihood to get a</span>
@@ -834,24 +852,26 @@
 
         <span class="c1"># normalize the likelihoods with the sample count</span>
         <span class="n">NLL</span> <span class="o">=</span> <span class="n">NLL</span><span class="o">/</span><span class="n">nsamples</span>
-        <span class="c1">#print(mu[-4:], NLL)</span>
-        <span class="c1">#print(np.sqrt(np.diagonal(COV))[-4:],NLL)</span>
+        <span class="c1">#log_msg(mu[-4:], NLL)</span>
+        <span class="c1">#log_msg(np.sqrt(np.diagonal(COV))[-4:],NLL)</span>
 
-        <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span>
-          <span class="k">pass</span>
-          <span class="c1">#print(params_to_show, &#39;all good&#39;, NLL)</span>
+        <span class="k">if</span> <span class="n">verbose_NLL</span><span class="p">:</span> <span class="n">log_msg</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{params_to_show}</span><span class="s2"> &#39;all good&#39; </span><span class="si">{NLL}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">NLL</span>
 
     <span class="c1"># initialize the message flags</span>
     <span class="n">msg</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">_neg_log_likelihood</span><span class="p">(</span><span class="n">inits</span><span class="p">,</span> <span class="n">rho_init</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Initial NLL value: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_neg_log_likelihood</span><span class="p">(</span><span class="n">inits</span><span class="p">,</span> <span class="n">rho_init</span><span class="p">)))</span>
 
     <span class="c1"># perturbation</span>
     <span class="c1">#inits[:ndims] = inits[:ndims]+np.random.uniform(low=-0.5, high=0.5, size=ndims)</span>
     <span class="c1">#inits[ndims:2*ndims] += 0.5</span>
 
-    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="n">t_0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">t_0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
     <span class="c1"># minimize the negative log-likelihood function</span>
     <span class="c1">#out = minimize(_neg_log_likelihood, inits, args=(rho_init, True),</span>
     <span class="c1">#               bounds=bounds, method=&#39;TNC&#39;)</span>
@@ -860,7 +880,10 @@
     <span class="c1"># reasonable if we have a sufficiently large number of samples.</span>
     <span class="c1"># Considering the size of the covariance matrix, we are looking for at least</span>
     <span class="c1"># ndims^2 samples to use differential evolution.</span>
-    <span class="k">if</span> <span class="n">nsamples</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">ndims</span><span class="o">**</span><span class="mf">2.0</span><span class="p">:</span>
+    <span class="c1"># This is turned off for now, will come back later as an optional method</span>
+    <span class="c1"># that the user can control directly</span>
+    <span class="k">if</span> <span class="kc">False</span><span class="p">:</span>
+    <span class="c1">#if nsamples &gt; 2.0 * ndims**2.0:</span>
 
         <span class="n">out_d</span> <span class="o">=</span> <span class="n">differential_evolution</span><span class="p">(</span><span class="n">_neg_log_likelihood</span><span class="p">,</span> <span class="n">mu_bounds</span> <span class="o">+</span> <span class="n">sig_bounds</span><span class="p">,</span>
                                        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rho_init</span><span class="p">,),</span>
@@ -869,9 +892,9 @@
         <span class="n">mu_sig_vals</span> <span class="o">=</span> <span class="n">out_d</span><span class="o">.</span><span class="n">x</span>
 
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">out_d</span><span class="p">)</span>
-            <span class="c1"># print(out.fun, out.nfev, out.nit, out.message, out.x)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;runtime: &#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_0</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="n">out_d</span><span class="p">)</span>
+            <span class="c1"># log_msg(out.fun, out.nfev, out.nit, out.message, out.x)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;runtime: &#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mu_sig_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">inits</span><span class="p">[:</span><span class="mi">2</span><span class="o">*</span><span class="n">ndims</span><span class="p">])</span>
 
@@ -881,16 +904,19 @@
         <span class="n">out_m</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">_neg_log_likelihood</span><span class="p">,</span>
                          <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">mu_sig_vals</span><span class="p">,</span> <span class="n">inits</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">ndims</span><span class="p">:]]),</span>
                        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">rho_init</span><span class="p">,</span><span class="kc">True</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;Nelder-Mead&#39;</span><span class="p">,</span>
-                       <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxfev</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="n">ndims</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span>
+                       <span class="n">options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">maxiter</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                                    <span class="n">maxfev</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
                                     <span class="n">xatol</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
                                     <span class="n">fatol</span> <span class="o">=</span> <span class="mf">1e-10</span><span class="p">,</span>
                                     <span class="n">adaptive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                        <span class="p">)</span>
-
+        <span class="c1">#print(out_m.nfev, out_m.nit)</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">out_m</span><span class="p">)</span>
-            <span class="c1">#print(out.fun, out.nfev, out.nit, out.message, out.x)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;runtime: &#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_0</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Nelder-Mead minimization results:&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_m</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">fun: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out_m</span><span class="o">.</span><span class="n">fun</span><span class="p">))</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;runtime: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t_0</span><span class="p">))</span>
 
         <span class="c1"># reconstruct the mu and COV arrays from the solutions and return them</span>
         <span class="n">mu</span><span class="p">,</span> <span class="n">COV</span> <span class="o">=</span> <span class="n">_get_mu_COV</span><span class="p">(</span><span class="n">out_m</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">rho_init</span><span class="p">,</span> <span class="n">unbiased</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -899,22 +925,22 @@
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ndims</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;mu vs mu_init&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;mu vs mu_init&#39;</span><span class="p">)</span>
             <span class="n">show_matrix</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span><span class="n">mu_init</span><span class="p">)))</span>
             <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">COV</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;sig vs sig_init&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;sig vs sig_init&#39;</span><span class="p">)</span>
             <span class="n">show_matrix</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span><span class="n">sig_init</span><span class="p">)))</span>
             <span class="n">rho</span> <span class="o">=</span> <span class="p">(</span><span class="n">COV</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span><span class="n">sig</span><span class="p">))[</span><span class="o">-</span><span class="mi">8</span><span class="p">:,</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;rho&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;rho&#39;</span><span class="p">)</span>
             <span class="n">show_matrix</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;rho_init&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;rho_init&#39;</span><span class="p">)</span>
             <span class="n">show_matrix</span><span class="p">(</span><span class="n">rho_init</span><span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">:,</span><span class="o">-</span><span class="mi">8</span><span class="p">:])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;mu vs mu_init&#39;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu_init</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;mu vs mu_init&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">mu_init</span><span class="p">)</span>
             <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">COV</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;sig vs sig_init&#39;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">sig_init</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;sig vs sig_init&#39;</span><span class="p">)</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">sig_init</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">ndims</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">COV</span><span class="p">))</span>
@@ -928,10 +954,12 @@
     <span class="n">mu</span> <span class="o">=</span> <span class="n">mu_hat</span> <span class="o">+</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">sig_hat</span>
 
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">final values:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">COV</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;Final values: [mu, sig]&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mu_i</span><span class="p">,</span> <span class="n">sig_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sig</span><span class="p">):</span>
+            <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mu_i</span><span class="p">,</span> <span class="n">sig_i</span><span class="p">))</span>
+
+        <span class="c1">#log_msg(COV)</span>
 
     <span class="k">return</span> <span class="n">mu</span><span class="p">,</span> <span class="n">COV</span></div>
 
@@ -1974,6 +2002,18 @@
 
   
   
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    ga('send', 'pageview');
+    </script>
+
     
    
 

@@ -419,7 +419,7 @@
     <span class="k">if</span> <span class="n">inhabitants</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">path_POP_data</span> <span class="o">=</span> <span class="n">inhabitants</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PopulationDataFile&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">path_POP_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>       
+        <span class="n">path_POP_data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;decision_variables&#39;</span><span class="p">][</span><span class="s1">&#39;injuries&#39;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">path_POP_data</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
@@ -453,11 +453,11 @@
             <span class="k">if</span> <span class="s1">&#39;volume&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">]:</span>
                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="s1">&#39;volume&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">][</span><span class="s1">&#39;length&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;3&#39;</span><span class="p">})</span>
-            
+
             <span class="k">if</span> <span class="s1">&#39;speed&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="s1">&#39;speed&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">][</span><span class="s1">&#39;length&#39;</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;ps&#39;</span><span class="p">})</span>
-            
+
             <span class="k">if</span> <span class="s1">&#39;acceleration&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;unit_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="c1">#&#39;acceleration&#39;: 1.0 })</span>
@@ -579,7 +579,7 @@
                 <span class="n">to_aggregate</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">PG_loc_dir_list</span> <span class="k">if</span> <span class="n">PG_loc_dir_list</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">])</span>
                 <span class="k">for</span> <span class="n">combo</span> <span class="ow">in</span> <span class="n">to_aggregate</span><span class="p">:</span>
                     <span class="n">PG_loc_dir_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">],</span> <span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;directions&#39;</span><span class="p">]))</span>
-                    <span class="n">combo_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">PG_loc_dir_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span><span class="o">==</span><span class="n">combo</span><span class="p">]</span>                    
+                    <span class="n">combo_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">PG_loc_dir_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span><span class="o">==</span><span class="n">combo</span><span class="p">]</span>
 
                     <span class="n">c_base</span> <span class="o">=</span> <span class="n">combo_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;csg_weights&#39;</span><span class="p">][</span><span class="n">c_base</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;csg_weights&#39;</span><span class="p">][</span><span class="n">c_base</span><span class="p">])</span> <span class="o">*</span> <span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;quantities&#39;</span><span class="p">][</span><span class="n">c_base</span><span class="p">])</span>
@@ -589,9 +589,9 @@
                     <span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;csg_weights&#39;</span><span class="p">][</span><span class="n">c_base</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;csg_weights&#39;</span><span class="p">][</span><span class="n">c_base</span><span class="p">])</span> <span class="o">/</span> <span class="n">comp_data</span><span class="p">[</span><span class="s1">&#39;quantities&#39;</span><span class="p">][</span><span class="n">c_base</span><span class="p">])</span>
 
                     <span class="k">for</span> <span class="n">ci</span> <span class="ow">in</span> <span class="n">combo_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">,</span> <span class="s1">&#39;directions&#39;</span><span class="p">,</span> <span class="s1">&#39;quantities&#39;</span><span class="p">,</span> 
+                        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">,</span> <span class="s1">&#39;directions&#39;</span><span class="p">,</span> <span class="s1">&#39;quantities&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;csg_weights&#39;</span><span class="p">,</span> <span class="s1">&#39;distribution&#39;</span><span class="p">,</span> <span class="s1">&#39;cov&#39;</span><span class="p">]:</span>
-                            <span class="k">del</span> <span class="n">comp_data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">ci</span><span class="p">]</span>               
+                            <span class="k">del</span> <span class="n">comp_data</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">ci</span><span class="p">]</span>
 
             <span class="k">elif</span> <span class="n">AT</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;HAZUS&#39;</span><span class="p">):</span>
                 <span class="n">comp_data</span> <span class="o">=</span> <span class="p">{</span>
@@ -620,7 +620,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">]</span>
 
-                    <span class="k">if</span> <span class="s1">&#39;median_quantity&#39;</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>    
+                    <span class="k">if</span> <span class="s1">&#39;median_quantity&#39;</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
                         <span class="n">qnts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">qnt</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">qnt</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;median_quantity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
                         <span class="n">csg_weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">qnts</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">qnts</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
@@ -746,7 +746,7 @@
                 <span class="n">DGDL</span><span class="p">[</span><span class="n">EDP_kind</span><span class="p">]</span> <span class="o">=</span> <span class="n">DGDL</span><span class="p">[</span><span class="n">EDP_kind</span><span class="p">]</span> <span class="o">*</span> <span class="n">f_EDP</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;detection_limits&#39;</span><span class="p">:{}})</span>
-    
+
     <span class="c1"># make sure that detection limits are initialized</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">EDP_keys</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;detection_limits&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -839,17 +839,15 @@
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;response&#39;</span><span class="p">:</span> <span class="p">{}})</span>
         <span class="k">if</span> <span class="p">((</span><span class="n">damage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">coll_prob</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s1">&#39;coll_prob&#39;</span>   <span class="p">:</span> <span class="n">coll_prob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">,</span>
-                                                    <span class="s1">&#39;estimated&#39;</span><span class="p">),</span>
-                <span class="s1">&#39;CP_est_basis&#39;</span><span class="p">:</span> <span class="n">coll_prob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;BasisOfEstimate&#39;</span><span class="p">,</span>
-                                                    <span class="s1">&#39;raw EDP&#39;</span><span class="p">)})</span>
+                <span class="s1">&#39;coll_prob&#39;</span>   <span class="p">:</span> <span class="n">coll_prob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">,</span> <span class="s1">&#39;estimated&#39;</span><span class="p">),</span>
+                <span class="s1">&#39;CP_est_basis&#39;</span><span class="p">:</span> <span class="n">coll_prob</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;BasisOfEstimate&#39;</span><span class="p">,</span> <span class="s1">&#39;raw EDP&#39;</span><span class="p">)})</span>
             <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">][</span><span class="s1">&#39;coll_prob&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;estimated&#39;</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">][</span><span class="s1">&#39;coll_prob&#39;</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="n">float_or_None</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">][</span><span class="s1">&#39;coll_prob&#39;</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                 <span class="s1">&#39;coll_prob&#39;</span>       <span class="p">:</span> <span class="s1">&#39;estimated&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;CP_est_basis&#39;</span>    <span class="p">:</span> <span class="s1">&#39;raw EDP&#39;</span><span class="p">})</span> 
+                <span class="s1">&#39;CP_est_basis&#39;</span>    <span class="p">:</span> <span class="s1">&#39;raw EDP&#39;</span><span class="p">})</span>
 
     <span class="c1"># loss model info ----------------------------------------------------------</span>
     <span class="k">if</span> <span class="n">loss</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1694,13 +1692,13 @@
                             <span class="n">row</span><span class="p">[</span><span class="s1">&#39;DS </span><span class="si">{}</span><span class="s1">, Description&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">DS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])],</span>
                         <span class="s1">&#39;RepairMeasures&#39;</span><span class="p">:</span> <span class="n">repair_measures</span>
                     <span class="p">})</span>
-                    
+
                     <span class="n">IMG</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;DS</span><span class="si">{}</span><span class="s1">, Illustrations&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">DS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
                     <span class="k">if</span> <span class="n">IMG</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]:</span>
                         <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;DamageStates&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;DamageImageName&#39;</span><span class="p">:</span> <span class="n">IMG</span><span class="p">})</span>
 
                     <span class="n">AA</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;DS </span><span class="si">{}</span><span class="s1"> - Casualty Affected Area&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">DS</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">AA</span><span class="p">,</span> <span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">is_float</span><span class="p">(</span><span class="n">AA</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))):</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">AA</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">is_float</span><span class="p">(</span><span class="n">AA</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))):</span>
                         <span class="n">AA</span> <span class="o">=</span> <span class="n">AA</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
                         <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;DamageStates&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                             <span class="p">{</span><span class="s1">&#39;AffectedArea&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">AA</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">AA</span><span class="p">[</span><span class="mi">1</span><span class="p">]]})</span>
@@ -2268,13 +2266,11 @@
             <span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;sec_water_res&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;sec_water_res&quot;</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">bldg_type</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WMUH&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_cover&quot;</span><span class="p">],</span>
-                              <span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span>
-                <span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_cover&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_cover&quot;</span><span class="p">],</span><span class="nb">str</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_cover&quot;</span><span class="p">])):</span>
                 <span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_cover&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;null&#39;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_quality&quot;</span><span class="p">],</span>
-                              <span class="n">string_types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span>
-                <span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_quality&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_quality&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_quality&quot;</span><span class="p">])):</span>
                 <span class="n">bldg_chars</span><span class="p">[</span><span class="s2">&quot;roof_quality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;null&#39;</span>
 
         <span class="n">dl_id</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bldg_chars</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
@@ -2332,17 +2328,17 @@
 <span class="k">def</span> <span class="nf">write_SimCenter_DL_output</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">output_df</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="s1">&#39;#Num&#39;</span><span class="p">,</span>
                               <span class="n">collapse_columns</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">stats_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
-    <span class="n">output_df</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">output_df</span><span class="p">)</span>
-
     <span class="c1"># if the summary flag is set, then not all realizations are returned, but</span>
     <span class="c1"># only the first two moments and the empirical CDF through 100 percentiles</span>
     <span class="k">if</span> <span class="n">stats_only</span><span class="p">:</span>
         <span class="c1">#output_df = output_df.describe(np.arange(1, 100)/100.)</span>
-        <span class="n">output_df</span> <span class="o">=</span> <span class="n">output_df</span><span class="o">.</span><span class="n">describe</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.9</span><span class="p">])</span>
+        <span class="c1">#output_df = output_df.describe([0.1,0.5,0.9])</span>
+        <span class="n">output_df</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">output_df</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output_df</span> <span class="o">=</span> <span class="n">output_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="c1"># the name of the index column is replaced with the provided value</span>
     <span class="n">output_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">index_name</span>
-
 
     <span class="c1"># multiple levels of indices are collapsed into a single level if needed</span>
     <span class="c1"># TODO: check for the number of levels and prepare a smarter collapse method</span>
@@ -2353,7 +2349,12 @@
 
     <span class="c1"># write the results in a csv file</span>
     <span class="c1"># TODO: provide other file formats</span>
-    <span class="n">output_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">))</span>
+    <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t\t</span><span class="s1">Saving file </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_filename</span><span class="p">))</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
+    <span class="n">output_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="c1"># TODO: this requires pandas 1.0+ &gt; wait until next release</span>
+    <span class="c1">#with open(file_path[:-3]+&#39;zip&#39;, &#39;w&#39;) as f:</span>
+    <span class="c1">#    output_df.to_csv(f, compression=dict(mehtod=&#39;zip&#39;, archive_name=output_filename))</span>
 
 <span class="k">def</span> <span class="nf">write_SimCenter_DM_output</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">DM_filename</span><span class="p">,</span> <span class="n">DMG_df</span><span class="p">):</span>
 
@@ -2376,7 +2377,9 @@
     <span class="c1"># The P(DS=ds) probability is determined by subtracting consecutive DS</span>
     <span class="c1"># exceedance probabilites. This will not work well for a FEMA P58 assessment</span>
     <span class="c1"># with Damage State Groups that include multiple Damage States.</span>
-    <span class="n">DMG_agg_mean</span> <span class="o">=</span> <span class="n">DMG_agg</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,:]</span>
+    <span class="c1">#DMG_agg_mean = DMG_agg.describe().loc[&#39;mean&#39;,:]</span>
+    <span class="n">DMG_agg_mean</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">DMG_agg</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">DMG_agg</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
     <span class="n">DS_0</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">DMG_agg_mean</span><span class="p">[</span><span class="s1">&#39;1_1&#39;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">DMG_agg_mean</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">DMG_agg_mean</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">DMG_agg_mean</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">DMG_agg_mean</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
@@ -2393,7 +2396,8 @@
 
     <span class="c1"># Now determine the probability of being in a damage state for individual</span>
     <span class="c1"># components / component assemblies...</span>
-    <span class="n">DMG_mean</span> <span class="o">=</span> <span class="n">DMG_df</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,:]</span>
+    <span class="c1">#DMG_mean = DMG_df.describe().loc[&#39;mean&#39;,:]</span>
+    <span class="n">DMG_mean</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">DMG_df</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">DMG_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
 
     <span class="c1"># and save the results in the output json file.</span>
     <span class="k">for</span> <span class="n">FG</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">DMG_mean</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;FG&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()):</span>
@@ -2414,6 +2418,8 @@
 
     <span class="n">DV_name</span> <span class="o">=</span> <span class="n">convert_dv_name</span><span class="p">[</span><span class="n">DV_name</span><span class="p">]</span>
 
+    <span class="n">DV_file_path</span> <span class="o">=</span> <span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">DV_filename</span><span class="p">)</span>
+
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DV_file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">DV</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -2425,12 +2431,15 @@
     <span class="n">DV_i</span> <span class="o">=</span> <span class="n">DV</span><span class="p">[</span><span class="n">DV_name</span><span class="p">]</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">DV_tot</span> <span class="o">=</span> <span class="n">DV_df</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">describe</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.9</span><span class="p">])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+    <span class="c1">#if True:</span>
+        <span class="c1">#DV_tot = DV_df.sum(axis=1).describe([0.1,0.5,0.9]).drop(&#39;count&#39;)</span>
+        <span class="n">DV_tot</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">DV_df</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
         <span class="n">DV_i</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;total&#39;</span><span class="p">:{}})</span>
         <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">DV_tot</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
             <span class="n">DV_i</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">stat</span><span class="p">:</span> <span class="n">DV_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stat</span><span class="p">]})</span>
 
-        <span class="n">DV_stats</span> <span class="o">=</span> <span class="n">DV_df</span><span class="o">.</span><span class="n">describe</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.9</span><span class="p">])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">)</span>
+        <span class="c1">#DV_stats = DV_df.describe([0.1,0.5,0.9]).drop(&#39;count&#39;)</span>
+        <span class="n">DV_stats</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">DV_df</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">FG</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">DV_stats</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;FG&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()):</span>
             <span class="n">DV_i</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">FG</span><span class="p">):{}})</span>
 
@@ -2448,7 +2457,7 @@
     <span class="k">except</span><span class="p">:</span>
         <span class="k">pass</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">posixpath</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">DV_filename</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DV_file_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">DV</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 
@@ -2487,6 +2496,18 @@
 
   
   
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    ga('send', 'pageview');
+    </script>
+
     
    
 
