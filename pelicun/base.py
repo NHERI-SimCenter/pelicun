@@ -42,15 +42,10 @@ This module defines constants, basic classes and methods for pelicun.
 
 """
 
-# imports for Python 2.X support
-from __future__ import division, print_function
-import os, sys
+import os, sys, time
 import warnings
-if sys.version.startswith('2'):
-    range=xrange
-    string_types = basestring
-else:
-    string_types = str
+from datetime import datetime
+from time import strftime
 
 # import libraries for other modules
 import time

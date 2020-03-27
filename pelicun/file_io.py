@@ -1524,13 +1524,13 @@ def convert_P58_data_to_json(data_dir, target_dir):
                             row['DS {}, Description'.format(DS[-1])],
                         'RepairMeasures': repair_measures
                     })
-                    
+
                     IMG = row['DS{}, Illustrations'.format(DS[-1])]
                     if IMG not in ['none', np.nan]:
                         DSG['DamageStates'][-1].update({'DamageImageName': IMG})
 
                     AA = row['DS {} - Casualty Affected Area'.format(DS[-1])]
-                    if (isinstance(AA, string_types) and (is_float(AA.split(' ')[0]))):
+                    if (isinstance(AA, str) and (is_float(AA.split(' ')[0]))):
                         AA = AA.split(' ')
                         DSG['DamageStates'][-1].update(
                             {'AffectedArea': [int(AA[0]), AA[1]]})
@@ -2098,13 +2098,11 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
             bldg_chars["sec_water_res"] = int(bldg_chars["sec_water_res"])
 
         if bldg_type[:4] == "WMUH":
-            if not isinstance(bldg_chars["roof_cover"],
-                              string_types) and np.isnan(
-                bldg_chars["roof_cover"]):
+            if (not isinstance(bldg_chars["roof_cover"],str)
+                and np.isnan(bldg_chars["roof_cover"])):
                 bldg_chars["roof_cover"] = 'null'
-            if not isinstance(bldg_chars["roof_quality"],
-                              string_types) and np.isnan(
-                bldg_chars["roof_quality"]):
+            if (not isinstance(bldg_chars["roof_quality"], str)
+                and np.isnan(bldg_chars["roof_quality"])):
                 bldg_chars["roof_quality"] = 'null'
 
         dl_id = "_".join(bldg_chars.astype(str))
