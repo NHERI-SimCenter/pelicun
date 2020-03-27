@@ -4,6 +4,8 @@
 </p>
 
 <p align="center">
+	<a href="https://travis-ci.org/NHERI-SimCenter/pelicun", alt="build">
+		<img src="https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master" /></a>
 	[![TravisCI](https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master)](https://travis-ci.org/NHERI-SimCenter/pelicun)
 	[![Coverage Status](https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master)](https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master)
 </p>
