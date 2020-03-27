@@ -122,7 +122,8 @@ def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
 
 def run_pelicun(DL_input_path, EDP_input_path,
 	DL_method, realization_count,
-	output_path=None, DM_file = 'DM.json', DV_file = 'DV.json'):
+	output_path=None, DM_file = 'DM.json', DV_file = 'DV.json',
+	no_details=False):
 
 	DL_input_path = os.path.abspath(DL_input_path) # BIM file
 	EDP_input_path = os.path.abspath(EDP_input_path) # dakotaTab
@@ -259,7 +260,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
 		A.aggregate_results()
 
-		A.save_outputs(output_path, DM_file, DV_file, stripe_str)
+		A.save_outputs(output_path, DM_file, DV_file, stripe_str, detailed_results=not no_details)
 
 	return 0
 
@@ -273,14 +274,20 @@ def main(args):
 	parser.add_argument('--filenameDM', default = 'DM.json')
 	parser.add_argument('--filenameDV', default = 'DV.json')
 	parser.add_argument('--dirnameOutput')
+	parser.add_argument('--no_details', default = False)
 	args = parser.parse_args(args)
+
+	log_msg('Initializing pelicun calculation...')	
 
 	#print(args.dirnameOutput)
 	run_pelicun(
 		args.filenameDL, args.filenameEDP,
 		args.DL_Method, args.Realizations,
 		args.dirnameOutput,
-		args.filenameDM, args.filenameDV)
+		args.filenameDM, args.filenameDV,
+		args.no_details)
+
+	log_msg('pelicun calculation completed.')
 
 if __name__ == '__main__':
 
