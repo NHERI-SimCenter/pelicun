@@ -2389,6 +2389,10 @@ class HAZUS_Assessment(Assessment):
         self._hazard = hazard
         self._assessment_type = 'HAZUS_{}'.format(hazard)
 
+        log_msg('type: HAZUS Assessment')
+        log_msg('hazard: {}'.format(self._hazard))
+        log_msg(log_div)
+
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
         Read and process the input files to describe the loss assessment task.
@@ -2419,12 +2423,19 @@ class HAZUS_Assessment(Assessment):
 
         # read component and population data ----------------------------------
         # components
+        log_msg('\tDamage and Loss data files...')
         self._FG_in = read_component_DL_data(
             self._AIM_in['data_sources']['path_CMP_data'], BIM['components'],
             assessment_type=self._assessment_type, verbose=verbose)
 
+        data = self._FG_in
+        log_msg('\t\tAvailable Fragility Groups:')
+        for key, val in data.items():
+            log_msg('\t\t\t{} demand:{} PGs: {}'.format(key, val['demand_type'], len(val['locations'])))
+
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
+            log_msg('\tPopulation data files...')
             POP = read_population_distribution(
                 self._AIM_in['data_sources']['path_POP_data'],
                 BIM['general']['occupancy_type'],
@@ -2468,10 +2479,14 @@ class HAZUS_Assessment(Assessment):
         self._RV_dict = {}
 
         # quantities 100
+        log_msg('\tQuantities...')
         self._RV_dict.update({
             'QNT': self._create_RV_quantities(DEP['quantities'])})
 
+        log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+
         # fragilities 300
+        log_msg('\tDamage State Limits...')
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id, c_name in enumerate(s_fg_keys):
             comp = self._FG_in[c_name]
@@ -2480,10 +2495,20 @@ class HAZUS_Assessment(Assessment):
                 'FR-' + c_name:
                     self._create_RV_fragilities(c_id, comp,DEP['fragilities'])})
 
+        log_msg('\t\tRV dimensions:')
+        for key, val in self._RV_dict.items():
+            if 'FR-' in key:
+                log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+
         # demands 200
+        log_msg('\tEDPs...')
+
         self._RV_dict.update({'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
+        log_msg()
+        log_msg('Sampling the random variables...')
+
         realization_count = self._AIM_in['general']['realizations']
         is_coupled = self._AIM_in['general']
 
@@ -2491,6 +2516,7 @@ class HAZUS_Assessment(Assessment):
         for r_i in s_rv_keys:
             rv = self._RV_dict[r_i]
             if rv is not None:
+                log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
                     sample_size=realization_count, preserve_order=is_coupled)
 
@@ -2531,11 +2557,13 @@ class HAZUS_Assessment(Assessment):
         super(HAZUS_Assessment, self).calculate_damage()
 
         # event time - month, weekday, and hour realizations
+        log_msg('\tSampling event time...')
         self._TIME = self._sample_event_time()
 
         # if we are interested in injuries...
         if self._AIM_in['decision_variables']['injuries']:
             # get the population conditioned on event time
+            log_msg('\tSampling the population...')
             self._POP = self._get_population()
 
         # collapses are handled as the ultimate DS in HAZUS
@@ -2546,6 +2574,7 @@ class HAZUS_Assessment(Assessment):
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
         # damage in non-collapses
+        log_msg('\tCalculating the damage in the non-collapsed cases...')
         self._DMG = self._calc_damage()
 
     def calculate_losses(self):
@@ -2578,6 +2607,7 @@ class HAZUS_Assessment(Assessment):
             self._ID_dict.update({'irrepairable': []})
 
             # reconstruction cost and time for repairable cases
+            log_msg('\tCalculating Reconstruction cost and time...')
             DV_COST, DV_TIME = self._calc_repair_cost_and_time()
 
             if DVs['rec_cost']:
@@ -2591,6 +2621,7 @@ class HAZUS_Assessment(Assessment):
             # there are no separate collapse cases in HAZUS
 
             # injuries in non-collapsed cases
+            log_msg('\tCalculating Injuries in Non-Collapsed Cases...')
             DV_INJ_dict = self._calc_non_collapse_injuries()
 
             # store result
@@ -2603,6 +2634,9 @@ class HAZUS_Assessment(Assessment):
         -------
 
         """
+
+        log_msg(log_div)
+        log_msg('Aggregating results...')
 
         DVs = self._AIM_in['decision_variables']
 
@@ -2995,6 +3029,7 @@ class HAZUS_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id in s_fg_keys:
+            log_msg('\t{}...'.format(c_id))
             comp = self._FG_in[c_id]
 
             FG_ID = len(FG_dict.keys()) + 1
@@ -3198,6 +3233,7 @@ class HAZUS_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
@@ -3340,6 +3376,7 @@ class HAZUS_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
@@ -3401,6 +3438,7 @@ class HAZUS_Assessment(Assessment):
                             for i in range(self._inj_lvls)])
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
