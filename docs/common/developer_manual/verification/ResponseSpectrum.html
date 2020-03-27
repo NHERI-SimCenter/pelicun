@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Response to Stochastic Ground Motion &mdash; pelicun  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/PBE-Logo-grey2.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/about/about.html">2. About pelicun</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/installation/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/usage/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/troubleshooting/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/examples/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/requirements/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how_to_extend/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coding_style/coding_style.html">4. Coding Style</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Response to Stochastic Ground Motion</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../_sources/common/developer_manual/verification/ResponseSpectrum.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="response-to-stochastic-ground-motion">
+<span id="lblresponsespectrum"></span><h1>Response to Stochastic Ground Motion<a class="headerlink" href="#response-to-stochastic-ground-motion" title="Permalink to this headline">¶</a></h1>
+<p>The purpose of this analysis is to verify that pelicun library is able
+to reproduce the correct pseudo-acceleration response spectrum when
+using synthetic acceleration time histories generated using the
+stochastic ground motion model option as the seismic event. The maximum
+pseudo-acceleration for a single-degree-of-freedom system with varying
+natural frequencies calculated by pelicun library is compared to the
+values predicted by <a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt</a> as well as the geometric mean
+of the four NGA-West2 ground motion prediction equations (GPMEs)
+that account for soil sites. The scenario considered in this verification
+example is an event with a Moment Magnitude (<span class="math notranslate nohighlight">\(M_W\)</span>) of 6.5, closest-to-site
+rupture distance (<span class="math notranslate nohighlight">\(R_{rupt}\)</span>) of 20 km, and average shear-wave velocity in the top
+30 m of soil (<span class="math notranslate nohighlight">\(V_{s30}\)</span>) equal to 400 m/s.</p>
+<p>The single-degree-of-freedom system was input using the MDOF option as
+the Building Model Input in pelicun library. Here, the mass was set to
+unity and the damping ratio to 5%. The story stiffness was modified
+to set the natural frequency of the system in order to calculate the
+response spectrum. The structural response was calculated for 10
+sample synthetic acceleration time histories for each structural
+period and compared to those from <a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt</a> and the GMPEs, as
+shown in <code class="xref std std-numref docutils literal notranslate"><span class="pre">figStochasticValidation</span></code>. As can be seen in this
+figure, the spectral response calculated by pelicun library falls
+within the mean plus/minus one sigma bounds of the GMPEs and
+<a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt</a> while tending toward the mean. This produces the
+expected result as pelicun library is calling <a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt</a> in the
+backend to generate the synthetic motions. The full validation of
+<a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt</a> in implementing the predictive stochastic model
+proposed by Vlachos et al. (2018) cite{vlachos2018predictive} can be
+found in the <a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt library documentation</a>.</p>
+<div class="align-center figure" id="id1">
+<span id="figstochasticvalidation"></span><img alt="../../../_images/M65R20V400.png" src="../../../_images/M65R20V400.png" />
+<p class="caption"><span class="caption-text">Response Spectra generated using NGA-West2 GMPEs, smelt &amp; EE-UQ for <span class="math notranslate nohighlight">\(M_W = 6.5\)</span>, closest-to-site distance <span class="math notranslate nohighlight">\(R_{rupt} = 20km\)</span>, and average shear-wave velocity <span class="math notranslate nohighlight">\(V_{s30} = 400 \frac{m}{s}\)</span>.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt</a> and GMPE spectra show the mean and mean plus/minus one logarithmic standard deviation. The GMPE spectra are based on the geometric mean of the four NGA-West2 models that account for site soil conditions. The <a class="reference external" href="https://github.com/NHERI-SimCenter/smelt">smelt</a> spectra are based on an ensemble of 1000 synthetic ground motions. pelicun library response values are based on the mean pseudo-acceleration for 10 synthetic ground motion samples per period, <span class="math notranslate nohighlight">\(T_n\)</span>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

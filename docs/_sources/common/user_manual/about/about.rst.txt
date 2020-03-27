@@ -1,0 +1,21 @@
+.. _lblAbout:
+
+**************************************************************************
+About |short tool name|
+**************************************************************************
+
+.. only:: pelicun
+
+  .. include:: about_pelicun.rst
+
+.. only:: EEUQ_app
+
+  .. include:: aboutEE.rst
+
+.. only:: PBE_app
+
+  .. include:: aboutPBE.rst
+
+.. only:: WEUQ_app
+
+  .. include:: aboutWE.rst

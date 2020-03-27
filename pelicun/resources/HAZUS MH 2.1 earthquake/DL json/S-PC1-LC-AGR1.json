@@ -1,5 +1,6 @@
 {
   "Name": "S-PC1-LC-AGR1",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "S-PC1-LC-AGR1",
     "Description": "S-PC1-LC-AGR1"

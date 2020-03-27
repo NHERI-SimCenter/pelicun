@@ -46,6 +46,7 @@ This module has classes and methods that control the loss assessment.
 
     Assessment
     FEMA_P58_Assessment
+    HAZUS_Assessment
 
 """
 
@@ -86,6 +87,13 @@ class Assessment(object):
         self._SUMMARY = None
 
         self._assessment_type = 'generic'
+
+        # initialize the log file
+        set_log_file('pelicun_log.txt')
+
+        log_msg(log_div)
+        log_msg('Assessement Started')
+        log_msg(log_div)
 
     @property
     def beta_tot(self):
@@ -140,17 +148,113 @@ class Assessment(object):
         """
 
         # read SimCenter inputs -----------------------------------------------
+        log_msg(log_div)
+        log_msg('Reading inputs...')
+
         # BIM file
+        log_msg('\tBIM file...')
         self._AIM_in = read_SimCenter_DL_input(
             path_DL_input, assessment_type=self._assessment_type,
             verbose=verbose)
 
+        data = self._AIM_in
+
+        log_msg()
+        log_msg('\t\tGlobal attributes / settings:')
+        for att in ['stories', 'coupled_assessment', 'realizations']:
+            log_msg('\t\t\t{}: {}'.format(att, data['general'][att]))
+
+        log_msg()
+        log_msg('\t\tPrescribed Decision Variables:')
+        for dv, val in data['decision_variables'].items():
+            if val:
+                log_msg('\t\t\t{}'.format(dv))
+
+        log_msg()
+        log_msg("\t\tDamage and Loss Data Dir:")
+        log_msg('\t\t\t{}'.format(data['data_sources']['path_CMP_data']))
+
+        if data['decision_variables']['injuries']:
+            log_msg()
+            log_msg("\t\tPopulation Data Dir:")
+            log_msg('\t\t\t{}'.format(data['data_sources']['path_POP_data']))
+
+        log_msg()
+        log_msg('\t\tUnits:')
+        for dv, val in data['unit_names'].items():
+            log_msg('\t\t\t{}: {} ({})'.format(dv, val, data['units'][dv]))
+
+        log_msg()
+        log_msg('\t\tResponse Model:')
+        log_msg('\t\t\tDetection Limits:')
+        for dl_name, dl in data['general']['detection_limits'].items():
+            log_msg('\t\t\t\t{}: {}'.format(dl_name, dl))
+        for att, val in data['general']['response'].items():
+            log_msg()
+            log_msg('\t\t\t{}: {}'.format(att, val))
+        log_msg()
+        log_msg('\t\t\tAdditional Uncertainty:')
+        for att, val in data['general']['added_uncertainty'].items():
+            log_msg('\t\t\t\t{}: {}'.format(att, val))
+
+        log_msg()
+        log_msg('\t\tPerformance Model:')
+        log_msg('\t\t\t\tloc\tdir\tqnt\tdist\tcov\tcgw')
+        for comp_id, comp_data in data['components'].items():
+            log_msg('\t\t{} [{}]:'.format(comp_id, comp_data['unit']))
+            if False: #TODO: control this with a verbose flag
+                for i in range(len(comp_data['locations'])):
+                    log_msg('\t\t\t\t{}\t{}\t{}\t{}\t{}\t{}'.format(*[comp_data[att][i] for att in ['locations', 'directions', 'quantities', 'distribution', 'cov', 'csg_weights']]))
+
+        log_msg()
+        log_msg('\t\tDamage Model:')
+        if self._assessment_type == 'P58':
+            log_msg('\t\t\tCollapse Limits:')
+            for cl_name, cl in data['general']['collapse_limits'].items():
+                log_msg('\t\t\t\t{}: {}'.format(cl_name, cl))
+            log_msg()
+            log_msg('\t\t\tIrrepairable Residual Drift:')
+            if 'irrepairable_res_drift' in data['general']:
+                for att, val in data['general']['irrepairable_res_drift'].items():
+                    log_msg('\t\t\t\t{}: {}'.format(att, val))
+            else:
+                log_msg('\t\t\t\tnot considered')
+            log_msg()
+            log_msg('\t\t\tCollapse Probability:')
+            if data['general']['response']['coll_prob'] == 'estimated':
+                log_msg('\t\t\t\tEstimated based on {}'.format(data['general']['response']['CP_est_basis']))
+            else:
+                log_msg('\t\t\t\tPrescribed: {}'.format(data['general']['response']['coll_prob']))
+
+        log_msg()
+        log_msg('\t\tLoss Model:')
+        for att in ['replacement_cost', 'replacement_time', 'population']:
+            if att in data['general'].keys():
+                log_msg('\t\t\t{}: {}'.format(att, data['general'][att]))
+
+        log_msg()
+        log_msg('\t\tCollapse Modes:')
+        for cmode, cmode_data in data['collapse_modes'].items():
+            log_msg('\t\t\t{}'.format(cmode))
+            for att, val in cmode_data.items():
+                log_msg('\t\t\t  {}: {}'.format(att, val))
+
+        log_msg()
+        log_msg('\t\tDependencies:')
+        for att, val in data['dependencies'].items():
+            log_msg('\t\t\t{}: {}'.format(att, val))
+
         # EDP file
+        log_msg('\tEDP file...')
         if self._hazard == 'EQ':
             self._EDP_in = read_SimCenter_EDP_input(
                 path_EDP_input,
+                EDP_kinds=('PID', 'PFA', 'PGV', 'RID', 'PMD'),
                 units=dict(PID=1.,
-                           PFA=self._AIM_in['units']['acceleration']),
+                           RID=1.,
+                           PMD=1.,
+                           PFA=self._AIM_in['units']['acceleration'],
+                           PGV=self._AIM_in['units']['speed']),
                 verbose=verbose)
         elif self._hazard == 'HU':
             self._EDP_in = read_SimCenter_EDP_input(
@@ -158,25 +262,41 @@ class Assessment(object):
                 units=dict(PWS=self._AIM_in['units']['speed']),
                 verbose=verbose)
 
+        data = self._EDP_in
+
+        log_msg('\t\tEDP types:')
+        for EDP_kind in data.keys():
+            log_msg('\t\t\t{}'.format(EDP_kind))
+            for EDP_data in data[EDP_kind]:
+                if False: #TODO: control this with a verbose flag
+                    log_msg('\t\t\t\t{} {}'.format(EDP_data['location'], EDP_data['direction']))
+
+        log_msg()
+        log_msg('\t\tnumber of samples: {}'.format(len(data[list(data.keys())[0]][0]['raw_data'])))
+
     def define_random_variables(self):
         """
         Define the random variables used for loss assessment.
 
         """
-        pass
+        log_msg(log_div)
+        log_msg('Defining random variables...')
 
     def define_loss_model(self):
         """
         Create the stochastic loss model based on the inputs provided earlier.
 
         """
-        pass
+        log_msg(log_div)
+        log_msg('Creating the damage and loss model...')
 
     def calculate_damage(self):
         """
         Characterize the damage experienced in each random event realization.
 
         """
+        log_msg(log_div)
+        log_msg('Calculating damage...')
         self._ID_dict = {}
 
     def calculate_losses(self):
@@ -184,14 +304,146 @@ class Assessment(object):
         Characterize the consequences of damage in each random event realization.
 
         """
+        log_msg(log_div)
+        log_msg('Calculating losses...')
         self._DV_dict = {}
 
-    def write_outputs(self):
+    def save_outputs(self, output_path, DM_file, DV_file, suffix="", detailed_results=True):
         """
         Export the results.
 
         """
-        pass
+        def replace_FG_IDs_with_FG_names(df):
+            FG_list = sorted(self._FG_dict.keys())
+            new_col_names = dict(
+                (fg_id, fg_name) for (fg_id, fg_name) in
+                zip(np.arange(1, len(FG_list) + 1), FG_list))
+
+            return df.rename(columns=new_col_names)
+
+        log_msg(log_div)
+        log_msg('Saving outputs...')
+
+        log_msg('\tConverting EDP samples to input units...')
+        EDPs = sorted(self._EDP_dict.keys())
+        EDP_samples = self._EDP_dict[EDPs[0]]._RV.samples.copy()
+        cols = EDP_samples.columns
+        for col_i, col in enumerate(cols):
+            if 'PFA' in col:
+                scale_factor = self._AIM_in['units']['acceleration']
+            elif ('PGV' in col) or ('PWS' in col):
+                scale_factor = self._AIM_in['units']['speed']
+            else:
+                scale_factor = 1.0
+
+            if scale_factor != 1.0:
+                EDP_samples.iloc[:, col_i] = EDP_samples.iloc[:, col_i].div(scale_factor)
+
+        log_msg('\tConverting damaged quantities to input units...')
+        DMG_scaled = self._DMG.copy()
+        cols = DMG_scaled.columns.get_level_values(0)
+        FG_list = sorted(self._FG_dict.keys())
+        for col_i, col in enumerate(cols):
+            FG_name = FG_list[col-1]
+            scale_factor = self._FG_dict[FG_name]._unit
+            if scale_factor != 1.0:
+                DMG_scaled.iloc[:,col_i] = DMG_scaled.iloc[:,col_i].div(scale_factor)
+
+        log_msg('\tReplacing headers with FG names...')
+        DMG_mod = replace_FG_IDs_with_FG_names(DMG_scaled)
+        DV_mods, DV_names = [], []
+        for key in self._DV_dict.keys():
+            if key != 'injuries':
+                DV_mods.append(replace_FG_IDs_with_FG_names(self._DV_dict[key]))
+                DV_names.append('{}DV_{}'.format(suffix, key))
+            else:
+                for i in range(2 if self._assessment_type == 'P58' else 4):
+                    DV_mods.append(replace_FG_IDs_with_FG_names(self._DV_dict[key][i]))
+                    DV_names.append('{}DV_{}_{}'.format(suffix, key, i))
+
+        #try:
+        if True:
+            log_msg('\tSaving files:')
+            if not detailed_results:
+                log_msg('\t\tOnly saving the main results.')
+            else:
+                log_msg('\t\tSummary')
+                write_SimCenter_DL_output(
+                    output_path, '{}DL_summary.csv'.format(suffix),
+                    self._SUMMARY, index_name='#Num', collapse_columns=True)
+
+                log_msg('\t\tSummary statistics')
+                write_SimCenter_DL_output(
+                    output_path, '{}DL_summary_stats.csv'.format(suffix),
+                    self._SUMMARY, index_name='attribute', collapse_columns=True,
+                    stats_only=True)
+
+                log_msg('\t\tEDP values')
+                write_SimCenter_DL_output(
+                    output_path, '{}EDP.csv'.format(suffix),
+                    EDP_samples, index_name='#Num',
+                    collapse_columns=False)
+
+                log_msg('\t\tEDP statistics')
+                write_SimCenter_DL_output(
+                    output_path, '{}EDP_stats.csv'.format(suffix),
+                    EDP_samples, index_name='#Num',
+                    collapse_columns=False, stats_only=True)
+
+                log_msg('\t\tDamaged quantities')
+                write_SimCenter_DL_output(
+                    output_path, '{}DMG.csv'.format(suffix),
+                    DMG_mod, index_name='#Num', collapse_columns=False)
+
+                log_msg('\t\tDamage statistics')
+                write_SimCenter_DL_output(
+                    output_path, '{}DMG_stats.csv'.format(suffix),
+                    DMG_mod, index_name='#Num',
+                    collapse_columns=False, stats_only=True)
+
+                log_msg('\t\tDamaged quantities - aggregated')
+                write_SimCenter_DL_output(
+                    output_path, '{}DMG_agg.csv'.format(suffix),
+                    DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
+                    index_name='#Num', collapse_columns=False)
+
+                for DV_mod, DV_name in zip(DV_mods, DV_names):
+                    log_msg('\t\tDecision variable {}'.format(DV_name))
+                    write_SimCenter_DL_output(
+                        output_path, '{}{}.csv'.format(suffix, DV_name),
+                        DV_mod, index_name='#Num', collapse_columns=False)
+
+                    DV_mod_agg = DV_mod.T.groupby(level=0).aggregate(np.sum).T
+
+                    log_msg('\t\tDecision variable {} - aggregated'.format(DV_name))
+                    write_SimCenter_DL_output(
+                        output_path, '{}{}_agg.csv'.format(suffix, DV_name),
+                        DV_mod_agg, index_name='#Num', collapse_columns=False)
+
+                    log_msg('\t\tAggregated statistics for {}'.format(DV_name))
+                    write_SimCenter_DL_output(
+                        output_path, '{}{}_agg_stats.csv'.format(suffix, DV_name),
+                        DV_mod_agg, index_name='#Num', collapse_columns=False,
+                        stats_only=True)
+
+            #if True:
+            # create the DM.json file
+            if self._assessment_type.startswith('HAZUS'):
+                log_msg('\t\tSimCenter DM file')
+                write_SimCenter_DM_output(
+                    output_path, suffix+DM_file,
+                    DMG_mod)
+
+            # create the DV.json file
+            for DV_mod, DV_name in zip(DV_mods, DV_names):
+                if self._assessment_type.startswith('HAZUS'):
+                    log_msg('\t\tSimCenter DV file {}'.format(DV_name))
+                    write_SimCenter_DV_output(
+                        output_path, suffix+DV_file,
+                        DV_mod, DV_name)
+
+        #except:
+        #    print("ERROR when trying to create DL output files.")
 
     def _create_RV_demands(self):
 
@@ -204,6 +456,7 @@ class Assessment(object):
         collapse_limits = []
         GI = self._AIM_in['general']
         s_edp_keys = sorted(self._EDP_in.keys())
+
         for d_id in s_edp_keys:
             d_list = self._EDP_in[d_id]
             for i in range(len(d_list)):
@@ -238,13 +491,22 @@ class Assessment(object):
                                 axis=0)
             demand_data = demand_data[EDP_filter]
 
+            log_msg('\t\t{} considered collapsed out of {} raw samples'.format(
+                list(EDP_filter).count(False), len(EDP_filter)))
+
             # Third, we censor the EDPs that are beyond the detection limit.
             EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
                                  np.all(demand_data < detection_limits[1], axis=1)],
                                 axis=0)
+
+            log_msg('\t\t{} are beyond the detection limits out of {} non-collapse samples'.format(
+                list(EDP_filter).count(False), len(EDP_filter)))
+
             censored_count = len(EDP_filter) - sum(EDP_filter)
             demand_data = demand_data[EDP_filter]
             demand_data = np.transpose(demand_data)
+
+            log_msg('\t\tNumber of EDP dimensions: {}'.format(len(d_tags)))
 
             # Fourth, we create the random variable
             demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
@@ -259,8 +521,10 @@ class Assessment(object):
             target_dist = GI['response']['EDP_distribution']
 
             if target_dist == 'lognormal':
+                log_msg('\t\tFitting a lognormal distribution to samples...')
                 demand_RV.fit_distribution('lognormal')
             elif target_dist == 'truncated lognormal':
+                log_msg('\t\tFitting a truncated lognormal distribution to samples...')
                 demand_RV.fit_distribution('lognormal', collapse_limits)
 
         # This is a special case when only a one sample is provided.
@@ -289,6 +553,7 @@ class Assessment(object):
         # adding uncertainty by increasing its variance is not possible.
         if ((self.beta_tot is not None) and
             (GI['response']['EDP_distribution'] != 'empirical')):
+            log_msg('Considering additional sources of uncertainty...')
             # determine the covariance matrix with added uncertainty
             if demand_RV.COV.shape != ():
                 sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
@@ -318,6 +583,10 @@ class FEMA_P58_Assessment(Assessment):
         self._inj_lvls = inj_lvls
         self._hazard = 'EQ'
         self._assessment_type = 'P58'
+
+        log_msg('type: FEMA P58 Assessment')
+        log_msg('hazard: {}'.format(self._hazard))
+        log_msg(log_div)
 
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
@@ -349,13 +618,21 @@ class FEMA_P58_Assessment(Assessment):
 
         # read component and population data ----------------------------------
         # components
+        log_msg('\tDamage and Loss data files...')
         self._FG_in = read_component_DL_data(
             self._AIM_in['data_sources']['path_CMP_data'],
             BIM['components'],
             assessment_type=self._assessment_type, verbose=verbose)
 
+        data = self._FG_in
+
+        log_msg('\t\tAvailable Fragility Groups:')
+        for key, val in data.items():
+            log_msg('\t\t\t{} demand:{} PGs: {}'.format(key, val['demand_type'], len(val['locations'])))
+
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
+            log_msg('\tPopulation data files...')
             POP = read_population_distribution(
                 self._AIM_in['data_sources']['path_POP_data'],
                 BIM['general']['occupancy_type'],
@@ -435,10 +712,14 @@ class FEMA_P58_Assessment(Assessment):
         self._RV_dict = {}
 
         # quantities 100
+        log_msg('\tQuantities...')
         self._RV_dict.update({'QNT':
                               self._create_RV_quantities(DEP['quantities'])})
 
+        log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+
         # fragilities 300
+        log_msg('\tDamage State Limits...')
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id, c_name in enumerate(s_fg_keys):
             comp = self._FG_in[c_name]
@@ -448,25 +729,46 @@ class FEMA_P58_Assessment(Assessment):
                     self._create_RV_fragilities(c_id, comp,
                                                 DEP['fragilities'])})
 
+        log_msg('\t\tRV dimensions:')
+        for key, val in self._RV_dict.items():
+            if 'FR-' in key:
+                log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+
         # consequences 400
         DVs = self._AIM_in['decision_variables']
 
         if DVs['red_tag']:
+            log_msg('\tRed Tag Thresholds...')
             self._RV_dict.update({'DV_RED':
                                   self._create_RV_red_tags(DEP['red_tags'])})
+
+            if self._RV_dict['DV_RED'] is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_RED'].theta)))
+            else:
+                log_msg('\t\tNone of the component damage states trigger red tags')
+
         if DVs['rec_time'] or DVs['rec_cost']:
+            log_msg('\tReconstruction Costs and Times...')
             self._RV_dict.update({'DV_REP':
                                   self._create_RV_repairs(
                                     DEP['rec_costs'],
                                     DEP['rec_times'],
                                     DEP['cost_and_time'])})
+
+            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
+
         if DVs['injuries']:
+            log_msg('\tInjury Probabilities...')
             self._RV_dict.update({'DV_INJ':
                                   self._create_RV_injuries(
                                     DEP['injuries'],
                                     DEP['injury_lvls'])})
 
+            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_INJ'].theta)))
+
         # demands 200
+        log_msg('\tEDPs...')
+
         GR = self._AIM_in['general']['response']
         if GR['EDP_dist_basis'] == 'non-collapse results':
             discard_limits = self._AIM_in['general']['collapse_limits']
@@ -477,13 +779,17 @@ class FEMA_P58_Assessment(Assessment):
             'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
+        log_msg()
+        log_msg('Sampling the random variables...')
+
         realization_count = self._AIM_in['general']['realizations']
-        is_coupled = self._AIM_in['general']
+        is_coupled = self._AIM_in['general']['coupled_assessment']
 
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:
             rv = self._RV_dict[r_i]
             if rv is not None:
+                log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
                     sample_size=realization_count, preserve_order=is_coupled)
 
@@ -528,15 +834,21 @@ class FEMA_P58_Assessment(Assessment):
         super(FEMA_P58_Assessment, self).calculate_damage()
 
         # event time - month, weekday, and hour realizations
+        log_msg('\tSampling event time...')
         self._TIME = self._sample_event_time()
 
         # get the population conditioned on event time (if needed)
         if self._AIM_in['decision_variables']['injuries']:
+            log_msg('\tSampling the population...')
             self._POP = self._get_population()
 
         # collapses
+        log_msg('\tCalculating the number of collapses...')
         self._COL, collapsed_IDs = self._calc_collapses()
         self._ID_dict.update({'collapse':collapsed_IDs})
+        log_msg('\t\t{} out of {} collapsed.'.format(
+            len(collapsed_IDs),
+            self._AIM_in['general']['realizations']))
 
         # select the non-collapse cases for further analyses
         non_collapsed_IDs = self._TIME[
@@ -544,6 +856,7 @@ class FEMA_P58_Assessment(Assessment):
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
         # damage in non-collapses
+        log_msg('\tCalculating the damage in the non-collapsed cases...')
         self._DMG = self._calc_damage()
 
     def calculate_losses(self):
@@ -586,6 +899,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # red tag probability
         if DVs['red_tag']:
+            log_msg('\tAssigning Red Tags...')
             DV_RED = self._calc_red_tag()
 
             self._DV_dict.update({'red_tag': DV_RED})
@@ -593,7 +907,13 @@ class FEMA_P58_Assessment(Assessment):
         # reconstruction cost and time
         if DVs['rec_cost'] or DVs['rec_time']:
             # irrepairable cases
-            irrepairable_IDs = self._calc_irrepairable()
+            if 'irrepairable_res_drift' in self._AIM_in['general']:
+                log_msg('\tIdentifying Irrepairable Cases...')
+                irrepairable_IDs = self._calc_irrepairable()
+                log_msg('\t\t{} out of {} non-collapsed cases are irrepairable.'.format(
+                    len(irrepairable_IDs), len(self._ID_dict['non-collapse'])))
+            else:
+                irrepairable_IDs = np.array([])
 
             # collect the IDs of repairable realizations
             P_NC = self._TIME.loc[self._ID_dict['non-collapse']]
@@ -604,6 +924,7 @@ class FEMA_P58_Assessment(Assessment):
             self._ID_dict.update({'irrepairable': irrepairable_IDs})
 
             # reconstruction cost and time for repairable cases
+            log_msg('\tCalculating Reconstruction cost and time...')
             DV_COST, DV_TIME = self._calc_repair_cost_and_time()
 
             if DVs['rec_cost']:
@@ -614,9 +935,11 @@ class FEMA_P58_Assessment(Assessment):
 
         # injuries due to collapse
         if DVs['injuries']:
+            log_msg('\tCalculating Injuries in Collapsed Cases...')
             COL_INJ = self._calc_collapse_injuries()
 
             # injuries in non-collapsed cases
+            log_msg('\tCalculating Injuries in Non-Collapsed Cases...')
             DV_INJ_dict = self._calc_non_collapse_injuries()
 
             # store results
@@ -632,6 +955,9 @@ class FEMA_P58_Assessment(Assessment):
         -------
 
         """
+
+        log_msg(log_div)
+        log_msg('Aggregating results...')
 
         DVs = self._AIM_in['decision_variables']
 
@@ -749,14 +1075,14 @@ class FEMA_P58_Assessment(Assessment):
 
         self._SUMMARY = SUMMARY.dropna(axis=1,how='all')
 
-    def write_outputs(self):
+    def save_outputs(self, *args, **kwargs):
         """
 
         Returns
         -------
 
         """
-        super(FEMA_P58_Assessment, self).write_outputs()
+        super(FEMA_P58_Assessment, self).save_outputs(*args, **kwargs)
 
     def _create_correlation_matrix(self, rho_target, c_target=-1,
                                    include_CSG=False,
@@ -1088,23 +1414,25 @@ class FEMA_P58_Assessment(Assessment):
                                   [t + '-LOC-{}-DIR-{}'.format(loc, dir_)
                                    for t in d_tag])
 
+
+
         rho = self._create_correlation_matrix(rho_target, c_target=-1,
                                               include_DSG=True,
                                               include_DS=True)
 
-        # remove the unnecessary fields
-        to_remove = np.where(f_theta == 0)[0]
-        rho = np.delete(rho, to_remove, axis=0)
-        rho = np.delete(rho, to_remove, axis=1)
+        if not np.all(f_theta==0.):
+            # remove the unnecessary fields
+            to_remove = np.where(f_theta == 0)[0]
+            rho = np.delete(rho, to_remove, axis=0)
+            rho = np.delete(rho, to_remove, axis=1)
 
-        f_theta, f_sig, f_tag = [np.delete(f_vals, to_remove)
-                                 for f_vals in [f_theta, f_sig, f_tag]]
+            f_theta, f_sig, f_tag = [np.delete(f_vals, to_remove)
+                                     for f_vals in [f_theta, f_sig, f_tag]]
 
-        f_COV = np.outer(f_sig, f_sig) * rho
+            f_COV = np.outer(f_sig, f_sig) * rho
 
-        tr_upper = 1. + (1. - f_theta) / f_theta
+            tr_upper = 1. + (1. - f_theta) / f_theta
 
-        if f_tag.size > 0:
             red_tag_RV = RandomVariable(ID=400,
                                         dimension_tags=f_tag,
                                         distribution_kind='normal',
@@ -1315,6 +1643,7 @@ class FEMA_P58_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id in s_fg_keys:
+            log_msg('\t{}...'.format(c_id))
             comp = self._FG_in[c_id]
 
             FG_ID = len(FG_dict.keys())+1
@@ -1328,7 +1657,7 @@ class FEMA_P58_Assessment(Assessment):
             PG_csg_lists = comp['csg_weights']
             for loc, dir_, csg_list in zip(PG_locations, PG_directions,
                                            PG_csg_lists):
-                PG_ID = 1000 * FG_ID + 10 * loc + dir_
+                PG_ID = 10000 * FG_ID + 10 * loc + dir_
 
                 # get the quantity
                 QNT = RandomVariableSubset(
@@ -1477,7 +1806,8 @@ class FEMA_P58_Assessment(Assessment):
                                 demand_location_offset=comp['offset'],
                                 incomplete=comp['incomplete'],
                                 name=str(FG_ID) + ' - ' + comp['ID'],
-                                description=comp['description']
+                                description=comp['description'],
+                                unit=comp['unit']
                                 )
 
             FG_dict.update({comp['ID']:FG})
@@ -1615,6 +1945,7 @@ class FEMA_P58_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
@@ -1622,13 +1953,13 @@ class FEMA_P58_Assessment(Assessment):
             DS_list = []
             for DSG in PG_set[0]._DSG_set:
                 for DS in DSG._DS_set:
-                    DS_list.append(str(DSG._ID) + '-' + str(DS._ID))
+                    DS_list.append(str(DSG._ID) + '_' + str(DS._ID))
             d_count = len(DS_list)
 
             MI = pd.MultiIndex.from_product([[FG._ID, ],
                                              [pg._ID for pg in PG_set],
                                              DS_list],
-                                            names=['FG', 'PG', 'DS'])
+                                            names=['FG', 'PG', 'DSG_DS'])
 
             FG_damages = pd.DataFrame(np.zeros((NC_samples, len(MI))),
                                       columns=MI,
@@ -1640,20 +1971,39 @@ class FEMA_P58_Assessment(Assessment):
                 PG_qnt = PG._quantity.samples.loc[ncID]
 
                 # get the corresponding demands
-                demand_ID = (FG._demand_type +
+                if not FG._directional:
+                    demand_ID_list = []
+
+                    for demand_ID in self._EDP_dict.keys():
+                        if demand_ID[:3] == FG._demand_type:
+                            demand_data = demand_ID.split('-')
+                            if int(demand_data[2]) == PG._location + FG._demand_location_offset:
+                                demand_ID_list.append(demand_ID)
+
+                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
+                    if len(demand_ID_list)>1:
+                        for demand_ID in demand_ID_list[1:]:
+                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                            EDP_samples.update(
+                                pd.Series(np.maximum(new_samples.values,EDP_samples.values),
+                                          index=EDP_samples.index))
+
+                else:
+                    demand_ID = (FG._demand_type +
                              '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
-                if demand_ID in self._EDP_dict.keys():
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
-                else:
-                    # If the required demand is not available, then we are most
-                    # likely analyzing a 3D structure using results from a 2D
-                    # simulation. The best thing we can do in that particular
-                    # case is to use the EDP from the 1 direction for all other
-                    # directions.
-                    demand_ID = (FG._demand_type +
-                                 '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+
+                    if demand_ID in self._EDP_dict.keys():
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                    else:
+                        # If the required demand is not available, then we are most
+                        # likely analyzing a 3D structure using results from a 2D
+                        # simulation. The best thing we can do in that particular
+                        # case is to use the EDP from the 1 direction for all other
+                        # directions.
+                        demand_ID = (FG._demand_type +
+                                     '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
 
                 csg_w_list = PG._csg_weights
 
@@ -1664,7 +2014,7 @@ class FEMA_P58_Assessment(Assessment):
                         in_this_DSG = DSG_df[DSG_df.values == DSG._ID].index
                         if DSG._DS_set_kind == 'single':
                             DS = DSG._DS_set[0]
-                            DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                            DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                             FG_damages.loc[in_this_DSG,
                                            (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'mutually exclusive':
@@ -1676,7 +2026,7 @@ class FEMA_P58_Assessment(Assessment):
                             DS_df = DS_RV.sample_distribution(
                                 len(in_this_DSG)) + 1
                             for DS in DSG._DS_set:
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = DS_df[DS_df.values == DS._ID].index
                                 FG_damages.loc[in_this_DSG[in_this_DS],
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
@@ -1699,7 +2049,7 @@ class FEMA_P58_Assessment(Assessment):
                                     np.where(any_DS == False)[0]]
 
                             for ds_i, DS in enumerate(DSG._DS_set):
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = which_DS[:, ds_i]
                                 FG_damages.loc[in_this_DSG[in_this_DS], (
                                 FG._ID, PG_ID, DS_tag)] += csg_w
@@ -1741,7 +2091,7 @@ class FEMA_P58_Assessment(Assessment):
             MI = pd.MultiIndex.from_product([[FG._ID, ],
                                              [pg._ID for pg in PG_set],
                                              DS_list],
-                                            names=['FG', 'PG', 'DS'])
+                                            names=['FG', 'PG', 'DSG_DS'])
 
             FG_RED = pd.DataFrame(np.zeros((NC_samples, len(MI))),
                                   columns=MI,
@@ -1791,18 +2141,18 @@ class FEMA_P58_Assessment(Assessment):
 
         # determine which realizations lead to irrepairable damage
         # get the max residual drifts
-        RED_max = None
+        RID_max = None
         PID_max = None
         s_edp_keys = sorted(self._EDP_dict.keys())
         for demand_ID in s_edp_keys:
             demand = self._EDP_dict[demand_ID]
             kind = demand_ID[:3]
-            if kind == 'RED':
+            if kind == 'RID':
                 r_max = demand.samples.loc[ncID].values
-                if RED_max is None:
-                    RED_max = r_max
+                if RID_max is None:
+                    RID_max = r_max
                 else:
-                    RED_max = np.max((RED_max, r_max), axis=0)
+                    RID_max = np.max((RID_max, r_max), axis=0)
             elif kind == 'PID':
                 d_max = demand.samples.loc[ncID].values
                 if PID_max is None:
@@ -1810,24 +2160,25 @@ class FEMA_P58_Assessment(Assessment):
                 else:
                     PID_max = np.max((PID_max, d_max), axis=0)
 
-        if (RED_max is None) and (PID_max is not None):
-            # we need to estimate residual drifts based on peak drifts
-            RED_max = np.zeros(NC_samples)
+        if RID_max is None:
+            if PID_max is not None:
+                # we need to estimate residual drifts based on peak drifts
+                RID_max = np.zeros(NC_samples)
 
-            # based on Appendix C in FEMA P-58
-            delta_y = self._AIM_in['general']['yield_drift']
-            small = PID_max < delta_y
-            medium = PID_max < 4 * delta_y
-            large = PID_max >= 4 * delta_y
+                # based on Appendix C in FEMA P-58
+                delta_y = self._AIM_in['general']['yield_drift']
+                small = PID_max < delta_y
+                medium = PID_max < 4 * delta_y
+                large = PID_max >= 4 * delta_y
 
-            RED_max[large] = PID_max[large] - 3 * delta_y
-            RED_max[medium] = 0.3 * (PID_max[medium] - delta_y)
-            RED_max[small] = 0.
-        else:
-            # If no drift data is available, then we cannot provide an estimate
-            # of irrepairability. We assume that all non-collapse realizations
-            # are repairable in this case.
-            return np.array([])
+                RID_max[large] = PID_max[large] - 3 * delta_y
+                RID_max[medium] = 0.3 * (PID_max[medium] - delta_y)
+                RID_max[small] = 0.
+            else:
+                # If no drift data is available, then we cannot provide an estimate
+                # of irrepairability. We assume that all non-collapse realizations
+                # are repairable in this case.
+                return np.array([])
 
         # get the probabilities of irrepairability
         irrep_frag = self._AIM_in['general']['irrepairable_res_drift']
@@ -1839,7 +2190,7 @@ class FEMA_P58_Assessment(Assessment):
         RED_irrep = RV_irrep.sample_distribution(NC_samples)['RED_irrep'].values
 
         # determine if the realizations are repairable
-        irrepairable = RED_max > RED_irrep
+        irrepairable = RID_max > RED_irrep
         irrepairable_IDs = ncID[np.where(irrepairable)[0]]
 
         return irrepairable_IDs
@@ -2038,6 +2389,10 @@ class HAZUS_Assessment(Assessment):
         self._hazard = hazard
         self._assessment_type = 'HAZUS_{}'.format(hazard)
 
+        log_msg('type: HAZUS Assessment')
+        log_msg('hazard: {}'.format(self._hazard))
+        log_msg(log_div)
+
     def read_inputs(self, path_DL_input, path_EDP_input, verbose=False):
         """
         Read and process the input files to describe the loss assessment task.
@@ -2068,12 +2423,19 @@ class HAZUS_Assessment(Assessment):
 
         # read component and population data ----------------------------------
         # components
+        log_msg('\tDamage and Loss data files...')
         self._FG_in = read_component_DL_data(
             self._AIM_in['data_sources']['path_CMP_data'], BIM['components'],
             assessment_type=self._assessment_type, verbose=verbose)
 
+        data = self._FG_in
+        log_msg('\t\tAvailable Fragility Groups:')
+        for key, val in data.items():
+            log_msg('\t\t\t{} demand:{} PGs: {}'.format(key, val['demand_type'], len(val['locations'])))
+
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
+            log_msg('\tPopulation data files...')
             POP = read_population_distribution(
                 self._AIM_in['data_sources']['path_POP_data'],
                 BIM['general']['occupancy_type'],
@@ -2111,22 +2473,42 @@ class HAZUS_Assessment(Assessment):
         """
         super(HAZUS_Assessment, self).define_random_variables()
 
+        DEP = self._AIM_in['dependencies']
+
         # create the random variables -----------------------------------------
         self._RV_dict = {}
 
+        # quantities 100
+        log_msg('\tQuantities...')
+        self._RV_dict.update({
+            'QNT': self._create_RV_quantities(DEP['quantities'])})
+
+        log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+
         # fragilities 300
+        log_msg('\tDamage State Limits...')
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id, c_name in enumerate(s_fg_keys):
             comp = self._FG_in[c_name]
 
             self._RV_dict.update({
                 'FR-' + c_name:
-                    self._create_RV_fragilities(c_id, comp,'PG')})
+                    self._create_RV_fragilities(c_id, comp,DEP['fragilities'])})
+
+        log_msg('\t\tRV dimensions:')
+        for key, val in self._RV_dict.items():
+            if 'FR-' in key:
+                log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
 
         # demands 200
+        log_msg('\tEDPs...')
+
         self._RV_dict.update({'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
+        log_msg()
+        log_msg('Sampling the random variables...')
+
         realization_count = self._AIM_in['general']['realizations']
         is_coupled = self._AIM_in['general']
 
@@ -2134,6 +2516,7 @@ class HAZUS_Assessment(Assessment):
         for r_i in s_rv_keys:
             rv = self._RV_dict[r_i]
             if rv is not None:
+                log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
                     sample_size=realization_count, preserve_order=is_coupled)
 
@@ -2174,11 +2557,13 @@ class HAZUS_Assessment(Assessment):
         super(HAZUS_Assessment, self).calculate_damage()
 
         # event time - month, weekday, and hour realizations
+        log_msg('\tSampling event time...')
         self._TIME = self._sample_event_time()
 
         # if we are interested in injuries...
         if self._AIM_in['decision_variables']['injuries']:
             # get the population conditioned on event time
+            log_msg('\tSampling the population...')
             self._POP = self._get_population()
 
         # collapses are handled as the ultimate DS in HAZUS
@@ -2189,6 +2574,7 @@ class HAZUS_Assessment(Assessment):
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
         # damage in non-collapses
+        log_msg('\tCalculating the damage in the non-collapsed cases...')
         self._DMG = self._calc_damage()
 
     def calculate_losses(self):
@@ -2221,6 +2607,7 @@ class HAZUS_Assessment(Assessment):
             self._ID_dict.update({'irrepairable': []})
 
             # reconstruction cost and time for repairable cases
+            log_msg('\tCalculating Reconstruction cost and time...')
             DV_COST, DV_TIME = self._calc_repair_cost_and_time()
 
             if DVs['rec_cost']:
@@ -2234,6 +2621,7 @@ class HAZUS_Assessment(Assessment):
             # there are no separate collapse cases in HAZUS
 
             # injuries in non-collapsed cases
+            log_msg('\tCalculating Injuries in Non-Collapsed Cases...')
             DV_INJ_dict = self._calc_non_collapse_injuries()
 
             # store result
@@ -2246,6 +2634,9 @@ class HAZUS_Assessment(Assessment):
         -------
 
         """
+
+        log_msg(log_div)
+        log_msg('Aggregating results...')
 
         DVs = self._AIM_in['decision_variables']
 
@@ -2316,6 +2707,233 @@ class HAZUS_Assessment(Assessment):
                     self._DV_dict['injuries'][sev_id].sum(axis=1)
 
         self._SUMMARY = SUMMARY.dropna(axis=1, how='all')
+
+    def save_outputs(self, *args, **kwargs):
+        """
+
+        Returns
+        -------
+
+        """
+        super(HAZUS_Assessment, self).save_outputs(*args, **kwargs)
+
+    def _create_correlation_matrix(self, rho_target, c_target=-1,
+                                   include_CSG=False,
+                                   include_DSG=False, include_DS=False):
+        """
+
+        Parameters
+        ----------
+        rho_target
+        c_target
+        include_CSG
+        include_DSG
+        include_DS
+
+        Returns
+        -------
+
+        """
+
+        # set the correlation structure
+        rho_FG, rho_PG, rho_LOC, rho_DIR, rho_CSG, rho_DS = np.zeros(6)
+
+        if rho_target in ['FG', 'PG', 'DIR', 'LOC', 'CSG', 'ATC', 'DS']:
+            rho_DS = 1.0
+        if rho_target in ['FG', 'PG', 'DIR', 'LOC', 'CSG']:
+            rho_CSG = 1.0
+        if rho_target in ['FG', 'PG', 'DIR']:
+            rho_DIR = 1.0
+        if rho_target in ['FG', 'PG', 'LOC']:
+            rho_LOC = 1.0
+        if rho_target in ['FG', 'PG']:
+            rho_PG = 1.0
+        if rho_target == 'FG':
+            rho_FG = 1.0
+
+        L_D_list = []
+        dims = []
+        DS_list = []
+        ATC_rho = []
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id, c_name in enumerate(s_fg_keys):
+            comp = self._FG_in[c_name]
+
+            if ((c_target == -1) or (c_id == c_target)):
+                c_L_D_list = []
+                c_DS_list = []
+                ATC_rho.append(comp['correlation'])
+
+                if include_DSG:
+                    DS_count = 0
+                    s_dsg_keys = sorted(comp['DSG_set'].keys())
+                    for dsg_i in s_dsg_keys:
+                        DSG = comp['DSG_set'][dsg_i]
+                        if include_DS:
+                            DS_count += len(DSG['DS_set'])
+                        else:
+                            DS_count += 1
+                else:
+                    DS_count = 1
+
+                #for loc in comp['locations']:
+                #    if include_CSG:
+                #        u_dirs = comp['directions']
+                #    else:
+                #        u_dirs = np.unique(comp['directions'])
+                #    c_L_D_list.append([])
+                #    for dir_ in u_dirs:
+                #        c_DS_list.append(DS_count)
+                #        for ds_i in range(DS_count):
+                #            c_L_D_list[-1].append(dir_)
+
+                for loc_u in np.unique(comp['locations']):
+                    c_L_D_list.append([])
+                    for loc, dir, csg_weights in zip(comp['locations'],
+                                                     comp['directions'],
+                                                     comp['csg_weights']):
+                        if loc == loc_u:
+                            if include_CSG:
+                                csg_list = csg_weights
+                            else:
+                                csg_list = [1.0,]
+                            for csg_ in csg_list:
+                                c_DS_list.append(DS_count)
+                                for ds_i in range(DS_count):
+                                    c_L_D_list[-1].append(dir)
+
+                c_dims = sum([len(loc) for loc in c_L_D_list])
+                dims.append(c_dims)
+                L_D_list.append(c_L_D_list)
+                DS_list.append(c_DS_list)
+
+        rho = np.ones((sum(dims), sum(dims))) * rho_FG
+
+        f_pos_id = 0
+        for c_id, (c_L_D_list, c_dims, c_DS_list) in enumerate(
+            zip(L_D_list, dims, DS_list)):
+            c_rho = np.ones((c_dims, c_dims)) * rho_PG
+
+            # dependencies btw directions
+            if rho_DIR != 0:
+                c_pos_id = 0
+                for loc_D_list in c_L_D_list:
+                    l_dim = len(loc_D_list)
+                    c_rho[c_pos_id:c_pos_id + l_dim,
+                    c_pos_id:c_pos_id + l_dim] = rho_DIR
+                    c_pos_id = c_pos_id + l_dim
+
+            # dependencies btw locations
+            if rho_LOC != 0:
+                flat_dirs = []
+                [[flat_dirs.append(dir_i) for dir_i in dirs] for dirs in
+                 c_L_D_list]
+                flat_dirs = np.array(flat_dirs)
+                for u_dir in np.unique(flat_dirs):
+                    dir_ids = np.where(flat_dirs == u_dir)[0]
+                    for i in dir_ids:
+                        for j in dir_ids:
+                            c_rho[i, j] = rho_LOC
+
+            if ((rho_CSG != 0) or (rho_target == 'ATC')):
+                c_pos_id = 0
+                if rho_target == 'ATC':
+                    rho_to_use = float(ATC_rho[c_id])
+                else:
+                    rho_to_use = rho_CSG
+                for loc_D_list in c_L_D_list:
+                    flat_dirs = np.array(loc_D_list)
+                    for u_dir in np.unique(flat_dirs):
+                        dir_ids = np.where(flat_dirs == u_dir)[0]
+                        for i in dir_ids:
+                            for j in dir_ids:
+                                c_rho[c_pos_id + i, c_pos_id + j] = rho_to_use
+                    c_pos_id = c_pos_id + len(loc_D_list)
+
+            if rho_DS != 0:
+                c_pos_id = 0
+                for l_dim in c_DS_list:
+                    c_rho[c_pos_id:c_pos_id + l_dim,
+                          c_pos_id:c_pos_id + l_dim] = rho_DS
+                    c_pos_id = c_pos_id + l_dim
+
+            rho[f_pos_id:f_pos_id + c_dims,
+                f_pos_id:f_pos_id + c_dims] = c_rho
+            f_pos_id = f_pos_id + c_dims
+
+        np.fill_diagonal(rho, 1.0)
+
+        return rho
+
+    def _create_RV_quantities(self, rho_qnt):
+        """
+
+        Parameters
+        ----------
+        rho_qnt
+
+        Returns
+        -------
+
+        """
+
+        q_theta, q_sig, q_tag, q_dist = [np.array([]) for i in range(4)]
+
+        # collect the parameters for each quantity dimension
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id in s_fg_keys:
+            comp = self._FG_in[c_id]
+
+            u_dirs = np.unique(comp['directions'])
+
+            #dir_weights = comp['dir_weights']
+            #theta_list = []
+            #[[theta_list.append(qnt * dw)
+            #  for dw in dir_weights] for qnt in comp['quantities']]
+
+            theta_list = comp['quantities']
+            q_theta = np.append(q_theta, theta_list)
+
+            dist_list = comp['distribution_kind']
+            q_dist = np.append(q_dist, dist_list)
+
+            cov_list = comp['cov']
+            for theta, dk, cov in list(zip(theta_list, dist_list, cov_list)):
+                if dk == 'normal':
+                    q_sig = np.append(q_sig, [cov*theta,])
+                else:
+                    q_sig = np.append(q_sig, [cov, ])
+
+            q_tag = np.append(q_tag, [c_id + '-QNT-' + str(s_i) + '-' + str(d_i)
+                                      for s_i, d_i
+                                      in list(zip(comp['locations'],
+                                                  comp['directions']))])
+        dims = len(q_theta)
+        rho = self._create_correlation_matrix(rho_qnt)
+        q_COV = np.outer(q_sig, q_sig) * rho
+
+        # add lower limits to ensure only positive quantities
+        # zero is probably too low, and it might make sense to introduce upper
+        # limits as well
+        tr_lower = [0. for d in range(dims)]
+        tr_upper = [None for d in range(dims)]
+        # to avoid truncations affecting other dimensions when rho_QNT is large,
+        # assign a post-truncation correlation structure
+        corr_ref = 'post'
+
+        # create a random variable for component quantities in performance groups
+        if q_tag.size > 0:
+            quantity_RV = RandomVariable(ID=100,
+                                         dimension_tags=q_tag,
+                                         distribution_kind=q_dist,
+                                         theta=q_theta,
+                                         COV=q_COV,
+                                         truncation_limits=[tr_lower, tr_upper],
+                                         corr_ref=corr_ref)
+        else:
+            quantity_RV = None
+
+        return quantity_RV
 
     def _create_RV_fragilities(self, c_id, comp, rho_fr):
         """
@@ -2411,6 +3029,7 @@ class HAZUS_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id in s_fg_keys:
+            log_msg('\t{}...'.format(c_id))
             comp = self._FG_in[c_id]
 
             FG_ID = len(FG_dict.keys()) + 1
@@ -2424,13 +3043,13 @@ class HAZUS_Assessment(Assessment):
             PG_csg_lists = comp['csg_weights']
             for loc, dir_, csg_list in zip(PG_locations, PG_directions,
                                            PG_csg_lists):
-                PG_ID = 1000 * FG_ID + 10 * loc + dir_
+                PG_ID = 10000 * FG_ID + 10 * loc + dir_
 
                 # get the quantity
-                QNT = None
-                #QNT = RandomVariableSubset(
-                #    RVd['QNT'],
-                #    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
+                #QNT = None
+                QNT = RandomVariableSubset(
+                    RVd['QNT'],
+                    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
 
                 # create the damage objects
                 # consequences are calculated on a performance group level
@@ -2542,7 +3161,8 @@ class HAZUS_Assessment(Assessment):
                                 demand_location_offset=comp['offset'],
                                 incomplete=comp['incomplete'],
                                 name=str(FG_ID) + ' - ' + comp['ID'],
-                                description=comp['description']
+                                description=comp['description'],
+                                unit=comp['unit']
                                 )
 
             FG_dict.update({comp['ID']: FG})
@@ -2613,6 +3233,7 @@ class HAZUS_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
@@ -2620,13 +3241,13 @@ class HAZUS_Assessment(Assessment):
             DS_list = []
             for DSG in PG_set[0]._DSG_set:
                 for DS in DSG._DS_set:
-                    DS_list.append(str(DSG._ID) + '-' + str(DS._ID))
+                    DS_list.append(str(DSG._ID) + '_' + str(DS._ID))
             d_count = len(DS_list)
 
             MI = pd.MultiIndex.from_product([[FG._ID, ],
                                              [pg._ID for pg in PG_set],
                                              DS_list],
-                                            names=['FG', 'PG', 'DS'])
+                                            names=['FG', 'PG', 'DSG_DS'])
 
             FG_damages = pd.DataFrame(np.zeros((NC_samples, len(MI))),
                                       columns=MI,
@@ -2641,23 +3262,40 @@ class HAZUS_Assessment(Assessment):
                     PG_qnt = pd.DataFrame(np.ones(NC_samples),index=ncID)
 
                 # get the corresponding demands
-                demand_ID = (FG._demand_type +
+                if not FG._directional:
+                    demand_ID_list = []
+
+                    for demand_ID in self._EDP_dict.keys():
+                        if demand_ID[:3] == FG._demand_type:
+                            demand_data = demand_ID.split('-')
+                            if int(demand_data[2]) == PG._location + FG._demand_location_offset:
+                                demand_ID_list.append(demand_ID)
+
+                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
+                    if len(demand_ID_list)>1:
+                        for demand_ID in demand_ID_list[1:]:
+                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                            EDP_samples = np.maximum(new_samples.values,
+                                                     EDP_samples.values)
+
+                else:
+                    demand_ID = (FG._demand_type +
                              '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
-                if demand_ID in self._EDP_dict.keys():
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
-                else:
-                    # If the required demand is not available, then we are most
-                    # likely analyzing a 3D structure using results from a 2D
-                    # simulation. The best thing we can do in that particular
-                    # case is to use the EDP from the 1 direction for all other
-                    # directions.
-                    demand_ID = (FG._demand_type +
-                                 '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
-                    EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
 
-                csg_w_list = PG._csg_weights
+                    if demand_ID in self._EDP_dict.keys():
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                    else:
+                        # If the required demand is not available, then we are most
+                        # likely analyzing a 3D structure using results from a 2D
+                        # simulation. The best thing we can do in that particular
+                        # case is to use the EDP from the 1 direction for all other
+                        # directions.
+                        demand_ID = (FG._demand_type +
+                                     '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
+                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
 
+                csg_w_list = np.array(PG._csg_weights)
                 for csg_i, csg_w in enumerate(csg_w_list):
                     DSG_df = PG._FF_set[csg_i].DSG_given_EDP(EDP_samples)
 
@@ -2665,7 +3303,7 @@ class HAZUS_Assessment(Assessment):
                         in_this_DSG = DSG_df[DSG_df.values == DSG._ID].index
                         if DSG._DS_set_kind == 'single':
                             DS = DSG._DS_set[0]
-                            DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                            DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                             FG_damages.loc[in_this_DSG,
                                            (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'mutually exclusive':
@@ -2677,7 +3315,7 @@ class HAZUS_Assessment(Assessment):
                             DS_df = DS_RV.sample_distribution(
                                 len(in_this_DSG)) + 1
                             for DS in DSG._DS_set:
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = DS_df[DS_df.values == DS._ID].index
                                 FG_damages.loc[in_this_DSG[in_this_DS],
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
@@ -2700,7 +3338,7 @@ class HAZUS_Assessment(Assessment):
                                     np.where(any_DS == False)[0]]
 
                             for ds_i, DS in enumerate(DSG._DS_set):
-                                DS_tag = str(DSG._ID) + '-' + str(DS._ID)
+                                DS_tag = str(DSG._ID) + '_' + str(DS._ID)
                                 in_this_DS = which_DS[:, ds_i]
                                 FG_damages.loc[in_this_DSG[in_this_DS], (
                                     FG._ID, PG_ID, DS_tag)] += csg_w
@@ -2738,6 +3376,7 @@ class HAZUS_Assessment(Assessment):
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups
@@ -2799,6 +3438,7 @@ class HAZUS_Assessment(Assessment):
                             for i in range(self._inj_lvls)])
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
+            log_msg('\t\t{}...'.format(fg_id))
             FG = self._FG_dict[fg_id]
 
             PG_set = FG._performance_groups

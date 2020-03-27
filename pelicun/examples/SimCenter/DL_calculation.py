@@ -36,18 +36,19 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# Joanna J. Zou
 
-# imports for Python 2.X support
-from __future__ import division, print_function
-import os, sys
-import warnings
-if sys.version.startswith('2'):
-    range=xrange
-    string_types = basestring
-else:
-    string_types = str
+from time import gmtime, strftime
 
-import json, ntpath, posixpath, argparse
+def log_msg(msg):
+
+	formatted_msg = '{} {}'.format(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime()), msg)
+
+	print(formatted_msg)
+
+log_msg('First line of DL_calculation')
+
+import sys, os, json, ntpath, posixpath, argparse
 import numpy as np
 import pandas as pd
 
@@ -55,10 +56,10 @@ idx = pd.IndexSlice
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
-import pelicunPBE
-from pelicunPBE.control import FEMA_P58_Assessment, HAZUS_Assessment
-from pelicunPBE.file_io import write_SimCenter_DL_output, write_SimCenter_DM_output, write_SimCenter_DV_output
-from pelicunPBE.auto import auto_populate
+import pelicun
+from pelicun.control import FEMA_P58_Assessment, HAZUS_Assessment
+from pelicun.file_io import write_SimCenter_DL_output, write_SimCenter_DM_output, write_SimCenter_DV_output
+from pelicun.auto import auto_populate
 
 # START temporary functions ----
 
@@ -119,17 +120,10 @@ def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
 
 # END temporary functions ----
 
-def replace_FG_IDs_with_FG_names(assessment, df):
-	FG_list = sorted(assessment._FG_dict.keys())
-	new_col_names = dict(
-		(fg_id, fg_name) for (fg_id, fg_name) in
-		zip(np.arange(1, len(FG_list) + 1), FG_list))
-
-	return df.rename(columns=new_col_names)
-
 def run_pelicun(DL_input_path, EDP_input_path,
 	DL_method, realization_count,
-	output_path=None, DM_file = 'DM.json', DV_file = 'DV.json'):
+	output_path=None, DM_file = 'DM.json', DV_file = 'DV.json',
+	no_details=False):
 
 	DL_input_path = os.path.abspath(DL_input_path) # BIM file
 	EDP_input_path = os.path.abspath(EDP_input_path) # dakotaTab
@@ -234,8 +228,11 @@ def run_pelicun(DL_input_path, EDP_input_path,
 			# if the loss model is not defined, give a warning
 			print('WARNING No loss model defined in the BIM file. Trying to auto-populate.')
 
+			EDP_input_path = EDP_files[s_i]
+
 			# and try to auto-populate the loss model using the BIM information
 			DL_input, DL_input_path = auto_populate(DL_input_path,
+													EDP_input_path,
 													DL_method,
 													realization_count)
 
@@ -263,70 +260,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
 		A.aggregate_results()
 
-		EDPs = sorted(A._EDP_dict.keys())
-		DMG_mod = replace_FG_IDs_with_FG_names(A, A._DMG)
-		DV_mods, DV_names = [], []
-		for key in A._DV_dict.keys():
-			if key != 'injuries':
-				DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key]))
-				DV_names.append('{}DV_{}'.format(stripe_str, key))
-			else:
-				for i in range(2 if DL_method == 'FEMA P58' else 4):
-					DV_mods.append(replace_FG_IDs_with_FG_names(A, A._DV_dict[key][i]))
-					DV_names.append('{}DV_{}_{}'.format(stripe_str, key, i))
-
-		try:
-		#if False:
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DL_summary.csv'.format(stripe_str)), A._SUMMARY,
-				index_name='#Num', collapse_columns=True)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DL_summary_stats.csv'.format(stripe_str)), A._SUMMARY,
-				index_name='attribute', collapse_columns=True,  stats_only=True)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}EDP.csv'.format(stripe_str)), A._EDP_dict[EDPs[0]]._RV.samples,
-				index_name='#Num', collapse_columns=False)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DMG.csv'.format(stripe_str)), DMG_mod,
-				index_name='#Num', collapse_columns=False)
-
-			write_SimCenter_DL_output(
-				posixpath.join(output_path,
-				'{}DMG_agg.csv'.format(stripe_str)),
-				DMG_mod.T.groupby(level=0).aggregate(np.sum).T,
-				index_name='#Num', collapse_columns=False)
-
-			for DV_mod, DV_name in zip(DV_mods, DV_names):
-				write_SimCenter_DL_output(
-				posixpath.join(output_path, DV_name+'.csv'), DV_mod,
-				index_name='#Num', collapse_columns=False)
-
-				write_SimCenter_DL_output(
-				posixpath.join(output_path, DV_name+'_agg.csv'),
-				DV_mod.T.groupby(level=0).aggregate(np.sum).T,
-				index_name='#Num', collapse_columns=False)
-
-		#if True:
-			# create the DM.json file
-			if DL_method.startswith('HAZUS'):
-				write_SimCenter_DM_output(posixpath.join(output_path, stripe_str+DM_file),
-					DMG_mod)
-
-			# create the DV.json file
-			for DV_mod, DV_name in zip(DV_mods, DV_names):
-				if DL_method.startswith('HAZUS'):
-					write_SimCenter_DV_output(posixpath.join(output_path, stripe_str+DV_file),
-						DV_mod, DV_name)
-
-		except:
-			print("ERROR when trying to create DL output files.")
+		A.save_outputs(output_path, DM_file, DV_file, stripe_str, detailed_results=not no_details)
 
 	return 0
 
@@ -340,14 +274,20 @@ def main(args):
 	parser.add_argument('--filenameDM', default = 'DM.json')
 	parser.add_argument('--filenameDV', default = 'DV.json')
 	parser.add_argument('--dirnameOutput')
+	parser.add_argument('--no_details', default = False)
 	args = parser.parse_args(args)
+
+	log_msg('Initializing pelicun calculation...')	
 
 	#print(args.dirnameOutput)
 	run_pelicun(
 		args.filenameDL, args.filenameEDP,
 		args.DL_Method, args.Realizations,
 		args.dirnameOutput,
-		args.filenameDM, args.filenameDV)
+		args.filenameDM, args.filenameDV,
+		args.no_details)
+
+	log_msg('pelicun calculation completed.')
 
 if __name__ == '__main__':
 

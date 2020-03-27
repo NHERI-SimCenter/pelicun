@@ -1,0 +1,506 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5.1.3. pelicun.file_io module &mdash; pelicun  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="5.1.4. pelicun.model module" href="API_pelicun_model.html" />
+    <link rel="prev" title="5.1.2. pelicun.control module" href="API_pelicun_control.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+
+          
+            <a href="../../../../index.html">
+          
+
+          
+            
+            <img src="../../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/ack.html">1. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/about/pelicun/about.html">2. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/installation/pelicun/installation.html">3. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/examples/pelicun/examples.html">6. Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/license.html">9. Copyright and License</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/pelicun/architecture.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../verification/pelicun/verification.html">3. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="API.html">5. API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="API.html#modules">5.1. Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_base.html">5.1.1. base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_control.html">5.1.2. control</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">5.1.3. file_io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_model.html">5.1.4. model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_uq.html">5.1.5. uq</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="API.html">5. API Documentation</a> &raquo;</li>
+        
+      <li>5.1.3. pelicun.file_io module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../../../_sources/common/developer_manual/API/pelicun/API_pelicun_file_io.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pelicun.file_io">
+<span id="pelicun-file-io-module"></span><h1>5.1.3. pelicun.file_io module<a class="headerlink" href="#module-pelicun.file_io" title="Permalink to this headline">¶</a></h1>
+<p>This module has classes and methods that handle file input and output.</p>
+<p class="rubric">Contents</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.file_io.read_SimCenter_DL_input" title="pelicun.file_io.read_SimCenter_DL_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_SimCenter_DL_input</span></code></a>(input_path[, …])</p></td>
+<td><p>Read the damage and loss input information from a json file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.file_io.read_SimCenter_EDP_input" title="pelicun.file_io.read_SimCenter_EDP_input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_SimCenter_EDP_input</span></code></a>(input_path[, …])</p></td>
+<td><p>Read the EDP input information from a text file with a tabular structure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.file_io.read_population_distribution" title="pelicun.file_io.read_population_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_population_distribution</span></code></a>(path_POP, occupancy)</p></td>
+<td><p>Read the population distribution from an external json file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.file_io.read_component_DL_data" title="pelicun.file_io.read_component_DL_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_component_DL_data</span></code></a>(path_CMP, comp_info)</p></td>
+<td><p>Read the damage and loss data for the components of the asset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.file_io.convert_P58_data_to_json" title="pelicun.file_io.convert_P58_data_to_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_P58_data_to_json</span></code></a>(data_dir, target_dir)</p></td>
+<td><p>Create JSON data files from publicly available P58 data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.file_io.create_HAZUS_EQ_json_files" title="pelicun.file_io.create_HAZUS_EQ_json_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_HAZUS_EQ_json_files</span></code></a>(data_dir, target_dir)</p></td>
+<td><p>Create JSON data files from publicly available HAZUS data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.file_io.create_HAZUS_HU_json_files" title="pelicun.file_io.create_HAZUS_HU_json_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_HAZUS_HU_json_files</span></code></a>(data_dir, target_dir)</p></td>
+<td><p>Create JSON data files from publicly available HAZUS data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_SimCenter_DL_output</span></code>(output_dir, …[, …])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_SimCenter_DM_output</span></code>(output_dir, …)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_SimCenter_DV_output</span></code>(output_dir, …)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pelicun.file_io.read_SimCenter_DL_input">
+<code class="sig-prename descclassname">pelicun.file_io.</code><code class="sig-name descname">read_SimCenter_DL_input</code><span class="sig-paren">(</span><em class="sig-param">input_path</em>, <em class="sig-param">assessment_type='P58'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/file_io.html#read_SimCenter_DL_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.file_io.read_SimCenter_DL_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the damage and loss input information from a json file.</p>
+<p>The SimCenter in the function name refers to having specific fields
+available in the file. Such a file is automatically prepared by the
+SimCenter PBE Application, but it can also be easily manipulated or created
+manually. The accepted input fields are explained in detail in the Input
+section of the documentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>input_path: string</strong></dt><dd><p>Location of the DL input json file.</p>
+</dd>
+<dt><strong>assessment_type: {‘P58’, ‘HAZUS_EQ’, ‘HAZUS_HU’}</strong></dt><dd><p>Tailors the warnings and verifications towards the type of assessment.
+default: ‘P58’.</p>
+</dd>
+<dt><strong>verbose: boolean</strong></dt><dd><p>If True, the function echoes the information read from the file. This
+can be useful to ensure that the information in the file is properly
+read by the method.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>data: dict</dt><dd><p>A dictionary with all the damage and loss data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelicun.file_io.read_SimCenter_EDP_input">
+<code class="sig-prename descclassname">pelicun.file_io.</code><code class="sig-name descname">read_SimCenter_EDP_input</code><span class="sig-paren">(</span><em class="sig-param">input_path</em>, <em class="sig-param">EDP_kinds=('PID'</em>, <em class="sig-param">'PFA')</em>, <em class="sig-param">units={'PID': 1.0</em>, <em class="sig-param">'PFA': 1.0}</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/file_io.html#read_SimCenter_EDP_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.file_io.read_SimCenter_EDP_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the EDP input information from a text file with a tabular structure.</p>
+<p>The SimCenter in the function name refers to having specific columns
+available in the file. Currently, the expected formatting follows the
+output formatting of Dakota that is applied for the dakotaTab.out. When
+using pelicun with the PBE Application, such a dakotaTab.out is
+automatically generated. The Input section of the documentation provides
+more information about the expected formatting of the EDP input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>input_path: string</strong></dt><dd><p>Location of the EDP input file.</p>
+</dd>
+<dt><strong>EDP_kinds: tuple of strings, default: (‘PID’, ‘PFA’)</strong></dt><dd><p>Collection of the kinds of EDPs in the input file. The default pair of
+‘PID’ and ‘PFA’ can be replaced or extended by any other EDPs.</p>
+</dd>
+<dt><strong>units: dict, default: {‘PID’:1., ‘PFA’:1}</strong></dt><dd><p>Defines the unit conversion that shall be applied to the EDP values.</p>
+</dd>
+<dt><strong>verbose: boolean</strong></dt><dd><p>If True, the function echoes the information read from the file. This
+can be useful to ensure that the information in the file is properly
+read by the method.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>data: dict</dt><dd><p>A dictionary with all the EDP data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelicun.file_io.read_population_distribution">
+<code class="sig-prename descclassname">pelicun.file_io.</code><code class="sig-name descname">read_population_distribution</code><span class="sig-paren">(</span><em class="sig-param">path_POP</em>, <em class="sig-param">occupancy</em>, <em class="sig-param">assessment_type='P58'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/file_io.html#read_population_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.file_io.read_population_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the population distribution from an external json file.</p>
+<p>The population distribution is expected in a format used in FEMA P58, but
+the list of occupancy categories can be modified and/or extended beyond
+those available in that document. The population distributions for the
+occupancy categories from FEMA P58 and HAZUS MH are provided with pelicun
+in the population.json files in the corresponding folder under resources.</p>
+<p>Note: Population distributions in HAZUS do not have a 1:1 mapping to the
+occupancy types provided in the Technical Manual. We expect inputs to
+follow the naming convention in the HAZUS Technical Manual and convert
+those to the broader categories here automatically. During conversion, the
+following assumptions are made about the occupancy classes: i) RES classes
+are best described as Residential; ii) COM and REL as Commercial; iii) EDU
+as Educational; iv) IND and AGR as Industrial; v) Hotels do not have a
+matching occupancy class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path_POP: string</strong></dt><dd><p>Location of the population distribution json file.</p>
+</dd>
+<dt><strong>occupancy: string</strong></dt><dd><p>Identifies the occupancy category.</p>
+</dd>
+<dt><strong>assessment_type: {‘P58’, ‘HAZUS_EQ’}</strong></dt><dd><p>Tailors the warnings and verifications towards the type of assessment.
+default: ‘P58’.</p>
+</dd>
+<dt><strong>verbose: boolean</strong></dt><dd><p>If True, the function echoes the information read from the file. This
+can be useful to ensure that the information in the file is properly
+read by the method.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>data: dict</dt><dd><p>A dictionary with the population distribution data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelicun.file_io.read_component_DL_data">
+<code class="sig-prename descclassname">pelicun.file_io.</code><code class="sig-name descname">read_component_DL_data</code><span class="sig-paren">(</span><em class="sig-param">path_CMP</em>, <em class="sig-param">comp_info</em>, <em class="sig-param">assessment_type='P58'</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/file_io.html#read_component_DL_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.file_io.read_component_DL_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the damage and loss data for the components of the asset.</p>
+<p>DL data for each component is assumed to be stored in a JSON file following
+the DL file format specified by SimCenter. The name of the file is the ID
+(key) of the component in the comp_info dictionary. Besides the filename,
+the comp_info dictionary is also used to get other pieces of data about the
+component that is not available in the JSON files. Therefore, the following
+attributes need to be provided in the comp_info: [‘quantities’,
+‘csg_weights’, ‘dirs’, ‘kind’, ‘distribution’, ‘cov’, ‘unit’, ‘locations’]
+Further information about these attributes is available in the Input
+section of the documentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path_CMP: string</strong></dt><dd><p>Location of the folder that contains the component data in JSON files.</p>
+</dd>
+<dt><strong>comp_info: dict</strong></dt><dd><p>Dictionary with additional information about the components.</p>
+</dd>
+<dt><strong>assessment_type: {‘P58’, ‘HAZUS_EQ’, ‘HAZUS_HU’}</strong></dt><dd><p>Tailors the warnings and verifications towards the type of assessment.
+default: ‘P58’.</p>
+</dd>
+<dt><strong>verbose: boolean</strong></dt><dd><p>If True, the function echoes the information read from the files. This
+can be useful to ensure that the information in the files is properly
+read by the method.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>data: dict</dt><dd><p>A dictionary with damage and loss data for each component.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelicun.file_io.convert_P58_data_to_json">
+<code class="sig-prename descclassname">pelicun.file_io.</code><code class="sig-name descname">convert_P58_data_to_json</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/file_io.html#convert_P58_data_to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.file_io.convert_P58_data_to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create JSON data files from publicly available P58 data.</p>
+<p>FEMA P58 damage and loss information is publicly available in an Excel
+spreadsheet and also in a series of XML files as part of the PACT tool.
+Those files are copied to the resources folder in the pelicun repo. Here
+we collect the available information on Fragility Groups from those files
+and save the damage and loss data in the common SimCenter JSON format.</p>
+<p>A large part of the Fragility Groups in FEMA P58 do not have complete
+damage and loss information available. These FGs are clearly marked with
+an incomplete flag in the JSON file and the ‘Undefined’ value highlights
+the missing pieces of information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_dir: string</strong></dt><dd><p>Path to the folder with the FEMA P58 Excel file and a ‘DL xml’
+subfolder in it that contains the XML files.</p>
+</dd>
+<dt><strong>target_dir: string</strong></dt><dd><p>Path to the folder where the JSON files shall be saved.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelicun.file_io.create_HAZUS_EQ_json_files">
+<code class="sig-prename descclassname">pelicun.file_io.</code><code class="sig-name descname">create_HAZUS_EQ_json_files</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/file_io.html#create_HAZUS_EQ_json_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.file_io.create_HAZUS_EQ_json_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create JSON data files from publicly available HAZUS data.</p>
+<p>HAZUS damage and loss information is publicly available in the technical
+manuals. The relevant tables have been converted into a JSON input file
+(hazus_data_eq.json) that is stored in the ‘resources/HAZUS MH 2.1’ folder
+in the pelicun repo. Here we read that file (or a file of similar format)
+and produce damage and loss data for Fragility Groups in the common
+SimCenter JSON format.</p>
+<p>HAZUS handles damage and losses at the assembly level differentiating only
+structural and two types of non-structural component assemblies. In this
+implementation we consider each of those assemblies a Fragility Group
+and describe their damage and its consequences in a FEMA P58-like framework
+but using the data from the HAZUS Technical Manual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_dir: string</strong></dt><dd><p>Path to the folder with the hazus_data_eq JSON file.</p>
+</dd>
+<dt><strong>target_dir: string</strong></dt><dd><p>Path to the folder where the results shall be saved. The population
+distribution file will be saved here, the DL JSON files will be saved
+to a ‘DL json’ subfolder.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pelicun.file_io.create_HAZUS_HU_json_files">
+<code class="sig-prename descclassname">pelicun.file_io.</code><code class="sig-name descname">create_HAZUS_HU_json_files</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/file_io.html#create_HAZUS_HU_json_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.file_io.create_HAZUS_HU_json_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create JSON data files from publicly available HAZUS data.</p>
+<p>HAZUS damage and loss information is publicly available in the technical
+manuals and the HAZUS software tool. The relevant data have been collected
+in a series of Excel files (e.g., hu_Wood.xlsx) that are stored in the
+‘resources/HAZUS MH 2.1 hurricane’ folder in the pelicun repo. Here we read
+that file (or a file of similar format) and produce damage and loss data
+for Fragility Groups in the common SimCenter JSON format.</p>
+<p>The HAZUS hurricane methodology handles damage and losses at the assembly
+level. In this implementation each building is represented by one Fragility
+Group that describes the damage states and their consequences in a FEMA
+P58-like framework but using the data from the HAZUS Technical Manual.</p>
+<p>Note: HAZUS calculates lossess independently of damage using peak wind gust
+speed as a controlling variable. We fitted a model to the curves in HAZUS
+that assigns losses to each damage state and determines losses as a function
+of building damage. Results shall be in good agreement with those of HAZUS
+for the majority of building configurations. Exceptions and more details
+are provided in the … section of the documentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_dir: string</strong></dt><dd><p>Path to the folder with the hazus_data_eq JSON file.</p>
+</dd>
+<dt><strong>target_dir: string</strong></dt><dd><p>Path to the folder where the results shall be saved. The population
+distribution file will be saved here, the DL JSON files will be saved
+to a ‘DL json’ subfolder.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

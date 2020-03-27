@@ -389,7 +389,7 @@ def test_MVN_MLE_minimum_sample_size():
     available.
 
     """
-    dims = 4
+    dims = 8
     ref_mean = np.arange(dims, dtype=np.float64)
     ref_std = np.ones(dims) * 0.25
     ref_rho = np.ones((dims, dims)) * 0.5
@@ -398,7 +398,7 @@ def test_MVN_MLE_minimum_sample_size():
 
     tr_lower = ref_mean + ref_std * (-2.)
 
-    samples = tmvn_rvs(ref_mean, ref_COV, lower=tr_lower, size=7)
+    samples = tmvn_rvs(ref_mean, ref_COV, lower=tr_lower, size=3)
 
     with pytest.warns(UserWarning) as e_info:
         tmvn_MLE(np.transpose(samples), tr_lower=tr_lower)
@@ -443,13 +443,13 @@ def test_MVN_MLE_censored():
         np.fill_diagonal(ref_rho, 1.0)
         ref_COV = np.outer(ref_std, ref_std) * ref_rho
 
-        c_lower = ref_mean - 0.5 * ref_std
+        c_lower = ref_mean - 1.0 * ref_std
         c_upper = ref_mean + 8.5 * ref_std
 
         c_lower[2] = -np.inf
         c_upper[0] = np.inf
 
-        sample_count = 1000
+        sample_count = 10000
 
         #test_MU = []
         #test_SIG = []
@@ -479,8 +479,8 @@ def test_MVN_MLE_censored():
         #show_matrix(test_rho)
         #show_matrix(ref_rho)
 
-        assert_allclose(test_mu, ref_mean, atol=0.15)
-        assert_allclose(test_std ** 2., ref_std ** 2., rtol=0.5)
+        assert_allclose(test_mu, ref_mean, atol=0.05)
+        assert_allclose(test_std ** 2., ref_std ** 2., rtol=0.25)
         assert_allclose(test_rho, ref_rho, atol=0.4)
 
 
@@ -587,12 +587,12 @@ def test_MVN_MLE_truncated_and_censored():
 
     samples = tmvn_rvs(ref_mean, ref_COV,
                        lower=tr_lower, upper=tr_upper,
-                       size=1000)
+                       size=10000)
 
     good_ones = np.all([samples > det_lower, samples < det_upper], axis=0)
     good_ones = np.all(good_ones, axis=1)
     c_samples = np.transpose(samples[good_ones])
-    c_count = 1000 - sum(good_ones)
+    c_count = 10000 - sum(good_ones)
 
     test_mu, test_COV = tmvn_MLE(c_samples,
                                  tr_lower=tr_lower, tr_upper=tr_upper,
@@ -601,8 +601,8 @@ def test_MVN_MLE_truncated_and_censored():
     test_std = np.sqrt(test_COV.diagonal())
     test_rho = test_COV / np.outer(test_std, test_std)
 
-    assert_allclose(test_mu, ref_mean, atol=0.15)
-    assert_allclose(test_std ** 2., ref_std ** 2., rtol=0.5)
+    assert_allclose(test_mu, ref_mean, atol=0.05)
+    assert_allclose(test_std ** 2., ref_std ** 2., rtol=0.25)
     assert_allclose(test_rho, ref_rho, atol=0.4)
 
 def test_MVN_MLE_small_alpha():

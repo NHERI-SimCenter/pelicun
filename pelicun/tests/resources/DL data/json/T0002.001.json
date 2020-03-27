@@ -1,7 +1,7 @@
 {
     "Name": "Made-up component to test loss assessment",
     "QuantityUnit": [100, "SF"],
-    "Directional": false,
+    "Directional": true,
     "Correlated": false,
     "EDP": { 
         "Type": "Story Drift Ratio",

@@ -13,7 +13,7 @@
         "ResponseModel": {
             "ResponseDescription": {
                 "EDP_Distribution": "lognormal",
-                "BasisOfEstimate": "all results",
+                "BasisOfEDP_Distribution": "all results",
                 "Realizations": "10000"
             }
         },

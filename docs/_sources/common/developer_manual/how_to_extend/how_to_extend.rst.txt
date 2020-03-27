@@ -1,0 +1,8 @@
+.. _lbl_how_to_extend:
+
+How to Extend
+=============
+
+.. only:: pelicun
+
+  .. include:: how_to_extend_pelicun.rst

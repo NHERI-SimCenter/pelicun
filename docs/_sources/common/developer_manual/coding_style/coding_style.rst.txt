@@ -1,0 +1,13 @@
+.. _lblCodingStyle:
+
+************
+Coding Style
+************
+
+.. only:: pelicun
+
+  .. include:: coding_style_pelicun.rst
+
+.. only:: desktop_app
+
+  .. include:: coding_style_desktop.rst

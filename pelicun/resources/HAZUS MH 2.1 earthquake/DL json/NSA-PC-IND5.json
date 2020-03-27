@@ -1,5 +1,6 @@
 {
   "Name": "NSA-PC-IND5",
+  "Directional": false,
   "GeneralInformation": {
     "ID": "NSA-PC-IND5",
     "Description": "NSA-PC-IND5"

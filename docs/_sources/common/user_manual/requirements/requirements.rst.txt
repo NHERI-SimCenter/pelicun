@@ -1,0 +1,13 @@
+
+.. _lbl-requirements:
+
+Requirements
+================
+
+.. only:: pelicun
+
+  .. include:: requirements_pelicun.rst
+
+.. only:: desktop_app
+
+  .. include:: requirements_desktop.rst

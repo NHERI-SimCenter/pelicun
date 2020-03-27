@@ -1,5 +1,6 @@
 {
   "Name": "S-C3M-LC-COM10",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "S-C3M-LC-COM10",
     "Description": "S-C3M-LC-COM10"

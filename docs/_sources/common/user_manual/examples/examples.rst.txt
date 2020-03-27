@@ -1,0 +1,9 @@
+.. _lbl-examples:
+
+********
+Examples
+********
+
+.. only:: pelicun
+
+  .. include:: examples_pelicun.rst

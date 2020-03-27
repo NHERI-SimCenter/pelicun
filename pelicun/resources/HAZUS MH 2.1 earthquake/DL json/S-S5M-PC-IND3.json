@@ -1,5 +1,6 @@
 {
   "Name": "S-S5M-PC-IND3",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "S-S5M-PC-IND3",
     "Description": "S-S5M-PC-IND3"

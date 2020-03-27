@@ -1,5 +1,6 @@
 {
   "Name": "S-W1-MC-GOV2",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "S-W1-MC-GOV2",
     "Description": "S-W1-MC-GOV2"

@@ -1,5 +1,6 @@
 {
   "Name": "NSD-COM8",
+  "Directional": true,
   "GeneralInformation": {
     "ID": "NSD-COM8",
     "Description": "NSD-COM8"
