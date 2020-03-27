@@ -2160,17 +2160,17 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
 def write_SimCenter_DL_output(output_dir, output_filename, output_df, index_name='#Num',
                               collapse_columns = True, stats_only=False):
 
-    output_df = deepcopy(output_df)
-
     # if the summary flag is set, then not all realizations are returned, but
     # only the first two moments and the empirical CDF through 100 percentiles
     if stats_only:
         #output_df = output_df.describe(np.arange(1, 100)/100.)
-        output_df = output_df.describe([0.1,0.5,0.9])
+        #output_df = output_df.describe([0.1,0.5,0.9])
+        output_df = describe(output_df)
+    else:
+        output_df = output_df.copy()
 
     # the name of the index column is replaced with the provided value
     output_df.index.name = index_name
-
 
     # multiple levels of indices are collapsed into a single level if needed
     # TODO: check for the number of levels and prepare a smarter collapse method
@@ -2181,7 +2181,12 @@ def write_SimCenter_DL_output(output_dir, output_filename, output_df, index_name
 
     # write the results in a csv file
     # TODO: provide other file formats
-    output_df.to_csv(posixpath.join(output_dir, output_filename))
+    log_msg('\t\t\tSaving file {}'.format(output_filename))
+    file_path = posixpath.join(output_dir, output_filename)
+    output_df.to_csv(file_path)
+    # TODO: this requires pandas 1.0+ > wait until next release
+    #with open(file_path[:-3]+'zip', 'w') as f:
+    #    output_df.to_csv(f, compression=dict(mehtod='zip', archive_name=output_filename))
 
 def write_SimCenter_DM_output(output_dir, DM_filename, DMG_df):
 
@@ -2204,7 +2209,9 @@ def write_SimCenter_DM_output(output_dir, DM_filename, DMG_df):
     # The P(DS=ds) probability is determined by subtracting consecutive DS
     # exceedance probabilites. This will not work well for a FEMA P58 assessment
     # with Damage State Groups that include multiple Damage States.
-    DMG_agg_mean = DMG_agg.describe().loc['mean',:]
+    #DMG_agg_mean = DMG_agg.describe().loc['mean',:]
+    DMG_agg_mean = pd.Series(np.mean(DMG_agg.values, axis=0), index=DMG_agg.columns)
+
     DS_0 = 1.0 - DMG_agg_mean['1_1']
     for i in range(len(DMG_agg_mean.index)-1):
         DMG_agg_mean.iloc[i] = DMG_agg_mean.iloc[i] - DMG_agg_mean.iloc[i+1]
@@ -2221,7 +2228,8 @@ def write_SimCenter_DM_output(output_dir, DM_filename, DMG_df):
 
     # Now determine the probability of being in a damage state for individual
     # components / component assemblies...
-    DMG_mean = DMG_df.describe().loc['mean',:]
+    #DMG_mean = DMG_df.describe().loc['mean',:]
+    DMG_mean = pd.Series(np.mean(DMG_df.values, axis=0), index=DMG_df.columns)
 
     # and save the results in the output json file.
     for FG in sorted(DMG_mean.index.get_level_values('FG').unique()):
@@ -2242,6 +2250,8 @@ def write_SimCenter_DV_output(output_dir, DV_filename, DV_df, DV_name):
 
     DV_name = convert_dv_name[DV_name]
 
+    DV_file_path = posixpath.join(output_dir, DV_filename)
+
     try:
         with open(DV_file_path, 'r') as f:
             DV = json.load(f)
@@ -2253,12 +2263,15 @@ def write_SimCenter_DV_output(output_dir, DV_filename, DV_df, DV_name):
     DV_i = DV[DV_name]
 
     try:
-        DV_tot = DV_df.sum(axis=1).describe([0.1,0.5,0.9]).drop('count')
+    #if True:
+        #DV_tot = DV_df.sum(axis=1).describe([0.1,0.5,0.9]).drop('count')
+        DV_tot = describe(np.sum(DV_df.values, axis=1))
         DV_i.update({'total':{}})
         for stat in DV_tot.index:
             DV_i['total'].update({stat: DV_tot.loc[stat]})
 
-        DV_stats = DV_df.describe([0.1,0.5,0.9]).drop('count')
+        #DV_stats = DV_df.describe([0.1,0.5,0.9]).drop('count')
+        DV_stats = describe(DV_df)
         for FG in sorted(DV_stats.columns.get_level_values('FG').unique()):
             DV_i.update({str(FG):{}})
 
@@ -2276,5 +2289,5 @@ def write_SimCenter_DV_output(output_dir, DV_filename, DV_df, DV_name):
     except:
         pass
 
-    with open(posixpath.join(output_dir, DV_filename), 'w') as f:
+    with open(DV_file_path, 'w') as f:
         json.dump(DV, f, indent = 2)

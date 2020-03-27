@@ -117,6 +117,42 @@ def log_msg(msg='', prepend_timestamp=True):
         with open(globals()['log_file'], 'a') as f:
             f.write('\n'+formatted_msg)
 
+def describe(df):
+
+    if isinstance(df, (pd.Series, pd.DataFrame)):
+        vals = df.values
+        cols = df.columns
+    else:
+        vals = df
+        cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
+
+    if vals.ndim == 1:
+        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90])
+        desc = pd.Series({
+            'count': np.sum(~np.isnan(vals)),
+            'mean': np.nanmean(vals),
+            'std': np.nanstd(vals),
+            'min': np.nanmin(vals),
+            '10%': df_10,
+            '50%': df_50,
+            '90%': df_90,
+            'max': np.nanmax(vals),
+        }, name=cols)
+    else:
+        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90], axis=0)
+        desc = pd.DataFrame({
+            'count': np.sum(~np.isnan(vals), axis=0),
+            'mean': np.nanmean(vals, axis=0),
+            'std': np.nanstd(vals, axis=0),
+            'min': np.nanmin(vals, axis=0),
+            '10%': df_10,
+            '50%': df_50,
+            '90%': df_90,
+            'max': np.nanmax(vals, axis=0),
+        }, index=cols).T
+
+    return desc
+
 # Constants for unit conversion
 
 # time
