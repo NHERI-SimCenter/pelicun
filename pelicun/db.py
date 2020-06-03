@@ -158,7 +158,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
             return False
 
     src_df = pd.read_excel(
-        os.path.join(data_dir, 'PACT_fragility_data.xlsx'))
+        posixpath.join(data_dir, 'PACT_fragility_data.xlsx'))
     ID_list = src_df['NISTIR Classification']
 
     XML_list = [f for f in os.listdir(data_dir+'DL xml/') if f.endswith('.xml')]
@@ -171,7 +171,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
 
         #try:
         if True:
-            tree = ET.parse(os.path.join(data_dir+'DL xml/', comp_ID + '.xml'))
+            tree = ET.parse(posixpath.join(data_dir+'DL xml/', comp_ID + '.xml'))
             root = tree.getroot()
 
             # correct for the error in the numbering of RC beams
@@ -465,7 +465,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 json_output['GeneralInformation']['Incomplete'] = True
                 incomplete_count += 1
 
-            with open(os.path.join(target_dir, comp_ID + '.json'),'w') as f:
+            with open(posixpath.join(target_dir, comp_ID + '.json'),'w') as f:
                 json.dump(json_output, f, indent=2)
 
         #except:
@@ -516,7 +516,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
     }
 
     # open the raw HAZUS data
-    with open(os.path.join(data_dir, 'hazus_data_eq.json'), 'r') as f:
+    with open(posixpath.join(data_dir, 'hazus_data_eq.json'), 'r') as f:
         raw_data = json.load(f)
 
     design_levels = list(
@@ -620,7 +620,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
                             DS['Description'] = convert_DS_description[
                                 DS['Description']]
 
-                    with open(os.path.join(target_dir + 'DL json/',
+                    with open(posixpath.join(target_dir + 'DL json/',
                                            dl_id + '.json'), 'w') as f:
                         json.dump(json_output, f, indent=2)
 
@@ -678,7 +678,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
                 })
 
             with open(
-                os.path.join(target_dir + 'DL json/', dl_id + '.json'),
+                posixpath.join(target_dir + 'DL json/', dl_id + '.json'),
                 'w') as f:
                 json.dump(json_output, f, indent=2)
 
@@ -734,7 +734,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
                 }]
             })
 
-        with open(os.path.join(target_dir + 'DL json/', dl_id + '.json'),
+        with open(posixpath.join(target_dir + 'DL json/', dl_id + '.json'),
                   'w') as f:
             json.dump(json_output, f, indent=2)
 
@@ -765,7 +765,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
             }
         }})
 
-    with open(os.path.join(target_dir, 'population.json'), 'w') as f:
+    with open(posixpath.join(target_dir, 'population.json'), 'w') as f:
         json.dump(pop_output, f, indent=2)
 
 def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
@@ -820,7 +820,7 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
     }
 
     # open the raw HAZUS data
-    with open(os.path.join(data_dir, 'hazus_data_eq.json'), 'r') as f:
+    with open(posixpath.join(data_dir, 'hazus_data_eq.json'), 'r') as f:
         raw_data = json.load(f)
 
     # First, the ground shaking fragilities
@@ -917,7 +917,7 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
                             DS['Description'] = convert_DS_description[
                                 DS['Description']]
 
-                    with open(os.path.join(target_dir + 'DL json/',
+                    with open(posixpath.join(target_dir + 'DL json/',
                                            dl_id + '.json'), 'w') as f:
                         json.dump(json_output, f, indent=2)
 
@@ -986,7 +986,7 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
                         json_output['DSGroups'][-1]['DamageStates'][0]['Weight'] = 1.0 - DS5_w
 
                 # consequences are handled through propagating damage to other components
-                with open(os.path.join(target_dir + 'DL json/', dl_id + '.json'), 'w') as f:
+                with open(posixpath.join(target_dir + 'DL json/', dl_id + '.json'), 'w') as f:
                     json.dump(json_output, f, indent=2)
 
     # prepare the population distribution data
@@ -1016,7 +1016,7 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
             }
         }})
 
-    with open(os.path.join(target_dir, 'population.json'), 'w') as f:
+    with open(posixpath.join(target_dir, 'population.json'), 'w') as f:
         json.dump(pop_output, f, indent=2)
 
 def create_HAZUS_HU_json_files(data_dir, target_dir):
@@ -1054,7 +1054,7 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
     """
 
     # open the raw HAZUS data
-    df_wood = pd.read_excel(os.path.join(data_dir, 'hu_Wood.xlsx'))
+    df_wood = pd.read_excel(posixpath.join(data_dir, 'hu_Wood.xlsx'))
 
     # some general formatting to make file name generation easier
     df_wood['shutters'] = df_wood['shutters'].astype(int)
@@ -1207,7 +1207,7 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
                 }]
             })
 
-        with open(os.path.join(target_dir + '/DL json/', dl_id + '.json'),
+        with open(posixpath.join(target_dir + '/DL json/', dl_id + '.json'),
                   'w') as f:
             json.dump(json_output, f, indent=2)
 
