@@ -409,10 +409,12 @@ def tmvn_MLE(samples,
             log_msg('[{}, {}]'.format(mu_i, sig_i))
 
     # define initial values of distribution parameters using simple estimates
-    if ndims == 1:
-        #mu_init = np.mean(samples)
-        # we perturb the mu to improve optimization
-        mu_init = mu_hatc + sig_hatc*0.1
+    if ndims == 1:        
+        if nsamples > ndims:
+            # we perturb the mu to improve optimization
+            mu_init = mu_hatc + sig_hatc*0.1
+        else:
+            mu_init = mu_hatc
         # use biased estimate for std, because MLE will converge to that anyway
         #sig_init = np.std(samples, ddof=0)
         sig_init = sig_hatc
@@ -424,10 +426,11 @@ def tmvn_MLE(samples,
         # prepare a vector of initial values
         inits = np.asarray([mu_init, sig_init])
     else:
-        #mu_init = np.mean(samples, axis=1)
-        #mu_init = mu_hatc
-        # we perturb the mu to improve optimization
-        mu_init = mu_hatc + sig_hatc*0.1
+        if nsamples > ndims:
+            # we perturb the mu to improve optimization
+            mu_init = mu_hatc + sig_hatc*0.1
+        else:
+            mu_init = mu_hatc
         # use biased estimate, see comment above
         #sig_init = np.std(samples, axis=1, ddof=0)
         sig_init = sig_hatc
