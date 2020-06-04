@@ -121,7 +121,12 @@ def describe(df):
 
     if isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df.values
-        cols = df.columns
+        if isinstance(df, pd.DataFrame):
+            cols = df.columns
+        elif df.name is not None:
+            cols = df.name
+        else:
+            cols = 0
     else:
         vals = df
         cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
