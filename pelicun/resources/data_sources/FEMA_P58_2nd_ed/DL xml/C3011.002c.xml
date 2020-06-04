@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>699d050d-2848-4e1e-a4ac-69d93ac97590</UniqueID>
+  <ID>C3011.002c</ID>
+  <Description>Costing based upon 9'x100' Panels</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Wall Partition, Type: Gypsum + Ceramic Tile, Full Height, Fixed Below, Slip Track Above w/ returns (friction connection)</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:50:20.3976123-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: C3011.002c: C3011.002c: DS1 overlaps DS2 at 0.02 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Minor cracked joints and tile.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Carefully remove cracked tile and grout at cracked joints, install new ceramic tile and re-grout joints for 10% of  full 100 foot length of wall.  Existing wall board will remain in place.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>17262</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.3336</EnergyDispersion>
+        <CarbonMedian>729</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.3336</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>8640</MaxAmount>
+          <UpperQuantity>3</UpperQuantity>
+          <MinAmount>5760</MinAmount>
+          <Uncertainty>0.2208</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>7.9941</MaxAmount>
+          <UpperQuantity>3</UpperQuantity>
+          <MinAmount>5.3259</MinAmount>
+          <Uncertainty>0.3336</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.002</Median>
+      <Beta>0.7</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Cracked joints and tile.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Install ceramic tile and grout all joints for full 100 foot length of wall.  Note: gypsum wall board will also be removed and replaced which means the removal of ceramic tile will be part of the gypsum wall board removal. </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>350118</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.2674</EnergyDispersion>
+        <CarbonMedian>14220</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.2674</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>34992</MaxAmount>
+          <UpperQuantity>3</UpperQuantity>
+          <MinAmount>23328</MinAmount>
+          <Uncertainty>0.0948</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>32.4032</MaxAmount>
+          <UpperQuantity>3</UpperQuantity>
+          <MinAmount>21.5968</MinAmount>
+          <Uncertainty>0.2674</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.005</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

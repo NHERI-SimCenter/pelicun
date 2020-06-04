@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>6cfe74c6-1494-4a4c-8c34-836f9c6ac12e</UniqueID>
+  <ID>D5092.011a</ID>
+  <Description>Costing is per unit.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Battery Rack - Capacity: all - Unanchored equipment that is not vibration isolated - Equipment fragility only</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:52:10.7008227-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Damaged, inoperative. Batteries fall, crack cases, dislodge conductors, or are otherwise damaged.</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>Simultaneous</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Damaged, inoperative. Batteries fall, crack cases, dislodge conductors, or are otherwise damaged.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace batteries.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>true</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>32267.43</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.2679</EnergyDispersion>
+            <CarbonMedian>1695.57</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.2679</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>14400</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>9600</MinAmount>
+              <Uncertainty>0.0962</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>19.0589</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>12.7059</MinAmount>
+              <Uncertainty>0.2679</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>1</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Batteries spill battery acid.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Clean up spilled acid.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>true</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>1584.24</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.3795</EnergyDispersion>
+            <CarbonMedian>63.49</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.3795</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>900</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>600</MinAmount>
+              <Uncertainty>0.2855</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>1.1911</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>0.7941</MinAmount>
+              <Uncertainty>0.3795</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.5</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Battery rack collapses.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Replace battery rack.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>true</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>29003.39</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.3467</EnergyDispersion>
+            <CarbonMedian>1301.3</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.3467</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>3780</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>2520</MinAmount>
+              <Uncertainty>0.2403</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>5.0029</MaxAmount>
+              <UpperQuantity>5</UpperQuantity>
+              <MinAmount>3.3353</MinAmount>
+              <Uncertainty>0.3467</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.1</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>1.11</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

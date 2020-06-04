@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>1704efea-e43b-402a-ae29-f3a98916a0fa</UniqueID>
+  <ID>C3034.001</ID>
+  <Description>Horizontal light fixtures 4 to 16 ft long suspended 12 to 24 inches from ceiling.  No seismic design or bracing.  Hung from ceiling above by two or more rods or cables.  </Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Independent Pendant Lighting - non seismic</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:48:10.8985683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Disassembly of rod system at connections with horizontal light fixture, low cycle fatigue failure of the threaded rod, pullout of rods from ceiling assembly.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace damaged lighting components.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>true</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea>
+          <Area>
+            <Unit>Square Foot</Unit>
+            <Value>100</Value>
+          </Area>
+        </AffectedFloorArea>
+        <AffectedDeathRate>0.25</AffectedDeathRate>
+        <AffectedInjuryRate>0.75</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0.5</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0.5</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>643.5</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>396</MinAmount>
+          <Uncertainty>0.6369</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>2.0159</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>1.2394</MinAmount>
+          <Uncertainty>0.6371</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.6</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

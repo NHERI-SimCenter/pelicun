@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>3a579d86-17d9-471f-b5e8-cb099808d672</UniqueID>
+  <ID>B2011.021a</ID>
+  <Description>Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 22 or 31 mil steel sheathing attached with No. 8 screws spaced 2" or 6" OC at perimeter and 12" OC EW in the field.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Exterior Wall - Cold formed steel walls with 22 or 31 mil steel sheathing, interior - gypsum board</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Average</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:49.6858286-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Copy of B1061.021a for use as an exterior wall.</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Pull out of sheathing fasteners from studs.</Description>
+      <DamageImageName>B1061.021-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, wall finishes, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace 20% of fasteners, replace gypsum wall board, tape, sand, paint.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.2</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>19180</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.4037</EnergyDispersion>
+        <CarbonMedian>1773</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.4037</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>4</LowerQuantity>
+          <MaxAmount>3965</MaxAmount>
+          <UpperQuantity>11</UpperQuantity>
+          <MinAmount>2440</MinAmount>
+          <Uncertainty>0.317</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>4</LowerQuantity>
+          <MaxAmount>3.0932</MaxAmount>
+          <UpperQuantity>11</UpperQuantity>
+          <MinAmount>1.9046</MinAmount>
+          <Uncertainty>0.4037</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.019</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Buckling of steel sheathing.  Buckling of framing members.</Description>
+      <DamageImageName>B1061.021-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, wall finishes, mechanical, electrical, and office furniture / equipment.  Temporarily protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Install new sheathing, new metal stud framing as needed, replace gypsum wall board, tape, sand, paint.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.1</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>31186</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.4209</EnergyDispersion>
+        <CarbonMedian>2236</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.4209</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>4</LowerQuantity>
+          <MaxAmount>4980</MaxAmount>
+          <UpperQuantity>11</UpperQuantity>
+          <MinAmount>3527.5</MinAmount>
+          <Uncertainty>0.3386</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>4</LowerQuantity>
+          <MaxAmount>3.8769</MaxAmount>
+          <UpperQuantity>11</UpperQuantity>
+          <MinAmount>2.7448</MinAmount>
+          <Uncertainty>0.4209</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0253</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

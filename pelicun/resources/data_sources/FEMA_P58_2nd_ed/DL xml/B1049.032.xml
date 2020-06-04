@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>63825840-b052-4d1e-8338-79f9e2483468</UniqueID>
+  <ID>B1049.032</ID>
+  <Description>Costing is on a per joint basis.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Post-tensioned concrete flat slabs- columns with shear reinforcing  0.4&lt;Vg/Vo&lt;.0.6</Name>
+  <Author>John Wallace</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>Marginal</DataRelevance>
+    <Documentation>Average</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:32.7739037-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Fragilities were based on judgment due to lack of test data.</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Yield strain of the slab flexural reinforcement has been exceeded, spalling of concrete may/may not occur, slab exhibits large enough crack widths to allow epoxy injection.</Description>
+      <DamageImageName>B1049.001a-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove furnishings, ceilings and mechanical, electrical and plumping systems (as necessary) 5 feet either side of damaged area.  Replace and repair finishes.  Replace furnishings, ceilings and mechanical, electrical and plumping systems (as necessary).</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>103679.82</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.4219</EnergyDispersion>
+        <CarbonMedian>4774.41</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.4219</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>44436</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>29624</MinAmount>
+          <Uncertainty>0.3399</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>37.9013</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>25.2675</MinAmount>
+          <Uncertainty>0.4219</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.023</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Punching occurs, causing significant spalling of concrete. Epoxy injection is no longer expected to be sufficient to restore the required strength and stiffness to the slab and the slab-column connection. </Description>
+      <DamageImageName>B1049.001a-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Prepare work area for epoxy injection, inject epoxy into 60 feet of crack (45 feet top, 15 feet bottom of slab) per 100 square feet of floor panel.  Fabricate new structural steel shear head (column capital) that attaches to the column beneath the slab.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.2</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>186477.38</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.4062</EnergyDispersion>
+        <CarbonMedian>7472.59</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.4062</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>49236</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>32824</MinAmount>
+          <Uncertainty>0.3202</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>41.9954</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>27.997</MinAmount>
+          <Uncertainty>0.4062</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.032</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

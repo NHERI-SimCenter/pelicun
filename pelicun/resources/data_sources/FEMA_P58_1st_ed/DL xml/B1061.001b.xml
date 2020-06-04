@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>df1bb533-8d2f-43bc-b3ce-fe6c38bccf4e</UniqueID>
+  <ID>B1061.001b</ID>
+  <Description>Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2" to 6" OC at perimeter and 12" OC EW in field.  </Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Cold formed steel walls with wood structural panel sheathing, exterior - stucco one side</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:52.3995683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: B1061.001b: B1061.001b: DS2 overlaps DS3 in the range of 9.04 to 10.68 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Sheathing faster pull through or tear out.  (20% of fasteners.)</Description>
+      <DamageImageName>B1061.001-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace 20% of fasteners, replace gypsum wall board, stucco, tape and sand, repaint.  </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>4051.6667</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>2181.6667</MinAmount>
+          <Uncertainty>0.2474</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>10.4567</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>5.5433</MinAmount>
+          <Uncertainty>0.3192</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.4</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Failure of structural panels.  </Description>
+      <DamageImageName>B1061.001-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Modify mechanical and electrical as required for repair work.  Replace sheathing, replace gypsum wall board, stucco, tape and sand, repaint.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>4530</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>2831.25</MinAmount>
+          <Uncertainty>0.2689</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>11.9837</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>7.5203</MinAmount>
+          <Uncertainty>0.2707</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.26</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Failure of wall.</Description>
+      <DamageImageName>B1061.001-DS3-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged wall, ceilings, mechanical, electrical, and office furnature / equipment.  Temporarly protect floor and provide dust curtains.  Provide shoring.  Modify mechanical and electrical as required for repair work.  Replace metal stud framing, boundary elements, sheathing, replace gypsum wall board, stucco, tape and sand, repaint.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.1</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.0935</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>2</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.1003</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.67</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

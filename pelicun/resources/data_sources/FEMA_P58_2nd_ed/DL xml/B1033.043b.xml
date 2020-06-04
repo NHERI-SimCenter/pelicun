@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>2dd2afe3-0a7e-46d0-9f5e-dfaf3956ce23</UniqueID>
+  <ID>B1033.043b</ID>
+  <Description>Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Special Concentric Braced Frame w double angle braces, X Brace, Brace 41 PLF &lt; w &lt; 99 PLF</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Marginal</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Marginal</Documentation>
+    <Rationality>Average</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:48:39.7818061-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Buckling of the brace has begun but does not exceed the depth of the brace.  Initial yielding of the gusset has begun.  Yielding has initiated in framing at gusset plates but no buckling has occurred.  Residual buckling of the brace has occurred but is barely noticeable to the naked eye and does not exceed half the brace depth.  Residual drift is slight.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace damage is largely aesthetic.  Heat straightening may be desirable but replacement would be for aesthetic reasons.  Gusset has minor loss of strength and stiffness and straightening or repair may be desirable aesthetic reasons.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>84302.56</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.4096</EnergyDispersion>
+        <CarbonMedian>6857.34</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.4096</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>46151.9526</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>31383.3278</MinAmount>
+          <Uncertainty>0.3245</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>30.5417</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>20.7684</MinAmount>
+          <Uncertainty>0.4096</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0026</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Buckling of brace in excess of the brace depth.  Initiation of yielding and out-of-plane deformation of the gusset.  Initiation of cracking of welds of gusset.  Initiation of yielding in beams and columns adjacent to gusset.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace has lost significant axial capacity, and replacement braces is likely required.  The gusset plate may have significant deformation and replacement may also be needed. Local beam and column yielding has occurred and straightening may be desirable for aesthetic reasons.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.6</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>334511.66</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.3756</EnergyDispersion>
+        <CarbonMedian>15443.17</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.3756</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>73998.4348</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>50318.9357</MinAmount>
+          <Uncertainty>0.2804</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>48.9695</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>33.2993</MinAmount>
+          <Uncertainty>0.3756</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0048</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Fracture of brace or gusset.  Buckling of gusset.  Severe yielding of beams and columns adjacent to the gusset with possibility of local buckling and cracking in the yielded areas.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace and gusset are severely damaged with significant loss in stiffness and resistance, and both likely require replacement. Yielding and local buckling of beams and columns may be repaired by heat straightening, stiffeners or reinforcement, if there is no cracking or tearing. If cracking or tearing has initiated more substantial repair is needed</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.4</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>334511.66</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.3728</EnergyDispersion>
+        <CarbonMedian>15443.17</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.3728</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>78373.4348</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>53293.9357</MinAmount>
+          <Uncertainty>0.2765</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>51.8648</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>35.268</MinAmount>
+          <Uncertainty>0.3728</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0112</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

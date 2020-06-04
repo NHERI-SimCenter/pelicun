@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>dc668f6a-c12d-4cbe-b65d-3ad11754c60e</UniqueID>
+  <ID>B1051.002b</ID>
+  <Description>None</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Concrete link beam, conventionally reinforced, aspect ratio between 2.0 and 4.0, beam &lt; 16" wide and depth &lt; 30"</Name>
+  <Author>John Wallace</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Link Beam Chord Rotation</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:50.2905683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: B1051.002b: B1051.002b: DS1 overlaps DS2 at 0.3425 - Make sure damage states are minimally overlapping
+Warning: B1051.002b: B1051.002b: DS2 overlaps DS3 in the range of 0.3425 to 1.37 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Residual crakcs no greater than 1/16 inch.  Cracks are mainly at the beam to wall interface, some limited flexural cracking.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Epoxy inject crakcs (200 to 240 inches in length).</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>14280.3</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>7933.5</MinAmount>
+          <Uncertainty>0.6773</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>36.5824</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>20.1554</MinAmount>
+          <Uncertainty>0.6873</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>1.37</Median>
+      <Beta>0.21</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Residual cracks greater than 1/8 inch and minor spalling of concrete.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Epoxy inject crakcs (600 to 720 inches) and slab (300 inches), replace spalled concrete.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>37584</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>20880</MinAmount>
+          <Uncertainty>0.3673</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>97.2198</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>53.9859</MinAmount>
+          <Uncertainty>0.3679</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.64</Median>
+      <Beta>0.33</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Significant strength degredation (&lt;0.8Vn), buckling or fracture of diagonal reinforcing, crushing of concrete.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Chip away damaged concrete, attached mechanical couplers to the diagonal bars still embeded in the wall, replace damaged or fractured reinforcing.  Replace damaged concrete.  </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>56119.5</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>31177.5</MinAmount>
+          <Uncertainty>0.3774</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>145.6575</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>81.1018</MinAmount>
+          <Uncertainty>0.3777</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>4.07</Median>
+      <Beta>0.75</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

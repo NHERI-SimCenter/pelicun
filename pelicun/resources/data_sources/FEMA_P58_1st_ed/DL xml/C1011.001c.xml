@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>47d32231-914d-4bd4-bdda-2a84ae755c6e</UniqueID>
+  <ID>C1011.001c</ID>
+  <Description>Quantity is based upon 13'x100' Panels.  Quantity of wall damaged varies by damage state.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Wall Partition, Type: Gypsum with metal studs, Full Height, Fixed Below, Slip Track Above with returns</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>false</Official>
+  <DateCreated>2012-09-27T16:36:29.4534328-07:00</DateCreated>
+  <Approved>false</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>
+Import errors:
+ Warning: C1011.001c: C1011.001c: DS1 overlaps DS2 in the range of 0.018 to 0.036 - Make sure damage states are minimally overlapping
+Warning: C1011.001c: C1011.001c: DS2 overlaps DS3 in the range of 0.0005 to 0.00125 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Screws pop-out, minor cracking of wall board, warping or cracking of tape.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Retape joints, paste and repaint both sides of  20 foot length of wall board.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>1090</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>1060</MinAmount>
+          <Uncertainty>0.435</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>3.22</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>3.12</MinAmount>
+          <Uncertainty>0.435</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.002</Median>
+      <Beta>0.7</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Moderate cracking or crushing of gypsum wall boards (typically in corners and in corners of openings).</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Moderate cracking or crushing of gypsum wall boards (typically in corners and in corners of openings).</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Remove 10 foot length of wall board (both sides), install new wall board (both sides),  tape, paste and repaint.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>2080</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>1730</MinAmount>
+              <Uncertainty>0.193</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>6.11</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>5.08</MinAmount>
+              <Uncertainty>0.193</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.8</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Moderate cracking or crushing of gypsum wall boards (typically in corners and in corners of openings).</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Remove 50 foot length of wall board (both sides), install new wall board (both sides),  tape, paste and repaint.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>7910</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>6770</MinAmount>
+              <Uncertainty>0.0969</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>23.3</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>19.9</MinAmount>
+              <Uncertainty>0.0969</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.2</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>0.005</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Significant cracking and/or crushing of gypsum wall boards- buckling of metal studs and tearing of tracks.</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Significant cracking and/or crushing of gypsum wall boards- buckling of metal studs and tearing of tracks.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Remove and replace 10 foot length of metal stud wall, both sides of the gypsum wall board and any embedded utilities, and tape, paste and repaint.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>3180</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>2680</MinAmount>
+              <Uncertainty>0.176</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>9.35</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>7.89</MinAmount>
+              <Uncertainty>0.176</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.8</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Significant cracking and/or crushing of gypsum wall boards- buckling of metal studs and tearing of tracks.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Remove and replace 50 foot length of metal stud wall, both sides of the gypsum wall board and any embedded utilities, and tape, paste and repaint.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <CostConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>12400</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>10500</MinAmount>
+              <Uncertainty>0.158</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>1</LowerQuantity>
+              <MaxAmount>36.6</MaxAmount>
+              <UpperQuantity>10</UpperQuantity>
+              <MinAmount>31</MinAmount>
+              <Uncertainty>0.158</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.2</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>0.009</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

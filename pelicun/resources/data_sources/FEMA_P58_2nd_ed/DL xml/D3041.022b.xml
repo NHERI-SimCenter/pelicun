@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>10a49268-8b5f-413c-9de6-36e69d71564b</UniqueID>
+  <ID>D3041.022b</ID>
+  <Description>Costing based upon 1000 ft segments of duct</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>HVAC Stainless Steel Ducting -  6 sq. ft cross sectional area or greater, SDC C</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Marginal</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Marginal</Documentation>
+    <Rationality>Marginal</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:51:21.6047328-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Individual supports fail and duct sags - 1 failed support per 1000 feet of ducting.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace failed supports and repair ducting in vicinity of failed supports.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>10049.13</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.2806</EnergyDispersion>
+        <CarbonMedian>784.43</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.2806</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>2145</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>1755</MinAmount>
+          <Uncertainty>0.1273</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>2.3658</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>1.9356</MinAmount>
+          <Uncertainty>0.2806</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>1.5</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Several adjacent supports fail and sections of ducting fall - 60 feet of ducting fail and fall per 1000 foot of ducting.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace sections of failed ducting and supports.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>true</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea>
+          <Area>
+            <Unit>Square Foot</Unit>
+            <Value>50</Value>
+          </Area>
+        </AffectedFloorArea>
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0.1</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0.5</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>102704.18</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.2845</EnergyDispersion>
+        <CarbonMedian>8474.69</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.2845</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>23595</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>19305</MinAmount>
+          <Uncertainty>0.1357</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>26.0239</MaxAmount>
+          <UpperQuantity>5</UpperQuantity>
+          <MinAmount>21.2923</MinAmount>
+          <Uncertainty>0.2845</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.25</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

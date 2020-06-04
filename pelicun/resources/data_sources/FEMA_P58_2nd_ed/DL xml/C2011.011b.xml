@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>843f8ec4-6d96-4ceb-872b-a87a82f6764f</UniqueID>
+  <ID>C2011.011b</ID>
+  <Description>Rigid stair without seismic interstory drift joint.  Precast concrete stair.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Non-monolithic precast concrete stair assembly with concrete stringers and treads with no seismic joint.</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Marginal</DataQuality>
+    <DataRelevance>Marginal</DataRelevance>
+    <Documentation>Average</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:50:15.7630031-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Confirm median demand and dispersion values.  Base document noted that there was insufficient data to establish median demand or dispersion values.  The median demand and dispersion values listed are from a best fit approximation of the data performed by MKA.</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Non structural damage, local concrete cracking, localized concrete spalling, localized rebar yielding.</Description>
+      <DamageImageName>C2011.011a-DS1-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Patch, paint, epoxy injection.  Repair finishes.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>3233.83</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.8396</EnergyDispersion>
+        <CarbonMedian>136.72</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.8396</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>1400</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>420</MinAmount>
+          <Uncertainty>0.8015</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>1.5442</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>0.4633</MinAmount>
+          <Uncertainty>0.8396</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.005</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Structural damage but live load capacity remains intact.  Extensive concrete cracking, concrete crushing, buckling of rebar.</Description>
+      <DamageImageName>C2011.011a-DS2-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove damaged components, install replacement components.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <EnergyMedian>20540.69</EnergyMedian>
+        <EnergyCurveType>LogNormal</EnergyCurveType>
+        <EnergyDispersion>0.6218</EnergyDispersion>
+        <CarbonMedian>725.04</CarbonMedian>
+        <CarbonCurveType>LogNormal</CarbonCurveType>
+        <CarbonDispersion>0.6218</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>7400</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>2220</MinAmount>
+          <Uncertainty>0.5694</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>8.1618</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>2.4485</MinAmount>
+          <Uncertainty>0.6218</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.017</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Loss of live load capacity.  Extensive concrete crushing, connection failure.</Description>
+      <DamageImageName>C2011.011a-DS2-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace stair and handrail.  Repair and replace affected soffits and floor finishes.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.75</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>352471.24</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.4394</EnergyDispersion>
+        <CarbonMedian>26019.78</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.4394</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>45900</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>13770</MinAmount>
+          <Uncertainty>0.3613</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>50.625</MaxAmount>
+          <UpperQuantity>10</UpperQuantity>
+          <MinAmount>15.1875</MinAmount>
+          <Uncertainty>0.4394</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.028</Median>
+      <Beta>0.45</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

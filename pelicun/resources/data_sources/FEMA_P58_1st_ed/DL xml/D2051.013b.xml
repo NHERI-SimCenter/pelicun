@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>0318c890-bc3f-4dc9-9ad7-94cc91e63ed3</UniqueID>
+  <ID>D2051.013b</ID>
+  <Description>Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, BRACING FRAGILITY</Name>
+  <Author></Author>
+  <Correlation>1</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:49:12.8145683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>Yes
+Import errors:
+ Warning: D2051.013b: Could not parse Correlation - Assuming Correlated
+Warning: D2051.013b: Could not parse Demand Location - Using False
+Warning, Data missing: D2051.013b:DS1: Could not parse dispersion - using 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Isolated support failure w/o leakage - 0.5 supports fail per 1000 feet of pipe (assuming supports every 20 feet)</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>NO</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>760</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>228</MinAmount>
+          <Uncertainty>0.603</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>2.0133</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>0.5947</MinAmount>
+          <Uncertainty>0.7803</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>2.25</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

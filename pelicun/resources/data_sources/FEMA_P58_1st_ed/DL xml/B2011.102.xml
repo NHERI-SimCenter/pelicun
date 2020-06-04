@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>d0dc63fc-4972-45d5-9ca8-aa3b7ae56b3d</UniqueID>
+  <ID>B2011.102</ID>
+  <Description>Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with hold-downs. Three layer 7/8" stucco with 1/2-inch chop strand fibers applied over wire mesh fastened with 1.25 -inch long staples.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Exterior Wall - Light framed wood walls with structural panel sheathing, stucco,  hold-downs</Name>
+  <Author>Andre Filiatrault</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:53.5965683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Copy of B1071.002 for use as an exterior wall.
+Import errors:
+ Warning: B2011.102: B2011.102: DS1 overlaps DS2 in the range of 0.0252 to 0.0504 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Cracking of stucco.</Description>
+      <DamageImageName>B1071.002-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Clean stucco cracks. Fill cracks with cement compound. Repaint wall to hide cracks.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>980</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>653.3333</MinAmount>
+          <Uncertainty>0.1879</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>2.4163</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>1.5837</MinAmount>
+          <Uncertainty>0.2341</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0025</Median>
+      <Beta>0.44</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Spalling of stucco, separation of stucco and sheathing from studs. </Description>
+      <DamageImageName>B1071.002-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove loose stucco and patch spalled areas with stucco. Repaint to hide repairs.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.35</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>1580</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>1053.3333</MinAmount>
+          <Uncertainty>0.2331</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>3.6712</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>2.3288</MinAmount>
+          <Uncertainty>0.2601</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0052</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Fracture of studs, major sill plate cracking.</Description>
+      <DamageImageName>B1071.002-DS3-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove and replace studs, plates, sheathing, and stucco. Shore as required.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>5760</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>3840</MinAmount>
+          <Uncertainty>0.115</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>14.4471</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>9.5529</MinAmount>
+          <Uncertainty>0.1266</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0252</Median>
+      <Beta>0.16</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

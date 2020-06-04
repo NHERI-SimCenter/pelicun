@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>1d5247ad-dc47-4402-a745-cc6b5a866cb5</UniqueID>
+  <ID>D2022.011a</ID>
+  <Description>Potable water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY</Name>
+  <Author></Author>
+  <Correlation>1</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:49:04.5915683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>Yes
+Import errors:
+ Warning: D2022.011a: Could not parse Correlation - Assuming Correlated
+Warning: D2022.011a: Could not parse Demand Location - Using False
+Warning, Data missing: D2022.011a:DS1: Could not parse dispersion - using 0.5
+Warning, Data missing: D2022.011a:DS2: Could not parse dispersion - using 0.5
+Warning: D2022.011a:DS2: Could not parse Long Lead Time - Assuming no
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Small Leakage at joints - 1 leak per 1000 feet of pipe</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>NO</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>580</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>174</MinAmount>
+          <Uncertainty>0.7637</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>1.7961</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>0.6816</MinAmount>
+          <Uncertainty>0.7803</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.55</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Large Leakage w/ major repair  - 1 leak per 1000 feet of pipe</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>YES</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>5300</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>1590</MinAmount>
+          <Uncertainty>0.4054</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>250</LowerQuantity>
+          <MaxAmount>14.2745</MaxAmount>
+          <UpperQuantity>500</UpperQuantity>
+          <MinAmount>4.0902</MinAmount>
+          <Uncertainty>0.4257</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>1.1</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

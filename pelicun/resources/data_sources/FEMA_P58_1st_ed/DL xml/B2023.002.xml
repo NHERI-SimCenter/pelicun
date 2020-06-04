@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>668828a0-fbfd-4848-b92f-c0b3652c8547</UniqueID>
+  <ID>B2023.002</ID>
+  <Description>None</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Generic Storefront, Config: IGU, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:57.5185683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: B2023.002: B2023.002: DS1 overlaps DS2 in the range of 0.01475 to 0.03325 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Gasket seal failure.</Description>
+      <DamageImageName>B2022.003-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove glass panel and replace damaged gaskets.  </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>2055</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>1096</MinAmount>
+          <Uncertainty>0.1668</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>5.3729</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>2.8908</MinAmount>
+          <Uncertainty>0.1521</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.059</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Glass cracking.</Description>
+      <DamageImageName>B2022.001a-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace cracked glass panel.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>2955</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>1576</MinAmount>
+          <Uncertainty>0.1185</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>7.6494</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>4.0802</MinAmount>
+          <Uncertainty>0.1094</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0665</Median>
+      <Beta>0.35</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Glass falls out.</Description>
+      <DamageImageName>B2022.001a-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace cracked glass panel; cover exposure in meantime.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>true</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea>
+          <Area>
+            <Unit>Square Foot</Unit>
+            <Value>36</Value>
+          </Area>
+        </AffectedFloorArea>
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0.25</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0.5</AffectedInjuryRateBeta>
+        <RedTagMedian>0.5</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>2364</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>1674.5</MinAmount>
+          <Uncertainty>0.1185</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>20</LowerQuantity>
+          <MaxAmount>6.1198</MaxAmount>
+          <UpperQuantity>100</UpperQuantity>
+          <MinAmount>4.3352</MinAmount>
+          <Uncertainty>0.1094</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.423</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

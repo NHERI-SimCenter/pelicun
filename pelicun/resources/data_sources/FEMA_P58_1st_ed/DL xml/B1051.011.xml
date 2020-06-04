@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>d037eab5-052b-4998-bab7-2ec3f81505af</UniqueID>
+  <ID>B1051.011</ID>
+  <Description>Costing for each 100 ft^2 Wall Panel</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Ordinary reinforced masonry walls with partially grouted cells, shear dominated, 8" to 12"' thick, up to 12 foot tall</Name>
+  <Author>Benson Shing</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>Marginal</DataRelevance>
+    <Documentation>Average</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:51.2845683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>First occurrence of major diagonal cracks.  Cracks remain closed with hardly noticeable residual crack widths after load removal. </Description>
+      <DamageImageName>B1051.001-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Grout wall.  Epoxy injection.  Paint each side. </RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>5220</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>3480</MinAmount>
+          <Uncertainty>0.1014</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>14.3541</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>9.6459</MinAmount>
+          <Uncertainty>0.1003</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.002</Median>
+      <Beta>0.86</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Wide diagonal cracks with typically one or more cracks in each direction.  Crushing or spalling at wall toes. </Description>
+      <DamageImageName>B1051.001-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Shore.  Demolish existing wall.  Construct new wall. </RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>9160</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>6106.6667</MinAmount>
+          <Uncertainty>0.1396</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>9</LowerQuantity>
+          <MaxAmount>25.131</MaxAmount>
+          <UpperQuantity>30</UpperQuantity>
+          <MinAmount>16.869</MinAmount>
+          <Uncertainty>0.1366</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0033</Median>
+      <Beta>0.77</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

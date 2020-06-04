@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>b318f68a-70e6-4340-bd81-056766544b76</UniqueID>
+  <ID>B1033.033c</ID>
+  <Description>Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Special Concentric Braced Frame, design to AISC minimum standards, X Brace, Brace w &gt; 100 PLF</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Marginal</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Marginal</Documentation>
+    <Rationality>Average</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:40.2615683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None
+Import errors:
+ Warning: B1033.033c: B1033.033c: DS1 overlaps DS2 at 0.00095 - Make sure damage states are minimally overlapping
+Warning: B1033.033c: B1033.033c: DS2 overlaps DS3 in the range of 0.029 to 0.074 - Make sure damage states are minimally overlapping
+Warning: B1033.033c: B1033.033c: DS3 overlaps DS4 in the range of 0.001875 to 0.0076 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Buckling of the brace has begun but does not exceed the depth of the brace.  Initial yielding of the gusset has begun.  Yielding has initiated in framing at gusset plates but no buckling has occurred.  Residual buckling of the brace has occurred but is barely noticeable to the naked eye and does not exceed half the brace depth.  Residual drift is slight.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace damage is largely aesthetic.  Heat straightening may be desirable but replacement would be for aesthetic reasons.  Gusset has minor loss of strength and stiffness and straightening or repair may be desirable aesthetic reasons.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>46151.9526</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>31383.3278</MinAmount>
+          <Uncertainty>0.3245</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>123.0744</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>83.6914</MinAmount>
+          <Uncertainty>0.3245</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0038</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Buckling of brace in excess of the brace depth.  Initiation of yielding and out-of-plane deformation of the gusset.  Initiation of cracking of welds of gusset.  Initiation of yielding in beams and columns adjacent to gusset.</Description>
+      <DamageImageName>B1033.001a-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace has lost significant axial capacity, and replacement of HSS braces is likely required.  The gusset plate may have significant deformation and replacement may also be needed. Local beam and column yielding has occurred and straightening may be desirable for aesthetic reasons.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.6</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>90203.9022</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>61338.6535</MinAmount>
+          <Uncertainty>0.2682</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>240.5387</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>163.5648</MinAmount>
+          <Uncertainty>0.2682</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0075</Median>
+      <Beta>0.55</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Buckling of brace in excess of 2 times brace depth .  Yielding and out-of-plane deformation of gusset .  Cracking and tearing of welds and gussets adjacent to welds but crack length is less than critical for fracture .  Significant yielding and local buckling in beams and columns adjacent to gusset .  </Description>
+      <DamageImageName>B1033.001a-DS3-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace and gusset are severely damaged with significant loss in stiffness and resistance, and both likely require replacement. Yielding and local buckling of beams and columns may be repaired by heat straightening, stiffeners or reinforcement, if there is no cracking or tearing. If cracking or tearing has initiated more substantial repair is needed</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.4</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>97078.9022</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>66013.6535</MinAmount>
+          <Uncertainty>0.2644</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>258.8754</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>176.0348</MinAmount>
+          <Uncertainty>0.2644</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0145</Median>
+      <Beta>0.25</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Fracture of brace or gusset.  Buckling of gusset.  Severe yielding of beams and columns adjacent to the gusset with possibly local buckling and cracking in the yielded areas.</Description>
+      <DamageImageName>B1033.011a-DS3-2.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Brace and or gusset have fractured and require replacement. Yielding and local buckling of beams and columns may be repaired by heat straightening, stiffeners or reinforcement, if there is no cracking or tearing. If cracking or tearing has initiated more substantial repair is needed</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.2</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>97078.9022</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>66013.6535</MinAmount>
+          <Uncertainty>0.2644</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3</LowerQuantity>
+          <MaxAmount>258.8754</MaxAmount>
+          <UpperQuantity>7</UpperQuantity>
+          <MinAmount>176.0348</MinAmount>
+          <Uncertainty>0.2644</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0185</Median>
+      <Beta>0.35</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

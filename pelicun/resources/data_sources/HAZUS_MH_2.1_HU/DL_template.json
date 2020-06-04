@@ -1,0 +1,163 @@
+{
+  "Name": "string",
+  "Directional": "bool",
+  "GeneralInformation": {
+    "ID": "string",
+    "Description": "string",
+    "Building type": "string",
+    "Roof Shape": "string",
+    "Roof Cover Type": "string",
+    "Roof Cover Quality": "string",
+    "Roof Deck Attachment": "string",
+    "Roof-Wall Connection": "string",
+    "Secondary Water Resistance": "bool",
+    "Garage": "string",
+    "Shutters": "bool",
+    "Terrain": "string"
+  },
+  "EDP": {
+    "Type": "string",
+    "Unit": [
+      "float",
+      "string"
+    ]
+  },
+  "DSGroups": [
+    {
+      "MedianEDP": "float",
+      "Beta": "float",
+      "CurveType": "string",
+      "DSGroupType": "string",
+      "DamageStates": [
+        {
+          "Weight": "float",
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": "float"
+            },
+            "ReconstructionTime": {
+              "Amount": "float"
+            }
+          },
+          "Description": "string"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "float",
+      "Beta": "float",
+      "CurveType": "string",
+      "DSGroupType": "string",
+      "DamageStates": [
+        {
+          "Weight": "float",
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": "float"
+            },
+            "ReconstructionTime": {
+              "Amount": "float"
+            }
+          },
+          "Description": "string"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "float",
+      "Beta": "float",
+      "CurveType": "string",
+      "DSGroupType": "string",
+      "DamageStates": [
+        {
+          "Weight": "float",
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": "float"
+            },
+            "ReconstructionTime": {
+              "Amount": "float"
+            }
+          },
+          "Description": "string"
+        }
+      ]
+    },
+    {
+      "MedianEDP": "float",
+      "Beta": "float",
+      "CurveType": "string",
+      "DSGroupType": "string",
+      "DamageStates": [
+        {
+          "Weight": "float",
+          "Consequences": {
+            "Injuries": [
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              },
+              {
+                "Amount": "float"
+              }
+            ],
+            "ReconstructionCost": {
+              "Amount": "float"
+            },
+            "ReconstructionTime": {
+              "Amount": "float"
+            }
+          },
+          "Description": "string"
+        }
+      ]
+    }
+  ]
+}

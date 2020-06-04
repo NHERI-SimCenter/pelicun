@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>b27fbae2-b725-401f-bfeb-dca2e6bf8d81</UniqueID>
+  <ID>B3041.001</ID>
+  <Description>Unreinforced and unbraced masonry parapet as a component of a masonry building.  Parapet height / width of approximately 3.  Costing based upon repair of 3ft tall x 10ft segment.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Masonry Parapet - unreinforced, unbraced</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:50:12.6199463-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>None</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Cracking with offset &gt; 1/16"</Description>
+      <DamageImageName>B2012.001a-DS1-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace and reinforce</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>5398.36</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.353</EnergyDispersion>
+        <CarbonMedian>200.83</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.353</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>810</MaxAmount>
+          <UpperQuantity>50</UpperQuantity>
+          <MinAmount>432</MinAmount>
+          <Uncertainty>0.2492</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>0.7862</MaxAmount>
+          <UpperQuantity>50</UpperQuantity>
+          <MinAmount>0.4193</MinAmount>
+          <Uncertainty>0.353</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.2</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Toppling of all or portion of parapet.</Description>
+      <DamageImageName>B2012.001a-DS2-1.jpg</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace and reinforce</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.5</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>5398.36</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.353</EnergyDispersion>
+        <CarbonMedian>200.83</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.353</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>810</MaxAmount>
+          <UpperQuantity>50</UpperQuantity>
+          <MinAmount>432</MinAmount>
+          <Uncertainty>0.2492</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>10</LowerQuantity>
+          <MaxAmount>0.7862</MaxAmount>
+          <UpperQuantity>50</UpperQuantity>
+          <MinAmount>0.4193</MinAmount>
+          <Uncertainty>0.353</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.4</Median>
+      <Beta>0.6</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

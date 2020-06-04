@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>f95bd74c-961a-4869-a403-9d6d8132bf96</UniqueID>
+  <ID>C3033.001</ID>
+  <Description>2ft by 4ft lighting fixture recessed in a suspended ceiling.  Fragility is for casualty evaluation only.  Ceiling lighting cost consequence has been included in the suspended ceiling fragilities.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Recessed lighting in suspended ceiling - no independent support wires</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:48:10.4835683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence.
+Import errors:
+ Warning, Data missing: C3033.001:DS1: Could not parse median - using 500
+Warning, Data missing: C3033.001:DS1: Could not parse dispersion - using 0.5
+Warning, Data missing: C3033.001:DS1:Time: Could not parse CurveType - Assuming Normal
+Warning, Data missing: C3033.001:DS1:Time: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: C3033.001:DS1:Time: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: C3033.001:DS1:Time: Could not parse Dispersion - Assuming 0.5
+Warning, Data missing: C3033.001:DS1:Cost: Could not parse CurveType - Assuming Normal
+Warning, Data missing: C3033.001:DS1:Cost: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: C3033.001:DS1:Cost: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: C3033.001:DS1:Cost: Could not parse Dispersion - Assuming 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Not Applicable.</Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Not applicable.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>true</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea>
+          <Area>
+            <Unit>Square Foot</Unit>
+            <Value>10</Value>
+          </Area>
+        </AffectedFloorArea>
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0.75</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0.5</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>500</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>50233451-ba2f-41d2-97d5-0629ec68b6ef</UniqueID>
+  <ID>B1031.021c</ID>
+  <Description>Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Welded column splices, Column W &gt; 300 plf</Name>
+  <Author>Greg Deierlein</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Superior</DataQuality>
+    <DataRelevance>Superior</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:48:28.2932537-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Fracture is not expected where weld has adequate toughness and the maximum weld root stress is below 1.5Fu from column P/A+M/S under story drift using A and S from weld root area.  </Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Ductile fracture of the groove weld flange splice.   Damage in field is either obscured or deemed to not warrant repair.  No repair conducted.</Description>
+      <DamageImageName>B1031.021a-DS1-1.JPG</DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Ductile fracture of the groove weld flange splice.   Damage in field is either obscured or deemed to not warrant repair.  No repair conducted.</Description>
+          <DamageImageName>B1031.021a-DS1-1.JPG</DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Repair would involve gouging out the material adjacent to the fracture and repairing with a new groove weld.  Field condition is deemed to not warrant repair by field observation.  This Damage State is Mutually Exclusive with DS2.  See fragility DS1 and DS2 probabilities.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>0</EnergyMedian>
+            <EnergyCurveType>LogNormal</EnergyCurveType>
+            <EnergyDispersion>0.3536</EnergyDispersion>
+            <CarbonMedian>0</CarbonMedian>
+            <CarbonCurveType>LogNormal</CarbonCurveType>
+            <CarbonDispersion>0.3536</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>0</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>0</MinAmount>
+              <Uncertainty>0.25</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>0</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>0</MinAmount>
+              <Uncertainty>0.3536</Uncertainty>
+              <CurveType>LogNormal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.95</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Ductile fracture of the groove weld flange splice. </Description>
+          <DamageImageName>B1031.021a-DS1-1.JPG</DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Repair would involve gouging out the material adjacent to the fracture and repairing with a new groove weld. </RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>5914.11</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.3665</EnergyDispersion>
+            <CarbonMedian>192.73</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.3665</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>14742</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>9072</MinAmount>
+              <Uncertainty>0.268</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>9.7557</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>6.0035</MinAmount>
+              <Uncertainty>0.3665</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.05</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>0.02</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>DS1 followed by complete failure of the web splice plate and dislocation of the two column segments on either side of the splice.  </Description>
+      <DamageImageName>B1031.021a-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures> Repair may not be practically feasible, but would require either realignment or replacement of adjacent column segments and rewelding of splice.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.02</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <EnergyMedian>14785.28</EnergyMedian>
+        <EnergyCurveType>Normal</EnergyCurveType>
+        <EnergyDispersion>0.3438</EnergyDispersion>
+        <CarbonMedian>481.82</CarbonMedian>
+        <CarbonCurveType>Normal</CarbonCurveType>
+        <CarbonDispersion>0.3438</CarbonDispersion>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>19608</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>13889</MinAmount>
+          <Uncertainty>0.2361</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>12.9758</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>9.1912</MinAmount>
+          <Uncertainty>0.3438</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.05</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

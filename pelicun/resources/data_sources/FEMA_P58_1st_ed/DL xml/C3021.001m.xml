@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>d50c3e0c-885b-496d-abce-fadc20853fd4</UniqueID>
+  <ID>C3021.001m</ID>
+  <Description>Flooring type to be specified by the user.  Fragility is based upon fire sprinkler piping, SDC A.  User to revise fragility data as deemed appropriate.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Generic Floor Covering - Flooding of floor caused by failure of pipe - Warehouse - Dry</Name>
+  <Author>Not Given</Author>
+  <Correlation>0</Correlation>
+  <Directional>false</Directional>
+  <EDPType>
+    <Dimension>NumLevelsPlusOne</Dimension>
+    <TypeName>Acceleration</TypeName>
+    <DefaultUnits>g</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Marginal</DataQuality>
+    <DataRelevance>Marginal</DataRelevance>
+    <Documentation>Marginal</Documentation>
+    <Rationality>Marginal</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:48:07.0885683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>None
+Import errors:
+ Warning, Data missing: C3021.001m:DS2:Time: Could not parse CurveType - Assuming Normal
+Warning, Data missing: C3021.001m:DS2:Time: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: C3021.001m:DS2:Time: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: C3021.001m:DS2:Time: Could not parse Dispersion - Assuming 0.5
+Warning, Data missing: C3021.001m:DS2:Cost: Could not parse CurveType - Assuming Normal
+Warning, Data missing: C3021.001m:DS2:Cost: Could not parse Upper Quantity cost - Assuming 0
+Warning, Data missing: C3021.001m:DS2:Cost: Could not parse Lower Quantity cost - Assuming 0
+Warning, Data missing: C3021.001m:DS2:Cost: Could not parse Dispersion - Assuming 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>true</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Small Leakage at joints -  0.02 leaks per 20 ft section,  Flooring Damage Descrption by User.  User to include mutually exclusive damage states with different probabilities for varying percentages of the total floor area.   </Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace or dry out of the affected flooring materials, equipment and contents.  Remove areas that could be affected by mold.  Potentially considerable downtime.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1000</LowerQuantity>
+          <MaxAmount>12.06</MaxAmount>
+          <UpperQuantity>5000</UpperQuantity>
+          <MinAmount>8.04</MinAmount>
+          <Uncertainty>0.4005</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1000</LowerQuantity>
+          <MaxAmount>0.0471</MaxAmount>
+          <UpperQuantity>5000</UpperQuantity>
+          <MinAmount>0.0329</MinAmount>
+          <Uncertainty>0.4682</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.55</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Large Leakage w/ major repair  0.02 leaks per 20 foot section,  Flooring Damage Descrption by User.  User to include mutually exclusive damage states with different probabilities for varying percentages of the total floor area.  </Description>
+      <DamageImageName></DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Replace or dry out of the affected flooring materials, equipment and contents.  Remove areas that could be affected by mold.  Potentially considerable downtime.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>1</LowerQuantity>
+          <MaxAmount>0</MaxAmount>
+          <UpperQuantity>1</UpperQuantity>
+          <MinAmount>0</MinAmount>
+          <Uncertainty>0.5</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>1.1</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

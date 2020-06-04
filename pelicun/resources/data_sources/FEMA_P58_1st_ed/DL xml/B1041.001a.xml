@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>6fb64c76-ff15-4584-88a5-437605c44661</UniqueID>
+  <ID>B1041.001a</ID>
+  <Description>ACI318 Concrete SMF, ductile response.  Meets the requirements of ACI318 SMF.  Costing is on a per joint basis.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>ACI 318 SMF , Conc Col &amp; Bm = 24" x 24", Beam one side</Name>
+  <Author>Laura Lowes</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Average</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:42.8025683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.
+Import errors:
+ Warning: B1041.001a: B1041.001a: DS1 overlaps DS2 in the range of 0.08 to 0.2 - Make sure damage states are minimally overlapping
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Beams or joints exhibit residual crack widths &gt; 0.06 in.  No significant spalling.  No fracture or buckling of reinforcing.</Description>
+      <DamageImageName>B1041.001a-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove furnishings, ceilings and mechanical, electrical and plumbing systems (as necessary) 8 feet either side of damaged area.  Clean area adjacent to the damaged concrete.  Prepare spalled concrete and adjacent cracks, as necessary, to be patched and to receive the epoxy injection.  Patch concrete with grout. Replace and repair finishes.  Replace furnishings, ceilings and mechanical, electrical and plumbing systems as necessary.</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>27846</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>17136</MinAmount>
+          <Uncertainty>0.3909</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>71.632</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>43.912</MinAmount>
+          <Uncertainty>0.3974</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.02</Median>
+      <Beta>0.4</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Beams or joints exhibit residual crack widths &gt; 0.06 in. Spalling of cover concrete exposes beam and joint transverse reinforcement but not longitudinal reinforcement. No fracture or buckling of reinforcing.</Description>
+      <DamageImageName>B1041.001a-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove furnishings, ceilings and mechanical, electrical and
+plumbing systems (as necessary) 15 feet either side of
+damaged area. Shore damaged member(s) a min one level below (more levels may be required). Remove damaged concrete at least 1 inch beyond the exposed
+reinforcing steel. Place concrete forms. Place concrete.
+Remove forms. Remove shores after one week. Replace and
+repair finishes. Replace furnishings, ceilings and mechanical,
+electrical and plumbing systems (as necessary).</RepairMeasures>
+        <TagState>0</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0</RedTagMedian>
+        <RedTagBeta>0</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>38978.4</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>27609.7</MinAmount>
+          <Uncertainty>0.3183</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>5</LowerQuantity>
+          <MaxAmount>100.8142</MaxAmount>
+          <UpperQuantity>20</UpperQuantity>
+          <MinAmount>71.3893</MinAmount>
+          <Uncertainty>0.3175</Uncertainty>
+          <CurveType>Normal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0275</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Beams or joints exhibit residual crack widths &gt; 0.06 in. Spalling of cover concrete exposes a significant length of beam longitudinal reinforcement. Crushing of core concrete may occur. Fracture or buckling of reinf. requiring replacement may occur.</Description>
+      <DamageImageName>B1041.001a-DS3-1.JPG</DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Beams or joints exhibit residual crack widths &gt; 0.06 in. Spalling of cover concrete exposes a significant length of beam longitudinal reinforcement. Crushing of core concrete may occur. Fracture or buckling of reinf. requiring replacement may occur.</Description>
+          <DamageImageName>B1041.001a-DS3-1.JPG</DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Remove furnishings, ceilings and mechanical, electrical and plumbing systems (as necessary) 15 feet either side of damaged component. Shore damaged member(s) a minimum of one level below (more levels may be required).  Remove damaged component.  Place and splice (as necessary) new reinforcing steel to existing, undamaged reinforcing.  Place concrete forms.  Place concrete.  Remove forms.  Remove shores after one week.  Replace and repair finishes.  Replace furnishings, ceilings and mechanical, electrical and plumbing systems (as necessary).
+</RepairMeasures>
+            <TagState>Red</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0.2</RedTagMedian>
+            <RedTagBeta>0.5</RedTagBeta>
+            <CostConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>47978.4</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>33984.7</MinAmount>
+              <Uncertainty>0.3024</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>123.6966</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>87.4776</MinAmount>
+              <Uncertainty>0.3004</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.8</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Beams or joints exhibit residual crack widths &gt; 0.06 in. Spalling of cover concrete exposes beam and joint transverse reinforcement but not longitudinal reinforcement. No fracture or buckling of reinforcing.</Description>
+          <DamageImageName>B1041.001a-DS2-1.JPG</DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>Remove furnishings, ceilings and mechanical, electrical and plumbing systems (as necessary) 15 feet either side of damaged area.  Shore damaged member(s) a min one level below (more levels may be required).  Remove damaged concrete at least 1 inch beyond the exposed reinforcing steel.  Place concrete forms.  Place concrete.   Remove forms.  Remove shores after one week.  Replace and repair finishes.  Replace furnishings, ceilings and mechanical, electrical and plumbing systems (as necessary).</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <CostConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>38978.4</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>27609.7</MinAmount>
+              <Uncertainty>0.3183</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>5</LowerQuantity>
+              <MaxAmount>100.8142</MaxAmount>
+              <UpperQuantity>20</UpperQuantity>
+              <MinAmount>71.3893</MinAmount>
+              <Uncertainty>0.3175</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.2</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>0.05</Median>
+      <Beta>0.3</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

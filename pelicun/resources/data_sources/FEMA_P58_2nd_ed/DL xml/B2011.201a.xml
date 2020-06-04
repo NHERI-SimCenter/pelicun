@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>d73b7820-9f62-4cbc-902e-f8b9b4aedaeb</UniqueID>
+  <ID>B2011.201a</ID>
+  <Description>Costing is based upon 30'x13' panels.</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Precast Concrete Panels 4.5 inches thick - in plane deformation</Name>
+  <Author>By User</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>NA</DataQuality>
+    <DataRelevance>NA</DataRelevance>
+    <Documentation>NA</Documentation>
+    <Rationality>NA</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2019-02-19T17:49:51.9901371-08:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>true</Incomplete>
+  <Notes>Determine fragility story drift median demand in accordance with Chapter 7 of Volume 2.
+Import errors:
+ Warning, Data missing: B2011.201a:DS1: Could not parse median - using 500
+Warning, Data missing: B2011.201a:DS1: Could not parse dispersion - using 0.5
+</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Cladding units damaged by impact at corners at  column covers.  Damage in field is either attributed to natural edge chipping / damage,  or is deemed to not warrant full repair.  Repair assumes cosmetic chip patching.</Description>
+      <DamageImageName></DamageImageName>
+      <DamageStates>
+        <DSGroupType>MutuallyExclusive</DSGroupType>
+        <DamageState>
+          <Name></Name>
+          <Description>Cladding units damaged by impact at corners at  column covers.  Damage in field is either attributed to natural edge chipping / damage,  or is deemed to not warrant full repair.  Repair assumes cosmetic chip patching.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>By User, Repair cost assumed to equal 20% of DS2.</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>163991.1</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.3168</EnergyDispersion>
+            <CarbonMedian>11544</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.3168</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>2</LowerQuantity>
+              <MaxAmount>16472.3</MaxAmount>
+              <UpperQuantity>8</UpperQuantity>
+              <MinAmount>10136.8</MinAmount>
+              <Uncertainty>0.1946</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>2</LowerQuantity>
+              <MaxAmount>2.4232</MaxAmount>
+              <UpperQuantity>8</UpperQuantity>
+              <MinAmount>1.4915</MinAmount>
+              <Uncertainty>0.3168</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.5</Percent>
+        </DamageState>
+        <DamageState>
+          <Name></Name>
+          <Description>Cladding units damaged by impact at corners at  column covers.</Description>
+          <DamageImageName></DamageImageName>
+          <ConsequenceGroup>
+            <RepairMeasures>By User, Cost listed assumed the replacement of the panel</RepairMeasures>
+            <TagState>0</TagState>
+            <UseCasualty>false</UseCasualty>
+            <LongLeadFlag>false</LongLeadFlag>
+            <AffectedFloorArea />
+            <AffectedDeathRate>0</AffectedDeathRate>
+            <AffectedInjuryRate>0</AffectedInjuryRate>
+            <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+            <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+            <RedTagMedian>0</RedTagMedian>
+            <RedTagBeta>0</RedTagBeta>
+            <EnergyMedian>819951.6</EnergyMedian>
+            <EnergyCurveType>Normal</EnergyCurveType>
+            <EnergyDispersion>0.3168</EnergyDispersion>
+            <CarbonMedian>57712.2</CarbonMedian>
+            <CarbonCurveType>Normal</CarbonCurveType>
+            <CarbonDispersion>0.3168</CarbonDispersion>
+            <CostConsequence>
+              <LowerQuantity>2</LowerQuantity>
+              <MaxAmount>82361.5</MaxAmount>
+              <UpperQuantity>8</UpperQuantity>
+              <MinAmount>50684</MinAmount>
+              <Uncertainty>0.1946</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </CostConsequence>
+            <TimeConsequence>
+              <LowerQuantity>2</LowerQuantity>
+              <MaxAmount>12.1161</MaxAmount>
+              <UpperQuantity>8</UpperQuantity>
+              <MinAmount>7.4576</MinAmount>
+              <Uncertainty>0.3168</Uncertainty>
+              <CurveType>Normal</CurveType>
+            </TimeConsequence>
+          </ConsequenceGroup>
+          <Percent>0.5</Percent>
+        </DamageState>
+      </DamageStates>
+      <Median>500</Median>
+      <Beta>0.5</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

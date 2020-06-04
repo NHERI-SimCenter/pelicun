@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<FragilityCurve FileVersion="2.0">
+  <UniqueID>2b4459f1-0c06-4f3e-a3b0-766294599566</UniqueID>
+  <ID>B1044.042</ID>
+  <Description>Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c &gt; 2500 psi, P/(A*f'c) &lt;= 0.2</Description>
+  <BasicUnit>Each</BasicUnit>
+  <Name>Low-rise reinforced concrete walls with return flanges, 8" -16" thick, 16' to 24' high</Name>
+  <Author>Andrew Whittaker</Author>
+  <Correlation>0</Correlation>
+  <Directional>true</Directional>
+  <EDPType>
+    <Dimension>NumLevels</Dimension>
+    <TypeName>Story Drift Ratio</TypeName>
+    <DefaultUnits>Radian</DefaultUnits>
+    <UserDefined>false</UserDefined>
+  </EDPType>
+  <Ratings>
+    <DataQuality>Average</DataQuality>
+    <DataRelevance>Average</DataRelevance>
+    <Documentation>Superior</Documentation>
+    <Rationality>Superior</Rationality>
+  </Ratings>
+  <Official>true</Official>
+  <DateCreated>2012-10-12T16:47:47.6795683-07:00</DateCreated>
+  <Approved>true</Approved>
+  <Incomplete>false</Incomplete>
+  <Notes>Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.</Notes>
+  <UseEDPValueOfFloorAbove>false</UseEDPValueOfFloorAbove>
+  <DamageStates>
+    <DSGroupType>Sequential</DSGroupType>
+    <DamageState>
+      <Name></Name>
+      <Description>Crushed core concrete; localized concrete cracking with widths greater than 0.12 in; buckling of vertical rebar.</Description>
+      <DamageImageName>B1044.031-DS1-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>Remove furnishings, ceilings and mechanical, electrical and plumping systems (as necessary) 5 feet either side of damaged area.  Replace and repair finishes.  Replace furnishings, ceilings and mechanical, electrical and plumping systems (as necessary).</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.5</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>3.75</LowerQuantity>
+          <MaxAmount>50040</MaxAmount>
+          <UpperQuantity>12.5</UpperQuantity>
+          <MinAmount>33360</MinAmount>
+          <Uncertainty>0.1051</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3.75</LowerQuantity>
+          <MaxAmount>148.5294</MaxAmount>
+          <UpperQuantity>12.5</UpperQuantity>
+          <MinAmount>99.4706</MinAmount>
+          <Uncertainty>0.0996</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0076</Median>
+      <Beta>0.35</Beta>
+    </DamageState>
+    <DamageState>
+      <Name></Name>
+      <Description>Sliding of the wall resulting in large residual displacement; distributed concrete cracking with widths greater than 0.12 in; fracture of rebar.</Description>
+      <DamageImageName>B1044.031-DS2-1.JPG</DamageImageName>
+      <ConsequenceGroup>
+        <RepairMeasures>(1) Relocate eqpt.&amp; furniture within 10 ft. of wall, both sides.  Install protection on floor &amp; adjacent walls.  (2) Remove wall finishes, both sides.  (3) Relocate MEP within 10 ft. of wall.  (4) Remove damaged wall in 5-ft.lengths.  (5) Install bars: a. 12#9 A706 bars in bz ea. end; mech splices to (E) ; b. #4 A706 dbl sets of seismic ties at 4 in. oc ea bz; c. #4 A706 bar at 6 in. oc, ewef; lap new vert. bars to (E) at top of wall; drill &amp; epoxy bars into wall/fdn at 6 in. oc to match new rebar above.  Anchor horiz.  Bars in bz with seismic hks or lap 24 in. with (E) horiz. bars.  (6) Form wall.  Cast 5ksi concrete in 3-ft. lifts; with 1-in. top gap for grout day after casting.  (7) Remove forms, clean-up &amp; reinstall/return eqpt, finishes, furniture &amp; MEP.</RepairMeasures>
+        <TagState>Red</TagState>
+        <UseCasualty>false</UseCasualty>
+        <LongLeadFlag>false</LongLeadFlag>
+        <AffectedFloorArea />
+        <AffectedDeathRate>0</AffectedDeathRate>
+        <AffectedInjuryRate>0</AffectedInjuryRate>
+        <AffectedDeathRateBeta>0</AffectedDeathRateBeta>
+        <AffectedInjuryRateBeta>0</AffectedInjuryRateBeta>
+        <RedTagMedian>0.25</RedTagMedian>
+        <RedTagBeta>0.5</RedTagBeta>
+        <CostConsequence>
+          <LowerQuantity>3.75</LowerQuantity>
+          <MaxAmount>93168</MaxAmount>
+          <UpperQuantity>12.5</UpperQuantity>
+          <MinAmount>62112</MinAmount>
+          <Uncertainty>0.1526</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </CostConsequence>
+        <TimeConsequence>
+          <LowerQuantity>3.75</LowerQuantity>
+          <MaxAmount>273.6706</MaxAmount>
+          <UpperQuantity>12.5</UpperQuantity>
+          <MinAmount>182.3294</MinAmount>
+          <Uncertainty>0.1526</Uncertainty>
+          <CurveType>LogNormal</CurveType>
+        </TimeConsequence>
+      </ConsequenceGroup>
+      <Median>0.0134</Median>
+      <Beta>0.45</Beta>
+    </DamageState>
+  </DamageStates>
+</FragilityCurve>

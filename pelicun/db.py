@@ -52,8 +52,216 @@ This module has classes and methods to manage databases used by pelicun.
 """
 
 from .base import *
-import json, posixpath
+from pathlib import Path
+import json
 import xml.etree.ElementTree as ET
+import shutil
+
+
+def dict_generator(indict, pre=None):
+    """
+    Lists all branches of a tree defined by a dictionary.
+
+    The dictionary can have nested dictionaries and lists. When encountering a
+    list, its elements are returned as separate branches with each element's id
+    created as a combination of the parent key and #i where i stands for the
+    element number in the list.
+
+    This method can process a json file and break it up into independent
+    branches.
+
+    """
+    pre = pre[:] if pre else []
+    if isinstance(indict, dict):
+        for key, value in indict.items():
+            if isinstance(value, dict):
+                for d in dict_generator(value, pre + [key]):
+                    yield d
+            elif isinstance(value, list) or isinstance(value, tuple):
+                for v_id, v in enumerate(value):
+                    for d in dict_generator(v, pre + [key + f'#{v_id}']):
+                        yield d
+            else:
+                yield pre + [key, value]
+    else:
+        yield pre + [indict]
+
+
+def get_val_from_dict(indict, col):
+    """
+    Gets the value from a branch of a dictionary.
+
+    The dictionary can have nested dictionaries and lists. When walking through
+    lists, #i in the branch data identifies the ith element of the list.
+
+    This method can be used to travel branches of a dictionary previously
+    defined by the dict_generator method above.
+
+    """
+
+    val = indict
+
+    for col_i in col:
+        if col_i != ' ':
+            if '#' in col_i:
+                col_name, col_id = col_i.split('#')
+                col_id = int(col_id)
+                if (col_name in val.keys()) and (col_id < len(val[col_name])):
+                    val = val[col_name][int(col_id)]
+                else:
+                    return None
+
+            elif col_i in val.keys():
+                val = val[col_i]
+            else:
+                return None
+
+    return val
+
+def convert_jsons_to_table(json_id_list, json_list, json_template):
+    # Define the header for the data table based on the template structure
+    header = np.array(
+        [[col[:-1], len(col[:-1])] for col in dict_generator(json_template)])
+    lvls = max(np.transpose(header)[1])
+    header = [col + (lvls - size) * [' ', ] for col, size in header]
+
+    # Use the header to initialize the DataFrame that will hold the data
+    MI = pd.MultiIndex.from_tuples(header)
+
+    json_DF = pd.DataFrame(columns=MI, index=json_id_list)
+    json_DF.index.name = 'ID'
+
+    # Load the data into the DF
+    for json_id, json_data in zip(json_id_list, json_list):
+
+        for col in json_DF.columns:
+
+            val = get_val_from_dict(json_data, col)
+
+            if val is not None:
+                json_DF.at[json_id, col] = val
+
+    # Remove empty rows and columns
+    json_DF = json_DF.dropna(axis=0, how='all')
+    json_DF = json_DF.dropna(axis=1, how='all')
+
+    # Set the dtypes for the columns based on the template
+    for col in json_DF.columns:
+        dtype = get_val_from_dict(json_template, col)
+
+        if dtype != 'string':
+            try:
+                json_DF[col] = json_DF[col].astype(dtype)
+            except:
+                print(col, dtype)
+        else:
+            json_DF[col] = json_DF[col].apply(str)
+
+    return json_DF
+
+def convert_json_files_to_HDF(data_source_dir, DL_dir, db_name):
+    """
+    Converts data from json files to a single HDF5 file
+
+    """
+
+    # Start with the fragility and consequence data - we'll call it data
+
+    DL_dir = Path(DL_dir).resolve()
+    data_source_dir = Path(data_source_dir).resolve()
+
+    # get a list of json files to convert
+    FG_ID_list = [filename[:-5] for filename in os.listdir(DL_dir / 'DL json')]
+
+    # We will use a template.json to define the schema for the jsons and the
+    # header for the data table.
+    with open(data_source_dir / 'DL_template.json', 'r') as f:
+        FG_template = json.load(f)
+
+    FG_list = []
+    DL_json_dir = DL_dir / 'DL json'
+    for FG_i in FG_ID_list:
+        with open(DL_json_dir / f'{FG_i}.json', 'r') as f:
+            FG_list.append(json.load(f))
+
+    FG_df = convert_jsons_to_table(FG_ID_list, FG_list, FG_template)
+
+    FG_df.to_hdf(DL_dir / f'{db_name}.hdf', 'data', mode='w', format='table',
+                 complevel=1, complib='blosc:snappy')
+
+    # Now add the population distribution data - we'll call it pop
+
+    # Only do this if there is population data
+    try:
+        with open(DL_dir / 'population.json', 'r') as f:
+            pop = json.load(f)
+
+        pop_ID_list = list(pop.keys())
+
+        pop_data = [pop[key] for key in pop.keys()]
+
+        with open(data_source_dir / 'pop_template.json', 'r') as f:
+            pop_template = json.load(f)
+
+        pop_df = convert_jsons_to_table(pop_ID_list, pop_data, pop_template)
+
+        pop_df.to_hdf(DL_dir / f'{db_name}.hdf', 'pop', mode='a', format='table',
+                      complevel=1, complib='blosc:snappy')
+
+    except:
+        pass
+
+def convert_Series_to_dict(comp_Series):
+    """
+    Converts data from a table to a json file
+
+    """
+
+    comp_Series = comp_Series.dropna(how='all')
+
+    comp_dict = {}
+
+    for branch in comp_Series.index:
+
+        nested_dict = comp_dict
+        parent_dict = None
+        parent_val = None
+        parent_id = None
+
+        for val in branch:
+            if val != ' ':
+                if '#' in val:
+                    val, list_id = val.split('#')
+                    list_id = int(list_id)
+                else:
+                    list_id = None
+
+                if val not in nested_dict.keys():
+                    if list_id is not None:
+                        nested_dict.update({val: []})
+                    else:
+                        nested_dict.update({val: {}})
+
+                if list_id is not None:
+                    if list_id > len(nested_dict[val]) - 1:
+                        nested_dict[val].append({})
+                    parent_dict = nested_dict
+                    nested_dict = nested_dict[val][list_id]
+
+                    parent_id = list_id
+
+                else:
+                    parent_dict = nested_dict
+                    nested_dict = nested_dict[val]
+
+                parent_val = val
+
+        if isinstance(parent_dict[parent_val], dict):
+            parent_dict[parent_val] = comp_Series[branch]
+        else:
+            parent_dict[parent_val][parent_id] = comp_Series[branch]
+
+    return comp_dict
 
 def convert_P58_data_to_json(data_dir, target_dir):
     """
@@ -79,6 +287,10 @@ def convert_P58_data_to_json(data_dir, target_dir):
         Path to the folder where the JSON files shall be saved.
 
     """
+
+    data_dir = Path(data_dir).resolve()
+    target_dir = Path(target_dir).resolve()
+    DL_dir = None
 
     convert_unit = {
         'Unit less': 'ea',
@@ -125,7 +337,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                       float(CFG_C.find('UpperQuantity').text)],
             CurveType=CFG_C.find('CurveType').text,
             Beta=float(CFG_C.find('Uncertainty').text),
-            Bounds=[0, 'None']
+            Bounds=[0., 'None']
         )
         if repair_cost['Amount'] == [0.0, 0.0]:
             repair_cost['Amount'] = 'Undefined'
@@ -137,7 +349,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                       float(CFG_T.find('UpperQuantity').text)],
             CurveType=CFG_T.find('CurveType').text,
             Beta=float(CFG_T.find('Uncertainty').text),
-            Bounds=[0, 'None']
+            Bounds=[0., 'None']
         )
         if repair_time['Amount'] == [0.0, 0.0]:
             repair_time['Amount'] = 'Undefined'
@@ -157,11 +369,10 @@ def convert_P58_data_to_json(data_dir, target_dir):
         except ValueError:
             return False
 
-    src_df = pd.read_excel(
-        posixpath.join(data_dir, 'PACT_fragility_data.xlsx'))
+    src_df = pd.read_excel(data_dir / 'PACT_fragility_data.xlsx')
     ID_list = src_df['NISTIR Classification']
 
-    XML_list = [f for f in os.listdir(data_dir+'DL xml/') if f.endswith('.xml')]
+    XML_list = [f for f in os.listdir(data_dir / 'DL xml') if f.endswith('.xml')]
 
     incomplete_count = 0
 
@@ -171,7 +382,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
 
         #try:
         if True:
-            tree = ET.parse(posixpath.join(data_dir+'DL xml/', comp_ID + '.xml'))
+            tree = ET.parse((data_dir / 'DL xml') / f'{comp_ID}.xml')
             root = tree.getroot()
 
             # correct for the error in the numbering of RC beams
@@ -194,7 +405,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                     QU[1] = 1
                 json_output.update({'QuantityUnit': [int(QU[1]), QU[0]]})
             else:
-                json_output.update({'QuantityUnit': [0, 'Undefined']})
+                json_output.update({'QuantityUnit': [0., 'Undefined']})
                 incomplete = True
 
             json_output.update({'Directional': row['Directional?'] in ['YES']})
@@ -309,8 +520,8 @@ def convert_P58_data_to_json(data_dir, target_dir):
                         'Weight'        :
                             float(row['DS {}, Probability'.format(DS[-1])]),
                         'LongLeadTime'  :
-                            row['DS {}, Long Lead Time'.format(DS[-1])] in [
-                                'YES'],
+                            int(row['DS {}, Long Lead Time'.format(DS[-1])] in [
+                                'YES']),
                         'Consequences'  : {},
                         'Description'   :
                             row['DS {}, Description'.format(DS[-1])],
@@ -465,12 +676,23 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 json_output['GeneralInformation']['Incomplete'] = True
                 incomplete_count += 1
 
-            with open(posixpath.join(target_dir, comp_ID + '.json'),'w') as f:
+            if DL_dir is None:
+                DL_dir = target_dir / "DL json"
+                DL_dir.mkdir(exist_ok=True)
+
+            with open(DL_dir / f'{comp_ID}.json', 'w') as f:
                 json.dump(json_output, f, indent=2)
 
         #except:
         #    warnings.warn(UserWarning(
         #        'Error converting data for component {}'.format(comp_ID)))
+
+    # finally, copy the population file
+    shutil.copy(
+        data_dir / 'population.json',
+        target_dir / 'population.json'
+    )
+
 
 def create_HAZUS_EQ_json_files(data_dir, target_dir):
     """
@@ -500,6 +722,10 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
 
     """
 
+    data_dir = Path(data_dir).resolve()
+    target_dir = Path(target_dir).resolve()
+    DL_dir = None
+
     convert_design_level = {
         'High_code'    : 'HC',
         'Moderate_code': 'MC',
@@ -516,7 +742,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
     }
 
     # open the raw HAZUS data
-    with open(posixpath.join(data_dir, 'hazus_data_eq.json'), 'r') as f:
+    with open(data_dir / 'hazus_data_eq.json', 'r') as f:
         raw_data = json.load(f)
 
     design_levels = list(
@@ -620,8 +846,12 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
                             DS['Description'] = convert_DS_description[
                                 DS['Description']]
 
-                    with open(posixpath.join(target_dir + 'DL json/',
-                                           dl_id + '.json'), 'w') as f:
+                    # create the DL json directory (if it does not exist)
+                    if DL_dir is None:
+                        DL_dir = target_dir / "DL json"
+                        DL_dir.mkdir(exist_ok=True)
+
+                    with open(DL_dir / f'{dl_id}.json', 'w') as f:
                         json.dump(json_output, f, indent=2)
 
             # second, nonstructural acceleration sensitive fragility groups
@@ -677,9 +907,12 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
                     }]
                 })
 
-            with open(
-                posixpath.join(target_dir + 'DL json/', dl_id + '.json'),
-                'w') as f:
+            # create the DL json directory (if it does not exist)
+            if DL_dir is None:
+                DL_dir = target_dir / "DL json"
+                DL_dir.mkdir(exist_ok=True)
+
+            with open(DL_dir / f'{dl_id}.json', 'w') as f:
                 json.dump(json_output, f, indent=2)
 
                 # third, nonstructural drift sensitive fragility groups
@@ -734,8 +967,11 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
                 }]
             })
 
-        with open(posixpath.join(target_dir + 'DL json/', dl_id + '.json'),
-                  'w') as f:
+        if DL_dir is None:
+            DL_dir = target_dir / "DL json"
+            DL_dir.mkdir(exist_ok=True)
+
+        with open(DL_dir / f'{dl_id}.json', 'w') as f:
             json.dump(json_output, f, indent=2)
 
     # finally, prepare the population distribution data
@@ -765,7 +1001,7 @@ def create_HAZUS_EQ_json_files(data_dir, target_dir):
             }
         }})
 
-    with open(posixpath.join(target_dir, 'population.json'), 'w') as f:
+    with open(target_dir / 'population.json', 'w') as f:
         json.dump(pop_output, f, indent=2)
 
 def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
@@ -797,6 +1033,10 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
 
     """
 
+    data_dir = Path(data_dir).resolve()
+    target_dir = Path(target_dir).resolve()
+    DL_dir = None
+
     convert_design_level = {
         'High_code'    : 'HC',
         'Moderate_code': 'MC',
@@ -820,7 +1060,7 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
     }
 
     # open the raw HAZUS data
-    with open(posixpath.join(data_dir, 'hazus_data_eq.json'), 'r') as f:
+    with open(data_dir / 'hazus_data_eq.json', 'r') as f:
         raw_data = json.load(f)
 
     # First, the ground shaking fragilities
@@ -917,8 +1157,11 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
                             DS['Description'] = convert_DS_description[
                                 DS['Description']]
 
-                    with open(posixpath.join(target_dir + 'DL json/',
-                                           dl_id + '.json'), 'w') as f:
+                    if DL_dir is None:
+                        DL_dir = target_dir / "DL json"
+                        DL_dir.mkdir(exist_ok=True)
+
+                    with open(DL_dir / f'{dl_id}.json', 'w') as f:
                         json.dump(json_output, f, indent=2)
 
     # Second, the ground failure fragilities
@@ -985,8 +1228,12 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
                         })
                         json_output['DSGroups'][-1]['DamageStates'][0]['Weight'] = 1.0 - DS5_w
 
+                if DL_dir is None:
+                    DL_dir = target_dir / "DL json"
+                    DL_dir.mkdir(exist_ok=True)
+
                 # consequences are handled through propagating damage to other components
-                with open(posixpath.join(target_dir + 'DL json/', dl_id + '.json'), 'w') as f:
+                with open(DL_dir / f'{dl_id}.json', 'w') as f:
                     json.dump(json_output, f, indent=2)
 
     # prepare the population distribution data
@@ -1016,7 +1263,7 @@ def create_HAZUS_EQ_PGA_json_files(data_dir, target_dir):
             }
         }})
 
-    with open(posixpath.join(target_dir, 'population.json'), 'w') as f:
+    with open(target_dir / 'population.json', 'w') as f:
         json.dump(pop_output, f, indent=2)
 
 def create_HAZUS_HU_json_files(data_dir, target_dir):
@@ -1053,8 +1300,12 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
 
     """
 
+    data_dir = Path(data_dir).resolve()
+    target_dir = Path(target_dir).resolve()
+    DL_dir = None
+
     # open the raw HAZUS data
-    df_wood = pd.read_excel(posixpath.join(data_dir, 'hu_Wood.xlsx'))
+    df_wood = pd.read_excel(data_dir / 'hu_Wood.xlsx')
 
     # some general formatting to make file name generation easier
     df_wood['shutters'] = df_wood['shutters'].astype(int)
@@ -1166,7 +1417,7 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
         # general information
         json_output.update({
             'GeneralInformation': {
-                'ID'           : index,
+                'ID'           : str(index),
                 'Description'  : dl_id,
                 'Building type': convert_building_type[bldg_type],
             }
@@ -1207,7 +1458,10 @@ def create_HAZUS_HU_json_files(data_dir, target_dir):
                 }]
             })
 
-        with open(posixpath.join(target_dir + '/DL json/', dl_id + '.json'),
-                  'w') as f:
+        if DL_dir is None:
+            DL_dir = target_dir / "DL json"
+            DL_dir.mkdir(exist_ok=True)
+
+        with open(DL_dir / f'{dl_id}.json', 'w') as f:
             json.dump(json_output, f, indent=2)
 
