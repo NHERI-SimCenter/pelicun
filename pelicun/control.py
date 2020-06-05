@@ -608,8 +608,8 @@ class FEMA_P58_Assessment(Assessment):
     """
     An Assessment class that implements the loss assessment method in FEMA P58.
     """
-    def __init__(self, inj_lvls = 2):
-        super(FEMA_P58_Assessment, self).__init__()
+    def __init__(self, inj_lvls = 2, log_file=True):
+        super(FEMA_P58_Assessment, self).__init__(log_file)
 
         # constants for the FEMA-P58 methodology
         self._inj_lvls = inj_lvls
@@ -664,12 +664,16 @@ class FEMA_P58_Assessment(Assessment):
 
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
-            log_msg('\tPopulation data files...')
-            POP = read_population_distribution(
-                self._AIM_in['data_sources']['path_POP_data'],
-                BIM['general']['occupancy_type'],
-                assessment_type=self._assessment_type,
-                verbose=verbose)
+            
+            if BIM['general']['event_time'] is None:
+                log_msg('\tPopulation data files...')
+                POP = read_population_distribution(
+                    self._AIM_in['data_sources']['path_POP_data'],
+                    BIM['general']['occupancy_type'],
+                    assessment_type=self._assessment_type,
+                    verbose=verbose)
+            else:
+                POP = {'peak': None}
 
             POP['peak'] = BIM['general']['population']
             self._POP_in = POP
@@ -818,14 +822,14 @@ class FEMA_P58_Assessment(Assessment):
             discard_limits = None
 
         self._RV_dict.update({
-            'EDP': self._create_RV_demands()})
+            'EDP': self._create_RV_demands()})        
 
         # sample the random variables -----------------------------------------
         log_msg()
         log_msg('Sampling the random variables...')
 
         realization_count = self._AIM_in['general']['realizations']
-        is_coupled = self._AIM_in['general']['coupled_assessment']
+        is_coupled = self._AIM_in['general']['coupled_assessment']       
 
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:
@@ -833,7 +837,8 @@ class FEMA_P58_Assessment(Assessment):
             if rv is not None:
                 log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
-                    sample_size=realization_count, preserve_order=is_coupled)
+                    sample_size=realization_count, 
+                    preserve_order=((r_i=='EDP') and is_coupled))
 
         log_msg('Sampling completed.')
 
