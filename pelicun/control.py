@@ -504,93 +504,102 @@ class Assessment(object):
         collapse_limits = np.transpose(np.asarray(collapse_limits))
         demand_data = np.transpose(np.asarray(demand_data))
 
-        # If more than one sample is available...
-        if demand_data.shape[0] > 1:
+        # In a coupled assessment only the raw data needs to be stored
+        if GI['coupled_assessment']:
 
-            # Second, we discard the collapsed EDPs if the fitted distribution shall
-            # represent non-collapse EDPs.
-            EDP_filter = np.all([np.all(demand_data > collapse_limits[0], axis=1),
-                                 np.all(demand_data < collapse_limits[1], axis=1)],
-                                axis=0)
-            demand_data = demand_data[EDP_filter]
-
-            log_msg('\t\t{} considered collapsed out of {} raw samples'.format(
-                list(EDP_filter).count(False), len(EDP_filter)))
-
-            # Third, we censor the EDPs that are beyond the detection limit.
-            EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
-                                 np.all(demand_data < detection_limits[1], axis=1)],
-                                axis=0)
-
-            log_msg('\t\t{} are beyond the detection limits out of {} non-collapse samples'.format(
-                list(EDP_filter).count(False), len(EDP_filter)))
-
-            censored_count = len(EDP_filter) - sum(EDP_filter)
-            demand_data = demand_data[EDP_filter]
-            demand_data = np.transpose(demand_data)
-
-            log_msg('\t\tNumber of EDP dimensions: {}'.format(len(d_tags)))
-
-            # Fourth, we create the random variable
+            # Create the random variable
             demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                       raw_data=demand_data,
-                                       detection_limits=detection_limits,
-                                       censored_count=censored_count
-                                       )
+                                       raw_data=np.transpose(demand_data))
 
-            # And finally, if requested, we fit a multivariate lognormal or a
-            # truncated multivariate lognormal distribution to the censored raw
-            # data.
-            target_dist = GI['response']['EDP_distribution']
-
-            if target_dist == 'lognormal':
-                log_msg('\t\tFitting a lognormal distribution to samples...')
-                demand_RV.fit_distribution('lognormal')
-            elif target_dist == 'truncated lognormal':
-                log_msg('\t\tFitting a truncated lognormal distribution to samples...')
-                demand_RV.fit_distribution('lognormal', collapse_limits)
-
-        # This is a special case when only a one sample is provided.
+        # Otherwise, a distribution is fit to the raw data
         else:
-            # TODO: what to do when the sample is larger than the collapse or detection limit and when truncated distribution is prescribed
+            # If more than one sample is available...
+            if demand_data.shape[0] > 1:
 
-            # Since we only have one data point, the best we can do is assume
-            # it is the median of the multivariate distribution. The dispersion
-            # is assumed to be negligible.
-            dim = len(demand_data[0])
-            if dim > 1:
-                sig = np.abs(demand_data[0])*1e-6
-                rho = np.zeros((dim,dim))
-                np.fill_diagonal(rho, 1.0)
-                COV = np.outer(sig,sig) * rho
+                # Second, we discard the collapsed EDPs if the fitted distribution shall
+                # represent non-collapse EDPs.
+                EDP_filter = np.all([np.all(demand_data > collapse_limits[0], axis=1),
+                                     np.all(demand_data < collapse_limits[1], axis=1)],
+                                    axis=0)
+                demand_data = demand_data[EDP_filter]
+
+                log_msg('\t\t{} considered collapsed out of {} raw samples'.format(
+                    list(EDP_filter).count(False), len(EDP_filter)))
+
+                # Third, we censor the EDPs that are beyond the detection limit.
+                EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
+                                     np.all(demand_data < detection_limits[1], axis=1)],
+                                    axis=0)
+
+                log_msg('\t\t{} are beyond the detection limits out of {} non-collapse samples'.format(
+                    list(EDP_filter).count(False), len(EDP_filter)))
+
+                censored_count = len(EDP_filter) - sum(EDP_filter)
+                demand_data = demand_data[EDP_filter]
+                demand_data = np.transpose(demand_data)
+
+                log_msg('\t\tNumber of EDP dimensions: {}'.format(len(d_tags)))
+
+                # Fourth, we create the random variable
+                demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                                           raw_data=demand_data,
+                                           detection_limits=detection_limits,
+                                           censored_count=censored_count
+                                           )
+
+                # And finally, if requested, we fit a multivariate lognormal or a
+                # truncated multivariate lognormal distribution to the censored raw
+                # data.
+                target_dist = GI['response']['EDP_distribution']
+
+                if target_dist == 'lognormal':
+                    log_msg('\t\tFitting a lognormal distribution to samples...')
+                    demand_RV.fit_distribution('lognormal')
+                elif target_dist == 'truncated lognormal':
+                    log_msg('\t\tFitting a truncated lognormal distribution to samples...')
+                    demand_RV.fit_distribution('lognormal', collapse_limits)
+
+            # This is a special case when only a one sample is provided.
             else:
-                COV = np.abs(demand_data[0][0])*(1e-6)**2.0
+                # TODO: what to do when the sample is larger than the collapse or detection limit and when truncated distribution is prescribed
 
-            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                       distribution_kind='lognormal',
-                                       theta=demand_data[0],
-                                       COV=COV)
+                # Since we only have one data point, the best we can do is assume
+                # it is the median of the multivariate distribution. The dispersion
+                # is assumed to be negligible.
+                dim = len(demand_data[0])
+                if dim > 1:
+                    sig = np.abs(demand_data[0])*1e-6
+                    rho = np.zeros((dim,dim))
+                    np.fill_diagonal(rho, 1.0)
+                    COV = np.outer(sig,sig) * rho
+                else:
+                    COV = np.abs(demand_data[0][0])*(1e-6)**2.0
 
-        # To consider additional uncertainty in EDPs, we need to redefine the
-        # random variable. If the EDP distribution is set to 'empirical' then
-        # adding uncertainty by increasing its variance is not possible.
-        if ((self.beta_tot is not None) and
-            (GI['response']['EDP_distribution'] != 'empirical')):
-            log_msg('Considering additional sources of uncertainty...')
-            # determine the covariance matrix with added uncertainty
-            if demand_RV.COV.shape != ():
-                sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
-                COV_mod = np.outer(sig_mod, sig_mod) * demand_RV.corr
-            else:
-                COV_mod = np.sqrt(demand_RV.COV**2. + self.beta_tot**2.)
+                demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                                           distribution_kind='lognormal',
+                                           theta=demand_data[0],
+                                           COV=COV)
 
-            # redefine the random variable
-            demand_RV = RandomVariable(
-                ID=200,
-                dimension_tags=demand_RV.dimension_tags,
-                distribution_kind=demand_RV.distribution_kind,
-                theta=demand_RV.theta,
-                COV=COV_mod)
+            # To consider additional uncertainty in EDPs, we need to redefine the
+            # random variable. If the EDP distribution is set to 'empirical' then
+            # adding uncertainty by increasing its variance is not possible.
+            if ((self.beta_tot is not None) and
+                (GI['response']['EDP_distribution'] != 'empirical')):
+                log_msg('Considering additional sources of uncertainty...')
+                # determine the covariance matrix with added uncertainty
+                if demand_RV.COV.shape != ():
+                    sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
+                    COV_mod = np.outer(sig_mod, sig_mod) * demand_RV.corr
+                else:
+                    COV_mod = np.sqrt(demand_RV.COV**2. + self.beta_tot**2.)
+
+                # redefine the random variable
+                demand_RV = RandomVariable(
+                    ID=200,
+                    dimension_tags=demand_RV.dimension_tags,
+                    distribution_kind=demand_RV.distribution_kind,
+                    theta=demand_RV.theta,
+                    COV=COV_mod)
 
         return demand_RV
 
