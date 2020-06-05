@@ -214,7 +214,7 @@ def auto_populate(DL_input_path, EDP_input_path,
                 'DecisionVariables': {
                     'ReconstructionCost': True,
                     'ReconstructionTime': True,
-                    'Injuries': False
+                    'Injuries': True
                 },
                 'Inhabitants': {
                     'OccupancyType': ot,
