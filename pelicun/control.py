@@ -2597,7 +2597,15 @@ class HAZUS_Assessment(Assessment):
             if 'FR-' in key:
                 log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
 
+        # decision variables
+        DVs = self._AIM_in['decision_variables']
 
+        if DVs['rec_time'] or DVs['rec_cost']:
+            log_msg('\tReconstruction Costs and Times...')
+            self._RV_dict.update({
+                'DV_REP': self._create_RV_repairs(DEP['rec_costs'],
+                                                  DEP['rec_times'],
+                                                  DEP['cost_and_time'])})
 
             if self._RV_dict['DV_REP'] is not None:
                 log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
@@ -2614,7 +2622,7 @@ class HAZUS_Assessment(Assessment):
         log_msg('Sampling the random variables...')
 
         realization_count = self._AIM_in['general']['realizations']
-        is_coupled = self._AIM_in['general']
+        is_coupled = self._AIM_in['general']['coupled_assessment']
 
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:
@@ -2622,7 +2630,8 @@ class HAZUS_Assessment(Assessment):
             if rv is not None:
                 log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
-                    sample_size=realization_count, preserve_order=is_coupled)
+                    sample_size=realization_count, 
+                    preserve_order=((r_i=='EDP') and is_coupled))
 
         log_msg('Sampling completed.')
 
