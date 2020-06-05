@@ -587,6 +587,9 @@ def auto_populate(DL_input_path, EDP_input_path,
                 }
             }
 
+    if event_time is not None:
+            loss_dict['LossModel']['Inhabitants'].update({'EventTime': event_time})
+
     DL_input.update({'DamageAndLoss':loss_dict})
 
     DL_ap_path = DL_input_path[:-5]+'_ap.json'
