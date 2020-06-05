@@ -3627,7 +3627,8 @@ class HAZUS_Assessment(Assessment):
 
         ncID = self._ID_dict['non-collapse']
         NC_samples = len(ncID)
-        DMG = pd.DataFrame()
+
+        FG_dmg_list = []
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
@@ -3749,9 +3750,12 @@ class HAZUS_Assessment(Assessment):
                             )
 
                 FG_damages.iloc[:, pg_i * d_count:(pg_i + 1) * d_count] = \
-                    FG_damages.mul(PG_qnt.iloc[:, 0], axis=0)
+                    FG_damages.iloc[:, pg_i * d_count:(pg_i + 1) * d_count].values * PG_qnt.iloc[:, 0].values.reshape(-1, *[1])
 
-            DMG = pd.concat((DMG, FG_damages), axis=1)
+            
+            FG_dmg_list.append(FG_damages)
+        
+        DMG = pd.concat(FG_dmg_list, axis=1)
 
         DMG.index = ncID
 
@@ -3768,10 +3772,8 @@ class HAZUS_Assessment(Assessment):
         DMG_by_FG_and_DS = self._DMG.groupby(level=[0, 2], axis=1).sum()
 
         repID = self._ID_dict['repairable']
-        REP_samples = len(repID)
-        DV_COST = pd.DataFrame(np.zeros((REP_samples, len(self._DMG.columns))),
-                               columns=self._DMG.columns, index=repID)
-        DV_TIME = deepcopy(DV_COST)
+        DV_COST = self._DMG.loc[repID, :].copy()
+        DV_TIME = DV_COST.copy()
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
@@ -3783,34 +3785,60 @@ class HAZUS_Assessment(Assessment):
             DS_list = self._DMG.loc[:, idx[FG._ID, PG_set[0]._ID, :]].columns
             DS_list = DS_list.levels[2][DS_list.codes[2]].values
 
-            for pg_i, PG in enumerate(PG_set):
+            for d_i, d_tag in enumerate(DS_list):
 
-                PG_ID = PG._ID
+                dsg_i = int(d_tag[0]) - 1
+                ds_i = int(d_tag[-1]) - 1
 
-                for d_i, d_tag in enumerate(DS_list):
-                    dsg_i = int(d_tag[0]) - 1
-                    ds_i = int(d_tag[-1]) - 1
+                TOT_qnt = DMG_by_FG_and_DS.loc[repID, (FG._ID, d_tag)]
 
-                    DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
+                # check what can we expect later
+                # pull the DS from the first PG
+                DS_test = PG_set[0]._DSG_set[dsg_i]._DS_set[ds_i]
 
-                    TOT_qnt = DMG_by_FG_and_DS.loc[repID, (FG._ID, d_tag)]
-                    PG_qnt = self._DMG.loc[repID,
-                                           (FG._ID, PG_ID, d_tag)]
+                if DVs['rec_cost']:
+                    COST_samples = DS_test.unit_repair_cost(quantity=TOT_qnt)
 
-                    # repair cost
-                    if DVs['rec_cost']:
-                        COST_samples = DS.unit_repair_cost(quantity=TOT_qnt)
-                        if COST_samples is not None:
-                            DV_COST.loc[:,
-                            (FG._ID, PG_ID, d_tag)] = COST_samples * PG_qnt
+                    if COST_samples is None:
+                        # there are no costs assigned to this DS
+                        DV_COST.drop(DV_COST.loc[:, idx[FG._ID, :, d_tag]].columns, axis=1, inplace=True)
 
-                    if DVs['rec_time']:
-                        # repair time
-                        TIME_samples = DS.unit_reconstruction_time(
-                            quantity=TOT_qnt)
-                        if TIME_samples is not None:
-                            DV_TIME.loc[:,
-                            (FG._ID, PG_ID, d_tag)] = TIME_samples * PG_qnt
+                    elif isinstance(COST_samples, pd.Series):
+                        # the assigned costs are random numbers 
+                        for pg_i, PG in enumerate(PG_set):
+
+                            PG_ID = PG._ID
+                            DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
+
+                            COST_samples = DS.unit_repair_cost(quantity=TOT_qnt).values
+                            
+                            DV_COST.loc[:,(FG._ID, PG_ID, d_tag)] = DV_COST.loc[:, (FG._ID, PG_ID, d_tag)].values * COST_samples 
+                            
+                    else:
+                        # the assigned costs are identical for all realizations
+                        DV_COST.loc[:, idx[FG._ID, :, d_tag]] *= COST_samples                   
+
+                if DVs['rec_time']:
+                    TIME_samples = DS_test.unit_reconstruction_time(quantity=TOT_qnt)
+
+                    if TIME_samples is None:
+                        # there are no repair times assigned to this DS
+                        DV_TIME.drop(DV_TIME.loc[:, idx[FG._ID, :, d_tag]].columns, axis=1, inplace=True)
+
+                    elif isinstance(TIME_samples, pd.Series):
+                        # the assigned repair times are random numbers 
+                        for pg_i, PG in enumerate(PG_set):
+
+                            PG_ID = PG._ID
+                            DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
+
+                            TIME_samples = DS.unit_reconstruction_time(quantity=TOT_qnt).values
+                            
+                            DV_TIME.loc[:, (FG._ID, PG_ID, d_tag)] = DV_TIME.loc[:, (FG._ID, PG_ID, d_tag)].values * TIME_samples
+                        
+                    else:
+                        # the assigned repair times are identical for all realizations
+                        DV_TIME.loc[:, idx[FG._ID, :, d_tag]] *= TIME_samples                   
 
         # sort the columns to enable index slicing later
         if DVs['rec_cost']:
@@ -3829,12 +3857,13 @@ class HAZUS_Assessment(Assessment):
         idx = pd.IndexSlice
 
         ncID = self._ID_dict['non-collapse']
+        P_affected = self._POP.loc[ncID]
+
         NC_samples = len(ncID)
-        DV_INJ_dict = dict([(i, pd.DataFrame(np.zeros((NC_samples,
-                                                       len(self._DMG.columns))),
-                                             columns=self._DMG.columns,
-                                             index=ncID))
-                            for i in range(self._inj_lvls)])
+        DV_INJ_dict = dict(
+            [(i, self._DMG.loc[ncID, :].copy()) for i in range(self._inj_lvls)]
+        )
+
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
             log_msg('\t\t{}...'.format(fg_id))
@@ -3845,30 +3874,43 @@ class HAZUS_Assessment(Assessment):
             DS_list = self._DMG.loc[:, idx[FG._ID, PG_set[0]._ID, :]].columns
             DS_list = DS_list.levels[2][DS_list.codes[2]].values
 
-            for pg_i, PG in enumerate(PG_set):
-
-                PG_ID = PG._ID
+            for i in range(self._inj_lvls):
 
                 for d_i, d_tag in enumerate(DS_list):
                     dsg_i = int(d_tag[0]) - 1
                     ds_i = int(d_tag[-1]) - 1
 
-                    DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
+                    # check what can we expect later
+                    # pull the DS from the first PG
+                    DS_test = PG_set[0]._DSG_set[dsg_i]._DS_set[ds_i]
+                    INJ_samples = DS_test.unit_injuries(severity_level=i, 
+                                                        sample_size=NC_samples)
 
-                    P_affected = self._POP.loc[ncID]
+                    if INJ_samples is None:
+                        # there are no injuries assigned to this DS
+                        DV_INJ_dict[i].drop(DV_INJ_dict[i].loc[:, idx[FG._ID, :, d_tag]].columns, axis=1, inplace=True)
+                        continue
 
-                    QNT = self._DMG.loc[:, (FG._ID, PG_ID, d_tag)]
+                    elif isinstance(INJ_samples, pd.Series):
+                        # the assigned injuries are random numbers 
+                        rnd_inj = True
+                        
+                    else:
+                        # the assigned injuries are identical for all realizations
+                        rnd_inj = False
 
-                    # estimate injuries
-                    for i in range(self._inj_lvls):
-                        INJ_samples = DS.unit_injuries(severity_level=i,
-                                                       sample_size=NC_samples)
-                        if INJ_samples is not None:
-                            P_aff_i = P_affected.loc[:,
-                                      'LOC{}'.format(PG._location)]
-                            INJ_i = INJ_samples * P_aff_i * QNT
-                            DV_INJ_dict[i].loc[:,
-                            (FG._ID, PG_ID, d_tag)] = INJ_i
+                    for pg_i, PG in enumerate(PG_set):
+
+                        PG_ID = PG._ID
+                        DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
+
+                        # get injury samples if needed
+                        if rnd_inj:
+                            INJ_samples = DS.unit_injuries(
+                                severity_level=i, sample_size=NC_samples).values
+
+                        P_aff_i = P_affected.loc[:,'LOC{}'.format(PG._location)].values * INJ_samples
+                        DV_INJ_dict[i].loc[:, (FG._ID, PG_ID, d_tag)] = DV_INJ_dict[i].loc[:, (FG._ID, PG_ID, d_tag)].values * P_aff_i
 
         # remove the useless columns from DV_INJ
         for i in range(self._inj_lvls):
