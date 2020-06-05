@@ -50,14 +50,21 @@ from .base import *
 import json
 
 ap_DesignLevel = {
-    1950: 'Pre-Code',
-    1970: 'Low-Code',
-    1990: 'Moderate-Code',
+    1940: 'Pre-Code',
+    1940: 'Low-Code',
+    1975: 'Moderate-Code',
+    2100: 'High-Code'
+}
+
+ap_DesignLevel_W1 = {
+       0: 'Pre-Code',
+       0: 'Low-Code',
+    1975: 'Moderate-Code',
     2100: 'High-Code'
 }
 
 ap_Occupancy = {
-    'Other/Unknown': 'RES1',
+    'Other/Unknown': 'RES3',
     'Residential - Single-Family': 'RES1',
     'Residential - Town-Home': 'RES3',
     'Residential - Multi-Family': 'RES3',
@@ -113,13 +120,22 @@ def auto_populate(DL_input_path, EDP_input_path,
         stories = BIM_in['numStory']
         BIM_in.update({'stories':stories})
 
-        if bt not in ['W1', 'W2']:
-            if stories <= 3:
-                bt += 'L'
-            elif stories <= 7:
-                bt += 'M'
+        if bt not in ['W1', 'W2', 'S3', 'PC1', 'MH']:
+            if bt not in ['URM']:
+                if stories <= 3:
+                    bt += 'L'
+                elif stories <= 7:
+                    bt += 'M'
+                else:
+                    if bt in ['RM']:
+                        bt += 'M'
+                    else:
+                        bt += 'H'
             else:
-                bt += 'H'
+                if stories <= 2:
+                    bt += 'L'
+                else:
+                    bt += 'M'
 
         ot = ap_Occupancy[BIM_in['occupancy']]
 
@@ -152,11 +168,15 @@ def auto_populate(DL_input_path, EDP_input_path,
             }
         }
 
+        if 'W1' in bt:
+            DesignL = ap_DesignLevel_W1
+        else:
+            DesignL = ap_DesignLevel
 
-        for year in sorted(ap_DesignLevel.keys()):
+        for year in sorted(DesignL.keys()):
             if year_built <= year:
                 loss_dict['DamageModel'].update(
-                    {'DesignLevel': ap_DesignLevel[year]})
+                    {'DesignLevel': DesignL[year]})
                 break
         dl = convert_design_level[loss_dict['DamageModel']['DesignLevel']]
         if 'C3' in bt:
