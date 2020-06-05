@@ -1764,10 +1764,11 @@ class FEMA_P58_Assessment(Assessment):
                         # create the consequence functions
                         if DVs['rec_cost']:
                             data = DS['repair_cost']
-                            f_median = prep_bounded_linear_median_DV(
+                            f_median = prep_bounded_multilinear_median_DV(
                                 **{k: data.get(k, None) for k in
-                                   ('median_max', 'median_min',
-                                    'quantity_lower', 'quantity_upper')})
+                                   ('medians', 'quantities')})
+                                   #('median_max', 'median_min',
+                                   # 'quantity_lower', 'quantity_upper')})
                             cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
                                      '-cost' + \
                                      '-LOC-{}-DIR-{}'.format(loc, dir_)
@@ -1780,10 +1781,11 @@ class FEMA_P58_Assessment(Assessment):
 
                         if DVs['rec_time']:
                             data = DS['repair_time']
-                            f_median = prep_bounded_linear_median_DV(
+                            f_median = prep_bounded_multilinear_median_DV(
                                 **{k: data.get(k, None) for k in
-                                   ('median_max', 'median_min', 'quantity_lower',
-                                    'quantity_upper')})
+                                   ('medians', 'quantities')})
+                                   #('median_max', 'median_min',
+                                   # 'quantity_lower', 'quantity_upper')})
                             cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
                                      '-time' + \
                                      '-LOC-{}-DIR-{}'.format(loc, dir_)
@@ -3227,21 +3229,57 @@ class HAZUS_Assessment(Assessment):
                         # note: consequences in HAZUS are conditioned on
                         # damage with no added uncertainty
 
-                        if DVs['rec_cost']:
+                        if DVs['rec_cost'] and ('repair_cost' in DS.keys()):
                             data = DS['repair_cost']
-                            f_median = prep_constant_median_DV(data*repl_cost)
-                            CF_cost = ConsequenceFunction(
-                                DV_median=f_median,
-                                DV_distribution=None)
+                            data_scaled = deepcopy(data)
+                            data_scaled['medians'] *= repl_cost
+
+                            if len(data['medians']) > 1:
+                                f_median = prep_bounded_multilinear_median_DV(
+                                    **{k: data_scaled.get(k, None) for k in
+                                       ('medians', 'quantities')})   
+                            else:
+                                f_median = prep_constant_median_DV(
+                                    data_scaled['medians'][0])
+                            
+                            if data['distribution_kind'] is not None:
+                                
+                                cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                         '-cost' + f'-LOC-{loc}-DIR-{dir_}'
+                                
+                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                                             tags=cf_tag)
+                            else:
+                                CF_RV = None
+
+                            CF_cost = ConsequenceFunction(DV_median=f_median,
+                                                          DV_distribution=CF_RV)
                         else:
                             CF_cost = None
 
                         if DVs['rec_time'] and ('repair_time' in DS.keys()):
-                            data = DS['repair_time']
-                            f_median = prep_constant_median_DV(data)
-                            CF_time = ConsequenceFunction(
-                                DV_median=f_median,
-                                DV_distribution=None)
+                            data = DS['repair_time']                            
+
+                            if len(data['medians']) > 1:
+                                f_median = prep_bounded_multilinear_median_DV(
+                                    **{k: data.get(k, None) for k in
+                                       ('medians', 'quantities')})   
+                            else:
+                                f_median = prep_constant_median_DV(
+                                    data['medians'][0])
+                            
+                            if data['distribution_kind'] is not None:
+                                
+                                cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                         '-time' + f'-LOC-{loc}-DIR-{dir_}'
+                                
+                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                                             tags=cf_tag)
+                            else:
+                                CF_RV = None
+
+                            CF_time = ConsequenceFunction(DV_median=f_median,
+                                                          DV_distribution=CF_RV)
                         else:
                             CF_time = None
 
