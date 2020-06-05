@@ -1931,23 +1931,25 @@ class FEMA_P58_Assessment(Assessment):
             columns=['LOC' + str(loc + 1)
                      for loc in range(len(POPin['peak']))])
 
-        weekdays = TIME[TIME['weekday?'] == 1].index
-        weekends = TIME[~TIME.index.isin(weekdays)].index
+        # if there is a temporal population model available...
+        if 'weekday' in POPin.keys():
+            weekdays = TIME[TIME['weekday?'] == 1].index
+            weekends = TIME[~TIME.index.isin(weekdays)].index
 
-        for col in POP.columns.values:
-            POP.loc[weekdays, col] = (
-                POP.loc[weekdays, col] *
-                np.array(POPin['weekday']['daily'])[
-                    TIME.loc[weekdays, 'hour'].values.astype(int)] *
-                np.array(POPin['weekday']['monthly'])[
-                    TIME.loc[weekdays, 'month'].values.astype(int)])
+            for col in POP.columns.values:
+                POP.loc[weekdays, col] = (
+                    POP.loc[weekdays, col] *
+                    np.array(POPin['weekday']['daily'])[
+                        TIME.loc[weekdays, 'hour'].values.astype(int)] *
+                    np.array(POPin['weekday']['monthly'])[
+                        TIME.loc[weekdays, 'month'].values.astype(int)])
 
-            POP.loc[weekends, col] = (
-                POP.loc[weekends, col] *
-                np.array(POPin['weekend']['daily'])[
-                    TIME.loc[weekends, 'hour'].values.astype(int)] *
-                np.array(POPin['weekend']['monthly'])[
-                    TIME.loc[weekends, 'month'].values.astype(int)])
+                POP.loc[weekends, col] = (
+                    POP.loc[weekends, col] *
+                    np.array(POPin['weekend']['daily'])[
+                        TIME.loc[weekends, 'hour'].values.astype(int)] *
+                    np.array(POPin['weekend']['monthly'])[
+                        TIME.loc[weekends, 'month'].values.astype(int)])
 
         return POP
 
@@ -2523,12 +2525,16 @@ class HAZUS_Assessment(Assessment):
 
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
-            log_msg('\tPopulation data files...')
-            POP = read_population_distribution(
-                self._AIM_in['data_sources']['path_POP_data'],
-                BIM['general']['occupancy_type'],
-                assessment_type=self._assessment_type,
-                verbose=verbose)
+
+            if BIM['general']['event_time'] is None:
+                log_msg('\tPopulation data files...')
+                POP = read_population_distribution(
+                    self._AIM_in['data_sources']['path_POP_data'],
+                    BIM['general']['occupancy_type'],
+                    assessment_type=self._assessment_type,
+                    verbose=verbose)
+            else:
+                POP = {'peak': None}
 
             POP['peak'] = BIM['general']['population']
             self._POP_in = POP
@@ -3397,23 +3403,25 @@ class HAZUS_Assessment(Assessment):
             columns=['LOC' + str(loc + 1)
                      for loc in range(len(POPin['peak']))])
 
-        weekdays = TIME[TIME['weekday?'] == 1].index
-        weekends = TIME[~TIME.index.isin(weekdays)].index
+        # if there is a temporal population model available...
+        if 'weekday' in POPin.keys():
+            weekdays = TIME[TIME['weekday?'] == 1].index
+            weekends = TIME[~TIME.index.isin(weekdays)].index
 
-        for col in POP.columns.values:
-            POP.loc[weekdays, col] = (
-                POP.loc[weekdays, col] *
-                np.array(POPin['weekday']['daily'])[
-                    TIME.loc[weekdays, 'hour'].values.astype(int)] *
-                np.array(POPin['weekday']['monthly'])[
-                    TIME.loc[weekdays, 'month'].values.astype(int)])
+            for col in POP.columns.values:
+                POP.loc[weekdays, col] = (
+                    POP.loc[weekdays, col] *
+                    np.array(POPin['weekday']['daily'])[
+                        TIME.loc[weekdays, 'hour'].values.astype(int)] *
+                    np.array(POPin['weekday']['monthly'])[
+                        TIME.loc[weekdays, 'month'].values.astype(int)])
 
-            POP.loc[weekends, col] = (
-                POP.loc[weekends, col] *
-                np.array(POPin['weekend']['daily'])[
-                    TIME.loc[weekends, 'hour'].values.astype(int)] *
-                np.array(POPin['weekend']['monthly'])[
-                    TIME.loc[weekends, 'month'].values.astype(int)])
+                POP.loc[weekends, col] = (
+                    POP.loc[weekends, col] *
+                    np.array(POPin['weekend']['daily'])[
+                        TIME.loc[weekends, 'hour'].values.astype(int)] *
+                    np.array(POPin['weekend']['monthly'])[
+                        TIME.loc[weekends, 'month'].values.astype(int)])
 
         return POP
 
