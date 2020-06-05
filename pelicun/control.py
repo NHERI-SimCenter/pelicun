@@ -2472,8 +2472,8 @@ class HAZUS_Assessment(Assessment):
         The HAZUS earthquake methodology uses 4 levels.
         default: 4
     """
-    def __init__(self, hazard='EQ', inj_lvls = 4):
-        super(HAZUS_Assessment, self).__init__()
+    def __init__(self, hazard='EQ', inj_lvls = 4, log_file=True):
+        super(HAZUS_Assessment, self).__init__(log_file)
 
         self._inj_lvls = inj_lvls
         self._hazard = hazard
@@ -2577,7 +2577,10 @@ class HAZUS_Assessment(Assessment):
         self._RV_dict.update({
             'QNT': self._create_RV_quantities(DEP['quantities'])})
 
-        log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+        if self._RV_dict['QNT'] is not None:
+            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+        else:
+            log_msg('\t\tNone of the components have random quantities assigned')
 
         # fragilities 300
         log_msg('\tDamage State Limits...')
@@ -2593,6 +2596,13 @@ class HAZUS_Assessment(Assessment):
         for key, val in self._RV_dict.items():
             if 'FR-' in key:
                 log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+
+
+
+            if self._RV_dict['DV_REP'] is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
+            else:
+                log_msg('\t\tNone of the components have probabilistic consequence functions')
 
         # demands 200
         log_msg('\tEDPs...')
@@ -2643,11 +2653,17 @@ class HAZUS_Assessment(Assessment):
         Characterize the damage experienced in each random event realization.
 
         First, the time of the event (month, weekday/weekend, hour) is randomly
-        generated for each realization. Given the event time, the number of
-        people present at each floor of the building is calculated.
+        generated for each realization. Given the event time, if we are interested
+        in injuries, the number of people present at each floor of the building is 
+        sampled. The event time is only important if we are interested in injuries, 
+        but it is calculated every time because it is not a large overhead and it 
+        serves as the basis of indexing every other array.
 
-        Next, the quantities of components in each damage state are estimated.
+        Second, the quantities of components in each damage state are estimated.
         See _calc_damage() for more details on damage estimation.
+
+        Finally, the realizations that led to collapse are filtered from the damage
+        data.
 
         """
         super(HAZUS_Assessment, self).calculate_damage()
