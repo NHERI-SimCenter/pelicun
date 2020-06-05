@@ -56,10 +56,8 @@ This module has classes and methods that handle file input and output.
 
 from .base import *
 
-import json, csv, posixpath
-import xml.etree.ElementTree as ET
-from distutils.util import strtobool
-from copy import deepcopy
+import json, posixpath
+
 
 import warnings
 
