@@ -991,6 +991,13 @@ class FEMA_P58_Assessment(Assessment):
             ('injuries', 'sev. 2'),
         ]
 
+        if self._AIM_in['general'].get('event_time', None) != 'off':
+            MI_raw += [
+                ('event time', 'month'),
+                ('event time', 'weekday?'),
+                ('event time', 'hour')
+            ]
+            
         ncID = self._ID_dict['non-collapse']
         colID = self._ID_dict['collapse']
         if DVs['rec_cost'] or DVs['rec_time']:
@@ -1004,13 +1011,14 @@ class FEMA_P58_Assessment(Assessment):
             len(MI))), columns=MI)
         SUMMARY[:] = np.NaN
 
-        # event time
-        for prop in ['month', 'weekday?', 'hour']:
-            offset = 0
-            if prop == 'month':
-                offset = 1
-            SUMMARY.loc[:, ('event time', prop)] = \
-                self._TIME.loc[:, prop] + offset
+        # event time (if needed)
+        if self._AIM_in['general'].get('event_time', None) != 'off':
+            for prop in ['month', 'weekday?', 'hour']:
+                offset = 0
+                if prop == 'month':
+                    offset = 1
+                SUMMARY.loc[:, ('event time', prop)] = \
+                    self._TIME.loc[:, prop] + offset
 
         # collapses
         SUMMARY.loc[:, ('collapses', 'collapsed?')] = self._COL.iloc[:, 0]
@@ -2653,9 +2661,9 @@ class HAZUS_Assessment(Assessment):
         DVs = self._AIM_in['decision_variables']
 
         MI_raw = [
-            ('event time', 'month'),
-            ('event time', 'weekday?'),
-            ('event time', 'hour'),
+            ('collapses', 'collapsed'),
+            ('highest damage state', 'S'),
+            ('highest damage state', 'NSA'),
             ('reconstruction', 'cost'),
         ]
 
@@ -2671,6 +2679,12 @@ class HAZUS_Assessment(Assessment):
                 ('injuries', 'sev. 2'),
                 ('injuries', 'sev. 3'),
                 ('injuries', 'sev. 4'),
+
+        if self._AIM_in['general']['event_time'] != 'off':
+            MI_raw += [
+                ('event time', 'month'),
+                ('event time', 'weekday?'),
+                ('event time', 'hour')
             ]
 
         ncID = self._ID_dict['non-collapse']
@@ -2686,13 +2700,14 @@ class HAZUS_Assessment(Assessment):
             len(MI))), columns=MI)
         SUMMARY[:] = np.NaN
 
-        # event time
-        for prop in ['month', 'weekday?', 'hour']:
-            offset = 0
-            if prop == 'month':
-                offset = 1
-            SUMMARY.loc[:, ('event time', prop)] = \
-                self._TIME.loc[:, prop] + offset
+        # event time (if needed)
+        if self._AIM_in['general']['event_time'] != 'off':
+            for prop in ['month', 'weekday?', 'hour']:
+                offset = 0
+                if prop == 'month':
+                    offset = 1
+                SUMMARY.loc[:, ('event time', prop)] = \
+                    self._TIME.loc[:, prop] + offset
 
         # inhabitants
         if DVs['injuries']:

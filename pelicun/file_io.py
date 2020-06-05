@@ -724,6 +724,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                 raise ValueError("Occupancy type was not defined in the input "
                                  "file.")
 
+            # event time
+            event_time = inhabitants.get("EventTime", None)
+            data['general'].update({'event_time': event_time})
+
             # peak population
             peak_pop = inhabitants.get("PeakPopulation", None)
             if peak_pop is not None:
