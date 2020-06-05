@@ -880,8 +880,10 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
         # the read_csv method in pandas is sufficiently versatile to handle the
         # tabular format of dakota
         EDP_raw = pd.read_csv(input_path, sep=r'\s+', header=0, index_col=0)
+
     # set the index to be zero-based
-    EDP_raw.index = EDP_raw.index - 1
+    if EDP_raw.index[0] == 1:
+        EDP_raw.index = EDP_raw.index - 1
 
     # search the header for EDP information
     for column in EDP_raw.columns:
