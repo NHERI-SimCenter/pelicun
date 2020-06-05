@@ -94,8 +94,62 @@ convert_design_level = {
         'Pre-Code'     : 'PC'
     }
 
+def story_scale(stories, comp_type):
+    if comp_type == 'NSA':
+        if stories == 1:
+            return 1.00
+        elif stories == 2:
+            return 1.22
+        elif stories == 3:
+            return 1.40
+        elif stories == 4:
+            return 1.45
+        elif stories == 5:
+            return 1.50
+        elif stories == 6:
+            return 1.90
+        elif stories == 7:
+            return 2.05
+        elif stories == 8:
+            return 2.15
+        elif stories == 9:
+            return 2.20
+        elif (stories >= 10) and (stories < 30):
+            return 2.30 + (stories-10)*0.04
+        elif stories >= 30:
+            return 3.10
+        else:
+            return 1.0 
+
+    elif comp_type in ['S', 'NSD']:
+        if stories == 1:
+            return 1.45
+        elif stories == 2:
+            return 1.90
+        elif stories == 3:
+            return 2.50
+        elif stories == 4:
+            return 2.75
+        elif stories == 5:
+            return 3.00
+        elif stories == 6:
+            return 3.50
+        elif stories == 7:
+            return 3.50
+        elif stories == 8:
+            return 3.50
+        elif stories == 9:
+            return 4.50
+        elif (stories >= 10) and (stories < 50):
+            return 4.50 + (stories-10)*0.07
+        elif stories >= 50:
+            return 7.30
+        else:
+            return 1.0 
+
 def auto_populate(DL_input_path, EDP_input_path,
-                  DL_method, realization_count):
+                  DL_method, realization_count, coupled_EDP, event_time, 
+                  ground_failure):
 
     with open(DL_input_path, 'r') as f:
         DL_input = json.load(f)
@@ -108,8 +162,10 @@ def auto_populate(DL_input_path, EDP_input_path,
     elif 'GI' in DL_input.keys():
         BIM_in = DL_input['GI']
 
+    is_IM_based = DL_method[-2:] == 'IM'
+
     # HAZUS Earthquake
-    if DL_method == 'HAZUS MH EQ':
+    if DL_method in ['HAZUS MH EQ', 'HAZUS MH EQ IM']:        
 
         bt = BIM_in['structType']
 
@@ -118,6 +174,9 @@ def auto_populate(DL_input_path, EDP_input_path,
 
         year_built = BIM_in['yearBuilt']
         stories = BIM_in['numStory']
+        # use only 1 story if DM is based on IM
+        if DL_method == 'HAZUS MH EQ IM':
+            stories = 1
         BIM_in.update({'stories':stories})
 
         if bt not in ['W1', 'W2', 'S3', 'PC1', 'MH']:
@@ -178,35 +237,111 @@ def auto_populate(DL_input_path, EDP_input_path,
                 loss_dict['DamageModel'].update(
                     {'DesignLevel': DesignL[year]})
                 break
+
         dl = convert_design_level[loss_dict['DamageModel']['DesignLevel']]
         if 'C3' in bt:
             if dl not in ['LC', 'PC']:
                 dl = 'LC'
 
-        loss_dict.update({
-            'Components': {
-                'S-{}-{}-{}'.format(bt, dl ,ot) : [
-                    {'location': 'all',
-                     'direction': '1, 2',
-                     'median_quantity': '{q}'.format(q = 0.5/stories),
-                     'unit': 'ea',
-                     'distribution': 'N/A'
-                    }],
-                'NSA-{}-{}'.format(dl ,ot): [
-                    {'location': 'all',
+        # only one structural component for IM-based approach
+        if is_IM_based:
+
+            FG_S = f'S-{bt}-{dl}-{ot}'
+
+            loss_dict.update({
+                'Components': {
+                    FG_S: [
+                        {'location': '1',
+                         'direction': '1',
+                         'median_quantity': '1.0',
+                         'unit': 'ea',
+                         'distribution': 'N/A'
+                        }]
+                }})
+
+        # story-based approach
+        else:
+
+            FG_S = f'S-{bt}-{dl}-{ot}'
+            FG_NSD = f'NSD-{ot}'
+            FG_NSA = f'NSA-{dl}-{ot}'
+
+            loss_dict.update({
+                'Components': {
+                    FG_S: [
+                        {'location': 'all',
+                         'direction': '1, 2',
+                         #'median_quantity': '{q}'.format(q = 0.5), #/stories),
+                         'median_quantity': '{q}'.format(q = story_scale(stories, 'S')/stories/2.),
+                         'unit': 'ea',
+                         'distribution': 'N/A'
+                        }],
+                    FG_NSA: [
+                        {'location': 'all',
+                         'direction': '1',
+                         #'median_quantity': '{q}'.format(q = 1.0), #/stories),
+                         'median_quantity': '{q}'.format(q = story_scale(stories, 'NSA')/stories),
+                         'unit': 'ea',
+                         'distribution': 'N/A'
+                        }],
+                    FG_NSD: [
+                        {'location': 'all',
+                         'direction': '1, 2',
+                         #'median_quantity': '{q}'.format(q = 0.5), #/stories),
+                         'median_quantity': '{q}'.format(q = story_scale(stories, 'NSD')/stories/2.),
+                         'unit': 'ea',
+                         'distribution': 'N/A'
+                        }]
+                }})
+
+        # if damage from ground failure is included
+        if ground_failure:
+
+            foundation_type = 'S'
+
+            FG_GF_H = f'GF-H_{foundation_type}-{bt}'
+            FG_GF_V = f'GF-V_{foundation_type}-{bt}'
+
+            loss_dict['Components'].update({
+                FG_GF_H: [
+                    {'location': '1',
                      'direction': '1',
-                     'median_quantity': '{q}'.format(q = 1.0/stories),
+                     'median_quantity': '1.0',
                      'unit': 'ea',
                      'distribution': 'N/A'
                     }],
-                'NSD-{}'.format(ot): [
-                    {'location': 'all',
-                     'direction': '1, 2',
-                     'median_quantity': '{q}'.format(q = 0.5/stories),
+                FG_GF_V: [
+                    {'location': '1',
+                     'direction': '3',
+                     'median_quantity': '1.0',
                      'unit': 'ea',
                      'distribution': 'N/A'
                     }]
-            }})
+            })
+
+            # define logic that connects ground failure with building damage
+            loss_dict.update({
+                'DamageLogic': [
+                    {'type': 'propagate',
+                     'source_FG': FG_GF_H,
+                     'target_FG': FG_S,
+                     'DS_links': {
+                         '1_1': '3_1',
+                         '2_1': '4_1',
+                         '2_2': '4_2'
+                     }
+                    },
+                    {'type': 'propagate',
+                     'source_FG': FG_GF_V,
+                     'target_FG': FG_S,
+                     'DS_links': {
+                         '1_1': '3_1',
+                         '2_1': '4_1',
+                         '2_2': '4_2'
+                     }
+                    }
+                ]
+            })
 
     # HAZUS Hurricane
     elif DL_method == 'HAZUS MH HU':
