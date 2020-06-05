@@ -201,6 +201,10 @@ def auto_populate(DL_input_path, EDP_input_path,
         else:
             ot = BIM_in['occupancy']
 
+        replacementCost = BIM_in.get('replacementCost', 1.0)
+        replacementTime = BIM_in.get('replacementTime', 1.0)
+        population = BIM_in.get('population', 1.0)
+
         loss_dict = {
             '_method': DL_method,
             'DamageModel': {
@@ -214,10 +218,10 @@ def auto_populate(DL_input_path, EDP_input_path,
                 },
                 'Inhabitants': {
                     'OccupancyType': ot,
-                    'PeakPopulation': '1'
+                    'PeakPopulation': f'{population}'
                 },
-                'ReplacementCost': BIM_in['replacementCost'],
-                'ReplacementTime': BIM_in['replacementTime']
+                'ReplacementCost': replacementCost,
+                'ReplacementTime': replacementTime
             },
             'ResponseModel': {
                 'ResponseDescription': {
