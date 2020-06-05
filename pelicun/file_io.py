@@ -738,26 +738,27 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     stories = data['general']['stories']
                     pop_in = len(peak_pop)
 
-                    # and the population list does not provide values
-                    # for every story:
-                    for s in range(pop_in, stories):
-                        # If only one value is provided, then it is assumed to
-                        # be the population on every story.
-                        if pop_in == 1:
-                            peak_pop.append(peak_pop[0])
+                    # If only one value is provided then we assume that it
+                    # corresponds to the whole building
+                    if pop_in == 1:
+                        peak_pop = (np.ones(stories)*peak_pop[0]/stories).tolist()
 
-                        # Otherwise, the values are assumed to correspond to
-                        # the bottom stories and the upper ones are filled with
-                        # zeros. A warning message is displayed in this case.
-                        else:
+                    # If more than one value is provided then we assume they
+                    # define population for every story
+                    else:
+                        # If the population list does not provide values
+                        # for every story the values are assumed to correspond
+                        # to the lower stories and the upper ones are filled
+                        # with zeros
+                        for s in range(pop_in, stories):
                             peak_pop.append(0)
 
-                    if pop_in > 1 and pop_in != stories:
-                        show_warning(
-                            "Peak population was specified to some, but not all "
-                            "stories. The remaining stories are assumed to have "
-                            "zero population."
-                        )
+                        if pop_in > 1 and pop_in != stories:
+                            show_warning(
+                                "Peak population was specified to some, but not all "
+                                "stories. The remaining stories are assumed to have "
+                                "zero population."
+                            )
 
                 data['general'].update({'population': peak_pop})
             else:
