@@ -449,10 +449,10 @@ def tmvn_MLE(samples,
         pos_sem_def = np.all(np.linalg.eigvals(rho_init) >= 0.)
         if not pos_sem_def:
         #if np.isnan(np.sum(rho_init.flatten())):
-            show_warning("The number of samples is not sufficient to estimate "
+            show_warning("The number of samples is not sufficiently large to estimate "
                 "the correlation matrix. We assume uncorrelated EDPs.")
             rho_init = np.zeros(rho_init.shape)
-            #rho_init = np.ones(rho_init.shape)*0.0       #*0.7
+            #rho_init = np.ones(rho_init.shape)*0.7
         np.fill_diagonal(rho_init,1.0)
         # collect the independent values (i.e. elements above the main
         # diagonal) from the correlation matrix in a list

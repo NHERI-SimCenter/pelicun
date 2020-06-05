@@ -63,7 +63,7 @@ class Assessment(object):
     using pelicun.
     """
 
-    def __init__(self):
+    def __init__(self, log_file=True):
 
         # initialize the basic data containers
         # inputs
@@ -89,7 +89,8 @@ class Assessment(object):
         self._assessment_type = 'generic'
 
         # initialize the log file
-        set_log_file('pelicun_log.txt')
+        if log_file:
+            set_log_file('pelicun_log.txt')
 
         log_msg(log_div)
         log_msg('Assessement Started')
@@ -371,19 +372,20 @@ class Assessment(object):
             else:
                 for i in range(2 if self._assessment_type == 'P58' else 4):
                     DV_mods.append(replace_FG_IDs_with_FG_names(self._DV_dict[key][i]))
-                    DV_names.append('{}DV_{}_{}'.format(suffix, key, i))
+                    DV_names.append('{}DV_{}_{}'.format(suffix, key, i+1))
 
-        #try:
-        if True:
+        try:
+        #if True:
             log_msg('\tSaving files:')
+
+            log_msg('\t\tSummary')
+            write_SimCenter_DL_output(
+                output_path, '{}DL_summary.csv'.format(suffix),
+                self._SUMMARY, index_name='#Num', collapse_columns=True)
+                
             if not detailed_results:
                 log_msg('\t\tOnly saving the main results.')
             else:
-                log_msg('\t\tSummary')
-                write_SimCenter_DL_output(
-                    output_path, '{}DL_summary.csv'.format(suffix),
-                    self._SUMMARY, index_name='#Num', collapse_columns=True)
-
                 log_msg('\t\tSummary statistics')
                 write_SimCenter_DL_output(
                     output_path, '{}DL_summary_stats.csv'.format(suffix),
@@ -728,7 +730,10 @@ class FEMA_P58_Assessment(Assessment):
         self._RV_dict.update({'QNT':
                               self._create_RV_quantities(DEP['quantities'])})
 
-        log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+        if self._RV_dict['QNT'] is not None:
+            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+        else:
+            log_msg('\t\tNone of the components have random quantities assigned')
 
         # fragilities 300
         log_msg('\tDamage State Limits...')
@@ -767,7 +772,11 @@ class FEMA_P58_Assessment(Assessment):
                                     DEP['rec_times'],
                                     DEP['cost_and_time'])})
 
-            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
+            if self._RV_dict['DV_REP'] is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
+            else:
+                log_msg('\t\tNone of the components have probabilistic consequence functions')
+
 
         if DVs['injuries']:
             log_msg('\tInjury Probabilities...')
@@ -776,7 +785,10 @@ class FEMA_P58_Assessment(Assessment):
                                     DEP['injuries'],
                                     DEP['injury_lvls'])})
 
-            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_INJ'].theta)))
+            if self._RV_dict['DV_INJ'] is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_INJ'].theta)))
+            else:
+                log_msg('\t\tNone of the component damage states trigger injuries')
 
         # demands 200
         log_msg('\tEDPs...')
@@ -804,6 +816,8 @@ class FEMA_P58_Assessment(Assessment):
                 log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
                     sample_size=realization_count, preserve_order=is_coupled)
+
+        log_msg('Sampling completed.')
 
     def define_loss_model(self):
         """
@@ -2540,6 +2554,8 @@ class HAZUS_Assessment(Assessment):
                 rv.sample_distribution(
                     sample_size=realization_count, preserve_order=is_coupled)
 
+        log_msg('Sampling completed.')
+
     def define_loss_model(self):
         """
         Create the stochastic loss model based on the inputs provided earlier.
@@ -2638,13 +2654,11 @@ class HAZUS_Assessment(Assessment):
 
         # injuries due to collapse
         if DVs['injuries']:
-            # there are no separate collapse cases in HAZUS
 
             # injuries in non-collapsed cases
             log_msg('\tCalculating Injuries in Non-Collapsed Cases...')
             DV_INJ_dict = self._calc_non_collapse_injuries()
 
-            # store result
             self._DV_dict.update({'injuries': DV_INJ_dict})
 
     def aggregate_results(self):
