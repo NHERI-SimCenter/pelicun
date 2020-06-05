@@ -225,14 +225,37 @@ def auto_populate(DL_input_path, EDP_input_path,
             },
             'ResponseModel': {
                 'ResponseDescription': {
-                'Realizations': realization_count
-                },
-                "AdditionalUncertainty": {
-                    "GroundMotion": "0.15",
-                    "Modeling"    : "0.30"
+                    'Realizations': realization_count,
+                    "CoupledAssessment": coupled_EDP
                 }
+            },
+            "Dependencies": {
+                "Fragilities": "btw. Performance Groups"                
             }
         }
+
+        # add uncertainty if the EDPs are not coupled
+        if not coupled_EDP:
+            loss_dict['ResponseModel'].update({
+                "AdditionalUncertainty": {
+                    "GroundMotion": "0.10",
+                    "Modeling"    : "0.20"
+                    }})
+
+        if is_IM_based:
+            loss_dict.update({
+                "ComponentDataFolder": pelicun_path+"/resources/HAZUS MH 2.1 earthquake PGA/DL json/"
+                })
+        else:
+            loss_dict['ResponseModel'].update({
+                'DetectionLimits': {
+                    "PFA": "100.0",
+                    "PID": "0.20",
+                    "PRD": "0.20"
+                }})
+            loss_dict.update({
+                "ComponentDataFolder": pelicun_path+"/resources/HAZUS MH 2.1 earthquake/DL json/"
+                })
 
         if 'W1' in bt:
             DesignL = ap_DesignLevel_W1
