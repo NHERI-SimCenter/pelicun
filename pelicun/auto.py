@@ -196,7 +196,10 @@ def auto_populate(DL_input_path, EDP_input_path,
                 else:
                     bt += 'M'
 
-        ot = ap_Occupancy[BIM_in['occupancy']]
+        if BIM_in['occupancy'] in ap_Occupancy.keys():
+            ot = ap_Occupancy[BIM_in['occupancy']]
+        else:
+            ot = BIM_in['occupancy']
 
         loss_dict = {
             '_method': DL_method,
