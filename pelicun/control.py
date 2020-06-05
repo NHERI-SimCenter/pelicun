@@ -3398,15 +3398,18 @@ class HAZUS_Assessment(Assessment):
             PG_locations = comp['locations']
             PG_directions = comp['directions']
             PG_csg_lists = comp['csg_weights']
-            for loc, dir_, csg_list in zip(PG_locations, PG_directions,
-                                           PG_csg_lists):
+            PG_dists = comp['distribution_kind']
+            PG_qnts = comp['quantities']
+            for loc, dir_, csg_list, dist, qnt, in zip(
+                PG_locations, PG_directions, PG_csg_lists, PG_dists, PG_qnts):
                 PG_ID = 10000 * FG_ID + 10 * loc + dir_
 
                 # get the quantity
-                #QNT = None
-                QNT = RandomVariableSubset(
-                    RVd['QNT'],
-                    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
+                if dist == 'N/A':
+                    QNT = qnt
+                else:
+                    QNT = RandomVariableSubset(RVd['QNT'],
+                        tags=[f'{c_id}-QNT-{loc}-{dir_}', ])
 
                 # create the damage objects
                 # consequences are calculated on a performance group level
@@ -3651,10 +3654,11 @@ class HAZUS_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                if PG._quantity is not None:
+                if isinstance(PG._quantity, RandomVariableSubset):
                     PG_qnt = PG._quantity.samples.loc[ncID]
                 else:
-                    PG_qnt = pd.DataFrame(np.ones(NC_samples),index=ncID)
+                    PG_qnt = pd.DataFrame(np.ones(NC_samples) * PG._quantity,
+                                          index=ncID)
 
                 # get the corresponding demands
                 if not FG._directional:
