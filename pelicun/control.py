@@ -3257,6 +3257,112 @@ class HAZUS_Assessment(Assessment):
 
         return fragility_RV
 
+    def _create_RV_repairs(self, rho_cost, rho_time, rho_cNt):
+
+        # prepare the cost and time parts of the data separately
+        ct_sig, ct_tag, ct_dkind = [np.array([]) for i in range(3)]
+        for rho_target, name in zip([rho_cost, rho_time], ['cost', 'time']):
+
+            f_sig, f_tag, f_dkind = [np.array([]) for i in range(3)]
+
+            s_fg_keys = sorted(self._FG_in.keys())
+            for c_id, c_name in enumerate(s_fg_keys):
+                comp = self._FG_in[c_name]
+
+                d_sig, d_tag, d_dkind = [np.array([]) for i in range(3)]
+
+                s_dsg_keys = sorted(comp['DSG_set'].keys())
+                for dsg_i in s_dsg_keys:
+                    DSG = comp['DSG_set'][dsg_i]
+                    s_ds_keys = sorted(DSG['DS_set'].keys())
+                    for ds_i in s_ds_keys:
+                        DS = DSG['DS_set'][ds_i]
+                        if ((f'repair_{name}' in DS.keys()) and 
+                            (DS[f'repair_{name}']['distribution_kind'] is not None)):
+                            data = DS[f'repair_{name}']
+                            d_sig = np.append(d_sig, data['cov'])
+                            d_dkind = np.append(d_dkind, 
+                                                data['distribution_kind'])
+                        else:
+                            d_sig = np.append(d_sig, 0.0001)
+                            d_dkind = np.append(d_dkind, None)
+
+                        d_tag = np.append(
+                                d_tag, f'{comp["ID"]}-{dsg_i}-{ds_i}-{name}')
+                                #comp['ID'] + '-' + str(
+                                #    dsg_i) + '-' + str(
+                                #    ds_i) + '-{}'.format(name))
+
+                for loc, dir_ in zip(comp['locations'], comp['directions']):
+                    f_sig = np.append(f_sig, d_sig)
+                    f_dkind = np.append(f_dkind, d_dkind)
+                    f_tag = np.append(
+                        f_tag, [t + f'-LOC-{loc}-DIR-{dir_}' for t in d_tag])
+
+            ct_sig = np.append(ct_sig, f_sig)
+            ct_tag = np.append(ct_tag, f_tag)
+            ct_dkind = np.append(ct_dkind, f_dkind)
+
+        rho_c = self._create_correlation_matrix(rho_cost, c_target=-1,
+                                          include_DSG=True,
+                                          include_DS=True)
+        rho_t = self._create_correlation_matrix(rho_time, c_target=-1,
+                                          include_DSG=True,
+                                          include_DS=True)
+
+        dims = len(ct_tag)
+        ct_rho = np.zeros((dims, dims))
+
+        dims = dims // 2
+        if rho_cNt == False:
+            ct_rho[:dims, :dims] = rho_c
+            ct_rho[dims:, dims:] = rho_t
+        else:
+            # In the special case of mixing perfect correlation between
+            # locations and directions, taking the envelope is not the
+            # appropriate solution. Instead, the LOC & DIR -> PG approach is
+            # used.
+            if (((rho_cost == 'LOC') and (rho_time =='DIR')) or
+                ((rho_cost == 'DIR') and (rho_time == 'LOC'))):
+                rho_ct = self._create_correlation_matrix('PG', c_target=-1,
+                                                         include_DSG=True,
+                                                         include_DS=True)
+            else:
+                # We use the envelope in every other case.
+                rho_ct = np.maximum(rho_c, rho_t)
+
+            ct_rho[:dims, :dims] = rho_ct
+            ct_rho[dims:, dims:] = rho_ct
+
+            # apply the same blocks to the off-diagonal positions
+            ct_rho[:dims, dims:] = rho_ct
+            ct_rho[dims:, :dims] = rho_ct
+
+        # now remove the unnecessary fields
+        if not np.all(ct_dkind == None):
+            
+            to_remove = np.where(ct_dkind == None)[0]
+            ct_rho = np.delete(ct_rho, to_remove, axis=0)
+            ct_rho = np.delete(ct_rho, to_remove, axis=1)
+
+            ct_dkind, ct_sig, ct_tag = [np.delete(ct_vals, to_remove)
+                                     for ct_vals in [ct_dkind, ct_sig, ct_tag]]
+
+            ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
+
+            repair_RV = RandomVariable(ID=401,
+                                       dimension_tags=ct_tag,
+                                       distribution_kind=ct_dkind,
+                                       theta=np.ones(len(ct_sig)),
+                                       COV=ct_COV,
+                                       corr_ref='post',
+                                       truncation_limits=[np.zeros(len(ct_sig)),
+                                                          None])
+        else:
+            repair_RV = None
+
+        return repair_RV
+
     def _create_fragility_groups(self):
 
         RVd = self._RV_dict
