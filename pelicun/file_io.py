@@ -802,7 +802,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             else:
                 data['dependencies'].update({target_att: 'ATC'})
 
-            show_warning(
+            log_msg("\t\t\t\t\t"+
                 "Correlation between {} was not ".format(source_att)+
                 "defined in the input file. Using default values.")
 
@@ -812,7 +812,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     elif ((data['decision_variables']['rec_cost']) or
           (data['decision_variables']['rec_time'])):
         data['dependencies'].update({'cost_and_time': False})
-        show_warning(
+        log_msg("\t\t\t\t\t"+
             "Correlation between reconstruction cost and time was not "
             "defined in the input file. Using default values.")
 
@@ -821,7 +821,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             'injury_lvls': bool(depends['InjurySeverities'])})
     elif data['decision_variables']['injuries']:
         data['dependencies'].update({'injury_lvls': False})
-        show_warning(
+        log_msg("\t\t\t\t\t"+
             "Correlation between injury levels was not defined in the "
             "input file. Using default values.")
 
