@@ -55,6 +55,8 @@ This module has classes and methods that handle file input and output.
 """
 
 from .base import *
+from pathlib import Path
+from .db import convert_Series_to_dict
 
 import json, posixpath
 
@@ -137,7 +139,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     AT = assessment_type
 
-    log_msg('\t\tOpening the json file...')
+    log_msg('\t\tOpening the configuration file...')
     with open(input_path, 'r') as f:
         jd = json.load(f)
 
@@ -224,7 +226,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     # data sources
     # default data locations
     default_data_name = {
-        'P58'     : 'FEMA P58 first edition',
+        'P58'     : 'FEMA P58 second edition',
         'HAZUS_EQ': 'HAZUS MH 2.1 earthquake',
         'HAZUS_HU': 'HAZUS MH 2.1 hurricane'
     }
@@ -235,11 +237,11 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     if path_CMP_data == "":
         path_CMP_data = pelicun_path
         if AT == 'P58':
-            path_CMP_data += '/resources/FEMA P58 first edition/DL json/'
+            path_CMP_data += '/resources/FEMA_P58_2nd_ed.hdf'
         elif AT == 'HAZUS_EQ':
-            path_CMP_data += '/resources/HAZUS MH 2.1 earthquake/DL json/'
+            path_CMP_data += '/resources/HAZUS_MH_2.1_EQ_story.hdf'
         elif AT == 'HAZUS_HU':
-            path_CMP_data += '/resources/HAZUS MH 2.1 hurricane/DL json/'
+            path_CMP_data += '/resources/HAZUS_MH_2.1_HU.hdf'
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
 
     # The population data is only needed if we are interested in injuries
@@ -252,9 +254,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         if path_POP_data == "":
             path_POP_data = pelicun_path
             if AT == 'P58':
-                path_POP_data += '/resources/FEMA P58 first edition/population.json'
+                path_POP_data += '/resources/FEMA_P58_2nd_ed.hdf'
             elif AT == 'HAZUS_EQ':
-                path_POP_data += '/resources/HAZUS MH 2.1 earthquake/population.json'
+                path_POP_data += '/resources/HAZUS_MH_2.1_EQ_story.hdf'
         data['data_sources'].update({'path_POP_data': path_POP_data})
 
     # general information
@@ -872,7 +874,7 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
     # read the collection of EDP inputs...
     log_msg('\t\tOpening the input file...')
     # If the file name ends with csv, we assume a standard csv file
-    if input_path[-3:] == 'csv':
+    if input_path.endswith('csv'):
         EDP_raw = pd.read_csv(input_path, header=0, index_col=0)
 
     # otherwise, we assume that a dakota file is provided...
@@ -950,31 +952,47 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     data: dict
         A dictionary with the population distribution data.
     """
-    with open(path_POP, 'r') as f:
-        jd = json.load(f)
+
+    HAZUS_occ_converter = {
+        'RES' : 'Residential',
+        'COM' : 'Commercial',
+        'REL' : 'Commercial',
+        'EDU' : 'Educational',
+        'IND' : 'Industrial',
+        'AGR' : 'Industrial'
+    }
 
     AT = assessment_type
 
-    # Convert the HAZUS occupancy classes to the broader categories used for
+    # Convert the HAZUS occupancy classes to the categories used to define
     # population distribution.
     if AT == 'HAZUS_EQ':
-        base_occupancy = occupancy
-        if base_occupancy[:3] == "RES":
-            occupancy = "Residential"
-        elif base_occupancy[:3] in ["COM", "REL"]:
-            occupancy = "Commercial"
-        elif base_occupancy[:3] == "EDU":
-            occupancy = "Educational"
-        elif base_occupancy[:3] in ["IND", "AGR"]:
-            occupancy = "Industrial"
-        else:
+        occupancy = HAZUS_occ_converter.get(occupancy[:3], None)
+
+        if occupancy is None:
             warnings.warn(UserWarning(
                 'Unknown, probably invalid, occupancy class for HAZUS '
                 'assessment: {}. When defining population distribution, '
-                'assuming RES1 instead.'.format(base_occupancy)))
+                'assuming RES1 instead.'.format(occupancy)))
             occupancy = 'Residential'
 
-    data = jd[occupancy]
+    # Load the population data
+
+    # If a json file is provided:
+    if path_POP.endswith('json'):
+        with open(path_POP, 'r') as f:
+            jd = json.load(f)
+
+        data = jd[occupancy]
+
+    # else if an HDF5 file is provided
+    elif path_POP.endswith('hdf'):
+
+        store = pd.HDFStore(path_POP)
+        store.open()
+        pop_table = store.select('pop', where = f'index in {[occupancy,]}')
+        data = convert_Series_to_dict(pop_table)
+        store.close()
 
     # convert peak population to persons/m2
     if 'peak' in data.keys():
@@ -1045,14 +1063,38 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         'DSG_set',
     ]])) for c_id in comp_info.keys()])
 
-    # for each component
     s_cmp_keys = sorted(data.keys())
+    DL_data_dict = {}
+
+    # If the path_CMP is a folder we assume it contains a set of json files
+    if os.path.isdir(path_CMP):
+
+        CMP_dir = Path(path_CMP).resolve()
+
+        for c_id in s_cmp_keys:
+            with open(CMP_dir / f'{c_id}.json', 'r') as f:
+                DL_data_dict.update({c_id: json.load(f)})
+
+    # else if an HDF5 file is provided we assume it contains the DL data
+    elif path_CMP.endswith('hdf'):
+
+        store = pd.HDFStore(path_CMP)
+        store.open()
+        CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
+        for c_id in s_cmp_keys:
+            DL_data_dict.update({c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
+        store.close()
+
+    else:
+        raise ValueError(
+            "Component data source not recognized. Please provide "
+            "either a folder with DL json files or an HDF5 table.")
+
+    # for each component
     for c_id in s_cmp_keys:
         c_data = data[c_id]
 
-        # parse the json file
-        with open(os.path.join(path_CMP, c_id + '.json'), 'r') as f:
-            DL_data = json.load(f)
+        DL_data = DL_data_dict[c_id]
 
         DL_GI = DL_data['GeneralInformation']
         DL_EDP = DL_data['EDP']
@@ -1109,7 +1151,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
         c_data['description'] = DL_GI['Description']
-        c_data['offset'] =DL_EDP.get('Offset', 0)
+        c_data['offset'] =int(DL_EDP.get('Offset', 0))
         c_data['correlation'] = int(DL_data.get('Correlated', False))
         c_data['directional'] = int(DL_data.get('Directional', False))
 
