@@ -317,7 +317,8 @@ class Assessment(object):
         log_msg('Calculating losses...')
         self._DV_dict = {}
 
-    def save_outputs(self, output_path, DM_file, DV_file, suffix="", detailed_results=True):
+    def save_outputs(self, output_path, EDP_file, DM_file, DV_file,
+                     suffix="", detailed_results=True):
         """
         Export the results.
 
@@ -394,7 +395,7 @@ class Assessment(object):
 
                 log_msg('\t\tEDP values')
                 write_SimCenter_DL_output(
-                    output_path, '{}EDP.csv'.format(suffix),
+                    output_path, '{}EDP_.csv'.format(suffix),
                     EDP_samples, index_name='#Num',
                     collapse_columns=False)
 
@@ -441,23 +442,29 @@ class Assessment(object):
                         stats_only=True)
 
             #if True:
-            # create the DM.json file
+            # create the EDP file
+            if self._assessment_type.startswith('HAZUS'):
+                log_msg('\t\tSimCenter EDP file')
+                write_SimCenter_EDP_output(
+                    output_path, suffix + EDP_file,
+                    EDP_samples)
+
+            # create the DM file
             if self._assessment_type.startswith('HAZUS'):
                 log_msg('\t\tSimCenter DM file')
                 write_SimCenter_DM_output(
-                    output_path, suffix+DM_file,
+                    output_path, suffix+DM_file, self._SUMMARY,
                     DMG_mod)
 
-            # create the DV.json file
-            for DV_mod, DV_name in zip(DV_mods, DV_names):
-                if self._assessment_type.startswith('HAZUS'):
-                    log_msg('\t\tSimCenter DV file {}'.format(DV_name))
-                    write_SimCenter_DV_output(
-                        output_path, suffix+DV_file,
-                        DV_mod, DV_name)
+            # create the DV file
+            if self._assessment_type.startswith('HAZUS'):
+                log_msg('\t\tSimCenter DV file')
+                write_SimCenter_DV_output(
+                    output_path, suffix+DV_file, self._AIM_in['general'], 
+                    self._SUMMARY, dict(zip(DV_names, DV_mods)))
 
-        #except:
-        #    print("ERROR when trying to create DL output files.")
+        except:
+            print("ERROR when trying to create DL output files.")
 
     def _create_RV_demands(self):
 
