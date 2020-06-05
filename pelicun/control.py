@@ -1011,21 +1011,18 @@ class FEMA_P58_Assessment(Assessment):
         DVs = self._AIM_in['decision_variables']
 
         MI_raw = [
-            ('event time', 'month'),
-            ('event time', 'weekday?'),
-            ('event time', 'hour'),
             ('inhabitants', ''),
-            ('collapses', 'collapsed?'),
+            ('collapses', 'collapsed'),
             ('collapses', 'mode'),
-            ('red tagged?', ''),
-            ('reconstruction', 'irrepairable?'),
-            ('reconstruction', 'cost impractical?'),
+            ('red tagged', ''),
+            ('reconstruction', 'irrepairable'),
+            ('reconstruction', 'cost impractical'),
             ('reconstruction', 'cost'),
-            ('reconstruction', 'time impractical?'),
+            ('reconstruction', 'time impractical'),
             ('reconstruction', 'time-sequential'),
             ('reconstruction', 'time-parallel'),
-            ('injuries', 'sev. 1'),  # thanks, Laura S.!
-            ('injuries', 'sev. 2'),
+            ('injuries', 'sev1'),  # thanks, Laura S.!
+            ('injuries', 'sev2'),
         ]
 
         if self._AIM_in['general'].get('event_time', None) != 'off':
@@ -1058,11 +1055,11 @@ class FEMA_P58_Assessment(Assessment):
                     self._TIME.loc[:, prop] + offset
 
         # collapses
-        SUMMARY.loc[:, ('collapses', 'collapsed?')] = self._COL.iloc[:, 0]
+        SUMMARY.loc[:, ('collapses', 'collapsed')] = self._COL.iloc[:, 0]
 
         # red tag
         if DVs['red_tag']:
-            SUMMARY.loc[ncID, ('red tagged?', '')] = \
+            SUMMARY.loc[ncID, ('red tagged', '')] = \
                 self._DV_dict['red_tag'].max(axis=1)
 
         # reconstruction cost
@@ -1085,7 +1082,7 @@ class FEMA_P58_Assessment(Assessment):
                 SUMMARY.loc[:, ('reconstruction', 'cost')] > repl_cost].index
             SUMMARY.loc[repID, ('reconstruction', 'cost impractical?')] = 0
             SUMMARY.loc[repair_impractical_IDs,
-                        ('reconstruction', 'cost impractical?')] = 1
+                        ('reconstruction', 'cost impractical')] = 1
             SUMMARY.loc[
                 repair_impractical_IDs, ('reconstruction', 'cost')] = repl_cost
 
@@ -1105,9 +1102,9 @@ class FEMA_P58_Assessment(Assessment):
             repair_impractical_IDs = \
                 SUMMARY.loc[SUMMARY.loc[:, ('reconstruction',
                                             'time-parallel')] > rep_time].index
-            SUMMARY.loc[repID, ('reconstruction', 'time impractical?')] = 0
+            SUMMARY.loc[repID, ('reconstruction', 'time impractical')] = 0
             SUMMARY.loc[repair_impractical_IDs,('reconstruction',
-                                                'time impractical?')] = 1
+                                                'time impractical')] = 1
             SUMMARY.loc[repair_impractical_IDs, ('reconstruction',
                                                  'time-parallel')] = rep_time
 
@@ -1120,14 +1117,14 @@ class FEMA_P58_Assessment(Assessment):
             if 'CM' in self._COL.columns:
                 SUMMARY.loc[colID, ('collapses', 'mode')] = self._COL.loc[:, 'CM']
 
-                SUMMARY.loc[colID, ('injuries', 'sev. 1')] = \
+                SUMMARY.loc[colID, ('injuries', 'sev1')] = \
                     self._COL.loc[:, 'INJ-0']
-                SUMMARY.loc[colID, ('injuries', 'sev. 2')] = \
+                SUMMARY.loc[colID, ('injuries', 'sev2')] = \
                     self._COL.loc[:, 'INJ-1']
 
-            SUMMARY.loc[ncID, ('injuries', 'sev. 1')] = \
+            SUMMARY.loc[ncID, ('injuries', 'sev1')] = \
                 self._DV_dict['injuries'][0].sum(axis=1)
-            SUMMARY.loc[ncID, ('injuries', 'sev. 2')] = \
+            SUMMARY.loc[ncID, ('injuries', 'sev2')] = \
                 self._DV_dict['injuries'][1].sum(axis=1)
 
         self._SUMMARY = SUMMARY.dropna(axis=1,how='all')
@@ -2697,25 +2694,29 @@ class HAZUS_Assessment(Assessment):
 
         DVs = self._AIM_in['decision_variables']
 
-        MI_raw = [
+        MI_raw = [       
             ('collapses', 'collapsed'),
             ('highest damage state', 'S'),
             ('highest damage state', 'NSA'),
+            ('highest damage state', 'NSD'),
+            ('reconstruction', 'cost impractical'),
             ('reconstruction', 'cost'),
         ]
 
         if DVs['rec_time']:
             MI_raw += [
+                #('reconstruction', 'time impractical?'),
                 ('reconstruction', 'time'),
             ]
 
         if DVs['injuries']:
             MI_raw += [
                 ('inhabitants', ''),
-                ('injuries', 'sev. 1'),
-                ('injuries', 'sev. 2'),
-                ('injuries', 'sev. 3'),
-                ('injuries', 'sev. 4'),
+                ('injuries', 'sev1'),
+                ('injuries', 'sev2'),
+                ('injuries', 'sev3'),
+                ('injuries', 'sev4'),
+            ]
 
         if self._AIM_in['general']['event_time'] != 'off':
             MI_raw += [
@@ -2732,9 +2733,9 @@ class HAZUS_Assessment(Assessment):
 
         MI = pd.MultiIndex.from_tuples(MI_raw)
 
-        SUMMARY = pd.DataFrame(np.empty((
-            self._AIM_in['general']['realizations'],
-            len(MI))), columns=MI)
+        SUMMARY = pd.DataFrame(
+            np.empty((self._AIM_in['general']['realizations'], len(MI))), 
+            columns=MI)
         SUMMARY[:] = np.NaN
 
         # event time (if needed)
@@ -2746,29 +2747,77 @@ class HAZUS_Assessment(Assessment):
                 SUMMARY.loc[:, ('event time', prop)] = \
                     self._TIME.loc[:, prop] + offset
 
-        # inhabitants
-        if DVs['injuries']:
-            SUMMARY.loc[:, ('inhabitants', '')] = self._POP.sum(axis=1)
+        # collapses
+        SUMMARY.loc[:, ('collapses', 'collapsed')] = self._COL.iloc[:, 0]
+
+        # damage
+        # remove the ground failure FGs first
+        DMG = self._DMG.copy()
+        for FG_name in self._FG_dict.keys():
+            if FG_name.startswith('GF'):
+                del DMG[self._FG_dict[FG_name]._ID]
+
+        for comp_type in ['S', 'NSA', 'NSD']:
+            fg_list = [self._FG_dict[fg]._ID for fg in self._FG_dict.keys() if fg.startswith(comp_type)]
+
+            if len(fg_list)>0:
+
+                DMG_agg = DMG.loc[:, fg_list].groupby(level=['DSG_DS',], axis=1).sum()
+
+                DMG_agg['DS'] = 0
+                for c_i, col in enumerate(DMG_agg.columns):
+                    if col != 'DS':
+                        DMG_agg.loc[DMG_agg.loc[:,col] > 0.0, 'DS'] = int(col[0])
+
+                SUMMARY.loc[:, ('highest damage state', comp_type)] = DMG_agg['DS']
 
         # reconstruction cost
         if DVs['rec_cost']:
-            repl_cost = self._AIM_in['general']['replacement_cost']
-
             SUMMARY.loc[ncID, ('reconstruction', 'cost')] = \
                 self._DV_dict['rec_cost'].sum(axis=1)
-            #SUMMARY.loc[:, ('reconstruction', 'cost')] *= repl_cost
+
+            repl_cost = self._AIM_in['general']['replacement_cost']
+            SUMMARY.loc[colID, ('reconstruction', 'cost')] = repl_cost
+
+            SUMMARY.loc[:, ('reconstruction', 'cost impractical')] = 0
+            repair_impractical_IDs = SUMMARY.loc[ncID, ('reconstruction', 'cost')] > repl_cost
+            SUMMARY.loc[repair_impractical_IDs,
+                        ('reconstruction', 'cost impractical')] = 1
+            SUMMARY.loc[repair_impractical_IDs, 
+                        ('reconstruction', 'cost')] = repl_cost
+
+            # only keep the non-collapsed cases in the DVs
+            self._DV_dict['rec_cost'] = self._DV_dict['rec_cost'].loc[self._COL['COL'] == 0]
 
         # reconstruction time
         if DVs['rec_time']:
             SUMMARY.loc[ncID, ('reconstruction', 'time')] = \
                 self._DV_dict['rec_time'].sum(axis=1)
 
+            repl_time = self._AIM_in['general']['replacement_time']
+            SUMMARY.loc[colID, ('reconstruction', 'time')] = repl_time
+
+            SUMMARY.loc[repair_impractical_IDs, ('reconstruction', 'time')] = repl_time
+
+            # only keep the non-collapsed cases in the DVs
+            self._DV_dict['rec_time'] = self._DV_dict['rec_time'].loc[self._COL['COL'] == 0]
+
         # injuries
         if DVs['injuries']:
+
+            # inhabitants
+            SUMMARY.loc[:, ('inhabitants', '')] = self._POP.sum(axis=1)
+
             for sev_id in range(4):
-                sev_tag = 'sev. {}'.format(sev_id+1)
+                # both collapse and non-collapse cases
+                sev_tag = 'sev{}'.format(sev_id+1)
                 SUMMARY.loc[ncID, ('injuries', sev_tag)] = \
                     self._DV_dict['injuries'][sev_id].sum(axis=1)
+
+        # keep only the non-collapse damage data
+        self._DMG = self._DMG.loc[self._COL['COL'] == 0]
+        
+        self._ID_dict['non-collapse'] = self._DV_dict['rec_cost'].index.values.astype(int)
 
         self._SUMMARY = SUMMARY.dropna(axis=1, how='all')
 
