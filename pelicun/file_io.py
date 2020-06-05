@@ -545,12 +545,18 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             "Number of realizations is not specified in the input file.")
 
     EDP_units = dict(
-        # PID, RID, and MID are not here because they are unitless
+        # PID, PRD, RID, and MID are not here because they are unitless
         PFA = 'acceleration',
-        PWS = 'speed'
+        PWS = 'speed',
+        PGA = 'acceleration',
+        SA = 'acceleration',
+        SV = 'speed',
+        SD = 'length'
     )
     if AT in ['P58', 'HAZUS_EQ']:
-        EDP_keys = ['PID', 'PFA', 'PGV', 'RID', 'PMD']
+        EDP_keys = ['PID', 'PRD', 'PFA',
+                    'PGV', 'RID', 'PMD',
+                    'PGA', 'SA', 'SV', 'SD']
     elif AT in ['HAZUS_HU']:
         EDP_keys = ['PWS', ]
 
@@ -1101,35 +1107,54 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         c_data['directional'] = int(DL_data.get('Directional', False))
 
         EDP_type = DL_EDP['Type']
-        demand_factor = 1.0
+        if DL_EDP['Unit'][1] == 'in':
+            DL_EDP['Unit'][1] = 'inch'
+        demand_factor = globals()[DL_EDP['Unit'][1]] * DL_EDP['Unit'][0]
         if EDP_type == 'Story Drift Ratio':
             demand_type = 'PID'
+        elif EDP_type == 'Roof Drift Ratio':
+            demand_type = 'PRD'
         elif EDP_type == 'Peak Floor Acceleration':
             demand_type = 'PFA'
-            demand_factor = g
+            #demand_factor = g
             # PFA corresponds to the top of the given story. The ground floor
             # has an idex of 0. When damage of acceleration-sensitive components
             # is controlled by the acceleration of the bottom of the story, the
-            # corresponding PFA location needs to be reduced by 1. Since FEMA
-            # P58 assumes that PFA corresponds to the bottom of the given story
-            # by default, we need to subtract 1 from the location values in a
-            # FEMA P58 assessment. Rather than changing the locations themselves,
-            # we assign an offset so that the results still get collected at the
-            # appropriate story.
-            if AT == 'P58':
-                c_data['offset'] = c_data['offset'] - 1
+            # corresponding PFA location needs to be reduced by 1. Our framework
+            # assumes that PFA corresponds to the bottom of the given story
+            # by default, we need to subtract 1 from the location values. Rather
+            # than changing the locations themselves, we assign an offset of -1
+            # so that the results still get collected at the appropriate story.
+            c_data['offset'] = c_data['offset'] - 1
+        elif EDP_type == 'Peak Floor Velocity':
+            demand_type = 'PFV'
+            #demand_factor = mps
+            c_data['offset'] = c_data['offset'] - 1
         elif EDP_type == 'Peak Gust Wind Speed':
             demand_type = 'PWS'
-            demand_factor = mph
+            #demand_factor = mph
+        elif EDP_type == 'Peak Ground Acceleration':
+            demand_type = 'PGA'
+            #demand_factor = g
         elif EDP_type == 'Peak Ground Velocity':
             demand_type = 'PGV'
-            demand_factor = cmps
+            #demand_factor = cmps
+        elif EDP_type == 'Spectral Acceleration':
+            demand_type = 'SA'
+            #demand_factor = g
+        elif EDP_type == 'Spectral Velocity':
+            demand_type = 'SV'
+            #demand_factor = mps
+        elif EDP_type == 'Spectral Displacement':
+            demand_type = 'SD'
+            #demand_factor = m
+        elif EDP_type == 'Permanent Ground Deformation':
+            demand_type = 'PGD'
         elif EDP_type == 'Mega Drift Ratio':
             demand_type = 'PMD'
         elif EDP_type == 'Residual Drift Ratio':
             demand_type = 'RID'
         elif EDP_type in [
-            'Peak Floor Velocity',
             'Link Rotation Angle',
             'Link Beam Chord Rotation']:
             demand_type = None

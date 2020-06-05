@@ -249,12 +249,20 @@ class Assessment(object):
         if self._hazard == 'EQ':
             self._EDP_in = read_SimCenter_EDP_input(
                 path_EDP_input,
-                EDP_kinds=('PID', 'PFA', 'PGV', 'RID', 'PMD'),
+                EDP_kinds=('PID', 'PRD', 'RID', 'PFA', 'PMD', 
+                           'PGA', 'PGV', 'SA', 'SV', 'SD',
+                           'PGD'),
                 units=dict(PID=1.,
+                           PRD=1.,
                            RID=1.,
-                           PMD=1.,
                            PFA=self._AIM_in['units']['acceleration'],
-                           PGV=self._AIM_in['units']['speed']),
+                           PMD=1.,
+                           PGA=self._AIM_in['units']['acceleration'],
+                           PGV=self._AIM_in['units']['speed'],
+                           SA =self._AIM_in['units']['acceleration'],
+                           SV =self._AIM_in['units']['speed'],
+                           SD =self._AIM_in['units']['length'],
+                           PGD = self._AIM_in['units']['length']),
                 verbose=verbose)
         elif self._hazard == 'HU':
             self._EDP_in = read_SimCenter_EDP_input(
@@ -328,11 +336,15 @@ class Assessment(object):
         EDPs = sorted(self._EDP_dict.keys())
         EDP_samples = self._EDP_dict[EDPs[0]]._RV.samples.copy()
         cols = EDP_samples.columns
+        # TODO: use some global vars to identify EDP units because this is a mess
         for col_i, col in enumerate(cols):
-            if 'PFA' in col:
+            if ('PFA' in col) or ('PGA' in col) or ('SA' in col):
                 scale_factor = self._AIM_in['units']['acceleration']
-            elif ('PGV' in col) or ('PWS' in col):
+            elif (('PFV' in col) or ('PGV' in col) or ('SV' in col) or 
+                  ('PWS' in col)):
                 scale_factor = self._AIM_in['units']['speed']
+            elif ('PGD' in col):
+                scale_factor = self._AIM_in['units']['length']
             else:
                 scale_factor = 1.0
 
