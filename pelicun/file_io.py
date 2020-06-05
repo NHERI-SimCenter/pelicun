@@ -144,7 +144,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     # get the data required for DL
     data = dict([(label, dict()) for label in [
         'general', 'units', 'unit_names', 'components', 'collapse_modes',
-        'decision_variables', 'dependencies', 'data_sources',
+        'decision_variables', 'dependencies', 'data_sources', 'damage_logic'
     ]])
 
     # create a few internal variables for convenience
@@ -198,6 +198,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     depends = DL_input.get('Dependencies', None)
     coll_modes = DL_input.get('CollapseModes', None)
+
+    dam_logic = DL_input.get('DamageLogic', None)
 
     # decision variables of interest
     if dec_vars is not None:
@@ -811,6 +813,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         show_warning(
             "Correlation between injury levels was not defined in the "
             "input file. Using default values.")
+
+    # damage logic info --------------------------------------------------------
+
+    data['damage_logic'] = dam_logic
 
     if verbose: pp.pprint(data)
 
