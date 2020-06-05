@@ -1,16 +1,34 @@
 {
   "Name": "string",
+  "QuantityUnit": [
+    "float",
+    "string"
+  ],
   "Directional": "bool",
-  "GeneralInformation": {
-    "ID": "string",
-    "Description": "string"
-  },
+  "Correlated": "bool",
   "EDP": {
     "Type": "string",
     "Unit": [
       "float",
       "string"
-    ]
+    ],
+    "Offset": "string"
+  },
+  "GeneralInformation": {
+    "ID": "string",
+    "Description": "string",
+    "Author": "string",
+    "Official": "bool",
+    "DateCreated": "string",
+    "Approved": "bool",
+    "Incomplete": "bool",
+    "Notes": "string"
+  },
+  "Ratings": {
+    "DataQuality": "string",
+    "DataRelevance": "string",
+    "Documentation": "string",
+    "Rationality": "string"
   },
   "DSGroups": [
     {
