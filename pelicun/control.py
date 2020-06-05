@@ -485,9 +485,11 @@ class Assessment(object):
                 d_tags.append(str(d_id) +
                               '-LOC-' + str(d_list[i]['location']) +
                               '-DIR-' + str(d_list[i]['direction']))
-                det_lim = GI['detection_limits'][d_id]
+
+                det_lim = GI['detection_limits'].get(d_id, None)
                 if det_lim is None:
                     det_lim = np.inf
+                
                 if GI['response']['EDP_dist_basis'] == 'non-collapse results':
                     coll_lim = GI['collapse_limits'][d_id]
                     if coll_lim is None:
