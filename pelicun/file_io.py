@@ -1086,13 +1086,13 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         c_data['cov'] = [float_or_None(cov) for cov in ci_data['cov']]
 
         # replace N/A distribution with normal and negligible cov
-        c_data['cov'] = [0.0001 if dk == 'N/A' else cov
-                         for cov,dk in list(zip(c_data['cov'],
-                                                c_data['distribution_kind']))]
-        c_data['distribution_kind'] = ['normal' if dk == 'N/A' else dk
-                                       for dk in c_data['distribution_kind']]
-        c_data['cov'] = [0.0001 if cov==None else cov
-                         for cov in c_data['cov']]
+        #c_data['cov'] = [0.0001 if dk == 'N/A' else cov
+        #                 for cov,dk in list(zip(c_data['cov'],
+        #                                        c_data['distribution_kind']))]
+        #c_data['distribution_kind'] = ['normal' if dk == 'N/A' else dk
+        #                               for dk in c_data['distribution_kind']]
+        #c_data['cov'] = [0.0001 if cov==None else cov
+        #                 for cov in c_data['cov']]
 
         #c_data['kind'] = ci_data['kind']
         #c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
@@ -1179,7 +1179,8 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
         # dictionary to convert DL data to internal representation
         curve_type = {'LogNormal': 'lognormal',
-                      'Normal'   : 'normal'}
+                      'Normal'   : 'normal',
+                      'N/A'      : None}
         DS_set_kind = {'MutuallyExclusive' : 'mutually exclusive',
                        'mutually exclusive': 'mutually exclusive',
                        'simultaneous'      : 'simultaneous',
@@ -1212,41 +1213,41 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                     DS_CC = DS_C['ReconstructionCost']
                     if isinstance(DS_CC['Amount'], list):
                         DS_data.update({'repair_cost': {
-                            'median_max'       : DS_CC['Amount'][0],
-                            'median_min'       : DS_CC['Amount'][1],
-                            'quantity_lower'   : DS_CC['Quantity'][0],
-                            'quantity_upper'   : DS_CC['Quantity'][1],
-                            'distribution_kind': curve_type[DS_CC['CurveType']],
-                            'cov'              : DS_CC['Beta'],
+                            'medians'          : np.array(DS_CC['Amount']),
+                            'quantities'       : np.array(DS_CC['Quantity']),
+                            'distribution_kind': curve_type[DS_CC.get('CurveType','N/A')],
+                            'cov'              : DS_CC.get('Beta',None),
                         }})
 
                         # convert the units to standard ones
-                        DS_data['repair_cost']['quantity_lower'] *= data_unit
-                        DS_data['repair_cost']['quantity_upper'] *= data_unit
-                        DS_data['repair_cost']['median_min'] /= data_unit
-                        DS_data['repair_cost']['median_max'] /= data_unit
+                        DS_data['repair_cost']['quantities'] *= data_unit
+                        DS_data['repair_cost']['medians'] /= data_unit
                     else:
-                        DS_data.update({'repair_cost': DS_CC['Amount']})
+                        DS_data.update({'repair_cost': {
+                            'medians': np.array([DS_CC['Amount'],]),
+                            'distribution_kind': curve_type[DS_CC.get('CurveType','N/A')],
+                            'cov'              : DS_CC.get('Beta',None),
+                        }})
 
                 if 'ReconstructionTime' in DS_C.keys():
                     DS_CT = DS_C['ReconstructionTime']
                     if isinstance(DS_CT['Amount'], list):
                         DS_data.update({'repair_time': {
-                            'median_max'       : DS_CT['Amount'][0],
-                            'median_min'       : DS_CT['Amount'][1],
-                            'quantity_lower'   : DS_CT['Quantity'][0],
-                            'quantity_upper'   : DS_CT['Quantity'][1],
-                            'distribution_kind': curve_type[DS_CT['CurveType']],
-                            'cov'              : DS_CT['Beta'],
+                            'medians'          : np.array(DS_CT['Amount']),
+                            'quantities'       : np.array(DS_CT['Quantity']),
+                            'distribution_kind': curve_type[DS_CT.get('CurveType','N/A')],
+                            'cov'              : DS_CT.get('Beta',None),
                         }})
 
                         # convert the units to standard ones
-                        DS_data['repair_time']['quantity_lower'] *= data_unit
-                        DS_data['repair_time']['quantity_upper'] *= data_unit
-                        DS_data['repair_time']['median_min'] /= data_unit
-                        DS_data['repair_time']['median_max'] /= data_unit
+                        DS_data['repair_time']['quantities'] *= data_unit
+                        DS_data['repair_time']['medians'] /= data_unit
                     else:
-                        DS_data.update({'repair_time': DS_CT['Amount']})
+                        DS_data.update({'repair_time': {
+                            'medians': np.array([DS_CT['Amount'],]),
+                            'distribution_kind': curve_type[DS_CT.get('CurveType','N/A')],
+                            'cov'              : DS_CT.get('Beta',None),
+                        }})
 
                 if 'RedTag' in DS_C.keys():
                     DS_CR = DS_C['RedTag']
@@ -1732,5 +1733,6 @@ def write_SimCenter_DV_output_old(output_dir, DV_filename, DV_df, DV_name):
     except:
         pass
 
+    log_msg('\t\t\tSaving file {}'.format(DV_filename))
     with open(DV_file_path, 'w') as f:
         json.dump(DV, f, indent = 2)
