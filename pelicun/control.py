@@ -1325,26 +1325,34 @@ class FEMA_P58_Assessment(Assessment):
                 else:
                     q_sig = np.append(q_sig, [cov, ])
 
-            q_tag = np.append(q_tag, [c_id + '-QNT-' + str(s_i) + '-' + str(d_i)
-                                      for s_i, d_i
+            q_tag = np.append(q_tag, [f'{c_id}-QNT-{s_i}-{d_i}' for s_i, d_i
                                       in list(zip(comp['locations'],
                                                   comp['directions']))])
 
-        dims = len(q_theta)
         rho = self._create_correlation_matrix(rho_qnt)
-        q_COV = np.outer(q_sig, q_sig) * rho
 
-        # add lower limits to ensure only positive quantities
-        # zero is probably too low, and it might make sense to introduce upper
-        # limits as well
-        tr_lower = [0. for d in range(dims)]
-        tr_upper = [None for d in range(dims)]
-        # to avoid truncations affecting other dimensions when rho_QNT is large,
-        # assign a post-truncation correlation structure
-        corr_ref = 'post'
+        if not np.all(q_dist=='N/A'):
+            # remove the unnecessary fields
+            to_remove = np.where(q_dist=='N/A')[0]
+            rho = np.delete(rho, to_remove, axis=0)
+            rho = np.delete(rho, to_remove, axis=1)
 
-        # create a random variable for component quantities in performance groups
-        if q_tag.size > 0:
+            q_theta, q_sig, q_dist, q_tag = [
+                np.delete(q_vals, to_remove) for q_vals in [
+                    q_theta, q_sig, q_dist, q_tag]]
+
+            q_COV = np.outer(q_sig, q_sig) * rho
+            dims = len(q_theta)
+
+            # add lower limits to ensure only positive quantities
+            # zero is probably too low, and it might make sense to introduce upper
+            # limits as well
+            tr_lower = [0. for d in range(dims)]
+            tr_upper = [None for d in range(dims)]
+            # to avoid truncations affecting other dimensions when rho_QNT is large,
+            # assign a post-truncation correlation structure
+            corr_ref = 'post'
+
             quantity_RV = RandomVariable(ID=100,
                                          dimension_tags=q_tag,
                                          distribution_kind=q_dist,
@@ -1520,23 +1528,27 @@ class FEMA_P58_Assessment(Assessment):
                     s_ds_keys = sorted(DSG['DS_set'].keys())
                     for ds_i in s_ds_keys:
                         DS = DSG['DS_set'][ds_i]
-                        d_sig = np.append(d_sig,
-                                          DS['repair_{}'.format(name)]['cov'])
-                        d_dkind = np.append(d_dkind,
-                                            DS['repair_{}'.format(name)][
-                                                'distribution_kind'])
-                        d_tag = np.append(d_tag,
-                                          comp['ID'] + '-' + str(
-                                              dsg_i) + '-' + str(
-                                              ds_i) + '-{}'.format(name))
+                        if ((f'repair_{name}' in DS.keys()) and 
+                            (DS[f'repair_{name}']['distribution_kind'] is not None)):
+                            data = DS[f'repair_{name}']
+                            d_sig = np.append(d_sig, data['cov'])
+                            d_dkind = np.append(d_dkind, 
+                                                data['distribution_kind'])
+                        else:
+                            d_sig = np.append(d_sig, 0.0001)
+                            d_dkind = np.append(d_dkind, None)
+
+                        d_tag = np.append(
+                                d_tag, f'{comp["ID"]}-{dsg_i}-{ds_i}-{name}')
+                                #comp['ID'] + '-' + str(
+                                #    dsg_i) + '-' + str(
+                                #    ds_i) + '-{}'.format(name))
 
                 for loc, dir_ in zip(comp['locations'], comp['directions']):
                     f_sig = np.append(f_sig, d_sig)
                     f_dkind = np.append(f_dkind, d_dkind)
-                    f_tag = np.append(f_tag,
-                                      [t + '-LOC-{}-DIR-{}'.format(loc,
-                                                                   dir_)
-                                       for t in d_tag])
+                    f_tag = np.append(
+                        f_tag, [t + f'-LOC-{loc}-DIR-{dir_}' for t in d_tag])
 
             ct_sig = np.append(ct_sig, f_sig)
             ct_tag = np.append(ct_tag, f_tag)
@@ -1577,9 +1589,18 @@ class FEMA_P58_Assessment(Assessment):
             ct_rho[:dims, dims:] = rho_ct
             ct_rho[dims:, :dims] = rho_ct
 
-        ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
+        # now remove the unnecessary fields
+        if not np.all(ct_dkind == None):
+            
+            to_remove = np.where(ct_dkind == None)[0]
+            ct_rho = np.delete(ct_rho, to_remove, axis=0)
+            ct_rho = np.delete(ct_rho, to_remove, axis=1)
 
-        if ct_tag.size > 0:
+            ct_dkind, ct_sig, ct_tag = [np.delete(ct_vals, to_remove)
+                                     for ct_vals in [ct_dkind, ct_sig, ct_tag]]
+
+            ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
+
             repair_RV = RandomVariable(ID=401,
                                        dimension_tags=ct_tag,
                                        distribution_kind=ct_dkind,
@@ -1709,14 +1730,18 @@ class FEMA_P58_Assessment(Assessment):
             PG_locations = comp['locations']
             PG_directions = comp['directions']
             PG_csg_lists = comp['csg_weights']
-            for loc, dir_, csg_list in zip(PG_locations, PG_directions,
-                                           PG_csg_lists):
+            PG_dists = comp['distribution_kind']
+            PG_qnts = comp['quantities']
+            for loc, dir_, csg_list, dist, qnt, in zip(
+                PG_locations, PG_directions, PG_csg_lists, PG_dists, PG_qnts):
                 PG_ID = 10000 * FG_ID + 10 * loc + dir_
 
                 # get the quantity
-                QNT = RandomVariableSubset(
-                    RVd['QNT'],
-                    tags=[c_id + '-QNT-' + str(loc) + '-' + str(dir_), ])
+                if dist == 'N/A':
+                    QNT = qnt
+                else:
+                    QNT = RandomVariableSubset(RVd['QNT'],
+                        tags=[f'{c_id}-QNT-{loc}-{dir_}', ])
 
                 # create the damage objects
                 # consequences are calculated on a performance group level
@@ -2022,7 +2047,11 @@ class FEMA_P58_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                PG_qnt = PG._quantity.samples.loc[ncID]
+                if isinstance(PG._quantity, RandomVariableSubset):
+                    PG_qnt = PG._quantity.samples.loc[ncID]
+                else:
+                    PG_qnt = pd.DataFrame(np.ones(NC_samples) * PG._quantity,
+                                          index=ncID)
 
                 # get the corresponding demands
                 if not FG._directional:
@@ -2154,7 +2183,10 @@ class FEMA_P58_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                PG_qnt = PG._quantity.samples.loc[ncID]
+                if PG._quantity is not None:
+                    PG_qnt = PG._quantity.samples.loc[ncID]
+                else:
+                    PG_qnt = pd.DataFrame(np.ones(NC_samples),index=ncID)
 
                 PG_DMG = self._DMG.loc[:, idx[FG._ID, PG_ID, :]].div(
                     PG_qnt.iloc[:, 0],
@@ -3017,25 +3049,34 @@ class HAZUS_Assessment(Assessment):
                 else:
                     q_sig = np.append(q_sig, [cov, ])
 
-            q_tag = np.append(q_tag, [c_id + '-QNT-' + str(s_i) + '-' + str(d_i)
-                                      for s_i, d_i
+            q_tag = np.append(q_tag, [f'{c_id}-QNT-{s_i}-{d_i}' for s_i, d_i
                                       in list(zip(comp['locations'],
                                                   comp['directions']))])
-        dims = len(q_theta)
+
         rho = self._create_correlation_matrix(rho_qnt)
-        q_COV = np.outer(q_sig, q_sig) * rho
 
-        # add lower limits to ensure only positive quantities
-        # zero is probably too low, and it might make sense to introduce upper
-        # limits as well
-        tr_lower = [0. for d in range(dims)]
-        tr_upper = [None for d in range(dims)]
-        # to avoid truncations affecting other dimensions when rho_QNT is large,
-        # assign a post-truncation correlation structure
-        corr_ref = 'post'
+        if not np.all(q_dist=='N/A'):
+            # remove the unnecessary fields
+            to_remove = np.where(q_dist=='N/A')[0]
+            rho = np.delete(rho, to_remove, axis=0)
+            rho = np.delete(rho, to_remove, axis=1)
 
-        # create a random variable for component quantities in performance groups
-        if q_tag.size > 0:
+            q_theta, q_sig, q_dist, q_tag = [
+                np.delete(q_vals, to_remove) for q_vals in [
+                    q_theta, q_sig, q_dist, q_tag]]
+
+            q_COV = np.outer(q_sig, q_sig) * rho
+            dims = len(q_theta)
+
+            # add lower limits to ensure only positive quantities
+            # zero is probably too low, and it might make sense to introduce upper
+            # limits as well
+            tr_lower = [0. for d in range(dims)]
+            tr_upper = [None for d in range(dims)]
+            # to avoid truncations affecting other dimensions when rho_QNT is large,
+            # assign a post-truncation correlation structure
+            corr_ref = 'post'
+
             quantity_RV = RandomVariable(ID=100,
                                          dimension_tags=q_tag,
                                          distribution_kind=q_dist,
