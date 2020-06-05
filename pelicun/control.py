@@ -2680,14 +2680,66 @@ class HAZUS_Assessment(Assessment):
 
         # collapses are handled as the ultimate DS in HAZUS
         self._ID_dict.update({'collapse': []})
-
-        # select the non-collapse cases for further analyses
         non_collapsed_IDs = self._TIME.index.values.astype(int)
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
-        # damage in non-collapses
+        # calculate damage
         log_msg('\tCalculating the damage in the non-collapsed cases...')
         self._DMG = self._calc_damage()
+
+        # apply the prescribed damge logic
+        if self._AIM_in['damage_logic'] is not None:
+            for DL in self._AIM_in['damage_logic']:
+                if DL['type'] == 'propagate':
+                    # identify the source and target FG ids
+                    source_id = self._FG_dict[DL['source_FG']]._ID
+                    target_id = self._FG_dict[DL['target_FG']]._ID
+
+                    # get the source DMG info
+                    source_DMG = self._DMG.loc[:,source_id].groupby(level='DSG_DS', axis=1).sum()
+
+                    # get the PGs in the target FG
+                    target_PGs = self._FG_dict[DL['target_FG']]._performance_groups
+
+                    # for each PG
+                    for target_PG in target_PGs:
+                        
+                        # get the total quantity
+                        if isinstance(target_PG._quantity, RandomVariableSubset):
+                            qnt_tot = target_PG._quantity.samples.loc[self._DMG.index]
+                        else:
+                            qnt_tot = pd.DataFrame(np.ones(self._DMG.shape[0]) * target_PG._quantity,
+                                                  index=self._DMG.index)
+
+                        # get all DSG_DS combinations in the target_PG
+                        target_DSG_DS_list = self._DMG.loc[:, (target_id, target_PG._ID)].columns
+
+                        for source_DS, target_DS in DL['DS_links'].items():
+
+                            # get the damaged quantity
+                            qnt_dmg = self._DMG.loc[:, (target_id, target_PG._ID)].sum(axis=1).to_frame()
+
+                            # get the undamaged quantity
+                            qnt_undmg = qnt_tot - qnt_dmg
+
+                            # get the mapping based on source_dmg and source DS
+                            dmg_map = source_DMG.index.values[source_DMG.loc[:, source_DS] > 0.0]
+
+                            # get the damage states exceeded by target_DS                            
+                            exc_DS = target_DSG_DS_list[:np.where(target_DSG_DS_list == target_DS)[0][0]+1]
+
+                            # sum up the damage in the exceeded DSs + no damage
+                            exc_dmg = self._DMG.loc[dmg_map, idx[target_id, target_PG._ID, exc_DS]].sum(axis=1).to_frame()                            
+                            
+                            exc_dmg = exc_dmg + qnt_undmg.loc[dmg_map]
+
+                            # save this damage to the target_DS and zero to lower DSs
+                            for ds_i in exc_DS:
+                                self._DMG.loc[dmg_map, (target_id, target_PG._ID, ds_i)] = 0.0
+                            self._DMG.loc[dmg_map, (target_id, target_PG._ID, target_DS)] = exc_dmg.iloc[:,0].values                  
+
+                else:
+                    log_msg(f'Unkown damage logic: {DL["type"]}')
 
     def calculate_losses(self):
         """
