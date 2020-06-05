@@ -2678,8 +2678,7 @@ class HAZUS_Assessment(Assessment):
             log_msg('\tSampling the population...')
             self._POP = self._get_population()
 
-        # collapses are handled as the ultimate DS in HAZUS
-        self._ID_dict.update({'collapse': []})
+        # assume that all cases are non-collapse for damage assessment
         non_collapsed_IDs = self._TIME.index.values.astype(int)
         self._ID_dict.update({'non-collapse': non_collapsed_IDs})
 
@@ -2740,6 +2739,19 @@ class HAZUS_Assessment(Assessment):
 
                 else:
                     log_msg(f'Unkown damage logic: {DL["type"]}')
+
+        # collapses are indicated by the ultimate DS in HAZUS
+        collapse_flag = self._DMG.groupby(level=2, axis=1).sum()['4_2']>0.
+        self._ID_dict.update({'collapse': 
+            self._DMG[collapse_flag].index.values.astype(int)})
+        # Note: Non-collapse IDs are not updated because we use the same 
+        # procedure to estimate injuries (and potentially other decision vars)
+        # under collapse and non-collapse cases
+
+        self._COL = pd.DataFrame(
+            np.zeros(self._AIM_in['general']['realizations']), 
+            columns=['COL', ])
+        self._COL.loc[collapse_flag, 'COL'] = 1
 
     def calculate_losses(self):
         """
