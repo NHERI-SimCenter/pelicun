@@ -250,7 +250,7 @@ class Assessment(object):
         if self._hazard == 'EQ':
             self._EDP_in = read_SimCenter_EDP_input(
                 path_EDP_input,
-                EDP_kinds=('PID', 'PRD', 'RID', 'PFA', 'PMD', 
+                EDP_kinds=('PID', 'PRD', 'RID', 'PFA', 'PMD',
                            'PGA', 'PGV', 'SA', 'SV', 'SD',
                            'PGD'),
                 units=dict(PID=1.,
@@ -342,7 +342,7 @@ class Assessment(object):
         for col_i, col in enumerate(cols):
             if ('PFA' in col) or ('PGA' in col) or ('SA' in col):
                 scale_factor = self._AIM_in['units']['acceleration']
-            elif (('PFV' in col) or ('PGV' in col) or ('SV' in col) or 
+            elif (('PFV' in col) or ('PGV' in col) or ('SV' in col) or
                   ('PWS' in col)):
                 scale_factor = self._AIM_in['units']['speed']
             elif ('PGD' in col):
@@ -383,7 +383,7 @@ class Assessment(object):
             write_SimCenter_DL_output(
                 output_path, '{}DL_summary.csv'.format(suffix),
                 self._SUMMARY, index_name='#Num', collapse_columns=True)
-                
+
             if not detailed_results:
                 log_msg('\t\tOnly saving the main results.')
             else:
@@ -460,7 +460,7 @@ class Assessment(object):
             if self._assessment_type.startswith('HAZUS'):
                 log_msg('\t\tSimCenter DV file')
                 write_SimCenter_DV_output(
-                    output_path, suffix+DV_file, self._AIM_in['general'], 
+                    output_path, suffix+DV_file, self._AIM_in['general'],
                     self._SUMMARY, dict(zip(DV_names, DV_mods)))
 
         except:
@@ -489,7 +489,7 @@ class Assessment(object):
                 det_lim = GI['detection_limits'].get(d_id, None)
                 if det_lim is None:
                     det_lim = np.inf
-                
+
                 if GI['response']['EDP_dist_basis'] == 'non-collapse results':
                     coll_lim = GI['collapse_limits'][d_id]
                     if coll_lim is None:
@@ -664,7 +664,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # population (if needed)
         if self._AIM_in['decision_variables']['injuries']:
-            
+
             if BIM['general']['event_time'] is None:
                 log_msg('\tPopulation data files...')
                 POP = read_population_distribution(
@@ -822,14 +822,14 @@ class FEMA_P58_Assessment(Assessment):
             discard_limits = None
 
         self._RV_dict.update({
-            'EDP': self._create_RV_demands()})        
+            'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
         log_msg()
         log_msg('Sampling the random variables...')
 
         realization_count = self._AIM_in['general']['realizations']
-        is_coupled = self._AIM_in['general']['coupled_assessment']       
+        is_coupled = self._AIM_in['general']['coupled_assessment']
 
         s_rv_keys = sorted(self._RV_dict.keys())
         for r_i in s_rv_keys:
@@ -837,7 +837,7 @@ class FEMA_P58_Assessment(Assessment):
             if rv is not None:
                 log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
-                    sample_size=realization_count, 
+                    sample_size=realization_count,
                     preserve_order=((r_i=='EDP') and is_coupled))
 
         log_msg('Sampling completed.')
@@ -1031,7 +1031,7 @@ class FEMA_P58_Assessment(Assessment):
                 ('event time', 'weekday?'),
                 ('event time', 'hour')
             ]
-            
+
         ncID = self._ID_dict['non-collapse']
         colID = self._ID_dict['collapse']
         if DVs['rec_cost'] or DVs['rec_time']:
@@ -1528,11 +1528,11 @@ class FEMA_P58_Assessment(Assessment):
                     s_ds_keys = sorted(DSG['DS_set'].keys())
                     for ds_i in s_ds_keys:
                         DS = DSG['DS_set'][ds_i]
-                        if ((f'repair_{name}' in DS.keys()) and 
+                        if ((f'repair_{name}' in DS.keys()) and
                             (DS[f'repair_{name}']['distribution_kind'] is not None)):
                             data = DS[f'repair_{name}']
                             d_sig = np.append(d_sig, data['cov'])
-                            d_dkind = np.append(d_dkind, 
+                            d_dkind = np.append(d_dkind,
                                                 data['distribution_kind'])
                         else:
                             d_sig = np.append(d_sig, 0.0001)
@@ -1591,7 +1591,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # now remove the unnecessary fields
         if not np.all(ct_dkind == None):
-            
+
             to_remove = np.where(ct_dkind == None)[0]
             ct_rho = np.delete(ct_rho, to_remove, axis=0)
             ct_rho = np.delete(ct_rho, to_remove, axis=1)
@@ -2630,7 +2630,7 @@ class HAZUS_Assessment(Assessment):
             if rv is not None:
                 log_msg('\t{}...'.format(r_i))
                 rv.sample_distribution(
-                    sample_size=realization_count, 
+                    sample_size=realization_count,
                     preserve_order=((r_i=='EDP') and is_coupled))
 
         log_msg('Sampling completed.')
@@ -2663,9 +2663,9 @@ class HAZUS_Assessment(Assessment):
 
         First, the time of the event (month, weekday/weekend, hour) is randomly
         generated for each realization. Given the event time, if we are interested
-        in injuries, the number of people present at each floor of the building is 
-        sampled. The event time is only important if we are interested in injuries, 
-        but it is calculated every time because it is not a large overhead and it 
+        in injuries, the number of people present at each floor of the building is
+        sampled. The event time is only important if we are interested in injuries,
+        but it is calculated every time because it is not a large overhead and it
         serves as the basis of indexing every other array.
 
         Second, the quantities of components in each damage state are estimated.
@@ -2711,7 +2711,7 @@ class HAZUS_Assessment(Assessment):
 
                     # for each PG
                     for target_PG in target_PGs:
-                        
+
                         # get the total quantity
                         if isinstance(target_PG._quantity, RandomVariableSubset):
                             qnt_tot = target_PG._quantity.samples.loc[self._DMG.index]
@@ -2733,32 +2733,32 @@ class HAZUS_Assessment(Assessment):
                             # get the mapping based on source_dmg and source DS
                             dmg_map = source_DMG.index.values[source_DMG.loc[:, source_DS] > 0.0]
 
-                            # get the damage states exceeded by target_DS                            
+                            # get the damage states exceeded by target_DS
                             exc_DS = target_DSG_DS_list[:np.where(target_DSG_DS_list == target_DS)[0][0]+1]
 
                             # sum up the damage in the exceeded DSs + no damage
-                            exc_dmg = self._DMG.loc[dmg_map, idx[target_id, target_PG._ID, exc_DS]].sum(axis=1).to_frame()                            
-                            
+                            exc_dmg = self._DMG.loc[dmg_map, idx[target_id, target_PG._ID, exc_DS]].sum(axis=1).to_frame()
+
                             exc_dmg = exc_dmg + qnt_undmg.loc[dmg_map]
 
                             # save this damage to the target_DS and zero to lower DSs
                             for ds_i in exc_DS:
                                 self._DMG.loc[dmg_map, (target_id, target_PG._ID, ds_i)] = 0.0
-                            self._DMG.loc[dmg_map, (target_id, target_PG._ID, target_DS)] = exc_dmg.iloc[:,0].values                  
+                            self._DMG.loc[dmg_map, (target_id, target_PG._ID, target_DS)] = exc_dmg.iloc[:,0].values
 
                 else:
                     log_msg(f'Unkown damage logic: {DL["type"]}')
 
         # collapses are indicated by the ultimate DS in HAZUS
         collapse_flag = self._DMG.groupby(level=2, axis=1).sum()['4_2']>0.
-        self._ID_dict.update({'collapse': 
+        self._ID_dict.update({'collapse':
             self._DMG[collapse_flag].index.values.astype(int)})
-        # Note: Non-collapse IDs are not updated because we use the same 
+        # Note: Non-collapse IDs are not updated because we use the same
         # procedure to estimate injuries (and potentially other decision vars)
         # under collapse and non-collapse cases
 
         self._COL = pd.DataFrame(
-            np.zeros(self._AIM_in['general']['realizations']), 
+            np.zeros(self._AIM_in['general']['realizations']),
             columns=['COL', ])
         self._COL.loc[collapse_flag, 'COL'] = 1
 
@@ -2823,7 +2823,7 @@ class HAZUS_Assessment(Assessment):
 
         DVs = self._AIM_in['decision_variables']
 
-        MI_raw = [       
+        MI_raw = [
             ('collapses', 'collapsed'),
             ('highest damage state', 'S'),
             ('highest damage state', 'NSA'),
@@ -2863,7 +2863,7 @@ class HAZUS_Assessment(Assessment):
         MI = pd.MultiIndex.from_tuples(MI_raw)
 
         SUMMARY = pd.DataFrame(
-            np.empty((self._AIM_in['general']['realizations'], len(MI))), 
+            np.empty((self._AIM_in['general']['realizations'], len(MI))),
             columns=MI)
         SUMMARY[:] = np.NaN
 
@@ -2912,7 +2912,7 @@ class HAZUS_Assessment(Assessment):
             repair_impractical_IDs = SUMMARY.loc[ncID, ('reconstruction', 'cost')] > repl_cost
             SUMMARY.loc[repair_impractical_IDs,
                         ('reconstruction', 'cost impractical')] = 1
-            SUMMARY.loc[repair_impractical_IDs, 
+            SUMMARY.loc[repair_impractical_IDs,
                         ('reconstruction', 'cost')] = repl_cost
 
             # only keep the non-collapsed cases in the DVs
@@ -2945,7 +2945,7 @@ class HAZUS_Assessment(Assessment):
 
         # keep only the non-collapse damage data
         self._DMG = self._DMG.loc[self._COL['COL'] == 0]
-        
+
         self._ID_dict['non-collapse'] = self._DV_dict['rec_cost'].index.values.astype(int)
 
         self._SUMMARY = SUMMARY.dropna(axis=1, how='all')
@@ -3286,11 +3286,11 @@ class HAZUS_Assessment(Assessment):
                     s_ds_keys = sorted(DSG['DS_set'].keys())
                     for ds_i in s_ds_keys:
                         DS = DSG['DS_set'][ds_i]
-                        if ((f'repair_{name}' in DS.keys()) and 
+                        if ((f'repair_{name}' in DS.keys()) and
                             (DS[f'repair_{name}']['distribution_kind'] is not None)):
                             data = DS[f'repair_{name}']
                             d_sig = np.append(d_sig, data['cov'])
-                            d_dkind = np.append(d_dkind, 
+                            d_dkind = np.append(d_dkind,
                                                 data['distribution_kind'])
                         else:
                             d_sig = np.append(d_sig, 0.0001)
@@ -3349,7 +3349,7 @@ class HAZUS_Assessment(Assessment):
 
         # now remove the unnecessary fields
         if not np.all(ct_dkind == None):
-            
+
             to_remove = np.where(ct_dkind == None)[0]
             ct_rho = np.delete(ct_rho, to_remove, axis=0)
             ct_rho = np.delete(ct_rho, to_remove, axis=1)
@@ -3441,16 +3441,16 @@ class HAZUS_Assessment(Assessment):
                             if len(data['medians']) > 1:
                                 f_median = prep_bounded_multilinear_median_DV(
                                     **{k: data_scaled.get(k, None) for k in
-                                       ('medians', 'quantities')})   
+                                       ('medians', 'quantities')})
                             else:
                                 f_median = prep_constant_median_DV(
                                     data_scaled['medians'][0])
-                            
+
                             if data['distribution_kind'] is not None:
-                                
+
                                 cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
                                          '-cost' + f'-LOC-{loc}-DIR-{dir_}'
-                                
+
                                 CF_RV = RandomVariableSubset(RVd['DV_REP'],
                                                              tags=cf_tag)
                             else:
@@ -3462,21 +3462,21 @@ class HAZUS_Assessment(Assessment):
                             CF_cost = None
 
                         if DVs['rec_time'] and ('repair_time' in DS.keys()):
-                            data = DS['repair_time']                            
+                            data = DS['repair_time']
 
                             if len(data['medians']) > 1:
                                 f_median = prep_bounded_multilinear_median_DV(
                                     **{k: data.get(k, None) for k in
-                                       ('medians', 'quantities')})   
+                                       ('medians', 'quantities')})
                             else:
                                 f_median = prep_constant_median_DV(
                                     data['medians'][0])
-                            
+
                             if data['distribution_kind'] is not None:
-                                
+
                                 cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
                                          '-time' + f'-LOC-{loc}-DIR-{dir_}'
-                                
+
                                 CF_RV = RandomVariableSubset(RVd['DV_REP'],
                                                              tags=cf_tag)
                             else:
@@ -3752,9 +3752,9 @@ class HAZUS_Assessment(Assessment):
                 FG_damages.iloc[:, pg_i * d_count:(pg_i + 1) * d_count] = \
                     FG_damages.iloc[:, pg_i * d_count:(pg_i + 1) * d_count].values * PG_qnt.iloc[:, 0].values.reshape(-1, *[1])
 
-            
+
             FG_dmg_list.append(FG_damages)
-        
+
         DMG = pd.concat(FG_dmg_list, axis=1)
 
         DMG.index = ncID
@@ -3804,19 +3804,19 @@ class HAZUS_Assessment(Assessment):
                         DV_COST.drop(DV_COST.loc[:, idx[FG._ID, :, d_tag]].columns, axis=1, inplace=True)
 
                     elif isinstance(COST_samples, pd.Series):
-                        # the assigned costs are random numbers 
+                        # the assigned costs are random numbers
                         for pg_i, PG in enumerate(PG_set):
 
                             PG_ID = PG._ID
                             DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
 
                             COST_samples = DS.unit_repair_cost(quantity=TOT_qnt).values
-                            
-                            DV_COST.loc[:,(FG._ID, PG_ID, d_tag)] = DV_COST.loc[:, (FG._ID, PG_ID, d_tag)].values * COST_samples 
-                            
+
+                            DV_COST.loc[:,(FG._ID, PG_ID, d_tag)] = DV_COST.loc[:, (FG._ID, PG_ID, d_tag)].values * COST_samples
+
                     else:
                         # the assigned costs are identical for all realizations
-                        DV_COST.loc[:, idx[FG._ID, :, d_tag]] *= COST_samples                   
+                        DV_COST.loc[:, idx[FG._ID, :, d_tag]] *= COST_samples
 
                 if DVs['rec_time']:
                     TIME_samples = DS_test.unit_reconstruction_time(quantity=TOT_qnt)
@@ -3826,19 +3826,19 @@ class HAZUS_Assessment(Assessment):
                         DV_TIME.drop(DV_TIME.loc[:, idx[FG._ID, :, d_tag]].columns, axis=1, inplace=True)
 
                     elif isinstance(TIME_samples, pd.Series):
-                        # the assigned repair times are random numbers 
+                        # the assigned repair times are random numbers
                         for pg_i, PG in enumerate(PG_set):
 
                             PG_ID = PG._ID
                             DS = PG._DSG_set[dsg_i]._DS_set[ds_i]
 
                             TIME_samples = DS.unit_reconstruction_time(quantity=TOT_qnt).values
-                            
+
                             DV_TIME.loc[:, (FG._ID, PG_ID, d_tag)] = DV_TIME.loc[:, (FG._ID, PG_ID, d_tag)].values * TIME_samples
-                        
+
                     else:
                         # the assigned repair times are identical for all realizations
-                        DV_TIME.loc[:, idx[FG._ID, :, d_tag]] *= TIME_samples                   
+                        DV_TIME.loc[:, idx[FG._ID, :, d_tag]] *= TIME_samples
 
         # sort the columns to enable index slicing later
         if DVs['rec_cost']:
@@ -3883,7 +3883,7 @@ class HAZUS_Assessment(Assessment):
                     # check what can we expect later
                     # pull the DS from the first PG
                     DS_test = PG_set[0]._DSG_set[dsg_i]._DS_set[ds_i]
-                    INJ_samples = DS_test.unit_injuries(severity_level=i, 
+                    INJ_samples = DS_test.unit_injuries(severity_level=i,
                                                         sample_size=NC_samples)
 
                     if INJ_samples is None:
@@ -3892,9 +3892,9 @@ class HAZUS_Assessment(Assessment):
                         continue
 
                     elif isinstance(INJ_samples, pd.Series):
-                        # the assigned injuries are random numbers 
+                        # the assigned injuries are random numbers
                         rnd_inj = True
-                        
+
                     else:
                         # the assigned injuries are identical for all realizations
                         rnd_inj = False
