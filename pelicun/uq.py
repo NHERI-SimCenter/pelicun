@@ -1502,7 +1502,7 @@ class RandomVariable(object):
             dimension tags that identify the variables.
         """
 
-        if self._distribution_kind is not None:
+        if (not preserve_order) and (self._distribution_kind is not None):
             if ((self._distribution_kind.shape == ()) and
                 (self._distribution_kind == 'multinomial')):
 
