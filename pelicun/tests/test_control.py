@@ -77,8 +77,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -92,9 +91,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     # QNT
     RV_QNT = A._RV_dict['QNT']
-    assert RV_QNT.theta == pytest.approx(50., rel=0.01)
-    assert RV_QNT.COV == pytest.approx((50. * 1e-4) ** 2., rel=0.01)
-    assert RV_QNT._distribution_kind == 'normal'
+    assert RV_QNT is None
 
     # FRG
     RV_FRG = A._RV_dict['FR-T0001.001']
@@ -148,6 +145,10 @@ def test_FEMA_P58_Assessment_central_tendencies():
     # ------------------------------------------------------------------------
 
     A.define_loss_model()
+
+    # QNT (deterministic)
+    QNT = A._FG_dict['T0001.001']._performance_groups[0]._quantity
+    assert QNT == pytest.approx(50., rel=0.01)
 
     A.calculate_damage()
 
@@ -245,7 +246,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     # REP
     assert len(A._ID_dict['non-collapse']) == len(A._ID_dict['repairable'])
-    assert len(A._ID_dict['irrepairable']) == 0
+    assert len(A._ID_dict['irreparable']) == 0
     # cost
     DV_COST = A._DV_dict['rec_cost']
     # DS1
@@ -307,16 +308,16 @@ def test_FEMA_P58_Assessment_central_tendencies():
     assert_allclose(S[('event time', 'hour')], A._TIME['hour'])
     assert_allclose(S[('inhabitants', '')], A._POP.iloc[:, 0])
 
-    assert SD.loc[('collapses', 'collapsed?'), 'mean'] == pytest.approx(0.5,
+    assert SD.loc[('collapses', 'collapsed'), 'mean'] == pytest.approx(0.5,
                                                                         rel=0.05)
     assert SD.loc[('collapses', 'mode'), 'mean'] == 0.
     assert SD.loc[('collapses', 'mode'), 'count'] == pytest.approx(5000,
                                                                    rel=0.05)
 
-    assert SD.loc[('red tagged?', ''), 'mean'] == pytest.approx(0.5, rel=0.05)
-    assert SD.loc[('red tagged?', ''), 'count'] == pytest.approx(5000, rel=0.05)
+    assert SD.loc[('red tagged', ''), 'mean'] == pytest.approx(0.5, rel=0.05)
+    assert SD.loc[('red tagged', ''), 'count'] == pytest.approx(5000, rel=0.05)
 
-    for col in ['irrepairable?', 'cost impractical?', 'time impractical?']:
+    for col in ['irreparable', 'cost impractical', 'time impractical']:
         assert SD.loc[('reconstruction', col), 'mean'] == 0.
         assert SD.loc[('reconstruction', col), 'count'] == pytest.approx(5000,
                                                                          rel=0.05)
@@ -344,7 +345,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
     assert_allclose(S.loc[:, ('reconstruction', 'time-parallel')],
                     S.loc[:, ('reconstruction', 'time-sequential')])
 
-    CAS = deepcopy(S.loc[:, ('injuries', 'sev. 1')])
+    CAS = deepcopy(S.loc[:, ('injuries', 'sev1')])
     CAS_CDF = np.around(CAS, decimals=3)
     vals, counts = np.unique(CAS_CDF, return_counts=True)
     assert_allclose(vals, [0, 0.075, 0.15, 0.25, 0.3, 0.5, 1.])
@@ -352,7 +353,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
                     np.array([35, 1, 3.5, 2, 2.5, 7, 5]) / 56., atol=0.01,
                     rtol=0.1)
 
-    CAS = deepcopy(S.loc[:, ('injuries', 'sev. 2')])
+    CAS = deepcopy(S.loc[:, ('injuries', 'sev2')])
     CAS_CDF = np.around(CAS, decimals=3)
     vals, counts = np.unique(CAS_CDF, return_counts=True)
     assert_allclose(vals, [0, 0.025, 0.05, 0.1, 2.25, 4.5, 9.])
@@ -378,8 +379,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -639,8 +639,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
     S = A._SUMMARY
     SD = S.describe().T
 
-    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000.
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / 10000.
 
 def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     """
@@ -663,8 +663,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -901,8 +900,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     S = A._SUMMARY
     SD = S.describe().T
 
-    P_no_RED_test = ((1.0 - SD.loc[('red tagged?', ''), 'mean'])
-                     * SD.loc[('red tagged?', ''), 'count'] / 10000.)
+    P_no_RED_test = ((1.0 - SD.loc[('red tagged', ''), 'mean'])
+                     * SD.loc[('red tagged', ''), 'count'] / 10000.)
 
     assert P_no_RED_target == prob_approx(P_no_RED_test, 0.04)
 
@@ -928,8 +927,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -1165,8 +1163,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     S = A._SUMMARY
     SD = S.describe().T
 
-    P_no_RED_test = ((1.0 - SD.loc[('red tagged?', ''), 'mean'])
-                     * SD.loc[('red tagged?', ''), 'count'] / 10000.)
+    P_no_RED_test = ((1.0 - SD.loc[('red tagged', ''), 'mean'])
+                     * SD.loc[('red tagged', ''), 'count'] / 10000.)
 
     assert P_no_RED_target == prob_approx(P_no_RED_test, 0.04)
 
@@ -1191,8 +1189,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -1770,8 +1767,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     S = A._SUMMARY
     SD = S.describe().T
 
-    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / realization_count
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / realization_count
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.03)
 
@@ -1796,8 +1793,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -1832,8 +1828,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     S = A._SUMMARY
     SD = S.describe().T
 
-    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000.
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / 10000.
 
     assert P_no_RED_test == 0.0
 
@@ -1843,8 +1839,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     AU = A._AIM_in['general']['added_uncertainty']
 
@@ -1888,8 +1883,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     S = A._SUMMARY
     SD = S.describe().T
 
-    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000.
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / 10000.
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
 
@@ -1915,12 +1910,9 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
-    #with pytest.warns(UserWarning) as e_info:
-    if True:
-        A.define_random_variables()
+    A.define_random_variables()
 
     # -------------------------------------------------- check random variables
 
@@ -1950,8 +1942,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
     S = A._SUMMARY
     SD = S.describe().T
 
-    P_no_RED_test = (1.0 - SD.loc[('red tagged?', ''), 'mean']) * SD.loc[
-        ('red tagged?', ''), 'count'] / 10000.
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / 10000.
 
     assert P_no_RED_test == 0.0
 
@@ -1972,8 +1964,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
 
     A = FEMA_P58_Assessment()
 
-    with pytest.warns(UserWarning) as e_info:
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
     A.define_random_variables()
 
@@ -2115,11 +2106,11 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
     assert SD.loc[('inhabitants', ''), 'mean'] == 20.0
     assert SD.loc[('inhabitants', ''), 'std'] == 0.0
 
-    assert SD.loc[('collapses', 'collapsed?'), 'mean'] == 0.0
-    assert SD.loc[('collapses', 'collapsed?'), 'std'] == 0.0
+    assert SD.loc[('collapses', 'collapsed'), 'mean'] == 0.0
+    assert SD.loc[('collapses', 'collapsed'), 'std'] == 0.0
 
-    assert SD.loc[('red tagged?', ''), 'mean'] == 1.0
-    assert SD.loc[('red tagged?', ''), 'std'] == 0.0
+    assert SD.loc[('red tagged', ''), 'mean'] == 1.0
+    assert SD.loc[('red tagged', ''), 'std'] == 0.0
 
     assert np.corrcoef(S.loc[:, ('reconstruction', 'cost')],
                        S.loc[:, ('reconstruction', 'time-sequential')])[
@@ -2132,9 +2123,9 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
     assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                     S.loc[:, ('reconstruction', 'time-parallel')])
     assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                    S.loc[:, ('injuries', 'sev. 1')])
+                    S.loc[:, ('injuries', 'sev1')])
     assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                    S.loc[:, ('injuries', 'sev. 2')])
+                    S.loc[:, ('injuries', 'sev2')])
 
 def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
     """
@@ -2156,8 +2147,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
 
         A = FEMA_P58_Assessment()
 
-        with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
         A._AIM_in['dependencies']['quantities'] = dep
 
@@ -2392,11 +2382,11 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         assert SD.loc[('inhabitants', ''), 'mean'] == 20.0
         assert SD.loc[('inhabitants', ''), 'std'] == 0.0
 
-        assert SD.loc[('collapses', 'collapsed?'), 'mean'] == 0.0
-        assert SD.loc[('collapses', 'collapsed?'), 'std'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'mean'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'std'] == 0.0
 
-        assert SD.loc[('red tagged?', ''), 'mean'] == 1.0
-        assert SD.loc[('red tagged?', ''), 'std'] == 0.0
+        assert SD.loc[('red tagged', ''), 'mean'] == 1.0
+        assert SD.loc[('red tagged', ''), 'std'] == 0.0
 
         assert np.corrcoef(S.loc[:, ('reconstruction', 'cost')],
                            S.loc[:, ('reconstruction', 'time-sequential')])[
@@ -2409,9 +2399,9 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 1')])
+                        S.loc[:, ('injuries', 'sev1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 2')])
+                        S.loc[:, ('injuries', 'sev2')])
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
     """
@@ -2433,8 +2423,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
 
         A = FEMA_P58_Assessment()
 
-        with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
         A._AIM_in['dependencies']['fragilities'] = dep
 
@@ -3360,8 +3349,13 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
 
             # take the total quantity of each performance group
             FG = A._FG_dict[fg_id]
-            qnt = np.array([PG._quantity.samples.values[:dims] for PG in
-                            FG._performance_groups]).flatten()
+            qnt = []
+            for PG in FG._performance_groups:
+                if isinstance(PG._quantity, RandomVariableSubset):
+                    qnt.append((PG._quantity.samples.values[:dims]).flatten())
+                else:
+                    qnt.append(np.ones(dims) * PG._quantity)
+            qnt = np.array(qnt).flatten()
 
             # flag the samples where the damage exceeds the pre-defined limit
             # for red tagging
@@ -3389,11 +3383,11 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
         S = A._SUMMARY
         SD = S.describe().T
 
-        assert SD.loc[('inhabitants', ''), 'mean'] == 30.0
+        assert SD.loc[('inhabitants', ''), 'mean'] == 10.0
         assert SD.loc[('inhabitants', ''), 'std'] == 0.0
 
-        assert SD.loc[('collapses', 'collapsed?'), 'mean'] == 0.0
-        assert SD.loc[('collapses', 'collapsed?'), 'std'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'mean'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'std'] == 0.0
 
         assert_allclose(A._DV_dict['rec_cost'].sum(axis=1),
                         S.loc[:, ('reconstruction', 'cost')])
@@ -3402,9 +3396,9 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 1')])
+                        S.loc[:, ('injuries', 'sev1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 2')])
+                        S.loc[:, ('injuries', 'sev2')])
 
 def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
     """
@@ -3441,8 +3435,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
 
         A = FEMA_P58_Assessment()
 
-        with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
         # set the dependencies
         A._AIM_in['dependencies']['rec_costs'] = dep_COST
@@ -3911,8 +3904,8 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
         assert SD.loc[('inhabitants', ''), 'mean'] == 20.0
         assert SD.loc[('inhabitants', ''), 'std'] == 0.0
 
-        assert SD.loc[('collapses', 'collapsed?'), 'mean'] == 0.0
-        assert SD.loc[('collapses', 'collapsed?'), 'std'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'mean'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'std'] == 0.0
 
         assert_allclose(A._DV_dict['rec_cost'].sum(axis=1),
                         S.loc[:, ('reconstruction', 'cost')])
@@ -3921,9 +3914,9 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 1')])
+                        S.loc[:, ('injuries', 'sev1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 2')])
+                        S.loc[:, ('injuries', 'sev2')])
 
         #print()
 
@@ -3964,8 +3957,7 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
 
         A = FEMA_P58_Assessment()
 
-        with pytest.warns(UserWarning) as e_info:
-            A.read_inputs(DL_input, EDP_input, verbose=False)
+        A.read_inputs(DL_input, EDP_input, verbose=False)
 
         # set the dependencies
         A._AIM_in['dependencies']['rec_costs'] = dep_COST
@@ -4446,8 +4438,8 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         assert SD.loc[('inhabitants', ''), 'mean'] == 20.0
         assert SD.loc[('inhabitants', ''), 'std'] == 0.0
 
-        assert SD.loc[('collapses', 'collapsed?'), 'mean'] == 0.0
-        assert SD.loc[('collapses', 'collapsed?'), 'std'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'mean'] == 0.0
+        assert SD.loc[('collapses', 'collapsed'), 'std'] == 0.0
 
         assert_allclose(A._DV_dict['rec_cost'].sum(axis=1),
                         S.loc[:, ('reconstruction', 'cost')])
@@ -4456,8 +4448,8 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         assert_allclose(A._DV_dict['rec_time'].max(axis=1),
                         S.loc[:, ('reconstruction', 'time-parallel')])
         assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 1')])
+                        S.loc[:, ('injuries', 'sev1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev. 2')])
+                        S.loc[:, ('injuries', 'sev2')])
 
         # print()

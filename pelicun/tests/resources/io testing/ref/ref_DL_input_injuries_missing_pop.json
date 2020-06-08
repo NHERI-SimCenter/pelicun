@@ -3,21 +3,32 @@
     "plan_area": 100.0,
     "stories": 3,
     "realizations": 20000,
-    "collapse_limits": {
+    "collapse_limits": {      
       "PFA": null,
+      "PGA": null,
       "PGV": null,
       "PID": null,
       "PMD": null,
-      "RID": null
+      "PRD": null,
+      "RID": null,
+      "SA": null,
+      "SD": null,
+      "SV": null
     },
     "coupled_assessment": false,
     "detection_limits": {
       "PFA": null,
+      "PGA": null,
       "PGV": null,
       "PID": null,
       "PMD": null,
-      "RID": null
+      "PRD": null,
+      "RID": null,
+      "SA": null,
+      "SD": null,
+      "SV": null
     },
+    "event_time": null,
     "added_uncertainty": {
       "beta_gm": null,
       "beta_m": null
@@ -90,5 +101,6 @@
     "fragilities": "ATC",
     "injuries": "DIR",
     "injury_lvls": true
-  }
+  },
+  "damage_logic": null
 }
