@@ -411,11 +411,11 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     combo_ids = [i for i,e in enumerate(PG_loc_dir_list) if e==combo]
 
                     c_base = combo_ids[0]
-                    comp_data['csg_weights'][c_base] = list(np.array(comp_data['csg_weights'][c_base]) * comp_data['quantities'][c_base])
+                    comp_data['csg_weights'][c_base] = (np.array(comp_data['csg_weights'][c_base]) * comp_data['quantities'][c_base]).tolist()
                     for ci in combo_ids[1:]:
                         comp_data['quantities'][c_base] += comp_data['quantities'][ci]
-                        comp_data['csg_weights'][c_base] += list(np.array(comp_data['csg_weights'][ci]) * comp_data['quantities'][ci])
-                    comp_data['csg_weights'][c_base] = list(np.array(comp_data['csg_weights'][c_base]) / comp_data['quantities'][c_base])
+                        comp_data['csg_weights'][c_base] += (np.array(comp_data['csg_weights'][ci]) * comp_data['quantities'][ci]).tolist()
+                    comp_data['csg_weights'][c_base] = (np.array(comp_data['csg_weights'][c_base]) / comp_data['quantities'][c_base]).tolist()
 
                     for ci in combo_ids[1:][::-1]:
                         for key in ['locations', 'directions', 'quantities',
@@ -1236,8 +1236,8 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         data_unit = QNT_unit[0] * globals()[QNT_unit[1]]
         for DSG_id, DSG_i in enumerate(DL_DSG):
             DSG_data = dict(
-                theta=DSG_i['MedianEDP'] * demand_factor,
-                sig=DSG_i['Beta'],
+                theta=float(DSG_i['MedianEDP']) * demand_factor,
+                sig=float(DSG_i['Beta']),
                 DS_set_kind=DS_set_kind[DSG_i['DSGroupType']],
                 distribution_kind = curve_type[DSG_i['CurveType']],
                 DS_set={}
@@ -1255,41 +1255,49 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                     DS_CC = DS_C['ReconstructionCost']
                     if isinstance(DS_CC['Amount'], list):
                         DS_data.update({'repair_cost': {
-                            'medians'          : np.array(DS_CC['Amount']),
+                            'medians'          : np.array([float(a) for a in DS_CC['Amount']]),
                             'quantities'       : np.array(DS_CC['Quantity']),
                             'distribution_kind': curve_type[DS_CC.get('CurveType','N/A')],
                             'cov'              : DS_CC.get('Beta',None),
                         }})
 
-                        # convert the units to standard ones
+                        # convert the quantity units to standard ones
                         DS_data['repair_cost']['quantities'] *= data_unit
-                        DS_data['repair_cost']['medians'] /= data_unit
+                        DS_data['repair_cost']['quantities'] = DS_data['repair_cost']['quantities'].tolist()
                     else:
                         DS_data.update({'repair_cost': {
-                            'medians': np.array([DS_CC['Amount'],]),
+                            'medians': np.array([float(DS_CC['Amount']),]),
                             'distribution_kind': curve_type[DS_CC.get('CurveType','N/A')],
                             'cov'              : DS_CC.get('Beta',None),
                         }})
+
+                    # convert the median units to standard ones
+                    DS_data['repair_cost']['medians'] /= data_unit
+                    DS_data['repair_cost']['medians'] = DS_data['repair_cost']['medians'].tolist()
 
                 if 'ReconstructionTime' in DS_C.keys():
                     DS_CT = DS_C['ReconstructionTime']
                     if isinstance(DS_CT['Amount'], list):
                         DS_data.update({'repair_time': {
-                            'medians'          : np.array(DS_CT['Amount']),
+                            'medians'          : np.array([float(a) for a in DS_CT['Amount']]),
                             'quantities'       : np.array(DS_CT['Quantity']),
                             'distribution_kind': curve_type[DS_CT.get('CurveType','N/A')],
                             'cov'              : DS_CT.get('Beta',None),
                         }})
 
-                        # convert the units to standard ones
+                        # convert the quantity units to standard ones
                         DS_data['repair_time']['quantities'] *= data_unit
-                        DS_data['repair_time']['medians'] /= data_unit
+                        DS_data['repair_time']['quantities'] = DS_data['repair_time']['quantities'].tolist()
                     else:
                         DS_data.update({'repair_time': {
-                            'medians': np.array([DS_CT['Amount'],]),
+                            'medians': np.array([float(DS_CT['Amount']),]),
                             'distribution_kind': curve_type[DS_CT.get('CurveType','N/A')],
                             'cov'              : DS_CT.get('Beta',None),
                         }})
+
+                    # convert the median units to standard ones
+                    DS_data['repair_time']['medians'] /= data_unit
+                    DS_data['repair_time']['medians'] = DS_data['repair_time']['medians'].tolist()
 
                 if 'RedTag' in DS_C.keys():
                     DS_CR = DS_C['RedTag']
@@ -1303,7 +1311,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
                     DS_CI = DS_C['Injuries']
                     if DS_CI[0].get('Beta') is not None:
                         DS_data.update({'injuries': {
-                            'theta': [I_i['Amount'] for I_i in DS_CI],
+                            'theta': [float(I_i['Amount']) for I_i in DS_CI],
                             # 'distribution_kind': curve_type[DS_CR['CurveType']],
                             'cov'  : [I_i['Beta'] for I_i in DS_CI],
                         }})
