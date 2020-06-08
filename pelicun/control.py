@@ -2186,10 +2186,11 @@ class FEMA_P58_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                if PG._quantity is not None:
+                if isinstance(PG._quantity, RandomVariableSubset):
                     PG_qnt = PG._quantity.samples.loc[ncID]
                 else:
-                    PG_qnt = pd.DataFrame(np.ones(NC_samples),index=ncID)
+                    PG_qnt = pd.DataFrame(np.ones(NC_samples) * PG._quantity,
+                                          index=ncID)
 
                 PG_DMG = self._DMG.loc[:, idx[FG._ID, PG_ID, :]].div(
                     PG_qnt.iloc[:, 0],
