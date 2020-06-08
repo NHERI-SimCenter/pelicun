@@ -215,8 +215,8 @@ class Assessment(object):
                 log_msg('\t\t\t\t{}: {}'.format(cl_name, cl))
             log_msg()
             log_msg('\t\t\tIrrepairable Residual Drift:')
-            if 'irrepairable_res_drift' in data['general']:
-                for att, val in data['general']['irrepairable_res_drift'].items():
+            if 'irreparable_res_drift' in data['general']:
+                for att, val in data['general']['irreparable_res_drift'].items():
                     log_msg('\t\t\t\t{}: {}'.format(att, val))
             else:
                 log_msg('\t\t\t\tnot considered')
@@ -917,13 +917,13 @@ class FEMA_P58_Assessment(Assessment):
         this method:
 
         Reconstruction time and cost
-        Estimate the irrepairable cases based on residual drift magnitude and
-        the provided irrepairable drift limits. Realizations that led to
-        irrepairable damage or collapse are assigned the replacement cost and
+        Estimate the irreparable cases based on residual drift magnitude and
+        the provided irreparable drift limits. Realizations that led to
+        irreparable damage or collapse are assigned the replacement cost and
         time of the building when reconstruction cost and time is estimated.
         Repairable cases get a cost and time estimate for each Damage State in
         each Performance Group. For more information about estimating
-        irrepairability see _calc_irrepairable() and reconstruction cost and
+        irrepairability see _calc_irreparable() and reconstruction cost and
         time see _calc_repair_cost_and_time() methods.
 
         Injuries
@@ -955,22 +955,22 @@ class FEMA_P58_Assessment(Assessment):
 
         # reconstruction cost and time
         if DVs['rec_cost'] or DVs['rec_time']:
-            # irrepairable cases
-            if 'irrepairable_res_drift' in self._AIM_in['general']:
+            # irreparable cases
+            if 'irreparable_res_drift' in self._AIM_in['general']:
                 log_msg('\tIdentifying Irrepairable Cases...')
-                irrepairable_IDs = self._calc_irrepairable()
-                log_msg('\t\t{} out of {} non-collapsed cases are irrepairable.'.format(
-                    len(irrepairable_IDs), len(self._ID_dict['non-collapse'])))
+                irreparable_IDs = self._calc_irreparable()
+                log_msg('\t\t{} out of {} non-collapsed cases are irreparable.'.format(
+                    len(irreparable_IDs), len(self._ID_dict['non-collapse'])))
             else:
-                irrepairable_IDs = np.array([])
+                irreparable_IDs = np.array([])
 
             # collect the IDs of repairable realizations
             P_NC = self._TIME.loc[self._ID_dict['non-collapse']]
             repairable_IDs = P_NC[
-                ~P_NC.index.isin(irrepairable_IDs)].index.values.astype(int)
+                ~P_NC.index.isin(irreparable_IDs)].index.values.astype(int)
 
             self._ID_dict.update({'repairable': repairable_IDs})
-            self._ID_dict.update({'irrepairable': irrepairable_IDs})
+            self._ID_dict.update({'irreparable': irreparable_IDs})
 
             # reconstruction cost and time for repairable cases
             log_msg('\tCalculating Reconstruction cost and time...')
@@ -1015,7 +1015,7 @@ class FEMA_P58_Assessment(Assessment):
             ('collapses', 'collapsed'),
             ('collapses', 'mode'),
             ('red tagged', ''),
-            ('reconstruction', 'irrepairable'),
+            ('reconstruction', 'irreparable'),
             ('reconstruction', 'cost impractical'),
             ('reconstruction', 'cost'),
             ('reconstruction', 'time impractical'),
@@ -1036,7 +1036,7 @@ class FEMA_P58_Assessment(Assessment):
         colID = self._ID_dict['collapse']
         if DVs['rec_cost'] or DVs['rec_time']:
             repID = self._ID_dict['repairable']
-            irID = self._ID_dict['irrepairable']
+            irID = self._ID_dict['irreparable']
 
         MI = pd.MultiIndex.from_tuples(MI_raw)
 
@@ -1071,16 +1071,15 @@ class FEMA_P58_Assessment(Assessment):
             SUMMARY.loc[colID, ('reconstruction', 'cost')] = repl_cost
 
         if DVs['rec_cost'] or DVs['rec_time']:
-            SUMMARY.loc[ncID, ('reconstruction', 'irrepairable?')] = 0
-            SUMMARY.loc[irID, ('reconstruction', 'irrepairable?')] = 1
+            SUMMARY.loc[ncID, ('reconstruction', 'irreparable')] = 0
+            SUMMARY.loc[irID, ('reconstruction', 'irreparable')] = 1
 
         if DVs['rec_cost']:
             SUMMARY.loc[irID, ('reconstruction', 'cost')] = repl_cost
 
-
             repair_impractical_IDs = SUMMARY.loc[
                 SUMMARY.loc[:, ('reconstruction', 'cost')] > repl_cost].index
-            SUMMARY.loc[repID, ('reconstruction', 'cost impractical?')] = 0
+            SUMMARY.loc[repID, ('reconstruction', 'cost impractical')] = 0
             SUMMARY.loc[repair_impractical_IDs,
                         ('reconstruction', 'cost impractical')] = 1
             SUMMARY.loc[
@@ -2224,12 +2223,12 @@ class FEMA_P58_Assessment(Assessment):
 
         return DV_RED
 
-    def _calc_irrepairable(self):
+    def _calc_irreparable(self):
 
         ncID = self._ID_dict['non-collapse']
         NC_samples = len(ncID)
 
-        # determine which realizations lead to irrepairable damage
+        # determine which realizations lead to irreparable damage
         # get the max residual drifts
         RID_max = None
         PID_max = None
@@ -2271,7 +2270,7 @@ class FEMA_P58_Assessment(Assessment):
                 return np.array([])
 
         # get the probabilities of irrepairability
-        irrep_frag = self._AIM_in['general']['irrepairable_res_drift']
+        irrep_frag = self._AIM_in['general']['irreparable_res_drift']
         RV_irrep = RandomVariable(ID=-1, dimension_tags=['RED_irrep', ],
                                   distribution_kind='lognormal',
                                   theta=irrep_frag['Median'],
@@ -2280,10 +2279,10 @@ class FEMA_P58_Assessment(Assessment):
         RED_irrep = RV_irrep.sample_distribution(NC_samples)['RED_irrep'].values
 
         # determine if the realizations are repairable
-        irrepairable = RID_max > RED_irrep
-        irrepairable_IDs = ncID[np.where(irrepairable)[0]]
+        irreparable = RID_max > RED_irrep
+        irreparable_IDs = ncID[np.where(irreparable)[0]]
 
-        return irrepairable_IDs
+        return irreparable_IDs
 
     def _calc_repair_cost_and_time(self):
 
@@ -2789,7 +2788,7 @@ class HAZUS_Assessment(Assessment):
             # all damages are considered repairable in HAZUS
             repairable_IDs = self._ID_dict['non-collapse']
             self._ID_dict.update({'repairable': repairable_IDs})
-            self._ID_dict.update({'irrepairable': []})
+            self._ID_dict.update({'irreparable': []})
 
             # reconstruction cost and time for repairable cases
             log_msg('\tCalculating Reconstruction cost and time...')
@@ -2858,7 +2857,7 @@ class HAZUS_Assessment(Assessment):
         colID = self._ID_dict['collapse']
         if DVs['rec_cost'] or DVs['rec_time']:
             repID = self._ID_dict['repairable']
-            irID = self._ID_dict['irrepairable']
+            irID = self._ID_dict['irreparable']
 
         MI = pd.MultiIndex.from_tuples(MI_raw)
 
