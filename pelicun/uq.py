@@ -409,7 +409,7 @@ def tmvn_MLE(samples,
             log_msg('[{}, {}]'.format(mu_i, sig_i))
 
     # define initial values of distribution parameters using simple estimates
-    if ndims == 1:        
+    if ndims == 1:
         if nsamples > ndims:
             # we perturb the mu to improve optimization
             mu_init = mu_hatc + sig_hatc*0.1
@@ -441,32 +441,49 @@ def tmvn_MLE(samples,
         rho_init = np.corrcoef(np.transpose(samplesT))
         # If there is not enough samples, or the samples are not from a
         # multivariate normal distribution, the rho values might be nan.
-        # First, we replace the nan values with zeros. Then, check if the
-        # resulting matrix is positive semidefinite. If not, then rather than
-        # trying to patch it, in this case, we assume uncorrelated
-        # samples and make sure that at least the mu and sig values will be OK.
+        # First of all, we let the user know about this with the warning below.
+        if np.isnan(rho_init).any():
+            show_warning(
+                "Some elements of the correlation matrix are not valid. Make "
+                "sure the provided raw EDP samples are appropriate to fit the "
+                "specified type of distribution and all EDP dimensions are "
+                "characterized by non-zero variance. The invalid correlation "
+                "estimates are replaced with zero values.")
+
+        # Second, we replace the nan values with zeros.
         rho_init = np.nan_to_num(rho_init)
+
+        # Third, check if the resulting correlation matrix is positive
+        # semidefinite. If not, then rather than trying to patch it, in this
+        # case, we assume uncorrelated samples and make sure that at least the
+        # mu and sig values will be OK.
         pos_sem_def = np.all(np.linalg.eigvals(rho_init) >= 0.)
         if not pos_sem_def:
-        #if np.isnan(np.sum(rho_init.flatten())):
             show_warning("The number of samples is not sufficiently large to estimate "
                 "the correlation matrix. We assume uncorrelated EDPs.")
             rho_init = np.zeros(rho_init.shape)
-            #rho_init = np.ones(rho_init.shape)*0.7
+
+        # The next line ensures that the diagonal is exactly 1.0. It is an
+        # extra layer of safety that is almost always unnecessary.
         np.fill_diagonal(rho_init,1.0)
-        # collect the independent values (i.e. elements above the main
-        # diagonal) from the correlation matrix in a list
-        rho_init_ids = np.triu_indices(ndims, k=1)
-        rho_init_list = rho_init[rho_init_ids]
-        # save the ids of the elements below the main diagonal for future use
-        rho_init_ids2 = rho_init_ids[::-1]
-        # prepare a vector of initial values
-        # if there is too few samples, we do not fit the correlation matrix
-        fit_rho = nsamples > 2.0*ndims**2.0
-        fit_rho = False
+
+        fit_rho = False # Currently, rho is not estimated
+        # TODO: introduce a method to get better estimates of rho
+
         if fit_rho:
+            # collect the independent values (i.e. elements above the main
+            # diagonal) from the correlation matrix in a list
+            rho_init_ids = np.triu_indices(ndims, k=1)
+            rho_init_list = rho_init[rho_init_ids]
+            # save the ids of the elements below the main diagonal for future use
+            rho_init_ids2 = rho_init_ids[::-1]
+
+            # prepare a vector of initial values
             inits = np.concatenate([mu_init, sig_init, rho_init_list])
+
         else:
+
+            # prepare a vector of initial values
             inits = np.concatenate([mu_init, sig_init])
 
     # If the distribution is censored or truncated, check if the number of
