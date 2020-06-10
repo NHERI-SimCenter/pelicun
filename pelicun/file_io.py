@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# Pouria Kourehpaz
 
 """
 This module has classes and methods that handle file input and output.
@@ -558,7 +559,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     if AT in ['P58', 'HAZUS_EQ']:
         EDP_keys = ['PID', 'PRD', 'PFA',
                     'PGV', 'RID', 'PMD',
-                    'PGA', 'SA', 'SV', 'SD','RDR','DWD']
+                    'PGA', 'SA', 'SV', 'SD',
+                    'RDR','DWD']
     elif AT in ['HAZUS_HU']:
         EDP_keys = ['PWS', ]
 
@@ -835,8 +837,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     return data
 
-def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA', 'RID', 'RDR', 'DWD'),
-                             units = dict(PID=1., PFA=1., RID=1., RDR=1., DWD=1.),
+def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
+                             units = dict(PID=1., PFA=1.),
                              verbose=False):
     """
     Read the EDP input information from a text file with a tabular structure.

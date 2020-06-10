@@ -3,7 +3,9 @@
     "plan_area": 100.0,
     "stories": 3,
     "realizations": 20000,
-    "collapse_limits": {      
+    "collapse_limits": { 
+      "DWD": null,
+      "RDR": null,     
       "PFA": null,
       "PGA": null,
       "PGV": null,
@@ -17,6 +19,8 @@
     },
     "coupled_assessment": false,
     "detection_limits": {
+      "DWD": null,
+      "RDR": null,
       "PFA": null,
       "PGA": null,
       "PGV": null,

@@ -4,6 +4,8 @@
     "stories": 3,
     "realizations": 20000,
     "collapse_limits": {
+      "DWD": null,
+      "RDR": null,
       "PFA": 1.5,
       "PGA": null,
       "PGV": null,
@@ -24,6 +26,8 @@
     "replacement_cost": 450000.0,
     "replacement_time": 180.0,
     "detection_limits": {
+      "DWD": null,
+      "RDR": null,
       "PFA": 2.0,
       "PGA": null,
       "PGV": null,

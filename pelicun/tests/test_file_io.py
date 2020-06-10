@@ -174,13 +174,7 @@ def test_read_SimCenter_DL_input_injuries_only():
 
     # check if the returned dictionary is appropriate
     for key in set(list(ref_DL.keys()) + list(test_DL.keys())):
-        try:
-            assert ref_DL[key] == test_DL[key]
-        except:
-            print("MISSING KEY")
-            print(key)
-            print(test_DL[key])
-            assert False
+        assert ref_DL[key] == test_DL[key]
 
     # now test if an error is shown if other pieces of data are missing
 
