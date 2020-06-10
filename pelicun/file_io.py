@@ -558,7 +558,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     if AT in ['P58', 'HAZUS_EQ']:
         EDP_keys = ['PID', 'PRD', 'PFA',
                     'PGV', 'RID', 'PMD',
-                    'PGA', 'SA', 'SV', 'SD']
+                    'PGA', 'SA', 'SV', 'SD','RDR','DWD']
     elif AT in ['HAZUS_HU']:
         EDP_keys = ['PWS', ]
 
@@ -835,8 +835,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     return data
 
-def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
-                             units = dict(PID=1., PFA=1.),
+def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA', 'RID', 'RDR', 'DWD'),
+                             units = dict(PID=1., PFA=1., RID=1., RDR=1., DWD=1.),
                              verbose=False):
     """
     Read the EDP input information from a text file with a tabular structure.
@@ -1163,6 +1163,10 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
             demand_type = 'PID'
         elif EDP_type == 'Roof Drift Ratio':
             demand_type = 'PRD'
+        elif EDP_type == 'Damageable Wall Drift':
+            demand_type = 'DWD'
+        elif EDP_type == 'Racking Drift Ratio':
+            demand_type = 'RDR'
         elif EDP_type == 'Peak Floor Acceleration':
             demand_type = 'PFA'
             #demand_factor = g
