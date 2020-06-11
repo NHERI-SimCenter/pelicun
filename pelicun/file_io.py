@@ -1219,7 +1219,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         else: # pragma: no cover
             demand_type = None
             warnings.warn(UserWarning(
-                'Unexpected EDP type: {}'.format(EDP_type)))
+                f'Unexpected EDP type in component {c_id}: {EDP_type}'))
         if demand_type is None:
             del data[c_id]
             continue
