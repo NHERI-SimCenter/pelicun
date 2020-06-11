@@ -1388,11 +1388,11 @@ def write_SimCenter_DL_output(output_dir, output_filename, output_df, index_name
 def write_SimCenter_EDP_output(output_dir, EDP_filename, EDP_df):
 
     # initialize the output DF
-    col_info = np.transpose([col.split('-') for col in EDP_df.columns])
+    col_info = np.transpose([col.split('-')[1:] for col in EDP_df.columns])
 
     EDP_types = np.unique(col_info[0])
-    EDP_locs = np.unique(col_info[2])
-    EDP_dirs = np.unique(col_info[4])
+    EDP_locs = np.unique(col_info[1])
+    EDP_dirs = np.unique(col_info[2])
 
     MI = pd.MultiIndex.from_product(
         [EDP_types, EDP_locs, EDP_dirs, ['median', 'beta']],
@@ -1404,10 +1404,10 @@ def write_SimCenter_EDP_output(output_dir, EDP_filename, EDP_df):
 
     # store the EDP statistics in the output DF
     for col in np.transpose(col_info):
-        df_res.loc[0, (col[0], col[2], col[4], 'median')] = EDP_df[
-            '{}-LOC-{}-DIR-{}'.format(col[0], col[2], col[4])].median()
-        df_res.loc[0, (col[0], col[2], col[4], 'beta')] = np.log(
-            EDP_df['{}-LOC-{}-DIR-{}'.format(col[0], col[2], col[4])]).std()
+        df_res.loc[0, (col[0], col[1], col[2], 'median')] = EDP_df[
+            '1-{}-{}-{}'.format(col[0], col[1], col[2])].median()
+        df_res.loc[0, (col[0], col[1], col[2], 'beta')] = np.log(
+            EDP_df['1-{}-{}-{}'.format(col[0], col[1], col[2])]).std()
 
     df_res.dropna(axis=1, how='all', inplace=True)
 

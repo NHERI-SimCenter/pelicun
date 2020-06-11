@@ -341,6 +341,10 @@ class Assessment(object):
         EDPs = sorted(self._EDP_dict.keys())
         EDP_samples = self._EDP_dict[EDPs[0]]._RV.samples.copy()
         cols = EDP_samples.columns
+        col_info = [col.split('-') for col in EDP_samples.columns]
+        EDP_samples.columns = [
+            '1-{}-{}-{}'.format(col[0], col[2], col[4]) for col in col_info]
+
         # TODO: use some global vars to identify EDP units because this is a mess
         for col_i, col in enumerate(cols):
             if ('PFA' in col) or ('PGA' in col) or ('SA' in col):
