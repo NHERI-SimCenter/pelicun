@@ -53,7 +53,7 @@ This module has classes and methods to manage databases used by pelicun.
 
 from .base import *
 from pathlib import Path
-import json
+import json, h5py
 import xml.etree.ElementTree as ET
 import shutil
 
@@ -158,6 +158,66 @@ def convert_jsons_to_table(json_id_list, json_list, json_template):
             json_DF[col] = json_DF[col].apply(str)
 
     return json_DF
+
+
+def save_to_standard_HDF(df, name, target_path, mode='w'):
+    """
+    Saves a DataFrame in a standard HDF format using h5py.
+
+    """
+
+    df = df.T
+
+    hf = h5py.File(target_path, mode)
+
+    #try:
+    if True:
+        # save each row (i.e., column of FG_df) as a separate dataset in the file
+        for row_id, row in df.iterrows():
+            row = row.convert_dtypes()
+
+            # create a tree that identifies the column in the hierarchy
+            row_name = name
+            for label in row_id:
+                if label != " ":
+                    row_name += f'/{label}'
+
+            # perform the appropriate type conversion before saving
+            if row.dtype == np.float64:
+                values = row.values.astype(float)
+
+                hf.create_dataset(row_name, data=values)
+
+            elif row.dtype == pd.StringDtype():
+                # Strings are saved as ASCII strings so that the files can be
+                # opened with any tool on any platform. Non-ASCII characters
+                # are replaced by a backslash-escaped UTF8 identifier.
+                values = row.values.astype(str)
+                values = np.char.encode(values, encoding='ASCII',
+                                        errors='backslashreplace')
+
+                hf.create_dataset(row_name, data=values)
+
+            elif row.dtype in [pd.BooleanDtype(), pd.Int64Dtype()]:
+                row.fillna(-1, inplace=True)
+                values = row.values.astype(int)
+
+                hf.create_dataset(row_name, data=values)
+
+            else:
+                print("unknown dtype: ", row.dtype)
+
+        # finally, save the index
+        values = df.columns.values.astype(str)
+        values = np.char.encode(values, encoding='ASCII',
+                                errors='backslashreplace')
+        hf.create_dataset(f'{name}/index', data=values)
+
+    #except:
+    #    show_warning("Error while trying to save standard HDF5 file.")
+
+    hf.close()
+
 
 def convert_json_files_to_HDF(data_source_dir, DL_dir, db_name):
     """
