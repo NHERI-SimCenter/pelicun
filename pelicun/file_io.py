@@ -1411,7 +1411,7 @@ def write_SimCenter_EDP_output(output_dir, EDP_filename, EDP_df):
 
     df_res.dropna(axis=1, how='all', inplace=True)
 
-    df_res = df_res.astype(float).round(4)
+    df_res = df_res.astype(float) #.round(4)
 
     # save the output
     df_res.to_csv('EDP.csv')
@@ -1711,14 +1711,14 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
             df_res_C.loc[:, idx['Repair Cost', type_ID, ds_list, 'mean']] = mean_costs
             df_res_C.loc[:, idx['Repair Cost', type_ID, 'aggregate', 'mean']] = df_cost.mean()
 
-            df_res_C = df_res_C.astype(float).round(0)
+            df_res_C = df_res_C.astype(float) #.round(0)
 
         # now store the aggregate results for cost
         DV_res = describe(SUMMARY_df[('reconstruction','cost')])
 
         df_res_Cagg.loc[:, idx['Repair Cost', 'aggregate', ' ', ['mean', 'std','10%','median','90%']]] = DV_res[['mean', 'std','10%','50%','90%']].values
 
-        df_res_Cagg = df_res_Cagg.astype(float).round(0)
+        df_res_Cagg = df_res_Cagg.astype(float) #.round(0)
         dfs_to_join = dfs_to_join + [df_res_Cagg, df_res_Cimp, df_res_C]
 
     if DV_time is not 0:
@@ -1726,7 +1726,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
 
         df_res_Tagg.loc[:, idx['Repair Time', ' ', 'aggregate', ['mean', 'std','10%','median','90%']]] = DV_res[['mean', 'std','10%','50%','90%']].values
 
-        df_res_Tagg = df_res_Tagg.astype(float).round(1)
+        df_res_Tagg = df_res_Tagg.astype(float) #.round(1)
         dfs_to_join.append(df_res_Tagg)
 
     if DV_inj[0] is not 0:
@@ -1736,7 +1736,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
 
                 df_res_Iagg.loc[:, idx['Injuries', f'sev{i+1}', 'aggregate', ['mean', 'std','10%','median','90%']]] = DV_res[['mean', 'std','10%','50%','90%']].values
 
-                df_res_Iagg = df_res_Iagg.astype(float).round(6)
+                df_res_Iagg = df_res_Iagg.astype(float) #.round(6)
 
         dfs_to_join.append(df_res_Iagg)
 
