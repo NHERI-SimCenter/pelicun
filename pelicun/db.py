@@ -246,7 +246,12 @@ def convert_json_files_to_HDF(data_source_dir, DL_dir, db_name):
 
     FG_df = convert_jsons_to_table(FG_ID_list, FG_list, FG_template)
 
-    FG_df.to_hdf(DL_dir / f'{db_name}.hdf', 'data', mode='w', format='table',
+    # start with saving the data in standard HDF5 format
+    save_to_standard_HDF(FG_df, name='data_standard',
+                         target_path=DL_dir / f'{db_name}.hdf')
+
+    # then also save it using PyTables for quick access and slicing
+    FG_df.to_hdf(DL_dir / f'{db_name}.hdf', 'data', mode='a', format='table',
                  complevel=1, complib='blosc:snappy')
 
     # Now add the population distribution data - we'll call it pop
@@ -264,6 +269,9 @@ def convert_json_files_to_HDF(data_source_dir, DL_dir, db_name):
             pop_template = json.load(f)
 
         pop_df = convert_jsons_to_table(pop_ID_list, pop_data, pop_template)
+
+        save_to_standard_HDF(pop_df, name='pop_standard',
+                             target_path=DL_dir / f'{db_name}.hdf', mode='a')
 
         pop_df.to_hdf(DL_dir / f'{db_name}.hdf', 'pop', mode='a', format='table',
                       complevel=1, complib='blosc:snappy')
