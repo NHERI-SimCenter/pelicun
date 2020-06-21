@@ -993,7 +993,7 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
         store = pd.HDFStore(path_POP)
         store.open()
         pop_table = store.select('pop', where = f'index in {[occupancy,]}')
-        data = convert_Series_to_dict(pop_table)
+        data = convert_Series_to_dict(pop_table.loc[occupancy,:])
         store.close()
 
     # convert peak population to persons/m2
