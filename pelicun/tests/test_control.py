@@ -1168,5 +1168,609 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     assert P_no_RED_target == prob_approx(P_no_RED_test, 0.04)
 
+def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
+    involved in the calculations.
+    In this test we look at the propagation of EDP values provided for two
+    different directions. (3D refers to the numerical model used for response
+    estimation.)
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + 'input data/' + "DL_input_test_5.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_5.out"
+
+    A = FEMA_P58_Assessment()
+
+    A.read_inputs(DL_input, EDP_input, verbose=False)
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    theta_target = [9.80665, 8.65433, 12.59198, 11.11239,
+                    0.074081, 0.063763, 0.044932, 0.036788]
+    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    sig_target = [0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.4, 0.4]
+    assert_allclose(sig, sig_target, rtol=0.1)
+    rho_target = np.array([
+        [1.0, 0.8, 0.6, 0.5, 0.3, 0.3, 0.3, 0.3],
+        [0.8, 1.0, 0.5, 0.6, 0.3, 0.3, 0.3, 0.3],
+        [0.6, 0.5, 1.0, 0.8, 0.3, 0.3, 0.3, 0.3],
+        [0.5, 0.6, 0.8, 1.0, 0.3, 0.3, 0.3, 0.3],
+        [0.3, 0.3, 0.3, 0.3, 1.0, 0.8, 0.7, 0.6],
+        [0.3, 0.3, 0.3, 0.3, 0.8, 1.0, 0.6, 0.7],
+        [0.3, 0.3, 0.3, 0.3, 0.7, 0.6, 1.0, 0.8],
+        [0.3, 0.3, 0.3, 0.3, 0.6, 0.7, 0.8, 1.0]])
+    rho_test = COV / np.outer(sig, sig)
+    large_rho_ids = np.where(rho_target>=0.5)
+    small_rho_ids = np.where(rho_target<0.5)
+    assert_allclose(rho_test[large_rho_ids], rho_target[large_rho_ids], atol=0.1)
+    assert_allclose(rho_test[small_rho_ids], rho_target[small_rho_ids], atol=0.2)
+    COV_target = rho_target * np.outer(sig_target, sig_target)
+
+    #show_matrix([RV_EDP.theta,theta_target])
+    #show_matrix([sig, sig_target])
+    #show_matrix(rho_test)
+
+    # ------------------------------------------------------------------------
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    # ------------------------------------------------ check damage calculation
+    theta_PID = np.log([0.074081, 0.063763, 0.044932, 0.036788])
+    COV_PID = np.array([[1.0, 0.8, 0.7, 0.6],
+                        [0.8, 1.0, 0.6, 0.7],
+                        [0.7, 0.6, 1.0, 0.8],
+                        [0.6, 0.7, 0.8, 1.0]]) * np.outer([0.3, 0.3, 0.4, 0.4],
+                                                          [0.3, 0.3, 0.4, 0.4])
+
+    # COL
+    COL_check = A._COL.describe().T
+    col_target = 1.0 - mvn_od(theta_PID, COV_PID,
+                              upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+
+    assert COL_check['mean'].values[0] == pytest.approx(col_target, rel=0.1, abs=0.05)
+
+    # DMG
+    realization_count = float(A._AIM_in['general']['realizations'])
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / realization_count for i in
+                 range(8)]
+
+    DMG_1_1_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([0.05488, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_1_2_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([1e-6, 0.05488, 1e-6, 1e-6]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_1_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([1e-6, 1e-6, 0.05488, 1e-6]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_2_PID = mvn_od(theta_PID, COV_PID,
+                         lower=np.log([1e-6, 1e-6, 1e-6, 0.05488]),
+                         upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_1_1_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([9.80665, 1e-6, 1e-6, 1e-6,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_1_2_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([1e-6, 9.80665, 1e-6, 1e-6,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_1_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([1e-6, 1e-6, 9.80665, 1e-6,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+    DMG_2_2_PFA = mvn_od(np.log(theta_target), COV_target,
+                         lower=np.log([1e-6, 1e-6, 1e-6, 9.80665,
+                                       1e-6, 1e-6, 1e-6, 1e-6]),
+                         upper=np.log([np.inf, np.inf, np.inf, np.inf,
+                                       0.1, 0.1, 0.1, 0.1]))[0]
+
+    DMG_ref = [DMG_1_1_PID, DMG_1_2_PID, DMG_2_1_PID, DMG_2_2_PID,
+               DMG_1_1_PFA, DMG_1_2_PFA, DMG_2_1_PFA, DMG_2_2_PFA]
+
+    assert_allclose(DMG_check, DMG_ref, rtol=0.10, atol=0.01)
+
+    # ------------------------------------------------------------------------
+
+    A.calculate_losses()
+
+    # -------------------------------------------------- check loss calculation
+    # COST
+    DV_COST = A._DV_dict['rec_cost']
+    DV_TIME = A._DV_dict['rec_time']
+
+    C_target = [0., 249., 624., 1251., 1875.]
+    T_target = [0., 0.249, 0.624, 1.251, 1.875]
+
+    # PG 1011
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.05488]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.05488]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([0.05488, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.05488, 0.05488, 0.05488]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 0].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 0].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / realization_count
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1012
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.05488]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.05488]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 0.05488, 1e-6, 1e-6]),
+               upper=np.log([0.05488, 0.1, 0.05488, 0.05488]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 1].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 1].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / realization_count
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 1021
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 1e-6]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.05488]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 1e-6]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.05488]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 0.05488, 1e-6]),
+               upper=np.log([0.05488, 0.05488, 0.1, 0.05488]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 2].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 2].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / realization_count
+
+    #print('------------------------')
+    #print('P_target')
+    #print(P_target)
+    #print('------------------------')
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    return 0
+
+    # PG 1022
+    P_target = [
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([0.1, 0.1, 0.1, 0.05488]))[0],
+        mvn_od(theta_PID, COV_PID,
+               lower=np.log([0.05488, 0.05488, 0.05488, 0.05488]),
+               upper=np.log([0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.1, 0.05488, 0.1]))[0], ]),
+        np.sum([
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 1e-6, 0.05488, 0.05488]),
+                   upper=np.log([0.05488, 0.05488, 0.1, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([0.05488, 1e-6, 1e-6, 0.05488]),
+                   upper=np.log([0.1, 0.05488, 0.05488, 0.1]))[0],
+            mvn_od(theta_PID, COV_PID,
+                   lower=np.log([1e-6, 0.05488, 1e-6, 0.05488]),
+                   upper=np.log([0.05488, 0.1, 0.05488, 0.1]))[0], ]),
+        mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 0.05488]),
+               upper=np.log([0.05488, 0.05488, 0.05488, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 3].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 5)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 3].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 5)]
+    P_test = P_test[np.where(P_test > 5)]
+    P_test = P_test / realization_count
+
+    assert_allclose(P_target[:-1], P_test[:4], atol=0.05)
+    assert_allclose(C_target[:-1], C_test[:4], rtol=0.001)
+    assert_allclose(T_target[:-1], T_test[:4], rtol=0.001)
+
+    # PG 2011
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, 9.80665, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 4].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 4].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / realization_count
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 2012
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 5].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 5].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / realization_count
+
+    assert_allclose(P_target[:4], P_test[:4], atol=0.05)
+    assert_allclose(C_target[:4], C_test[:4], rtol=0.001)
+    assert_allclose(T_target[:4], T_test[:4], rtol=0.001)
+
+    # PG 2021
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 6].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 6].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / realization_count
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # PG 2022
+    P_target = [
+        mvn_od(np.log(theta_target), COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        np.sum([
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [9.80665, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [np.inf, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0],
+            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+                [1e-6, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+                   upper=np.log(
+                       [9.80665, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
+                0], ]),
+        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            [1e-6, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log(
+                   [9.80665, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
+    ]
+
+    C_test, P_test = np.unique(
+        np.around(DV_COST.iloc[:, 7].values / 3., decimals=0) * 3.,
+        return_counts=True)
+    C_test = C_test[np.where(P_test > 10)]
+    T_test, P_test = np.unique(np.around(DV_TIME.iloc[:, 7].values * 333.33333,
+                                         decimals=0) / 333.33333,
+                               return_counts=True)
+    T_test = T_test[np.where(P_test > 10)]
+    P_test = P_test[np.where(P_test > 10)]
+    P_test = P_test / realization_count
+
+    assert_allclose(P_target, P_test, atol=0.05)
+    assert_allclose(C_target, C_test, rtol=0.001)
+    assert_allclose(T_target, T_test, rtol=0.001)
+
+    # RED TAG
+    RED_check = A._DV_dict['red_tag'].describe().T
+    RED_check = (RED_check['mean'] * RED_check['count'] / realization_count).values
+
+    assert_allclose(RED_check, DMG_ref, atol=0.02, rtol=0.10)
+
+    DMG_on = np.where(A._DMG > 0.0)[0]
+    RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
+    assert_allclose(DMG_on, RED_on)
+
+    # ------------------------------------------------------------------------
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log(theta_target), COV_target,
+                             upper=np.log(
+                                 [9.80665, 9.80665, 9.80665, 9.80665, 0.05488,
+                                  0.05488, 0.05488, 0.05488]))[0]
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / realization_count
+
+    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.03)
+
 
 
