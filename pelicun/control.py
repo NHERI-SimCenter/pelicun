@@ -3443,6 +3443,7 @@ class HAZUS_Assessment(Assessment):
                         if DVs['rec_cost'] and ('repair_cost' in DS.keys()):
                             data = DS['repair_cost']
                             data_scaled = deepcopy(data)
+                            data_scaled['medians'] = np.array(data_scaled['medians'])
                             data_scaled['medians'] *= repl_cost
 
                             if len(data['medians']) > 1:
