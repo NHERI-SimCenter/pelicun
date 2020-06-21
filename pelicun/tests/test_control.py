@@ -1772,5 +1772,180 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.03)
 
+def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
+    involved in the calculations.
+    In this test we provide only one structural response result and see if it
+    is properly handled as a deterministic value or a random EDP using the
+    additional sources of uncertainty.
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + 'input data/' + "DL_input_test_6.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_6.out"
+
+    A = FEMA_P58_Assessment()
+
+    A.read_inputs(DL_input, EDP_input, verbose=False)
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    theta_target = [7.634901, 6.85613, 11.685934, 10.565554, 0.061364, 0.048515,
+                    0.033256, 0.020352]
+    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    assert_allclose(sig, np.zeros(8), atol=1e-4)
+    rho_target = np.zeros((8, 8))
+    np.fill_diagonal(rho_target, 1.0)
+    COV_target = rho_target * 3e-8
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+
+    # ------------------------------------------------- perform the calculation
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    A.calculate_losses()
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / 10000.
+
+    assert P_no_RED_test == 0.0
+
+    # -------------------------------------------------------------------------
+    # now do the same analysis, but consider additional uncertainty
+    # -------------------------------------------------------------------------
+
+    A = FEMA_P58_Assessment()
+
+    A.read_inputs(DL_input, EDP_input, verbose=False)
+
+    AU = A._AIM_in['general']['added_uncertainty']
+
+    AU['beta_m'] = 0.3
+    AU['beta_gm'] = 0.4
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    sig_target = np.sqrt(1e-8 + 0.3 ** 2. + 0.4 ** 2.)
+    assert_allclose(sig, np.ones(8) * sig_target, rtol=0.1)
+    rho_target = np.zeros((8, 8))
+    np.fill_diagonal(rho_target, 1.0)
+    COV_target = rho_target * sig_target ** 2.
+    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+
+    # ------------------------------------------------- perform the calculation
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    A.calculate_losses()
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log(theta_target), COV_target,
+                             upper=np.log(
+                                 [9.80665, 9.80665, 9.80665, 9.80665, 0.05488,
+                                  0.05488, 0.05488, 0.05488]))[0]
+
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / 10000.
+
+    assert P_no_RED_target == pytest.approx(P_no_RED_test, abs=0.01)
+
+def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
+    involved in the calculations.
+    This test simulates a scenario when one of the EDPs is identical in all
+    of the available samples. This results in zero variance in that dimension
+    and the purpose of the test is to ensure that such cases are handled
+    appropriately.
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + 'input data/' + "DL_input_test_7.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_7.out"
+
+    A = FEMA_P58_Assessment()
+
+    A.read_inputs(DL_input, EDP_input, verbose=False)
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+    assert RV_EDP.theta[4] == pytest.approx(0.061364, rel=0.05)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+    assert sig[4] < 1e-3
+    assert_allclose((COV / np.outer(sig, sig))[4],
+                    [0., 0., 0., 0., 1., 0., 0., 0.],
+                    atol=1e-6)
+
+    # ------------------------------------------------- perform the calculation
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    A.calculate_losses()
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = (1.0 - SD.loc[('red tagged', ''), 'mean']) * SD.loc[
+        ('red tagged', ''), 'count'] / 10000.
+
+    assert P_no_RED_test == 0.0
+
 
 
