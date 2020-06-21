@@ -1,12 +1,12 @@
 {
   "Name": "NSD-RES1",
-  "Directional": true,
+  "Directional": false,
   "GeneralInformation": {
     "ID": "NSD-RES1",
     "Description": "NSD-RES1"
   },
   "EDP": {
-    "Type": "Story Drift Ratio",
+    "Type": "Roof Drift Ratio",
     "Unit": [
       1,
       "rad"

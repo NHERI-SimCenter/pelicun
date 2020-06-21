@@ -1,12 +1,12 @@
 {
   "Name": "S-MH-HC-RES1",
-  "Directional": true,
+  "Directional": false,
   "GeneralInformation": {
     "ID": "S-MH-HC-RES1",
     "Description": "S-MH-HC-RES1"
   },
   "EDP": {
-    "Type": "Story Drift Ratio",
+    "Type": "Roof Drift Ratio",
     "Unit": [
       1,
       "rad"

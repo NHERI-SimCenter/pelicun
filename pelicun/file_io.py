@@ -240,7 +240,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         if AT == 'P58':
             path_CMP_data += '/resources/FEMA_P58_2nd_ed.hdf'
         elif AT == 'HAZUS_EQ':
-            path_CMP_data += '/resources/HAZUS_MH_2.1_EQ_story.hdf'
+            path_CMP_data += '/resources/HAZUS_MH_2.1_EQ.hdf'
         elif AT == 'HAZUS_HU':
             path_CMP_data += '/resources/HAZUS_MH_2.1_HU.hdf'
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
@@ -257,7 +257,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             if AT == 'P58':
                 path_POP_data += '/resources/FEMA_P58_2nd_ed.hdf'
             elif AT == 'HAZUS_EQ':
-                path_POP_data += '/resources/HAZUS_MH_2.1_EQ_story.hdf'
+                path_POP_data += '/resources/HAZUS_MH_2.1_EQ.hdf'
         data['data_sources'].update({'path_POP_data': path_POP_data})
 
     # general information
