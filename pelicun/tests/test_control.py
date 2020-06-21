@@ -905,5 +905,268 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     assert P_no_RED_target == prob_approx(P_no_RED_test, 0.04)
 
+def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
+    """
+    Perform a loss assessment with customized inputs that focus on testing the
+    methods used to estimate the multivariate lognormal distribution of EDP
+    values. Besides the fitting, this test also evaluates the propagation of
+    EDP uncertainty through the analysis. Dispersions in other calculation
+    parameters are reduced to negligible levels. This allows us to test the
+    results against pre-defined reference values in spite of the  randomness
+    involved in the calculations.
+    Here we use EDP results with unique values assigned to failed analyses.
+    In particular, PID=1.0 and PFA=100.0 are used when an analysis fails.
+    These values shall be handled by detection limits of 10 and 100 for PID
+    and PFA, respectively.
+    """
+
+    base_input_path = 'resources/'
+
+    DL_input = base_input_path + 'input data/' + "DL_input_test_4.json"
+    EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_4.out"
+
+    A = FEMA_P58_Assessment()
+
+    A.read_inputs(DL_input, EDP_input, verbose=False)
+
+    A.define_random_variables()
+
+    # -------------------------------------------------- check random variables
+
+    # EDP
+    RV_EDP = A._RV_dict['EDP']
+    assert RV_EDP._distribution_kind == 'lognormal'
+
+    EDP_theta_target = [9.80665, 12.59198, 0.074081, 0.044932]
+    EDP_sig_target = [0.25, 0.25, 0.3, 0.4]
+    EDP_rho_target = [
+        [1.0, 0.6, 0.3, 0.3],
+        [0.6, 1.0, 0.3, 0.3],
+        [0.3, 0.3, 1.0, 0.7],
+        [0.3, 0.3, 0.7, 1.0]]
+    EDP_COV_target = EDP_rho_target * np.outer(EDP_sig_target, EDP_sig_target)
+
+    assert_allclose(RV_EDP.theta, EDP_theta_target, rtol=0.025)
+    COV = deepcopy(RV_EDP.COV)
+    sig = np.sqrt(np.diagonal(COV))
+
+    #print(RV_EDP.theta)
+    #print(np.sqrt(np.diagonal(COV)))
+    #print(COV / np.outer(sig, sig))
+
+    assert_allclose(sig, EDP_sig_target, rtol=0.1)
+    assert_allclose(COV / np.outer(sig, sig), EDP_rho_target, atol=0.15)
+
+    # ------------------------------------------------------------------------
+
+    A.define_loss_model()
+
+    A.calculate_damage()
+
+    # ------------------------------------------------ check damage calculation
+    # COL
+    COL_check = A._COL.describe().T
+    col_target = 1.0 - mvn_od(np.log(EDP_theta_target[2:]),
+                               EDP_COV_target[2:,2:],
+                               upper=np.log([0.1, 0.1]))[0]
+
+    assert COL_check['mean'].values[0] == prob_approx(col_target, 0.03)
+
+    # DMG
+    DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000.
+                 for i in range(8)]
+
+    DMG_1_PID = mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:,2:],
+                       lower=np.log([0.05488, 1e-6]),
+                       upper=np.log([0.1, 0.1]))[0]
+
+    DMG_2_PID = mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+                       lower=np.log([1e-6, 0.05488]),
+                       upper=np.log([0.1, 0.1]))[0]
+
+    DMG_1_PFA = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+                       lower=np.log([9.80665, 1e-6, 1e-6, 1e-6]),
+                       upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0]
+
+    DMG_2_PFA = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+                       lower=np.log([1e-6, 9.80665, 1e-6, 1e-6]),
+                       upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0]
+
+    assert DMG_check[0] == pytest.approx(DMG_check[1], rel=0.01)
+    assert DMG_check[2] == pytest.approx(DMG_check[3], rel=0.01)
+    assert DMG_check[4] == pytest.approx(DMG_check[5], rel=0.01)
+    assert DMG_check[6] == pytest.approx(DMG_check[7], rel=0.01)
+
+    assert DMG_check[0] == prob_approx(DMG_1_PID, 0.03)
+    assert DMG_check[2] == prob_approx(DMG_2_PID, 0.03)
+    assert DMG_check[4] == prob_approx(DMG_1_PFA, 0.03)
+    assert DMG_check[6] == prob_approx(DMG_2_PFA, 0.03)
+
+    # ------------------------------------------------------------------------
+
+    A.calculate_losses()
+
+    # -------------------------------------------------- check loss calculation
+    # COST
+    DV_COST = A._DV_dict['rec_cost']
+    DV_TIME = A._DV_dict['rec_time']
+
+    C_target = [0., 250., 1250.]
+    T_target = [0., 0.25, 1.25]
+
+    # PG 1011 and 1012
+    P_target = [
+        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.05488, 0.1]))[0],
+
+        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+
+        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+               lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+    ]
+
+    for i in [0, 1]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+        prob_allclose(P_target, P_test, 0.04)
+
+    # PG 1021 and 1022
+    P_target = [
+        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+               lower=np.log([1e-6, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
+
+        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+               lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
+
+        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+               lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
+    ]
+
+    for i in [2, 3]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+        prob_allclose(P_target, P_test, 0.04)
+
+    # PG 2011 and 2012
+    P_target = [
+        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([9.80665, np.inf, 0.1, 0.1]))[0],
+
+        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+               lower=np.log([9.80665, 9.80665, 1e-6, 1e-6]),
+               upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0],
+
+        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+               lower=np.log([9.80665, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([np.inf, 9.80665, 0.1, 0.1]))[0],
+    ]
+
+    for i in [4, 5]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+        prob_allclose(P_target, P_test, 0.04)
+
+    # PG 2021 and 2022
+    P_target = [
+        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+               lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+               upper=np.log([np.inf, 9.80665, 0.1, 0.1]))[0],
+
+        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+               lower=np.log([9.80665, 9.80665, 1e-6, 1e-6]),
+               upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0],
+
+        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+               lower=np.log([1e-6, 9.80665, 1e-6, 1e-6]),
+               upper=np.log([9.80665, np.inf, 0.1, 0.1]))[0],
+    ]
+
+    for i in [6, 7]:
+        C_test, P_test = np.unique(
+            np.around(DV_COST.iloc[:, i].values / 10., decimals=0) * 10.,
+            return_counts=True)
+        C_test = C_test[np.where(P_test > 10)]
+        T_test, P_test = np.unique(
+            np.around(DV_TIME.iloc[:, i].values * 100., decimals=0) / 100.,
+            return_counts=True)
+        T_test = T_test[np.where(P_test > 10)]
+        P_test = P_test[np.where(P_test > 10)]
+        P_test = P_test / 10000.
+
+        assert_allclose(C_target, C_test, rtol=0.001)
+        assert_allclose(T_target, T_test, rtol=0.001)
+        prob_allclose(P_target, P_test, 0.04)
+
+    # RED TAG
+    RED_check = A._DV_dict['red_tag'].describe().T
+    RED_check = (RED_check['mean'] * RED_check['count'] / 10000.).values
+
+    assert RED_check[0] == pytest.approx(RED_check[1], rel=0.01)
+    assert RED_check[2] == pytest.approx(RED_check[3], rel=0.01)
+    assert RED_check[4] == pytest.approx(RED_check[5], rel=0.01)
+    assert RED_check[6] == pytest.approx(RED_check[7], rel=0.01)
+
+    assert RED_check[0] == prob_approx(DMG_1_PID, 0.03)
+    assert RED_check[2] == prob_approx(DMG_2_PID, 0.03)
+    assert RED_check[4] == prob_approx(DMG_1_PFA, 0.03)
+    assert RED_check[6] == prob_approx(DMG_2_PFA, 0.03)
+
+    DMG_on = np.where(A._DMG > 0.0)[0]
+    RED_on = np.where(A._DV_dict['red_tag'] > 0.0)[0]
+    assert_allclose(DMG_on, RED_on)
+
+    # ------------------------------------------------------------------------
+
+    A.aggregate_results()
+
+    # ------------------------------------------------ check result aggregation
+
+    P_no_RED_target = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+                             lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
+                             upper=np.log([9.80665, 9.80665, 0.05488, 0.05488]))[0]
+
+    S = A._SUMMARY
+    SD = S.describe().T
+
+    P_no_RED_test = ((1.0 - SD.loc[('red tagged', ''), 'mean'])
+                     * SD.loc[('red tagged', ''), 'count'] / 10000.)
+
+    assert P_no_RED_target == prob_approx(P_no_RED_test, 0.04)
+
 
 
