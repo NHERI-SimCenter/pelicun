@@ -4,19 +4,33 @@
     "stories": 3,
     "realizations": 20000,
     "collapse_limits": {
+      "DWD": null,
+      "RDR": null,
       "PFA": 14.709975,
+      "PGA": null,
       "PGV": null,
       "PID": 0.1,
       "PMD": null,
-      "RID": null
+      "PRD": null,
+      "RID": null,
+      "SA": null,
+      "SD": null,
+      "SV": null
     },
     "coupled_assessment": false,
     "detection_limits": {
+      "DWD": null,
+      "RDR": null,
       "PFA": 19.6133,
+      "PGA": null,
       "PGV": null,
       "PID": 0.15,
       "PMD": null,
-      "RID": null
+      "PRD": null,
+      "RID": null,
+      "SA": null,
+      "SD": null,
+      "SV": null
     },
     "added_uncertainty": {
       "beta_gm": null,
@@ -61,5 +75,6 @@
     "fragilities": "ATC",
     "rec_costs": "IND",
     "cost_and_time": false
-  }
+  },
+  "damage_logic": null
 }

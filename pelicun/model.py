@@ -279,6 +279,46 @@ def prep_bounded_linear_median_DV(median_max, median_min, quantity_lower,
 
     return f
 
+def prep_bounded_multilinear_median_DV(medians, quantities):
+    """
+    Returns a bounded multilinear median Decision Variable (DV) function.
+
+    The median DV equals the min and max values when the quantity is
+    outside of the prescribed quantity bounds. When the quantity is within the
+    bounds, the returned median is calculated by linear interpolation.
+
+    Parameters
+    ----------
+    medians: ndarray
+        Series of values that define the y coordinates of the multilinear DV
+        function.
+    quantities: ndarray
+        Series of values that define the component quantities corresponding to
+        the series of medians and serving as the x coordinates of the 
+        multilinear DV function.
+
+    Returns
+    -------
+    f: callable
+        A function that returns the median DV given the quantity of damaged
+        components.
+    """
+    def f(quantity):
+        if quantity is None:
+            raise ValueError(
+                'A bounded linear median Decision Variable function called '
+                'without specifying the quantity of damaged components')
+
+        q_array = np.asarray(quantity, dtype=np.float64)
+
+        # calculate the median consequence given the quantity of damaged
+        # components
+        output = np.interp(q_array, quantities, medians)
+
+        return output
+
+    return f
+
 class ConsequenceFunction(object):
     """
     Describes the relationship between damage and a decision variable.

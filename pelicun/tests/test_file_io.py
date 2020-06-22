@@ -75,7 +75,7 @@ def test_read_SimCenter_DL_input_minimum_input():
 
     # make sure the paths under data sources point to the right locations
     assert test_DL['data_sources']['path_CMP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/DL json/'
+           pelicun_path + '/resources/FEMA_P58_2nd_ed.hdf'
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
@@ -100,9 +100,9 @@ def test_read_SimCenter_DL_input_full_input():
 
     # make sure the paths under data sources point to the right locations
     assert test_DL['data_sources']['path_CMP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/DL json/'
+           pelicun_path + '/resources/FEMA_P58_2nd_ed.hdf'
     assert test_DL['data_sources']['path_POP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/population.json'
+           pelicun_path + '/resources/FEMA_P58_2nd_ed.hdf'
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
@@ -126,7 +126,7 @@ def test_read_SimCenter_DL_input_non_standard_units():
 
     # make sure the path under data sources points to the right location
     assert test_DL['data_sources']['path_CMP_data'] == \
-           pelicun_path + '/resources/FEMA P58 first edition/DL json/'
+           pelicun_path + '/resources/FEMA_P58_2nd_ed.hdf'
     test_DL.pop('data_sources', None)
 
     # check if the returned dictionary is appropriate
@@ -287,9 +287,8 @@ def test_read_component_DL_data():
     }
 
     # read the component data
-    test_CMP = read_component_DL_data(
-        '../resources/FEMA P58 first edition/DL json/',
-        comp_info)
+    test_CMP = read_component_DL_data('../resources/FEMA_P58_1st_ed.hdf',
+                                      comp_info)
 
     # load the reference results
     with open('resources/io testing/ref/ref_CMP_B1071.011.json',
@@ -317,9 +316,8 @@ def test_read_component_DL_data():
     }
 
     # read the component data
-    test_CMP = read_component_DL_data(
-        '../resources/FEMA P58 first edition/DL json/',
-        comp_info)
+    test_CMP = read_component_DL_data('../resources/FEMA_P58_1st_ed.hdf',
+                                      comp_info)
 
     # load the reference results
     with open('resources/io testing/ref/ref_CMP_C3032.001a.json',
@@ -347,9 +345,8 @@ def test_read_component_DL_data():
     }
 
     # read the component data
-    test_CMP = read_component_DL_data(
-        '../resources/FEMA P58 first edition/DL json/',
-        comp_info)
+    test_CMP = read_component_DL_data('../resources/FEMA_P58_1st_ed.hdf',
+                                      comp_info)
 
     # load the reference results
     with open('resources/io testing/ref/ref_CMP_D1014.011.json',
@@ -376,9 +373,8 @@ def test_read_component_DL_data():
     }
 
     # read the component data
-    test_CMP = read_component_DL_data(
-        '../resources/FEMA P58 first edition/DL json/',
-        comp_info)
+    test_CMP = read_component_DL_data('../resources/FEMA_P58_1st_ed.hdf',
+                                      comp_info)
 
     # load the reference results
     with open('resources/io testing/ref/ref_CMP_B1035.051.json',
@@ -406,10 +402,8 @@ def test_read_component_DL_data():
 
     # read the component data
     with pytest.warns(UserWarning) as e_info:
-        test_CMP = read_component_DL_data(
-            '../resources/FEMA P58 first edition/DL json/',
-            comp_info)
-
+        test_CMP = read_component_DL_data('../resources/FEMA_P58_1st_ed.hdf',
+                                          comp_info)
     assert test_CMP == {}
 
     # a component with unknown EDP shall not get parsed and shall produce a warning
@@ -430,92 +424,10 @@ def test_read_component_DL_data():
 
     # read the component data
     with pytest.warns(UserWarning) as e_info:
-        test_CMP = read_component_DL_data(
-            '../resources/FEMA P58 first edition/DL json/',
-            comp_info)
+        test_CMP = read_component_DL_data('../resources/FEMA_P58_1st_ed.hdf',
+                                          comp_info)
 
     assert test_CMP == {}
-
-# -----------------------------------------------------------------------------
-# convert P58 data to JSON
-# -----------------------------------------------------------------------------
-
-def test_convert_P58_data_to_json():
-    """
-    Test if the damage and loss data from the FEMA P58 project is properly
-    converted into the SimCenter JSON format using xml and xlsx files avialable
-    from ATC (the test uses a subset of the files).
-    """
-
-    data_dir = 'resources/io testing/P58 converter/source/'
-    ref_dir = 'resources/io testing/P58 converter/ref/'
-    test_dir = 'test/'
-
-    try:
-        # convert the files in the data folder
-        os.mkdir(test_dir)
-        convert_P58_data_to_json(data_dir, test_dir)
-
-        # collect the prepared reference files
-        ref_files = sorted(os.listdir(ref_dir))
-
-        # collect the converted files
-        test_files = sorted(os.listdir(test_dir))
-
-        # compare the reference files to the converted ones
-        for test, ref in zip(test_files, ref_files):
-            with open(os.path.join(test_dir,test),'r') as f_test:
-                with open(os.path.join(ref_dir,ref),'r') as f_ref:
-                    #print(test, ref)
-                    assert json.load(f_test) == json.load(f_ref)
-
-    finally:
-        #pass
-        shutil.rmtree(test_dir)
-
-# -----------------------------------------------------------------------------
-# create HAZUS JSON files
-# -----------------------------------------------------------------------------
-
-def test_create_HAZUS_json_files():
-    """
-    Test if the damage and loss data from HAZUS is properly converted into the
-    SimCenter JSON format the prepared raw HAZUS JSON files (the test uses a
-    subset of the HAZUS input data).
-    """
-
-    data_dir = 'resources/io testing/HAZUS creator/source/'
-    ref_dir = 'resources/io testing/HAZUS creator/ref/'
-    test_dir = 'test/'
-
-    try:
-        # convert the files in the data folder
-        os.mkdir(test_dir)
-        os.mkdir(test_dir+'DL json/')
-        create_HAZUS_EQ_json_files(data_dir, test_dir)
-
-        # collect the prepared reference files
-        ref_files = sorted(os.listdir(ref_dir+'DL json/'))
-
-        # collect the converted files
-        test_files = sorted(os.listdir(test_dir+'DL json/'))
-
-        # compare the reference files to the converted ones
-        for test, ref in zip(test_files, ref_files):
-            with open(os.path.join(test_dir + 'DL json/', test), 'r') as f_test:
-                with open(os.path.join(ref_dir + 'DL json/', ref), 'r') as f_ref:
-                    #print(test, ref)
-                    assert json.load(f_test) == json.load(f_ref)
-
-        # compare the population files
-        with open(os.path.join(test_dir, 'population.json'), 'r') as f_test:
-            with open(os.path.join(ref_dir, 'population.json'), 'r') as f_ref:
-                #print(test, ref)
-                assert json.load(f_test) == json.load(f_ref)
-
-    finally:
-        #pass
-        shutil.rmtree(test_dir)
 
 # -----------------------------------------------------------------------------
 # write_SimCenter_DL_output

@@ -23,5 +23,8 @@
 /*.egg-info
 /*.egg
 
+# Temporary jupyter files
+/.ipynb_checkpoints/
+
 __pycache__
 *.bak

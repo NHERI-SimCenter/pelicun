@@ -4,11 +4,18 @@
     "stories": 3,
     "realizations": 20000,
     "collapse_limits": {
+      "DWD": null,
+      "RDR": null,
       "PFA": 1.5,
+      "PGA": null,
       "PGV": null,
       "PID": 0.1,
       "PMD": null,
-      "RID": null
+      "PRD": null,
+      "RID": null,
+      "SA": null,
+      "SD": null,
+      "SV": null
     },
     "coupled_assessment": false,
     "irrepairable_res_drift": {
@@ -19,12 +26,20 @@
     "replacement_cost": 450000.0,
     "replacement_time": 180.0,
     "detection_limits": {
+      "DWD": null,
+      "RDR": null,
       "PFA": 2.0,
+      "PGA": null,
       "PGV": null,
       "PID": 0.15,
       "PMD": null,
-      "RID": null
+      "PRD": null,
+      "RID": null,
+      "SA": null,
+      "SD": null,
+      "SV": null
     },
+    "event_time": null,
     "yield_drift": 0.01,
     "added_uncertainty": {
       "beta_gm": 0.2,
@@ -132,5 +147,6 @@
     "red_tags": "DS",
     "cost_and_time": false,
     "injury_lvls": true
-  }
+  },
+  "damage_logic": null
 }

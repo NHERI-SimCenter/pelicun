@@ -121,7 +121,12 @@ def describe(df):
 
     if isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df.values
-        cols = df.columns
+        if isinstance(df, pd.DataFrame):
+            cols = df.columns
+        elif df.name is not None:
+            cols = df.name
+        else:
+            cols = 0
     else:
         vals = df
         cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
@@ -152,6 +157,18 @@ def describe(df):
         }, index=cols).T
 
     return desc
+
+def str2bool(v):
+    # courtesy of Maxim @ stackoverflow
+
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 'True', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'False', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 # Constants for unit conversion
 
