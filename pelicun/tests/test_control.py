@@ -63,7 +63,7 @@ from pelicun.tests.test_pelicun import prob_allclose, prob_approx
 # -----------------------------------------------------------------------------
 
 
-def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
+def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
     """
     Perform loss assessment with customized inputs that focus on testing the
     propagation of uncertainty in component fragilities. Dispersions in other
@@ -79,9 +79,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
     DL_input = base_input_path + 'input data/' + "DL_input_test_9.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_9.out"
 
-    for dep in ['IND', 'PG', 'DIR', 'LOC']: #, 'ATC', 'CSG', 'DS']:
-
-        print(f"still running: {dep}")
+    if True:
 
         A = FEMA_P58_Assessment()
 
@@ -1061,3 +1059,28 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies():
                         S.loc[:, ('injuries', 'sev1')])
         assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
                         S.loc[:, ('injuries', 'sev2')])
+
+
+def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_PG():
+
+    test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('PG')
+
+def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DIR():
+
+    test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('DIR')
+
+def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_LOC():
+
+    test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('LOC')
+
+def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_ATC():
+
+    test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('ATC')
+
+def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_CSG():
+
+    test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('CSG')
+
+def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DS():
+
+    test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('DS')
