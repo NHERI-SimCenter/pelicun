@@ -245,7 +245,7 @@ def auto_populate(DL_input_path, EDP_input_path,
 
         if is_IM_based:
             loss_dict.update({
-                "ComponentDataFolder": pelicun_path+"/resources/HAZUS MH 2.1 earthquake PGA/DL json/"
+                "ComponentDataFolder": pelicun_path+"/resources/HAZUS_MH_2.1_EQ_eqv_PGA.hdf"
                 })
         else:
             loss_dict['ResponseModel'].update({
@@ -255,7 +255,7 @@ def auto_populate(DL_input_path, EDP_input_path,
                     "PRD": "0.20"
                 }})
             loss_dict.update({
-                "ComponentDataFolder": pelicun_path+"/resources/HAZUS MH 2.1 earthquake/DL json/"
+                "ComponentDataFolder": pelicun_path+"/resources/HAZUS_MH_2.1_EQ_story.hdf"
                 })
 
         if 'W1' in bt:
