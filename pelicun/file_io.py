@@ -1433,6 +1433,9 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
     for comp_type in ['S', 'NS', 'NSA', 'NSD']:
         if np.sum([fg.startswith(comp_type) for fg in FG_list]) > 0:
             comp_types.append(comp_type)
+    if np.sum([np.any([fg.startswith(comp_type) for comp_type in comp_types]) 
+                       for fg in FG_list]) != len(FG_list):
+        comp_types.append('other')
 
     # second, get the damage state likelihoods
     df_res_l = pd.DataFrame(
@@ -1448,7 +1451,7 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
                                            names=['comp_type', 'DSG_DS']),
         index=[0, ])
 
-    for comp_type in ['NSA', 'NSD', 'NS']:
+    for comp_type in ['NSA', 'NSD', 'NS', 'other']:
         if comp_type in comp_types:
             del df_res_l[(comp_type, '4_2')]
             del df_res_q[(comp_type, '4_2')]
@@ -1457,8 +1460,12 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
     for comp_type in comp_types:
 
         # select the corresponding subset of columns
-        type_cols = [c for c in DMG_agg.columns.get_level_values('FG').unique()
-                     if c.startswith(comp_type)]
+        if comp_type == 'other':
+            type_cols = [fg for fg in FG_list 
+                         if np.all([~fg.startswith(comp_type) for comp_type in comp_types])]
+        else:
+            type_cols = [c for c in DMG_agg.columns.get_level_values('FG').unique()
+                         if c.startswith(comp_type)]
 
         df_sel = DMG_agg.loc[:, type_cols].groupby(level='DSG_DS',axis=1).sum()
         df_sel = df_sel / len(type_cols)
