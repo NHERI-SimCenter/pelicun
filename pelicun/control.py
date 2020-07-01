@@ -2864,7 +2864,8 @@ class HAZUS_Assessment(Assessment):
                 ('injuries', 'sev4'),
             ]
 
-        if self._AIM_in['general']['event_time'] != 'off':
+        if (DVs['injuries'] and 
+            (self._AIM_in['general']['event_time'] != 'off')):
             MI_raw += [
                 ('event time', 'month'),
                 ('event time', 'weekday?'),
@@ -2885,7 +2886,8 @@ class HAZUS_Assessment(Assessment):
         SUMMARY[:] = np.NaN
 
         # event time (if needed)
-        if self._AIM_in['general']['event_time'] != 'off':
+        if (DVs['injuries'] and 
+            (self._AIM_in['general']['event_time'] != 'off')):
             for prop in ['month', 'weekday?', 'hour']:
                 offset = 0
                 if prop == 'month':
