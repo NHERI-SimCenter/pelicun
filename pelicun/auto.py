@@ -383,7 +383,7 @@ def auto_populate(DL_input_path, EDP_input_path,
         occupancy = BIM_in['occupancy']
         stories = int(BIM_in['stories'])
         bldg_desc = BIM_in['buildingDescription']
-        struct_type = BIM_in['structureType']
+        struct_type = BIM_in['structType']
         V_ult = BIM_in['V_design']
         area = BIM_in['area']
         z0 = BIM_in['z0']
@@ -532,7 +532,7 @@ def auto_populate(DL_input_path, EDP_input_path,
             },
             'LossModel': {
                 'DecisionVariables': {
-                    'ReconstructionCost': True
+                    "ReconstructionCost": True
                 },
                 'ReplacementCost': 100
             },
@@ -543,7 +543,13 @@ def auto_populate(DL_input_path, EDP_input_path,
             }
             },
             'Components':{
-                bldg_config: []
+                bldg_config: [{
+                    'location': '1',
+                     'direction': '1',
+                     'median_quantity': '1.0',
+                     'unit': 'ea',
+                     'distribution': 'N/A'
+                     }]
             }
         }
 
