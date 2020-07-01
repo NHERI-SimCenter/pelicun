@@ -922,7 +922,7 @@ class RandomVariable(object):
         self._dimension_tags = np.asarray(dimension_tags)
 
         if raw_data is not None:
-            raw_data = np.asarray(raw_data)
+            raw_data = np.atleast_1d(raw_data)
             if len(raw_data.shape) > 1:
                 self._ndim, self._ncount = raw_data.shape[:2]
             else:
@@ -1579,14 +1579,14 @@ class RandomVariable(object):
 
                 else:
                     # generate a random list of indices
-                    id_list = np.random.uniform(0, self._ncount,
+                    id_list = np.random.randint(0, self._ncount,
                                                 size=sample_size)
 
                     # get the raw data that corresponds to the random ids
                     if self._ndim > 1:
                         samples = self._raw_data[:, id_list]
                     else:
-                        samples = self._raw_data[id_list]
+                        samples = self._raw_data[0, id_list]
 
                 # put the samples in a DataFrame
                 samples = pd.DataFrame(data=np.transpose(samples),

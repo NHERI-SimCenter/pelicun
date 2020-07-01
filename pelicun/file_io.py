@@ -169,7 +169,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     log_msg('\t\t\tDamage Model')
     damage = DL_input.get('DamageModel',None)
     if damage is not None:
-        irrep_res_drift = damage.get('IrrepairableResidualDrift', None)
+        irrep_res_drift = damage.get('IrreparableResidualDrift', None)
         coll_prob = damage.get('CollapseProbability', None)
         coll_lims = damage.get('CollapseLimits', None)
         design_lvl = damage.get('DesignLevel', None)
@@ -648,13 +648,13 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             if key not in data['general']['collapse_limits'].keys():
                 data['general']['collapse_limits'].update({key: None})
 
-        # irrepairable drift
+        # irreparable drift
         if ((damage is not None) and (irrep_res_drift is not None)):
             data['general'].update({
-                'irrepairable_res_drift':
+                'irreparable_res_drift':
                     dict([(key, float_or_None(value)) for key, value in
                           irrep_res_drift.items()])})
-            # TODO: move this in the irrepairable part of general
+            # TODO: move this in the irreparable part of general
             yield_drift = irrep_res_drift.get("YieldDriftRatio", None)
             if yield_drift is not None:
                 data['general'].update({
@@ -666,7 +666,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif ((data['decision_variables']['rec_cost']) or
               (data['decision_variables']['rec_time'])):
             show_warning(
-                "Residual drift limits corresponding to irrepairable "
+                "Residual drift limits corresponding to irreparable "
                 "damage were not defined in the input file. We assume that "
                 "damage is repairable regardless of the residual drift.")
             # we might need to have a default yield drift here
@@ -800,7 +800,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         if ((depends is not None) and (source_att in depends.keys())):
             data['dependencies'].update({
                 target_att:dependency_to_acronym[depends[source_att]]})
-        elif dv_req == '' or data['decision_variables'][dv_req]:
+        #elif dv_req == '' or data['decision_variables'][dv_req]:
+        else:
             if target_att != 'fragilities':
                 data['dependencies'].update({target_att: 'IND'})
             else:
@@ -1432,6 +1433,9 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
     for comp_type in ['S', 'NS', 'NSA', 'NSD']:
         if np.sum([fg.startswith(comp_type) for fg in FG_list]) > 0:
             comp_types.append(comp_type)
+    if np.sum([np.any([fg.startswith(comp_type) for comp_type in comp_types]) 
+                       for fg in FG_list]) != len(FG_list):
+        comp_types.append('other')
 
     # second, get the damage state likelihoods
     df_res_l = pd.DataFrame(
@@ -1447,7 +1451,7 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
                                            names=['comp_type', 'DSG_DS']),
         index=[0, ])
 
-    for comp_type in ['NSA', 'NSD', 'NS']:
+    for comp_type in ['NSA', 'NSD', 'NS', 'other']:
         if comp_type in comp_types:
             del df_res_l[(comp_type, '4_2')]
             del df_res_q[(comp_type, '4_2')]
@@ -1456,8 +1460,12 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
     for comp_type in comp_types:
 
         # select the corresponding subset of columns
-        type_cols = [c for c in DMG_agg.columns.get_level_values('FG').unique()
-                     if c.startswith(comp_type)]
+        if comp_type == 'other':
+            type_cols = [fg for fg in FG_list 
+                         if np.all([~fg.startswith(comp_type) for comp_type in comp_types])]
+        else:
+            type_cols = [c for c in DMG_agg.columns.get_level_values('FG').unique()
+                         if c.startswith(comp_type)]
 
         df_sel = DMG_agg.loc[:, type_cols].groupby(level='DSG_DS',axis=1).sum()
         df_sel = df_sel / len(type_cols)

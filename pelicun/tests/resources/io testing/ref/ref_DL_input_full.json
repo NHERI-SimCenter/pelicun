@@ -18,7 +18,7 @@
       "SV": null
     },
     "coupled_assessment": false,
-    "irrepairable_res_drift": {
+    "irreparable_res_drift": {
       "Median": 0.1,
       "Beta": 0.3,
       "YieldDriftRatio": 0.01

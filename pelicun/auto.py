@@ -164,6 +164,12 @@ def auto_populate(DL_input_path, EDP_input_path,
 
     is_IM_based = DL_method[-2:] == 'IM'
 
+    stories = BIM_in['numStory']
+    # use only 1 story if DM is based on IM
+    if DL_method == 'HAZUS MH EQ IM':
+        stories = 1
+    BIM_in.update({'stories':stories})
+
     # HAZUS Earthquake
     if DL_method in ['HAZUS MH EQ', 'HAZUS MH EQ IM']:        
 
@@ -173,11 +179,6 @@ def auto_populate(DL_input_path, EDP_input_path,
             bt = EDP_input['structType'].values[0]
 
         year_built = BIM_in['yearBuilt']
-        stories = BIM_in['numStory']
-        # use only 1 story if DM is based on IM
-        if DL_method == 'HAZUS MH EQ IM':
-            stories = 1
-        BIM_in.update({'stories':stories})
 
         if bt not in ['W1', 'W2', 'S3', 'PC1', 'MH']:
             if bt not in ['URM']:
@@ -244,7 +245,7 @@ def auto_populate(DL_input_path, EDP_input_path,
 
         if is_IM_based:
             loss_dict.update({
-                "ComponentDataFolder": pelicun_path+"/resources/HAZUS MH 2.1 earthquake PGA/DL json/"
+                "ComponentDataFolder": pelicun_path+"/resources/HAZUS_MH_2.1_EQ_eqv_PGA.hdf"
                 })
         else:
             loss_dict['ResponseModel'].update({
@@ -254,7 +255,7 @@ def auto_populate(DL_input_path, EDP_input_path,
                     "PRD": "0.20"
                 }})
             loss_dict.update({
-                "ComponentDataFolder": pelicun_path+"/resources/HAZUS MH 2.1 earthquake/DL json/"
+                "ComponentDataFolder": pelicun_path+"/resources/HAZUS_MH_2.1_EQ_story.hdf"
                 })
 
         if 'W1' in bt:
@@ -382,7 +383,7 @@ def auto_populate(DL_input_path, EDP_input_path,
         occupancy = BIM_in['occupancy']
         stories = int(BIM_in['stories'])
         bldg_desc = BIM_in['buildingDescription']
-        struct_type = BIM_in['structureType']
+        struct_type = BIM_in['structType']
         V_ult = BIM_in['V_design']
         area = BIM_in['area']
         z0 = BIM_in['z0']
@@ -531,7 +532,7 @@ def auto_populate(DL_input_path, EDP_input_path,
             },
             'LossModel': {
                 'DecisionVariables': {
-                    'ReconstructionCost': True
+                    "ReconstructionCost": True
                 },
                 'ReplacementCost': 100
             },
@@ -542,7 +543,13 @@ def auto_populate(DL_input_path, EDP_input_path,
             }
             },
             'Components':{
-                bldg_config: []
+                bldg_config: [{
+                    'location': '1',
+                     'direction': '1',
+                     'median_quantity': '1.0',
+                     'unit': 'ea',
+                     'distribution': 'N/A'
+                     }]
             }
         }
 

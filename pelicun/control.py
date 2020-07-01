@@ -215,7 +215,7 @@ class Assessment(object):
             for cl_name, cl in data['general']['collapse_limits'].items():
                 log_msg('\t\t\t\t{}: {}'.format(cl_name, cl))
             log_msg()
-            log_msg('\t\t\tIrrepairable Residual Drift:')
+            log_msg('\t\t\tIrreparable Residual Drift:')
             if 'irreparable_res_drift' in data['general']:
                 for att, val in data['general']['irreparable_res_drift'].items():
                     log_msg('\t\t\t\t{}: {}'.format(att, val))
@@ -606,7 +606,8 @@ class Assessment(object):
                     dimension_tags=demand_RV.dimension_tags,
                     distribution_kind=demand_RV.distribution_kind,
                     theta=demand_RV.theta,
-                    COV=COV_mod)
+                    COV=COV_mod,
+                    truncation_limits=demand_RV.tr_limits_pre)
 
         return demand_RV
 
@@ -930,7 +931,7 @@ class FEMA_P58_Assessment(Assessment):
         time of the building when reconstruction cost and time is estimated.
         Repairable cases get a cost and time estimate for each Damage State in
         each Performance Group. For more information about estimating
-        irrepairability see _calc_irreparable() and reconstruction cost and
+        irreparability see _calc_irreparable() and reconstruction cost and
         time see _calc_repair_cost_and_time() methods.
 
         Injuries
@@ -964,7 +965,7 @@ class FEMA_P58_Assessment(Assessment):
         if DVs['rec_cost'] or DVs['rec_time']:
             # irreparable cases
             if 'irreparable_res_drift' in self._AIM_in['general']:
-                log_msg('\tIdentifying Irrepairable Cases...')
+                log_msg('\tIdentifying Irreparable Cases...')
                 irreparable_IDs = self._calc_irreparable()
                 log_msg('\t\t{} out of {} non-collapsed cases are irreparable.'.format(
                     len(irreparable_IDs), len(self._ID_dict['non-collapse'])))
@@ -2262,7 +2263,7 @@ class FEMA_P58_Assessment(Assessment):
                 # we need to estimate residual drifts based on peak drifts
                 RID_max = np.zeros(NC_samples)
 
-                # based on Appendix C in FEMA P-58
+                # based on FEMA P-58 Vol. 1 5.4
                 delta_y = self._AIM_in['general']['yield_drift']
                 small = PID_max < delta_y
                 medium = PID_max < 4 * delta_y
@@ -2271,13 +2272,18 @@ class FEMA_P58_Assessment(Assessment):
                 RID_max[large] = PID_max[large] - 3 * delta_y
                 RID_max[medium] = 0.3 * (PID_max[medium] - delta_y)
                 RID_max[small] = 0.
+
+                # add extra uncertainty
+                eps = np.random.normal(scale=0.2, size=len(ncID) - np.sum(small))
+                RID_max[RID_max>0] = np.exp(np.log(RID_max[RID_max>0]) + eps)
+
             else:
                 # If no drift data is available, then we cannot provide an estimate
-                # of irrepairability. We assume that all non-collapse realizations
+                # of irreparability. We assume that all non-collapse realizations
                 # are repairable in this case.
                 return np.array([])
 
-        # get the probabilities of irrepairability
+        # get the probabilities of irreparability
         irrep_frag = self._AIM_in['general']['irreparable_res_drift']
         RV_irrep = RandomVariable(ID=-1, dimension_tags=['RED_irrep', ],
                                   distribution_kind='lognormal',
@@ -2757,7 +2763,11 @@ class HAZUS_Assessment(Assessment):
                     log_msg(f'Unkown damage logic: {DL["type"]}')
 
         # collapses are indicated by the ultimate DS in HAZUS
-        collapse_flag = self._DMG.groupby(level=2, axis=1).sum()['4_2']>0.
+        DMG_agg = self._DMG.groupby(level=2, axis=1).sum()
+        if '4_2' in DMG_agg.columns:
+            collapse_flag = DMG_agg['4_2']>0.
+        else:
+            collapse_flag = [False] * len(DMG_agg.index)
         self._ID_dict.update({'collapse':
             self._DMG[collapse_flag].index.values.astype(int)})
         # Note: Non-collapse IDs are not updated because we use the same
@@ -2854,7 +2864,8 @@ class HAZUS_Assessment(Assessment):
                 ('injuries', 'sev4'),
             ]
 
-        if self._AIM_in['general']['event_time'] != 'off':
+        if (DVs['injuries'] and 
+            (self._AIM_in['general']['event_time'] != 'off')):
             MI_raw += [
                 ('event time', 'month'),
                 ('event time', 'weekday?'),
@@ -2875,7 +2886,8 @@ class HAZUS_Assessment(Assessment):
         SUMMARY[:] = np.NaN
 
         # event time (if needed)
-        if self._AIM_in['general']['event_time'] != 'off':
+        if (DVs['injuries'] and 
+            (self._AIM_in['general']['event_time'] != 'off')):
             for prop in ['month', 'weekday?', 'hour']:
                 offset = 0
                 if prop == 'month':
