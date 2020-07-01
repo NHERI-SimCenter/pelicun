@@ -2763,7 +2763,11 @@ class HAZUS_Assessment(Assessment):
                     log_msg(f'Unkown damage logic: {DL["type"]}')
 
         # collapses are indicated by the ultimate DS in HAZUS
-        collapse_flag = self._DMG.groupby(level=2, axis=1).sum()['4_2']>0.
+        DMG_agg = self._DMG.groupby(level=2, axis=1).sum()
+        if '4_2' in DMG_agg.columns:
+            collapse_flag = DMG_agg['4_2']>0.
+        else:
+            collapse_flag = [False] * len(DMG_agg.index)
         self._ID_dict.update({'collapse':
             self._DMG[collapse_flag].index.values.astype(int)})
         # Note: Non-collapse IDs are not updated because we use the same
