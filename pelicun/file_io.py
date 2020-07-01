@@ -800,7 +800,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         if ((depends is not None) and (source_att in depends.keys())):
             data['dependencies'].update({
                 target_att:dependency_to_acronym[depends[source_att]]})
-        elif dv_req == '' or data['decision_variables'][dv_req]:
+        #elif dv_req == '' or data['decision_variables'][dv_req]:
+        else:
             if target_att != 'fragilities':
                 data['dependencies'].update({target_att: 'IND'})
             else:
