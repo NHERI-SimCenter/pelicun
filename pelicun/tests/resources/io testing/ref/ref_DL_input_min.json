@@ -71,7 +71,10 @@
     "fragilities": "ATC",
     "rec_costs": "IND",
     "rec_times": "IND",
-    "cost_and_time": false
+    "cost_and_time": false,
+    "injuries": "IND",
+    "rec_times": "IND",
+    "red_tags": "IND"
   },
   "damage_logic": null
 }

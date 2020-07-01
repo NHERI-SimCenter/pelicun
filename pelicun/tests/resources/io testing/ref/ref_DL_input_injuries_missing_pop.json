@@ -104,7 +104,10 @@
     "quantities": "FG",
     "fragilities": "ATC",
     "injuries": "DIR",
-    "injury_lvls": true
+    "injury_lvls": true,
+    "rec_costs": "IND",
+    "rec_times": "IND",
+    "red_tags": "IND"
   },
   "damage_logic": null
 }

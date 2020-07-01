@@ -27,7 +27,7 @@
             }
         },
         "DamageModel":{
-            "IrrepairableResidualDrift":{
+            "IrreparableResidualDrift":{
                 "YieldDriftRatio":"0.01",
                 "Median": "0.10",
                 "Beta": "0.3"
