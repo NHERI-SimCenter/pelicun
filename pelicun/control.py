@@ -606,7 +606,8 @@ class Assessment(object):
                     dimension_tags=demand_RV.dimension_tags,
                     distribution_kind=demand_RV.distribution_kind,
                     theta=demand_RV.theta,
-                    COV=COV_mod)
+                    COV=COV_mod,
+                    truncation_limits=demand_RV.tr_limits_pre)
 
         return demand_RV
 
