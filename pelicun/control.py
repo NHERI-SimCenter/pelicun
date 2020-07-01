@@ -2272,6 +2272,11 @@ class FEMA_P58_Assessment(Assessment):
                 RID_max[large] = PID_max[large] - 3 * delta_y
                 RID_max[medium] = 0.3 * (PID_max[medium] - delta_y)
                 RID_max[small] = 0.
+
+                # add extra uncertainty
+                eps = np.random.normal(scale=0.2, size=len(ncID) - np.sum(small))
+                RID_max[RID_max>0] = np.exp(np.log(RID_max[RID_max>0]) + eps)
+
             else:
                 # If no drift data is available, then we cannot provide an estimate
                 # of irrepairability. We assume that all non-collapse realizations
