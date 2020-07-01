@@ -169,7 +169,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     log_msg('\t\t\tDamage Model')
     damage = DL_input.get('DamageModel',None)
     if damage is not None:
-        irrep_res_drift = damage.get('IrrepairableResidualDrift', None)
+        irrep_res_drift = damage.get('IrreparableResidualDrift', None)
         coll_prob = damage.get('CollapseProbability', None)
         coll_lims = damage.get('CollapseLimits', None)
         design_lvl = damage.get('DesignLevel', None)
@@ -648,13 +648,13 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
             if key not in data['general']['collapse_limits'].keys():
                 data['general']['collapse_limits'].update({key: None})
 
-        # irrepairable drift
+        # irreparable drift
         if ((damage is not None) and (irrep_res_drift is not None)):
             data['general'].update({
-                'irrepairable_res_drift':
+                'irreparable_res_drift':
                     dict([(key, float_or_None(value)) for key, value in
                           irrep_res_drift.items()])})
-            # TODO: move this in the irrepairable part of general
+            # TODO: move this in the irreparable part of general
             yield_drift = irrep_res_drift.get("YieldDriftRatio", None)
             if yield_drift is not None:
                 data['general'].update({
@@ -666,7 +666,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif ((data['decision_variables']['rec_cost']) or
               (data['decision_variables']['rec_time'])):
             show_warning(
-                "Residual drift limits corresponding to irrepairable "
+                "Residual drift limits corresponding to irreparable "
                 "damage were not defined in the input file. We assume that "
                 "damage is repairable regardless of the residual drift.")
             # we might need to have a default yield drift here
