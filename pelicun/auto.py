@@ -164,6 +164,12 @@ def auto_populate(DL_input_path, EDP_input_path,
 
     is_IM_based = DL_method[-2:] == 'IM'
 
+    stories = BIM_in['numStory']
+    # use only 1 story if DM is based on IM
+    if DL_method == 'HAZUS MH EQ IM':
+        stories = 1
+    BIM_in.update({'stories':stories})
+
     # HAZUS Earthquake
     if DL_method in ['HAZUS MH EQ', 'HAZUS MH EQ IM']:        
 
@@ -173,11 +179,6 @@ def auto_populate(DL_input_path, EDP_input_path,
             bt = EDP_input['structType'].values[0]
 
         year_built = BIM_in['yearBuilt']
-        stories = BIM_in['numStory']
-        # use only 1 story if DM is based on IM
-        if DL_method == 'HAZUS MH EQ IM':
-            stories = 1
-        BIM_in.update({'stories':stories})
 
         if bt not in ['W1', 'W2', 'S3', 'PC1', 'MH']:
             if bt not in ['URM']:
