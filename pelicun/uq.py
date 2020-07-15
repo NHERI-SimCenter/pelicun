@@ -1532,30 +1532,45 @@ class RandomVariable(object):
                 samples = pd.DataFrame(np.transpose(samples),
                                        columns=self._dimension_tags)
             else:
+
                 # sampling the truncated multivariate normal distribution
                 raw_samples = tmvn_rvs(mu=self.mu, COV=self.COV,
                                        lower=self.tr_lower_pre,
                                        upper=self.tr_upper_pre,
                                        size=sample_size)
+
                 raw_samples = np.transpose(raw_samples)
 
                 # enforce post-truncation correlations if needed
                 if self.tr_limits_post is not None:
+
                     lower, upper = self.tr_lower_post, self.tr_upper_post
                     for dim in range(self._ndim):
                         if (lower[dim] > -np.inf) or (upper[dim]<np.inf):
+
                             mu = self.mu[dim]
                             sig = np.sqrt(self.COV[dim,dim])
+
                             samples_U = norm.cdf(raw_samples[dim],loc=mu,scale=sig)
-                            raw_samples[dim] = truncnorm.ppf(
-                                samples_U, loc=mu, scale=sig,
-                                a = (lower[dim]-mu)/sig, b=(upper[dim]-mu)/sig)
+
+                            p_a = norm.cdf((lower[dim]-mu)/sig)
+                            p_b = norm.cdf((upper[dim]-mu)/sig)
+
+                            samples_U = samples_U * (p_b - p_a) + p_a
+
+                            raw_samples[dim] = norm.ppf(samples_U, loc=mu, scale=sig)
+
+                            # truncnorm has been 100x slower since scipy 1.4.1
+                            # so I replaced it with the above solution.
+                            #raw_samples[dim] = truncnorm.ppf(
+                            #    samples_U, loc=mu, scale=sig,
+                            #    a = (lower[dim]-mu)/sig, b=(upper[dim]-mu)/sig)
 
                 # transform samples back from log space if needed
                 samples = self._return_from_log(raw_samples,
                                                 self._distribution_kind)
 
-                samples = pd.DataFrame(data=np.transpose(samples),
+                samples = pd.DataFrame(data=np.transpose(np.atleast_2d(samples)),
                                        index=np.arange(sample_size),
                                        columns=self._dimension_tags)
 
