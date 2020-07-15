@@ -2082,6 +2082,9 @@ class FEMA_P58_Assessment(Assessment):
                                 pd.Series(np.maximum(new_samples.values,EDP_samples.values),
                                           index=EDP_samples.index))
 
+                    # scale the max of inputs by 1.2 as per FEMA P58 vol 2 3.2.3
+                    EDP_samples *= 1.2
+
                 else:
                     demand_ID = (FG._demand_type +
                              '-LOC-' + str(PG._location + FG._demand_location_offset) +
