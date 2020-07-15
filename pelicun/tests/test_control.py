@@ -95,7 +95,7 @@ def test_FEMA_P58_Assessment_central_tendencies():
 
     # FRG
     RV_FRG = A._RV_dict['FR-T0001.001']
-    assert_allclose(RV_FRG.theta, np.array([0.37, 0.5, 0.82]) * g, rtol=0.01)
+    assert_allclose(RV_FRG.theta, np.array([0.444, 0.6, 0.984]) * g, rtol=0.01)
     COV = deepcopy(RV_FRG.COV)
     sig = np.sqrt(np.diagonal(COV))
     assert_allclose(sig, np.array([0.3, 0.4, 0.5]), rtol=0.01)
@@ -2436,8 +2436,8 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
 
         dimtag_target = [4 * 2 * 3, 20 * 2 * 3 * 3, 20 * 2 * 3 * 3,
                          20 * 2 * 3 * 3]
-        theta_target = [[0.04, 0.08], [0.04, 0.06, 0.08],
-                        [2.4516, 4.9033, 9.80665], [2.4516, 4.9033, 9.80665]]
+        theta_target = [[0.048, 0.096], [0.048, 0.072, 0.096],
+                        [2.9419, 5.8840, 11.7680], [2.9419, 5.8840, 11.7680]]
         sig_target = [[0.5, 0.25], [1.0, 0.5, 0.25], [1.0, 0.5, 0.25],
                       [1.0, 0.5, 0.25]]
 
@@ -3124,7 +3124,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
 
                     ndim = len(theta_t)
 
-                    EDP = EDP_list[int(k > 1), story, dir_]
+                    EDP = EDP_list[int(k > 1), story, dir_]*1.2
 
                     DS_ref_all = []
                     DS_ref_any = []

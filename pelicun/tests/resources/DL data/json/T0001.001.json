@@ -15,7 +15,7 @@
     },
     "DSGroups": [
         {
-            "MedianEDP": 0.37,
+            "MedianEDP": 0.444,
             "Beta": 0.3,
             "CurveType": "LogNormal",
             "DSGroupType": "Single",
@@ -64,7 +64,7 @@
             ]
         },
         {
-            "MedianEDP": 0.5,
+            "MedianEDP": 0.6,
             "Beta": 0.4,
             "CurveType": "LogNormal",
             "DSGroupType": "Single",
@@ -113,7 +113,7 @@
             ]
         },
         {
-            "MedianEDP": 0.82,
+            "MedianEDP": 0.984,
             "Beta": 0.5,
             "CurveType": "LogNormal",
             "DSGroupType": "Single",
