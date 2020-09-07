@@ -90,22 +90,17 @@ class RandomVariable(object):
         Provide an expression that is a Python syntax for a custom CDF. The
         controlling variable shall be "x" and the parameters shall be "p1",
         "p2", etc.
-    parent: RandomVariable, optional
-        Provides a direct link to another variable. If the parent is not None,
-        this variable will become an alias for the parent.
-
+    anchor: RandomVariable, optional
+        Anchors this to another variable. If the anchor is not None, this
+        variable will be perfectly correlated with its anchor. Note that
+        the attributes of this variable and its anchor do not have to be
+        identical.
     """
 
     def __init__(self, name, distribution, theta=None, truncation_limits=None,
-                 bounds=None, custom_expr=None, samples=None, parent=None):
+                 bounds=None, custom_expr=None, samples=None, anchor=None):
 
         self.name = name
-
-        # use the parent as reference if it is available
-        if parent is not None:
-            self.ref = parent
-        else:
-            self.ref = self
 
         # save the other parameters internally
         self._distribution = distribution
@@ -114,56 +109,60 @@ class RandomVariable(object):
         self._bounds = bounds
         self._custom_expr = custom_expr
         self._samples = samples
-        self._parent = parent
+        self._uni_samples = None
+        if anchor == None:
+            self._anchor = self
+        else:
+            self._anchor = anchor
 
     @property
     def distribution(self):
         """
         Return the assigned probability distribution type.
         """
-        return self.ref._distribution
+        return self._distribution
 
     @property
     def theta(self):
         """
         Return the assigned probability distribution parameters.
         """
-        return self.ref._theta
+        return self._theta
 
     @property
     def truncation_limits(self):
         """
         Return the assigned truncation limits.
         """
-        return self.ref._truncation_limits
+        return self._truncation_limits
 
     @property
     def bounds(self):
         """
         Return the assigned probability bounds.
         """
-        return self.ref._bounds
+        return self._bounds
 
     @property
     def custom_expr(self):
         """
         Return the assigned custom expression for CDF.
         """
-        return self.ref._custom_expr
+        return self._custom_expr
 
     @property
     def samples(self):
         """
         Return the empirical or generated samples.
         """
-        return self.ref._samples
+        return self._samples
 
     @samples.setter
     def samples(self, value):
         """
         Assign samples to the random variable
         """
-        self.ref._samples = value
+        self._samples = value
 
     @property
     def parent(self):
@@ -182,6 +181,20 @@ class RandomVariable(object):
         uni_samples: float ndarray
             An array of floating point values in the [0, 1] domain.
         """
+
+    @property
+    def anchor(self):
+        """
+        Return the anchor of the variable (if any).
+        """
+        return self._anchor
+
+    @anchor.setter
+    def anchor(self, value):
+        """
+        Assign an anchor to the random variable
+        """
+        self._anchor = value
         if self.distribution == 'normal':
             self.samples = norm.ppf(uni_samples,
                                     loc=self.theta[0], scale=self.theta[1])
