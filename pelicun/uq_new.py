@@ -77,9 +77,9 @@ class RandomVariable(object):
         expected currently for the supported distribution types: normal - mean,
         standard deviation; lognormal - median, log standard deviation; uniform
         - a, b, the lower and upper bounds of the distribution; multinomial -
-        likelihood of all but one unique events (the last event's likelihood is
-        set automatically to ensure the likelihoods sum up to one); custom -
-        according to the custom expression provided; empirical - N/A.
+        likelihood of each unique event (the last event's likelihood is
+        adjusted automatically to ensure the likelihoods sum up to one); custom
+        - according to the custom expression provided; empirical - N/A.
     truncation_limits: float ndarray, optional
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
@@ -250,6 +250,18 @@ class RandomVariable(object):
             new_samples = np.tile(self._raw_samples,
                                   int(new_sample_count/raw_sample_count)+1)
             self.samples = new_samples[:new_sample_count]
+
+        elif self.distribution == 'multinomial':
+
+            p_cum = np.cumsum(self.theta)[:-1]
+
+            samples = self.uni_samples
+
+            for i, p_i in enumerate(p_cum):
+                samples[samples < p_i] = 10 + i
+            samples[samples <= 1.0] = 10 + len(p_cum)
+
+            self.samples = samples - 10
 
 class RandomVariableSet(object):
     """
