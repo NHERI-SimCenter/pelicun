@@ -243,6 +243,14 @@ class RandomVariable(object):
             s_ids = (self.uni_samples * len(self._raw_samples)).astype(int)
             self.samples = self._raw_samples[s_ids]
 
+        elif self.distribution == 'coupled_empirical':
+
+            raw_sample_count = len(self._raw_samples)
+            new_sample_count = len(self.uni_samples)
+            new_samples = np.tile(self._raw_samples,
+                                  int(new_sample_count/raw_sample_count)+1)
+            self.samples = new_samples[:new_sample_count]
+
 class RandomVariableSet(object):
     """
     Description
