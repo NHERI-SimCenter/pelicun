@@ -196,18 +196,47 @@ class RandomVariable(object):
         Assign an anchor to the random variable
         """
         self._anchor = value
+
+    def inverse_transform_sampling(self):
+        """
+        Creates samples using inverse probability integral transformation.
+        """
         if self.distribution == 'normal':
-            self.samples = norm.ppf(uni_samples,
-                                    loc=self.theta[0], scale=self.theta[1])
+            mu, sig = self.theta
+
+            if self.truncation_limits is not None:
+                a, b = self.truncation_limits
+                p_a, p_b = [norm.cdf((lim-mu)/sig) for lim in [a, b]]
+
+                self.samples = norm.ppf(self.uni_samples * (p_b - p_a) + p_a,
+                                        loc=mu, scale=sig)
+
+            else:
+                self.samples = norm.ppf(self.uni_samples,
+                                        loc=mu, scale=sig)
 
         elif self.distribution == 'lognormal':
-            self.samples = np.exp(norm.ppf(uni_samples,
-                                           loc=np.log(self.theta[0]),
-                                           scale=self.theta[1]))
+            theta, beta = self.theta
+
+            if self.truncation_limits is not None:
+                a, b = self.truncation_limits
+                p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
+                            for lim in [a, b]]
+
+                self.samples = np.exp(
+                    norm.ppf(self.uni_samples * (p_b - p_a) + p_a,
+                             loc=np.log(theta), scale=beta))
+
+            else:
+                self.samples = np.exp(norm.ppf(self.uni_samples,
+                                               loc=np.log(theta), scale=beta))
         elif self.distribution == 'uniform':
-            self.samples = uniform.ppf(uni_samples,
-                                       loc=self.theta[0],
-                                       scale=self.theta[1]-self.theta[0])
+            a, b = self.theta
+
+            if self.truncation_limits is not None:
+                a, b = self.truncation_limits
+
+            self.samples = uniform.ppf(self.uni_samples, loc=a, scale=b-a)
 
 class RandomVariableSet(object):
     """
