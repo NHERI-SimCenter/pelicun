@@ -98,7 +98,7 @@ class RandomVariable(object):
     """
 
     def __init__(self, name, distribution, theta=None, truncation_limits=None,
-                 bounds=None, custom_expr=None, samples=None, anchor=None):
+                 bounds=None, custom_expr=None, raw_samples=None, anchor=None):
 
         self.name = name
 
@@ -108,7 +108,7 @@ class RandomVariable(object):
         self._truncation_limits = truncation_limits
         self._bounds = bounds
         self._custom_expr = custom_expr
-        self._samples = samples
+        self._raw_samples = np.atleast_1d(raw_samples)
         self._uni_samples = None
         if anchor == None:
             self._anchor = self
@@ -237,6 +237,11 @@ class RandomVariable(object):
                 a, b = self.truncation_limits
 
             self.samples = uniform.ppf(self.uni_samples, loc=a, scale=b-a)
+
+        elif self.distribution == 'empirical':
+
+            s_ids = (self.uni_samples * len(self._raw_samples)).astype(int)
+            self.samples = self._raw_samples[s_ids]
 
 class RandomVariableSet(object):
     """
