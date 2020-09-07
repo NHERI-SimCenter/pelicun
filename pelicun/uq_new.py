@@ -165,22 +165,23 @@ class RandomVariable(object):
         self._samples = value
 
     @property
-    def parent(self):
+    def uni_samples(self):
         """
+        Return the samples from the controlling uniform distribution.
+        """
+        return self._anchor._uni_samples
 
-        Return the parent of the variable (if any).
+    @uni_samples.setter
+    def uni_samples(self, value):
         """
-        return self._parent
-
-    def inverse_transform_sampling(self, uni_samples):
-        """
-        Creates samples using inverse probability integral transformation.
+        Assign the controlling samples to the random variable
 
         Parameters
         ----------
-        uni_samples: float ndarray
+        value: float ndarray
             An array of floating point values in the [0, 1] domain.
         """
+        self._uni_samples = value
 
     @property
     def anchor(self):
@@ -243,7 +244,7 @@ class RandomVariableSet(object):
         """
         return self._variables
 
-    def apply_correlation(RV_set, U_iid_samples):
+    def apply_correlation(self):
         """
         Apply correlation to n dimensional uniform samples.
 
@@ -252,26 +253,15 @@ class RandomVariableSet(object):
         positive semidefinite and Cholesky fails, use SVD to apply the
         correlations while preserving as much as possible from the correlation
         matrix.
-
-        Parameters
-        ----------
-        U_iid_samples: 2D ndarray of float
-            An array of iid, uniformly distributed floating point values in the
-            [0, 1] domain.
-
-        Returns
-        -------
-        U_corr_samples: 2D ndarray of float
-            An array of correlated, uniformly distributed values in n
-            dimensions.
         """
-        U_RV = U_iid_samples  # just for the sake of convenience
+
+        U_RV = np.array([RV.uni_samples for RV_name, RV in self.RV.items()])
 
         # First try doing the Cholesky transformation
         try:
             N_RV = norm.ppf(U_RV)
 
-            L = cholesky(RV_set._Rho, lower=True)
+            L = cholesky(self._Rho, lower=True)
 
             NC_RV = L @ N_RV
 
@@ -283,16 +273,16 @@ class RandomVariableSet(object):
             # time-consuming but more robust approach based on SVD
             N_RV = norm.ppf(U_RV)
 
-            U, s, __ = svd(RV_set._Rho, )
+            U, s, __ = svd(self._Rho, )
             S = np.diagflat(np.sqrt(s))
 
             NC_RV = (N_RV.T @ S @ U.T).T
 
             UC_RV = norm.cdf(NC_RV)
 
-        U_corr_samples = UC_RV
 
-        return U_corr_samples
+        for (RV_name, RV), uc_RV in zip(self.RV.items(), UC_RV):
+            RV.uni_samples = uc_RV
 
 class RandomVariableRegistry(object):
     """
@@ -363,11 +353,13 @@ class RandomVariableRegistry(object):
         # Initialize the random number generator
         rng = np.random.default_rng(seed)
 
-        # Generate a dictionary with IDs
-        RV_ID = dict([(RV_name, ID) for ID, RV_name in enumerate(self.RV)])
+        # Generate a dictionary with IDs of the free (non-anchored) variables
+        RV_list = [RV_name for RV_name, RV in self.RV.items() if
+                   RV.anchor == RV]
+        RV_ID = dict([(RV_name, ID) for ID, RV_name in enumerate(RV_list)])
         RV_count = len(RV_ID)
 
-        # Generate samples from a uniform distribution for every RV
+        # Generate controlling samples from a uniform distribution for free RVs
         if 'LHS' in method:
             bin_low = np.array([rng.permutation(sample_size)
                                 for i in range(RV_count)])
@@ -383,13 +375,15 @@ class RandomVariableRegistry(object):
         elif method == 'random':
             U_RV = rng.random(size=[RV_count, sample_size])
 
-        # Apply correlations for the pre-defined sets
-        for RV_set_name, RV_set in self.RV_set.items():
-            # get the list of random variables in the set
-            set_ID_list = [RV_ID[name] for name in RV_set.RV.keys()]
-            # prepare the correlated uniform distribution for the set
-            U_RV[set_ID_list] = RV_set.apply_correlation(U_RV[set_ID_list])
+        # Assign the controlling samples to the RVs
+        for RV_name, RV_id in RV_ID.items():
+            self.RV[RV_name].uni_samples = U_RV[RV_id]
 
-        # Convert from uniform to the target distribution for each variable
-        for (RV_name, RV), u_RV in zip(self.RV.items(), U_RV):
-            RV.inverse_transform_sampling(u_RV)
+        # Apply correlations for the pre-defined RV sets
+        for RV_set_name, RV_set in self.RV_set.items():
+            # prepare the correlated uniform distribution for the set
+            RV_set.apply_correlation()
+
+        # Convert from uniform to the target distribution for every RV
+        for RV_name, RV in self.RV.items():
+            RV.inverse_transform_sampling()
