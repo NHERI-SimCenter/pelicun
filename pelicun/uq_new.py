@@ -45,6 +45,8 @@ quantification in pelicun.
 
 .. autosummary::
 
+    mvn_orthotope_density
+    fit_distribution
     RandomVariable
     RandomVariableSet
     RandomVariableRegistry
@@ -55,10 +57,501 @@ quantification in pelicun.
 from .base import *
 
 from scipy.stats import uniform, norm
+from scipy.stats import multivariate_normal as mvn
+from scipy.stats.mvn import mvndst
 from scipy.linalg import cholesky, svd
+from scipy.optimize import minimize
 
 import warnings
 
+
+def mvn_orthotope_density(mu, COV, lower=None, upper=None):
+    """
+    Estimate the probability density within a hyperrectangle for an MVN distr.
+
+    Use the method of Alan Genz (1992) to estimate the probability density
+    of a multivariate normal distribution within an n-orthotope (i.e.,
+    hyperrectangle) defined by its lower and upper bounds. Limits can be
+    relaxed in any direction by assigning infinite bounds (i.e. numpy.inf).
+
+    Parameters
+    ----------
+    mu: float scalar or ndarray
+        Mean(s) of the non-truncated distribution.
+    COV: float ndarray
+        Covariance matrix of the non-truncated distribution
+    lower: float vector, optional, default: None
+        Lower bound(s) for the truncated distributions. A scalar value can be
+        used for a univariate case, while a list of bounds is expected in
+        multivariate cases. If the distribution is non-truncated from below
+        in a subset of the dimensions, use either `None` or assign an infinite
+        value (i.e. -numpy.inf) to those dimensions.
+    upper: float vector, optional, default: None
+        Upper bound(s) for the truncated distributions. A scalar value can be
+        used for a univariate case, while a list of bounds is expected in
+        multivariate cases. If the distribution is non-truncated from above
+        in a subset of the dimensions, use either `None` or assign an infinite
+        value (i.e. numpy.inf) to those dimensions.
+    Returns
+    -------
+    alpha: float
+        Estimate of the probability density within the hyperrectangle
+    eps_alpha: float
+        Estimate of the error in alpha.
+
+    """
+
+    # process the inputs and get the number of dimensions
+    mu = np.atleast_1d(mu)
+    COV = np.atleast_2d(COV)
+
+    if mu.shape == ():
+        mu = np.asarray([mu])
+        COV = np.asarray([COV])
+    else:
+        COV = np.asarray(COV)
+
+    sig = np.sqrt(np.diag(COV))
+    corr = COV / np.outer(sig, sig)
+
+    ndim = mu.size
+
+    if lower is None:
+        lower = -np.ones(ndim) * np.inf
+    else:
+        lower = np.atleast_1d(lower)
+
+    if upper is None:
+        upper = np.ones(ndim) * np.inf
+    else:
+        upper = np.atleast_1d(upper)
+
+    # standardize the truncation limits
+    lower = (lower - mu) / sig
+    upper = (upper - mu) / sig
+
+    # prepare the flags for infinite bounds (these are needed for the mvndst
+    # function)
+    lowinf = np.isneginf(lower)
+    uppinf = np.isposinf(upper)
+    infin = 2.0 * np.ones(ndim)
+
+    np.putmask(infin, lowinf, 0)
+    np.putmask(infin, uppinf, 1)
+    np.putmask(infin, lowinf * uppinf, -1)
+
+    # prepare the correlation coefficients
+    if ndim == 1:
+        correl = 0
+    else:
+        correl = corr[np.tril_indices(ndim, -1)]
+
+    # estimate the density
+    eps_alpha, alpha, __ = mvndst(lower, upper, infin, correl)
+
+    return alpha, eps_alpha
+
+
+def get_theta(params, inits, distribution):
+
+    theta = np.zeros(inits.shape)
+
+    for i, (params_i, inits_i) in enumerate(zip(params, inits)):
+
+        if distribution == 'normal':
+            sig = np.exp(np.log(inits_i[1]) + params_i[1])
+            mu = inits_i[0] + params_i[0] * sig
+            theta[i, 0] = mu
+            theta[i, 1] = sig
+
+    return theta
+
+
+def _get_limit_probs(limits, distribution, theta):
+
+    if distribution == 'normal':
+
+        a, b = limits
+        mu = theta[0]
+        sig = theta[1]
+
+        if a is not None:
+            p_a = norm.cdf((a - mu) / sig)
+        else:
+            p_a = 0.0
+
+        if b is not None:
+            p_b = norm.cdf((b - mu) / sig)
+        else:
+            p_b = 1.0
+
+    return p_a, p_b
+
+
+def _get_std_samples(samples, theta, tr_limits, distribution):
+
+    ndims = samples.shape[0]
+
+    std_samples = np.zeros(samples.shape)
+
+    for i, (samples_i, theta_i, tr_lim_i) in enumerate(
+        zip(samples, theta, tr_limits)):
+        if distribution == 'normal':
+            # consider truncation if needed
+            p_a, p_b = _get_limit_probs(tr_lim_i, distribution, theta_i)
+            uni_samples = (norm.cdf(samples_i, loc=theta_i[0],
+                                    scale=theta_i[1]) - p_a) / (p_b - p_a)
+            std_samples[i] = norm.ppf(uni_samples, loc=0., scale=1.)
+
+    return std_samples
+
+
+def _get_std_corr_matrix(std_samples):
+
+    n_dims, n_samples = std_samples.shape
+
+    rho_hat = np.zeros((n_dims, n_dims))
+    np.fill_diagonal(rho_hat, 1.0)
+    for dim_i in range(n_dims):
+        for dim_j in np.arange(dim_i + 1, n_dims):
+            rho_hat[dim_i, dim_j] = np.sum(
+                std_samples[dim_i] * std_samples[dim_j]) / n_samples
+            rho_hat[dim_j, dim_i] = rho_hat[dim_i, dim_j]
+
+    # make sure rho_hat is positive semidefinite
+    try:
+        L = cholesky(rho_hat, lower=True)  # if this works, we're good
+
+    except:  # otherwise, we can try to fix the matrix using SVD
+
+        try:
+            U, s, V = svd(rho_hat, )
+        except:
+            return None
+
+        S = np.diagflat(s)
+
+        rho_hat = U @ S @ U.T
+        np.fill_diagonal(rho_hat, 1.0)
+
+        if ((np.max(rho_hat) > 1.0) or (np.min(rho_hat) < -1.0)):
+            return None
+
+    return rho_hat
+
+
+def _mvn_scale(x, rho):
+
+    x = np.atleast_2d(x)
+    n_dims = x.shape[1]
+
+    rho_0 = np.zeros((n_dims, n_dims))
+    np.fill_diagonal(rho_0, 1)
+    a = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho_0)
+
+    b = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho)
+
+    return b / a
+
+
+def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
+                        distribution, tr_limits, det_limits, censored_count,
+                        enforce_bounds=False):
+
+    # First, check if the parameters are within the pre-defined bounds
+    if enforce_bounds:
+        if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
+            # if they are not, then return a large value to discourage the
+            # optimization algorithm from going in that direction
+            return 1e10
+
+    # If there is nan in params, return a large value
+    if np.isnan(np.sum(params)):
+        return 1e10
+
+    params = np.reshape(params, inits.shape)
+    n_dims, n_samples = samples.shape
+
+    theta = get_theta(params, inits, distribution)
+
+    likelihoods = np.zeros(samples.shape)
+
+    # calculate the marginal likelihoods
+    for i, (theta_i, samples_i, tr_lim_i) in enumerate(
+        zip(theta, samples, tr_limits)):
+
+        # consider truncation if needed
+        p_a, p_b = _get_limit_probs(tr_lim_i, distribution, theta_i)
+        tr_alpha = p_b - p_a  # this is the probability mass within the
+        # truncation limits
+
+        # calculate the likelihood for each available sample
+        if distribution == 'normal':
+            likelihoods[i] = norm.pdf(samples_i, loc=theta_i[0],
+                                      scale=theta_i[1]) / tr_alpha
+
+    # transform every sample into standard normal space and get the correlation
+    # matrix
+    std_samples = _get_std_samples(samples, theta, tr_limits, distribution)
+    rho_hat = _get_std_corr_matrix(std_samples)
+    if rho_hat is None:
+        return 1e10
+
+    # likelihoods related to censoring need to be handled together
+    if censored_count > 0:
+
+        det_lower = np.zeros(n_dims)
+        det_upper = np.zeros(n_dims)
+
+        for i, (theta_i, tr_lim_i, det_lim_i) in enumerate(
+            zip(theta, tr_limits, det_limits)):
+            # also prepare the standardized detection limits
+            p_a, p_b = _get_limit_probs(tr_lim_i, distribution, theta_i)
+            p_l, p_u = _get_limit_probs(det_lim_i, distribution, theta_i)
+
+            # rescale to consider truncation
+            p_l, p_u = [np.min([np.max([lim, p_a]), p_b]) for lim in [p_l, p_u]]
+            p_l, p_u = [(lim - p_a) / (p_b - p_a) for lim in [p_l, p_u]]
+
+            det_lower[i], det_upper[i] = norm.ppf([p_l, p_u], loc=0., scale=1.)
+
+        # get the likelihood of censoring a sample
+        det_alpha, eps_alpha = mvn_orthotope_density(np.zeros(n_dims), rho_hat,
+                                                     det_lower, det_upper)
+
+        # Make sure that det_alpha is estimated with sufficient accuracy
+        if det_alpha <= 100. * eps_alpha:
+            return 1e10
+
+        # make sure that the likelihood is a positive number
+        cen_likelihood = max(1.0 - det_alpha, np.nextafter(0, 1))
+
+    else:
+        # If the data is not censored, use 1.0 for cen_likelihood to get a
+        # zero log-likelihood later. Note that although this is
+        # theoretically not correct, it does not alter the solution and
+        # it is numerically much more convenient than working around the
+        # log of zero likelihood.
+        cen_likelihood = 1.0
+
+    # flatten the likelihoods calculated in each dimension
+    try:
+        scale = _mvn_scale(std_samples.T, rho_hat)
+    except:
+        return 1e10
+    likelihoods = np.prod(likelihoods, axis=0) * scale
+
+    # Zeros are a result of limited floating point precision. Replace them
+    # with the smallest possible positive floating point number to
+    # improve convergence.
+    likelihoods = np.clip(likelihoods, a_min=np.nextafter(0, 1), a_max=None)
+
+    # calculate the total negative log likelihood
+    NLL = -(np.sum(np.log(likelihoods))  # from samples
+            + censored_count * np.log(cen_likelihood))  # censoring influence
+
+    # normalize the NLL with the sample count
+    NLL = NLL / samples.size
+
+    # print(theta[0], NLL)
+
+    return NLL
+
+def fit_distribution(raw_samples, distribution, truncation_limits=[None, None],
+                     censored_count=0, detection_limits=[None, None],
+                     multi_fit=False, alpha_lim=1e-4):
+    """
+    Fit a distribution to samples using maximum likelihood estimation.
+
+    The number of dimensions of the distribution are inferred from the
+    shape of the sample data. Censoring is automatically considered if the
+    number of censored samples and the corresponding detection limits are
+    provided. Infinite or unspecified truncation limits lead to fitting a
+    non-truncated distribution in that dimension.
+
+    Parameters
+    ----------
+    raw_samples: float ndarray
+        Raw data that serves as the basis of estimation. The number of samples
+        equals the number of columns and each row introduces a new feature. In
+        other words: a list of sample lists is expected where each sample list
+        is a collection of samples of one variable.
+    distribution: {'normal', 'lognormal'}
+        Defines the target probability distribution type. Different types of
+        distributions can be mixed by providing a list rather than a single
+        value. Each element of the list corresponds to one of the features in
+        the raw_samples.
+    truncation_limits: float ndarray, optional, default: [None, None]
+        Lower and/or upper truncation limits for the specified distributions.
+        A two-element vector can be used for a univariate case, while two lists
+        of limits are expected in multivariate cases. If the distribution is
+        non-truncated from one side in a subset of the dimensions, use either
+        `None` or assign an infinite value (i.e. numpy.inf) to those dimensions.
+    censored_count: int, optional, default: None
+        The number of censored samples that are beyond the detection limits.
+        All samples outside the detection limits are aggregated into one set.
+        This works the same way in one and in multiple dimensions. Prescription
+        of specific censored sample counts for sub-regions of the input space
+        outside the detection limits is not supported.
+    detection_limits: float ndarray, optional, default: [None, None]
+        Lower and/or upper detection limits for the provided samples. A
+        two-element vector can be used for a univariate case, while two lists
+        of limits are expected in multivariate cases. If the data is not
+        censored from one side in a subset of the dimensions, use either `None`
+        or assign an infinite value (i.e. numpy.inf) to those dimensions.
+    multi_fit: bool, optional, default: False
+        If True, we attempt to fit a multivariate distribution to the samples.
+        Otherwise, we fit each marginal univariate distribution independently
+        and estimate the correlation matrix in the end based on the fitted
+        marginals. Using multi_fit can be advantageous with censored data and
+        if the correlation in the data is not Gaussian. It leads to
+        substantially longer calculation time and does not always produce
+        better results, especially when the number of dimensions is large.
+    alpha_lim: float, optional, default:None
+        Introduces a lower limit to the probability density within the
+        n-orthotope defined by the truncation limits. Assigning a reasonable
+        minimum (such as 1e-4) can be useful when the mean of the distribution
+        is several standard deviations from the truncation limits and the
+        sample size is small. Such cases without a limit often converge to
+        distant means with inflated variances. Besides being incorrect
+        estimates, those solutions only offer negligible reduction in the
+        negative log likelihood, while making subsequent sampling of the
+        truncated normal distribution very challenging.
+
+    Returns
+    -------
+    theta: float ndarray
+        Estimates of the parameters of the fitted probability distribution in
+        each dimension. The following parameters are returned for the supported
+        distributions:
+        normal - mean, standard deviation;
+        lognormal - median, log standard deviation;
+    Rho: float 2D ndarray, optional
+        In the multivariate case, returns the estimate of the correlation
+        matrix.
+    """
+    samples = np.atleast_2d(raw_samples)
+    tr_limits = np.atleast_2d(truncation_limits)
+    det_limits = np.atleast_2d(detection_limits)
+    n_dims, n_samples = samples.shape
+
+    if (tr_limits.shape[0] == 1) and (samples.shape[0] != 1):
+        tr_limits = np.tile(tr_limits[0], samples.shape[0]
+                            ).reshape([samples.shape[0], 2])
+
+    if (det_limits.shape[0] == 1) and (samples.shape[0] != 1):
+        det_limits = np.tile(det_limits[0], samples.shape[0]
+                             ).reshape([samples.shape[0], 2])
+
+    # Define initial values of distribution parameters
+    if distribution == 'normal':
+        # use the first two moments for normal distribution
+        mu_init = np.mean(samples, axis=1)
+
+        # replace zero standard dev with negligible standard dev
+        sig_init = np.std(samples, axis=1)
+        sig_zero_id = np.where(sig_init == 0.0)[0]
+        sig_init[sig_zero_id] = 1e-6 * np.abs(mu_init[sig_zero_id])
+
+        # prepare a vector of initial values
+        # Note: The actual optimization uses zeros as initial parameters to
+        # avoid bias from different scales. These initial values are sent to
+        # the likelihood function and considered in there.
+        inits = np.transpose([mu_init, sig_init])
+
+        # Define the bounds for each input (assuming standardized initials)
+        # These bounds help avoid unrealistic results and improve the
+        # convergence rate
+        bnd_lower = np.array([[-10.0, -5.0] for t in range(n_dims)])
+        bnd_upper = np.array([[10.0, 5.0] for t in range(n_dims)])
+
+    bnd_lower = bnd_lower.flatten()
+    bnd_upper = bnd_upper.flatten()
+
+    #inits_0 = np.copy(inits)
+
+    # There is nothing to gain from a time-consuming optimization if..
+    #     the number of samples is too small
+    if ((n_samples < 3) or
+        # there are no truncation or detection limits involved
+        (np.all(tr_limits == None) and np.all(det_limits == None))):
+
+        # In this case, it is typically hard to improve on the method of
+        # moments estimates for the parameters of the marginal distributions
+        theta = inits
+
+    # Otherwise, we run the optimization that aims to find the parameters that
+    # maximize the likelihood of observing the samples
+    else:
+
+        # First, optimize for each marginal independently
+        for dim in range(n_dims):
+
+            inits_i = inits[dim:dim + 1]
+
+            tr_limits_i = [None, None]
+            for lim in range(2):
+                if ((tr_limits[dim][lim] is None) and
+                    (det_limits[dim][lim] is not None)):
+                    tr_limits_i[lim] = det_limits[dim][lim]
+                elif det_limits[dim][lim] is not None:
+                    tr_limits_i[lim] = np.max(tr_limits[dim][lim],
+                                              det_limits[dim][lim])
+                else:
+                    tr_limits_i[lim] = tr_limits[dim][lim]
+
+            out_m_i = minimize(_neg_log_likelihood,
+                               np.zeros(inits[dim].size),
+                               args=(inits_i,
+                                     bnd_lower[dim:dim + 1],
+                                     bnd_upper[dim:dim + 1],
+                                     samples[dim:dim + 1],
+                                     distribution,
+                                     [tr_limits_i, ],
+                                     [None, None],
+                                     0, True,),
+                               method='BFGS',
+                               options=dict(maxiter=50)
+                               )
+
+            out = out_m_i.x.reshape(inits_i.shape)
+            theta = get_theta(out, inits_i, distribution)
+            inits[dim] = theta[0]
+
+        # Second, if requested, we attempt the multivariate fitting using the
+        # marginal results as initial parameters.
+        if multi_fit:
+
+            out_m = minimize(_neg_log_likelihood,
+                             np.zeros(inits.size),
+                             args=(inits, bnd_lower, bnd_upper, samples,
+                                   distribution, tr_limits, det_limits,
+                                   censored_count, True,),
+                             method='BFGS',
+                             options=dict(maxiter=50)
+                             )
+
+            out = out_m.x.reshape(inits.shape)
+            theta = get_theta(out, inits, distribution)
+
+        else:
+            theta = inits
+
+    # Calculate rho in the standard normal space because we will generate new
+    # samples using that type of correlation (i.e., Gaussian copula)
+    std_samples = _get_std_samples(samples, theta, tr_limits, distribution)
+    rho_hat = _get_std_corr_matrix(std_samples)
+    if rho_hat is None:
+        # If there is not enough data to produce a valid correlation matrix
+        # estimate, we assume independence
+        # TODO: provide a warning for the user
+        rho_hat = np.zeros((n_dims, n_dims))
+        np.fill_diagonal(rho_hat, 1.0)
+
+    #for val in list(zip(inits_0, theta)):
+    #    print(val)
+
+    return theta, rho_hat
 
 class RandomVariable(object):
     """
@@ -68,18 +561,21 @@ class RandomVariable(object):
     ----------
     name: string
         A unique string that identifies the random variable.
-    distribution: {'normal', 'lognormal', 'multinomial', 'custom', 'empirical'
-        }, optional
+    distribution: {'normal', 'lognormal', 'multinomial', 'custom', 'empirical',
+        'coupled_empirical', 'uniform'}, optional
         Defines the type of probability distribution for the random variable.
     theta: float scalar or ndarray, optional
         Set of parameters that define the cumulative distribution function of
         the variable given its distribution type. The following parameters are
-        expected currently for the supported distribution types: normal - mean,
-        standard deviation; lognormal - median, log standard deviation; uniform
-        - a, b, the lower and upper bounds of the distribution; multinomial -
-        likelihood of each unique event (the last event's likelihood is
-        adjusted automatically to ensure the likelihoods sum up to one); custom
-        - according to the custom expression provided; empirical - N/A.
+        expected currently for the supported distribution types:
+        normal - mean, standard deviation;
+        lognormal - median, log standard deviation;
+        uniform - a, b, the lower and upper bounds of the distribution;
+        multinomial - likelihood of each unique event (the last event's
+        likelihood is adjusted automatically to ensure the likelihoods sum up
+        to one);
+        custom - according to the custom expression provided;
+        empirical and coupled_empirical - N/A.
     truncation_limits: float ndarray, optional
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
@@ -386,7 +882,7 @@ class RandomVariableRegistry(object):
         return dict([(name, rv.samples) for name,rv in self.RV.items()])
 
 
-    def generate_samples(self, sample_size, method='LHS_midpoint', seed=1):
+    def generate_samples(self, sample_size, method='LHS_midpoint', seed=None):
         """
         Generates samples for all variables in the registry.
 
