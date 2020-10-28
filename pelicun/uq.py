@@ -126,6 +126,12 @@ def mvn_orthotope_density(mu, COV, lower=None, upper=None):
     else:
         upper = np.atleast_1d(upper)
 
+    # replace None with np.inf
+    lower[np.where(lower == None)[0]] = -np.inf
+    lower = lower.astype(np.float64)
+    upper[np.where(upper == None)[0]] = np.inf
+    upper = upper.astype(np.float64)
+
     # standardize the truncation limits
     lower = (lower - mu) / sig
     upper = (upper - mu) / sig
@@ -720,10 +726,87 @@ class RandomVariable(object):
         """
         self._anchor = value
 
-    def inverse_transform_sampling(self):
+    def cdf(self, values):
         """
-        Creates samples using inverse probability integral transformation.
+        Returns the cdf at the given values
         """
+        result = None
+
+        if self.distribution == 'normal':
+            mu, sig = self.theta
+
+            if self.truncation_limits is not None:
+                a, b = self.truncation_limits
+
+                if a is None:
+                    a = -np.inf
+                if b is None:
+                    b = np.inf
+
+                p_a, p_b = [norm.cdf((lim - mu) / sig) for lim in [a, b]]
+
+                # cap the values at the truncation limits
+                values = np.minimum(np.maximum(values, a), b)
+
+                # get the cdf from a non-truncated normal
+                p_vals = norm.cdf(values, loc=mu, scale=sig)
+
+                # adjust for truncation
+                result = (p_vals - p_a) / (p_b - p_a)
+
+            else:
+                result = norm.cdf(values, loc=mu, scale=sig)
+
+        elif self.distribution == 'lognormal':
+            theta, beta = self.theta
+
+            if self.truncation_limits is not None:
+                a, b = self.truncation_limits
+
+                if a is None:
+                    a = np.nextafter(0, 1)
+                if b is None:
+                    b = np.inf
+
+                p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
+                            for lim in [a, b]]
+
+                # cap the values at the truncation limits
+                values = np.minimum(np.maximum(values, a), b)
+
+                # get the cdf from a non-truncated lognormal
+                p_vals = norm.cdf(np.log(values), loc=np.log(theta), scale=beta)
+
+                # adjust for truncation
+                result = (p_vals - p_a) / (p_b - p_a)
+
+            else:
+                values = np.maximum(values, np.nextafter(0, 1))
+
+                result = norm.cdf(np.log(values), loc=np.log(theta), scale=beta)
+
+        elif self.distribution == 'uniform':
+            a, b = self.theta
+
+            if a is None:
+                a = -np.inf
+            if b is None:
+                b = np.inf
+
+            if self.truncation_limits is not None:
+                a, b = self.truncation_limits
+
+            result = uniform.cdf(values, loc=a, scale=b-a)
+
+        return result
+
+
+    def inverse_transform(self, values):
+        """
+        Uses inverse probability integral transformation on the provided values.
+        """
+        result = None
+
         if self.distribution == 'normal':
             mu, sig = self.theta
 
@@ -746,11 +829,11 @@ class RandomVariable(object):
                         "the distribution."
                     )
 
-                self.samples = norm.ppf(self.uni_samples * (p_b - p_a) + p_a,
+                result = norm.ppf(values * (p_b - p_a) + p_a,
                                         loc=mu, scale=sig)
 
             else:
-                self.samples = norm.ppf(self.uni_samples,
+                result = norm.ppf(values,
                                         loc=mu, scale=sig)
 
         elif self.distribution == 'lognormal':
@@ -761,18 +844,21 @@ class RandomVariable(object):
 
                 if a is None:
                     a = np.nextafter(0, 1)
+                else:
+                    a = np.maximum(np.nextafter(0, 1), a)
+
                 if b is None:
                     b = np.inf
 
                 p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
                             for lim in [a, b]]
 
-                self.samples = np.exp(
-                    norm.ppf(self.uni_samples * (p_b - p_a) + p_a,
+                result = np.exp(
+                    norm.ppf(values * (p_b - p_a) + p_a,
                              loc=np.log(theta), scale=beta))
 
             else:
-                self.samples = np.exp(norm.ppf(self.uni_samples,
+                result = np.exp(norm.ppf(values,
                                                loc=np.log(theta), scale=beta))
         elif self.distribution == 'uniform':
             a, b = self.theta
@@ -785,32 +871,41 @@ class RandomVariable(object):
             if self.truncation_limits is not None:
                 a, b = self.truncation_limits
 
-            self.samples = uniform.ppf(self.uni_samples, loc=a, scale=b-a)
+            result = uniform.ppf(values, loc=a, scale=b-a)
 
         elif self.distribution == 'empirical':
 
-            s_ids = (self.uni_samples * len(self._raw_samples)).astype(int)
-            self.samples = self._raw_samples[s_ids]
+            s_ids = (values * len(self._raw_samples)).astype(int)
+            result = self._raw_samples[s_ids]
 
         elif self.distribution == 'coupled_empirical':
 
             raw_sample_count = len(self._raw_samples)
-            new_sample_count = len(self.uni_samples)
+            new_sample_count = len(values)
             new_samples = np.tile(self._raw_samples,
                                   int(new_sample_count/raw_sample_count)+1)
-            self.samples = new_samples[:new_sample_count]
+            result = new_samples[:new_sample_count]
 
         elif self.distribution == 'multinomial':
 
             p_cum = np.cumsum(self.theta)[:-1]
 
-            samples = self.uni_samples
+            samples = values
 
             for i, p_i in enumerate(p_cum):
                 samples[samples < p_i] = 10 + i
             samples[samples <= 1.0] = 10 + len(p_cum)
 
-            self.samples = samples - 10
+            result = samples - 10
+
+        return result
+
+    def inverse_transform_sampling(self):
+        """
+        Creates samples using inverse probability integral transformation.
+        """
+
+        self.samples = self.inverse_transform(self.uni_samples)
 
 class RandomVariableSet(object):
     """
@@ -832,13 +927,19 @@ class RandomVariableSet(object):
 
         self.name = name
 
-        # put the RVs in a dictionary for more efficient access
-        reorder = np.argsort([RV.name for RV in RV_list])
-        self._variables = dict([(RV_list[i].name, RV_list[i]) for i in reorder])
+        if len(RV_list) > 1:
 
-        # reorder the entries in the correlation matrix to correspond to the
-        # sorted list of RVs
-        self._Rho = Rho[(reorder)].T[(reorder)].T
+            # put the RVs in a dictionary for more efficient access
+            reorder = np.argsort([RV.name for RV in RV_list])
+            self._variables = dict([(RV_list[i].name, RV_list[i]) for i in reorder])
+
+            # reorder the entries in the correlation matrix to correspond to the
+            # sorted list of RVs
+            self._Rho = Rho[(reorder)].T[(reorder)].T
+
+        else: # if there is only one variable (for testing, probably)
+            self._variables = dict([(rv.name, rv) for rv in RV_list])
+            self._Rho = Rho
 
     @property
     def RV(self):
@@ -846,6 +947,21 @@ class RandomVariableSet(object):
         Return the random variable(s) assigned to the set
         """
         return self._variables
+
+    @property
+    def size(self):
+        """
+        Return the size (i.e., number of variables in the) RV set
+        """
+        return len(self._variables)
+
+    @property
+    def samples(self):
+        """
+        Return the samples of the variables in the set
+        """
+        return dict([(name, rv.samples) for name, rv
+                     in self._variables.items()])
 
     def apply_correlation(self):
         """
@@ -885,6 +1001,68 @@ class RandomVariableSet(object):
 
         for (RV_name, RV), uc_RV in zip(self.RV.items(), UC_RV):
             RV.uni_samples = uc_RV
+
+    def orthotope_density(self, lower=None, upper=None):
+        """
+        Estimate the probability density within an orthotope for the RV set.
+
+        Use the mvn_orthotope_density function in this module for the
+        calculation. The distribution of individual RVs is not limited to the
+        normal family. The provided limits are converted to the standard normal
+        space that is the basis of all RVs in pelicun. Truncation limits and
+        correlation (using Gaussian copula) are automatically taken into
+        consideration.
+
+        Parameters
+        ----------
+        lower: float ndarray, optional, default: None
+            Lower bound(s) of the orthotope. A scalar value can be used for a
+            univariate RV; a list of bounds is expected in multivariate cases.
+            If the orthotope is not bounded from below in a dimension, use
+            'None' to that dimension.
+        upper: float ndarray, optional, default: None
+            Upper bound(s) of the orthotope. A scalar value can be used for a
+            univariate RV; a list of bounds is expected in multivariate cases.
+            If the orthotope is not bounded from above in a dimension, use
+            'None' to that dimension.
+
+        Returns
+        -------
+        alpha: float
+            Estimate of the probability density within the orthotope.
+        eps_alpha: float
+            Estimate of the error in alpha.
+
+        """
+
+        if lower is not None:
+            target_shape = lower.shape
+        elif upper is not None:
+            target_shape = upper.shape
+        else:
+            return 1.0
+
+        lower_std = np.full(target_shape, None)
+        upper_std = np.full(target_shape, None)
+
+        # first, convert limits to standard normal values
+        for var_i, (var_name, var) in enumerate(self._variables.items()):
+
+            if (lower is not None) and (lower[var_i] is not None):
+                lower_std[var_i] = norm.ppf(var.cdf(lower[var_i]), loc=0, scale=1)
+
+            if (upper is not None) and (upper[var_i] is not None):
+                upper_std[var_i] = norm.ppf(var.cdf(upper[var_i]), loc=0, scale=1)
+
+        # then calculate the orthotope results in std normal space
+        lower_std = lower_std.T
+        upper_std = upper_std.T
+
+        OD = [mvn_orthotope_density(mu=np.zeros(self.size), COV=self._Rho,
+                                    lower=l_i, upper=u_i)[0]
+              for l_i, u_i in zip(lower_std, upper_std)]
+
+        return np.asarray(OD)
 
 class RandomVariableRegistry(object):
     """
