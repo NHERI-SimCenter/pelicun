@@ -452,6 +452,15 @@ def fit_distribution(raw_samples, distribution, truncation_limits=[None, None],
     # Convert samples to log space if the distribution is lognormal
     if distribution == 'lognormal':
         samples = np.log(samples)
+        for dim in range(tr_limits.shape[0]):
+            for var in range(tr_limits.shape[1]):
+                if tr_limits[dim][var] is not None:
+                    tr_limits[dim][var] = np.log(tr_limits[dim][var])
+        for dim in range(det_limits.shape[0]):
+            for var in range(det_limits.shape[1]):
+                if det_limits[dim][var] is not None:
+                    det_limits[dim][var] = np.log(det_limits[dim][var])
+
 
     # Define initial values of distribution parameters
     if distribution in ['normal', 'lognormal']:
@@ -530,7 +539,7 @@ def fit_distribution(raw_samples, distribution, truncation_limits=[None, None],
 
         # Second, if requested, we attempt the multivariate fitting using the
         # marginal results as initial parameters.
-        if multi_fit:
+        if multi_fit or (censored_count > 0):
 
             out_m = minimize(_neg_log_likelihood,
                              np.zeros(inits.size),
@@ -639,6 +648,7 @@ class RandomVariable(object):
         self._custom_expr = custom_expr
         self._raw_samples = np.atleast_1d(raw_samples)
         self._uni_samples = None
+        self._RV_set = None
         if anchor == None:
             self._anchor = self
         else:
@@ -657,6 +667,13 @@ class RandomVariable(object):
         Return the assigned probability distribution parameters.
         """
         return self._theta
+
+    @theta.setter
+    def theta(self, value):
+        """
+        Assign an anchor to the random variable
+        """
+        self._theta = value
 
     @property
     def truncation_limits(self):
@@ -680,11 +697,32 @@ class RandomVariable(object):
         return self._custom_expr
 
     @property
+    def RV_set(self):
+        """
+        Return the RV_set this RV is a member of
+        """
+        return self._RV_set
+
+    @RV_set.setter
+    def RV_set(self, value):
+        """
+         Assign an RV_set to this RV
+        """
+        self._RV_set = value
+
+    @property
     def samples(self):
         """
         Return the empirical or generated samples.
         """
         return self._samples
+
+    @property
+    def samples_DF(self):
+        """
+        Return the empirical or generated samples in a pandas Series.
+        """
+        return self._samples_DF
 
     @samples.setter
     def samples(self, value):
@@ -692,6 +730,7 @@ class RandomVariable(object):
         Assign samples to the random variable
         """
         self._samples = value
+        self._samples_DF = pd.Series(value)
 
     @property
     def uni_samples(self):
@@ -833,8 +872,7 @@ class RandomVariable(object):
                                         loc=mu, scale=sig)
 
             else:
-                result = norm.ppf(values,
-                                        loc=mu, scale=sig)
+                result = norm.ppf(values, loc=mu, scale=sig)
 
         elif self.distribution == 'lognormal':
             theta, beta = self.theta
@@ -858,8 +896,8 @@ class RandomVariable(object):
                              loc=np.log(theta), scale=beta))
 
             else:
-                result = np.exp(norm.ppf(values,
-                                               loc=np.log(theta), scale=beta))
+                result = np.exp(norm.ppf(values, loc=np.log(theta), scale=beta))
+
         elif self.distribution == 'uniform':
             a, b = self.theta
 
@@ -935,11 +973,15 @@ class RandomVariableSet(object):
 
             # reorder the entries in the correlation matrix to correspond to the
             # sorted list of RVs
-            self._Rho = Rho[(reorder)].T[(reorder)].T
+            self._Rho = np.asarray(Rho[(reorder)].T[(reorder)].T)
 
         else: # if there is only one variable (for testing, probably)
             self._variables = dict([(rv.name, rv) for rv in RV_list])
-            self._Rho = Rho
+            self._Rho = np.asarray(Rho)
+
+        # assign this RV_set to the variables
+        for __, var in self._variables.items():
+            var.RV_set = self
 
     @property
     def RV(self):
@@ -962,6 +1004,17 @@ class RandomVariableSet(object):
         """
         return dict([(name, rv.samples) for name, rv
                      in self._variables.items()])
+
+    def Rho(self, var_subset=None):
+        """
+        Return the (subset of the) correlation matrix.
+        """
+        if var_subset is None:
+            return self._Rho
+        else:
+            var_ids = [list(self._variables.keys()).index(var_i)
+                       for var_i in var_subset]
+            return (self._Rho[var_ids]).T[var_ids]
 
     def apply_correlation(self):
         """
@@ -1002,7 +1055,7 @@ class RandomVariableSet(object):
         for (RV_name, RV), uc_RV in zip(self.RV.items(), UC_RV):
             RV.uni_samples = uc_RV
 
-    def orthotope_density(self, lower=None, upper=None):
+    def orthotope_density(self, lower=None, upper=None, var_subset=None):
         """
         Estimate the probability density within an orthotope for the RV set.
 
@@ -1025,6 +1078,9 @@ class RandomVariableSet(object):
             univariate RV; a list of bounds is expected in multivariate cases.
             If the orthotope is not bounded from above in a dimension, use
             'None' to that dimension.
+        var_subset: list of strings, optional, default: None
+            If provided, allows for selecting only a subset of the variables in
+            the RV_set for the density calculation.
 
         Returns
         -------
@@ -1045,8 +1101,16 @@ class RandomVariableSet(object):
         lower_std = np.full(target_shape, None)
         upper_std = np.full(target_shape, None)
 
+        # collect the variables involved
+        if var_subset is None:
+            vars = list(self._variables.keys())
+        else:
+            vars = var_subset
+
         # first, convert limits to standard normal values
-        for var_i, (var_name, var) in enumerate(self._variables.items()):
+        for var_i, var_name in enumerate(vars):
+
+            var = self._variables[var_name]
 
             if (lower is not None) and (lower[var_i] is not None):
                 lower_std[var_i] = norm.ppf(var.cdf(lower[var_i]), loc=0, scale=1)
@@ -1058,7 +1122,8 @@ class RandomVariableSet(object):
         lower_std = lower_std.T
         upper_std = upper_std.T
 
-        OD = [mvn_orthotope_density(mu=np.zeros(self.size), COV=self._Rho,
+        OD = [mvn_orthotope_density(mu=np.zeros(len(vars)),
+                                    COV=self.Rho(var_subset),
                                     lower=l_i, upper=u_i)[0]
               for l_i, u_i in zip(lower_std, upper_std)]
 
@@ -1081,9 +1146,15 @@ class RandomVariableRegistry(object):
     @property
     def RV(self):
         """
-        Return the random variable(s) in the registry
+        Return all random variable(s) in the registry
         """
         return self._variables
+
+    def RVs(self, keys):
+        """
+        Return a subset of the random variables in the registry
+        """
+        return {name:self._variables[name] for name in keys}
 
     def add_RV(self, RV):
         """

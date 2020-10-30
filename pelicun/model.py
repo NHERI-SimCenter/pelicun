@@ -81,20 +81,23 @@ class FragilityFunction(object):
 
     Parameters
     ----------
-    EDP_limit: RandomVariableSet
-        A multidimensional set of potentially correlated random variables that
-        is created only for this Fragility Function (FF). The number of
-        dimensions shall be equal to the number of DSGs handled by the
-        FF.
+    EDP_limit: list of RandomVariable
+        A list of correlated random variables where each variable corresponds
+        to an EDP limit that triggers a damage state. The number of
+        list elements shall be equal to the number of DSGs handled by the
+        Fragility Function (FF) and they shall be in ascending order of damage
+        severity.
 
     """
 
     def __init__(self, EDP_limit):
         self._EDP_limit = EDP_limit
 
+        self._EDP_tags = [EDP_lim_i.name for EDP_lim_i in EDP_limit]
+
     def P_exc(self, EDP, DSG_ID):
         """
-        Return the probability of damage exceedance.
+        Return the probability of damage state exceedance.
 
         Calculate the probability of exceeding the damage corresponding to the
         DSG identified by the DSG_ID conditioned on a particular EDP value.
@@ -123,13 +126,14 @@ class FragilityFunction(object):
             P_exc = np.ones(EDP.size)
         else:
             # prepare the limits for the density calculation
-            ndims = self._EDP_limit.size
+            ndims = len(self._EDP_limit)
 
             limit_list = np.full((ndims, nvals), -np.inf, dtype=np.float64)
             limit_list[DSG_ID - 1:] = EDP
             limit_list[:DSG_ID - 1] = None
 
-            P_exc = 1.0 - self._EDP_limit.orthotope_density(lower=limit_list)
+            P_exc = 1.0 - self._EDP_limit[0].RV_set.orthotope_density(
+                lower=limit_list, var_subset = self._EDP_tags)
 
         # if EDP was a scalar, make sure that the result is also a scalar
         if EDP.size == 1:
@@ -186,7 +190,9 @@ class FragilityFunction(object):
         #         'or sampling the distribution before calling the DSG_given_EDP '
         #         'function.')
 
-        samples = pd.DataFrame(self._EDP_limit.samples)
+        #samples = pd.DataFrame(self._EDP_limit.samples)
+        samples = pd.DataFrame(dict([(lim_i.name, lim_i.samples)
+                                     for lim_i in self._EDP_limit]))
 
         if type(EDP) not in [pd.Series, pd.DataFrame]:
             EDP = pd.Series(EDP, name='EDP')

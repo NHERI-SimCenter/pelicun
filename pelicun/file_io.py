@@ -668,10 +668,13 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
         elif ((data['decision_variables']['rec_cost']) or
               (data['decision_variables']['rec_time'])):
-            show_warning(
-                "Residual drift limits corresponding to irreparable "
-                "damage were not defined in the input file. We assume that "
-                "damage is repairable regardless of the residual drift.")
+            pass
+            #TODO: show this warning in the log file instead
+
+            # show_warning(
+            #     "Residual drift limits corresponding to irreparable "
+            #     "damage were not defined in the input file. We assume that "
+            #     "damage is repairable regardless of the residual drift.")
             # we might need to have a default yield drift here
 
         # collapse probability
