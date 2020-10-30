@@ -1011,11 +1011,11 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
                 store.close()
                 break
 
-    if pop_table is not None:
-        data = convert_Series_to_dict(pop_table.loc[occupancy, :])
-    else:
-        raise IOError("Couldn't read the HDF file for POP data after 20 "
-                      "tries because it was blocked by other processes.")
+        if pop_table is not None:
+            data = convert_Series_to_dict(pop_table.loc[occupancy, :])
+        else:
+            raise IOError("Couldn't read the HDF file for POP data after 20 "
+                          "tries because it was blocked by other processes.")
 
     # convert peak population to persons/m2
     if 'peak' in data.keys():
