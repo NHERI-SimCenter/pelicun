@@ -35,7 +35,8 @@ setup(
         'scipy>=1.3.0',
         'pandas>=1.0.0',
         'tables',
-        'h5py'
+        'h5py',
+        'xlrd'
     ],
     classifiers = [
         'Programming Language :: Python',
