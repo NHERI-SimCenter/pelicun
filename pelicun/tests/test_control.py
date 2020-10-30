@@ -84,63 +84,75 @@ def test_FEMA_P58_Assessment_central_tendencies():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP.theta == pytest.approx(0.5 * g)
-    assert RV_EDP.COV == pytest.approx(0., abs=1e-10)
-    assert RV_EDP._distribution_kind == 'lognormal'
+    RV_EDP = list(A._EDP_dict.values())[0]
+    assert RV_EDP.theta[0] == pytest.approx(0.5 * g)
+    assert RV_EDP.theta[1] == pytest.approx(0.5 * g * 1e-6, abs=1e-7)
+    assert RV_EDP._distribution == 'lognormal'
 
     # QNT
-    RV_QNT = A._RV_dict['QNT']
-    assert RV_QNT is None
+    assert A._QNT_dict is None
+    #RV_QNT = A._RV_dict['QNT']
+    #assert RV_QNT is None
 
     # FRG
-    RV_FRG = A._RV_dict['FR-T0001.001']
-    assert_allclose(RV_FRG.theta, np.array([0.444, 0.6, 0.984]) * g, rtol=0.01)
-    COV = deepcopy(RV_FRG.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    assert_allclose(sig, np.array([0.3, 0.4, 0.5]), rtol=0.01)
-    assert_allclose(COV / np.outer(sig, sig), np.ones((3, 3)), rtol=0.01)
-    for dist in RV_FRG._distribution_kind:
-        assert dist == 'lognormal'
+    RV_FRG = list(A._FF_dict.values())
+
+    thetas, betas = np.array([rv.theta for rv in RV_FRG]).T
+    assert_allclose(thetas, np.array([0.444, 0.6, 0.984]) * g, rtol=0.01)
+    assert_allclose(betas, np.array([0.3, 0.4, 0.5]), rtol=0.01)
+
+    rho = RV_FRG[0].RV_set.Rho()
+    assert_allclose(rho, np.ones((3, 3)), rtol=0.01)
+
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_FRG])
 
     # RED
-    RV_RED = A._RV_dict['DV_RED']
-    assert_allclose(RV_RED.theta, np.ones(2), rtol=0.01)
-    assert_allclose(RV_RED.COV, np.array([[1, 0], [0, 1]]) * (1e-4) ** 2.,
-                    rtol=0.01)
-    assert RV_RED._distribution_kind == 'normal'
-    assert RV_RED.tr_limits_pre == None
-    assert_allclose(RV_RED.tr_limits_post[0], np.array([0., 0.]),
-                    rtol=0.01)
-    assert_allclose(RV_RED.tr_limits_post[1], np.array([2., 4.]),
-                    rtol=0.01)
+    RV_RED = list(A._DV_RED_dict.values())
+
+    mus, sigmas = np.array([rv.theta for rv in RV_RED]).T
+    assert_allclose(mus, np.ones(2), rtol=0.01)
+    assert_allclose(sigmas, np.array([1e-4, 1e-4]), rtol=0.01)
+
+    rho = RV_RED[0].RV_set.Rho()
+    assert_allclose(rho, np.array([[1, 0], [0, 1]]), rtol=0.01)
+
+    assert np.all([rv.distribution == 'normal' for rv in RV_RED])
+
+    assert_allclose (RV_RED[0].truncation_limits, [0., 2.], rtol=0.01)
+    assert_allclose (RV_RED[1].truncation_limits, [0., 4.], rtol=0.01)
 
     # INJ
-    RV_INJ = A._RV_dict['DV_INJ']
-    assert_allclose(RV_INJ.theta, np.ones(4), rtol=0.01)
-    COV = deepcopy(RV_INJ.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    assert_allclose(sig, np.ones(4) * (1e-4), rtol=0.01)
+    RV_INJ = list(A._DV_INJ_dict.values())
+
+    mus, sigmas = np.array([rv.theta for rv in RV_INJ]).T
+    assert_allclose(mus, np.ones(4), rtol=0.01)
+    assert_allclose(sigmas, np.ones(4) * 1e-4, rtol=0.01)
+
+    rho = RV_INJ[0].RV_set.Rho()
     rho_target = np.zeros((4, 4))
     np.fill_diagonal(rho_target, 1.)
-    assert_allclose(COV / np.outer(sig, sig), rho_target, rtol=0.01)
-    assert RV_INJ._distribution_kind == 'normal'
-    assert RV_INJ.tr_limits_pre == None
-    assert_allclose(RV_INJ.tr_limits_post,
-                    np.array([[0., 0., 0., 0.],
-                              [10 / 3., 10 / 3., 10., 10.]]), rtol=0.01)
+    assert_allclose(rho, rho_target, rtol=0.01)
+
+    assert np.all([rv.distribution == 'normal' for rv in RV_INJ])
+
+    assert_allclose(RV_INJ[0].truncation_limits, [0., 10./3.], rtol=0.01)
+    assert_allclose(RV_INJ[1].truncation_limits, [0., 10./3.], rtol=0.01)
+    assert_allclose(RV_INJ[2].truncation_limits, [0., 10.], rtol=0.01)
+    assert_allclose(RV_INJ[3].truncation_limits, [0., 10.], rtol=0.01)
 
     # REP
-    RV_REP = A._RV_dict['DV_REP']
-    assert_allclose(RV_REP.theta, np.ones(6), rtol=0.01)
-    COV = deepcopy(RV_REP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    assert_allclose(sig, np.ones(6) * (1e-4), rtol=0.01)
+    RV_REP = list(A._DV_REP_dict.values())
+
+    thetas, betas = np.array([rv.theta for rv in RV_REP]).T
+    assert_allclose(thetas, np.ones(6), rtol=0.01)
+    assert_allclose(betas, np.ones(6) * 1e-4, rtol=0.01)
+
+    rho = RV_REP[0].RV_set.Rho()
     rho_target = np.zeros((6, 6))
     np.fill_diagonal(rho_target, 1.)
-    assert_allclose(COV / np.outer(sig, sig), rho_target, rtol=0.01)
-    for dist in RV_REP._distribution_kind:
-        assert dist == 'lognormal'
+    assert_allclose(rho, rho_target, rtol=0.01)
+
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_REP])
 
     # ------------------------------------------------------------------------
 
@@ -385,19 +397,21 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_basic():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP._distribution_kind == 'lognormal'
-    assert_allclose(RV_EDP.theta, [9.80665, 12.59198, 0.074081, 0.044932],
-                    rtol=0.05)
-    COV = deepcopy(RV_EDP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    assert_allclose(sig, [0.25, 0.25, 0.3, 0.4], rtol=0.1)
+    RV_EDP = list(A._EDP_dict.values())
+
+    thetas, betas = np.array([rv.theta for rv in RV_EDP]).T
+    assert_allclose(thetas, [9.80665, 12.59198, 0.074081, 0.044932], rtol=0.02)
+    assert_allclose(betas, [0.25, 0.25, 0.3, 0.4], rtol=0.02)
+
+    rho = RV_EDP[0].RV_set.Rho()
     rho_target = [
         [1.0, 0.6, 0.3, 0.3],
         [0.6, 1.0, 0.3, 0.3],
         [0.3, 0.3, 1.0, 0.7],
         [0.3, 0.3, 0.7, 1.0]]
-    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+    assert_allclose(rho, rho_target, atol=0.05)
+
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_EDP])
 
     # ------------------------------------------------------------------------
 
@@ -669,28 +683,27 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP._distribution_kind == 'lognormal'
+    RV_EDP = list(A._EDP_dict.values())
 
+    thetas, betas = np.array([rv.theta for rv in RV_EDP]).T
+    EDP_theta_test = thetas
+    EDP_beta_test = betas
     EDP_theta_target = [9.80665, 12.59198, 0.074081, 0.044932]
-    EDP_sig_target = [0.25, 0.25, 0.3, 0.4]
+    EDP_beta_target = [0.25, 0.25, 0.3, 0.4]
+    assert_allclose(EDP_theta_test, EDP_theta_target, rtol=0.025)
+    assert_allclose(EDP_beta_test, EDP_beta_target, rtol=0.1)
+
+    rho = RV_EDP[0].RV_set.Rho()
+    EDP_rho_test = rho
     EDP_rho_target = [
         [1.0, 0.6, 0.3, 0.3],
         [0.6, 1.0, 0.3, 0.3],
         [0.3, 0.3, 1.0, 0.7],
         [0.3, 0.3, 0.7, 1.0]]
-    EDP_COV_target = EDP_rho_target * np.outer(EDP_sig_target, EDP_sig_target)
+    EDP_COV_test = EDP_rho_test * np.outer(EDP_beta_test, EDP_beta_test)
+    assert_allclose(EDP_rho_test, EDP_rho_target, atol=0.15)
 
-    assert_allclose(RV_EDP.theta, EDP_theta_target, rtol=0.025)
-    COV = deepcopy(RV_EDP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-
-    # print(RV_EDP.theta)
-    # print(np.sqrt(np.diagonal(COV)))
-    # print(COV / np.outer(sig, sig))
-
-    assert_allclose(sig, EDP_sig_target, rtol=0.1)
-    assert_allclose(COV / np.outer(sig, sig), EDP_rho_target, atol=0.15)
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_EDP])
 
     # ------------------------------------------------------------------------
 
@@ -702,8 +715,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     # COL
     COL_check = A._COL.describe().T
 
-    col_target = 1.0 - mvn_od(np.log(EDP_theta_target[2:]),
-                              EDP_COV_target[2:, 2:],
+    col_target = 1.0 - mvn_od(np.log(EDP_theta_test[2:]),
+                              EDP_COV_test[2:, 2:],
                               upper=np.log([0.1, 0.1]))[0]
 
     assert COL_check['mean'].values[0] == prob_approx(col_target, 0.03)
@@ -712,19 +725,19 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
     DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000.
                  for i in range(8)]
 
-    DMG_1_PID = mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+    DMG_1_PID = mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                        lower=np.log([0.05488, 1e-6]),
                        upper=np.log([0.1, 0.1]))[0]
 
-    DMG_2_PID = mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+    DMG_2_PID = mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                        lower=np.log([1e-6, 0.05488]),
                        upper=np.log([0.1, 0.1]))[0]
 
-    DMG_1_PFA = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+    DMG_1_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                        lower=np.log([9.80665, 1e-6, 1e-6, 1e-6]),
                        upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0]
 
-    DMG_2_PFA = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+    DMG_2_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                        lower=np.log([1e-6, 9.80665, 1e-6, 1e-6]),
                        upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0]
 
@@ -752,13 +765,13 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     # PG 1011 and 1012
     P_target = [
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([1e-6, 1e-6]), upper=np.log([0.05488, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
     ]
 
@@ -780,13 +793,13 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     # PG 1021 and 1022
     P_target = [
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([1e-6, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
     ]
 
@@ -808,15 +821,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     # PG 2011 and 2012
     P_target = [
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([9.80665, np.inf, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([9.80665, 9.80665, 1e-6, 1e-6]),
                upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([9.80665, 1e-6, 1e-6, 1e-6]),
                upper=np.log([np.inf, 9.80665, 0.1, 0.1]))[0],
     ]
@@ -839,15 +852,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     # PG 2021 and 2022
     P_target = [
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([np.inf, 9.80665, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([9.80665, 9.80665, 1e-6, 1e-6]),
                upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 9.80665, 1e-6, 1e-6]),
                upper=np.log([9.80665, np.inf, 0.1, 0.1]))[0],
     ]
@@ -892,7 +905,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit():
 
     # ------------------------------------------------ check result aggregation
 
-    P_no_RED_target = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+    P_no_RED_target = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                              lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                              upper=np.log([9.80665, 9.80665, 0.05488, 0.05488]))[0]
 
@@ -933,28 +946,27 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP._distribution_kind == 'lognormal'
+    RV_EDP = list(A._EDP_dict.values())
 
+    thetas, betas = np.array([rv.theta for rv in RV_EDP]).T
+    EDP_theta_test = thetas
+    EDP_beta_test = betas
     EDP_theta_target = [9.80665, 12.59198, 0.074081, 0.044932]
-    EDP_sig_target = [0.25, 0.25, 0.3, 0.4]
+    EDP_beta_target = [0.25, 0.25, 0.3, 0.4]
+    assert_allclose(EDP_theta_test, EDP_theta_target, rtol=0.025)
+    assert_allclose(EDP_beta_test, EDP_beta_target, rtol=0.1)
+
+    rho = RV_EDP[0].RV_set.Rho()
+    EDP_rho_test = rho
     EDP_rho_target = [
         [1.0, 0.6, 0.3, 0.3],
         [0.6, 1.0, 0.3, 0.3],
         [0.3, 0.3, 1.0, 0.7],
         [0.3, 0.3, 0.7, 1.0]]
-    EDP_COV_target = EDP_rho_target * np.outer(EDP_sig_target, EDP_sig_target)
+    EDP_COV_test = EDP_rho_test * np.outer(EDP_beta_test, EDP_beta_test)
+    assert_allclose(EDP_rho_test, EDP_rho_target, atol=0.15)
 
-    assert_allclose(RV_EDP.theta, EDP_theta_target, rtol=0.025)
-    COV = deepcopy(RV_EDP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-
-    #print(RV_EDP.theta)
-    #print(np.sqrt(np.diagonal(COV)))
-    #print(COV / np.outer(sig, sig))
-
-    assert_allclose(sig, EDP_sig_target, rtol=0.1)
-    assert_allclose(COV / np.outer(sig, sig), EDP_rho_target, atol=0.15)
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_EDP])
 
     # ------------------------------------------------------------------------
 
@@ -965,8 +977,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     # ------------------------------------------------ check damage calculation
     # COL
     COL_check = A._COL.describe().T
-    col_target = 1.0 - mvn_od(np.log(EDP_theta_target[2:]),
-                               EDP_COV_target[2:,2:],
+    col_target = 1.0 - mvn_od(np.log(EDP_theta_test[2:]),
+                               EDP_COV_test[2:,2:],
                                upper=np.log([0.1, 0.1]))[0]
 
     assert COL_check['mean'].values[0] == prob_approx(col_target, 0.03)
@@ -975,19 +987,19 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
     DMG_check = [len(np.where(A._DMG.iloc[:, i] > 0.0)[0]) / 10000.
                  for i in range(8)]
 
-    DMG_1_PID = mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:,2:],
+    DMG_1_PID = mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:,2:],
                        lower=np.log([0.05488, 1e-6]),
                        upper=np.log([0.1, 0.1]))[0]
 
-    DMG_2_PID = mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+    DMG_2_PID = mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                        lower=np.log([1e-6, 0.05488]),
                        upper=np.log([0.1, 0.1]))[0]
 
-    DMG_1_PFA = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+    DMG_1_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                        lower=np.log([9.80665, 1e-6, 1e-6, 1e-6]),
                        upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0]
 
-    DMG_2_PFA = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+    DMG_2_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                        lower=np.log([1e-6, 9.80665, 1e-6, 1e-6]),
                        upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0]
 
@@ -1015,13 +1027,13 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     # PG 1011 and 1012
     P_target = [
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([1e-6, 1e-6]), upper=np.log([0.05488, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([0.05488, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
     ]
 
@@ -1043,13 +1055,13 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     # PG 1021 and 1022
     P_target = [
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([1e-6, 1e-6]), upper=np.log([0.1, 0.05488]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([0.05488, 0.05488]), upper=np.log([0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target[2:]), EDP_COV_target[2:, 2:],
+        mvn_od(np.log(EDP_theta_test[2:]), EDP_COV_test[2:, 2:],
                lower=np.log([1e-6, 0.05488]), upper=np.log([0.05488, 0.1]))[0],
     ]
 
@@ -1071,15 +1083,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     # PG 2011 and 2012
     P_target = [
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([9.80665, np.inf, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([9.80665, 9.80665, 1e-6, 1e-6]),
                upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([9.80665, 1e-6, 1e-6, 1e-6]),
                upper=np.log([np.inf, 9.80665, 0.1, 0.1]))[0],
     ]
@@ -1102,15 +1114,15 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     # PG 2021 and 2022
     P_target = [
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log([np.inf, 9.80665, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([9.80665, 9.80665, 1e-6, 1e-6]),
                upper=np.log([np.inf, np.inf, 0.1, 0.1]))[0],
 
-        mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 9.80665, 1e-6, 1e-6]),
                upper=np.log([9.80665, np.inf, 0.1, 0.1]))[0],
     ]
@@ -1155,7 +1167,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
     # ------------------------------------------------ check result aggregation
 
-    P_no_RED_target = mvn_od(np.log(EDP_theta_target), EDP_COV_target,
+    P_no_RED_target = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                              lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
                              upper=np.log([9.80665, 9.80665, 0.05488, 0.05488]))[0]
 
@@ -1195,16 +1207,22 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP._distribution_kind == 'lognormal'
-    theta_target = [9.80665, 8.65433, 12.59198, 11.11239,
+    RV_EDP = list(A._EDP_dict.values())
+
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_EDP])
+
+    thetas, betas = np.array([rv.theta for rv in RV_EDP]).T
+    EDP_theta_test = thetas
+    EDP_beta_test = betas
+    EDP_theta_target = [9.80665, 8.65433, 12.59198, 11.11239,
                     0.074081, 0.063763, 0.044932, 0.036788]
-    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
-    COV = deepcopy(RV_EDP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    sig_target = [0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.4, 0.4]
-    assert_allclose(sig, sig_target, rtol=0.1)
-    rho_target = np.array([
+    EDP_beta_target = [0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.4, 0.4]
+    assert_allclose(EDP_theta_test, EDP_theta_target, rtol=0.05)
+    assert_allclose(EDP_beta_test, EDP_beta_target, rtol=0.1)
+
+    rho = RV_EDP[0].RV_set.Rho()
+    EDP_rho_test = rho
+    EDP_rho_target = np.array([
         [1.0, 0.8, 0.6, 0.5, 0.3, 0.3, 0.3, 0.3],
         [0.8, 1.0, 0.5, 0.6, 0.3, 0.3, 0.3, 0.3],
         [0.6, 0.5, 1.0, 0.8, 0.3, 0.3, 0.3, 0.3],
@@ -1213,16 +1231,14 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
         [0.3, 0.3, 0.3, 0.3, 0.8, 1.0, 0.6, 0.7],
         [0.3, 0.3, 0.3, 0.3, 0.7, 0.6, 1.0, 0.8],
         [0.3, 0.3, 0.3, 0.3, 0.6, 0.7, 0.8, 1.0]])
-    rho_test = COV / np.outer(sig, sig)
-    large_rho_ids = np.where(rho_target>=0.5)
-    small_rho_ids = np.where(rho_target<0.5)
-    assert_allclose(rho_test[large_rho_ids], rho_target[large_rho_ids], atol=0.1)
-    assert_allclose(rho_test[small_rho_ids], rho_target[small_rho_ids], atol=0.2)
-    COV_target = rho_target * np.outer(sig_target, sig_target)
+    large_rho_ids = np.where(EDP_rho_target >= 0.5)
+    small_rho_ids = np.where(EDP_rho_target < 0.5)
+    assert_allclose(EDP_rho_test[large_rho_ids],  EDP_rho_target[large_rho_ids],
+                    atol=0.1)
+    assert_allclose(EDP_rho_test[small_rho_ids], EDP_rho_target[small_rho_ids],
+                    atol=0.2)
 
-    #show_matrix([RV_EDP.theta,theta_target])
-    #show_matrix([sig, sig_target])
-    #show_matrix(rho_test)
+    EDP_COV_test = EDP_rho_test * np.outer(EDP_beta_test, EDP_beta_test)
 
     # ------------------------------------------------------------------------
 
@@ -1231,12 +1247,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     A.calculate_damage()
 
     # ------------------------------------------------ check damage calculation
-    theta_PID = np.log([0.074081, 0.063763, 0.044932, 0.036788])
-    COV_PID = np.array([[1.0, 0.8, 0.7, 0.6],
-                        [0.8, 1.0, 0.6, 0.7],
-                        [0.7, 0.6, 1.0, 0.8],
-                        [0.6, 0.7, 0.8, 1.0]]) * np.outer([0.3, 0.3, 0.4, 0.4],
-                                                          [0.3, 0.3, 0.4, 0.4])
+    theta_PID = np.log(EDP_theta_target[4:])
+    COV_PID = EDP_COV_test[4:, 4:]
 
     # COL
     COL_check = A._COL.describe().T
@@ -1262,22 +1274,22 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     DMG_2_2_PID = mvn_od(theta_PID, COV_PID,
                          lower=np.log([1e-6, 1e-6, 1e-6, 0.05488]),
                          upper=np.log([0.1, 0.1, 0.1, 0.1]))[0]
-    DMG_1_1_PFA = mvn_od(np.log(theta_target), COV_target,
+    DMG_1_1_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                          lower=np.log([9.80665, 1e-6, 1e-6, 1e-6,
                                        1e-6, 1e-6, 1e-6, 1e-6]),
                          upper=np.log([np.inf, np.inf, np.inf, np.inf,
                                        0.1, 0.1, 0.1, 0.1]))[0]
-    DMG_1_2_PFA = mvn_od(np.log(theta_target), COV_target,
+    DMG_1_2_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                          lower=np.log([1e-6, 9.80665, 1e-6, 1e-6,
                                        1e-6, 1e-6, 1e-6, 1e-6]),
                          upper=np.log([np.inf, np.inf, np.inf, np.inf,
                                        0.1, 0.1, 0.1, 0.1]))[0]
-    DMG_2_1_PFA = mvn_od(np.log(theta_target), COV_target,
+    DMG_2_1_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                          lower=np.log([1e-6, 1e-6, 9.80665, 1e-6,
                                        1e-6, 1e-6, 1e-6, 1e-6]),
                          upper=np.log([np.inf, np.inf, np.inf, np.inf,
                                        0.1, 0.1, 0.1, 0.1]))[0]
-    DMG_2_2_PFA = mvn_od(np.log(theta_target), COV_target,
+    DMG_2_2_PFA = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                          lower=np.log([1e-6, 1e-6, 1e-6, 9.80665,
                                        1e-6, 1e-6, 1e-6, 1e-6]),
                          upper=np.log([np.inf, np.inf, np.inf, np.inf,
@@ -1443,8 +1455,6 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     assert_allclose(C_target, C_test, rtol=0.001)
     assert_allclose(T_target, T_test, rtol=0.001)
 
-    return 0
-
     # PG 1022
     P_target = [
         mvn_od(theta_PID, COV_PID, lower=np.log([1e-6, 1e-6, 1e-6, 1e-6]),
@@ -1493,47 +1503,47 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     # PG 2011
     P_target = [
-        mvn_od(np.log(theta_target), COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, 9.80665, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
@@ -1556,47 +1566,47 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     # PG 2012
     P_target = [
-        mvn_od(np.log(theta_target), COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [9.80665, np.inf, 9.80665, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
@@ -1619,47 +1629,47 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     # PG 2021
     P_target = [
-        mvn_od(np.log(theta_target), COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [9.80665, 9.80665, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
@@ -1682,47 +1692,47 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     # PG 2022
     P_target = [
-        mvn_od(np.log(theta_target), COV_target,
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                lower=np.log([1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, np.inf, np.inf, 9.80665, 0.1, 0.1, 0.1, 0.1]))[0],
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [9.80665, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [np.inf, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 9.80665, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, np.inf, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
         np.sum([
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 1e-6, 9.80665, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, 9.80665, np.inf, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [9.80665, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [np.inf, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0],
-            mvn_od(np.log(theta_target), COV_target, lower=np.log(
+            mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
                 [1e-6, 9.80665, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                    upper=np.log(
                        [9.80665, np.inf, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[
                 0], ]),
-        mvn_od(np.log(theta_target), COV_target, lower=np.log(
+        mvn_od(np.log(EDP_theta_test), EDP_COV_test, lower=np.log(
             [1e-6, 1e-6, 1e-6, 9.80665, 1e-6, 1e-6, 1e-6, 1e-6]),
                upper=np.log(
                    [9.80665, 9.80665, 9.80665, np.inf, 0.1, 0.1, 0.1, 0.1]))[0],
@@ -1759,7 +1769,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
 
     # ------------------------------------------------ check result aggregation
 
-    P_no_RED_target = mvn_od(np.log(theta_target), COV_target,
+    P_no_RED_target = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                              upper=np.log(
                                  [9.80665, 9.80665, 9.80665, 9.80665, 0.05488,
                                   0.05488, 0.05488, 0.05488]))[0]
@@ -1784,7 +1794,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     is properly handled as a deterministic value or a random EDP using the
     additional sources of uncertainty.
     """
-
+    print()
     base_input_path = 'resources/'
 
     DL_input = base_input_path + 'input data/' + "DL_input_test_6.json"
@@ -1799,18 +1809,21 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP._distribution_kind == 'lognormal'
-    theta_target = [7.634901, 6.85613, 11.685934, 10.565554, 0.061364, 0.048515,
-                    0.033256, 0.020352]
-    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
-    COV = deepcopy(RV_EDP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    assert_allclose(sig, np.zeros(8), atol=1e-4)
-    rho_target = np.zeros((8, 8))
-    np.fill_diagonal(rho_target, 1.0)
-    COV_target = rho_target * 3e-8
-    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+    RV_EDP = list(A._EDP_dict.values())
+
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_EDP])
+
+    thetas, betas = np.array([rv.theta for rv in RV_EDP]).T
+    EDP_theta_test = thetas
+    EDP_beta_test = betas
+    EDP_theta_target = np.array(
+        [7.634901, 6.85613, 11.685934, 10.565554,
+         0.061364, 0.048515, 0.033256, 0.020352])
+    EDP_beta_target = EDP_theta_target * 1e-6
+    assert_allclose(EDP_theta_test, EDP_theta_target, rtol=0.05)
+    assert_allclose(EDP_beta_test, EDP_beta_target, rtol=0.1)
+
+    assert RV_EDP[0].RV_set == None
 
     # ------------------------------------------------- perform the calculation
 
@@ -1850,17 +1863,23 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP._distribution_kind == 'lognormal'
-    assert_allclose(RV_EDP.theta, theta_target, rtol=0.05)
-    COV = deepcopy(RV_EDP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    sig_target = np.sqrt(1e-8 + 0.3 ** 2. + 0.4 ** 2.)
-    assert_allclose(sig, np.ones(8) * sig_target, rtol=0.1)
-    rho_target = np.zeros((8, 8))
-    np.fill_diagonal(rho_target, 1.0)
-    COV_target = rho_target * sig_target ** 2.
-    assert_allclose(COV / np.outer(sig, sig), rho_target, atol=0.1)
+    RV_EDP = list(A._EDP_dict.values())
+
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_EDP])
+
+    thetas, betas = np.array([rv.theta for rv in RV_EDP]).T
+    EDP_theta_test = thetas
+    EDP_beta_test = betas
+    EDP_beta_target = np.sqrt((EDP_theta_target * 1e-6)**2. +
+                              np.ones(8)*(0.3**2. + 0.4**2.))
+    assert_allclose(EDP_theta_test, EDP_theta_target, rtol=0.05)
+    assert_allclose(EDP_beta_test, EDP_beta_target, rtol=0.1)
+
+    assert RV_EDP[0].RV_set == None
+    EDP_rho_target = np.zeros((8, 8))
+    np.fill_diagonal(EDP_rho_target, 1.0)
+
+    EDP_COV_test = EDP_rho_target * np.outer(EDP_beta_test, EDP_beta_test)
 
     # ------------------------------------------------- perform the calculation
 
@@ -1874,7 +1893,7 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_single_sample():
 
     # ------------------------------------------------ check result aggregation
 
-    P_no_RED_target = mvn_od(np.log(theta_target), COV_target,
+    P_no_RED_target = mvn_od(np.log(EDP_theta_test), EDP_COV_test,
                              upper=np.log(
                                  [9.80665, 9.80665, 9.80665, 9.80665, 0.05488,
                                   0.05488, 0.05488, 0.05488]))[0]
@@ -1916,15 +1935,21 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance():
     # -------------------------------------------------- check random variables
 
     # EDP
-    RV_EDP = A._RV_dict['EDP']
-    assert RV_EDP._distribution_kind == 'lognormal'
-    assert RV_EDP.theta[4] == pytest.approx(0.061364, rel=0.05)
-    COV = deepcopy(RV_EDP.COV)
-    sig = np.sqrt(np.diagonal(COV))
-    assert sig[4] < 1e-3
-    assert_allclose((COV / np.outer(sig, sig))[4],
-                    [0., 0., 0., 0., 1., 0., 0., 0.],
-                    atol=1e-6)
+    RV_EDP = list(A._EDP_dict.values())
+
+    assert np.all([rv.distribution == 'lognormal' for rv in RV_EDP])
+
+    thetas, betas = np.array([rv.theta for rv in RV_EDP]).T
+    EDP_theta_test = thetas
+    EDP_beta_test = betas
+    assert EDP_theta_test[4] == pytest.approx(0.061364, rel=0.05)
+    assert EDP_beta_test[4] < 0.061364 * 1e-3
+
+    rho = RV_EDP[0].RV_set.Rho()
+    EDP_rho_test = rho
+    EDP_rho_target = np.zeros((8, 8))
+    np.fill_diagonal(EDP_rho_target, 1.0)
+    assert_allclose(EDP_rho_test[4], EDP_rho_target[4], atol=1e-6)
 
     # ------------------------------------------------- perform the calculation
 
@@ -1970,19 +1995,20 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
     # -------------------------------------------------- check random variables
 
     # QNT
-    RV_QNT = A._RV_dict['QNT']
+    RV_QNT = list(A._QNT_dict.values())
 
-    COV_test = deepcopy(RV_QNT.COV)
-    sig_test = np.sqrt(np.diagonal(COV_test))
-    rho_test = COV_test / np.outer(sig_test, sig_test)
+    QNT_theta_test, QNT_beta_test = np.array([rv.theta for rv in RV_QNT]).T
+    QNT_theta_target = np.ones(8) * 25.
+    QNT_beta_target = [25.0] * 4 + [0.4] * 4
+    assert_allclose(QNT_theta_test, QNT_theta_target, rtol=0.001)
+    assert_allclose(QNT_beta_test, QNT_beta_target, rtol=0.001)
 
-    for i, (dist, sig) in enumerate(
-        zip(['normal'] * 4 + ['lognormal'] * 4, [25.0] * 4 + [0.4] * 4)):
-        assert RV_QNT._distribution_kind[i] == dist
-        assert RV_QNT.theta[i] == pytest.approx(25., rel=0.001)
-        assert sig_test[i] == pytest.approx(sig, rel=0.001)
+    for i in range(4):
+        assert RV_QNT[i].distribution == 'normal'
+    for i in range(4, 8):
+        assert RV_QNT[i].distribution == 'lognormal'
 
-    rho_target = [
+    QNT_rho_target = [
         [1, 0, 0, 0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0, 0, 0],
         [0, 0, 1, 0, 0, 0, 0, 0],
@@ -1992,8 +2018,8 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
         [0, 0, 0, 0, 0, 0, 1, 0],
         [0, 0, 0, 0, 0, 0, 0, 1],
     ]
-
-    assert_allclose(rho_test, rho_target, rtol=0.001)
+    QNT_rho_test = RV_QNT[0].RV_set.Rho()
+    assert_allclose(QNT_rho_test, QNT_rho_target, atol=0.001)
 
     # ------------------------------------------------------------------------
 
@@ -2025,7 +2051,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
     assert_allclose(mu_test[4:], mu_target_2, rtol=0.05)
     assert_allclose(sig_test[:4], sig_target_1, rtol=0.05)
     assert_allclose(sig_test[4:], sig_target_2, rtol=0.05)
-    assert_allclose(rho_test, rho_target, atol=0.05)
+    assert_allclose(rho_test, QNT_rho_target, atol=0.05)
 
     # ------------------------------------------------------------------------
 
@@ -2050,7 +2076,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_independent():
 
     # Uncertainty in decision variables is controlled by the correlation
     # between damages
-    RND = [truncnorm.rvs(-1., np.inf, loc=25, scale=25, size=10000) for i in
+    RND = [tnorm.rvs(-1., np.inf, loc=25, scale=25, size=10000) for i in
            range(4)]
     RND = np.sum(RND, axis=0)
     P_target_PID = np.sum(RND > 90.) / 10000.
@@ -2155,20 +2181,21 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         # ---------------------------------------------- check random variables
 
         # QNT
-        RV_QNT = A._RV_dict['QNT']
+        RV_QNT = list(A._QNT_dict.values())
 
-        COV_test = deepcopy(RV_QNT.COV)
-        sig_test = np.sqrt(np.diagonal(COV_test))
-        rho_test = COV_test / np.outer(sig_test, sig_test)
+        QNT_theta_test, QNT_beta_test = np.array([rv.theta for rv in RV_QNT]).T
+        QNT_theta_target = np.ones(8) * 25.
+        QNT_beta_target = [25.0] * 4 + [0.4] * 4
+        assert_allclose(QNT_theta_test, QNT_theta_target, rtol=0.001)
+        assert_allclose(QNT_beta_test, QNT_beta_target, rtol=0.001)
 
-        for i, (dist, sig) in enumerate(
-            zip(['normal'] * 4 + ['lognormal'] * 4, [25.0] * 4 + [0.4] * 4)):
-            assert RV_QNT._distribution_kind[i] == dist
-            assert RV_QNT.theta[i] == pytest.approx(25., rel=0.001)
-            assert sig_test[i] == pytest.approx(sig, rel=0.001)
+        for i in range(4):
+            assert RV_QNT[i].distribution == 'normal'
+        for i in range(4, 8):
+            assert RV_QNT[i].distribution == 'lognormal'
 
         if dep == 'FG':
-            rho_target = np.array([
+            QNT_rho_target = np.array([
                 [1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1],
                 [1, 1, 1, 1, 1, 1, 1, 1],
@@ -2179,7 +2206,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
                 [1, 1, 1, 1, 1, 1, 1, 1],
             ])
         elif dep == 'PG':
-            rho_target = np.array([
+            QNT_rho_target = np.array([
                 [1, 1, 1, 1, 0, 0, 0, 0],
                 [1, 1, 1, 1, 0, 0, 0, 0],
                 [1, 1, 1, 1, 0, 0, 0, 0],
@@ -2190,7 +2217,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
                 [0, 0, 0, 0, 1, 1, 1, 1],
             ])
         elif dep == 'DIR':
-            rho_target = np.array([
+            QNT_rho_target = np.array([
                 [1, 1, 0, 0, 0, 0, 0, 0],
                 [1, 1, 0, 0, 0, 0, 0, 0],
                 [0, 0, 1, 1, 0, 0, 0, 0],
@@ -2201,7 +2228,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
                 [0, 0, 0, 0, 0, 0, 1, 1],
             ])
         elif dep == 'LOC':
-            rho_target = np.array([
+            QNT_rho_target = np.array([
                 [1, 0, 1, 0, 0, 0, 0, 0],
                 [0, 1, 0, 1, 0, 0, 0, 0],
                 [1, 0, 1, 0, 0, 0, 0, 0],
@@ -2212,7 +2239,8 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
                 [0, 0, 0, 0, 0, 1, 0, 1],
             ])
 
-        assert_allclose(rho_test, rho_target, rtol=0.001)
+        QNT_rho_test = RV_QNT[0].RV_set.Rho()
+        assert_allclose(QNT_rho_test, QNT_rho_target, atol=0.001)
 
         # ---------------------------------------------------------------------
 
@@ -2251,7 +2279,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         assert_allclose(mu_test[4:], mu_target_2, rtol=0.05)
         assert_allclose(sig_test[:4], sig_target_1, rtol=0.05)
         assert_allclose(sig_test[4:], sig_target_2, rtol=0.05)
-        assert_allclose(rho_test, rho_target, atol=0.05)
+        assert_allclose(rho_test, QNT_rho_target, atol=0.05)
 
         # ---------------------------------------------------------------------
 
@@ -2270,7 +2298,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         # correlations defined between component quantities in different
         # fragility groups (i.e. the off-diagonal quadrants of the rho matrix),
         # those will be preserved in the consequences. Therefore, the
-        # off-diagonal quadrants need to be updated with those from rho_target
+        # off-diagonal quadrants need to be updated with those from QNT_rho_target
         # to get an appropriate rho_DV_target.
 
         rho_DV_target = np.array([
@@ -2283,8 +2311,8 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
             [0, 0, 0, 0, 1, 1, 1, 1],
             [0, 0, 0, 0, 1, 1, 1, 1],
         ])
-        rho_DV_target[:4, 4:] = rho_target[:4, 4:]
-        rho_DV_target[4:, :4] = rho_target[:4, 4:]
+        rho_DV_target[:4, 4:] = QNT_rho_target[:4, 4:]
+        rho_DV_target[4:, :4] = QNT_rho_target[:4, 4:]
 
         assert_allclose(DV_COST.corr(), rho_DV_target, atol=0.05)
 
@@ -2297,7 +2325,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         # distribution
         mu_target_PID = mu_target_1 * 4.
         sig_target_PID = np.sqrt(
-            sig_target_1 ** 2. * np.sum(rho_target[:4, :4]))
+            sig_target_1 ** 2. * np.sum(QNT_rho_target[:4, :4]))
         mu_target_PID_b = mu_target_PID
         sig_target_PID_b = sig_target_PID
         alpha = 100.
@@ -2321,7 +2349,7 @@ def test_FEMA_P58_Assessment_QNT_uncertainty_dependencies():
         # distribution
         mu_target_PFA = mu_target_2 * 4.
         sig_target_PFA = np.sqrt(
-            sig_target_2 ** 2. * np.sum(rho_target[4:, 4:]))
+            sig_target_2 ** 2. * np.sum(QNT_rho_target[4:, 4:]))
         sig_target_PFA_b = np.sqrt(
             np.log(sig_target_PFA ** 2.0 / mu_target_PFA ** 2.0 + 1.0))
         mu_target_PFA_b = np.log(mu_target_PFA) - sig_target_PFA_b ** 2.0 / 2.
@@ -2410,7 +2438,7 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
     test the results against pre-defined reference values in spite of the
     randomness involved in the calculations.
     """
-
+    print()
     idx = pd.IndexSlice
 
     base_input_path = 'resources/'
@@ -2418,733 +2446,912 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
     DL_input = base_input_path + 'input data/' + "DL_input_test_9.json"
     EDP_input = base_input_path + 'EDP data/' + "EDP_table_test_9.out"
 
-    if True:
+    A = FEMA_P58_Assessment()
 
-        A = FEMA_P58_Assessment()
+    A.read_inputs(DL_input, EDP_input, verbose=False)
 
-        A.read_inputs(DL_input, EDP_input, verbose=False)
+    A._AIM_in['dependencies']['fragilities'] = dep
 
-        A._AIM_in['dependencies']['fragilities'] = dep
+    A.define_random_variables()
 
-        A.define_random_variables()
+    # ---------------------------------------------- check random variables
+    RV_FF = list(A._FF_dict.values())
+    fr_names = np.unique([rv.name[3:12] for rv in RV_FF])
+    fr_keys = {}
+    for fr_name in fr_names:
+        fr_list = [rv.name for rv in RV_FF if fr_name in rv.name]
+        fr_keys.update({fr_name: fr_list})
 
-        # ---------------------------------------------- check random variables
-        fr_keys = []
-        for key in A._RV_dict.keys():
-            if 'FR' in key:
-                fr_keys.append(key)
+    # fr_keys = []
+    # for key in A._RV_dict.keys():
+    #     if 'FR' in key:
+    #         fr_keys.append(key)
 
-        dimtag_target = [4 * 2 * 3, 20 * 2 * 3 * 3, 20 * 2 * 3 * 3,
-                         20 * 2 * 3 * 3]
-        theta_target = [[0.048, 0.096], [0.048, 0.072, 0.096],
-                        [2.9419, 5.8840, 11.7680], [2.9419, 5.8840, 11.7680]]
-        sig_target = [[0.5, 0.25], [1.0, 0.5, 0.25], [1.0, 0.5, 0.25],
-                      [1.0, 0.5, 0.25]]
+    dimtag_target = [4 * 2 * 3, 20 * 2 * 3 * 3, 20 * 2 * 3 * 3,
+                     20 * 2 * 3 * 3]
+    theta_target = [[0.048, 0.096], [0.048, 0.072, 0.096],
+                    [2.9419, 5.8840, 11.7680], [2.9419, 5.8840, 11.7680]]
+    sig_target = [[0.5, 0.25], [1.0, 0.5, 0.25], [1.0, 0.5, 0.25],
+                  [1.0, 0.5, 0.25]]
 
-        if dep == 'IND':
-            rho_target = np.zeros((24, 24))
-            np.fill_diagonal(rho_target, 1.0)
+    if dep == 'IND':
+        rho_target = np.zeros((24, 24))
+        np.fill_diagonal(rho_target, 1.0)
 
-            rho_sum = 360
+        rho_sum = 360
 
-        elif dep == 'PG':
-            rho_target = np.ones((24, 24))
+    elif dep == 'PG':
+        rho_target = np.ones((24, 24))
 
-            rho_sum = 360 ** 2.
+        rho_sum = 360 ** 2.
 
-        elif dep == 'DIR':
-            rho_target = [
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.]]
+    elif dep == 'DIR':
+        rho_target = [
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 1.]]
 
-            rho_sum = (20 * 2 * 3) ** 2. * 3
+        rho_sum = (20 * 2 * 3) ** 2. * 3
 
-        elif dep == 'LOC':
-            rho_target = [
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.]]
+    elif dep == 'LOC':
+        rho_target = [
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1.]]
 
-            rho_sum = (20 * 3) ** 2. * (2 * 9)
+        rho_sum = (20 * 3) ** 2. * (2 * 9)
 
-        elif dep in ['ATC', 'CSG']:
-            rho_target = [
-                [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.]]
+    elif dep in ['ATC', 'CSG']:
+        rho_target = [
+            [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.]]
 
-            rho_sum = (20 * 3) ** 2. * (2 * 3)
+        rho_sum = (20 * 3) ** 2. * (2 * 3)
 
-        elif dep == 'DS':
-            rho_target = [
-                [1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.],
-                [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.]]
+    elif dep == 'DS':
+        rho_target = [
+            [1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1.]]
 
-            rho_sum = 3 ** 2 * (20 * 2 * 3)
+        rho_sum = 3 ** 2 * (20 * 2 * 3)
 
-        for k, key in enumerate(sorted(fr_keys)):
-            RV_FR = deepcopy(A._RV_dict[key])
-            assert len(RV_FR._dimension_tags) == dimtag_target[k]
+    for k, key in enumerate(sorted(fr_keys.keys())):
+        RV_FF_i = [A._FF_dict[rv_i] for rv_i in fr_keys[key]]
 
-            COV_test = RV_FR.COV
-            sig_test = np.sqrt(np.diagonal(COV_test))
-            rho_test = COV_test / np.outer(sig_test, sig_test)
+        assert len(RV_FF_i) == dimtag_target[k]
 
-            if k == 0:
-                theta_test = pd.DataFrame(
-                    np.reshape(RV_FR.theta, (12, 2))).describe()
-                sig_test = pd.DataFrame(
-                    np.reshape(sig_test, (12, 2))).describe()
-            else:
-                theta_test = pd.DataFrame(
-                    np.reshape(RV_FR.theta, (120, 3))).describe()
-                sig_test = pd.DataFrame(
-                    np.reshape(sig_test, (120, 3))).describe()
+        FF_theta_test, FF_beta_test = np.array([rv.theta for rv in RV_FF_i]).T
 
-            assert_allclose(theta_test.loc['mean', :].values, theta_target[k],
-                            rtol=1e-4)
-            assert_allclose(theta_test.loc['std', :].values,
-                            np.zeros(np.array(theta_target[k]).shape),
-                            atol=1e-10)
+        if k == 0:
+            FF_theta_test = pd.DataFrame(
+                np.reshape(FF_theta_test, (12, 2))).describe()
+            FF_beta_test = pd.DataFrame(
+                np.reshape(FF_beta_test, (12, 2))).describe()
+        else:
+            FF_theta_test = pd.DataFrame(
+                np.reshape(FF_theta_test, (120, 3))).describe()
+            FF_beta_test = pd.DataFrame(
+                np.reshape(FF_beta_test, (120, 3))).describe()
 
-            assert_allclose(sig_test.loc['mean', :].values, sig_target[k],
-                            rtol=1e-4)
-            assert_allclose(sig_test.loc['std', :].values,
-                            np.zeros(np.array(sig_target[k]).shape), atol=1e-10)
+        assert_allclose(FF_theta_test.loc['mean', :].values, theta_target[k],
+                        rtol=1e-4)
+        assert_allclose(FF_theta_test.loc['std', :].values,
+                        np.zeros(np.array(theta_target[k]).shape),
+                        atol=1e-10)
 
-            if k == 0:
-                # we perform the detailed verification of rho for the first case
-                # only (because the others are 360x360 matrices)
-                assert_allclose(rho_test, rho_target)
+        assert_allclose(FF_beta_test.loc['mean', :].values, sig_target[k],
+                        rtol=1e-4)
+        assert_allclose(FF_beta_test.loc['std', :].values,
+                        np.zeros(np.array(sig_target[k]).shape), atol=1e-10)
 
-            else:
-                # for the other cases we check the number of ones in the matrix
-                assert np.sum(rho_test) == rho_sum
+        rho_test = RV_FF_i[0].RV_set.Rho(fr_keys[fr_names[k]])
+        if k == 0:
+            # we perform the detailed verification of rho for the first case
+            # only (because the others are 360x360 matrices)
+            assert_allclose(rho_test, rho_target)
 
-        # ---------------------------------------------------------------------
+        else:
+            # for the other cases we check the number of ones in the matrix
+            assert np.sum(rho_test) == rho_sum
 
-        A.define_loss_model()
+        # RV_FR = deepcopy(A._RV_dict[key])
+        # assert len(RV_FR._dimension_tags) == dimtag_target[k]
+        #
+        # COV_test = RV_FR.COV
+        # sig_test = np.sqrt(np.diagonal(COV_test))
+        # rho_test = COV_test / np.outer(sig_test, sig_test)
+        #
+        # if k == 0:
+        #     theta_test = pd.DataFrame(
+        #         np.reshape(RV_FR.theta, (12, 2))).describe()
+        #     sig_test = pd.DataFrame(
+        #         np.reshape(sig_test, (12, 2))).describe()
+        # else:
+        #     theta_test = pd.DataFrame(
+        #         np.reshape(RV_FR.theta, (120, 3))).describe()
+        #     sig_test = pd.DataFrame(
+        #         np.reshape(sig_test, (120, 3))).describe()
+        #
+        # assert_allclose(theta_test.loc['mean', :].values, theta_target[k],
+        #                 rtol=1e-4)
+        # assert_allclose(theta_test.loc['std', :].values,
+        #                 np.zeros(np.array(theta_target[k]).shape),
+        #                 atol=1e-10)
+        #
+        # assert_allclose(sig_test.loc['mean', :].values, sig_target[k],
+        #                 rtol=1e-4)
+        # assert_allclose(sig_test.loc['std', :].values,
+        #                 np.zeros(np.array(sig_target[k]).shape), atol=1e-10)
+        #
+        # if k == 0:
+        #     # we perform the detailed verification of rho for the first case
+        #     # only (because the others are 360x360 matrices)
+        #     assert_allclose(rho_test, rho_target)
+        #
+        # else:
+        #     # for the other cases we check the number of ones in the matrix
+        #     assert np.sum(rho_test) == rho_sum
 
-        A.calculate_damage()
+    # ---------------------------------------------------------------------
 
-        # -------------------------------------------- check damage calculation
-        # COL
-        # there shall be no collapses
-        assert A._COL.describe().T['mean'].values == 0
+    A.define_loss_model()
 
-        # DMG
-        DMG_check = A._DMG
+    A.calculate_damage()
 
-        # start with checking the damage correlations
-        for k in range(4):
-            DMG_corr = DMG_check.loc[:, idx[k + 1, :, :]].corr()
+    # -------------------------------------------- check damage calculation
+    # COL
+    # there shall be no collapses
+    assert A._COL.describe().T['mean'].values == 0
 
-            if k == 0:
-                DMG_corr = DMG_corr.iloc[:8, :8]
+    # DMG
+    DMG_check = A._DMG
 
-                if dep in ['IND', 'ATC', 'CSG', 'DS']:
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0],
-                    ])
-                elif dep == 'PG':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
-                        [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
-                        [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
-                        [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
-                        [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
-                        [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
-                        [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
-                        [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
-                    ])
-                elif dep == 'DIR':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 1.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 1.0,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 1.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 1.0,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 1.0],
-                    ])
-                elif dep == 'LOC':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0],
-                        [-0.1, 1.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 1.0,-0.1],
-                        [ 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 1.0],
-                        [ 1.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0],
-                        [-0.1, 1.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 1.0,-0.1],
-                        [ 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 1.0],
-                    ])
+    # start with checking the damage correlations
+    for k in range(4):
+        DMG_corr = DMG_check.loc[:, idx[k + 1, :, :]].corr()
 
-            if k == 1:
-                DMG_corr = DMG_corr.iloc[:12, :12]
+        if k == 0:
+            DMG_corr = DMG_corr.iloc[:8, :8]
 
-                if dep in ['IND', 'ATC', 'CSG', 'DS']:
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'PG':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
-                        [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
-                        [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
-                        [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
-                        [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
-                        [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
-                        [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
-                        [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
-                        [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'DIR':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'LOC':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0],
-                    ])
+            if dep in ['IND', 'ATC', 'CSG', 'DS']:
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0],
+                ])
+            elif dep == 'PG':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
+                    [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
+                    [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
+                    [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
+                    [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
+                    [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
+                    [ 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1],
+                    [-0.1, 1.0,-0.1, 1.0,-0.1, 1.0,-0.1, 1.0],
+                ])
+            elif dep == 'DIR':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 1.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 1.0,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 1.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 1.0,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 1.0],
+                ])
+            elif dep == 'LOC':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0],
+                    [-0.1, 1.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 1.0,-0.1],
+                    [ 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 1.0],
+                    [ 1.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0],
+                    [-0.1, 1.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 1.0,-0.1],
+                    [ 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 1.0],
+                ])
 
-            if k == 2:
-                DMG_corr = DMG_corr.iloc[:20, :20]
+        if k == 1:
+            DMG_corr = DMG_corr.iloc[:12, :12]
 
-                if dep in ['IND', 'DS']:
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'PG':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
-                        [-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
-                        [-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
-                        [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
-                        [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
-                        [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
-                        [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1],
-                        [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1],
-                        [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'DIR':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'LOC':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep in ['ATC', 'CSG']:
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
+            if dep in ['IND', 'ATC', 'CSG', 'DS']:
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'PG':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
+                    [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
+                    [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
+                    [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
+                    [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
+                    [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
+                    [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
+                    [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
+                    [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'DIR':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 1.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1, 1.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 1.0,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'LOC':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0],
+                ])
 
-            if k == 3:
-                DMG_corr = DMG_corr.iloc[:20, :20]
+        if k == 2:
+            DMG_corr = DMG_corr.iloc[:20, :20]
 
-                if dep in ['IND', 'DS']:
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.0, 1.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 1.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 1.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 1.0, 0.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 0.0, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'PG':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
-                        [-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
-                        [-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
-                        [-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
-                        [-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
-                        [-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
-                        [-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1],
-                        [-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1],
-                        [-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'DIR':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep == 'LOC':
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.7, 0.6,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.6,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
-                elif dep in ['ATC', 'CSG']:
-                    DMG_corr_ref = np.array([
-                        [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1],
-                        [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
-                    ])
+            if dep in ['IND', 'DS']:
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1, 1.0,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'PG':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
+                    [-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
+                    [-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
+                    [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
+                    [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
+                    [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
+                    [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1],
+                    [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1],
+                    [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'DIR':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1,-0.1, 0.8, 0.5, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1,-0.1, 0.5, 0.6, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1,-0.1, 0.5, 0.5, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1,-0.1, 1.0, 0.5, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1,-0.1, 0.5, 1.0, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1,-0.1, 0.5, 0.5, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'LOC':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.6, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep in ['ATC', 'CSG']:
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.5, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 1.0, 0.5,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.5, 0.5, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
 
-            for i in range(len(DMG_corr.index)):
-                for j in range(len(DMG_corr.columns)):
-                    ref_i = DMG_corr_ref[i, j]
-                    if ref_i != 0.0:
-                        if ref_i > 0.0:
-                            assert DMG_corr.iloc[i, j] > 0.97 * ref_i
-                        else:
-                            assert DMG_corr.iloc[i, j] < 0.0
+        if k == 3:
+            DMG_corr = DMG_corr.iloc[:20, :20]
+
+            if dep in ['IND', 'DS']:
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.0, 1.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 1.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 1.0, 0.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 0.0, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.0, 0.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 1.0, 0.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.0, 0.0, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'PG':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
+                    [-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
+                    [-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
+                    [-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
+                    [-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
+                    [-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
+                    [-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1],
+                    [-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1,-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1],
+                    [-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1,-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'DIR':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1,-0.1, 0.8, 0.8, 0.7,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1,-0.1, 0.8, 0.7, 0.6,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1,-0.1, 0.7, 0.6, 0.6,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1,-0.1, 1.0, 0.8, 0.7,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.6, 0.6,-0.1,-0.1, 0.8, 1.0, 0.6,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.5,-0.1,-0.1, 0.7, 0.6, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep == 'LOC':
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.7, 0.6,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.6,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 0.7, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+            elif dep in ['ATC', 'CSG']:
+                DMG_corr_ref = np.array([
+                    [ 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,-0.1,-0.1,-0.1,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 1.0, 0.8, 0.7,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.8, 1.0, 0.6,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1, 0.7, 0.6, 1.0,-0.1],
+                    [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,-0.1,-0.1,-0.1,-0.1, 1.0],
+                ])
+
+        for i in range(len(DMG_corr.index)):
+            for j in range(len(DMG_corr.columns)):
+                ref_i = DMG_corr_ref[i, j]
+                if ref_i != 0.0:
+                    if ref_i > 0.0:
+                        assert DMG_corr.iloc[i, j] > 0.97 * ref_i
                     else:
-                        assert DMG_corr.iloc[i, j] == pytest.approx(ref_i,
-                                                                    abs=0.15)
+                        assert DMG_corr.iloc[i, j] < 0.0
+                else:
+                    assert DMG_corr.iloc[i, j] == pytest.approx(ref_i,
+                                                                abs=0.15)
 
-        # then check the distribution of damage within each performance group
-        EDP_list = np.array(
-            [[[0.080000, 0.080000], [0.080000, 0.080000], [0.040000, 0.040000]],
-             [[7.845320, 7.845320], [7.845320, 7.845320],
-              [2.942000, 2.942000]]])
+    # then check the distribution of damage within each performance group
+    EDP_list = np.array(
+        [[[0.080000, 0.080000], [0.080000, 0.080000], [0.040000, 0.040000]],
+         [[7.845320, 7.845320], [7.845320, 7.845320],
+          [2.942000, 2.942000]]])
 
-        fr_keys = []
-        for key in A._RV_dict.keys():
-            if 'FR' in key:
-                fr_keys.append(key)
+    fr_keys = []
+    for key in A._RV_dict.keys():
+        if 'FR' in key:
+            fr_keys.append(key)
 
-        for k, key in enumerate(sorted(fr_keys)):
-            # print(key)
+    for k, key in enumerate(sorted(fr_keys)):
+        # print(key)
 
-            RV_FR = A._RV_dict[key]
+        RV_FR = A._RV_dict[key]
 
-            # only third of the data is unique because of the 3 stories
-            rel_len = int(len(RV_FR._dimension_tags) / 3)
+        # only third of the data is unique because of the 3 stories
+        rel_len = int(len(RV_FR._dimension_tags) / 3)
 
-            COV_test = RV_FR.COV[:rel_len, :rel_len]
-            theta_test = RV_FR.theta[:rel_len]
+        COV_test = RV_FR.COV[:rel_len, :rel_len]
+        theta_test = RV_FR.theta[:rel_len]
 
-            lims = np.unique(theta_test)
-            ndims = len(lims)
-            if k in [2, 3]:
-                ndims += 2
+        lims = np.unique(theta_test)
+        ndims = len(lims)
+        if k in [2, 3]:
+            ndims += 2
 
-            if (dep in ['DS', 'IND']) or k > 1:
-                DMG_vals = [[[0., 5., 7.5, 12.5, 17.5, 20., 25.], [0., 25.]],
-                            [[0., 1.5, 3., 4.5, 6., 7.5, 9., 10.5, 12., 13.5,
-                              15.,
-                              16.5, 18., 19.5, 21., 22.5, 24., 25.5, 27., 28.5,
-                              30.0],
-                             [0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.,
-                              11., 12., 13., 14., 15., 16., 17., 18., 19.,
-                              20.]]]
-            else:
-                DMG_vals = [[[0., 25.], [0., 25.]],
-                            [[0., 30.], [0., 20.]]]
-            DMG_vals = np.array(DMG_vals)
+        if (dep in ['DS', 'IND']) or k > 1:
+            DMG_vals = [[[0., 5., 7.5, 12.5, 17.5, 20., 25.], [0., 25.]],
+                        [[0., 1.5, 3., 4.5, 6., 7.5, 9., 10.5, 12., 13.5,
+                          15.,
+                          16.5, 18., 19.5, 21., 22.5, 24., 25.5, 27., 28.5,
+                          30.0],
+                         [0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.,
+                          11., 12., 13., 14., 15., 16., 17., 18., 19.,
+                          20.]]]
+        else:
+            DMG_vals = [[[0., 25.], [0., 25.]],
+                        [[0., 30.], [0., 20.]]]
+        DMG_vals = np.array(DMG_vals)
 
-            for story in [0, 1, 2]:
-                for dir_ in [0, 1]:
-                    # print(story, dir_)
+        for story in [0, 1, 2]:
+            for dir_ in [0, 1]:
+                # print(story, dir_)
 
-                    idx = pd.IndexSlice
-                    DMG_check_FG = DMG_check.loc[:, idx[k + 1, :, :]]
-                    DMG_check_PG = DMG_check_FG.iloc[:,
-                                   story * 2 * ndims + dir_ * ndims:story * 2 * ndims + (
-                                           dir_ + 1) * ndims]
+                idx = pd.IndexSlice
+                DMG_check_FG = DMG_check.loc[:, idx[k + 1, :, :]]
+                DMG_check_PG = DMG_check_FG.iloc[:,
+                               story * 2 * ndims + dir_ * ndims:story * 2 * ndims + (
+                                       dir_ + 1) * ndims]
 
-                    DMG_val_test = np.unique(
-                        np.around(DMG_check_PG.values * 10., decimals=0) / 10.,
+                DMG_val_test = np.unique(
+                    np.around(DMG_check_PG.values * 10., decimals=0) / 10.,
+                    return_counts=True)
+                DMG_val_test = DMG_val_test[0][DMG_val_test[1] > 10]
+
+                # only check at most the first 10 elements, because the
+                # higher values have extremely low likelihood
+                ddim = min(len(DMG_val_test), 10)
+                DMG_val_ref = DMG_vals[np.sign(k), dir_]
+                for v in DMG_val_test:
+                    assert v in DMG_val_ref
+
+                # additional tests for mutually exclusive DS2 in FG3
+                if (k == 2) and (dep not in ['DS', 'IND']):
+                    DMG_tot = [[0., 30.], [0., 20.]][dir_]
+                    DMG_DS2_test = DMG_check_PG.iloc[:, [1, 2, 3]].sum(
+                        axis=1)
+
+                    # the proportion of each DS in DS2 shall follow the
+                    # pre-assigned weights
+                    ME_test = \
+                    DMG_check_PG.iloc[DMG_DS2_test.values > 0].iloc[:,
+                    [1, 2, 3]].describe().T['mean'].values / DMG_tot[-1]
+                    assert_allclose(ME_test, [0.5, 0.3, 0.2], atol=0.01)
+
+                    # the sum of DMG with correlated CSGs shall be either 0.
+                    # or the total quantity
+                    DMG_DS2_test = np.unique(
+                        np.around(DMG_DS2_test * 10., decimals=0) / 10.,
                         return_counts=True)
-                    DMG_val_test = DMG_val_test[0][DMG_val_test[1] > 10]
+                    DMG_DS2_test = DMG_DS2_test[0][DMG_DS2_test[1] > 10]
+                    assert_allclose(DMG_DS2_test, DMG_tot, atol=0.01)
 
-                    # only check at most the first 10 elements, because the
-                    # higher values have extremely low likelihood
-                    ddim = min(len(DMG_val_test), 10)
-                    DMG_val_ref = DMG_vals[np.sign(k), dir_]
-                    for v in DMG_val_test:
-                        assert v in DMG_val_ref
+                    # additional tests for simultaneous DS2 in FG4
+                if (k == 3) and (dep not in ['DS', 'IND']):
+                    DMG_tot = [30.0, 20.0][dir_]
+                    DMG_DS2_test = DMG_check_PG.iloc[:, [1, 2, 3]].sum(
+                        axis=1)
 
-                    # additional tests for mutually exclusive DS2 in FG3
-                    if (k == 2) and (dep not in ['DS', 'IND']):
-                        DMG_tot = [[0., 30.], [0., 20.]][dir_]
-                        DMG_DS2_test = DMG_check_PG.iloc[:, [1, 2, 3]].sum(
-                            axis=1)
+                    # the proportion of each DS in DS2 shall follow the
+                    # pre-assigned weights considering replacement
+                    SIM_test = \
+                    DMG_check_PG.iloc[DMG_DS2_test.values > 0].iloc[:,
+                    [1, 2, 3]].describe().T['mean'].values / DMG_tot
+                    P_rep = 0.5 * 0.7 * 0.8
+                    SIM_ref = np.array([0.5, 0.3, 0.2]) * (
+                            1.0 + P_rep / (1.0 - P_rep))
+                    assert_allclose(SIM_test, SIM_ref, atol=0.02)
 
-                        # the proportion of each DS in DS2 shall follow the
-                        # pre-assigned weights
-                        ME_test = \
-                        DMG_check_PG.iloc[DMG_DS2_test.values > 0].iloc[:,
-                        [1, 2, 3]].describe().T['mean'].values / DMG_tot[-1]
-                        assert_allclose(ME_test, [0.5, 0.3, 0.2], atol=0.01)
+                    # the sum of DMG with correlated CSGs shall be either
+                    # 0. or more than the total quantity
+                    DMG_DS2_test = DMG_DS2_test.iloc[
+                        DMG_DS2_test.values > 0]
+                    # Even with perfect correlation, the generated random
+                    # samples will not be identical. Hence, one of the 20
+                    # CSGs in FG4, very rarely will belong to a different
+                    # DS than the rest. To avoid false negatives, we test
+                    # the third smallest value.
+                    assert DMG_DS2_test.sort_values().iloc[
+                               2] >= DMG_tot * 0.99
+                    assert np.max(DMG_DS2_test.values) > DMG_tot
 
-                        # the sum of DMG with correlated CSGs shall be either 0.
-                        # or the total quantity
-                        DMG_DS2_test = np.unique(
-                            np.around(DMG_DS2_test * 10., decimals=0) / 10.,
-                            return_counts=True)
-                        DMG_DS2_test = DMG_DS2_test[0][DMG_DS2_test[1] > 10]
-                        assert_allclose(DMG_DS2_test, DMG_tot, atol=0.01)
+                # the first component has 3-1 CSGs in dir 1 and 2,
+                # respectively
+                if k == 0:
+                    dir_len = int(rel_len * 3 / 4)
+                # the other components have 20-20 CSGs in dir 1 and 2,
+                # respectively
+                else:
+                    dir_len = int(rel_len / 2)
 
-                        # additional tests for simultaneous DS2 in FG4
-                    if (k == 3) and (dep not in ['DS', 'IND']):
-                        DMG_tot = [30.0, 20.0][dir_]
-                        DMG_DS2_test = DMG_check_PG.iloc[:, [1, 2, 3]].sum(
-                            axis=1)
+                if dir_ == 0:
+                    theta_t = theta_test[:dir_len]
+                    COV_t = COV_test[:dir_len, :dir_len]
 
-                        # the proportion of each DS in DS2 shall follow the
-                        # pre-assigned weights considering replacement
-                        SIM_test = \
-                        DMG_check_PG.iloc[DMG_DS2_test.values > 0].iloc[:,
-                        [1, 2, 3]].describe().T['mean'].values / DMG_tot
-                        P_rep = 0.5 * 0.7 * 0.8
-                        SIM_ref = np.array([0.5, 0.3, 0.2]) * (
-                                1.0 + P_rep / (1.0 - P_rep))
-                        assert_allclose(SIM_test, SIM_ref, atol=0.02)
+                else:
+                    theta_t = theta_test[dir_len:]
+                    COV_t = COV_test[dir_len:, dir_len:]
 
-                        # the sum of DMG with correlated CSGs shall be either
-                        # 0. or more than the total quantity
-                        DMG_DS2_test = DMG_DS2_test.iloc[
-                            DMG_DS2_test.values > 0]
-                        # Even with perfect correlation, the generated random
-                        # samples will not be identical. Hence, one of the 20
-                        # CSGs in FG4, very rarely will belong to a different
-                        # DS than the rest. To avoid false negatives, we test
-                        # the third smallest value.
-                        assert DMG_DS2_test.sort_values().iloc[
-                                   2] >= DMG_tot * 0.99
-                        assert np.max(DMG_DS2_test.values) > DMG_tot
+                lim_ds1 = np.where(theta_t == lims[0])[0]
+                lim_ds2 = np.where(theta_t == lims[1])[0]
+                if k > 0:
+                    lim_ds3 = np.where(theta_t == lims[2])[0]
 
-                    # the first component has 3-1 CSGs in dir 1 and 2,
-                    # respectively
-                    if k == 0:
-                        dir_len = int(rel_len * 3 / 4)
-                    # the other components have 20-20 CSGs in dir 1 and 2,
-                    # respectively
-                    else:
-                        dir_len = int(rel_len / 2)
+                ndim = len(theta_t)
 
-                    if dir_ == 0:
-                        theta_t = theta_test[:dir_len]
-                        COV_t = COV_test[:dir_len, :dir_len]
+                EDP = EDP_list[int(k > 1), story, dir_]*1.2
 
-                    else:
-                        theta_t = theta_test[dir_len:]
-                        COV_t = COV_test[dir_len:, dir_len:]
+                DS_ref_all = []
+                DS_ref_any = []
+                DS_test_all = []
+                DS_test_any = []
+                # DS0
+                DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
+                                         lower=np.log(np.ones(ndim) * EDP),
+                                         upper=np.ones(ndim) * np.inf)[0])
 
-                    lim_ds1 = np.where(theta_t == lims[0])[0]
-                    lim_ds2 = np.where(theta_t == lims[1])[0]
-                    if k > 0:
-                        lim_ds3 = np.where(theta_t == lims[2])[0]
+                if k == 0:
+                    DS_test_all.append(
+                        np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
+                                       DMG_check_PG.iloc[:, 1] == 0.],
+                                      axis=0)) / 10000.)
+                elif k == 1:
+                    DS_test_all.append(
+                        np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
+                                       DMG_check_PG.iloc[:, 1] == 0.,
+                                       DMG_check_PG.iloc[:, 2] == 0.],
+                                      axis=0)) / 10000.)
+                else:
+                    DS_test_all.append(
+                        np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
+                                       DMG_check_PG.iloc[:, 1] == 0.,
+                                       DMG_check_PG.iloc[:, 2] == 0.,
+                                       DMG_check_PG.iloc[:, 3] == 0.,
+                                       DMG_check_PG.iloc[:, 4] == 0.],
+                                      axis=0)) / 10000.)
 
-                    ndim = len(theta_t)
+                # DS1
+                lower_lim = -np.ones(ndim) * np.inf
+                upper_lim = np.ones(ndim) * np.inf
+                lower_lim[lim_ds2] = np.log(EDP)
+                upper_lim[lim_ds1] = np.log(EDP)
+                if k > 0:
+                    lower_lim[lim_ds3] = np.log(EDP)
+                DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
+                                         lower=lower_lim, upper=upper_lim)[
+                                      0])
 
-                    EDP = EDP_list[int(k > 1), story, dir_]*1.2
+                lower_lim = -np.ones(ndim) * np.inf
+                upper_lim = np.ones(ndim) * np.inf
+                lower_lim[lim_ds2[0]] = np.log(EDP)
+                upper_lim[lim_ds1[0]] = np.log(EDP)
+                if k > 0:
+                    lower_lim[lim_ds3[0]] = np.log(EDP)
+                P_any = mvn_od(np.log(theta_t), COV_t, lower=lower_lim,
+                               upper=upper_lim)[0]
+                if (dep in ['DS', 'IND']):
+                    P_any = 1.0 - (1.0 - P_any) ** len(lim_ds1)
+                DS_ref_any.append(P_any)
 
-                    DS_ref_all = []
-                    DS_ref_any = []
-                    DS_test_all = []
-                    DS_test_any = []
-                    # DS0
+                if k == 0:
+                    DS_test_all.append(np.sum(np.all(
+                        [DMG_check_PG.iloc[:, 0] > DMG_val_ref[-1] - 0.1,
+                         DMG_check_PG.iloc[:, 1] == 0.], axis=0)) / 10000.)
+                elif k == 1:
+                    DS_test_all.append(np.sum(np.all(
+                        [DMG_check_PG.iloc[:, 0] > DMG_val_ref[-1] - 0.1,
+                         DMG_check_PG.iloc[:, 1] == 0.,
+                         DMG_check_PG.iloc[:, 2] == 0.], axis=0)) / 10000.)
+                else:
+                    DS_test_all.append(np.sum(np.all(
+                        [DMG_check_PG.iloc[:, 0] > DMG_val_ref[-1] - 0.1,
+                         DMG_check_PG.iloc[:, 1] == 0.,
+                         DMG_check_PG.iloc[:, 2] == 0.,
+                         DMG_check_PG.iloc[:, 3] == 0.,
+                         DMG_check_PG.iloc[:, 4] == 0.], axis=0)) / 10000.)
+
+                DS_test_any.append(np.sum(
+                    np.all([DMG_check_PG.iloc[:, 0] > 0.],
+                           axis=0)) / 10000.)
+
+                # DS2
+                lower_lim = -np.ones(ndim) * np.inf
+                upper_lim = np.ones(ndim) * np.inf
+                upper_lim[lim_ds2] = np.log(EDP)
+                if k > 0:
+                    lower_lim[lim_ds3] = np.log(EDP)
+                if k < 3:
                     DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
-                                             lower=np.log(np.ones(ndim) * EDP),
-                                             upper=np.ones(ndim) * np.inf)[0])
+                                             lower=lower_lim,
+                                             upper=upper_lim)[0])
+                else:
+                    DS_ref_all.append(0.0)
 
-                    if k == 0:
-                        DS_test_all.append(
-                            np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
-                                           DMG_check_PG.iloc[:, 1] == 0.],
-                                          axis=0)) / 10000.)
-                    elif k == 1:
+                lower_lim = -np.ones(ndim) * np.inf
+                upper_lim = np.ones(ndim) * np.inf
+                upper_lim[lim_ds2[0]] = np.log(EDP)
+                if k > 0:
+                    lower_lim[lim_ds3[0]] = np.log(EDP)
+                P_any = mvn_od(np.log(theta_t), COV_t, lower=lower_lim,
+                               upper=upper_lim)[0]
+                if (dep in ['DS', 'IND']):
+                    P_any = 1.0 - (1.0 - P_any) ** len(lim_ds1)
+                DS_ref_any.append(P_any)
+
+                if k == 0:
+                    DS_test_all.append(
+                        np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
+                                       DMG_check_PG.iloc[:, 1] >
+                                       DMG_val_ref[-1] - 0.1],
+                                      axis=0)) / 10000.)
+                elif k == 1:
+                    DS_test_all.append(
+                        np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
+                                       DMG_check_PG.iloc[:, 1] >
+                                       DMG_val_ref[-1] - 0.1,
+                                       DMG_check_PG.iloc[:, 2] == 0.],
+                                      axis=0)) / 10000.)
+                elif k == 2:
+                    DS_test_all.append(
+                        np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
+                                       DMG_check_PG.iloc[:, [1, 2, 3]].sum(
+                                           axis=1) > DMG_val_ref[-1] - 0.1,
+                                       DMG_check_PG.iloc[:, 4] == 0.],
+                                      axis=0)) / 10000.)
+                elif k == 3:
+                    # skip this case
+                    DS_test_all.append(0.0)
+
+                if k < 2:
+                    DS_test_any.append(np.sum(
+                        np.all([DMG_check_PG.iloc[:, 1] > 0.],
+                               axis=0)) / 10000.)
+                else:
+                    DS_test_any.append(np.sum(np.all(
+                        [DMG_check_PG.iloc[:, [1, 2, 3]].sum(axis=1) > 0.],
+                        axis=0)) / 10000.)
+
+                # DS3
+                if k > 0:
+
+                    lower_lim = -np.ones(ndim) * np.inf
+                    upper_lim = np.ones(ndim) * np.inf
+                    upper_lim[lim_ds3] = np.log(EDP)
+                    DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
+                                             lower=lower_lim,
+                                             upper=upper_lim)[0])
+
+                    lower_lim = -np.ones(ndim) * np.inf
+                    upper_lim = np.ones(ndim) * np.inf
+                    upper_lim[lim_ds3[0]] = np.log(EDP)
+                    P_any = mvn_od(np.log(theta_t), COV_t, lower=lower_lim,
+                                   upper=upper_lim)[0]
+                    if (dep in ['DS', 'IND']):
+                        P_any = 1.0 - (1.0 - P_any) ** len(lim_ds1)
+                    DS_ref_any.append(P_any)
+
+                    if k == 1:
                         DS_test_all.append(
                             np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
                                            DMG_check_PG.iloc[:, 1] == 0.,
-                                           DMG_check_PG.iloc[:, 2] == 0.],
+                                           DMG_check_PG.iloc[:, 2] >
+                                           DMG_val_ref[-1] - 0.1],
                                           axis=0)) / 10000.)
                     else:
                         DS_test_all.append(
@@ -3152,252 +3359,116 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
                                            DMG_check_PG.iloc[:, 1] == 0.,
                                            DMG_check_PG.iloc[:, 2] == 0.,
                                            DMG_check_PG.iloc[:, 3] == 0.,
-                                           DMG_check_PG.iloc[:, 4] == 0.],
-                                          axis=0)) / 10000.)
-
-                    # DS1
-                    lower_lim = -np.ones(ndim) * np.inf
-                    upper_lim = np.ones(ndim) * np.inf
-                    lower_lim[lim_ds2] = np.log(EDP)
-                    upper_lim[lim_ds1] = np.log(EDP)
-                    if k > 0:
-                        lower_lim[lim_ds3] = np.log(EDP)
-                    DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
-                                             lower=lower_lim, upper=upper_lim)[
-                                          0])
-
-                    lower_lim = -np.ones(ndim) * np.inf
-                    upper_lim = np.ones(ndim) * np.inf
-                    lower_lim[lim_ds2[0]] = np.log(EDP)
-                    upper_lim[lim_ds1[0]] = np.log(EDP)
-                    if k > 0:
-                        lower_lim[lim_ds3[0]] = np.log(EDP)
-                    P_any = mvn_od(np.log(theta_t), COV_t, lower=lower_lim,
-                                   upper=upper_lim)[0]
-                    if (dep in ['DS', 'IND']):
-                        P_any = 1.0 - (1.0 - P_any) ** len(lim_ds1)
-                    DS_ref_any.append(P_any)
-
-                    if k == 0:
-                        DS_test_all.append(np.sum(np.all(
-                            [DMG_check_PG.iloc[:, 0] > DMG_val_ref[-1] - 0.1,
-                             DMG_check_PG.iloc[:, 1] == 0.], axis=0)) / 10000.)
-                    elif k == 1:
-                        DS_test_all.append(np.sum(np.all(
-                            [DMG_check_PG.iloc[:, 0] > DMG_val_ref[-1] - 0.1,
-                             DMG_check_PG.iloc[:, 1] == 0.,
-                             DMG_check_PG.iloc[:, 2] == 0.], axis=0)) / 10000.)
-                    else:
-                        DS_test_all.append(np.sum(np.all(
-                            [DMG_check_PG.iloc[:, 0] > DMG_val_ref[-1] - 0.1,
-                             DMG_check_PG.iloc[:, 1] == 0.,
-                             DMG_check_PG.iloc[:, 2] == 0.,
-                             DMG_check_PG.iloc[:, 3] == 0.,
-                             DMG_check_PG.iloc[:, 4] == 0.], axis=0)) / 10000.)
-
-                    DS_test_any.append(np.sum(
-                        np.all([DMG_check_PG.iloc[:, 0] > 0.],
-                               axis=0)) / 10000.)
-
-                    # DS2
-                    lower_lim = -np.ones(ndim) * np.inf
-                    upper_lim = np.ones(ndim) * np.inf
-                    upper_lim[lim_ds2] = np.log(EDP)
-                    if k > 0:
-                        lower_lim[lim_ds3] = np.log(EDP)
-                    if k < 3:
-                        DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
-                                                 lower=lower_lim,
-                                                 upper=upper_lim)[0])
-                    else:
-                        DS_ref_all.append(0.0)
-
-                    lower_lim = -np.ones(ndim) * np.inf
-                    upper_lim = np.ones(ndim) * np.inf
-                    upper_lim[lim_ds2[0]] = np.log(EDP)
-                    if k > 0:
-                        lower_lim[lim_ds3[0]] = np.log(EDP)
-                    P_any = mvn_od(np.log(theta_t), COV_t, lower=lower_lim,
-                                   upper=upper_lim)[0]
-                    if (dep in ['DS', 'IND']):
-                        P_any = 1.0 - (1.0 - P_any) ** len(lim_ds1)
-                    DS_ref_any.append(P_any)
-
-                    if k == 0:
-                        DS_test_all.append(
-                            np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
-                                           DMG_check_PG.iloc[:, 1] >
+                                           DMG_check_PG.iloc[:, 4] >
                                            DMG_val_ref[-1] - 0.1],
                                           axis=0)) / 10000.)
-                    elif k == 1:
-                        DS_test_all.append(
-                            np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
-                                           DMG_check_PG.iloc[:, 1] >
-                                           DMG_val_ref[-1] - 0.1,
-                                           DMG_check_PG.iloc[:, 2] == 0.],
-                                          axis=0)) / 10000.)
-                    elif k == 2:
-                        DS_test_all.append(
-                            np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
-                                           DMG_check_PG.iloc[:, [1, 2, 3]].sum(
-                                               axis=1) > DMG_val_ref[-1] - 0.1,
-                                           DMG_check_PG.iloc[:, 4] == 0.],
-                                          axis=0)) / 10000.)
-                    elif k == 3:
-                        # skip this case
-                        DS_test_all.append(0.0)
-
-                    if k < 2:
+                    if k == 1:
                         DS_test_any.append(np.sum(
-                            np.all([DMG_check_PG.iloc[:, 1] > 0.],
+                            np.all([DMG_check_PG.iloc[:, 2] > 0.],
                                    axis=0)) / 10000.)
+
                     else:
-                        DS_test_any.append(np.sum(np.all(
-                            [DMG_check_PG.iloc[:, [1, 2, 3]].sum(axis=1) > 0.],
-                            axis=0)) / 10000.)
+                        DS_test_any.append(np.sum(
+                            np.all([DMG_check_PG.iloc[:, 4] > 0.],
+                                   axis=0)) / 10000.)
 
-                    # DS3
-                    if k > 0:
+                assert_allclose(DS_ref_all, DS_test_all, atol=0.02)
+                assert_allclose(DS_ref_any, DS_test_any, atol=0.02)
 
-                        lower_lim = -np.ones(ndim) * np.inf
-                        upper_lim = np.ones(ndim) * np.inf
-                        upper_lim[lim_ds3] = np.log(EDP)
-                        DS_ref_all.append(mvn_od(np.log(theta_t), COV_t,
-                                                 lower=lower_lim,
-                                                 upper=upper_lim)[0])
+    # ---------------------------------------------------------------------
 
-                        lower_lim = -np.ones(ndim) * np.inf
-                        upper_lim = np.ones(ndim) * np.inf
-                        upper_lim[lim_ds3[0]] = np.log(EDP)
-                        P_any = mvn_od(np.log(theta_t), COV_t, lower=lower_lim,
-                                       upper=upper_lim)[0]
-                        if (dep in ['DS', 'IND']):
-                            P_any = 1.0 - (1.0 - P_any) ** len(lim_ds1)
-                        DS_ref_any.append(P_any)
+    A.calculate_losses()
 
-                        if k == 1:
-                            DS_test_all.append(
-                                np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
-                                               DMG_check_PG.iloc[:, 1] == 0.,
-                                               DMG_check_PG.iloc[:, 2] >
-                                               DMG_val_ref[-1] - 0.1],
-                                              axis=0)) / 10000.)
-                        else:
-                            DS_test_all.append(
-                                np.sum(np.all([DMG_check_PG.iloc[:, 0] == 0.,
-                                               DMG_check_PG.iloc[:, 1] == 0.,
-                                               DMG_check_PG.iloc[:, 2] == 0.,
-                                               DMG_check_PG.iloc[:, 3] == 0.,
-                                               DMG_check_PG.iloc[:, 4] >
-                                               DMG_val_ref[-1] - 0.1],
-                                              axis=0)) / 10000.)
-                        if k == 1:
-                            DS_test_any.append(np.sum(
-                                np.all([DMG_check_PG.iloc[:, 2] > 0.],
-                                       axis=0)) / 10000.)
+    # ---------------------------------------------- check loss calculation
 
-                        else:
-                            DS_test_any.append(np.sum(
-                                np.all([DMG_check_PG.iloc[:, 4] > 0.],
-                                       axis=0)) / 10000.)
+    # No additional uncertainty is introduced when it comes to losses in
+    # this test. The decision variables and the damaged quantities shall
+    # follow the same distribution and have the same correlation structure.
+    # The damaged quantities have already been verified, so now we use them
+    # as reference values for testing the decision variables.
 
-                    assert_allclose(DS_ref_all, DS_test_all, atol=0.02)
-                    assert_allclose(DS_ref_any, DS_test_any, atol=0.02)
+    # COST and TIME and INJ
+    DV_COST = A._DV_dict['rec_cost']
+    DV_TIME = A._DV_dict['rec_time']
+    DV_INJ_dict = deepcopy(A._DV_dict['injuries'])
+    DV_INJ0 = DV_INJ_dict[0]
+    DV_INJ1 = DV_INJ_dict[1]
 
-        # ---------------------------------------------------------------------
+    DMG_check = A._DMG
 
-        A.calculate_losses()
+    for k in range(4):
+        # Start with checking the correlations...
+        dmg = DMG_check.loc[:, (DMG_check != 0.0).any(axis=0)]
+        dmg_corr = dmg.loc[:, idx[k + 1, :, :]].corr()
+        for dv in [DV_COST, DV_TIME, DV_INJ0, DV_INJ1]:
+            dv = dv.loc[:, (dv != 0.0).any(axis=0)]
+            dv_corr = dv.loc[:, idx[k + 1, :, :]].corr()
 
-        # ---------------------------------------------- check loss calculation
+            assert_allclose(dmg_corr.values, dv_corr.values, atol=0.001)
 
-        # No additional uncertainty is introduced when it comes to losses in
-        # this test. The decision variables and the damaged quantities shall
-        # follow the same distribution and have the same correlation structure.
-        # The damaged quantities have already been verified, so now we use them
-        # as reference values for testing the decision variables.
+        # then check the distribution.
+        # After normalizing with the damaged quantities all decision
+        # variables in a given DS shall have the same value.
+        dv = ((dv / dmg).describe().T).fillna(0.0)
 
-        # COST and TIME and INJ
-        DV_COST = A._DV_dict['rec_cost']
-        DV_TIME = A._DV_dict['rec_time']
-        DV_INJ_dict = deepcopy(A._DV_dict['injuries'])
-        DV_INJ0 = DV_INJ_dict[0]
-        DV_INJ1 = DV_INJ_dict[1]
+        assert_allclose(dv['std'], np.zeros(len(dv.index)), atol=1.0)
 
-        DMG_check = A._DMG
+    # red tags require special checks
+    for f, fg_id in enumerate(sorted(A._FG_dict.keys())):
+        dims = [2, 3, 5, 5][f]
 
-        for k in range(4):
-            # Start with checking the correlations...
-            dmg = DMG_check.loc[:, (DMG_check != 0.0).any(axis=0)]
-            dmg_corr = dmg.loc[:, idx[k + 1, :, :]].corr()
-            for dv in [DV_COST, DV_TIME, DV_INJ0, DV_INJ1]:
-                dv = dv.loc[:, (dv != 0.0).any(axis=0)]
-                dv_corr = dv.loc[:, idx[k + 1, :, :]].corr()
+        # take the total quantity of each performance group
+        FG = A._FG_dict[fg_id]
+        qnt = []
+        for PG in FG._performance_groups:
+            if isinstance(PG._quantity, RandomVariable):
+                qnt.append((PG._quantity.samples[:dims]).flatten())
+            else:
+                qnt.append(np.ones(dims) * PG._quantity)
+        qnt = np.array(qnt).flatten()
 
-                assert_allclose(dmg_corr.values, dv_corr.values, atol=0.001)
+        # flag the samples where the damage exceeds the pre-defined limit
+        # for red tagging
+        dmg = DMG_check.loc[:, idx[FG._ID, :, :]]
+        red_ref = dmg > 0.489 * qnt
 
-            # then check the distribution.
-            # After normalizing with the damaged quantities all decision
-            # variables in a given DS shall have the same value.
-            dv = ((dv / dmg).describe().T).fillna(0.0)
+        # collect the red tag results from the analysis
+        red_test = A._DV_dict['red_tag'].loc[:, idx[FG._ID, :, :]]
 
-            assert_allclose(dv['std'], np.zeros(len(dv.index)), atol=1.0)
+        # compare
+        red_diff = (red_ref - red_test).describe().T
+        assert_allclose(red_diff['mean'].values, 0.)
+        assert_allclose(red_diff['std'].values, 0.)
 
-        # red tags require special checks
-        for f, fg_id in enumerate(sorted(A._FG_dict.keys())):
-            dims = [2, 3, 5, 5][f]
+    # ---------------------------------------------------------------------
 
-            # take the total quantity of each performance group
-            FG = A._FG_dict[fg_id]
-            qnt = []
-            for PG in FG._performance_groups:
-                if isinstance(PG._quantity, RandomVariableSubset):
-                    qnt.append((PG._quantity.samples.values[:dims]).flatten())
-                else:
-                    qnt.append(np.ones(dims) * PG._quantity)
-            qnt = np.array(qnt).flatten()
+    A.aggregate_results()
 
-            # flag the samples where the damage exceeds the pre-defined limit
-            # for red tagging
-            dmg = DMG_check.loc[:, idx[FG._ID, :, :]]
-            red_ref = dmg > 0.489 * qnt
+    # -------------------------------------------- check result aggregation
 
-            # collect the red tag results from the analysis
-            red_test = A._DV_dict['red_tag'].loc[:, idx[FG._ID, :, :]]
+    # Aggregate results are checked in detail by other tests.
+    # Here we only focus on some simple checks to make sure the results
+    # make sense.
 
-            # compare
-            red_diff = (red_ref - red_test).describe().T
-            assert_allclose(red_diff['mean'].values, 0.)
-            assert_allclose(red_diff['std'].values, 0.)
+    S = A._SUMMARY
+    SD = S.describe().T
 
-        # ---------------------------------------------------------------------
+    assert SD.loc[('inhabitants', ''), 'mean'] == 10.0
+    assert SD.loc[('inhabitants', ''), 'std'] == 0.0
 
-        A.aggregate_results()
+    assert SD.loc[('collapses', 'collapsed'), 'mean'] == 0.0
+    assert SD.loc[('collapses', 'collapsed'), 'std'] == 0.0
 
-        # -------------------------------------------- check result aggregation
-
-        # Aggregate results are checked in detail by other tests.
-        # Here we only focus on some simple checks to make sure the results
-        # make sense.
-
-        S = A._SUMMARY
-        SD = S.describe().T
-
-        assert SD.loc[('inhabitants', ''), 'mean'] == 10.0
-        assert SD.loc[('inhabitants', ''), 'std'] == 0.0
-
-        assert SD.loc[('collapses', 'collapsed'), 'mean'] == 0.0
-        assert SD.loc[('collapses', 'collapsed'), 'std'] == 0.0
-
-        assert_allclose(A._DV_dict['rec_cost'].sum(axis=1),
-                        S.loc[:, ('reconstruction', 'cost')])
-        assert_allclose(A._DV_dict['rec_time'].sum(axis=1),
-                        S.loc[:, ('reconstruction', 'time-sequential')])
-        assert_allclose(A._DV_dict['rec_time'].max(axis=1),
-                        S.loc[:, ('reconstruction', 'time-parallel')])
-        assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev1')])
-        assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
-                        S.loc[:, ('injuries', 'sev2')])
+    assert_allclose(A._DV_dict['rec_cost'].sum(axis=1),
+                    S.loc[:, ('reconstruction', 'cost')])
+    assert_allclose(A._DV_dict['rec_time'].sum(axis=1),
+                    S.loc[:, ('reconstruction', 'time-sequential')])
+    assert_allclose(A._DV_dict['rec_time'].max(axis=1),
+                    S.loc[:, ('reconstruction', 'time-parallel')])
+    assert_allclose(A._DV_dict['injuries'][0].sum(axis=1),
+                    S.loc[:, ('injuries', 'sev1')])
+    assert_allclose(A._DV_dict['injuries'][1].sum(axis=1),
+                    S.loc[:, ('injuries', 'sev2')])
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_PG():
 
@@ -3551,23 +3622,31 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
         )
         np.fill_diagonal(rho_ref['IND'], 1.0)
 
-        RV_REP = deepcopy(A._RV_dict['DV_REP'])
-        RV_RED = deepcopy(A._RV_dict['DV_RED'])
-        RV_INJ = deepcopy(A._RV_dict['DV_INJ'])
+        # RV_REP = deepcopy(A._RV_dict['DV_REP'])
+        # RV_RED = deepcopy(A._RV_dict['DV_RED'])
+        # RV_INJ = deepcopy(A._RV_dict['DV_INJ'])
+
+        RV_REP = list(A._DV_REP_dict.values())
+        RV_RED = list(A._DV_RED_dict.values())
+        RV_INJ = list(A._DV_INJ_dict.values())
 
         for r, (RV_DV, RV_tag) in enumerate(
             zip([RV_REP, RV_RED, RV_INJ], ['rep', 'red', 'inj'])):
 
-            assert len(RV_DV._dimension_tags) == [32, 16, 32][r]
+            # assert len(RV_DV._dimension_tags) == [32, 16, 32][r]
+            assert len(RV_DV) == [32, 16, 32][r]
 
-            COV_test = RV_DV.COV
-            sig_test = np.sqrt(np.diagonal(COV_test))
-            rho_test = COV_test / np.outer(sig_test, sig_test)
+            DV_theta_test, DV_beta_test = np.array([rv.theta for rv in RV_DV]).T
+            DV_rho_test = RV_DV[0].RV_set.Rho([rv.name for rv in RV_DV])
+
+            # COV_test = RV_DV.COV
+            # sig_test = np.sqrt(np.diagonal(COV_test))
+            # rho_test = COV_test / np.outer(sig_test, sig_test)
 
             if RV_tag == 'rep':
 
-                assert_allclose(RV_DV.theta, np.ones(32))
-                assert_allclose(sig_test, np.array(
+                assert_allclose(DV_theta_test, np.ones(32))
+                assert_allclose(DV_beta_test, np.array(
                     [0.31, 0.71] * 8 + [0.32, 0.72] * 8))
 
                 if dep_CT == True:
@@ -3578,40 +3657,40 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
                         rho_ref_CT = np.maximum(rho_ref[dep_COST],
                                                 rho_ref[dep_TIME])
 
-                    assert_allclose(rho_test[:16, :16], rho_ref_CT)
-                    assert_allclose(rho_test[16:, 16:], rho_ref_CT)
-                    assert_allclose(rho_test[:16, 16:], rho_ref_CT)
-                    assert_allclose(rho_test[16:, :16], rho_ref_CT)
+                    assert_allclose(DV_rho_test[:16, :16], rho_ref_CT)
+                    assert_allclose(DV_rho_test[16:, 16:], rho_ref_CT)
+                    assert_allclose(DV_rho_test[:16, 16:], rho_ref_CT)
+                    assert_allclose(DV_rho_test[16:, :16], rho_ref_CT)
 
                 else:
-                    assert_allclose(rho_test[:16, :16], rho_ref[dep_COST])
-                    assert_allclose(rho_test[16:, 16:], rho_ref[dep_TIME])
-                    assert_allclose(rho_test[:16, 16:], np.zeros((16, 16)))
-                    assert_allclose(rho_test[16:, :16], np.zeros((16, 16)))
+                    assert_allclose(DV_rho_test[:16, :16], rho_ref[dep_COST])
+                    assert_allclose(DV_rho_test[16:, 16:], rho_ref[dep_TIME])
+                    assert_allclose(DV_rho_test[:16, 16:], np.zeros((16, 16)))
+                    assert_allclose(DV_rho_test[16:, :16], np.zeros((16, 16)))
 
             elif RV_tag == 'red':
 
-                assert_allclose(RV_DV.theta, np.ones(16))
-                assert_allclose(sig_test, np.array([0.33, 0.73] * 8))
+                assert_allclose(DV_theta_test, np.ones(16))
+                assert_allclose(DV_beta_test, np.array([0.33, 0.73] * 8))
 
-                assert_allclose(rho_test, rho_ref[dep_RED])
+                assert_allclose(DV_rho_test, rho_ref[dep_RED])
 
             elif RV_tag == 'inj':
 
-                assert_allclose(RV_DV.theta, np.ones(32))
-                assert_allclose(sig_test, np.array(
+                assert_allclose(DV_theta_test, np.ones(32))
+                assert_allclose(DV_beta_test, np.array(
                     [0.34, 0.74] * 8 + [0.35, 0.75] * 8))
 
                 if dep_ILVL == True:
-                    assert_allclose(rho_test[:16, :16], rho_ref[dep_INJ])
-                    assert_allclose(rho_test[16:, 16:], rho_ref[dep_INJ])
-                    assert_allclose(rho_test[:16, 16:], rho_ref[dep_INJ])
-                    assert_allclose(rho_test[16:, :16], rho_ref[dep_INJ])
+                    assert_allclose(DV_rho_test[:16, :16], rho_ref[dep_INJ])
+                    assert_allclose(DV_rho_test[16:, 16:], rho_ref[dep_INJ])
+                    assert_allclose(DV_rho_test[:16, 16:], rho_ref[dep_INJ])
+                    assert_allclose(DV_rho_test[16:, :16], rho_ref[dep_INJ])
                 else:
-                    assert_allclose(rho_test[:16, :16], rho_ref[dep_INJ])
-                    assert_allclose(rho_test[16:, 16:], rho_ref[dep_INJ])
-                    assert_allclose(rho_test[:16, 16:], np.zeros((16, 16)))
-                    assert_allclose(rho_test[16:, :16], np.zeros((16, 16)))
+                    assert_allclose(DV_rho_test[:16, :16], rho_ref[dep_INJ])
+                    assert_allclose(DV_rho_test[16:, 16:], rho_ref[dep_INJ])
+                    assert_allclose(DV_rho_test[:16, 16:], np.zeros((16, 16)))
+                    assert_allclose(DV_rho_test[16:, :16], np.zeros((16, 16)))
 
         # ---------------------------------------------------------------------
 
@@ -3894,9 +3973,11 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies():
 
             # use the correlations specified for the random variable as
             # reference (that we already verified earlier)
-            COV_ref = RV.COV
-            sig_ref = np.sqrt(np.diagonal(COV_ref))
-            rho_ref = COV_ref / np.outer(sig_ref, sig_ref)
+            # COV_ref = RV.COV
+            # sig_ref = np.sqrt(np.diagonal(COV_ref))
+            # rho_ref = COV_ref / np.outer(sig_ref, sig_ref)
+
+            rho_ref = RV[0].RV_set.Rho([rv.name for rv in RV])
 
             # perform the tests
             for i in range(len(DV_corr.index)):
@@ -4072,23 +4153,31 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
         )
         np.fill_diagonal(rho_ref['IND'], 1.0)
 
-        RV_REP = deepcopy(A._RV_dict['DV_REP'])
-        RV_RED = deepcopy(A._RV_dict['DV_RED'])
-        RV_INJ = deepcopy(A._RV_dict['DV_INJ'])
+        # RV_REP = deepcopy(A._RV_dict['DV_REP'])
+        # RV_RED = deepcopy(A._RV_dict['DV_RED'])
+        # RV_INJ = deepcopy(A._RV_dict['DV_INJ'])
+
+        RV_REP = list(A._DV_REP_dict.values())
+        RV_RED = list(A._DV_RED_dict.values())
+        RV_INJ = list(A._DV_INJ_dict.values())
 
         for r, (RV_DV, RV_tag) in enumerate(
             zip([RV_REP, RV_RED, RV_INJ], ['rep', 'red', 'inj'])):
 
-            assert len(RV_DV._dimension_tags) == [32, 8, 16][r]
+            # assert len(RV_DV._dimension_tags) == [32, 8, 16][r]
+            assert len(RV_DV) == [32, 8, 16][r]
 
-            COV_test = RV_DV.COV
-            sig_test = np.sqrt(np.diagonal(COV_test))
-            rho_test = COV_test / np.outer(sig_test, sig_test)
+            DV_theta_test, DV_beta_test = np.array([rv.theta for rv in RV_DV]).T
+            DV_rho_test = RV_DV[0].RV_set.Rho([rv.name for rv in RV_DV])
+
+            # COV_test = RV_DV.COV
+            # sig_test = np.sqrt(np.diagonal(COV_test))
+            # rho_test = COV_test / np.outer(sig_test, sig_test)
 
             if RV_tag == 'rep':
 
-                assert_allclose(RV_DV.theta, np.ones(32))
-                assert_allclose(sig_test, np.array(
+                assert_allclose(DV_theta_test, np.ones(32))
+                assert_allclose(DV_beta_test, np.array(
                     [0.31, 0.71] * 8 + [0.32, 0.72] * 8))
 
                 if dep_CT == True:
@@ -4099,40 +4188,40 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
                         rho_ref_CT = np.maximum(rho_ref[dep_COST],
                                                 rho_ref[dep_TIME])
 
-                    assert_allclose(rho_test[:16, :16], rho_ref_CT)
-                    assert_allclose(rho_test[16:, 16:], rho_ref_CT)
-                    assert_allclose(rho_test[:16, 16:], rho_ref_CT)
-                    assert_allclose(rho_test[16:, :16], rho_ref_CT)
+                    assert_allclose(DV_rho_test[:16, :16], rho_ref_CT)
+                    assert_allclose(DV_rho_test[16:, 16:], rho_ref_CT)
+                    assert_allclose(DV_rho_test[:16, 16:], rho_ref_CT)
+                    assert_allclose(DV_rho_test[16:, :16], rho_ref_CT)
 
                 else:
-                    assert_allclose(rho_test[:16, :16], rho_ref[dep_COST])
-                    assert_allclose(rho_test[16:, 16:], rho_ref[dep_TIME])
-                    assert_allclose(rho_test[:16, 16:], np.zeros((16, 16)))
-                    assert_allclose(rho_test[16:, :16], np.zeros((16, 16)))
+                    assert_allclose(DV_rho_test[:16, :16], rho_ref[dep_COST])
+                    assert_allclose(DV_rho_test[16:, 16:], rho_ref[dep_TIME])
+                    assert_allclose(DV_rho_test[:16, 16:], np.zeros((16, 16)))
+                    assert_allclose(DV_rho_test[16:, :16], np.zeros((16, 16)))
 
             elif RV_tag == 'red':
 
-                assert_allclose(RV_DV.theta, np.ones(8))
-                assert_allclose(sig_test, np.array([0.33, 0.73] * 4))
+                assert_allclose(DV_theta_test, np.ones(8))
+                assert_allclose(DV_beta_test, np.array([0.33, 0.73] * 4))
 
-                assert_allclose(rho_test, rho_ref[dep_RED][:8,:8])
+                assert_allclose(DV_rho_test, rho_ref[dep_RED][:8,:8])
 
             elif RV_tag == 'inj':
 
-                assert_allclose(RV_DV.theta, np.ones(16))
-                assert_allclose(sig_test, np.array(
+                assert_allclose(DV_theta_test, np.ones(16))
+                assert_allclose(DV_beta_test, np.array(
                     [0.34, 0.74] * 4 + [0.35, 0.75] * 4))
 
                 if dep_ILVL == True:
-                    assert_allclose(rho_test[:8, :8], rho_ref[dep_INJ][:8,:8])
-                    assert_allclose(rho_test[8:, 8:], rho_ref[dep_INJ][:8,:8])
-                    assert_allclose(rho_test[:8, 8:], rho_ref[dep_INJ][:8,:8])
-                    assert_allclose(rho_test[8:, :8], rho_ref[dep_INJ][:8,:8])
+                    assert_allclose(DV_rho_test[:8, :8], rho_ref[dep_INJ][:8,:8])
+                    assert_allclose(DV_rho_test[8:, 8:], rho_ref[dep_INJ][:8,:8])
+                    assert_allclose(DV_rho_test[:8, 8:], rho_ref[dep_INJ][:8,:8])
+                    assert_allclose(DV_rho_test[8:, :8], rho_ref[dep_INJ][:8,:8])
                 else:
-                    assert_allclose(rho_test[:8, :8], rho_ref[dep_INJ][:8,:8])
-                    assert_allclose(rho_test[8:, 8:], rho_ref[dep_INJ][:8,:8])
-                    assert_allclose(rho_test[:8, 8:], np.zeros((8, 8)))
-                    assert_allclose(rho_test[8:, :8], np.zeros((8, 8)))
+                    assert_allclose(DV_rho_test[:8, :8], rho_ref[dep_INJ][:8,:8])
+                    assert_allclose(DV_rho_test[8:, 8:], rho_ref[dep_INJ][:8,:8])
+                    assert_allclose(DV_rho_test[:8, 8:], np.zeros((8, 8)))
+                    assert_allclose(DV_rho_test[8:, :8], np.zeros((8, 8)))
 
         # ---------------------------------------------------------------------
 
@@ -4427,9 +4516,11 @@ def test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data():
 
             # use the correlations specified for the random variable as
             # reference (that we already verified earlier)
-            COV_ref = RV.COV
-            sig_ref = np.sqrt(np.diagonal(COV_ref))
-            rho_ref = COV_ref / np.outer(sig_ref, sig_ref)
+            # COV_ref = RV.COV
+            # sig_ref = np.sqrt(np.diagonal(COV_ref))
+            # rho_ref = COV_ref / np.outer(sig_ref, sig_ref)
+
+            rho_ref = RV[0].RV_set.Rho([rv.name for rv in RV])
 
             # perform the tests
             for i in range(len(DV_corr.index)):

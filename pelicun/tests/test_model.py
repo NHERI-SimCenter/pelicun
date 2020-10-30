@@ -79,7 +79,7 @@ def test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std():
 
     FF_set = RandomVariableSet('A_set', [RV_A,], [1.0])
 
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
@@ -108,7 +108,7 @@ def test_FragilityFunction_Pexc_lognormal_non_trivial_case():
 
     FF_set = RandomVariableSet('A_set', [RV_A, ], [1.0])
 
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
@@ -128,7 +128,7 @@ def test_FragilityFunction_Pexc_lognormal_zero_input():
 
     FF_set = RandomVariableSet('A_set', [RV_A, ], [1.0])
 
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probability
     test_P_exc = fragility_function.P_exc(0., DSG_ID=1)
@@ -145,7 +145,7 @@ def test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input():
                           theta=[1.0, 1.0])
 
     FF_set = RandomVariableSet('A_set', [RV_A, ], [1.0])
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(standard_normal_table[0][0], DSG_ID=1)
@@ -179,7 +179,7 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
 
     # a single DSG fragility
     FF_set = RandomVariableSet('A_set', [RV_reg.RV['A'], ], [1.0])
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(EDP_limit=[RV_reg.RV['A'],])
 
     test_res = fragility_function.P_exc(EDP, 1)
     ref_res = norm.cdf(np.log(EDP),
@@ -190,7 +190,8 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     # three
     FF_set = RandomVariableSet('FF_0',
                           [RV_reg.RV[rv] for rv in ['A', 'B', 'C']], ref_rho)
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV[rv] for rv in ['A', 'B', 'C']])
 
     test_res = fragility_function.P_exc(EDP, 1)
     ref_res = [norm.cdf(np.log(EDP),
@@ -206,7 +207,8 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     FF_set = RandomVariableSet('FF_0',
                                [RV_reg.RV[rv] for rv in ['A', 'B', 'C']],
                                ref_rho)
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV[rv] for rv in ['A', 'B', 'C']])
 
     # three DSGs, still interested in P_exc for A considering all three
     test_res = fragility_function.P_exc(EDP, 1)
@@ -242,7 +244,8 @@ def test_FragilityFunction_DSG_ID_given_EDP_general():
     FF_set = RandomVariableSet('FF_0',
                                [RV_reg.RV[rv] for rv in ['A', 'B', 'C']],
                                ref_rho)
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV[rv] for rv in ['A', 'B', 'C']])
 
     RV_reg.add_RV_set(FF_set)
     RV_reg.generate_samples(sample_size=10000)
@@ -724,7 +727,8 @@ def test_PerformanceGroup_Pexc():
 
     FF_set = RandomVariableSet('A_set', [RV_reg.RV['A'], RV_reg.RV['B']],
                                np.ones((2,2)))
-    fragility_function = FragilityFunction(EDP_limit=FF_set)
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV['A'], RV_reg.RV['B']])
 
     RV_reg.add_RV_set(FF_set)
 
@@ -767,7 +771,7 @@ def test_FragilityGroup_description_and_name():
 
     # create the fragility function
     RV = RandomVariable(name='A', distribution='lognormal', theta=[0.5, 0.4])
-    FF = FragilityFunction(EDP_limit=RV)
+    FF = FragilityFunction(EDP_limit=[RV,])
 
     # some of the inputs below do not make sense, but since the subject of the
     # test is not the performance group, they will work fine

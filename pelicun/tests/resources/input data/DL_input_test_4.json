@@ -18,7 +18,7 @@
             },
             "DetectionLimits":{
                 "PID": 0.10,
-                "PFA": 25.0
+                "PFA": 99.0
             }
         },
         "DamageModel": {
