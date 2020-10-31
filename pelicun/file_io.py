@@ -61,6 +61,9 @@ from .db import convert_Series_to_dict
 
 import json, posixpath
 
+from tables.exceptions import HDF5ExtError
+from time import sleep
+
 
 import warnings
 
@@ -665,10 +668,13 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
         elif ((data['decision_variables']['rec_cost']) or
               (data['decision_variables']['rec_time'])):
-            show_warning(
-                "Residual drift limits corresponding to irreparable "
-                "damage were not defined in the input file. We assume that "
-                "damage is repairable regardless of the residual drift.")
+            pass
+            #TODO: show this warning in the log file instead
+
+            # show_warning(
+            #     "Residual drift limits corresponding to irreparable "
+            #     "damage were not defined in the input file. We assume that "
+            #     "damage is repairable regardless of the residual drift.")
             # we might need to have a default yield drift here
 
         # collapse probability
@@ -991,11 +997,28 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     # else if an HDF5 file is provided
     elif path_POP.endswith('hdf'):
 
-        store = pd.HDFStore(path_POP)
-        store.open()
-        pop_table = store.select('pop', where = f'index in {[occupancy,]}')
-        data = convert_Series_to_dict(pop_table.loc[occupancy,:])
-        store.close()
+        # this for loop is needed to avoid issues from race conditions on HPC
+        for i in range(1000):
+            try:
+                store = pd.HDFStore(path_POP)
+                store.open()
+
+            except HDF5ExtError:
+                pop_table = None
+                sleep(0.01)
+                continue
+
+            else:
+                pop_table = store.select('pop',
+                                         where=f'index in {[occupancy, ]}')
+                store.close()
+                break
+
+        if pop_table is not None:
+            data = convert_Series_to_dict(pop_table.loc[occupancy, :])
+        else:
+            raise IOError("Couldn't read the HDF file for POP data after 20 "
+                          "tries because it was blocked by other processes.")
 
     # convert peak population to persons/m2
     if 'peak' in data.keys():
@@ -1081,12 +1104,29 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
     # else if an HDF5 file is provided we assume it contains the DL data
     elif path_CMP.endswith('hdf'):
 
-        store = pd.HDFStore(path_CMP)
-        store.open()
-        CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
-        for c_id in s_cmp_keys:
-            DL_data_dict.update({c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
-        store.close()
+        # this for loop is needed to avoid issues from race conditions on HPC
+        for i in range(1000):
+            try:
+                store = pd.HDFStore(path_CMP)
+                store.open()
+
+            except HDF5ExtError:
+                CMP_table = None
+                sleep(0.1)
+                continue
+
+            else:
+                CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
+                store.close()
+                break
+
+        if CMP_table is not None:
+            for c_id in s_cmp_keys:
+                DL_data_dict.update(
+                    {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
+        else:
+            raise IOError("Couldn't read the HDF file for DL data after 20 "
+                          "tries because it was blocked by other processes.")
 
     else:
         raise ValueError(
@@ -1433,7 +1473,7 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
     for comp_type in ['S', 'NS', 'NSA', 'NSD']:
         if np.sum([fg.startswith(comp_type) for fg in FG_list]) > 0:
             comp_types.append(comp_type)
-    if np.sum([np.any([fg.startswith(comp_type) for comp_type in comp_types]) 
+    if np.sum([np.any([fg.startswith(comp_type) for comp_type in comp_types])
                        for fg in FG_list]) != len(FG_list):
         comp_types.append('other')
 
@@ -1461,7 +1501,7 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
 
         # select the corresponding subset of columns
         if comp_type == 'other':
-            type_cols = [fg for fg in FG_list 
+            type_cols = [fg for fg in FG_list
                          if np.all([~fg.startswith(comp_type) for comp_type in comp_types])]
         else:
             type_cols = [c for c in DMG_agg.columns.get_level_values('FG').unique()
@@ -1606,7 +1646,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
 
     DVs = SUMMARY_df.columns.get_level_values(1)
 
-    if DV_cost is not 0:
+    if DV_cost != 0:
 
         comp_types = []
         FG_list = [c for c in DV_cost.columns.get_level_values('FG').unique()]
@@ -1653,7 +1693,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
             if comp_type in comp_types:
                 del df_res_C[('Repair Cost', comp_type, '4_2')]
 
-    if DV_time is not 0:
+    if DV_time != 0:
 
         repl_time = GI['replacement_time']
 
@@ -1668,10 +1708,10 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
         df_res_Tagg = pd.DataFrame(columns=MI, index=[0, ])
         df_res_Tagg.fillna(0, inplace=True)
 
-    if DV_inj[0] is not 0:
+    if DV_inj[0] != 0:
 
         lvls = []
-        [lvls.append(f'sev{i+1}') for i in range(4) if DV_inj[i] is not 0]
+        [lvls.append(f'sev{i+1}') for i in range(4) if DV_inj[i] != 0]
 
         headers = [['Injuries',],
                    lvls,
@@ -1687,7 +1727,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
     dfs_to_join = []
 
     # start with the disaggregated costs...
-    if DV_cost is not 0:
+    if DV_cost != 0:
         for type_ID in comp_types:
 
             DV_res = DV_cost.groupby(level=['FG', 'DSG_DS'], axis=1).sum()
@@ -1729,7 +1769,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
         df_res_Cagg = df_res_Cagg.astype(float) #.round(0)
         dfs_to_join = dfs_to_join + [df_res_Cagg, df_res_Cimp, df_res_C]
 
-    if DV_time is not 0:
+    if DV_time != 0:
         DV_res = describe(SUMMARY_df[('reconstruction','time')])
 
         df_res_Tagg.loc[:, idx['Repair Time', ' ', 'aggregate', ['mean', 'std','10%','median','90%']]] = DV_res[['mean', 'std','10%','50%','90%']].values
@@ -1737,9 +1777,9 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
         df_res_Tagg = df_res_Tagg.astype(float) #.round(1)
         dfs_to_join.append(df_res_Tagg)
 
-    if DV_inj[0] is not 0:
+    if DV_inj[0] != 0:
         for i in range(4):
-            if DV_inj[i] is not 0:
+            if DV_inj[i] != 0:
                 DV_res = describe(SUMMARY_df[('injuries',f'sev{i+1}')])
 
                 df_res_Iagg.loc[:, idx['Injuries', f'sev{i+1}', 'aggregate', ['mean', 'std','10%','median','90%']]] = DV_res[['mean', 'std','10%','50%','90%']].values

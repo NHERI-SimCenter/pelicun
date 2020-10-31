@@ -18,11 +18,11 @@
             },
             "DetectionLimits":{
                 "PID": 0.10,
-                "PFA": 25.0
+                "PFA": 99.0
             }
         },
         "DamageModel": {
-            "IrrepairableResidualDrift": {
+            "IrreparableResidualDrift": {
                 "Median": "10.",
                 "Beta": "0.0001"
             },

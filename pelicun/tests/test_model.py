@@ -54,7 +54,8 @@ sys.path.insert(0,os.path.dirname(parent_dir))
 
 from pelicun.model import *
 from pelicun.tests.test_reference_data import standard_normal_table
-from pelicun.uq import RandomVariable, RandomVariableSubset
+#from pelicun.uq import RandomVariable, RandomVariableSubset
+from pelicun.uq import *
 
 # -------------------------------------------------------------------------------
 # Fragility_Function
@@ -74,11 +75,11 @@ def test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std():
                                       0.5 + standard_normal_table[1]])
 
     # create the fragility function
-    RV = RandomVariable(ID=1, dimension_tags='A',
-                        distribution_kind='lognormal',
-                        theta=1.0, COV=1.0)
-    fragility_function = FragilityFunction(
-        EDP_limit=RandomVariableSubset(RV, 'A'))
+    RV_A = RandomVariable(name='A', distribution='lognormal', theta=[1.0, 1.0])
+
+    FF_set = RandomVariableSet('A_set', [RV_A,], [1.0])
+
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
@@ -102,11 +103,12 @@ def test_FragilityFunction_Pexc_lognormal_non_trivial_case():
                                       0.5 + standard_normal_table[1]])
 
     # create the fragility function
-    RV = RandomVariable(ID=1, dimension_tags='A',
-                        distribution_kind='lognormal',
-                        theta=target_theta, COV=target_beta ** 2.)
-    fragility_function = FragilityFunction(
-        EDP_limit=RandomVariableSubset(RV, 'A'))
+    RV_A = RandomVariable(name='A', distribution='lognormal',
+                          theta=[target_theta, target_beta])
+
+    FF_set = RandomVariableSet('A_set', [RV_A, ], [1.0])
+
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(EDP, DSG_ID=1)
@@ -121,11 +123,12 @@ def test_FragilityFunction_Pexc_lognormal_zero_input():
     easier when real inputs are fed to the fragility functions.
     """
     # create the fragility function
-    RV = RandomVariable(ID=1, dimension_tags='A',
-                        distribution_kind='lognormal',
-                        theta=1.0, COV=1.0)
-    fragility_function = FragilityFunction(
-        EDP_limit=RandomVariableSubset(RV, 'A'))
+    RV_A = RandomVariable(name='A', distribution='lognormal',
+                          theta=[1.0, 1.0])
+
+    FF_set = RandomVariableSet('A_set', [RV_A, ], [1.0])
+
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probability
     test_P_exc = fragility_function.P_exc(0., DSG_ID=1)
@@ -138,11 +141,11 @@ def test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input():
     nonzero scalar output.
     """
     # create the fragility function
-    RV = RandomVariable(ID=1, dimension_tags='A',
-                        distribution_kind='lognormal',
-                        theta=1.0, COV=1.0)
-    fragility_function = FragilityFunction(
-        EDP_limit=RandomVariableSubset(RV, 'A'))
+    RV_A = RandomVariable(name='A', distribution='lognormal',
+                          theta=[1.0, 1.0])
+
+    FF_set = RandomVariableSet('A_set', [RV_A, ], [1.0])
+    fragility_function = FragilityFunction(EDP_limit=[RV_A,])
 
     # calculate the exceedance probabilities
     test_P_exc = fragility_function.P_exc(standard_normal_table[0][0], DSG_ID=1)
@@ -166,24 +169,31 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     ref_std = [1.5, 0.5, 1.0]
     ref_rho = np.ones((dims, dims)) * 1.
     np.fill_diagonal(ref_rho, 1.0)
-    ref_COV = np.outer(ref_std, ref_std) * ref_rho
 
-    RV = RandomVariable(ID=1, dimension_tags=['C', 'A', 'B'],
-                        distribution_kind='lognormal',
-                        theta=ref_mean, COV=ref_COV)
+    RV_reg = RandomVariableRegistry()
+
+    for i, (name, theta, beta) in enumerate(zip(['C', 'A', 'B'],
+                                                ref_mean, ref_std)):
+        RV_reg.add_RV(RandomVariable(name=name, distribution='lognormal',
+                                     theta=[theta, beta]))
 
     # a single DSG fragility
-    # note that A is correlated with the other RV components
-    RVS = RandomVariableSubset(RV=RV, tags='A')
-    test_res = FragilityFunction(EDP_limit=RVS).P_exc(EDP, 1)
+    FF_set = RandomVariableSet('A_set', [RV_reg.RV['A'], ], [1.0])
+    fragility_function = FragilityFunction(EDP_limit=[RV_reg.RV['A'],])
+
+    test_res = fragility_function.P_exc(EDP, 1)
     ref_res = norm.cdf(np.log(EDP),
                        loc=np.log(ref_mean[1]), scale=ref_std[1])
     assert_allclose(test_res, ref_res)
 
     # three DSGs in proper order, P_exc for A is requested considering all
     # three
-    RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
-    test_res = FragilityFunction(EDP_limit=RVS).P_exc(EDP, 1)
+    FF_set = RandomVariableSet('FF_0',
+                          [RV_reg.RV[rv] for rv in ['A', 'B', 'C']], ref_rho)
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV[rv] for rv in ['A', 'B', 'C']])
+
+    test_res = fragility_function.P_exc(EDP, 1)
     ref_res = [norm.cdf(np.log(EDP),
                         loc=np.log(ref_mean[i]), scale=ref_std[i])
                for i in range(3)]
@@ -193,14 +203,15 @@ def test_FragilityFunction_Pexc_multiple_damage_states_with_correlation():
     # change the covariance matrix - uncorrelated fragilities
     ref_rho = np.ones((dims, dims)) * 0.
     np.fill_diagonal(ref_rho, 1.0)
-    ref_COV = np.outer(ref_std, ref_std) * ref_rho
-    RV = RandomVariable(ID=1, dimension_tags=['C', 'A', 'B'],
-                        distribution_kind='lognormal',
-                        theta=ref_mean, COV=ref_COV)
+
+    FF_set = RandomVariableSet('FF_0',
+                               [RV_reg.RV[rv] for rv in ['A', 'B', 'C']],
+                               ref_rho)
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV[rv] for rv in ['A', 'B', 'C']])
 
     # three DSGs, still interested in P_exc for A considering all three
-    RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
-    test_res = FragilityFunction(EDP_limit=RVS).P_exc(EDP, 1)
+    test_res = fragility_function.P_exc(EDP, 1)
     ref_res = [norm.cdf(np.log(EDP),
                         loc=np.log(ref_mean[i]), scale=ref_std[i])
                for i in range(3)]
@@ -222,30 +233,40 @@ def test_FragilityFunction_DSG_ID_given_EDP_general():
     ref_std = [1.5, 0.5, 1.0]
     ref_rho = np.ones((dims, dims)) * 1.
     np.fill_diagonal(ref_rho, 1.0)
-    ref_COV = np.outer(ref_std, ref_std) * ref_rho
 
-    RV = RandomVariable(ID=1, dimension_tags=['C', 'A', 'B'],
-                        distribution_kind='lognormal',
-                        theta=ref_mean, COV=ref_COV)
+    RV_reg = RandomVariableRegistry()
 
-    RVS = RandomVariableSubset(RV=RV, tags=['A', 'B', 'C'])
-    FF = FragilityFunction(EDP_limit=RVS)
+    for i, (name, theta, beta) in enumerate(zip(['C', 'A', 'B'],
+                                                ref_mean, ref_std)):
+        RV_reg.add_RV(RandomVariable(name=name, distribution='lognormal',
+                                     theta=[theta, beta]))
+
+    FF_set = RandomVariableSet('FF_0',
+                               [RV_reg.RV[rv] for rv in ['A', 'B', 'C']],
+                               ref_rho)
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV[rv] for rv in ['A', 'B', 'C']])
+
+    RV_reg.add_RV_set(FF_set)
+    RV_reg.generate_samples(sample_size=10000)
 
     # same EDP 10^5 times to allow for P_exc-based testing
     for target_EDP in [0., 0.75, 2.0]:
+
         # create the EDP vector
         EDP = np.ones(10000) * np.exp(target_EDP)
 
         # get the DSG_IDs
-        DSG_ID = FF.DSG_given_EDP(EDP, force_resampling=False)
+        DSG_ID = fragility_function.DSG_given_EDP(EDP)
 
         # calculate the DSG_ID probabilities
         P_DS_test = np.histogram(DSG_ID.values,
                                  bins=np.arange(5) - 0.5, density=True)[0]
 
         # use the P_exc function to arrive at the reference DSG_ID probabilities
-        P_exc = np.asarray(list(map(lambda x: FF.P_exc(np.exp(target_EDP), x),
-                                    [0, 1, 2, 3])))
+        P_exc = np.asarray(list(map(
+            lambda x: fragility_function.P_exc(np.exp(target_EDP), x),
+            [0, 1, 2, 3])))
         P_DS_ref = np.concatenate([P_exc[:-1] - P_exc[1:], [P_exc[-1], ]])
 
         # compare
@@ -254,19 +275,20 @@ def test_FragilityFunction_DSG_ID_given_EDP_general():
     # random set of EDPs uniformly distributed over the several different
     # domains
     for a, b in [[-1., -0.9], [1., 1.1], [-1., 1.]]:
-        EDP = np.exp(np.random.uniform(a, b, 100000))
+        EDP = np.exp(np.random.uniform(a, b, 10000))
 
         # get a DSG_ID sample for each EDP
-        DSG_ID = FF.DSG_given_EDP(EDP, force_resampling=True)
+        DSG_ID = fragility_function.DSG_given_EDP(EDP)
 
         # get the test DSG_ID probabilities
         P_DS_test = \
-        np.histogram(DSG_ID.values, bins=np.arange(5) - 0.5, density=True)[0]
+            np.histogram(DSG_ID.values, bins=np.arange(5) - 0.5,
+                         density=True)[0]
 
         # get the EDP-P_exc functions - basically the fragility functions
         EDP = np.exp(np.linspace(a, b, num=100))
         P_exc_f = np.asarray(
-            list(map(lambda x: FF.P_exc(EDP, x), [0, 1, 2, 3])))
+            list(map(lambda x: fragility_function.P_exc(EDP, x), [0, 1, 2, 3])))
 
         # Calculate the area enclosed by the two functions that define each DS
         # it should be the same as the P_DS from the test
@@ -274,11 +296,13 @@ def test_FragilityFunction_DSG_ID_given_EDP_general():
                for i, p in enumerate(P_exc_f[:3])]
         CDF.append(P_exc_f[-1])
         CDF = np.asarray(CDF)
-        P_DS_ref = np.asarray(list(map(lambda x: np.trapz(CDF[x], np.log(EDP)),
-                                       [0, 1, 2, 3]))) / (b - a)
+        P_DS_ref = np.asarray(
+            list(map(lambda x: np.trapz(CDF[x], np.log(EDP)),
+                     [0, 1, 2, 3]))) / (b - a)
 
         assert_allclose(P_DS_test, P_DS_ref, atol=0.02)
 
+'''
 def test_FragilityFunction_DSG_given_EDP_insufficient_samples():
     """
     Test if the function raises an error message if the number of EDP values
@@ -303,6 +327,7 @@ def test_FragilityFunction_DSG_given_EDP_insufficient_samples():
     # try to get the DSG_IDs... and expect an error
     with pytest.raises(ValueError) as e_info:
         FF.DSG_given_EDP(EDP)
+'''
 
 # ------------------------------------------------------------------------------
 # Consequence_Function
@@ -313,19 +338,17 @@ def test_ConsequenceFunction_fixed_median_value():
     Test if the function returns the prescribed median.
     """
     for dist in ['normal', 'lognormal']:
-        RV = RandomVariable(ID=1, dimension_tags=['A'],
-                            distribution_kind=dist,
-                            theta=1.0, COV=1.0)
+        RV = RandomVariable(name='A', distribution=dist,
+                            theta=[1.0, 1.0])
 
         conseq_function = ConsequenceFunction(
             DV_median=prep_constant_median_DV(1.0),
-            DV_distribution=RandomVariableSubset(RV, 'A')
+            DV_distribution=RV
         )
 
         assert conseq_function.median() == 1.0
         assert conseq_function.median(1.0) == 1.0
         assert conseq_function.median([1., 1.]) == 1.0
-
 
 def test_ConsequenceFunction_bounded_linear_median_value():
     """
@@ -337,16 +360,16 @@ def test_ConsequenceFunction_bounded_linear_median_value():
     ref_vals = [2.0, 2.0, 1.5, 1.0, 1.0]
 
     for dist in ['normal', 'lognormal']:
-        RV = RandomVariable(ID=1, dimension_tags=['A'],
-                            distribution_kind=dist,
-                            theta=1.0, COV=1.0)
+        RV = RandomVariable(name='A', distribution=dist,
+                            theta=[1.0, 1.0])
+
         f_median = prep_bounded_linear_median_DV(
             median_max=2.0, median_min=1.0,
             quantity_lower=1.0, quantity_upper=2.0
         )
         conseq_function = ConsequenceFunction(
             DV_median=f_median,
-            DV_distribution=RandomVariableSubset(RV, 'A')
+            DV_distribution=RV
         )
 
         # should raise an error if the quantity is not specified
@@ -378,7 +401,6 @@ def test_ConsequenceFunction_sample_unit_DV():
     ref_std = [0.4, 0.3, 0.2]
     ref_rho = np.ones((dims, dims)) * 0.8
     np.fill_diagonal(ref_rho, 1.0)
-    ref_COV = np.outer(ref_std, ref_std) * ref_rho
 
     ref_mean[2] = np.exp(ref_mean[2])
 
@@ -387,14 +409,19 @@ def test_ConsequenceFunction_sample_unit_DV():
     # and an upper limit at 2 sigma for the second
     tr_upper = [np.inf, 1.6, np.inf]
 
-    # make sure the correlations are applied post-truncation
-    corr_ref = 'post'
+    RV_reg = RandomVariableRegistry()
 
-    RV = RandomVariable(ID=1, dimension_tags=['A', 'B', 'C'],
-                        distribution_kind=['normal', 'normal', 'lognormal'],
-                        corr_ref=corr_ref,
-                        theta=ref_mean, COV=ref_COV,
-                        truncation_limits=[tr_lower, tr_upper])
+    for i, (name, dist, theta, beta) in enumerate(
+            zip(['A', 'B', 'C'], ['normal', 'normal', 'lognormal'],
+                ref_mean, ref_std)):
+        RV_reg.add_RV(
+            RandomVariable(name=name, distribution=dist, theta=[theta, beta],
+                           truncation_limits=[tr_lower[i], tr_upper[i]]))
+
+    RV_reg.add_RV_set(
+        RandomVariableSet('set_A', [RV_reg.RV[rv] for rv in ['A', 'B', 'C']],
+                          ref_rho))
+    RV_reg.generate_samples(sample_size=1000)
 
     # first test sampling for each decision variable
     for r_i, tag in enumerate(['A', 'B', 'C']):
@@ -411,13 +438,12 @@ def test_ConsequenceFunction_sample_unit_DV():
         # create the consequence function
         conseq_function = ConsequenceFunction(
             DV_median=f_median,
-            DV_distribution=RandomVariableSubset(RV, tag)
+            DV_distribution=RV_reg.RV[tag]
         )
 
         for qnt in test_quants:
             samples = conseq_function.sample_unit_DV(quantity=qnt,
-                                                     sample_size=1000,
-                                                     force_resampling=True)
+                                                     sample_size=1000)
 
             # transform the results to log space for 'C' to facilitate testing
             if tag == 'C':
@@ -450,13 +476,7 @@ def test_ConsequenceFunction_sample_unit_DV():
             assert np.min(samples) > ref_min
             assert np.max(samples) < ref_max
 
-            # verify that the correlation in the random variable follows the
-            # prescribed correlation matrix
-            CORR_sample = RV.samples
-            CORR_sample['C'] = np.log(CORR_sample['C'])
-            assert_allclose(np.corrcoef(CORR_sample, rowvar=False),
-                            ref_rho, rtol=0.1)
-
+'''
 def test_ConsequenceFunction_sample_unit_DV_insufficient_samples():
     """
     Test if the function raises an error message if the number of samples
@@ -479,6 +499,7 @@ def test_ConsequenceFunction_sample_unit_DV_insufficient_samples():
     # try to get the DSG_IDs... and expect an error
     with pytest.raises(ValueError) as e_info:
         CF.sample_unit_DV(sample_size=100)
+'''
 
 # ------------------------------------------------------------------------------
 # Damage State
@@ -515,12 +536,14 @@ def test_DamageState_repair_cost_sampling():
         quantity_lower=10.0, quantity_upper=20.0
     )
 
-    RV=RandomVariable(ID=1, dimension_tags=['A'],
-                      distribution_kind='lognormal',
-                      theta=1.0, COV=1e-10)
+    RV = RandomVariable(name='A', distribution='lognormal',
+                        theta=[1.0, 1e-10])
+    RV_reg = RandomVariableRegistry()
+    RV_reg.add_RV(RV)
+    RV_reg.generate_samples(sample_size=5)
 
     CF = ConsequenceFunction(DV_median=f_median,
-                             DV_distribution=RandomVariableSubset(RV,'A'))
+                             DV_distribution=RV)
 
     # create a damage state and assign the CF to it
     DS = DamageState(ID=1, repair_cost_CF=CF)
@@ -549,12 +572,14 @@ def test_DamageState_reconstruction_time_sampling():
         quantity_lower=10.0, quantity_upper=20.0
     )
 
-    RV = RandomVariable(ID=1, dimension_tags=['A'],
-                        distribution_kind='lognormal',
-                        theta=1.0, COV=1e-10)
+    RV = RandomVariable(name='A', distribution='lognormal',
+                        theta=[1.0, 1e-10])
+    RV_reg = RandomVariableRegistry()
+    RV_reg.add_RV(RV)
+    RV_reg.generate_samples(sample_size=5)
 
     CF = ConsequenceFunction(DV_median=f_median,
-                             DV_distribution=RandomVariableSubset(RV, 'A'))
+                             DV_distribution=RV)
 
     # create a damage state and assign the CF to it
     DS = DamageState(ID=1, reconstruction_time_CF=CF)
@@ -579,13 +604,15 @@ def test_DamageState_red_tag_sampling():
     # create a consequence function
     f_median = prep_constant_median_DV(0.25)
 
-    RV = RandomVariable(ID=1, dimension_tags=['A'],
-                        distribution_kind='normal',
-                        theta=1.0, COV=1.0 ** 2.,
+    RV = RandomVariable(name='A', distribution='normal',
+                        theta=[1.0, 1.0],
                         truncation_limits=[0., 4.])
+    RV_reg = RandomVariableRegistry()
+    RV_reg.add_RV(RV)
+    RV_reg.generate_samples(sample_size=1000)
 
     CF = ConsequenceFunction(DV_median=f_median,
-                             DV_distribution=RandomVariableSubset(RV, 'A'))
+                             DV_distribution=RV)
 
     # create a damage state and assign the CF to it
     DS = DamageState(ID=1, red_tag_CF=CF)
@@ -612,26 +639,34 @@ def test_DamageState_injury_sampling():
     """
 
     # create two consequence functions that are correlated
+    dims = 2
     ref_median = [0.5, 0.4]
-    ref_cov = np.asarray([0.5, 0.6])
-    ref_COV = np.outer(ref_cov, ref_cov)
-    ref_COV[0, 1] = ref_COV[0, 1] * 0.8
-    ref_COV[1, 0] = ref_COV[0, 1]
+    ref_sig = [0.5, 0.6]
+    ref_rho = np.ones((dims, dims)) * 0.8
+    np.fill_diagonal(ref_rho, 1.0)
+
     tr_lower = np.zeros(2)
     tr_upper = 1. + ((np.ones(2) - ref_median) / ref_median)
 
     f_median_0 = prep_constant_median_DV(ref_median[0])
     f_median_1 = prep_constant_median_DV(ref_median[1])
-    RV = RandomVariable(ID=1, dimension_tags=['A', 'B'],
-                        distribution_kind='normal',
-                        corr_ref='post',
-                        theta=np.ones(2), COV=ref_COV,
-                        truncation_limits=[tr_lower, tr_upper])
+
+    RV_reg = RandomVariableRegistry()
+
+    for i, (name, std) in enumerate(zip(['A', 'B'], ref_sig)):
+        RV_reg.add_RV(
+            RandomVariable(name=name, distribution='normal', theta=[1.0, std],
+                           truncation_limits=[tr_lower[i], tr_upper[i]]))
+
+    RV_reg.add_RV_set(
+        RandomVariableSet('set_A', [RV_reg.RV[rv] for rv in ['A', 'B']],
+                          ref_rho))
+    RV_reg.generate_samples(sample_size=10000)
 
     CF_0 = ConsequenceFunction(DV_median=f_median_0,
-                               DV_distribution=RandomVariableSubset(RV, 'A'))
+                               DV_distribution=RV_reg.RV['A'])
     CF_1 = ConsequenceFunction(DV_median=f_median_1,
-                               DV_distribution=RandomVariableSubset(RV, 'B'))
+                               DV_distribution=RV_reg.RV['B'])
 
     # create a damage state and assign the CF list to it
     DS = DamageState(ID=1, injuries_CF_set=[CF_0, CF_1])
@@ -643,10 +678,10 @@ def test_DamageState_injury_sampling():
 
         # sample the reference truncated normal distribution and use the
         # samples for testing
-        ref_samples = truncnorm.rvs(a=(-1.) / ref_cov[s_i],
-                                    b=(tr_upper[s_i] - 1.) / ref_cov[s_i],
+        ref_samples = truncnorm.rvs(a=(-1.) / ref_sig[s_i],
+                                    b=(tr_upper[s_i] - 1.) / ref_sig[s_i],
                                     loc=ref_median[s_i],
-                                    scale=ref_cov[s_i] * ref_median[s_i],
+                                    scale=ref_sig[s_i] * ref_median[s_i],
                                     size=1000)
 
         assert np.mean(samples) == pytest.approx(np.mean(ref_samples), rel=0.1)
@@ -655,7 +690,8 @@ def test_DamageState_injury_sampling():
         assert np.max(samples) == pytest.approx(1., abs=0.05)
 
     # finally, check the correlation between A and B
-    test_corr = np.corrcoef(RV.samples, rowvar=False)[0, 1]
+    test_corr = np.corrcoef(pd.DataFrame(RV_reg.RV_set['set_A'].samples).values,
+                            rowvar=False)[0, 1]
     assert  test_corr == pytest.approx(0.8, rel=0.1)
 
 # ------------------------------------------------------------------------------
@@ -679,35 +715,42 @@ def test_PerformanceGroup_Pexc():
     Test if the performance group returns exceedance probabilities from the
     assigned fragility function for a given damage state group appropriately.
     """
+
+    RV_reg = RandomVariableRegistry()
+
     # create the fragility function
-    RV = RandomVariable(ID=1, dimension_tags=['A', 'B'],
-                        distribution_kind='lognormal',
-                        theta=[0.5, 0.7], COV=np.ones((2, 2)) * 0.16)
-    FF = FragilityFunction(EDP_limit=RandomVariableSubset(RV, ['A', 'B']))
+    for i, (name, theta, beta) in enumerate(zip(['A', 'B'],
+                                                [0.5, 0.7],
+                                                [0.4, 0.4])):
+        RV_reg.add_RV(RandomVariable(name=name, distribution='lognormal',
+                                     theta=[theta, beta]))
+
+    FF_set = RandomVariableSet('A_set', [RV_reg.RV['A'], RV_reg.RV['B']],
+                               np.ones((2,2)))
+    fragility_function = FragilityFunction(
+        EDP_limit=[RV_reg.RV['A'], RV_reg.RV['B']])
+
+    RV_reg.add_RV_set(FF_set)
 
     # create two damage state groups
     DSG_0 = DamageStateGroup(ID=1, DS_set=None, DS_set_kind='single')
     DSG_1 = DamageStateGroup(ID=2, DS_set=None, DS_set_kind='single')
 
     # create a random quantity variable
-    QNT = RandomVariableSubset(
-        RandomVariable(
-            ID=2, dimension_tags='Q_A',
-            distribution_kind='normal',
-            theta=100., COV=100.),
-        tags='Q_A'
-    )
+    QNT = RandomVariable(name='Q_A', distribution='normal',
+                         theta=[100., np.sqrt(100)])
+    RV_reg.add_RV(QNT)
 
     # create the performance group
     PG = PerformanceGroup(ID=1, location=1, quantity=QNT,
-                          fragility_functions=FF,
+                          fragility_functions=fragility_function,
                           DSG_set=[DSG_0, DSG_1])
 
     EDP = np.linspace(0.1, 0.9, 9)
 
     for edp in EDP:
-        assert FF.P_exc(edp, DSG_ID=1) == PG.P_exc(edp, DSG_ID=1)
-        assert FF.P_exc(edp, DSG_ID=2) == PG.P_exc(edp, DSG_ID=2)
+        assert fragility_function.P_exc(edp, DSG_ID=1) == PG.P_exc(edp, DSG_ID=1)
+        assert fragility_function.P_exc(edp, DSG_ID=2) == PG.P_exc(edp, DSG_ID=2)
 
     assert_allclose(PG.P_exc(EDP, DSG_ID=1), PG.P_exc(EDP, DSG_ID=1),
                     rtol=1e-10)
@@ -727,15 +770,13 @@ def test_FragilityGroup_description_and_name():
     # create a dummy performance group
 
     # create the fragility function
-    RV = RandomVariable(ID=1, dimension_tags='A',
-                        distribution_kind='lognormal',
-                        theta=0.5, COV=0.16)
-    FF = FragilityFunction(EDP_limit=RandomVariableSubset(RV, 'A'))
+    RV = RandomVariable(name='A', distribution='lognormal', theta=[0.5, 0.4])
+    FF = FragilityFunction(EDP_limit=[RV,])
 
     # some of the inputs below do not make sense, but since the subject of the
     # test is not the performance group, they will work fine
     PG = PerformanceGroup(ID=1, location=1,
-                          quantity=RandomVariableSubset(RV, 'A'),
+                          quantity=RV,
                           fragility_functions=FF,
                           DSG_set=None)
 

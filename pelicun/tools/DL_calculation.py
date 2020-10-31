@@ -52,14 +52,15 @@ import sys, os, json, ntpath, posixpath, argparse
 import numpy as np
 import pandas as pd
 
+from scipy.stats import norm, binom
+from scipy.optimize import minimize
+
 idx = pd.IndexSlice
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
-import pelicun
 from pelicun.base import str2bool
 from pelicun.control import FEMA_P58_Assessment, HAZUS_Assessment
-from pelicun.file_io import write_SimCenter_DL_output, write_SimCenter_DM_output, write_SimCenter_DV_output
 from pelicun.auto import auto_populate
 
 # START temporary functions ----
@@ -72,7 +73,7 @@ def neg_log_likelihood(params, IM, num_records, num_collapses):
 	theta = params[0]
 	beta = params[1]
 
-	log_IM = [log(m) for m in IM]
+	log_IM = [np.log(m) for m in IM]
 	p = norm.cdf(log_IM, loc=theta, scale=beta)
 
 	# likelihood of observing num_collapse(i) collapses, given num_records observations, using the current parameter estimates
@@ -122,9 +123,10 @@ def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
 # END temporary functions ----
 
 def run_pelicun(DL_input_path, EDP_input_path,
-	DL_method, realization_count, EDP_file, DM_file, DV_file, 
+	DL_method, realization_count, EDP_file, DM_file, DV_file,
 	output_path=None, detailed_results=True, coupled_EDP=False,
-	log_file=True, event_time=None, ground_failure=False):
+	log_file=True, event_time=None, ground_failure=False,
+	auto_script_path=None):
 
 	DL_input_path = os.path.abspath(DL_input_path) # BIM file
 	EDP_input_path = os.path.abspath(EDP_input_path) # dakotaTab
@@ -234,8 +236,9 @@ def run_pelicun(DL_input_path, EDP_input_path,
 			# and try to auto-populate the loss model using the BIM information
 			DL_input, DL_input_path = auto_populate(DL_input_path, EDP_input_path,
 													DL_method, realization_count,
-													coupled_EDP, event_time, 
-													ground_failure)
+													coupled_EDP, event_time,
+													ground_failure,
+													auto_script_path)
 
 
 		DL_method = DL_input['DamageAndLoss']['_method']
@@ -244,7 +247,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
 		if DL_method == 'FEMA P58':
 			A = FEMA_P58_Assessment(log_file=log_file)
-		elif DL_method in ['HAZUS MH EQ', 'HAZUS MH', 'HAZUS MH EQ IM']:			
+		elif DL_method in ['HAZUS MH EQ', 'HAZUS MH', 'HAZUS MH EQ IM']:
 			A = HAZUS_Assessment(hazard = 'EQ', log_file=log_file)
 		elif DL_method == 'HAZUS MH HU':
 			A = HAZUS_Assessment(hazard = 'HU', log_file=log_file)
@@ -286,6 +289,7 @@ def main(args):
 		type = str2bool, nargs='?', const=True)
 	parser.add_argument('--ground_failure', default = False,
 		type = str2bool, nargs='?', const=False)
+	parser.add_argument('--auto_script', default=None)
 	args = parser.parse_args(args)
 
 	log_msg('Initializing pelicun calculation...')
@@ -293,14 +297,15 @@ def main(args):
 	#print(args)
 	run_pelicun(
 		args.filenameDL, args.filenameEDP,
-		args.DL_Method, args.Realizations, 
+		args.DL_Method, args.Realizations,
 		args.outputEDP, args.outputDM, args.outputDV,
-		output_path = args.dirnameOutput, 
-		detailed_results = args.detailed_results, 
+		output_path = args.dirnameOutput,
+		detailed_results = args.detailed_results,
 		coupled_EDP = args.coupled_EDP,
 		log_file = args.log_file,
 		event_time = args.event_time,
-		ground_failure = args.ground_failure)
+		ground_failure = args.ground_failure,
+		auto_script_path = args.auto_script)
 
 	log_msg('pelicun calculation completed.')
 
