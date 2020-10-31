@@ -799,8 +799,8 @@ def test_fitting_truncated():
     test_mu, test_std = test_theta.T
 
     assert_allclose(test_mu, ref_mean, atol=0.1)
-    assert_allclose(test_std, ref_std, rtol=0.1)
-    assert_allclose(test_rho, ref_rho, atol=0.1)
+    assert_allclose(test_std, ref_std, rtol=0.15)
+    assert_allclose(test_rho, ref_rho, atol=0.2)
 
 def test_fitting_truncated_and_censored():
     """
