@@ -50,6 +50,7 @@ This module has classes and methods that handle file input and output.
     read_population_distribution
     read_component_DL_data
     write_SimCenter_DL_output
+    write_SimCenter_EDP_output
     write_SimCenter_DM_output
     write_SimCenter_DV_output
 

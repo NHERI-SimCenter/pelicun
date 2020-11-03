@@ -38,7 +38,7 @@
 # Adam Zsarnóczay
 
 """
-This subpackage performs unit tests on the random module of pelicun.
+These are unit and integration tests on the uq module of pelicun.
 
 """
 import pytest

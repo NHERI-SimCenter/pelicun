@@ -6,8 +6,7 @@
 /dist/
 
 # documentation
-/doc_src/_build/
-/doc_src/_templates/
+/doc_src
 
 # PyCharm folders
 /.idea

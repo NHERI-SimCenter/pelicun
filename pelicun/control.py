@@ -39,7 +39,7 @@
 # Pouria Kourehpaz
 
 """
-This module has classes and methods that control the loss assessment.
+This module has classes and methods that control the performance assessment.
 
 .. rubric:: Contents
 

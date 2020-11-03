@@ -1,9 +1,0 @@
-.. _lbl_API:
-
-=================
-API Documentation
-=================
-
-.. only:: pelicun
-
-  .. include:: API_pelicun.rst
