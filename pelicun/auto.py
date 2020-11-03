@@ -38,11 +38,13 @@
 # Adam Zsarnóczay
 
 """
-This module has classes and methods that auto-populate loss models.
+This module has classes and methods that auto-populate DL models.
 
 .. rubric:: Contents
 
 .. autosummary::
+
+    auto_populate
 
 """
 
