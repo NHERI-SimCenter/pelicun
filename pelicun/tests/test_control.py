@@ -38,7 +38,7 @@
 # Adam Zsarnóczay
 
 """
-This subpackage performs system tests on the control module of pelicun.
+These are unit and integration tests on the control module of pelicun.
 
 """
 
@@ -1181,6 +1181,8 @@ def test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses():
 
 def test_FEMA_P58_Assessment_EDP_uncertainty_3D():
     """
+    .
+    
     Perform a loss assessment with customized inputs that focus on testing the
     methods used to estimate the multivariate lognormal distribution of EDP
     values. Besides the fitting, this test also evaluates the propagation of
@@ -2436,7 +2438,9 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
     propagation of uncertainty in component fragilities. Dispersions in other
     calculation parameters are reduced to negligible levels. This allows us to
     test the results against pre-defined reference values in spite of the
-    randomness involved in the calculations.
+    randomness involved in the calculations. Component fragilites are assumed
+    independent in this test.
+
     """
     print()
     idx = pd.IndexSlice
@@ -2639,44 +2643,6 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
         else:
             # for the other cases we check the number of ones in the matrix
             assert np.sum(rho_test) == rho_sum
-
-        # RV_FR = deepcopy(A._RV_dict[key])
-        # assert len(RV_FR._dimension_tags) == dimtag_target[k]
-        #
-        # COV_test = RV_FR.COV
-        # sig_test = np.sqrt(np.diagonal(COV_test))
-        # rho_test = COV_test / np.outer(sig_test, sig_test)
-        #
-        # if k == 0:
-        #     theta_test = pd.DataFrame(
-        #         np.reshape(RV_FR.theta, (12, 2))).describe()
-        #     sig_test = pd.DataFrame(
-        #         np.reshape(sig_test, (12, 2))).describe()
-        # else:
-        #     theta_test = pd.DataFrame(
-        #         np.reshape(RV_FR.theta, (120, 3))).describe()
-        #     sig_test = pd.DataFrame(
-        #         np.reshape(sig_test, (120, 3))).describe()
-        #
-        # assert_allclose(theta_test.loc['mean', :].values, theta_target[k],
-        #                 rtol=1e-4)
-        # assert_allclose(theta_test.loc['std', :].values,
-        #                 np.zeros(np.array(theta_target[k]).shape),
-        #                 atol=1e-10)
-        #
-        # assert_allclose(sig_test.loc['mean', :].values, sig_target[k],
-        #                 rtol=1e-4)
-        # assert_allclose(sig_test.loc['std', :].values,
-        #                 np.zeros(np.array(sig_target[k]).shape), atol=1e-10)
-        #
-        # if k == 0:
-        #     # we perform the detailed verification of rho for the first case
-        #     # only (because the others are 360x360 matrices)
-        #     assert_allclose(rho_test, rho_target)
-        #
-        # else:
-        #     # for the other cases we check the number of ones in the matrix
-        #     assert np.sum(rho_test) == rho_sum
 
     # ---------------------------------------------------------------------
 
@@ -3471,26 +3437,83 @@ def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies(dep='IND'):
                     S.loc[:, ('injuries', 'sev2')])
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_PG():
+    """
+    Perform loss assessment with customized inputs that focus on testing the
+    propagation of uncertainty in component fragilities. Dispersions in other
+    calculation parameters are reduced to negligible levels. This allows us to
+    test the results against pre-defined reference values in spite of the
+    randomness involved in the calculations. Component fragilites are assumed
+    perfectly correlated between performance groups in this test.
+
+    """
 
     test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('PG')
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DIR():
+    """
+    Perform loss assessment with customized inputs that focus on testing the
+    propagation of uncertainty in component fragilities. Dispersions in other
+    calculation parameters are reduced to negligible levels. This allows us to
+    test the results against pre-defined reference values in spite of the
+    randomness involved in the calculations. Component fragilites are assumed
+    perfectly correlated between performance groups controlled by the same EDPs
+    in identical directions in this test.
+
+    """
 
     test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('DIR')
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_LOC():
+    """
+    Perform loss assessment with customized inputs that focus on testing the
+    propagation of uncertainty in component fragilities. Dispersions in other
+    calculation parameters are reduced to negligible levels. This allows us to
+    test the results against pre-defined reference values in spite of the
+    randomness involved in the calculations. Component fragilites are assumed
+    perfectly correlated between performance groups at identical locations in
+    this test.
+
+    """
 
     test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('LOC')
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_ATC():
+    """
+    Perform loss assessment with customized inputs that focus on testing the
+    propagation of uncertainty in component fragilities. Dispersions in other
+    calculation parameters are reduced to negligible levels. This allows us to
+    test the results against pre-defined reference values in spite of the
+    randomness involved in the calculations. Component fragilites are assumed
+    perfectly correlated within performance groups if such correlation is
+    prescribed by ATC in the FEMA P58 document.
+
+    """
 
     test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('ATC')
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_CSG():
+    """
+    Perform loss assessment with customized inputs that focus on testing the
+    propagation of uncertainty in component fragilities. Dispersions in other
+    calculation parameters are reduced to negligible levels. This allows us to
+    test the results against pre-defined reference values in spite of the
+    randomness involved in the calculations. Component fragilites are assumed
+    perfectly correlated within a performance group in this test.
+
+    """
 
     test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('CSG')
 
 def test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DS():
+    """
+    Perform loss assessment with customized inputs that focus on testing the
+    propagation of uncertainty in component fragilities. Dispersions in other
+    calculation parameters are reduced to negligible levels. This allows us to
+    test the results against pre-defined reference values in spite of the
+    randomness involved in the calculations. Component fragilites are assumed
+    perfectly correlated between damage states in this test.
+
+    """
 
     test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies('DS')
 

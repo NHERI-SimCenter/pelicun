@@ -3,14 +3,28 @@ wy-nav-content {
 }
 
 
-div.wy-side-scroll{
-	background:#cb463f;
+.math {
+    text-align: left;
 }
 
+.eqno {
+    float: right;
+}
+
+
+#div.wy-side-scroll{
 #	background:#cb463f;
+#}
 
+div.wy-menu.wy-menu-vertical > .caption {
+	 color: #cb463f;
+}
 
-span.caption-text{
+# LIGHT BLUE  background:#0099ff
+# BLUE: background:#0B619C
+# ADAM RED: background:#cb463f;
+
+span.caption.caption-text{
 	color: #000000;
 }
 
