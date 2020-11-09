@@ -1,8 +1,7 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
@@ -12,28 +11,34 @@
   
 
   
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+
+  
   
   
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -75,6 +80,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -110,6 +116,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -148,7 +155,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
@@ -215,6 +222,10 @@
 
 <span class="sd">.. autosummary::</span>
 
+<span class="sd">    prep_constant_median_DV</span>
+<span class="sd">    prep_bounded_linear_median_DV</span>
+<span class="sd">    prep_bounded_multilinear_median_DV</span>
+
 <span class="sd">    FragilityFunction</span>
 <span class="sd">    ConsequenceFunction</span>
 <span class="sd">    DamageState</span>
@@ -222,14 +233,9 @@
 <span class="sd">    PerformanceGroup</span>
 <span class="sd">    FragilityGroup</span>
 
-<span class="sd">    prep_constant_median_DV</span>
-<span class="sd">    prep_bounded_linear_median_DV</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">.uq</span> <span class="k">import</span> <span class="n">RandomVariableSubset</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="o">*</span>
 
 <div class="viewcode-block" id="FragilityFunction"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.FragilityFunction">[docs]</a><span class="k">class</span> <span class="nc">FragilityFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -242,31 +248,33 @@
 <span class="sd">    the asset is assumed to experience damage described by the DSG) is</span>
 <span class="sd">    considered uncertain; hence, it is described by a random variable. The</span>
 <span class="sd">    random variables that describe EDP limits for the set of DSGs are not</span>
-<span class="sd">    independent.</span>
+<span class="sd">    necessarily independent.</span>
 
-<span class="sd">    We assume that the EDP limit will be approximated by a normal or lognormal</span>
+<span class="sd">    We assume that the EDP limit will be approximated by a probability</span>
 <span class="sd">    distribution for each DSG and these variables together form a multivariate</span>
-<span class="sd">    normal distribution. Following common practice, the correlation between</span>
+<span class="sd">    distribution. Following common practice, the correlation between</span>
 <span class="sd">    variables is assumed perfect by default, but the framework allows the</span>
 <span class="sd">    users to explore other, more realistic options.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    EDP_limit: RandomVariableSubset</span>
-<span class="sd">        A multidimensional random variable that might be defined as a subset</span>
-<span class="sd">        of a bigger correlated group of variables or a complete set of</span>
-<span class="sd">        variables created only for this Fragility Function (FF). The number of</span>
-<span class="sd">        dimensions shall be equal to the number of DSGs handled by the</span>
-<span class="sd">        FF.</span>
+<span class="sd">    EDP_limit: list of RandomVariable</span>
+<span class="sd">        A list of correlated random variables where each variable corresponds</span>
+<span class="sd">        to an EDP limit that triggers a damage state. The number of</span>
+<span class="sd">        list elements shall be equal to the number of DSGs handled by the</span>
+<span class="sd">        Fragility Function (FF) and they shall be in ascending order of damage</span>
+<span class="sd">        severity.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP_limit</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP_limit</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span> <span class="o">=</span> <span class="n">EDP_limit</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">EDP_lim_i</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">EDP_lim_i</span> <span class="ow">in</span> <span class="n">EDP_limit</span><span class="p">]</span>
 
 <div class="viewcode-block" id="FragilityFunction.P_exc"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.FragilityFunction.P_exc">[docs]</a>    <span class="k">def</span> <span class="nf">P_exc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">EDP</span><span class="p">,</span> <span class="n">DSG_ID</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the probability of damage exceedance.</span>
+<span class="sd">        Return the probability of damage state exceedance.</span>
 
 <span class="sd">        Calculate the probability of exceeding the damage corresponding to the</span>
 <span class="sd">        DSG identified by the DSG_ID conditioned on a particular EDP value.</span>
@@ -295,16 +303,14 @@
             <span class="n">P_exc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">EDP</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># prepare the limits for the density calculation</span>
-            <span class="n">ndims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="p">)</span>
 
-            <span class="n">limit_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ndims</span><span class="p">,</span> <span class="n">nvals</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">limit_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">ndims</span><span class="p">,</span> <span class="n">nvals</span><span class="p">),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
             <span class="n">limit_list</span><span class="p">[</span><span class="n">DSG_ID</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">EDP</span>
-            <span class="n">limit_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">limit_list</span><span class="p">)</span>
+            <span class="n">limit_list</span><span class="p">[:</span><span class="n">DSG_ID</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="c1"># get the pointer for the orthotope density function to save time</span>
-            <span class="n">RVS_od</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">orthotope_density</span>
-            <span class="n">P_exc</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">RVS_od</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="n">limit</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                                     <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="n">limit_list</span><span class="p">])</span>
+            <span class="n">P_exc</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">RV_set</span><span class="o">.</span><span class="n">orthotope_density</span><span class="p">(</span>
+                <span class="n">lower</span><span class="o">=</span><span class="n">limit_list</span><span class="p">,</span> <span class="n">var_subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_tags</span><span class="p">)</span>
 
         <span class="c1"># if EDP was a scalar, make sure that the result is also a scalar</span>
         <span class="k">if</span> <span class="n">EDP</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -347,33 +353,37 @@
 
         <span class="c1"># if there are no samples or resampling is forced, then sample the</span>
         <span class="c1"># distribution first</span>
-        <span class="k">if</span> <span class="n">force_resampling</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">sample_distribution</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">nsamples</span><span class="p">)</span>
+        <span class="c1"># TODO: force_resampling is probably not needed</span>
+        <span class="c1"># if force_resampling or (self._EDP_limit.samples is None):</span>
+        <span class="c1">#     self._EDP_limit.sample_distribution(sample_size=nsamples)</span>
+        <span class="c1">#</span>
+        <span class="c1"># # if the number of samples is not sufficiently large, raise an error</span>
+        <span class="c1"># if self._EDP_limit.samples.shape[0] &lt; nsamples:</span>
+        <span class="c1">#     raise ValueError(</span>
+        <span class="c1">#         &#39;Damage evaluation requires at least as many samples of the &#39;</span>
+        <span class="c1">#         &#39;joint distribution defined by the fragility functions as &#39;</span>
+        <span class="c1">#         &#39;many EDP values are provided to the DSG_given_EDP function. &#39;</span>
+        <span class="c1">#         &#39;You might want to consider setting force_resampling to True &#39;</span>
+        <span class="c1">#         &#39;or sampling the distribution before calling the DSG_given_EDP &#39;</span>
+        <span class="c1">#         &#39;function.&#39;)</span>
 
-        <span class="c1"># if the number of samples is not sufficiently large, raise an error</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">nsamples</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Damage evaluation requires at least as many samples of the &#39;</span>
-                <span class="s1">&#39;joint distribution defined by the fragility functions as &#39;</span>
-                <span class="s1">&#39;many EDP values are provided to the DSG_given_EDP function. &#39;</span>
-                <span class="s1">&#39;You might want to consider setting force_resampling to True &#39;</span>
-                <span class="s1">&#39;or sampling the distribution before calling the DSG_given_EDP &#39;</span>
-                <span class="s1">&#39;function.&#39;</span><span class="p">)</span>
-
-        <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="o">.</span><span class="n">samples</span>
+        <span class="c1">#samples = pd.DataFrame(self._EDP_limit.samples)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">([(</span><span class="n">lim_i</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">lim_i</span><span class="o">.</span><span class="n">samples</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">lim_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_limit</span><span class="p">]))</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">EDP</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
             <span class="n">EDP</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">EDP</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;EDP&#39;</span><span class="p">)</span>
 
-        <span class="n">nstates</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">size</span>
+        <span class="c1">#nstates = samples.columns.values.size</span>
+        <span class="n">nstates</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">EDP</span><span class="o">.</span><span class="n">index</span><span class="p">,:]</span>
 
+        <span class="c1"># sort columns</span>
         <span class="n">sample_cols</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">columns</span>
-        <span class="n">col_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sample_cols</span><span class="p">)</span>
-        <span class="n">ordered_cols</span> <span class="o">=</span> <span class="n">sample_cols</span><span class="p">[</span><span class="n">col_order</span><span class="p">]</span>
-        <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">ordered_cols</span><span class="p">]</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">sample_cols</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">sample_cols</span><span class="p">)]]</span>
 
+        <span class="c1"># check for EDP exceedance</span>
         <span class="n">EXC</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">EDP</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.</span>
 
         <span class="n">DSG_ID</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">index</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;DSG_ID&#39;</span><span class="p">,</span>
@@ -449,6 +459,46 @@
 
     <span class="k">return</span> <span class="n">f</span></div>
 
+<div class="viewcode-block" id="prep_bounded_multilinear_median_DV"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.prep_bounded_multilinear_median_DV">[docs]</a><span class="k">def</span> <span class="nf">prep_bounded_multilinear_median_DV</span><span class="p">(</span><span class="n">medians</span><span class="p">,</span> <span class="n">quantities</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a bounded multilinear median Decision Variable (DV) function.</span>
+
+<span class="sd">    The median DV equals the min and max values when the quantity is</span>
+<span class="sd">    outside of the prescribed quantity bounds. When the quantity is within the</span>
+<span class="sd">    bounds, the returned median is calculated by linear interpolation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    medians: ndarray</span>
+<span class="sd">        Series of values that define the y coordinates of the multilinear DV</span>
+<span class="sd">        function.</span>
+<span class="sd">    quantities: ndarray</span>
+<span class="sd">        Series of values that define the component quantities corresponding to</span>
+<span class="sd">        the series of medians and serving as the x coordinates of the </span>
+<span class="sd">        multilinear DV function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f: callable</span>
+<span class="sd">        A function that returns the median DV given the quantity of damaged</span>
+<span class="sd">        components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">quantity</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">quantity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;A bounded linear median Decision Variable function called &#39;</span>
+                <span class="s1">&#39;without specifying the quantity of damaged components&#39;</span><span class="p">)</span>
+
+        <span class="n">q_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># calculate the median consequence given the quantity of damaged</span>
+        <span class="c1"># components</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">q_array</span><span class="p">,</span> <span class="n">quantities</span><span class="p">,</span> <span class="n">medians</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">return</span> <span class="n">f</span></div>
+
 <div class="viewcode-block" id="ConsequenceFunction"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.ConsequenceFunction">[docs]</a><span class="k">class</span> <span class="nc">ConsequenceFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Describes the relationship between damage and a decision variable.</span>
@@ -467,17 +517,16 @@
 <span class="sd">        quantity of damaged components. Use the prep_constant_median_DV, and</span>
 <span class="sd">        prep_bounded_linear_median_DV helper functions to conveniently</span>
 <span class="sd">        prescribe the typical FEMA P-58 functions.</span>
-<span class="sd">    DV_distribution: RandomVariableSubset</span>
-<span class="sd">        A one-dimensional random variable (or a one-dimensional subset of a</span>
-<span class="sd">        multi-dimensional random variable) that characterizes the uncertainty</span>
-<span class="sd">        in the DV. The distribution shall be normalized by the median DV (i.e.</span>
-<span class="sd">        the RVS is expected to have a unit median). Truncation can be used to</span>
+<span class="sd">    DV_distribution: RandomVariable</span>
+<span class="sd">        A random variable that characterizes the uncertainty in the DV. The</span>
+<span class="sd">        distribution shall be normalized by the median DV (i.e. the RV is</span>
+<span class="sd">        expected to have a unit median). Truncation can be used to</span>
 <span class="sd">        prescribe lower and upper limits for the DV, such as the (0,1) domain</span>
 <span class="sd">        needed for red tag evaluation.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DV_median</span><span class="p">,</span> <span class="n">DV_distribution</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DV_median</span><span class="p">,</span> <span class="n">DV_distribution</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_DV_median</span> <span class="o">=</span> <span class="n">DV_median</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span> <span class="o">=</span> <span class="n">DV_distribution</span>
@@ -568,25 +617,26 @@
 
             <span class="c1"># if there are no samples or resampling is forced, then sample the</span>
             <span class="c1"># distribution first</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">force_resampling</span> <span class="ow">or</span>
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">sample_distribution</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+            <span class="c1"># TODO: force_resampling is probably not needed</span>
+            <span class="c1"># if (force_resampling or</span>
+            <span class="c1">#     (self._DV_distribution.samples is None)):</span>
+            <span class="c1">#     self._DV_distribution.sample_distribution(sample_size=sample_size)</span>
 
-            <span class="c1"># if the number of samples is not sufficiently large, raise an error</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">sample_size</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s1">&#39;Consequence evaluation requires at least as many samples of &#39;</span>
-                    <span class="s1">&#39;the Decision Variable distribution as many samples are &#39;</span>
-                    <span class="s1">&#39;requested or as many quantity values are provided to the &#39;</span>
-                    <span class="s1">&#39;sample_unit_DV function. You might want to consider setting &#39;</span>
-                    <span class="s1">&#39;force_resampling to True or sampling the distribution before &#39;</span>
-                    <span class="s1">&#39;calling the sample_unit_DV function.&#39;</span><span class="p">)</span>
+            <span class="c1"># # if the number of samples is not sufficiently large, raise an error</span>
+            <span class="c1"># if self._DV_distribution.samples.shape[0] &lt; sample_size:</span>
+            <span class="c1">#     raise ValueError(</span>
+            <span class="c1">#         &#39;Consequence evaluation requires at least as many samples of &#39;</span>
+            <span class="c1">#         &#39;the Decision Variable distribution as many samples are &#39;</span>
+            <span class="c1">#         &#39;requested or as many quantity values are provided to the &#39;</span>
+            <span class="c1">#         &#39;sample_unit_DV function. You might want to consider setting &#39;</span>
+            <span class="c1">#         &#39;force_resampling to True or sampling the distribution before &#39;</span>
+            <span class="c1">#         &#39;calling the sample_unit_DV function.&#39;)</span>
 
             <span class="c1"># get the samples</span>
             <span class="k">if</span> <span class="n">quantity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantity</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">quantity</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">sample_size</span><span class="p">]</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_DV_distribution</span><span class="o">.</span><span class="n">samples</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">sample_size</span><span class="p">]</span>
             <span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span> <span class="o">*</span> <span class="n">median</span>
 
             <span class="k">return</span> <span class="n">samples</span></div></div>
@@ -632,7 +682,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
                  <span class="n">repair_cost_CF</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reconstruction_time_CF</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">injuries_CF_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">affected_area</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">red_tag_CF</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ID</span><span class="p">)</span>
@@ -807,7 +857,7 @@
 <span class="sd">        they can occur at the same time and at least one of them has to occur.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">DS_set</span><span class="p">,</span> <span class="n">DS_set_kind</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">DS_set</span><span class="p">,</span> <span class="n">DS_set_kind</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="n">ID</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DS_set</span> <span class="o">=</span> <span class="n">DS_set</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_DS_set_kind</span> <span class="o">=</span> <span class="n">DS_set_kind</span></div>
@@ -834,7 +884,7 @@
 <span class="sd">        building, location shall typically refer to the story of the building.</span>
 <span class="sd">        The location assigned to each PG shall be in agreement with the</span>
 <span class="sd">        locations assigned to the Demand objects.</span>
-<span class="sd">    quantity: RandomVariableSubset</span>
+<span class="sd">    quantity: RandomVariable</span>
 <span class="sd">        Specifies the quantity of components that belong to this PG.</span>
 <span class="sd">        Uncertainty in component quantities is considered by assigning a</span>
 <span class="sd">        random variable to this property.</span>
@@ -866,7 +916,7 @@
 <span class="sd">        the directions assigned to Demand objects.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">fragility_functions</span><span class="p">,</span> <span class="n">DSG_set</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">fragility_functions</span><span class="p">,</span> <span class="n">DSG_set</span><span class="p">,</span>
                  <span class="n">csg_weights</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="n">direction</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="n">ID</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_location</span> <span class="o">=</span> <span class="n">location</span>
@@ -947,7 +997,7 @@
 <span class="sd">        Provides a detailed description of the fragility group.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">demand_type</span><span class="p">,</span> <span class="n">performance_groups</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">demand_type</span><span class="p">,</span> <span class="n">performance_groups</span><span class="p">,</span>
                  <span class="n">directional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">correlation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">demand_location_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">incomplete</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;ea&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ID</span> <span class="o">=</span> <span class="n">ID</span>
@@ -987,11 +1037,19 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+        
+        &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -1002,7 +1060,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

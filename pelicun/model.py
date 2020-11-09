@@ -45,6 +45,10 @@ loss assessment.
 
 .. autosummary::
 
+    prep_constant_median_DV
+    prep_bounded_linear_median_DV
+    prep_bounded_multilinear_median_DV
+
     FragilityFunction
     ConsequenceFunction
     DamageState
@@ -52,14 +56,9 @@ loss assessment.
     PerformanceGroup
     FragilityGroup
 
-    prep_constant_median_DV
-    prep_bounded_linear_median_DV
-
 """
 
-import numpy as np
-import pandas as pd
-from .uq import RandomVariableSubset
+from .base import *
 
 class FragilityFunction(object):
     """
@@ -72,31 +71,33 @@ class FragilityFunction(object):
     the asset is assumed to experience damage described by the DSG) is
     considered uncertain; hence, it is described by a random variable. The
     random variables that describe EDP limits for the set of DSGs are not
-    independent.
+    necessarily independent.
 
-    We assume that the EDP limit will be approximated by a normal or lognormal
+    We assume that the EDP limit will be approximated by a probability
     distribution for each DSG and these variables together form a multivariate
-    normal distribution. Following common practice, the correlation between
+    distribution. Following common practice, the correlation between
     variables is assumed perfect by default, but the framework allows the
     users to explore other, more realistic options.
 
     Parameters
     ----------
-    EDP_limit: RandomVariableSubset
-        A multidimensional random variable that might be defined as a subset
-        of a bigger correlated group of variables or a complete set of
-        variables created only for this Fragility Function (FF). The number of
-        dimensions shall be equal to the number of DSGs handled by the
-        FF.
+    EDP_limit: list of RandomVariable
+        A list of correlated random variables where each variable corresponds
+        to an EDP limit that triggers a damage state. The number of
+        list elements shall be equal to the number of DSGs handled by the
+        Fragility Function (FF) and they shall be in ascending order of damage
+        severity.
 
     """
 
     def __init__(self, EDP_limit):
         self._EDP_limit = EDP_limit
 
+        self._EDP_tags = [EDP_lim_i.name for EDP_lim_i in EDP_limit]
+
     def P_exc(self, EDP, DSG_ID):
         """
-        Return the probability of damage exceedance.
+        Return the probability of damage state exceedance.
 
         Calculate the probability of exceeding the damage corresponding to the
         DSG identified by the DSG_ID conditioned on a particular EDP value.
@@ -125,16 +126,14 @@ class FragilityFunction(object):
             P_exc = np.ones(EDP.size)
         else:
             # prepare the limits for the density calculation
-            ndims = np.asarray(self._EDP_limit.tags).size
+            ndims = len(self._EDP_limit)
 
-            limit_list = np.full((ndims, nvals), None)
+            limit_list = np.full((ndims, nvals), -np.inf, dtype=np.float64)
             limit_list[DSG_ID - 1:] = EDP
-            limit_list = np.transpose(limit_list)
+            limit_list[:DSG_ID - 1] = None
 
-            # get the pointer for the orthotope density function to save time
-            RVS_od = self._EDP_limit.orthotope_density
-            P_exc = 1. - np.asarray([RVS_od(lower=limit)[0]
-                                     for limit in limit_list])
+            P_exc = 1.0 - self._EDP_limit[0].RV_set.orthotope_density(
+                lower=limit_list, var_subset = self._EDP_tags)
 
         # if EDP was a scalar, make sure that the result is also a scalar
         if EDP.size == 1:
@@ -177,33 +176,37 @@ class FragilityFunction(object):
 
         # if there are no samples or resampling is forced, then sample the
         # distribution first
-        if force_resampling or (self._EDP_limit.samples is None):
-            self._EDP_limit.sample_distribution(sample_size=nsamples)
+        # TODO: force_resampling is probably not needed
+        # if force_resampling or (self._EDP_limit.samples is None):
+        #     self._EDP_limit.sample_distribution(sample_size=nsamples)
+        #
+        # # if the number of samples is not sufficiently large, raise an error
+        # if self._EDP_limit.samples.shape[0] < nsamples:
+        #     raise ValueError(
+        #         'Damage evaluation requires at least as many samples of the '
+        #         'joint distribution defined by the fragility functions as '
+        #         'many EDP values are provided to the DSG_given_EDP function. '
+        #         'You might want to consider setting force_resampling to True '
+        #         'or sampling the distribution before calling the DSG_given_EDP '
+        #         'function.')
 
-        # if the number of samples is not sufficiently large, raise an error
-        if self._EDP_limit.samples.shape[0] < nsamples:
-            raise ValueError(
-                'Damage evaluation requires at least as many samples of the '
-                'joint distribution defined by the fragility functions as '
-                'many EDP values are provided to the DSG_given_EDP function. '
-                'You might want to consider setting force_resampling to True '
-                'or sampling the distribution before calling the DSG_given_EDP '
-                'function.')
-
-        samples = self._EDP_limit.samples
+        #samples = pd.DataFrame(self._EDP_limit.samples)
+        samples = pd.DataFrame(dict([(lim_i.name, lim_i.samples)
+                                     for lim_i in self._EDP_limit]))
 
         if type(EDP) not in [pd.Series, pd.DataFrame]:
             EDP = pd.Series(EDP, name='EDP')
 
-        nstates = samples.columns.values.size
+        #nstates = samples.columns.values.size
+        nstates = samples.shape[1]
 
         samples = samples.loc[EDP.index,:]
 
+        # sort columns
         sample_cols = samples.columns
-        col_order = np.argsort(sample_cols)
-        ordered_cols = sample_cols[col_order]
-        samples = samples[ordered_cols]
+        samples = samples[sample_cols[np.argsort(sample_cols)]]
 
+        # check for EDP exceedance
         EXC = samples.sub(EDP, axis=0) < 0.
 
         DSG_ID = pd.Series(np.zeros(len(samples.index)), name='DSG_ID',
@@ -337,11 +340,10 @@ class ConsequenceFunction(object):
         quantity of damaged components. Use the prep_constant_median_DV, and
         prep_bounded_linear_median_DV helper functions to conveniently
         prescribe the typical FEMA P-58 functions.
-    DV_distribution: RandomVariableSubset
-        A one-dimensional random variable (or a one-dimensional subset of a
-        multi-dimensional random variable) that characterizes the uncertainty
-        in the DV. The distribution shall be normalized by the median DV (i.e.
-        the RVS is expected to have a unit median). Truncation can be used to
+    DV_distribution: RandomVariable
+        A random variable that characterizes the uncertainty in the DV. The
+        distribution shall be normalized by the median DV (i.e. the RV is
+        expected to have a unit median). Truncation can be used to
         prescribe lower and upper limits for the DV, such as the (0,1) domain
         needed for red tag evaluation.
 
@@ -438,25 +440,26 @@ class ConsequenceFunction(object):
 
             # if there are no samples or resampling is forced, then sample the
             # distribution first
-            if (force_resampling or
-                (self._DV_distribution.samples is None)):
-                self._DV_distribution.sample_distribution(sample_size=sample_size)
+            # TODO: force_resampling is probably not needed
+            # if (force_resampling or
+            #     (self._DV_distribution.samples is None)):
+            #     self._DV_distribution.sample_distribution(sample_size=sample_size)
 
-            # if the number of samples is not sufficiently large, raise an error
-            if self._DV_distribution.samples.shape[0] < sample_size:
-                raise ValueError(
-                    'Consequence evaluation requires at least as many samples of '
-                    'the Decision Variable distribution as many samples are '
-                    'requested or as many quantity values are provided to the '
-                    'sample_unit_DV function. You might want to consider setting '
-                    'force_resampling to True or sampling the distribution before '
-                    'calling the sample_unit_DV function.')
+            # # if the number of samples is not sufficiently large, raise an error
+            # if self._DV_distribution.samples.shape[0] < sample_size:
+            #     raise ValueError(
+            #         'Consequence evaluation requires at least as many samples of '
+            #         'the Decision Variable distribution as many samples are '
+            #         'requested or as many quantity values are provided to the '
+            #         'sample_unit_DV function. You might want to consider setting '
+            #         'force_resampling to True or sampling the distribution before '
+            #         'calling the sample_unit_DV function.')
 
             # get the samples
             if quantity is not None:
-                samples = self._DV_distribution.samples.loc[quantity.index]
+                samples = pd.Series(self._DV_distribution.samples).loc[quantity.index]
             else:
-                samples = self._DV_distribution.samples.iloc[:sample_size]
+                samples = pd.Series(self._DV_distribution.samples).iloc[:sample_size]
             samples = samples * median
 
             return samples
@@ -704,7 +707,7 @@ class PerformanceGroup(object):
         building, location shall typically refer to the story of the building.
         The location assigned to each PG shall be in agreement with the
         locations assigned to the Demand objects.
-    quantity: RandomVariableSubset
+    quantity: RandomVariable
         Specifies the quantity of components that belong to this PG.
         Uncertainty in component quantities is considered by assigning a
         random variable to this property.

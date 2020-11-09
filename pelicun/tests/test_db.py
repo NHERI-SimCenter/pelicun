@@ -38,7 +38,7 @@
 # Adam Zsarnóczay
 
 """
-This subpackage performs unit tests on the file_io module of pelicun.
+These are unit and integration tests on the db module of pelicun.
 
 """
 

@@ -21,7 +21,7 @@
             }
         },
         "DamageModel": {
-            "IrrepairableResidualDrift": {
+            "IrreparableResidualDrift": {
                 "Median": "10.",
                 "Beta": "0.0001"
             },

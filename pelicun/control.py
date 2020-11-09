@@ -39,7 +39,7 @@
 # Pouria Kourehpaz
 
 """
-This module has classes and methods that control the loss assessment.
+This module has classes and methods that control the performance assessment.
 
 .. rubric:: Contents
 
@@ -74,9 +74,16 @@ class Assessment(object):
         self._FG_in = None
 
         # random variables and loss model
+        self._RV_reg = RandomVariableRegistry() # object to manage RVs
         self._RV_dict = None # dictionary to store random variables
         self._EDP_dict = None
+        self._QNT_dict = None
+        self._FF_dict = None
+        self._DSG_dict = None
         self._FG_dict = None
+        self._DV_RED_dict = None
+        self._DV_REP_dict = None
+        self._DV_INJ_dict = None
 
         # results
         self._TIME = None
@@ -339,7 +346,7 @@ class Assessment(object):
 
         log_msg('\tConverting EDP samples to input units...')
         EDPs = sorted(self._EDP_dict.keys())
-        EDP_samples = self._EDP_dict[EDPs[0]]._RV.samples.copy()
+        EDP_samples = self._EDP_dict[EDPs[0]]._RV.samples_DF.copy()
         cols = EDP_samples.columns
         col_info = [col.split('-') for col in EDP_samples.columns]
         EDP_samples.columns = [
@@ -489,9 +496,8 @@ class Assessment(object):
             d_list = self._EDP_in[d_id]
             for i in range(len(d_list)):
                 demand_data.append(d_list[i]['raw_data'])
-                d_tags.append(str(d_id) +
-                              '-LOC-' + str(d_list[i]['location']) +
-                              '-DIR-' + str(d_list[i]['direction']))
+                d_tags.append(f"EDP-{d_id}-LOC-{d_list[i]['location']}" +
+                              f"-DIR-{d_list[i]['direction']}")
 
                 det_lim = GI['detection_limits'].get(d_id, None)
                 if det_lim is None:
@@ -504,67 +510,132 @@ class Assessment(object):
                 elif GI['response']['EDP_dist_basis'] == 'all results':
                     coll_lim = np.inf
 
-                detection_limits.append([0., det_lim])
-                collapse_limits.append([0., coll_lim])
+                detection_limits.append([None, det_lim])
+                collapse_limits.append([None, coll_lim])
 
-        detection_limits = np.transpose(np.asarray(detection_limits))
-        collapse_limits = np.transpose(np.asarray(collapse_limits))
-        demand_data = np.transpose(np.asarray(demand_data))
+        # detection_limits = np.transpose(np.asarray(detection_limits))
+        # collapse_limits = np.transpose(np.asarray(collapse_limits))
+        # demand_data = np.transpose(np.asarray(demand_data))
+        detection_limits = np.asarray(detection_limits)
+        collapse_limits = np.asarray(collapse_limits)
+        demand_data = np.atleast_2d(demand_data)
 
         # In a coupled assessment only the raw data needs to be stored
         if GI['coupled_assessment']:
 
             # Create the random variable
-            demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                       raw_data=np.transpose(demand_data))
+            # demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+            #                            raw_data=np.transpose(demand_data))
+            [self._RV_reg.add_RV(
+                RandomVariable(name=d_tag, distribution='coupled_empirical',
+                               raw_samples=demand_data[i]))
+                for i,d_tag in enumerate(d_tags)]
 
         # Otherwise, a distribution is fit to the raw data
         else:
             # If more than one sample is available...
-            if demand_data.shape[0] > 1:
+            if demand_data.shape[1] > 1:
 
-                # Second, we discard the collapsed EDPs if the fitted distribution shall
-                # represent non-collapse EDPs.
-                EDP_filter = np.all([np.all(demand_data > collapse_limits[0], axis=1),
-                                     np.all(demand_data < collapse_limits[1], axis=1)],
-                                    axis=0)
-                demand_data = demand_data[EDP_filter]
+                # Second, we discard the collapsed EDPs if the fitted
+                # distribution shall represent non-collapse EDPs.
+                demand_data_T = demand_data.T
+                # EDP_filter = np.all(
+                #     [np.all(demand_data_T > collapse_limits.T[0], axis=1),
+                #      np.all(demand_data_T < collapse_limits.T[1], axis=1)], axis=0)
+                EDP_filter = np.all(demand_data_T < collapse_limits.T[1], axis=1)
+                demand_data_T = demand_data_T[EDP_filter]
 
-                log_msg('\t\t{} considered collapsed out of {} raw samples'.format(
-                    list(EDP_filter).count(False), len(EDP_filter)))
+                log_msg(
+                    '\t\t{} considered collapsed out of {} raw samples'.format(
+                        list(EDP_filter).count(False), len(EDP_filter)))
 
                 # Third, we censor the EDPs that are beyond the detection limit.
-                EDP_filter = np.all([np.all(demand_data > detection_limits[0], axis=1),
-                                     np.all(demand_data < detection_limits[1], axis=1)],
-                                    axis=0)
+                # EDP_filter = np.all(
+                #     [np.all(demand_data_T > detection_limits.T[0], axis=1),
+                #      np.all(demand_data_T < detection_limits.T[1], axis=1)], axis=0)
+                EDP_filter = np.all(demand_data_T < detection_limits.T[1], axis=1)
 
-                log_msg('\t\t{} are beyond the detection limits out of {} non-collapse samples'.format(
-                    list(EDP_filter).count(False), len(EDP_filter)))
+                log_msg(
+                    '\t\t{} are beyond the detection limits out of {} '
+                    'non-collapse samples'.format(
+                        list(EDP_filter).count(False), len(EDP_filter)))
 
                 censored_count = len(EDP_filter) - sum(EDP_filter)
-                demand_data = demand_data[EDP_filter]
-                demand_data = np.transpose(demand_data)
+                demand_data_T = demand_data_T[EDP_filter]
+                demand_data = demand_data_T.T
 
                 log_msg('\t\tNumber of EDP dimensions: {}'.format(len(d_tags)))
 
-                # Fourth, we create the random variable
-                demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                           raw_data=demand_data,
-                                           detection_limits=detection_limits,
-                                           censored_count=censored_count
-                                           )
-
-                # And finally, if requested, we fit a multivariate lognormal or a
-                # truncated multivariate lognormal distribution to the censored raw
-                # data.
+                # Fourth, if requested, we fit a multivariate lognormal
+                # distribution to the data and create the random variables
                 target_dist = GI['response']['EDP_distribution']
 
                 if target_dist == 'lognormal':
-                    log_msg('\t\tFitting a lognormal distribution to samples...')
-                    demand_RV.fit_distribution('lognormal')
+                    if censored_count > 0:
+                        log_msg('\t\tFitting a censored multivariate lognormal '
+                                'distribution to EDP samples...')
+                        EDP_theta, EDP_rho = fit_distribution(
+                            demand_data, 'lognormal',
+                            censored_count = censored_count,
+                            detection_limits = detection_limits)
+
+                    else:
+                        log_msg('\t\tFitting a multivariate lognormal '
+                                'distribution to EDP samples...')
+                        EDP_theta, EDP_rho = fit_distribution(
+                            demand_data, 'lognormal')
+
+                    # Create the RVs
+                    for d, (d_tag, theta_d) in enumerate(
+                            zip(d_tags, EDP_theta)):
+                        self._RV_reg.add_RV(RandomVariable(
+                            name=d_tag, distribution='lognormal',
+                            theta=theta_d
+                        ))
+
+                    self._RV_reg.add_RV_set(RandomVariableSet(
+                        'EDP_set', list(self._RV_reg.RVs(d_tags).values()),
+                        EDP_rho))
+
                 elif target_dist == 'truncated lognormal':
-                    log_msg('\t\tFitting a truncated lognormal distribution to samples...')
-                    demand_RV.fit_distribution('lognormal', collapse_limits)
+                    if censored_count > 0:
+                        log_msg('\t\tFitting a censored truncated multivariate '
+                                'lognormal distribution to EDP samples...')
+                        EDP_theta, EDP_rho = fit_distribution(
+                            demand_data, 'lognormal',
+                            truncation_limits=collapse_limits)
+                    else:
+                        log_msg('\t\tFitting a truncated multivariate '
+                                'lognormal distribution to EDP samples...')
+                        EDP_theta, EDP_rho = fit_distribution(
+                            demand_data, 'lognormal',
+                            truncation_limits=collapse_limits)
+
+                    # Create the RVs
+                    for d, (d_tag, theta_d) in enumerate(
+                            zip(d_tags, EDP_theta)):
+                        self._RV_reg.add_RV(RandomVariable(
+                            name=d_tag, distribution='lognormal',
+                            theta=theta_d,
+                            truncation_limits=collapse_limits[d]
+                        ))
+
+                    self._RV_reg.add_RV_set(RandomVariableSet(
+                        'EDP_set', list(self._RV_reg.RVs(d_tags).values()),
+                        EDP_rho))
+
+                else: # this is when fitting is not requested (i.e. empirical)
+                    [self._RV_reg.add_RV(
+                        RandomVariable(name=d_tag,
+                                       distribution='empirical',
+                                       raw_samples=demand_data[i]))
+                        for i, d_tag in enumerate(d_tags)]
+
+                # demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                #                            raw_data=demand_data,
+                #                            detection_limits=detection_limits,
+                #                            censored_count=censored_count
+                #                            )
 
             # This is a special case when only a one sample is provided.
             else:
@@ -573,43 +644,58 @@ class Assessment(object):
                 # Since we only have one data point, the best we can do is assume
                 # it is the median of the multivariate distribution. The dispersion
                 # is assumed to be negligible.
-                dim = len(demand_data[0])
-                if dim > 1:
-                    sig = np.abs(demand_data[0])*1e-6
-                    rho = np.zeros((dim,dim))
-                    np.fill_diagonal(rho, 1.0)
-                    COV = np.outer(sig,sig) * rho
-                else:
-                    COV = np.abs(demand_data[0][0])*(1e-6)**2.0
 
-                demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
-                                           distribution_kind='lognormal',
-                                           theta=demand_data[0],
-                                           COV=COV)
+                # dim = demand_data.shape[0]
+                # if dim > 1:
+                #     sig = np.abs(demand_data.T[0])*1e-6
+                #     rho = np.zeros((dim,dim))
+                #     np.fill_diagonal(rho, 1.0)
+                # else:
+                #     COV = np.abs(demand_data[0][0])*(1e-6)**2.0
 
-            # To consider additional uncertainty in EDPs, we need to redefine the
-            # random variable. If the EDP distribution is set to 'empirical' then
-            # adding uncertainty by increasing its variance is not possible.
+                [self._RV_reg.add_RV(
+                    RandomVariable(name=d_tag, distribution='lognormal',
+                                   theta=[demand_data[i,0],
+                                          demand_data[i,0]*1e-6]))
+                    for i, d_tag in enumerate(d_tags)]
+
+                # demand_RV = RandomVariable(ID=200, dimension_tags=d_tags,
+                #                            distribution_kind='lognormal',
+                #                            theta=demand_data[0],
+                #                            COV=COV)
+
+            # To consider additional uncertainty in EDPs, we need to increase
+            # the log standard deviation of the lognormal RVs. If the EDP
+            # distribution is set to 'empirical' then we do not consider the
+            # prescribed additional uncertainty
             if ((self.beta_tot is not None) and
                 (GI['response']['EDP_distribution'] != 'empirical')):
                 log_msg('Considering additional sources of uncertainty...')
+
+                for d_tag in d_tags:
+                    RV = self._RV_reg.RV[d_tag]
+
+                    theta_0 = RV.theta
+                    theta_0[1] = np.sqrt(theta_0[1] ** 2. + self.beta_tot ** 2.)
+                    RV.theta = theta_0
+
                 # determine the covariance matrix with added uncertainty
-                if demand_RV.COV.shape != ():
-                    sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
-                    COV_mod = np.outer(sig_mod, sig_mod) * demand_RV.corr
-                else:
-                    COV_mod = np.sqrt(demand_RV.COV**2. + self.beta_tot**2.)
+                # if demand_RV.COV.shape != ():
+                #     sig_mod = np.sqrt(demand_RV.sig ** 2. + self.beta_tot ** 2.)
+                #     COV_mod = np.outer(sig_mod, sig_mod) * demand_RV.corr
+                # else:
+                #     COV_mod = np.sqrt(demand_RV.COV**2. + self.beta_tot**2.)
+                #
+                # # redefine the random variable
+                # demand_RV = RandomVariable(
+                #     ID=200,
+                #     dimension_tags=demand_RV.dimension_tags,
+                #     distribution_kind=demand_RV.distribution_kind,
+                #     theta=demand_RV.theta,
+                #     COV=COV_mod,
+                #     truncation_limits=demand_RV.tr_limits_pre)
 
-                # redefine the random variable
-                demand_RV = RandomVariable(
-                    ID=200,
-                    dimension_tags=demand_RV.dimension_tags,
-                    distribution_kind=demand_RV.distribution_kind,
-                    theta=demand_RV.theta,
-                    COV=COV_mod,
-                    truncation_limits=demand_RV.tr_limits_pre)
-
-        return demand_RV
+        return d_tags
 
 
 class FEMA_P58_Assessment(Assessment):
@@ -757,66 +843,112 @@ class FEMA_P58_Assessment(Assessment):
 
         # quantities 100
         log_msg('\tQuantities...')
-        self._RV_dict.update({'QNT':
-                              self._create_RV_quantities(DEP['quantities'])})
+        QNT_tags = self._create_RV_quantities(DEP['quantities'])
 
-        if self._RV_dict['QNT'] is not None:
-            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+        # self._RV_dict.update({'QNT':
+        #                       self._create_RV_quantities(DEP['quantities'])})
+
+        if QNT_tags is not None:
+            log_msg('\t\tRV dimensions: {}'.format(len(QNT_tags)))
+            self._QNT_dict = self._RV_reg.RVs(QNT_tags)
         else:
             log_msg('\t\tNone of the components have random quantities assigned')
 
         # fragilities 300
         log_msg('\tDamage State Limits...')
         s_fg_keys = sorted(self._FG_in.keys())
+        self._FF_dict = {}
+        log_msg('\t\tRV dimensions:')
         for c_id, c_name in enumerate(s_fg_keys):
             comp = self._FG_in[c_name]
 
-            self._RV_dict.update({
-                'FR-' + c_name:
-                    self._create_RV_fragilities(c_id, comp,
-                                                DEP['fragilities'])})
+            FF_tags = self._create_RV_fragilities(c_id, comp, DEP['fragilities'])
+            self._FF_dict.update(self._RV_reg.RVs(FF_tags))
 
-        log_msg('\t\tRV dimensions:')
-        for key, val in self._RV_dict.items():
-            if 'FR-' in key:
-                log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+            # self._RV_dict.update({
+            #     'FR-' + c_name:
+            #         self._create_RV_fragilities(c_id, comp,
+            #                                     DEP['fragilities'])})
+            log_msg('\t\t\t{}: {}'.format(c_name, len(FF_tags)))
+
+
+        # for key, val in self._RV_dict.items():
+        #     if 'FR-' in key:
+        #         log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+
+        # irreparability
+        if 'irreparable_res_drift' in self._AIM_in['general']:
+            irrep_frag = self._AIM_in['general']['irreparable_res_drift']
+            RV_irrep = RandomVariable(
+                name='RED_irrep', distribution='lognormal',
+                theta=[irrep_frag['Median'], irrep_frag['Beta']])
+            self._RV_reg.add_RV(RV_irrep)
+
+        # collapse modes
+        coll_modes = self._AIM_in['collapse_modes']
+        P_keys = [cmk for cmk in coll_modes.keys()]
+        P_modes = [coll_modes[k]['w'] for k in P_keys]
+        RV_CM = RandomVariable(
+            name='CM', distribution='multinomial', theta=P_modes)
+        self._RV_reg.add_RV(RV_CM)
+
+        # damages (mutually exclusive cases and later simultaneous ones too)
+        log_msg('\tDamage States...')
+        DS_tags = self._create_RV_damage_states()
+
+        if DS_tags is not None:
+            log_msg('\t\tRV dimensions: {}'.format(len(DS_tags)))
+            self._DSG_dict = self._RV_reg.RVs(DS_tags)
+        else:
+            log_msg('\t\tNone of the components have random damage states assigned')
 
         # consequences 400
         DVs = self._AIM_in['decision_variables']
 
         if DVs['red_tag']:
             log_msg('\tRed Tag Thresholds...')
-            self._RV_dict.update({'DV_RED':
-                                  self._create_RV_red_tags(DEP['red_tags'])})
+            RED_tags = self._create_RV_red_tags(DEP['red_tags'])
 
-            if self._RV_dict['DV_RED'] is not None:
-                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_RED'].theta)))
+            # self._RV_dict.update({'DV_RED':
+            #                       self._create_RV_red_tags(DEP['red_tags'])})
+
+            if RED_tags is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(RED_tags)))
+                self._DV_RED_dict = self._RV_reg.RVs(RED_tags)
             else:
                 log_msg('\t\tNone of the component damage states trigger red tags')
 
         if DVs['rec_time'] or DVs['rec_cost']:
             log_msg('\tReconstruction Costs and Times...')
-            self._RV_dict.update({'DV_REP':
-                                  self._create_RV_repairs(
-                                    DEP['rec_costs'],
-                                    DEP['rec_times'],
-                                    DEP['cost_and_time'])})
+            REP_tags = self._create_RV_repairs(
+                DEP['rec_costs'], DEP['rec_times'], DEP['cost_and_time'])
 
-            if self._RV_dict['DV_REP'] is not None:
-                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
+            # self._RV_dict.update({'DV_REP':
+            #                       self._create_RV_repairs(
+            #                         DEP['rec_costs'],
+            #                         DEP['rec_times'],
+            #                         DEP['cost_and_time'])})
+
+            if REP_tags is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(REP_tags)))
+                self._DV_REP_dict = self._RV_reg.RVs(REP_tags)
             else:
                 log_msg('\t\tNone of the components have probabilistic consequence functions')
 
 
         if DVs['injuries']:
             log_msg('\tInjury Probabilities...')
-            self._RV_dict.update({'DV_INJ':
-                                  self._create_RV_injuries(
-                                    DEP['injuries'],
-                                    DEP['injury_lvls'])})
+            INJ_tags = self._create_RV_injuries(
+                DEP['injuries'], DEP['injury_lvls'])
 
-            if self._RV_dict['DV_INJ'] is not None:
-                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_INJ'].theta)))
+            # self._RV_dict.update({'DV_INJ':
+            #                       self._create_RV_injuries(
+            #                         DEP['injuries'],
+            #                         DEP['injury_lvls'])})
+
+            if INJ_tags is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(INJ_tags)))
+                self._DV_INJ_dict = self._RV_reg.RVs(INJ_tags)
             else:
                 log_msg('\t\tNone of the component damage states trigger injuries')
 
@@ -829,24 +961,28 @@ class FEMA_P58_Assessment(Assessment):
         else:
             discard_limits = None
 
-        self._RV_dict.update({
-            'EDP': self._create_RV_demands()})
+        EDP_tags = self._create_RV_demands()
+        self._EDP_dict = self._RV_reg.RVs(EDP_tags)
+        #self._RV_dict.update({'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
         log_msg()
         log_msg('Sampling the random variables...')
 
         realization_count = self._AIM_in['general']['realizations']
-        is_coupled = self._AIM_in['general']['coupled_assessment']
 
-        s_rv_keys = sorted(self._RV_dict.keys())
-        for r_i in s_rv_keys:
-            rv = self._RV_dict[r_i]
-            if rv is not None:
-                log_msg('\t{}...'.format(r_i))
-                rv.sample_distribution(
-                    sample_size=realization_count,
-                    preserve_order=((r_i=='EDP') and is_coupled))
+        self._RV_reg.generate_samples(sample_size=realization_count)
+
+        # is_coupled = self._AIM_in['general']['coupled_assessment']
+        #
+        # s_rv_keys = sorted(self._RV_dict.keys())
+        # for r_i in s_rv_keys:
+        #     rv = self._RV_dict[r_i]
+        #     if rv is not None:
+        #         log_msg('\t{}...'.format(r_i))
+        #         rv.sample_distribution(
+        #             sample_size=realization_count,
+        #             preserve_order=((r_i=='EDP') and is_coupled))
 
         log_msg('Sampling completed.')
 
@@ -867,9 +1003,9 @@ class FEMA_P58_Assessment(Assessment):
         self._FG_dict = self._create_fragility_groups()
 
         # demands
-        self._EDP_dict = dict(
-            [(tag, RandomVariableSubset(self._RV_dict['EDP'],tags=tag))
-             for tag in self._RV_dict['EDP']._dimension_tags])
+        # self._EDP_dict = dict(
+        #     [(tag, RandomVariableSubset(self._RV_dict['EDP'],tags=tag))
+        #      for tag in self._RV_dict['EDP']._dimension_tags])
 
     def calculate_damage(self):
         """
@@ -1305,7 +1441,7 @@ class FEMA_P58_Assessment(Assessment):
 
         """
 
-        q_theta, q_sig, q_tag, q_dist = [np.array([]) for i in range(4)]
+        q_theta, q_sig, q_tags, q_dist = [np.array([]) for i in range(4)]
 
         # collect the parameters for each quantity dimension
         s_fg_keys = sorted(self._FG_in.keys())
@@ -1332,7 +1468,7 @@ class FEMA_P58_Assessment(Assessment):
                 else:
                     q_sig = np.append(q_sig, [cov, ])
 
-            q_tag = np.append(q_tag, [f'{c_id}-QNT-{s_i}-{d_i}' for s_i, d_i
+            q_tags = np.append(q_tags, [f'{c_id}-QNT-{s_i}-{d_i}' for s_i, d_i
                                       in list(zip(comp['locations'],
                                                   comp['directions']))])
 
@@ -1344,11 +1480,10 @@ class FEMA_P58_Assessment(Assessment):
             rho = np.delete(rho, to_remove, axis=0)
             rho = np.delete(rho, to_remove, axis=1)
 
-            q_theta, q_sig, q_dist, q_tag = [
+            q_theta, q_sig, q_dist, q_tags = [
                 np.delete(q_vals, to_remove) for q_vals in [
-                    q_theta, q_sig, q_dist, q_tag]]
+                    q_theta, q_sig, q_dist, q_tags]]
 
-            q_COV = np.outer(q_sig, q_sig) * rho
             dims = len(q_theta)
 
             # add lower limits to ensure only positive quantities
@@ -1356,21 +1491,39 @@ class FEMA_P58_Assessment(Assessment):
             # limits as well
             tr_lower = [0. for d in range(dims)]
             tr_upper = [None for d in range(dims)]
-            # to avoid truncations affecting other dimensions when rho_QNT is large,
-            # assign a post-truncation correlation structure
-            corr_ref = 'post'
 
-            quantity_RV = RandomVariable(ID=100,
-                                         dimension_tags=q_tag,
-                                         distribution_kind=q_dist,
-                                         theta=q_theta,
-                                         COV=q_COV,
-                                         truncation_limits=[tr_lower, tr_upper],
-                                         corr_ref=corr_ref)
+            # Create the RVs
+            for q, (q_tag, theta_q, sig_q, dist_q) in enumerate(
+                    zip(q_tags, q_theta, q_sig, q_dist)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=q_tag, distribution=dist_q,
+                    theta=[theta_q, sig_q],
+                    truncation_limits = [tr_lower[q], tr_upper[q]]
+                ))
+
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                'QNT_set', list(self._RV_reg.RVs(q_tags).values()),
+                rho
+            ))
+
+            # q_COV = np.outer(q_sig, q_sig) * rho
+            #
+            # # to avoid truncations affecting other dimensions when rho_QNT is large,
+            # # assign a post-truncation correlation structure
+            # corr_ref = 'post'
+            #
+            # quantity_RV = RandomVariable(ID=100,
+            #                              dimension_tags=q_tag,
+            #                              distribution_kind=q_dist,
+            #                              theta=q_theta,
+            #                              COV=q_COV,
+            #                              truncation_limits=[tr_lower, tr_upper],
+            #                              corr_ref=corr_ref)
+
         else:
-            quantity_RV = None
+            q_tags = None
 
-        return quantity_RV
+        return q_tags
 
     def _create_RV_fragilities(self, c_id, comp, rho_fr):
         """
@@ -1387,14 +1540,14 @@ class FEMA_P58_Assessment(Assessment):
         """
 
         # prepare the basic multivariate distribution data for one component subgroup considering all damage states
-        d_theta, d_sig, d_tag, d_distr_kind = [np.array([]) for i in range(4)]
+        d_theta, d_sig, d_tags, d_distr_kind = [np.array([]) for i in range(4)]
 
         s_dsg_keys = sorted(comp['DSG_set'].keys())
         for d_id in s_dsg_keys:
             DSG = comp['DSG_set'][d_id]
             d_theta = np.append(d_theta, DSG['theta'])
             d_sig = np.append(d_sig, DSG['sig'])
-            d_tag = np.append(d_tag, comp['ID'] + '-' + str(d_id))
+            d_tags = np.append(d_tags, f"FF-{comp['ID']}-{d_id}")
             d_distr_kind = np.append(d_distr_kind, DSG['distribution_kind'])
         dims = len(d_theta)
 
@@ -1404,7 +1557,7 @@ class FEMA_P58_Assessment(Assessment):
 
         # create the (empty) input arrays for the RV
         c_theta = np.zeros(rv_count)
-        c_tag = np.empty(rv_count, dtype=object)
+        c_tags = np.empty(rv_count, dtype=object)
         c_sig = np.zeros(rv_count)
         c_distr_kind = np.empty(rv_count, dtype=object)
 
@@ -1415,8 +1568,8 @@ class FEMA_P58_Assessment(Assessment):
         #        # for each component-subgroup
         #        c_theta[pos_id:pos_id + dims] = d_theta
         #        c_sig[pos_id:pos_id + dims] = d_sig
-        #        c_tag[pos_id:pos_id + dims] = [
-        #            t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+        #        c_tags[pos_id:pos_id + dims] = [
+        #            t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tags]
         #        c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
         #        pos_id += dims
 
@@ -1427,9 +1580,9 @@ class FEMA_P58_Assessment(Assessment):
                 # for each component-subgroup
                 c_theta[pos_id:pos_id + dims] = d_theta
                 c_sig[pos_id:pos_id + dims] = d_sig
-                c_tag[pos_id:pos_id + dims] = [
+                c_tags[pos_id:pos_id + dims] = [
                     t + '-LOC-{}-DIR-{}-CSG-{}'.format(l_id, d_id, csg_id)
-                    for t in d_tag]
+                    for t in d_tags]
                 c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
                 pos_id += dims
 
@@ -1437,22 +1590,75 @@ class FEMA_P58_Assessment(Assessment):
         c_rho = self._create_correlation_matrix(rho_fr, c_target=c_id,
                                                 include_DSG=True,
                                                 include_CSG=True)
-        c_COV = np.outer(c_sig, c_sig) * c_rho
 
-        if c_tag.size > 0:
-            fragility_RV = RandomVariable(ID=300 + c_id,
-                                          dimension_tags=c_tag,
-                                          distribution_kind=c_distr_kind,
-                                          theta=c_theta,
-                                          COV=c_COV)
+        if c_tags.size > 0:
+            # Create the RVs
+            for c, (c_tag, sig_c, theta_c, dkind_c) in enumerate(
+                    zip(c_tags, c_sig, c_theta, c_distr_kind)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=c_tag, distribution=dkind_c,
+                    theta=[theta_c, sig_c]
+                ))
+
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                f'FF_set_{c_id}', list(self._RV_reg.RVs(c_tags).values()),
+                c_rho))
+
+            # c_COV = np.outer(c_sig, c_sig) * c_rho
+            #
+            # fragility_RV = RandomVariable(ID=300 + c_id,
+            #                               dimension_tags=c_tags,
+            #                               distribution_kind=c_distr_kind,
+            #                               theta=c_theta,
+            #                               COV=c_COV)
         else:
-            fragility_RV = None
+            c_tags = None
 
-        return fragility_RV
+        return c_tags
+
+    def _create_RV_damage_states(self):
+
+        d_tags, d_theta = [[] for i in range(2)]
+
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id, c_name in enumerate(s_fg_keys):
+            comp = self._FG_in[c_name]
+
+            s_dsg_keys = sorted(comp['DSG_set'].keys())
+            for dsg_i in s_dsg_keys:
+                DSG = comp['DSG_set'][dsg_i]
+                if DSG['DS_set_kind'] == 'mutually exclusive':
+
+                    s_ds_keys = sorted(DSG['DS_set'].keys())
+                    DS_set = DSG['DS_set']
+                    DS_weights = [DS_set[ds_i]['weight'] for ds_i in s_ds_keys]
+
+                    for loc, dir_, csg_list in zip(comp['locations'],
+                                                   comp['directions'],
+                                                   comp['csg_weights']):
+
+                        for csg_id, __ in enumerate(csg_list):
+
+                            d_tags.append(f'DSG-{comp["ID"]}-{dsg_i}-LOC-{loc}-'
+                                          f'DIR-{dir_}-CSG-{csg_id}')
+                            d_theta.append(DS_weights)
+
+        if len(d_tags) > 0:
+
+            # Create the RVs
+            for d, (d_tag, theta_d) in enumerate(zip(d_tags, d_theta)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=d_tag, distribution='multinomial',
+                    theta=theta_d))
+
+        else:
+            d_tags = None
+
+        return d_tags
 
     def _create_RV_red_tags(self, rho_target):
 
-        f_theta, f_sig, f_tag = [np.array([]) for i in range(3)]
+        f_theta, f_sig, f_tags = [np.array([]) for i in range(3)]
         s_fg_keys = sorted(self._FG_in.keys())
         for c_id, c_name in enumerate(s_fg_keys):
             comp = self._FG_in[c_name]
@@ -1472,18 +1678,13 @@ class FEMA_P58_Assessment(Assessment):
                         # if there are no injuries assigned to this DS
                         d_theta = np.append(d_theta, 0)
                         d_sig = np.append(d_sig, 0.0001)
-                    d_tag = np.append(d_tag,
-                                      comp['ID'] + '-' + str(dsg_i) + '-' + str(
-                                          ds_i))
+                    d_tag = np.append(d_tag, f"RED-{comp['ID']}-{dsg_i}-{ds_i}")
 
             for loc, dir_ in zip(comp['locations'], comp['directions']):
                 f_theta = np.append(f_theta, d_theta)
                 f_sig = np.append(f_sig, d_sig)
-                f_tag = np.append(f_tag,
-                                  [t + '-LOC-{}-DIR-{}'.format(loc, dir_)
-                                   for t in d_tag])
-
-
+                f_tags = np.append(f_tags, [t + f'-LOC-{loc}-DIR-{dir_}'
+                                            for t in d_tag])
 
         rho = self._create_correlation_matrix(rho_target, c_target=-1,
                                               include_DSG=True,
@@ -1495,30 +1696,42 @@ class FEMA_P58_Assessment(Assessment):
             rho = np.delete(rho, to_remove, axis=0)
             rho = np.delete(rho, to_remove, axis=1)
 
-            f_theta, f_sig, f_tag = [np.delete(f_vals, to_remove)
-                                     for f_vals in [f_theta, f_sig, f_tag]]
-
-            f_COV = np.outer(f_sig, f_sig) * rho
+            f_theta, f_sig, f_tags = [np.delete(f_vals, to_remove)
+                                     for f_vals in [f_theta, f_sig, f_tags]]
 
             tr_upper = 1. + (1. - f_theta) / f_theta
 
-            red_tag_RV = RandomVariable(ID=400,
-                                        dimension_tags=f_tag,
-                                        distribution_kind='normal',
-                                        theta=np.ones(len(f_theta)),
-                                        COV=f_COV,
-                                        corr_ref='post',
-                                        truncation_limits=[np.zeros(len(f_theta)),
-                                                           tr_upper])
-        else:
-            red_tag_RV = None
+            # Create the RVs
+            for f, (f_tag, theta_f, sig_f) in enumerate(
+                    zip(f_tags, f_theta, f_sig)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=f_tag, distribution='normal',
+                    theta=[1.0, sig_f],
+                    truncation_limits=[0., tr_upper[f]]
+                ))
 
-        return red_tag_RV
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                'DV_RED_set', list(self._RV_reg.RVs(f_tags).values()), rho))
+
+            # f_COV = np.outer(f_sig, f_sig) * rho
+            #
+            # red_tag_RV = RandomVariable(ID=400,
+            #                             dimension_tags=f_tag,
+            #                             distribution_kind='normal',
+            #                             theta=np.ones(len(f_theta)),
+            #                             COV=f_COV,
+            #                             corr_ref='post',
+            #                             truncation_limits=[np.zeros(len(f_theta)),
+            #                                                tr_upper])
+        else:
+            f_tags = None
+
+        return f_tags
 
     def _create_RV_repairs(self, rho_cost, rho_time, rho_cNt):
 
         # prepare the cost and time parts of the data separately
-        ct_sig, ct_tag, ct_dkind = [np.array([]) for i in range(3)]
+        ct_sig, ct_tags, ct_dkind = [np.array([]) for i in range(3)]
         for rho_target, name in zip([rho_cost, rho_time], ['cost', 'time']):
 
             f_sig, f_tag, f_dkind = [np.array([]) for i in range(3)]
@@ -1546,7 +1759,7 @@ class FEMA_P58_Assessment(Assessment):
                             d_dkind = np.append(d_dkind, None)
 
                         d_tag = np.append(
-                                d_tag, f'{comp["ID"]}-{dsg_i}-{ds_i}-{name}')
+                                d_tag, f'REP-{comp["ID"]}-{dsg_i}-{ds_i}-{name}')
                                 #comp['ID'] + '-' + str(
                                 #    dsg_i) + '-' + str(
                                 #    ds_i) + '-{}'.format(name))
@@ -1558,7 +1771,7 @@ class FEMA_P58_Assessment(Assessment):
                         f_tag, [t + f'-LOC-{loc}-DIR-{dir_}' for t in d_tag])
 
             ct_sig = np.append(ct_sig, f_sig)
-            ct_tag = np.append(ct_tag, f_tag)
+            ct_tags = np.append(ct_tags, f_tag)
             ct_dkind = np.append(ct_dkind, f_dkind)
 
         rho_c = self._create_correlation_matrix(rho_cost, c_target=-1,
@@ -1568,7 +1781,7 @@ class FEMA_P58_Assessment(Assessment):
                                           include_DSG=True,
                                           include_DS=True)
 
-        dims = len(ct_tag)
+        dims = len(ct_tags)
         ct_rho = np.zeros((dims, dims))
 
         dims = dims // 2
@@ -1603,30 +1816,42 @@ class FEMA_P58_Assessment(Assessment):
             ct_rho = np.delete(ct_rho, to_remove, axis=0)
             ct_rho = np.delete(ct_rho, to_remove, axis=1)
 
-            ct_dkind, ct_sig, ct_tag = [np.delete(ct_vals, to_remove)
-                                     for ct_vals in [ct_dkind, ct_sig, ct_tag]]
+            ct_dkind, ct_sig, ct_tags = [np.delete(ct_vals, to_remove)
+                                     for ct_vals in [ct_dkind, ct_sig, ct_tags]]
 
-            ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
+            # Create the RVs
+            for ct, (ct_tag, sig_ct, dkind_ct) in enumerate(
+                    zip(ct_tags, ct_sig, ct_dkind)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=ct_tag, distribution=dkind_ct,
+                    theta=[1.0, sig_ct],
+                    truncation_limits=[0., None]
+                ))
 
-            repair_RV = RandomVariable(ID=401,
-                                       dimension_tags=ct_tag,
-                                       distribution_kind=ct_dkind,
-                                       theta=np.ones(len(ct_sig)),
-                                       COV=ct_COV,
-                                       corr_ref='post',
-                                       truncation_limits=[np.zeros(len(ct_sig)),
-                                                          None])
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                'DV_REP_set', list(self._RV_reg.RVs(ct_tags).values()), ct_rho))
+
+            # ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
+            #
+            # repair_RV = RandomVariable(ID=401,
+            #                            dimension_tags=ct_tags,
+            #                            distribution_kind=ct_dkind,
+            #                            theta=np.ones(len(ct_sig)),
+            #                            COV=ct_COV,
+            #                            corr_ref='post',
+            #                            truncation_limits=[np.zeros(len(ct_sig)),
+            #                                               None])
         else:
-            repair_RV = None
+            ct_tags = None
 
-        return repair_RV
+        return ct_tags
 
     def _create_RV_injuries(self, rho_target, rho_lvls):
 
         inj_lvls = self._inj_lvls
 
         # prepare the parts for different levels of injury separately
-        full_theta, full_sig, full_tag = [np.array([]) for i in range(3)]
+        full_theta, full_sig, full_tags = [np.array([]) for i in range(3)]
         for i_lvl in range(inj_lvls):
 
             f_theta, f_sig, f_tag = [np.array([]) for i in range(3)]
@@ -1651,9 +1876,8 @@ class FEMA_P58_Assessment(Assessment):
                             # if there are no injuries assigned to this DS
                             d_theta = np.append(d_theta, 0)
                             d_sig = np.append(d_sig, 0.0001)
-                        d_tag = np.append(d_tag,
-                                          (comp['ID'] + '-' + str(dsg_i) + '-' +
-                                           str(ds_i) + '-{}'.format(i_lvl)))
+                        d_tag = np.append(
+                            d_tag, f"INJ-{comp['ID']}-{dsg_i}-{ds_i}-{i_lvl}")
 
                 for loc, dir_ in zip(comp['locations'], comp['directions']):
                     f_theta = np.append(f_theta, d_theta)
@@ -1665,9 +1889,9 @@ class FEMA_P58_Assessment(Assessment):
 
             full_theta = np.append(full_theta, f_theta)
             full_sig = np.append(full_sig, f_sig)
-            full_tag = np.append(full_tag, f_tag)
+            full_tags = np.append(full_tags, f_tag)
 
-        dims = len(full_tag)
+        dims = len(full_tags)
         full_rho = np.zeros((dims, dims))
         dims = dims // inj_lvls
 
@@ -1693,27 +1917,41 @@ class FEMA_P58_Assessment(Assessment):
         full_rho = np.delete(full_rho, to_remove, axis=0)
         full_rho = np.delete(full_rho, to_remove, axis=1)
 
-        full_theta, full_sig, full_tag = [np.delete(f_vals, to_remove)
+        full_theta, full_sig, full_tags = [np.delete(f_vals, to_remove)
                                           for f_vals in
-                                          [full_theta, full_sig, full_tag]]
-
-        full_COV = np.outer(full_sig, full_sig) * full_rho
+                                          [full_theta, full_sig, full_tags]]
 
         tr_upper = 1. + (1. - full_theta) / full_theta
 
-        if full_tag.size > 0:
-            injury_RV = RandomVariable(ID=402,
-                                       dimension_tags=full_tag,
-                                       distribution_kind='normal',
-                                       theta=np.ones(len(full_sig)),
-                                       COV=full_COV,
-                                       corr_ref='post',
-                                       truncation_limits=[np.zeros(len(full_sig)),
-                                                          tr_upper])
-        else:
-            injury_RV = None
+        if full_tags.size > 0:
+            # Create the RVs
+            for ii, (ii_tag, sig_ii, theta_ii) in enumerate(
+                    zip(full_tags, full_sig, full_theta)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=ii_tag, distribution='normal',
+                    theta=[1.0, sig_ii],
+                    truncation_limits=[0., tr_upper[ii]]
+                ))
 
-        return injury_RV
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                'DV_INJ_set', list(self._RV_reg.RVs(full_tags).values()),
+                full_rho))
+
+            # full_COV = np.outer(full_sig, full_sig) * full_rho
+            #
+            # if full_tags.size > 0:
+            #     injury_RV = RandomVariable(ID=402,
+            #                                dimension_tags=full_tags,
+            #                                distribution_kind='normal',
+            #                                theta=np.ones(len(full_sig)),
+            #                                COV=full_COV,
+            #                                corr_ref='post',
+            #                                truncation_limits=[np.zeros(len(full_sig)),
+            #                                                   tr_upper])
+        else:
+            full_tags = None
+
+        return full_tags
 
     def _create_fragility_groups(self):
 
@@ -1747,8 +1985,9 @@ class FEMA_P58_Assessment(Assessment):
                 if dist == 'N/A':
                     QNT = qnt
                 else:
-                    QNT = RandomVariableSubset(RVd['QNT'],
-                        tags=[f'{c_id}-QNT-{loc}-{dir_}', ])
+                    # QNT = RandomVariableSubset(RVd['QNT'],
+                    #     tags=[f'{c_id}-QNT-{loc}-{dir_}', ])
+                    QNT = self._QNT_dict[f'{c_id}-QNT-{loc}-{dir_}']
 
                 # create the damage objects
                 # consequences are calculated on a performance group level
@@ -1759,7 +1998,7 @@ class FEMA_P58_Assessment(Assessment):
                 s_dsg_keys = sorted(comp['DSG_set'].keys())
                 for dsg_i, DSG_ID in enumerate(s_dsg_keys):
                     DSG = comp['DSG_set'][DSG_ID]
-                    d_tags.append(c_id + '-' + DSG_ID)
+                    d_tags.append('FF-' + c_id + '-' + DSG_ID)
 
                     # create a list for the damage states
                     DS_set = []
@@ -1776,11 +2015,12 @@ class FEMA_P58_Assessment(Assessment):
                                    ('medians', 'quantities')})
                                    #('median_max', 'median_min',
                                    # 'quantity_lower', 'quantity_upper')})
-                            cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                            cf_tag = 'REP-' + c_id + '-' + DSG_ID + '-' + DS_ID + \
                                      '-cost' + \
                                      '-LOC-{}-DIR-{}'.format(loc, dir_)
-                            CF_RV = RandomVariableSubset(RVd['DV_REP'],
-                                                         tags=cf_tag)
+                            CF_RV = self._DV_REP_dict[cf_tag]
+                            # CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                            #                              tags=cf_tag)
                             CF_cost = ConsequenceFunction(DV_median=f_median,
                                                           DV_distribution=CF_RV)
                         else:
@@ -1793,11 +2033,12 @@ class FEMA_P58_Assessment(Assessment):
                                    ('medians', 'quantities')})
                                    #('median_max', 'median_min',
                                    # 'quantity_lower', 'quantity_upper')})
-                            cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                            cf_tag = 'REP-' + c_id + '-' + DSG_ID + '-' + DS_ID + \
                                      '-time' + \
                                      '-LOC-{}-DIR-{}'.format(loc, dir_)
-                            CF_RV = RandomVariableSubset(RVd['DV_REP'],
-                                                         tags=cf_tag)
+                            CF_RV = self._DV_REP_dict[cf_tag]
+                            # CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                            #                              tags=cf_tag)
                             CF_time = ConsequenceFunction(DV_median=f_median,
                                                           DV_distribution=CF_RV)
                         else:
@@ -1807,10 +2048,11 @@ class FEMA_P58_Assessment(Assessment):
                             data = DS['red_tag']
                             if data['theta'] > 0:
                                 f_median = prep_constant_median_DV(data['theta'])
-                                cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                cf_tag = 'RED-' + c_id + '-' + DSG_ID + '-' + DS_ID + \
                                          '-LOC-{}-DIR-{}'.format(loc, dir_)
-                                CF_RV = RandomVariableSubset(RVd['DV_RED'],
-                                                             tags=cf_tag)
+                                CF_RV = self._DV_RED_dict[cf_tag]
+                                # CF_RV = RandomVariableSubset(RVd['DV_RED'],
+                                #                              tags=cf_tag)
                                 CF_red_tag = ConsequenceFunction(DV_median=f_median,
                                                                  DV_distribution=CF_RV)
                             else:
@@ -1823,10 +2065,11 @@ class FEMA_P58_Assessment(Assessment):
                             for inj_i, theta in enumerate(DS['injuries']['theta']):
                                 if theta > 0.:
                                     f_median = prep_constant_median_DV(theta)
-                                    cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                    cf_tag = 'INJ-' + c_id + '-' + DSG_ID + '-' + DS_ID + \
                                              '-{}-LOC-{}-DIR-{}'.format(inj_i, loc, dir_)
-                                    CF_RV = RandomVariableSubset(RVd['DV_INJ'],
-                                                                 tags=cf_tag)
+                                    CF_RV = self._DV_INJ_dict[cf_tag]
+                                    # CF_RV = RandomVariableSubset(RVd['DV_INJ'],
+                                    #                              tags=cf_tag)
                                     CF_inj_set.append(ConsequenceFunction(
                                         DV_median=f_median,
                                         DV_distribution=CF_RV))
@@ -1866,11 +2109,11 @@ class FEMA_P58_Assessment(Assessment):
                 for csg_id, __ in enumerate(csg_list):
                     # assign the appropriate random variable to the fragility
                     # function
-                    ff_tags = [t + '-LOC-{}-DIR-{}-CSG-{}'.format(loc, dir_,
-                                                                  csg_id)
+                    ff_tags = [t + f'-LOC-{loc}-DIR-{dir_}-CSG-{csg_id}'
                                for t in d_tags]
-                    EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
-                                                     tags=ff_tags)
+                    EDP_limit = [self._FF_dict[ff_tag] for ff_tag in ff_tags]
+                    # RandomVariableSubset(RVd['FR-' + c_id],
+                    #                              tags=ff_tags)
                     FF_set.append(FragilityFunction(EDP_limit))
 
                 # create the performance group
@@ -2010,14 +2253,13 @@ class FEMA_P58_Assessment(Assessment):
             s_edp_keys = sorted(self._EDP_dict.keys())
             for demand_ID in s_edp_keys:
                 demand = self._EDP_dict[demand_ID]
-                coll_df = pd.DataFrame()
-                kind = demand_ID[:3]
+                kind = demand_ID[4:7]
                 collapse_limit = self._AIM_in['general']['collapse_limits'][kind]
                 if collapse_limit is not None:
-                    EDP_samples = demand.samples
+                    EDP_samples = demand.samples_DF
                     coll_df = EDP_samples[EDP_samples > collapse_limit]
-                collapsed_IDs = np.concatenate(
-                    (collapsed_IDs, coll_df.index.values))
+                    collapsed_IDs = np.concatenate(
+                        (collapsed_IDs, coll_df.index.values))
 
         # get a list of IDs of the collapsed cases
         collapsed_IDs = np.unique(collapsed_IDs).astype(int)
@@ -2058,10 +2300,10 @@ class FEMA_P58_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                if isinstance(PG._quantity, RandomVariableSubset):
-                    PG_qnt = PG._quantity.samples.loc[ncID]
+                if isinstance(PG._quantity, RandomVariable):
+                    PG_qnt = PG._quantity.samples_DF.loc[ncID]
                 else:
-                    PG_qnt = pd.DataFrame(np.ones(NC_samples) * PG._quantity,
+                    PG_qnt = pd.Series(np.ones(NC_samples) * PG._quantity,
                                           index=ncID)
 
                 # get the corresponding demands
@@ -2069,15 +2311,15 @@ class FEMA_P58_Assessment(Assessment):
                     demand_ID_list = []
 
                     for demand_ID in self._EDP_dict.keys():
-                        if demand_ID[:3] == FG._demand_type:
+                        if demand_ID[4:7] == FG._demand_type:
                             demand_data = demand_ID.split('-')
-                            if int(demand_data[2]) == PG._location + FG._demand_location_offset:
+                            if int(demand_data[3]) == PG._location + FG._demand_location_offset:
                                 demand_ID_list.append(demand_ID)
 
-                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
+                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples_DF.loc[ncID]
                     if len(demand_ID_list)>1:
                         for demand_ID in demand_ID_list[1:]:
-                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                            new_samples = self._EDP_dict[demand_ID].samples_DF.loc[ncID]
                             EDP_samples.update(
                                 pd.Series(np.maximum(new_samples.values,EDP_samples.values),
                                           index=EDP_samples.index))
@@ -2086,21 +2328,21 @@ class FEMA_P58_Assessment(Assessment):
                     EDP_samples *= 1.2
 
                 else:
-                    demand_ID = (FG._demand_type +
+                    demand_ID = ('EDP-' + FG._demand_type +
                              '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
 
                     if demand_ID in self._EDP_dict.keys():
-                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                        EDP_samples = self._EDP_dict[demand_ID].samples_DF.loc[ncID]
                     else:
                         # If the required demand is not available, then we are most
                         # likely analyzing a 3D structure using results from a 2D
                         # simulation. The best thing we can do in that particular
                         # case is to use the EDP from the 1 direction for all other
                         # directions.
-                        demand_ID = (FG._demand_type +
+                        demand_ID = ('EDP-' + FG._demand_type +
                                      '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
-                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                        EDP_samples = self._EDP_dict[demand_ID].samples_DF.loc[ncID]
 
                 csg_w_list = PG._csg_weights
 
@@ -2115,17 +2357,23 @@ class FEMA_P58_Assessment(Assessment):
                             FG_damages.loc[in_this_DSG,
                                            (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'mutually exclusive':
-                            DS_weights = [DS._weight for DS in DSG._DS_set]
-                            DS_RV = RandomVariable(
-                                ID=-1, dimension_tags=['me_DS', ],
-                                distribution_kind='multinomial',
-                                p_set=DS_weights)
-                            DS_df = DS_RV.sample_distribution(
-                                len(in_this_DSG)) + 1
+                            mut_ex_id = f'DSG-{fg_id}-DSG-{DSG._ID}-' \
+                                        f'LOC-{PG._location}-' \
+                                        f'DIR-{PG._direction}-CSG-{csg_i}'
+                            DS_df = self._DSG_dict[mut_ex_id].samples_DF.loc[in_this_DSG]
+
+                            # DS_weights = [DS._weight for DS in DSG._DS_set]
+                            # DS_RV = RandomVariable(
+                            #     ID=-1, dimension_tags=['me_DS', ],
+                            #     distribution_kind='multinomial',
+                            #     p_set=DS_weights)
+                            # DS_df = DS_RV.sample_distribution(
+                            #     len(in_this_DSG)) + 1
+
                             for DS in DSG._DS_set:
                                 DS_tag = str(DSG._ID) + '_' + str(DS._ID)
-                                in_this_DS = DS_df[DS_df.values == DS._ID].index
-                                FG_damages.loc[in_this_DSG[in_this_DS],
+                                in_this_DS = DS_df[DS_df.values == DS._ID-1].index
+                                FG_damages.loc[in_this_DS,
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'simultaneous':
                             DS_weights = [DS._weight for DS in DSG._DS_set]
@@ -2158,7 +2406,7 @@ class FEMA_P58_Assessment(Assessment):
                             )
 
                 FG_damages.iloc[:,pg_i * d_count:(pg_i + 1) * d_count] = \
-                    FG_damages.mul(PG_qnt.iloc[:, 0], axis=0)
+                    FG_damages.mul(PG_qnt, axis=0)
 
             DMG = pd.concat((DMG, FG_damages), axis=1)
 
@@ -2197,15 +2445,13 @@ class FEMA_P58_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                if isinstance(PG._quantity, RandomVariableSubset):
-                    PG_qnt = PG._quantity.samples.loc[ncID]
+                if isinstance(PG._quantity, RandomVariable):
+                    PG_qnt = PG._quantity.samples_DF.loc[ncID]
                 else:
-                    PG_qnt = pd.DataFrame(np.ones(NC_samples) * PG._quantity,
+                    PG_qnt = pd.Series(np.ones(NC_samples) * PG._quantity,
                                           index=ncID)
 
-                PG_DMG = self._DMG.loc[:, idx[FG._ID, PG_ID, :]].div(
-                    PG_qnt.iloc[:, 0],
-                    axis=0)
+                PG_DMG = self._DMG.loc[:, idx[FG._ID, PG_ID, :]].div(PG_qnt,axis=0)
 
                 for d_i, d_tag in enumerate(DS_list):
                     dsg_i = int(d_tag[0]) - 1
@@ -2247,15 +2493,15 @@ class FEMA_P58_Assessment(Assessment):
         s_edp_keys = sorted(self._EDP_dict.keys())
         for demand_ID in s_edp_keys:
             demand = self._EDP_dict[demand_ID]
-            kind = demand_ID[:3]
+            kind = demand_ID[4:7]
             if kind == 'RID':
-                r_max = demand.samples.loc[ncID].values
+                r_max = demand.samples_DF.loc[ncID].values
                 if RID_max is None:
                     RID_max = r_max
                 else:
                     RID_max = np.max((RID_max, r_max), axis=0)
             elif kind == 'PID':
-                d_max = demand.samples.loc[ncID].values
+                d_max = demand.samples_DF.loc[ncID].values
                 if PID_max is None:
                     PID_max = d_max
                 else:
@@ -2287,13 +2533,15 @@ class FEMA_P58_Assessment(Assessment):
                 return np.array([])
 
         # get the probabilities of irreparability
-        irrep_frag = self._AIM_in['general']['irreparable_res_drift']
-        RV_irrep = RandomVariable(ID=-1, dimension_tags=['RED_irrep', ],
-                                  distribution_kind='lognormal',
-                                  theta=irrep_frag['Median'],
-                                  COV=irrep_frag['Beta'] ** 2.
-                                  )
-        RED_irrep = RV_irrep.sample_distribution(NC_samples)['RED_irrep'].values
+        # irrep_frag = self._AIM_in['general']['irreparable_res_drift']
+        # RV_irrep = RandomVariable(ID=-1, dimension_tags=['RED_irrep', ],
+        #                           distribution_kind='lognormal',
+        #                           theta=irrep_frag['Median'],
+        #                           COV=irrep_frag['Beta'] ** 2.
+        #                           )
+        # RED_irrep = RV_irrep.sample_distribution(NC_samples)['RED_irrep'].values
+
+        RED_irrep = self._RV_reg.RV['RED_irrep'].samples_DF.loc[ncID].values
 
         # determine if the realizations are repairable
         irreparable = RID_max > RED_irrep
@@ -2312,7 +2560,7 @@ class FEMA_P58_Assessment(Assessment):
         REP_samples = len(repID)
         DV_COST = pd.DataFrame(np.zeros((REP_samples, len(self._DMG.columns))),
                                columns=self._DMG.columns, index=repID)
-        DV_TIME = deepcopy(DV_COST)
+        DV_TIME = DV_COST.copy()
 
         s_fg_keys = sorted(self._FG_dict.keys())
         for fg_id in s_fg_keys:
@@ -2375,7 +2623,7 @@ class FEMA_P58_Assessment(Assessment):
             inj_lvls = self._inj_lvls
             coll_modes = self._AIM_in['collapse_modes']
             P_keys = [cmk for cmk in coll_modes.keys()]
-            P_modes = [coll_modes[k]['w'] for k in P_keys]
+            # P_modes = [coll_modes[k]['w'] for k in P_keys]
 
             # create the DataFrame that collects the decision variables
             inj_cols = ['CM',]
@@ -2384,10 +2632,11 @@ class FEMA_P58_Assessment(Assessment):
             COL_INJ = pd.DataFrame(np.zeros((C_samples, inj_lvls + 1)),
                                    columns=inj_cols, index=colID)
 
-            CM_RV = RandomVariable(ID=-1, dimension_tags=['CM', ],
-                                   distribution_kind='multinomial',
-                                   p_set=P_modes)
-            COL_INJ['CM'] = CM_RV.sample_distribution(C_samples).values
+            # CM_RV = RandomVariable(ID=-1, dimension_tags=['CM', ],
+            #                        distribution_kind='multinomial',
+            #                        p_set=P_modes)
+            #COL_INJ['CM'] = CM_RV.sample_distribution(C_samples).values
+            COL_INJ['CM'] = self._RV_reg.RV['CM'].samples_DF.loc[colID].values
 
             # get the popoulation values corresponding to the collapsed cases
             P_sel = self._POP.loc[colID]
@@ -2590,64 +2839,94 @@ class HAZUS_Assessment(Assessment):
 
         # quantities 100
         log_msg('\tQuantities...')
-        self._RV_dict.update({
-            'QNT': self._create_RV_quantities(DEP['quantities'])})
+        QNT_tags = self._create_RV_quantities(DEP['quantities'])
 
-        if self._RV_dict['QNT'] is not None:
-            log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['QNT'].theta)))
+        # self._RV_dict.update({
+        #     'QNT': self._create_RV_quantities(DEP['quantities'])})
+
+        if QNT_tags is not None:
+            log_msg('\t\tRV dimensions: {}'.format(len(QNT_tags)))
+            self._QNT_dict = self._RV_reg.RVs(QNT_tags)
         else:
             log_msg('\t\tNone of the components have random quantities assigned')
 
         # fragilities 300
         log_msg('\tDamage State Limits...')
         s_fg_keys = sorted(self._FG_in.keys())
+        self._FF_dict = {}
+        log_msg('\t\tRV dimensions:')
         for c_id, c_name in enumerate(s_fg_keys):
             comp = self._FG_in[c_name]
 
-            self._RV_dict.update({
-                'FR-' + c_name:
-                    self._create_RV_fragilities(c_id, comp,DEP['fragilities'])})
+            FF_tags = self._create_RV_fragilities(c_id, comp,
+                                                  DEP['fragilities'])
+            self._FF_dict.update(self._RV_reg.RVs(FF_tags))
 
-        log_msg('\t\tRV dimensions:')
-        for key, val in self._RV_dict.items():
-            if 'FR-' in key:
-                log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+            # self._RV_dict.update({
+            #     'FR-' + c_name:
+            #         self._create_RV_fragilities(c_id, comp,DEP['fragilities'])})
+            log_msg('\t\t\t{}: {}'.format(c_name, len(FF_tags)))
+
+        # for key, val in self._RV_dict.items():
+        #     if 'FR-' in key:
+        #         log_msg('\t\t\t{}: {}'.format(key, len(val.theta)))
+
+        # damages (mutually exclusive cases and later simultaneous ones too)
+        log_msg('\tDamage States...')
+        DS_tags = self._create_RV_damage_states()
+
+        if DS_tags is not None:
+            log_msg('\t\tRV dimensions: {}'.format(len(DS_tags)))
+            self._DSG_dict = self._RV_reg.RVs(DS_tags)
+        else:
+            log_msg(
+                '\t\tNone of the components have random damage states assigned')
 
         # decision variables
         DVs = self._AIM_in['decision_variables']
 
         if DVs['rec_time'] or DVs['rec_cost']:
             log_msg('\tReconstruction Costs and Times...')
-            self._RV_dict.update({
-                'DV_REP': self._create_RV_repairs(DEP['rec_costs'],
-                                                  DEP['rec_times'],
-                                                  DEP['cost_and_time'])})
+            REP_tags = self._create_RV_repairs(
+                DEP['rec_costs'], DEP['rec_times'], DEP['cost_and_time'])
 
-            if self._RV_dict['DV_REP'] is not None:
-                log_msg('\t\tRV dimensions: {}'.format(len(self._RV_dict['DV_REP'].theta)))
+            # self._RV_dict.update({
+            #     'DV_REP': self._create_RV_repairs(DEP['rec_costs'],
+            #                                       DEP['rec_times'],
+            #                                       DEP['cost_and_time'])})
+
+            if REP_tags is not None:
+                log_msg('\t\tRV dimensions: {}'.format(len(REP_tags)))
+                self._DV_REP_dict = self._RV_reg.RVs(REP_tags)
             else:
-                log_msg('\t\tNone of the components have probabilistic consequence functions')
+                log_msg('\t\tNone of the components have probabilistic '
+                        'consequence functions')
 
         # demands 200
         log_msg('\tEDPs...')
 
-        self._RV_dict.update({'EDP': self._create_RV_demands()})
+        EDP_tags = self._create_RV_demands()
+        self._EDP_dict = self._RV_reg.RVs(EDP_tags)
+        #self._RV_dict.update({'EDP': self._create_RV_demands()})
 
         # sample the random variables -----------------------------------------
         log_msg()
         log_msg('Sampling the random variables...')
 
         realization_count = self._AIM_in['general']['realizations']
-        is_coupled = self._AIM_in['general']['coupled_assessment']
 
-        s_rv_keys = sorted(self._RV_dict.keys())
-        for r_i in s_rv_keys:
-            rv = self._RV_dict[r_i]
-            if rv is not None:
-                log_msg('\t{}...'.format(r_i))
-                rv.sample_distribution(
-                    sample_size=realization_count,
-                    preserve_order=((r_i=='EDP') and is_coupled))
+        self._RV_reg.generate_samples(sample_size=realization_count)
+
+        # is_coupled = self._AIM_in['general']['coupled_assessment']
+        #
+        # s_rv_keys = sorted(self._RV_dict.keys())
+        # for r_i in s_rv_keys:
+        #     rv = self._RV_dict[r_i]
+        #     if rv is not None:
+        #         log_msg('\t{}...'.format(r_i))
+        #         rv.sample_distribution(
+        #             sample_size=realization_count,
+        #             preserve_order=((r_i=='EDP') and is_coupled))
 
         log_msg('Sampling completed.')
 
@@ -2669,9 +2948,9 @@ class HAZUS_Assessment(Assessment):
         self._FG_dict = self._create_fragility_groups()
 
         # demands
-        self._EDP_dict = dict(
-            [(tag, RandomVariableSubset(self._RV_dict['EDP'], tags=tag))
-             for tag in self._RV_dict['EDP']._dimension_tags])
+        # self._EDP_dict = dict(
+        #     [(tag, RandomVariableSubset(self._RV_dict['EDP'], tags=tag))
+        #      for tag in self._RV_dict['EDP']._dimension_tags])
 
     def calculate_damage(self):
         """
@@ -2729,8 +3008,8 @@ class HAZUS_Assessment(Assessment):
                     for target_PG in target_PGs:
 
                         # get the total quantity
-                        if isinstance(target_PG._quantity, RandomVariableSubset):
-                            qnt_tot = target_PG._quantity.samples.loc[self._DMG.index]
+                        if isinstance(target_PG._quantity, RandomVariable):
+                            qnt_tot = target_PG._quantity.samples_DF.loc[self._DMG.index]
                         else:
                             qnt_tot = pd.DataFrame(np.ones(self._DMG.shape[0]) * target_PG._quantity,
                                                   index=self._DMG.index)
@@ -3141,7 +3420,7 @@ class HAZUS_Assessment(Assessment):
 
         """
 
-        q_theta, q_sig, q_tag, q_dist = [np.array([]) for i in range(4)]
+        q_theta, q_sig, q_tags, q_dist = [np.array([]) for i in range(4)]
 
         # collect the parameters for each quantity dimension
         s_fg_keys = sorted(self._FG_in.keys())
@@ -3168,7 +3447,7 @@ class HAZUS_Assessment(Assessment):
                 else:
                     q_sig = np.append(q_sig, [cov, ])
 
-            q_tag = np.append(q_tag, [f'{c_id}-QNT-{s_i}-{d_i}' for s_i, d_i
+            q_tags = np.append(q_tags, [f'{c_id}-QNT-{s_i}-{d_i}' for s_i, d_i
                                       in list(zip(comp['locations'],
                                                   comp['directions']))])
 
@@ -3180,11 +3459,10 @@ class HAZUS_Assessment(Assessment):
             rho = np.delete(rho, to_remove, axis=0)
             rho = np.delete(rho, to_remove, axis=1)
 
-            q_theta, q_sig, q_dist, q_tag = [
+            q_theta, q_sig, q_dist, q_tags = [
                 np.delete(q_vals, to_remove) for q_vals in [
-                    q_theta, q_sig, q_dist, q_tag]]
+                    q_theta, q_sig, q_dist, q_tags]]
 
-            q_COV = np.outer(q_sig, q_sig) * rho
             dims = len(q_theta)
 
             # add lower limits to ensure only positive quantities
@@ -3192,21 +3470,36 @@ class HAZUS_Assessment(Assessment):
             # limits as well
             tr_lower = [0. for d in range(dims)]
             tr_upper = [None for d in range(dims)]
-            # to avoid truncations affecting other dimensions when rho_QNT is large,
-            # assign a post-truncation correlation structure
-            corr_ref = 'post'
 
-            quantity_RV = RandomVariable(ID=100,
-                                         dimension_tags=q_tag,
-                                         distribution_kind=q_dist,
-                                         theta=q_theta,
-                                         COV=q_COV,
-                                         truncation_limits=[tr_lower, tr_upper],
-                                         corr_ref=corr_ref)
+            # Create the RVs
+            for q, (q_tag, theta_q, sig_q, dist_q) in enumerate(
+                    zip(q_tags, q_theta, q_sig, q_dist)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=q_tag, distribution=dist_q,
+                    theta=[theta_q, sig_q],
+                    truncation_limits=[tr_lower[q], tr_upper[q]]
+                ))
+
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                'QNT_set', list(self._RV_reg.RVs(q_tags).values()), rho))
+
+            # q_COV = np.outer(q_sig, q_sig) * rho
+            #
+            # # to avoid truncations affecting other dimensions when rho_QNT is large,
+            # # assign a post-truncation correlation structure
+            # corr_ref = 'post'
+            #
+            # quantity_RV = RandomVariable(ID=100,
+            #                              dimension_tags=q_tag,
+            #                              distribution_kind=q_dist,
+            #                              theta=q_theta,
+            #                              COV=q_COV,
+            #                              truncation_limits=[tr_lower, tr_upper],
+            #                              corr_ref=corr_ref)
         else:
-            quantity_RV = None
+            q_tags = None
 
-        return quantity_RV
+        return q_tags
 
     def _create_RV_fragilities(self, c_id, comp, rho_fr):
         """
@@ -3223,14 +3516,14 @@ class HAZUS_Assessment(Assessment):
         """
 
         # prepare the basic multivariate distribution data for one component subgroup considering all damage states
-        d_theta, d_sig, d_tag, d_distr_kind = [np.array([]) for i in range(4)]
+        d_theta, d_sig, d_tags, d_distr_kind = [np.array([]) for i in range(4)]
 
         s_dsg_keys = sorted(comp['DSG_set'].keys())
         for d_id in s_dsg_keys:
             DSG = comp['DSG_set'][d_id]
             d_theta = np.append(d_theta, DSG['theta'])
             d_sig = np.append(d_sig, DSG['sig'])
-            d_tag = np.append(d_tag, comp['ID'] + '-' + str(d_id))
+            d_tags = np.append(d_tags, f"FF-{comp['ID']}-{d_id}")
             d_distr_kind = np.append(d_distr_kind, DSG['distribution_kind'])
         dims = len(d_theta)
 
@@ -3241,7 +3534,7 @@ class HAZUS_Assessment(Assessment):
 
         # create the (empty) input arrays for the RV
         c_theta = np.zeros(rv_count)
-        c_tag = np.empty(rv_count, dtype=object)
+        c_tags = np.empty(rv_count, dtype=object)
         c_sig = np.zeros(rv_count)
         c_distr_kind = np.empty(rv_count, dtype=object)
 
@@ -3252,8 +3545,8 @@ class HAZUS_Assessment(Assessment):
         #        # for each component-subgroup
         #        c_theta[pos_id:pos_id + dims] = d_theta
         #        c_sig[pos_id:pos_id + dims] = d_sig
-        #        c_tag[pos_id:pos_id + dims] = [
-        #            t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tag]
+        #        c_tags[pos_id:pos_id + dims] = [
+        #            t + '-LOC-{}-CSG-{}'.format(l_id, d_id) for t in d_tags]
         #        c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
         #        pos_id += dims
 
@@ -3264,9 +3557,9 @@ class HAZUS_Assessment(Assessment):
                 # for each component-subgroup
                 c_theta[pos_id:pos_id + dims] = d_theta
                 c_sig[pos_id:pos_id + dims] = d_sig
-                c_tag[pos_id:pos_id + dims] = [
+                c_tags[pos_id:pos_id + dims] = [
                     t + '-LOC-{}-DIR-{}-CSG-{}'.format(l_id, d_id, csg_id)
-                    for t in d_tag]
+                    for t in d_tags]
                 c_distr_kind[pos_id:pos_id + dims] = d_distr_kind
                 pos_id += dims
 
@@ -3275,23 +3568,77 @@ class HAZUS_Assessment(Assessment):
         #                                        include_DSG=True,
         #                                        include_CSG=True)
         c_rho = np.ones((rv_count, rv_count))
-        c_COV = np.outer(c_sig, c_sig) * c_rho
 
-        if c_tag.size > 0:
-            fragility_RV = RandomVariable(ID=300 + c_id,
-                                          dimension_tags=c_tag,
-                                          distribution_kind=c_distr_kind,
-                                          theta=c_theta,
-                                          COV=c_COV)
+        if c_tags.size > 0:
+
+            # Create the RVs
+            for c, (c_tag, sig_c, theta_c, dkind_c) in enumerate(
+                    zip(c_tags, c_sig, c_theta, c_distr_kind)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=c_tag, distribution=dkind_c,
+                    theta=[theta_c, sig_c]
+                ))
+
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                f'FF_set_{c_id}', list(self._RV_reg.RVs(c_tags).values()),
+                c_rho))
+
+            # c_COV = np.outer(c_sig, c_sig) * c_rho
+            #
+            # fragility_RV = RandomVariable(ID=300 + c_id,
+            #                               dimension_tags=c_tags,
+            #                               distribution_kind=c_distr_kind,
+            #                               theta=c_theta,
+            #                               COV=c_COV)
         else:
-            fragility_RV = None
+            c_tags = None
 
-        return fragility_RV
+        return c_tags
+
+    def _create_RV_damage_states(self):
+
+        d_tags, d_theta = [[] for i in range(2)]
+
+        s_fg_keys = sorted(self._FG_in.keys())
+        for c_id, c_name in enumerate(s_fg_keys):
+            comp = self._FG_in[c_name]
+
+            s_dsg_keys = sorted(comp['DSG_set'].keys())
+            for dsg_i in s_dsg_keys:
+                DSG = comp['DSG_set'][dsg_i]
+                if DSG['DS_set_kind'] == 'mutually exclusive':
+
+                    s_ds_keys = sorted(DSG['DS_set'].keys())
+                    DS_set = DSG['DS_set']
+                    DS_weights = [DS_set[ds_i]['weight'] for ds_i in s_ds_keys]
+
+                    for loc, dir_, csg_list in zip(comp['locations'],
+                                                   comp['directions'],
+                                                   comp['csg_weights']):
+
+                        for csg_id, __ in enumerate(csg_list):
+
+                            d_tags.append(f'DSG-{comp["ID"]}-{dsg_i}-LOC-{loc}-'
+                                          f'DIR-{dir_}-CSG-{csg_id}')
+                            d_theta.append(DS_weights)
+
+        if len(d_tags) > 0:
+
+            # Create the RVs
+            for d, (d_tag, theta_d) in enumerate(zip(d_tags, d_theta)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=d_tag, distribution='multinomial',
+                    theta=theta_d))
+
+        else:
+            d_tags = None
+
+        return d_tags
 
     def _create_RV_repairs(self, rho_cost, rho_time, rho_cNt):
 
         # prepare the cost and time parts of the data separately
-        ct_sig, ct_tag, ct_dkind = [np.array([]) for i in range(3)]
+        ct_sig, ct_tags, ct_dkind = [np.array([]) for i in range(3)]
         for rho_target, name in zip([rho_cost, rho_time], ['cost', 'time']):
 
             f_sig, f_tag, f_dkind = [np.array([]) for i in range(3)]
@@ -3319,7 +3666,7 @@ class HAZUS_Assessment(Assessment):
                             d_dkind = np.append(d_dkind, None)
 
                         d_tag = np.append(
-                                d_tag, f'{comp["ID"]}-{dsg_i}-{ds_i}-{name}')
+                                d_tag, f'REP-{comp["ID"]}-{dsg_i}-{ds_i}-{name}')
                                 #comp['ID'] + '-' + str(
                                 #    dsg_i) + '-' + str(
                                 #    ds_i) + '-{}'.format(name))
@@ -3331,7 +3678,7 @@ class HAZUS_Assessment(Assessment):
                         f_tag, [t + f'-LOC-{loc}-DIR-{dir_}' for t in d_tag])
 
             ct_sig = np.append(ct_sig, f_sig)
-            ct_tag = np.append(ct_tag, f_tag)
+            ct_tags = np.append(ct_tags, f_tag)
             ct_dkind = np.append(ct_dkind, f_dkind)
 
         rho_c = self._create_correlation_matrix(rho_cost, c_target=-1,
@@ -3341,7 +3688,7 @@ class HAZUS_Assessment(Assessment):
                                           include_DSG=True,
                                           include_DS=True)
 
-        dims = len(ct_tag)
+        dims = len(ct_tags)
         ct_rho = np.zeros((dims, dims))
 
         dims = dims // 2
@@ -3376,23 +3723,36 @@ class HAZUS_Assessment(Assessment):
             ct_rho = np.delete(ct_rho, to_remove, axis=0)
             ct_rho = np.delete(ct_rho, to_remove, axis=1)
 
-            ct_dkind, ct_sig, ct_tag = [np.delete(ct_vals, to_remove)
-                                     for ct_vals in [ct_dkind, ct_sig, ct_tag]]
+            ct_dkind, ct_sig, ct_tags = [np.delete(ct_vals, to_remove)
+                                     for ct_vals in [ct_dkind, ct_sig, ct_tags]]
 
-            ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
+            # Create the RVs
+            for ct, (ct_tag, sig_ct, dkind_ct) in enumerate(
+                    zip(ct_tags, ct_sig, ct_dkind)):
+                self._RV_reg.add_RV(RandomVariable(
+                    name=ct_tag, distribution=dkind_ct,
+                    theta=[1.0, sig_ct],
+                    truncation_limits=[0., None]
+                ))
 
-            repair_RV = RandomVariable(ID=401,
-                                       dimension_tags=ct_tag,
-                                       distribution_kind=ct_dkind,
-                                       theta=np.ones(len(ct_sig)),
-                                       COV=ct_COV,
-                                       corr_ref='post',
-                                       truncation_limits=[np.zeros(len(ct_sig)),
-                                                          None])
+            self._RV_reg.add_RV_set(RandomVariableSet(
+                'DV_REP_set', list(self._RV_reg.RVs(ct_tags).values()), ct_rho))
+
+            # ct_COV = np.outer(ct_sig, ct_sig) * ct_rho
+            #
+            # repair_RV = RandomVariable(ID=401,
+            #                            dimension_tags=ct_tags,
+            #                            distribution_kind=ct_dkind,
+            #                            theta=np.ones(len(ct_sig)),
+            #                            COV=ct_COV,
+            #                            corr_ref='post',
+            #                            truncation_limits=[np.zeros(len(ct_sig)),
+            #                                               None])
+
         else:
-            repair_RV = None
+            ct_tags = None
 
-        return repair_RV
+        return ct_tags
 
     def _create_fragility_groups(self):
 
@@ -3430,8 +3790,9 @@ class HAZUS_Assessment(Assessment):
                 if dist == 'N/A':
                     QNT = qnt
                 else:
-                    QNT = RandomVariableSubset(RVd['QNT'],
-                        tags=[f'{c_id}-QNT-{loc}-{dir_}', ])
+                    QNT = self._QNT_dict[f'{c_id}-QNT-{loc}-{dir_}']
+                    # QNT = RandomVariableSubset(RVd['QNT'],
+                    #     tags=[f'{c_id}-QNT-{loc}-{dir_}', ])
 
                 # create the damage objects
                 # consequences are calculated on a performance group level
@@ -3442,7 +3803,7 @@ class HAZUS_Assessment(Assessment):
                 s_dsg_keys = sorted(comp['DSG_set'].keys())
                 for dsg_i, DSG_ID in enumerate(s_dsg_keys):
                     DSG = comp['DSG_set'][DSG_ID]
-                    d_tags.append(c_id + '-' + DSG_ID)
+                    d_tags.append('FF-' + c_id + '-' + DSG_ID)
 
                     # create a list for the damage states
                     DS_set = []
@@ -3471,11 +3832,12 @@ class HAZUS_Assessment(Assessment):
 
                             if data['distribution_kind'] is not None:
 
-                                cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                cf_tag = 'REP-' + c_id + '-' + DSG_ID + '-' + DS_ID + \
                                          '-cost' + f'-LOC-{loc}-DIR-{dir_}'
 
-                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
-                                                             tags=cf_tag)
+                                CF_RV = self._DV_REP_dict[cf_tag]
+                                # CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                #                              tags=cf_tag)
                             else:
                                 CF_RV = None
 
@@ -3497,11 +3859,12 @@ class HAZUS_Assessment(Assessment):
 
                             if data['distribution_kind'] is not None:
 
-                                cf_tag = c_id + '-' + DSG_ID + '-' + DS_ID + \
+                                cf_tag = 'REP-' + c_id + '-' + DSG_ID + '-' + DS_ID + \
                                          '-time' + f'-LOC-{loc}-DIR-{dir_}'
 
-                                CF_RV = RandomVariableSubset(RVd['DV_REP'],
-                                                             tags=cf_tag)
+                                CF_RV = self._DV_REP_dict[cf_tag]
+                                # CF_RV = RandomVariableSubset(RVd['DV_REP'],
+                                #                              tags=cf_tag)
                             else:
                                 CF_RV = None
 
@@ -3552,11 +3915,11 @@ class HAZUS_Assessment(Assessment):
                 for csg_id, __ in enumerate(csg_list):
                     # assign the appropriate random variable to the fragility
                     # function
-                    ff_tags = [t + '-LOC-{}-DIR-{}-CSG-{}'.format(loc, dir_,
-                                                                  csg_id)
+                    ff_tags = [t + f'-LOC-{loc}-DIR-{dir_}-CSG-{csg_id}'
                                for t in d_tags]
-                    EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
-                                                     tags=ff_tags)
+                    EDP_limit = [self._FF_dict[ff_tag] for ff_tag in ff_tags]
+                    # EDP_limit = RandomVariableSubset(RVd['FR-' + c_id],
+                    #                                  tags=ff_tags)
                     FF_set.append(FragilityFunction(EDP_limit))
 
                 # create the performance group
@@ -3678,10 +4041,10 @@ class HAZUS_Assessment(Assessment):
             for pg_i, PG in enumerate(PG_set):
 
                 PG_ID = PG._ID
-                if isinstance(PG._quantity, RandomVariableSubset):
-                    PG_qnt = PG._quantity.samples.loc[ncID]
+                if isinstance(PG._quantity, RandomVariable):
+                    PG_qnt = PG._quantity.samples_DF.loc[ncID]
                 else:
-                    PG_qnt = pd.DataFrame(np.ones(NC_samples) * PG._quantity,
+                    PG_qnt = pd.Series(np.ones(NC_samples) * PG._quantity,
                                           index=ncID)
 
                 # get the corresponding demands
@@ -3689,34 +4052,34 @@ class HAZUS_Assessment(Assessment):
                     demand_ID_list = []
 
                     for demand_ID in self._EDP_dict.keys():
-                        if demand_ID[:3] == FG._demand_type:
+                        if demand_ID[4:7] == FG._demand_type:
                             demand_data = demand_ID.split('-')
-                            if int(demand_data[2]) == PG._location + FG._demand_location_offset:
+                            if int(demand_data[3]) == PG._location + FG._demand_location_offset:
                                 demand_ID_list.append(demand_ID)
 
-                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples.loc[ncID]
+                    EDP_samples = self._EDP_dict[demand_ID_list[0]].samples_DF.loc[ncID]
                     if len(demand_ID_list)>1:
                         for demand_ID in demand_ID_list[1:]:
-                            new_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                            new_samples = self._EDP_dict[demand_ID].samples_DF.loc[ncID]
                             EDP_samples = np.maximum(new_samples.values,
                                                      EDP_samples.values)
 
                 else:
-                    demand_ID = (FG._demand_type +
+                    demand_ID = ('EDP-' + FG._demand_type +
                              '-LOC-' + str(PG._location + FG._demand_location_offset) +
                              '-DIR-' + str(PG._direction))
 
                     if demand_ID in self._EDP_dict.keys():
-                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                        EDP_samples = self._EDP_dict[demand_ID].samples_DF.loc[ncID]
                     else:
                         # If the required demand is not available, then we are most
                         # likely analyzing a 3D structure using results from a 2D
                         # simulation. The best thing we can do in that particular
                         # case is to use the EDP from the 1 direction for all other
                         # directions.
-                        demand_ID = (FG._demand_type +
+                        demand_ID = ('EDP-' + FG._demand_type +
                                      '-LOC-' + str(PG._location + FG._demand_location_offset) + '-DIR-1')
-                        EDP_samples = self._EDP_dict[demand_ID].samples.loc[ncID]
+                        EDP_samples = self._EDP_dict[demand_ID].samples_DF.loc[ncID]
 
                 csg_w_list = np.array(PG._csg_weights)
                 for csg_i, csg_w in enumerate(csg_w_list):
@@ -3730,17 +4093,24 @@ class HAZUS_Assessment(Assessment):
                             FG_damages.loc[in_this_DSG,
                                            (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'mutually exclusive':
-                            DS_weights = [DS._weight for DS in DSG._DS_set]
-                            DS_RV = RandomVariable(
-                                ID=-1, dimension_tags=['me_DS', ],
-                                distribution_kind='multinomial',
-                                p_set=DS_weights)
-                            DS_df = DS_RV.sample_distribution(
-                                len(in_this_DSG)) + 1
+                            mut_ex_id = f'DSG-{fg_id}-DSG-{DSG._ID}-' \
+                                        f'LOC-{PG._location}-' \
+                                        f'DIR-{PG._direction}-CSG-{csg_i}'
+                            DS_df = self._DSG_dict[mut_ex_id].samples_DF.loc[
+                                in_this_DSG]
+
+                            # DS_weights = [DS._weight for DS in DSG._DS_set]
+                            # DS_RV = RandomVariable(
+                            #     ID=-1, dimension_tags=['me_DS', ],
+                            #     distribution_kind='multinomial',
+                            #     p_set=DS_weights)
+                            # DS_df = DS_RV.sample_distribution(
+                            #     len(in_this_DSG)) + 1
+
                             for DS in DSG._DS_set:
                                 DS_tag = str(DSG._ID) + '_' + str(DS._ID)
-                                in_this_DS = DS_df[DS_df.values == DS._ID].index
-                                FG_damages.loc[in_this_DSG[in_this_DS],
+                                in_this_DS = DS_df[DS_df.values == DS._ID-1].index
+                                FG_damages.loc[in_this_DS,
                                                (FG._ID, PG_ID, DS_tag)] += csg_w
                         elif DSG._DS_set_kind == 'simultaneous':
                             DS_weights = [DS._weight for DS in DSG._DS_set]
@@ -3773,7 +4143,7 @@ class HAZUS_Assessment(Assessment):
                             )
 
                 FG_damages.iloc[:, pg_i * d_count:(pg_i + 1) * d_count] = \
-                    FG_damages.iloc[:, pg_i * d_count:(pg_i + 1) * d_count].values * PG_qnt.iloc[:, 0].values.reshape(-1, *[1])
+                    FG_damages.iloc[:, pg_i * d_count:(pg_i + 1) * d_count].values * PG_qnt.values.reshape(-1, *[1])
 
 
             FG_dmg_list.append(FG_damages)

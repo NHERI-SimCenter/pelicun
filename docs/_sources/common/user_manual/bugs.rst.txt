@@ -5,7 +5,7 @@
 Bugs & Feature Requests
 ************************
 
-If you find bugs, have feauture requests, or questions about how to install or use the application please post on the |messageBoard|. 
+If you find bugs, have feature requests, or questions about how to install or use the application please post on the |messageBoard|. 
 To avoid duplication try the `Search` feature before creating a `New Topic`. When creating a `New Topic` to report a bug or new feature request it would be helpful if you could place in the `Subject` area, as shown in :numref:`figBugReport`, an indication of what the post is about:
 
    #. **BUG**, for bugs, i.e. BUG: Program crashes when starting
@@ -17,4 +17,4 @@ To avoid duplication try the `Search` feature before creating a `New Topic`. Whe
 	:align: center
 	:figclass: align-center
 
-	Example of Submitting a Bug Report to Message Board
+	Example of submitting a bug report to message board.

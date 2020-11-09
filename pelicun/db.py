@@ -44,8 +44,14 @@ This module has classes and methods to manage databases used by pelicun.
 
 .. autosummary::
 
+    convert_jsons_to_table
+    save_to_standard_HDF
+    convert_json_files_to_HDF
+    convert_Series_to_dict
+
     convert_P58_data_to_json
     create_HAZUS_EQ_json_files
+    create_HAZUS_EQ_story_json_files
     create_HAZUS_EQ_PGA_json_files
     create_HAZUS_HU_json_files
 

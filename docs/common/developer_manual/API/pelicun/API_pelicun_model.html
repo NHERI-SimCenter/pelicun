@@ -1,43 +1,48 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>5.1.4. pelicun.model module &mdash; pelicun  documentation</title>
+  <title>5.1.6. pelicun.model module &mdash; pelicun  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/language_data.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="5.1.5. pelicun.uq module" href="API_pelicun_uq.html" />
-    <link rel="prev" title="5.1.3. pelicun.file_io module" href="API_pelicun_file_io.html" /> 
+    <link rel="next" title="5.1.7. pelicun.uq module" href="API_pelicun_uq.html" />
+    <link rel="prev" title="5.1.5. pelicun.file_io module" href="API_pelicun_file_io.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -77,6 +82,7 @@
           
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -108,11 +114,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="API.html">5. API Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="API.html#modules">5.1. Modules</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="API_pelicun_base.html">5.1.1. base</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_pelicun_control.html">5.1.2. control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_pelicun_file_io.html">5.1.3. file_io</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">5.1.4. model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="API_pelicun_uq.html">5.1.5. uq</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_auto.html">5.1.1. auto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_base.html">5.1.2. base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_control.html">5.1.3. control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_db.html">5.1.4. db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_file_io.html">5.1.5. file_io</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">5.1.6. model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_uq.html">5.1.7. uq</a></li>
 </ul>
 </li>
 </ul>
@@ -122,6 +130,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -160,11 +169,11 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="API.html">5. API Documentation</a> &raquo;</li>
+          <li><a href="API.html"><span class="section-number">5. </span>API Documentation</a> &raquo;</li>
         
-      <li>5.1.4. pelicun.model module</li>
+      <li><span class="section-number">5.1.6. </span>pelicun.model module</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -184,7 +193,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="module-pelicun.model">
-<span id="pelicun-model-module"></span><h1>5.1.4. pelicun.model module<a class="headerlink" href="#module-pelicun.model" title="Permalink to this headline">¶</a></h1>
+<span id="pelicun-model-module"></span><h1><span class="section-number">5.1.6. </span>pelicun.model module<a class="headerlink" href="#module-pelicun.model" title="Permalink to this headline">¶</a></h1>
 <p>This module has classes and methods that define and access the model used for
 loss assessment.</p>
 <p class="rubric">Contents</p>
@@ -194,35 +203,38 @@ loss assessment.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.FragilityFunction" title="pelicun.model.FragilityFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FragilityFunction</span></code></a>(EDP_limit)</p></td>
-<td><p>Describes the relationship between asset response and damage.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.ConsequenceFunction" title="pelicun.model.ConsequenceFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConsequenceFunction</span></code></a>(DV_median, DV_distribution)</p></td>
-<td><p>Describes the relationship between damage and a decision variable.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.DamageState" title="pelicun.model.DamageState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DamageState</span></code></a>(ID[, weight, description, …])</p></td>
-<td><p>Characterizes one type of damage that corresponds to a particular DSG.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.DamageStateGroup" title="pelicun.model.DamageStateGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DamageStateGroup</span></code></a>(ID, DS_set, DS_set_kind)</p></td>
-<td><p>A set of similar component damages that are controlled by the same EDP.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.PerformanceGroup" title="pelicun.model.PerformanceGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerformanceGroup</span></code></a>(ID, location, quantity, …)</p></td>
-<td><p>A group of similar components that experience the same demands.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.FragilityGroup" title="pelicun.model.FragilityGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FragilityGroup</span></code></a>(ID, demand_type, …[, …])</p></td>
-<td><p>Groups a set of similar components from a loss-assessment perspective.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.prep_constant_median_DV" title="pelicun.model.prep_constant_median_DV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_constant_median_DV</span></code></a>(median)</p></td>
 <td><p>Returns a constant median Decision Variable (DV) function.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.prep_bounded_linear_median_DV" title="pelicun.model.prep_bounded_linear_median_DV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_bounded_linear_median_DV</span></code></a>(median_max, …)</p></td>
 <td><p>Returns a bounded linear median Decision Variable (DV) function.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.prep_bounded_multilinear_median_DV" title="pelicun.model.prep_bounded_multilinear_median_DV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prep_bounded_multilinear_median_DV</span></code></a>(medians, …)</p></td>
+<td><p>Returns a bounded multilinear median Decision Variable (DV) function.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.FragilityFunction" title="pelicun.model.FragilityFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FragilityFunction</span></code></a>(EDP_limit)</p></td>
+<td><p>Describes the relationship between asset response and damage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.ConsequenceFunction" title="pelicun.model.ConsequenceFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConsequenceFunction</span></code></a>(DV_median, DV_distribution)</p></td>
+<td><p>Describes the relationship between damage and a decision variable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.DamageState" title="pelicun.model.DamageState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DamageState</span></code></a>(ID[, weight, description, …])</p></td>
+<td><p>Characterizes one type of damage that corresponds to a particular DSG.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.DamageStateGroup" title="pelicun.model.DamageStateGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DamageStateGroup</span></code></a>(ID, DS_set, DS_set_kind)</p></td>
+<td><p>A set of similar component damages that are controlled by the same EDP.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.PerformanceGroup" title="pelicun.model.PerformanceGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PerformanceGroup</span></code></a>(ID, location, quantity, …)</p></td>
+<td><p>A group of similar components that experience the same demands.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.FragilityGroup" title="pelicun.model.FragilityGroup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FragilityGroup</span></code></a>(ID, demand_type, …[, …])</p></td>
+<td><p>Groups a set of similar components from a loss-assessment perspective.</p></td>
+</tr>
 </tbody>
 </table>
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.model.FragilityFunction">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">FragilityFunction</code><span class="sig-paren">(</span><em class="sig-param">EDP_limit</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">FragilityFunction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">EDP_limit</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Describes the relationship between asset response and damage.</p>
 <p>Asset response is characterized by a Demand value that represents an
@@ -232,20 +244,20 @@ objects. For each DSG, the corresponding EDP limit (i.e. the EDP at which
 the asset is assumed to experience damage described by the DSG) is
 considered uncertain; hence, it is described by a random variable. The
 random variables that describe EDP limits for the set of DSGs are not
-independent.</p>
-<p>We assume that the EDP limit will be approximated by a normal or lognormal
+necessarily independent.</p>
+<p>We assume that the EDP limit will be approximated by a probability
 distribution for each DSG and these variables together form a multivariate
-normal distribution. Following common practice, the correlation between
+distribution. Following common practice, the correlation between
 variables is assumed perfect by default, but the framework allows the
 users to explore other, more realistic options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>EDP_limit: RandomVariableSubset</strong></dt><dd><p>A multidimensional random variable that might be defined as a subset
-of a bigger correlated group of variables or a complete set of
-variables created only for this Fragility Function (FF). The number of
-dimensions shall be equal to the number of DSGs handled by the
-FF.</p>
+<dt><strong>EDP_limit: list of RandomVariable</strong></dt><dd><p>A list of correlated random variables where each variable corresponds
+to an EDP limit that triggers a damage state. The number of
+list elements shall be equal to the number of DSGs handled by the
+Fragility Function (FF) and they shall be in ascending order of damage
+severity.</p>
 </dd>
 </dl>
 </dd>
@@ -257,18 +269,18 @@ FF.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.FragilityFunction.DSG_given_EDP" title="pelicun.model.FragilityFunction.DSG_given_EDP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DSG_given_EDP</span></code></a>(self, EDP[, force_resampling])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.FragilityFunction.DSG_given_EDP" title="pelicun.model.FragilityFunction.DSG_given_EDP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DSG_given_EDP</span></code></a>(EDP[, force_resampling])</p></td>
 <td><p>Given an EDP, get a damage level based on the fragility function.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.FragilityFunction.P_exc" title="pelicun.model.FragilityFunction.P_exc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">P_exc</span></code></a>(self, EDP, DSG_ID)</p></td>
-<td><p>Return the probability of damage exceedance.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.FragilityFunction.P_exc" title="pelicun.model.FragilityFunction.P_exc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">P_exc</span></code></a>(EDP, DSG_ID)</p></td>
+<td><p>Return the probability of damage state exceedance.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.FragilityFunction.P_exc">
-<code class="sig-name descname">P_exc</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">EDP</em>, <em class="sig-param">DSG_ID</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityFunction.P_exc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityFunction.P_exc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the probability of damage exceedance.</p>
+<code class="sig-name descname">P_exc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">EDP</span></em>, <em class="sig-param"><span class="n">DSG_ID</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityFunction.P_exc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityFunction.P_exc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the probability of damage state exceedance.</p>
 <p>Calculate the probability of exceeding the damage corresponding to the
 DSG identified by the DSG_ID conditioned on a particular EDP value.</p>
 <dl class="field-list simple">
@@ -290,9 +302,9 @@ because zero typically corresponds to the undamaged state.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.FragilityFunction.DSG_given_EDP">
-<code class="sig-name descname">DSG_given_EDP</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">EDP</em>, <em class="sig-param">force_resampling=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityFunction.DSG_given_EDP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityFunction.DSG_given_EDP" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">DSG_given_EDP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">EDP</span></em>, <em class="sig-param"><span class="n">force_resampling</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityFunction.DSG_given_EDP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityFunction.DSG_given_EDP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given an EDP, get a damage level based on the fragility function.</p>
 <p>The damage is evaluated by sampling the joint distribution of
 fragilities corresponding to all possible damage levels and checking
@@ -326,9 +338,9 @@ of 0 means no damage.</p>
 
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.model.prep_constant_median_DV">
-<code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">prep_constant_median_DV</code><span class="sig-paren">(</span><em class="sig-param">median</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#prep_constant_median_DV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.prep_constant_median_DV" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">prep_constant_median_DV</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">median</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#prep_constant_median_DV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.prep_constant_median_DV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a constant median Decision Variable (DV) function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -347,9 +359,9 @@ quantities.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.model.prep_bounded_linear_median_DV">
-<code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">prep_bounded_linear_median_DV</code><span class="sig-paren">(</span><em class="sig-param">median_max</em>, <em class="sig-param">median_min</em>, <em class="sig-param">quantity_lower</em>, <em class="sig-param">quantity_upper</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#prep_bounded_linear_median_DV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.prep_bounded_linear_median_DV" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">prep_bounded_linear_median_DV</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">median_max</span></em>, <em class="sig-param"><span class="n">median_min</span></em>, <em class="sig-param"><span class="n">quantity_lower</span></em>, <em class="sig-param"><span class="n">quantity_upper</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#prep_bounded_linear_median_DV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.prep_bounded_linear_median_DV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a bounded linear median Decision Variable (DV) function.</p>
 <p>The median DV equals the min and max values when the quantity is
 outside of the prescribed quantity bounds. When the quantity is within the
@@ -378,9 +390,38 @@ components.</p>
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py function">
+<dt id="pelicun.model.prep_bounded_multilinear_median_DV">
+<code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">prep_bounded_multilinear_median_DV</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">medians</span></em>, <em class="sig-param"><span class="n">quantities</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#prep_bounded_multilinear_median_DV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.prep_bounded_multilinear_median_DV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a bounded multilinear median Decision Variable (DV) function.</p>
+<p>The median DV equals the min and max values when the quantity is
+outside of the prescribed quantity bounds. When the quantity is within the
+bounds, the returned median is calculated by linear interpolation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>medians: ndarray</strong></dt><dd><p>Series of values that define the y coordinates of the multilinear DV
+function.</p>
+</dd>
+<dt><strong>quantities: ndarray</strong></dt><dd><p>Series of values that define the component quantities corresponding to
+the series of medians and serving as the x coordinates of the 
+multilinear DV function.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>f: callable</dt><dd><p>A function that returns the median DV given the quantity of damaged
+components.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
 <dt id="pelicun.model.ConsequenceFunction">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">ConsequenceFunction</code><span class="sig-paren">(</span><em class="sig-param">DV_median</em>, <em class="sig-param">DV_distribution</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#ConsequenceFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.ConsequenceFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">ConsequenceFunction</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">DV_median</span></em>, <em class="sig-param"><span class="n">DV_distribution</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#ConsequenceFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.ConsequenceFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Describes the relationship between damage and a decision variable.</p>
 <p>Indicates the distribution of a quantified Decision Variable (DV)
@@ -396,10 +437,9 @@ quantity of damaged components. Use the prep_constant_median_DV, and
 prep_bounded_linear_median_DV helper functions to conveniently
 prescribe the typical FEMA P-58 functions.</p>
 </dd>
-<dt><strong>DV_distribution: RandomVariableSubset</strong></dt><dd><p>A one-dimensional random variable (or a one-dimensional subset of a
-multi-dimensional random variable) that characterizes the uncertainty
-in the DV. The distribution shall be normalized by the median DV (i.e.
-the RVS is expected to have a unit median). Truncation can be used to
+<dt><strong>DV_distribution: RandomVariable</strong></dt><dd><p>A random variable that characterizes the uncertainty in the DV. The
+distribution shall be normalized by the median DV (i.e. the RV is
+expected to have a unit median). Truncation can be used to
 prescribe lower and upper limits for the DV, such as the (0,1) domain
 needed for red tag evaluation.</p>
 </dd>
@@ -413,17 +453,17 @@ needed for red tag evaluation.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.ConsequenceFunction.median" title="pelicun.model.ConsequenceFunction.median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code></a>(self[, quantity])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.ConsequenceFunction.median" title="pelicun.model.ConsequenceFunction.median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code></a>([quantity])</p></td>
 <td><p>Return the value of the median DV.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.ConsequenceFunction.sample_unit_DV" title="pelicun.model.ConsequenceFunction.sample_unit_DV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_unit_DV</span></code></a>(self[, quantity, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.ConsequenceFunction.sample_unit_DV" title="pelicun.model.ConsequenceFunction.sample_unit_DV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample_unit_DV</span></code></a>([quantity, sample_size, …])</p></td>
 <td><p>Sample the decision variable quantity per component unit.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.ConsequenceFunction.median">
-<code class="sig-name descname">median</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">quantity=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#ConsequenceFunction.median"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.ConsequenceFunction.median" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">median</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#ConsequenceFunction.median"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.ConsequenceFunction.median" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value of the median DV.</p>
 <p>The median DV corresponds to the component damage state (DS). If the
 damage consequence depends on the quantity of damaged components, the
@@ -448,9 +488,9 @@ the shape of the quantity parameter for bounded_linear median.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.ConsequenceFunction.sample_unit_DV">
-<code class="sig-name descname">sample_unit_DV</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">quantity=None</em>, <em class="sig-param">sample_size=1</em>, <em class="sig-param">force_resampling=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#ConsequenceFunction.sample_unit_DV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.ConsequenceFunction.sample_unit_DV" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">sample_unit_DV</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sample_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">force_resampling</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#ConsequenceFunction.sample_unit_DV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.ConsequenceFunction.sample_unit_DV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample the decision variable quantity per component unit.</p>
 <p>The Unit Decision Variable (UDV) corresponds to the component Damage
 State (DS). It shall be multiplied by the quantity of damaged
@@ -491,9 +531,9 @@ to the number of samples requested.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.model.DamageState">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">DamageState</code><span class="sig-paren">(</span><em class="sig-param">ID</em>, <em class="sig-param">weight=1.0</em>, <em class="sig-param">description=''</em>, <em class="sig-param">repair_cost_CF=None</em>, <em class="sig-param">reconstruction_time_CF=None</em>, <em class="sig-param">injuries_CF_set=None</em>, <em class="sig-param">affected_area=0.0</em>, <em class="sig-param">red_tag_CF=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">DamageState</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ID</span></em>, <em class="sig-param"><span class="n">weight</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">repair_cost_CF</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">reconstruction_time_CF</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">injuries_CF_set</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">affected_area</span><span class="o">=</span><span class="default_value">0.0</span></em>, <em class="sig-param"><span class="n">red_tag_CF</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Characterizes one type of damage that corresponds to a particular DSG.</p>
 <p>The occurrence of damage is evaluated at the DSG. The DS describes one of
@@ -546,35 +586,35 @@ inspection.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.DamageState.red_tag_dmg_limit" title="pelicun.model.DamageState.red_tag_dmg_limit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">red_tag_dmg_limit</span></code></a>(self[, sample_size])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.DamageState.red_tag_dmg_limit" title="pelicun.model.DamageState.red_tag_dmg_limit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">red_tag_dmg_limit</span></code></a>([sample_size])</p></td>
 <td><p>Sample the red tag consequence function and return the proportion of components that needs to be damaged to trigger a red tag.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.DamageState.unit_injuries" title="pelicun.model.DamageState.unit_injuries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit_injuries</span></code></a>(self[, severity_level, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.DamageState.unit_injuries" title="pelicun.model.DamageState.unit_injuries"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit_injuries</span></code></a>([severity_level, sample_size])</p></td>
 <td><p>Sample the injury consequence function that corresponds to the specified level of severity and return the injuries per component unit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.DamageState.unit_reconstruction_time" title="pelicun.model.DamageState.unit_reconstruction_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit_reconstruction_time</span></code></a>(self[, quantity, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.DamageState.unit_reconstruction_time" title="pelicun.model.DamageState.unit_reconstruction_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit_reconstruction_time</span></code></a>([quantity, sample_size])</p></td>
 <td><p>Sample the reconstruction time distribution and return the unit reconstruction times.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.DamageState.unit_repair_cost" title="pelicun.model.DamageState.unit_repair_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit_repair_cost</span></code></a>(self[, quantity, sample_size])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.model.DamageState.unit_repair_cost" title="pelicun.model.DamageState.unit_repair_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit_repair_cost</span></code></a>([quantity, sample_size])</p></td>
 <td><p>Sample the repair cost distribution and return the unit repair costs.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.DamageState.description">
 <em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#pelicun.model.DamageState.description" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the damage description.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.DamageState.weight">
 <em class="property">property </em><code class="sig-name descname">weight</code><a class="headerlink" href="#pelicun.model.DamageState.weight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the weight of DS among the set of damage states in the DSG.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.DamageState.unit_repair_cost">
-<code class="sig-name descname">unit_repair_cost</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">quantity=None</em>, <em class="sig-param">sample_size=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.unit_repair_cost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.unit_repair_cost" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unit_repair_cost</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sample_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.unit_repair_cost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.unit_repair_cost" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample the repair cost distribution and return the unit repair costs.</p>
 <p>The unit repair costs shall be multiplied by the quantity of damaged
 components to get the total repair costs for the components in this DS.</p>
@@ -598,9 +638,9 @@ default value yields one sample.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.DamageState.unit_reconstruction_time">
-<code class="sig-name descname">unit_reconstruction_time</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">quantity=None</em>, <em class="sig-param">sample_size=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.unit_reconstruction_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.unit_reconstruction_time" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unit_reconstruction_time</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">quantity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sample_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.unit_reconstruction_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.unit_reconstruction_time" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample the reconstruction time distribution and return the unit
 reconstruction times.</p>
 <p>The unit reconstruction times shall be multiplied by the quantity of
@@ -627,9 +667,9 @@ The default value yields one sample.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.DamageState.red_tag_dmg_limit">
-<code class="sig-name descname">red_tag_dmg_limit</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">sample_size=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.red_tag_dmg_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.red_tag_dmg_limit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">red_tag_dmg_limit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sample_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.red_tag_dmg_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.red_tag_dmg_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample the red tag consequence function and return the proportion of
 components that needs to be damaged to trigger a red tag.</p>
 <p>The red tag consequence function is assumed to have a fixed median
@@ -651,9 +691,9 @@ The default value yields one sample.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.DamageState.unit_injuries">
-<code class="sig-name descname">unit_injuries</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">severity_level=0</em>, <em class="sig-param">sample_size=1</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.unit_injuries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.unit_injuries" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">unit_injuries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">severity_level</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">sample_size</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageState.unit_injuries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageState.unit_injuries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sample the injury consequence function that corresponds to the
 specified level of severity and return the injuries per component unit.</p>
 <p>The injury consequence function is assumed to have a fixed median
@@ -682,9 +722,9 @@ The default value yields one sample.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.model.DamageStateGroup">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">DamageStateGroup</code><span class="sig-paren">(</span><em class="sig-param">ID</em>, <em class="sig-param">DS_set</em>, <em class="sig-param">DS_set_kind</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageStateGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageStateGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">DamageStateGroup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ID</span></em>, <em class="sig-param"><span class="n">DS_set</span></em>, <em class="sig-param"><span class="n">DS_set_kind</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#DamageStateGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.DamageStateGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A set of similar component damages that are controlled by the same EDP.</p>
 <p>Damages are described in detail by the set of Damage State objects.
@@ -708,9 +748,9 @@ they can occur at the same time and at least one of them has to occur.</p>
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.model.PerformanceGroup">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">PerformanceGroup</code><span class="sig-paren">(</span><em class="sig-param">ID, location, quantity, fragility_functions, DSG_set, csg_weights=[1.0], direction=0</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#PerformanceGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.PerformanceGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">PerformanceGroup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ID</span></em>, <em class="sig-param"><span class="n">location</span></em>, <em class="sig-param"><span class="n">quantity</span></em>, <em class="sig-param"><span class="n">fragility_functions</span></em>, <em class="sig-param"><span class="n">DSG_set</span></em>, <em class="sig-param"><span class="n">csg_weights</span><span class="o">=</span><span class="default_value">[1.0]</span></em>, <em class="sig-param"><span class="n">direction</span><span class="o">=</span><span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#PerformanceGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.PerformanceGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A group of similar components that experience the same demands.</p>
 <p>FEMA P-58: Performance Groups (PGs) are a sub-categorization of fragility
@@ -730,7 +770,7 @@ building, location shall typically refer to the story of the building.
 The location assigned to each PG shall be in agreement with the
 locations assigned to the Demand objects.</p>
 </dd>
-<dt><strong>quantity: RandomVariableSubset</strong></dt><dd><p>Specifies the quantity of components that belong to this PG.
+<dt><strong>quantity: RandomVariable</strong></dt><dd><p>Specifies the quantity of components that belong to this PG.
 Uncertainty in component quantities is considered by assigning a
 random variable to this property.</p>
 </dd>
@@ -770,14 +810,14 @@ the directions assigned to Demand objects.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.PerformanceGroup.P_exc" title="pelicun.model.PerformanceGroup.P_exc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">P_exc</span></code></a>(self, EDP, DSG_ID)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.model.PerformanceGroup.P_exc" title="pelicun.model.PerformanceGroup.P_exc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">P_exc</span></code></a>(EDP, DSG_ID)</p></td>
 <td><p>This is a convenience function that provides a shortcut to fragility_function.P_exc().</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.PerformanceGroup.P_exc">
-<code class="sig-name descname">P_exc</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">EDP</em>, <em class="sig-param">DSG_ID</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#PerformanceGroup.P_exc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.PerformanceGroup.P_exc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">P_exc</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">EDP</span></em>, <em class="sig-param"><span class="n">DSG_ID</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#PerformanceGroup.P_exc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.PerformanceGroup.P_exc" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is a convenience function that provides a shortcut to
 fragility_function.P_exc(). It calculates the exceedance probability
 of a given DSG conditioned on the provided EDP value(s). The fragility
@@ -803,9 +843,9 @@ because P_exc shall be identical among subsets.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.model.FragilityGroup">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">FragilityGroup</code><span class="sig-paren">(</span><em class="sig-param">ID</em>, <em class="sig-param">demand_type</em>, <em class="sig-param">performance_groups</em>, <em class="sig-param">directional=True</em>, <em class="sig-param">correlation=True</em>, <em class="sig-param">demand_location_offset=0</em>, <em class="sig-param">incomplete=False</em>, <em class="sig-param">name=''</em>, <em class="sig-param">description=''</em>, <em class="sig-param">unit='ea'</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">pelicun.model.</code><code class="sig-name descname">FragilityGroup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ID</span></em>, <em class="sig-param"><span class="n">demand_type</span></em>, <em class="sig-param"><span class="n">performance_groups</span></em>, <em class="sig-param"><span class="n">directional</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">correlation</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">demand_location_offset</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">incomplete</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">description</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">'ea'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/model.html#FragilityGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.model.FragilityGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Groups a set of similar components from a loss-assessment perspective.</p>
 <p>Characterizes a set of structural or non-structural components that have
@@ -858,13 +898,13 @@ results shall be treated with caution.</p>
 </dl>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.FragilityGroup.description">
 <em class="property">property </em><code class="sig-name descname">description</code><a class="headerlink" href="#pelicun.model.FragilityGroup.description" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the fragility group description.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.model.FragilityGroup.name">
 <em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#pelicun.model.FragilityGroup.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the name of the fragility group.</p>
@@ -885,11 +925,19 @@ results shall be treated with caution.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright (c) 2018, Leland Stanford Junior University and The Regents of the University of California
+        
+        &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -900,7 +948,6 @@ results shall be treated with caution.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {

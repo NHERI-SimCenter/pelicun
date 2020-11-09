@@ -1,9 +1,0 @@
-.. _lblArchitecture:
-
-.. only:: pelicun
-
-  .. include:: architecture_pelicun.rst
-
-.. only:: desktop_app
-
-  .. include:: architecture_desktop.rst
