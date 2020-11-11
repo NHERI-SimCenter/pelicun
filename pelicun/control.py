@@ -346,11 +346,12 @@ class Assessment(object):
 
         log_msg('\tConverting EDP samples to input units...')
         EDPs = sorted(self._EDP_dict.keys())
-        EDP_samples = self._EDP_dict[EDPs[0]]._RV.samples_DF.copy()
+        EDP_samples = pd.DataFrame({edp: self._EDP_dict[edp].samples for edp in EDPs})
+        #EDP_samples = self._EDP_dict[EDPs[0]].samples_DF.copy()
         cols = EDP_samples.columns
-        col_info = [col.split('-') for col in EDP_samples.columns]
+        col_info = [col.split('-') for col in cols]
         EDP_samples.columns = [
-            '1-{}-{}-{}'.format(col[0], col[2], col[4]) for col in col_info]
+            '1-{}-{}-{}'.format(col[1], col[3], col[5]) for col in col_info]
 
         # TODO: use some global vars to identify EDP units because this is a mess
         for col_i, col in enumerate(cols):
@@ -3146,7 +3147,7 @@ class HAZUS_Assessment(Assessment):
                 ('injuries', 'sev4'),
             ]
 
-        if (DVs['injuries'] and 
+        if (DVs['injuries'] and
             (self._AIM_in['general']['event_time'] != 'off')):
             MI_raw += [
                 ('event time', 'month'),
@@ -3168,7 +3169,7 @@ class HAZUS_Assessment(Assessment):
         SUMMARY[:] = np.NaN
 
         # event time (if needed)
-        if (DVs['injuries'] and 
+        if (DVs['injuries'] and
             (self._AIM_in['general']['event_time'] != 'off')):
             for prop in ['month', 'weekday?', 'hour']:
                 offset = 0

@@ -46,6 +46,7 @@ import os, sys, time
 import warnings
 from datetime import datetime
 from time import strftime
+from copy import deepcopy
 
 # import libraries for other modules
 import numpy as np
