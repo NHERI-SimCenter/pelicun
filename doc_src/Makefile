@@ -13,13 +13,44 @@ BUILDDIR      = ./web
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-PBE:
+RDT:
+	make clean
+	rm -fr ../../RDT/docs/_sources
+	rm -fr ../../RDT/docs/_static
+	rm -fr ../../RDT/docs/_images
+	rm -fr ../../RDT/docs/common
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" ../../PBE-Documentation/docs $(O)
 
+PBE:
+	make clean
+	rm -fr ../.../PBE-Documentation/docs/_sources
+	rm -fr ../../PBE-Documentation/docs/_static
+	rm -fr ../../PBE-Documentation/docs/_images
+	rm -fr ../../PBE-Documentation/docs/common
+	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" ../../PBE-Documentation/docs $(O)
+
+quoFEM:
+	make clean
+	rm -fr ../.../quoFEM-Documentation/docs/_sources
+	rm -fr ../../quoFEM-Documentation/docs/_static
+	rm -fr ../../quoFEM-Documentation/docs/_images
+	rm -fr ../../quoFEM-Documentation/docs/common
+	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" ../../quoFEM-Documentation/docs $(O)
+
 EE:
+	make clean
+	rm -fr ../../EE-UQ-Documentation/docs/_sources
+	rm -fr ../../EE-UQ-Documentation/docs/_static
+	rm -fr ../../EE-UQ-Documentation/docs/_images
+	rm -fr ../../EE-UQ-Documentation/docs/common
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" ../../EE-UQ-Documentation/docs $(O)
 
 WE:
+	make clean
+	rm -fr ../../WE-UQ-Documentation/docs/_sources
+	rm -fr ../../WE-UQ-Documentation/docs/_static
+	rm -fr ../../WE-UQ-Documentation/docs/_images
+	rm -fr ../../WE-UQ-Documentation/docs/common
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" ../../WE-UQ-Documentation/docs $(O)
 
 .PHONY: help Makefile

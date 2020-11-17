@@ -1,0 +1,13 @@
+BM,   "Ability to select different Building Model Generators ", GC, M, 1.0  
+BM1, "Ability to quickly create a simple nonlinear building model for simple methods of seismic evaluation", GC 2.T13, D, 1.1  
+BM2, "Ability to use existing OpenSees model scripts ", SP, M, 1.0  
+BM3, "Ability to define building and use Expert System to generate FE mesh ", SP,,   
+BM3.1, "Expert system for Concrete Shear Walls ", SP, M,   
+BM3.2, "Expert system for Moment Frames ", SP, M,   
+BM3.3, "Expert system for  Braced Frames ", SP, M,    
+BM4, "Ability to define building and use Machine Learning applications to generate FE ", GC,,   
+BM4.1, "Machine Learning for Concrete Shear Walls ", SP, M,   
+BM4.2, "Machine Learning for Moment Frames ", SP, M,   
+BM4.3, "Machine Learning for Braced Frames ", SP, M,    
+BM5, "Ability to specify connection details for member ends ", UF, M, 2.2  
+BM6, "Ability to define a user-defined moment-rotation response representing the connection details ", UF, D, 2.2   

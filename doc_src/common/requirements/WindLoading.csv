@@ -1,0 +1,19 @@
+WL , "Ability to select from different Wind Loading Options  ", SP , M , 1.0  
+WL1 , "Utilize Extensive wind tunnel datasets in industry and academia for wide range of building shapes ", GC , M , 2.0  
+WL1.1 , "Accommodate Range of Low Rise building shapes ", SP , M ,   
+WL1.1.1 , "Flat Shaped Roof - TPU dataset ", SP , M , 2.0  
+WL1.1.2 , "Gable Shaped Roof - TPU dataset ", SP , M ,  
+WL1.1.3 , "Hipped Shaped Roof - TPU dataset ", SP , M ,  
+WL1.2 , "Accommodate Range of High Rise building  ", SP , M , 1.0  
+WL1.2.1 , "Interface with Vortex Winds DEDM-HRP Web service ", SP , M , 1.0  
+WL1.3 , "Accommodate Data from Wind Tunnel Experiment ", SP , M , 2.0  
+WL1.3.1 , "Cuboid - User Provided Wind Tunnel Experiment Data  ", SP , M , 2.0  
+WL2 , "Computational Fluid Dynamics tool for utilizing open source CFD software for practitioners ", GC , M , 1.1  
+WL2.1 , "Simple CFD model generation and turbulence modeling ", GC , M , 2.0  
+WL2.2 , "Uncoupled OpenFOAM CFD model with nonlinear FEM code for building response ", SP , M , 1.1  
+WL2.3 , "Coupled OpenFOAM CFD model with linear FEM code for building response ", SP , M ,   
+WL2.4 , "Inflow Conditions for non-synoptic winds", GC, M, 
+WL3 , "Quantification of Effects of Wind Borne Debris ", GC , D ,  
+WL4 , "Application to utilize GIS and online to account for wind speed given local terrain, topography and nearby buildings ", GC , D ,  
+WL5 , "Ability to utilize synthetic wind loading algorithms ", SP , M , 1.0   
+WL5.1 , "per Wittig and Sinha ", SP , D , 1.0   
