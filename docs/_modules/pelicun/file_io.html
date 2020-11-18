@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,34 +12,32 @@
   
 
   
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
-
-  
   
   
   
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -80,7 +79,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,6 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
@@ -106,17 +105,15 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Software Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">2. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">4. API Documentation</a></li>
 </ul>
 
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -155,7 +152,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
@@ -233,14 +230,14 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">.db</span> <span class="kn">import</span> <span class="n">convert_Series_to_dict</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">.db</span> <span class="k">import</span> <span class="n">convert_Series_to_dict</span>
 
 <span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">posixpath</span>
 
-<span class="kn">from</span> <span class="nn">tables.exceptions</span> <span class="kn">import</span> <span class="n">HDF5ExtError</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">tables.exceptions</span> <span class="k">import</span> <span class="n">HDF5ExtError</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
 
 
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -1188,7 +1185,7 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">pop_table</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;pop&#39;</span><span class="p">,</span>
-                                         <span class="n">where</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;index in </span><span class="si">{</span><span class="p">[</span><span class="n">occupancy</span><span class="p">,</span> <span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                                         <span class="n">where</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;index in {[occupancy, ]}&#39;</span><span class="p">)</span>
                 <span class="n">store</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">break</span>
 
@@ -1276,7 +1273,7 @@
         <span class="n">CMP_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path_CMP</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">c_id</span> <span class="ow">in</span> <span class="n">s_cmp_keys</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">CMP_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">CMP_dir</span> <span class="o">/</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{c_id}</span><span class="s1">.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">DL_data_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">c_id</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)})</span>
 
     <span class="c1"># else if an HDF5 file is provided we assume it contains the DL data</span>
@@ -1294,7 +1291,7 @@
                 <span class="k">continue</span>
 
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">CMP_table</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;index in </span><span class="si">{</span><span class="n">s_cmp_keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">CMP_table</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;index in </span><span class="si">{s_cmp_keys}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="n">store</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">break</span>
 
@@ -1438,7 +1435,7 @@
         <span class="k">else</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
             <span class="n">demand_type</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Unexpected EDP type in component </span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">EDP_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
+                <span class="n">f</span><span class="s1">&#39;Unexpected EDP type in component </span><span class="si">{c_id}</span><span class="s1">: </span><span class="si">{EDP_type}</span><span class="s1">&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">demand_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span>
             <span class="k">continue</span>
@@ -1804,9 +1801,9 @@
 
 <span class="k">def</span> <span class="nf">write_SimCenter_DV_output</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">DV_filename</span><span class="p">,</span> <span class="n">GI</span><span class="p">,</span> <span class="n">SUMMARY_df</span><span class="p">,</span> <span class="n">DV_dict</span><span class="p">):</span>
 
-    <span class="n">DV_cost</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">DV_time</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">DV_inj</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,]</span><span class="o">*</span><span class="mi">4</span>
+    <span class="n">DV_cost</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">DV_time</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">DV_inj</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,]</span><span class="o">*</span><span class="mi">4</span>
 
     <span class="k">for</span> <span class="n">DV_name</span><span class="p">,</span> <span class="n">DV_mod</span> <span class="ow">in</span> <span class="n">DV_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="s1">&#39;rec_cost&#39;</span> <span class="ow">in</span> <span class="n">DV_name</span><span class="p">:</span>
@@ -1824,7 +1821,7 @@
 
     <span class="n">DVs</span> <span class="o">=</span> <span class="n">SUMMARY_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">DV_cost</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">DV_cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="n">comp_types</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">FG_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">DV_cost</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;FG&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()]</span>
@@ -1871,7 +1868,7 @@
             <span class="k">if</span> <span class="n">comp_type</span> <span class="ow">in</span> <span class="n">comp_types</span><span class="p">:</span>
                 <span class="k">del</span> <span class="n">df_res_C</span><span class="p">[(</span><span class="s1">&#39;Repair Cost&#39;</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">,</span> <span class="s1">&#39;4_2&#39;</span><span class="p">)]</span>
 
-    <span class="k">if</span> <span class="n">DV_time</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">DV_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="n">repl_time</span> <span class="o">=</span> <span class="n">GI</span><span class="p">[</span><span class="s1">&#39;replacement_time&#39;</span><span class="p">]</span>
 
@@ -1886,10 +1883,10 @@
         <span class="n">df_res_Tagg</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">MI</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
         <span class="n">df_res_Tagg</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="n">lvls</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="p">[</span><span class="n">lvls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sev</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">lvls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;sev{i+1}&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
 
         <span class="n">headers</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">,],</span>
                    <span class="n">lvls</span><span class="p">,</span>
@@ -1905,7 +1902,7 @@
     <span class="n">dfs_to_join</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># start with the disaggregated costs...</span>
-    <span class="k">if</span> <span class="n">DV_cost</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">DV_cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">type_ID</span> <span class="ow">in</span> <span class="n">comp_types</span><span class="p">:</span>
 
             <span class="n">DV_res</span> <span class="o">=</span> <span class="n">DV_cost</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FG&#39;</span><span class="p">,</span> <span class="s1">&#39;DSG_DS&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -1947,7 +1944,7 @@
         <span class="n">df_res_Cagg</span> <span class="o">=</span> <span class="n">df_res_Cagg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="c1">#.round(0)</span>
         <span class="n">dfs_to_join</span> <span class="o">=</span> <span class="n">dfs_to_join</span> <span class="o">+</span> <span class="p">[</span><span class="n">df_res_Cagg</span><span class="p">,</span> <span class="n">df_res_Cimp</span><span class="p">,</span> <span class="n">df_res_C</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">DV_time</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">DV_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">DV_res</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">SUMMARY_df</span><span class="p">[(</span><span class="s1">&#39;reconstruction&#39;</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">)])</span>
 
         <span class="n">df_res_Tagg</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">[</span><span class="s1">&#39;Repair Time&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;aggregate&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">DV_res</span><span class="p">[[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
@@ -1955,12 +1952,12 @@
         <span class="n">df_res_Tagg</span> <span class="o">=</span> <span class="n">df_res_Tagg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="c1">#.round(1)</span>
         <span class="n">dfs_to_join</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df_res_Tagg</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">DV_res</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">SUMMARY_df</span><span class="p">[(</span><span class="s1">&#39;injuries&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;sev</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">DV_res</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">SUMMARY_df</span><span class="p">[(</span><span class="s1">&#39;injuries&#39;</span><span class="p">,</span><span class="n">f</span><span class="s1">&#39;sev{i+1}&#39;</span><span class="p">)])</span>
 
-                <span class="n">df_res_Iagg</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;sev</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregate&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">DV_res</span><span class="p">[[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">df_res_Iagg</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;sev{i+1}&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregate&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">DV_res</span><span class="p">[[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
 
                 <span class="n">df_res_Iagg</span> <span class="o">=</span> <span class="n">df_res_Iagg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="c1">#.round(6)</span>
 
@@ -2030,19 +2027,11 @@
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -2053,6 +2042,7 @@
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {
