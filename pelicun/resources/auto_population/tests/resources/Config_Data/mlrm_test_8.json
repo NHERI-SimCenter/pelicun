@@ -1,0 +1,137 @@
+{
+  "RandomVariables": [],
+  "GI": {
+    "BIM_id": "1",
+    "location": {
+      "latitude": 39.41770296,
+      "longitude": -74.50360821
+    },
+    "assetType": "Building",
+    "yearBuilt": 1965,
+    "structType": "nav",
+    "name": 1,
+    "numStory": 2,
+    "stories": 2,
+    "occupancy": NaN,
+    "height": 8.0,
+    "replacementCost": 1,
+    "replacementTime": 1.0,
+    "population": 1.0,
+    "units": {
+      "force": "kips",
+      "length": "ft",
+      "speed": "mph"
+    },
+    "area": NaN,
+    "BldgID": "NJBF0000",
+    "Address": "XXX",
+    "City": "Absecon",
+    "State": "NJ",
+    "OccupancyClass": "COM1",
+    "BuildingType": 3004,
+    "UseCode": NaN,
+    "BldgClass": 17,
+    "DesignLevel": "NE",
+    "YearBuiltNJDEP": 1965,
+    "YearBuiltMODIV": 1965,
+    "NumberofStories0": 3101,
+    "NumberofStories1": 2,
+    "NoUnits": 1,
+    "PlanArea0": 1310.670302,
+    "PlanArea1": 1310.670302,
+    "FoundationType": 3505,
+    "SplitLevel": "NO",
+    "ElevationR0": 19.64,
+    "ElevationR1": 33.89,
+    "FirstFloorHt0": 3,
+    "FirstFloorHt1": -2.97,
+    "FloodZone": 6101,
+    "DSWI": 112.44901999999999,
+    "DSWII": 145,
+    "DSWIII": 131.91687199999998,
+    "DSWIV": 138.112949,
+    "WindZone": "I",
+    "AvgJanTemp": "Above",
+    "RoofShape": "Flat",
+    "RoofSlope": 0,
+    "RoofCover": 5701,
+    "RoofSystem": "Wood",
+    "MeanRoofHt": 26.76835396,
+    "WindowArea": 0,
+    "Garage": 0,
+    "HazusClassW": NaN,
+    "HazusClassIN": NaN,
+    "HazusClassWA": NaN,
+    "AnalysisDefault": 1,
+    "AnalysisAdopted": 1,
+    "Modifications": NaN,
+    "z0": 0.03,
+    "LULC": NaN
+  },
+  "Events": {
+    "EventClassification": "Earthquake",
+    "Events": [
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00000",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00001",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00002",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00003",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00004",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00005",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00006",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00007",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1538.csvx0x00008",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      },
+      {
+        "EventClassification": "Earthquake",
+        "fileName": "1539.csvx0x00009",
+        "factor": 1.0,
+        "type": "intensityMeasure"
+      }
+    ],
+    "type": "SimCenterEvents"
+  }
+}
