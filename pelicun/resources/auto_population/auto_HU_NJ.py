@@ -132,6 +132,10 @@ def parse_BIM(BIM_in):
     except:
         pass
 
+    foundation = BIM_in.get('FoundationType')
+    if np.isnan(foundation):
+        foundation = 3501
+
     # Average January Temp.
     ap_ajt = {
         'Above': 'above',
@@ -163,8 +167,9 @@ def parse_BIM(BIM_in):
         window_area=float(BIM_in.get('WindowArea',0.20)),
         first_floor_ht1=float(BIM_in.get('FirstFloorHt1',10.0)),
         split_level=bool(ap_SplitLevel[BIM_in.get('SplitLevel',0)]), # dfault: no
-        fdtn_type=int(BIM_in.get('FoundationType',3501)), # default: pile
-        city=BIM_in['City']
+        fdtn_type=int(foundation), # default: pile
+        city=BIM_in['City'],
+        wind_zone=str(BIM_in['WindZone'])
     )
 
     # add inferred, generic meta-variables
@@ -375,7 +380,12 @@ def building_class(BIM):
         #    # Masonry Multi-Unit Hotel/Motel Non-Engineered
         #    # (MMUH1NE, MMUH2NE, or MMUH3NE)
         #    return 'MMUHNE'
+    elif BIM['bldg_type'] == 3005:
+        return 'MH'
 
+    else:
+        return 'WMUH'
+        # if nan building type is provided, return the dominant class
 
 
 def WSF_config(BIM):
@@ -1981,6 +1991,63 @@ def SERB_config(BIM):
     return bldg_config
 
 
+def MH_config(BIM):
+    """
+    Rules to identify a HAZUS WSF configuration based on BIM data
+
+    Parameters
+    ----------
+    BIM: dictionary
+        Information about the building characteristics.
+
+    Returns
+    -------
+    config: str
+        A string that identifies a specific configration within this buidling
+        class.
+    """
+
+    year = BIM['year_built'] # just for the sake of brevity
+    if year <= 1976:
+        # MHPHUD
+        bldg_tag = 'MHPHUD'
+        if BIM['WBD']:
+            shutters = random.random() < 0.45
+        else:
+            shutters = False
+        # TieDowns
+        TD = random.random() < 0.45
+
+    elif year <= 1994:
+        # MH76HUD
+        bldg_tag = 'MH76HUD'
+        if BIM['WBD']:
+            shutters = random.random() < 0.45
+        else:
+            shutters = False
+        # TieDowns
+        TD = random.random() < 0.45
+
+    else:
+        # MH94HUD I, II, III
+        if BIM['V_ult'] >= 100.0:
+            shutters = True
+        else:
+            shutters = False
+        # TieDowns
+        if BIM['V_ult'] >= 70.0:
+            TD = True
+        else:
+            TD = False
+        bldg_tag = 'MH94HUD' + BIM['wind_zone']
+
+    bldg_config = f"{bldg_tag}_" \
+                  f"{int(shutters)}_" \
+                  f"{int(TD)}_" \
+                  f"{int(BIM['terrain'])}"
+    return bldg_config
+
+
 def FL_config(BIM):
     """
     Rules to identify the flood vunerability category
@@ -2127,6 +2194,7 @@ def FL_config(BIM):
 
     return fl_config
 
+
 def Assm_config(BIM):
     """
     Rules to identify the flood vunerability category
@@ -2240,6 +2308,8 @@ def auto_populate(BIM):
         bldg_config = SECB_config(BIM_ap)
     elif bldg_class == 'SERB':
         bldg_config = SERB_config(BIM_ap)
+    elif bldg_class == 'MH':
+        bldg_config = MH_config(BIM_ap)
     else:
         raise ValueError(
             f"Building class {bldg_class} not recognized by the "
