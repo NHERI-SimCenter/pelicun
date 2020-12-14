@@ -3231,7 +3231,7 @@ class HAZUS_Assessment(Assessment):
                 for i, rlz in enumerate(zip(indiv_loss.iloc[:,0], indiv_loss.iloc[:,1])):
                     tmp1 = (loss_weight[0][i] * rlz[0]) / 100.
                     tmp2 = (loss_weight[1][i] * rlz[1]) / 100.
-                    combined_loss.append((np.sum(tmp1 + tmp2) - tmp1.T.dot(tmp2))* 100.)
+                    combined_loss.append(np.min([100., (np.sum(tmp1 + tmp2) - tmp1.T.dot(tmp2))* 100.]))
                 SUMMARY.loc[ncID, ('reconstruction', 'cost')] = combined_loss
             else:
                 SUMMARY.loc[ncID, ('reconstruction', 'cost')] = \
