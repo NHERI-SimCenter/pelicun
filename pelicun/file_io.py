@@ -1974,6 +1974,8 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
                 for k in  ['CECB', 'CERB', 'MECB', 'MERB', 'MH', 'MLRI', 'MLRM', 'MMUH', 'MSF', 'SECB', 'SERB', 'SPMB', 'WMUH', 'WSF']:
                     try:
                         type_cols = [c for c in DV_res.columns.get_level_values('FG').unique() if c.startswith(k)]
+                        if type_cols:
+                            break
                     except:
                         print('Cannot find fragility ID for the wind loss type.')
             elif type_ID == 'Flood':
