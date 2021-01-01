@@ -33,10 +33,9 @@ setup(
     install_requires=[
         'numpy>=1.19.0',
         'scipy>=1.5.0',
-        'pandas>=1.1.0',
+        'pandas>=1.1.0,<=1.1.5',
         'tables',
-        'h5py',
-        'xlrd'
+        'xlrd<=1.2.0'
     ],
     classifiers = [
         'Programming Language :: Python',
@@ -53,6 +52,7 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering',
         ],
     extras_require={

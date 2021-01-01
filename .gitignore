@@ -5,8 +5,8 @@
 /build/
 /dist/
 
-# documentation
-/doc_src
+# Documentation
+/doc_src/_build
 
 # PyCharm folders
 /.idea

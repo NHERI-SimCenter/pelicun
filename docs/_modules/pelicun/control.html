@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,34 +12,32 @@
   
 
   
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
-
-  
   
   
   
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -80,7 +79,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,6 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
@@ -106,17 +105,15 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Software Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">2. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">4. API Documentation</a></li>
 </ul>
 
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -155,7 +152,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
@@ -228,10 +225,10 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.uq</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.model</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.file_io</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.uq</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.model</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.file_io</span> <span class="k">import</span> <span class="o">*</span>
 
 
 <div class="viewcode-block" id="Assessment"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_control.html#pelicun.control.Assessment">[docs]</a><span class="k">class</span> <span class="nc">Assessment</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -241,7 +238,7 @@
 <span class="sd">    using pelicun.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
         <span class="c1"># initialize the basic data containers</span>
         <span class="c1"># inputs</span>
@@ -523,11 +520,12 @@
 
         <span class="n">log_msg</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Converting EDP samples to input units...&#39;</span><span class="p">)</span>
         <span class="n">EDPs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_EDP_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="n">EDP_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_dict</span><span class="p">[</span><span class="n">EDPs</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">_RV</span><span class="o">.</span><span class="n">samples_DF</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">EDP_samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">edp</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_dict</span><span class="p">[</span><span class="n">edp</span><span class="p">]</span><span class="o">.</span><span class="n">samples</span> <span class="k">for</span> <span class="n">edp</span> <span class="ow">in</span> <span class="n">EDPs</span><span class="p">})</span>
+        <span class="c1">#EDP_samples = self._EDP_dict[EDPs[0]].samples_DF.copy()</span>
         <span class="n">cols</span> <span class="o">=</span> <span class="n">EDP_samples</span><span class="o">.</span><span class="n">columns</span>
-        <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">EDP_samples</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="n">col_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]</span>
         <span class="n">EDP_samples</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s1">&#39;1-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">col_info</span><span class="p">]</span>
+            <span class="s1">&#39;1-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">col_info</span><span class="p">]</span>
 
         <span class="c1"># TODO: use some global vars to identify EDP units because this is a mess</span>
         <span class="k">for</span> <span class="n">col_i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
@@ -673,8 +671,8 @@
             <span class="n">d_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_EDP_in</span><span class="p">[</span><span class="n">d_id</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">d_list</span><span class="p">)):</span>
                 <span class="n">demand_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;raw_data&#39;</span><span class="p">])</span>
-                <span class="n">d_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EDP-</span><span class="si">{</span><span class="n">d_id</span><span class="si">}</span><span class="s2">-LOC-</span><span class="si">{</span><span class="n">d_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;location&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span>
-                              <span class="sa">f</span><span class="s2">&quot;-DIR-</span><span class="si">{</span><span class="n">d_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">d_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;EDP-</span><span class="si">{d_id}</span><span class="s2">-LOC-</span><span class="si">{d_list[i][&#39;location&#39;]}</span><span class="s2">&quot;</span> <span class="o">+</span>
+                              <span class="n">f</span><span class="s2">&quot;-DIR-</span><span class="si">{d_list[i][&#39;direction&#39;]}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="n">det_lim</span> <span class="o">=</span> <span class="n">GI</span><span class="p">[</span><span class="s1">&#39;detection_limits&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">d_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">det_lim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -879,7 +877,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An Assessment class that implements the loss assessment method in FEMA P58.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inj_lvls</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inj_lvls</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FEMA_P58_Assessment</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
 
         <span class="c1"># constants for the FEMA-P58 methodology</span>
@@ -1645,7 +1643,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">q_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_sig</span><span class="p">,</span> <span class="p">[</span><span class="n">cov</span><span class="p">,</span> <span class="p">])</span>
 
-            <span class="n">q_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_tags</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">-QNT-</span><span class="si">{</span><span class="n">s_i</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">d_i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">s_i</span><span class="p">,</span> <span class="n">d_i</span>
+            <span class="n">q_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_tags</span><span class="p">,</span> <span class="p">[</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{c_id}</span><span class="s1">-QNT-</span><span class="si">{s_i}</span><span class="s1">-</span><span class="si">{d_i}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">s_i</span><span class="p">,</span> <span class="n">d_i</span>
                                       <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">],</span>
                                                   <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;directions&#39;</span><span class="p">]))])</span>
 
@@ -1724,7 +1722,7 @@
             <span class="n">DSG</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;DSG_set&#39;</span><span class="p">][</span><span class="n">d_id</span><span class="p">]</span>
             <span class="n">d_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_theta</span><span class="p">,</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">])</span>
             <span class="n">d_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_sig</span><span class="p">,</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">])</span>
-            <span class="n">d_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_tags</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;FF-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">d_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">d_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_tags</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;FF-</span><span class="si">{comp[&#39;ID&#39;]}</span><span class="s2">-</span><span class="si">{d_id}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">d_distr_kind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_distr_kind</span><span class="p">,</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">])</span>
         <span class="n">dims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_theta</span><span class="p">)</span>
 
@@ -1778,7 +1776,7 @@
                 <span class="p">))</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span><span class="n">RandomVariableSet</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;FF_set_</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_RV_reg</span><span class="o">.</span><span class="n">RVs</span><span class="p">(</span><span class="n">c_tags</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="n">f</span><span class="s1">&#39;FF_set_</span><span class="si">{c_id}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_RV_reg</span><span class="o">.</span><span class="n">RVs</span><span class="p">(</span><span class="n">c_tags</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
                 <span class="n">c_rho</span><span class="p">))</span>
 
             <span class="c1"># c_COV = np.outer(c_sig, c_sig) * c_rho</span>
@@ -1816,8 +1814,8 @@
 
                         <span class="k">for</span> <span class="n">csg_id</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csg_list</span><span class="p">):</span>
 
-                            <span class="n">d_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DSG-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dsg_i</span><span class="si">}</span><span class="s1">-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-&#39;</span>
-                                          <span class="sa">f</span><span class="s1">&#39;DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">-CSG-</span><span class="si">{</span><span class="n">csg_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">d_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;DSG-</span><span class="si">{comp[&quot;ID&quot;]}</span><span class="s1">-</span><span class="si">{dsg_i}</span><span class="s1">-LOC-</span><span class="si">{loc}</span><span class="s1">-&#39;</span>
+                                          <span class="n">f</span><span class="s1">&#39;DIR-</span><span class="si">{dir_}</span><span class="s1">-CSG-</span><span class="si">{csg_id}</span><span class="s1">&#39;</span><span class="p">)</span>
                             <span class="n">d_theta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DS_weights</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_tags</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1855,12 +1853,12 @@
                         <span class="c1"># if there are no injuries assigned to this DS</span>
                         <span class="n">d_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_theta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
                         <span class="n">d_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_sig</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
-                    <span class="n">d_tag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_tag</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;RED-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">dsg_i</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">ds_i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">d_tag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_tag</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;RED-</span><span class="si">{comp[&#39;ID&#39;]}</span><span class="s2">-</span><span class="si">{dsg_i}</span><span class="s2">-</span><span class="si">{ds_i}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">loc</span><span class="p">,</span> <span class="n">dir_</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;directions&#39;</span><span class="p">]):</span>
                 <span class="n">f_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_theta</span><span class="p">,</span> <span class="n">d_theta</span><span class="p">)</span>
                 <span class="n">f_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_sig</span><span class="p">,</span> <span class="n">d_sig</span><span class="p">)</span>
-                <span class="n">f_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_tags</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">f_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_tags</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-LOC-</span><span class="si">{loc}</span><span class="s1">-DIR-</span><span class="si">{dir_}</span><span class="s1">&#39;</span>
                                             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d_tag</span><span class="p">])</span>
 
         <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_correlation_matrix</span><span class="p">(</span><span class="n">rho_target</span><span class="p">,</span> <span class="n">c_target</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
@@ -1925,9 +1923,9 @@
                     <span class="n">s_ds_keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;DS_set&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
                     <span class="k">for</span> <span class="n">ds_i</span> <span class="ow">in</span> <span class="n">s_ds_keys</span><span class="p">:</span>
                         <span class="n">DS</span> <span class="o">=</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;DS_set&#39;</span><span class="p">][</span><span class="n">ds_i</span><span class="p">]</span>
-                        <span class="k">if</span> <span class="p">((</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">DS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span>
-                            <span class="p">(</span><span class="n">DS</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">][</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
-                            <span class="n">data</span> <span class="o">=</span> <span class="n">DS</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">((</span><span class="n">f</span><span class="s1">&#39;repair_</span><span class="si">{name}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">DS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span>
+                            <span class="p">(</span><span class="n">DS</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;repair_</span><span class="si">{name}</span><span class="s1">&#39;</span><span class="p">][</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
+                            <span class="n">data</span> <span class="o">=</span> <span class="n">DS</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;repair_</span><span class="si">{name}</span><span class="s1">&#39;</span><span class="p">]</span>
                             <span class="n">d_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_sig</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cov&#39;</span><span class="p">])</span>
                             <span class="n">d_dkind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_dkind</span><span class="p">,</span>
                                                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">])</span>
@@ -1936,7 +1934,7 @@
                             <span class="n">d_dkind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_dkind</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
                         <span class="n">d_tag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="n">d_tag</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;REP-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dsg_i</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ds_i</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                                <span class="n">d_tag</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;REP-</span><span class="si">{comp[&quot;ID&quot;]}</span><span class="s1">-</span><span class="si">{dsg_i}</span><span class="s1">-</span><span class="si">{ds_i}</span><span class="s1">-</span><span class="si">{name}</span><span class="s1">&#39;</span><span class="p">)</span>
                                 <span class="c1">#comp[&#39;ID&#39;] + &#39;-&#39; + str(</span>
                                 <span class="c1">#    dsg_i) + &#39;-&#39; + str(</span>
                                 <span class="c1">#    ds_i) + &#39;-{}&#39;.format(name))</span>
@@ -1945,7 +1943,7 @@
                     <span class="n">f_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_sig</span><span class="p">,</span> <span class="n">d_sig</span><span class="p">)</span>
                     <span class="n">f_dkind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_dkind</span><span class="p">,</span> <span class="n">d_dkind</span><span class="p">)</span>
                     <span class="n">f_tag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">f_tag</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d_tag</span><span class="p">])</span>
+                        <span class="n">f_tag</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-LOC-</span><span class="si">{loc}</span><span class="s1">-DIR-</span><span class="si">{dir_}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d_tag</span><span class="p">])</span>
 
             <span class="n">ct_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ct_sig</span><span class="p">,</span> <span class="n">f_sig</span><span class="p">)</span>
             <span class="n">ct_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ct_tags</span><span class="p">,</span> <span class="n">f_tag</span><span class="p">)</span>
@@ -2054,7 +2052,7 @@
                             <span class="n">d_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_theta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
                             <span class="n">d_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_sig</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">)</span>
                         <span class="n">d_tag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">d_tag</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;INJ-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">dsg_i</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">ds_i</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">i_lvl</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="n">d_tag</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;INJ-</span><span class="si">{comp[&#39;ID&#39;]}</span><span class="s2">-</span><span class="si">{dsg_i}</span><span class="s2">-</span><span class="si">{ds_i}</span><span class="s2">-</span><span class="si">{i_lvl}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">loc</span><span class="p">,</span> <span class="n">dir_</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;directions&#39;</span><span class="p">]):</span>
                     <span class="n">f_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_theta</span><span class="p">,</span> <span class="n">d_theta</span><span class="p">)</span>
@@ -2164,7 +2162,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># QNT = RandomVariableSubset(RVd[&#39;QNT&#39;],</span>
                     <span class="c1">#     tags=[f&#39;{c_id}-QNT-{loc}-{dir_}&#39;, ])</span>
-                    <span class="n">QNT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_QNT_dict</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">-QNT-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+                    <span class="n">QNT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_QNT_dict</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{c_id}</span><span class="s1">-QNT-</span><span class="si">{loc}</span><span class="s1">-</span><span class="si">{dir_}</span><span class="s1">&#39;</span><span class="p">]</span>
 
                 <span class="c1"># create the damage objects</span>
                 <span class="c1"># consequences are calculated on a performance group level</span>
@@ -2286,7 +2284,7 @@
                 <span class="k">for</span> <span class="n">csg_id</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csg_list</span><span class="p">):</span>
                     <span class="c1"># assign the appropriate random variable to the fragility</span>
                     <span class="c1"># function</span>
-                    <span class="n">ff_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">-CSG-</span><span class="si">{</span><span class="n">csg_id</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="n">ff_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-LOC-</span><span class="si">{loc}</span><span class="s1">-DIR-</span><span class="si">{dir_}</span><span class="s1">-CSG-</span><span class="si">{csg_id}</span><span class="s1">&#39;</span>
                                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d_tags</span><span class="p">]</span>
                     <span class="n">EDP_limit</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_FF_dict</span><span class="p">[</span><span class="n">ff_tag</span><span class="p">]</span> <span class="k">for</span> <span class="n">ff_tag</span> <span class="ow">in</span> <span class="n">ff_tags</span><span class="p">]</span>
                     <span class="c1"># RandomVariableSubset(RVd[&#39;FR-&#39; + c_id],</span>
@@ -2534,9 +2532,9 @@
                             <span class="n">FG_damages</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">in_this_DSG</span><span class="p">,</span>
                                            <span class="p">(</span><span class="n">FG</span><span class="o">.</span><span class="n">_ID</span><span class="p">,</span> <span class="n">PG_ID</span><span class="p">,</span> <span class="n">DS_tag</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">csg_w</span>
                         <span class="k">elif</span> <span class="n">DSG</span><span class="o">.</span><span class="n">_DS_set_kind</span> <span class="o">==</span> <span class="s1">&#39;mutually exclusive&#39;</span><span class="p">:</span>
-                            <span class="n">mut_ex_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;DSG-</span><span class="si">{</span><span class="n">fg_id</span><span class="si">}</span><span class="s1">-DSG-</span><span class="si">{</span><span class="n">DSG</span><span class="o">.</span><span class="n">_ID</span><span class="si">}</span><span class="s1">-&#39;</span> \
-                                        <span class="sa">f</span><span class="s1">&#39;LOC-</span><span class="si">{</span><span class="n">PG</span><span class="o">.</span><span class="n">_location</span><span class="si">}</span><span class="s1">-&#39;</span> \
-                                        <span class="sa">f</span><span class="s1">&#39;DIR-</span><span class="si">{</span><span class="n">PG</span><span class="o">.</span><span class="n">_direction</span><span class="si">}</span><span class="s1">-CSG-</span><span class="si">{</span><span class="n">csg_i</span><span class="si">}</span><span class="s1">&#39;</span>
+                            <span class="n">mut_ex_id</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;DSG-</span><span class="si">{fg_id}</span><span class="s1">-DSG-</span><span class="si">{DSG._ID}</span><span class="s1">-&#39;</span> \
+                                        <span class="n">f</span><span class="s1">&#39;LOC-</span><span class="si">{PG._location}</span><span class="s1">-&#39;</span> \
+                                        <span class="n">f</span><span class="s1">&#39;DIR-</span><span class="si">{PG._direction}</span><span class="s1">-CSG-</span><span class="si">{csg_i}</span><span class="s1">&#39;</span>
                             <span class="n">DS_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DSG_dict</span><span class="p">[</span><span class="n">mut_ex_id</span><span class="p">]</span><span class="o">.</span><span class="n">samples_DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">in_this_DSG</span><span class="p">]</span>
 
                             <span class="c1"># DS_weights = [DS._weight for DS in DSG._DS_set]</span>
@@ -2914,7 +2912,7 @@
 <span class="sd">        The HAZUS earthquake methodology uses 4 levels.</span>
 <span class="sd">        default: 4</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hazard</span><span class="o">=</span><span class="s1">&#39;EQ&#39;</span><span class="p">,</span> <span class="n">inj_lvls</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hazard</span><span class="o">=</span><span class="s1">&#39;EQ&#39;</span><span class="p">,</span> <span class="n">inj_lvls</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">HAZUS_Assessment</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_inj_lvls</span> <span class="o">=</span> <span class="n">inj_lvls</span>
@@ -3219,7 +3217,7 @@
                             <span class="bp">self</span><span class="o">.</span><span class="n">_DMG</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">dmg_map</span><span class="p">,</span> <span class="p">(</span><span class="n">target_id</span><span class="p">,</span> <span class="n">target_PG</span><span class="o">.</span><span class="n">_ID</span><span class="p">,</span> <span class="n">target_DS</span><span class="p">)]</span> <span class="o">=</span> <span class="n">exc_dmg</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">log_msg</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unkown damage logic: </span><span class="si">{</span><span class="n">DL</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">log_msg</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Unkown damage logic: </span><span class="si">{DL[&quot;type&quot;]}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="c1"># collapses are indicated by the ultimate DS in HAZUS</span>
         <span class="n">DMG_agg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DMG</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -3323,7 +3321,7 @@
                 <span class="p">(</span><span class="s1">&#39;injuries&#39;</span><span class="p">,</span> <span class="s1">&#39;sev4&#39;</span><span class="p">),</span>
             <span class="p">]</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="n">DVs</span><span class="p">[</span><span class="s1">&#39;injuries&#39;</span><span class="p">]</span> <span class="ow">and</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">DVs</span><span class="p">[</span><span class="s1">&#39;injuries&#39;</span><span class="p">]</span> <span class="ow">and</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_AIM_in</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;event_time&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;off&#39;</span><span class="p">)):</span>
             <span class="n">MI_raw</span> <span class="o">+=</span> <span class="p">[</span>
                 <span class="p">(</span><span class="s1">&#39;event time&#39;</span><span class="p">,</span> <span class="s1">&#39;month&#39;</span><span class="p">),</span>
@@ -3345,7 +3343,7 @@
         <span class="n">SUMMARY</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NaN</span>
 
         <span class="c1"># event time (if needed)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">DVs</span><span class="p">[</span><span class="s1">&#39;injuries&#39;</span><span class="p">]</span> <span class="ow">and</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">DVs</span><span class="p">[</span><span class="s1">&#39;injuries&#39;</span><span class="p">]</span> <span class="ow">and</span>
             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_AIM_in</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;event_time&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;off&#39;</span><span class="p">)):</span>
             <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="s1">&#39;weekday?&#39;</span><span class="p">,</span> <span class="s1">&#39;hour&#39;</span><span class="p">]:</span>
                 <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
@@ -3624,7 +3622,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">q_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_sig</span><span class="p">,</span> <span class="p">[</span><span class="n">cov</span><span class="p">,</span> <span class="p">])</span>
 
-            <span class="n">q_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_tags</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">-QNT-</span><span class="si">{</span><span class="n">s_i</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">d_i</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">s_i</span><span class="p">,</span> <span class="n">d_i</span>
+            <span class="n">q_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_tags</span><span class="p">,</span> <span class="p">[</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{c_id}</span><span class="s1">-QNT-</span><span class="si">{s_i}</span><span class="s1">-</span><span class="si">{d_i}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">s_i</span><span class="p">,</span> <span class="n">d_i</span>
                                       <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">],</span>
                                                   <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;directions&#39;</span><span class="p">]))])</span>
 
@@ -3700,7 +3698,7 @@
             <span class="n">DSG</span> <span class="o">=</span> <span class="n">comp</span><span class="p">[</span><span class="s1">&#39;DSG_set&#39;</span><span class="p">][</span><span class="n">d_id</span><span class="p">]</span>
             <span class="n">d_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_theta</span><span class="p">,</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">])</span>
             <span class="n">d_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_sig</span><span class="p">,</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;sig&#39;</span><span class="p">])</span>
-            <span class="n">d_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_tags</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;FF-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">d_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">d_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_tags</span><span class="p">,</span> <span class="n">f</span><span class="s2">&quot;FF-</span><span class="si">{comp[&#39;ID&#39;]}</span><span class="s2">-</span><span class="si">{d_id}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">d_distr_kind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_distr_kind</span><span class="p">,</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">])</span>
         <span class="n">dims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_theta</span><span class="p">)</span>
 
@@ -3757,7 +3755,7 @@
                 <span class="p">))</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span><span class="n">RandomVariableSet</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;FF_set_</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_RV_reg</span><span class="o">.</span><span class="n">RVs</span><span class="p">(</span><span class="n">c_tags</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
+                <span class="n">f</span><span class="s1">&#39;FF_set_</span><span class="si">{c_id}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_RV_reg</span><span class="o">.</span><span class="n">RVs</span><span class="p">(</span><span class="n">c_tags</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span>
                 <span class="n">c_rho</span><span class="p">))</span>
 
             <span class="c1"># c_COV = np.outer(c_sig, c_sig) * c_rho</span>
@@ -3795,8 +3793,8 @@
 
                         <span class="k">for</span> <span class="n">csg_id</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csg_list</span><span class="p">):</span>
 
-                            <span class="n">d_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;DSG-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dsg_i</span><span class="si">}</span><span class="s1">-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-&#39;</span>
-                                          <span class="sa">f</span><span class="s1">&#39;DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">-CSG-</span><span class="si">{</span><span class="n">csg_id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="n">d_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;DSG-</span><span class="si">{comp[&quot;ID&quot;]}</span><span class="s1">-</span><span class="si">{dsg_i}</span><span class="s1">-LOC-</span><span class="si">{loc}</span><span class="s1">-&#39;</span>
+                                          <span class="n">f</span><span class="s1">&#39;DIR-</span><span class="si">{dir_}</span><span class="s1">-CSG-</span><span class="si">{csg_id}</span><span class="s1">&#39;</span><span class="p">)</span>
                             <span class="n">d_theta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DS_weights</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_tags</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -3832,9 +3830,9 @@
                     <span class="n">s_ds_keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;DS_set&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
                     <span class="k">for</span> <span class="n">ds_i</span> <span class="ow">in</span> <span class="n">s_ds_keys</span><span class="p">:</span>
                         <span class="n">DS</span> <span class="o">=</span> <span class="n">DSG</span><span class="p">[</span><span class="s1">&#39;DS_set&#39;</span><span class="p">][</span><span class="n">ds_i</span><span class="p">]</span>
-                        <span class="k">if</span> <span class="p">((</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">DS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span>
-                            <span class="p">(</span><span class="n">DS</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">][</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
-                            <span class="n">data</span> <span class="o">=</span> <span class="n">DS</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;repair_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="p">((</span><span class="n">f</span><span class="s1">&#39;repair_</span><span class="si">{name}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">DS</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span>
+                            <span class="p">(</span><span class="n">DS</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;repair_</span><span class="si">{name}</span><span class="s1">&#39;</span><span class="p">][</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)):</span>
+                            <span class="n">data</span> <span class="o">=</span> <span class="n">DS</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;repair_</span><span class="si">{name}</span><span class="s1">&#39;</span><span class="p">]</span>
                             <span class="n">d_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_sig</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;cov&#39;</span><span class="p">])</span>
                             <span class="n">d_dkind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_dkind</span><span class="p">,</span>
                                                 <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">])</span>
@@ -3843,7 +3841,7 @@
                             <span class="n">d_dkind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d_dkind</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
                         <span class="n">d_tag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="n">d_tag</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;REP-</span><span class="si">{</span><span class="n">comp</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dsg_i</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ds_i</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                                <span class="n">d_tag</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;REP-</span><span class="si">{comp[&quot;ID&quot;]}</span><span class="s1">-</span><span class="si">{dsg_i}</span><span class="s1">-</span><span class="si">{ds_i}</span><span class="s1">-</span><span class="si">{name}</span><span class="s1">&#39;</span><span class="p">)</span>
                                 <span class="c1">#comp[&#39;ID&#39;] + &#39;-&#39; + str(</span>
                                 <span class="c1">#    dsg_i) + &#39;-&#39; + str(</span>
                                 <span class="c1">#    ds_i) + &#39;-{}&#39;.format(name))</span>
@@ -3852,7 +3850,7 @@
                     <span class="n">f_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_sig</span><span class="p">,</span> <span class="n">d_sig</span><span class="p">)</span>
                     <span class="n">f_dkind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_dkind</span><span class="p">,</span> <span class="n">d_dkind</span><span class="p">)</span>
                     <span class="n">f_tag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">f_tag</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d_tag</span><span class="p">])</span>
+                        <span class="n">f_tag</span><span class="p">,</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-LOC-</span><span class="si">{loc}</span><span class="s1">-DIR-</span><span class="si">{dir_}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d_tag</span><span class="p">])</span>
 
             <span class="n">ct_sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ct_sig</span><span class="p">,</span> <span class="n">f_sig</span><span class="p">)</span>
             <span class="n">ct_tags</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ct_tags</span><span class="p">,</span> <span class="n">f_tag</span><span class="p">)</span>
@@ -3967,7 +3965,7 @@
                 <span class="k">if</span> <span class="n">dist</span> <span class="o">==</span> <span class="s1">&#39;N/A&#39;</span><span class="p">:</span>
                     <span class="n">QNT</span> <span class="o">=</span> <span class="n">qnt</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">QNT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_QNT_dict</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">-QNT-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+                    <span class="n">QNT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_QNT_dict</span><span class="p">[</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{c_id}</span><span class="s1">-QNT-</span><span class="si">{loc}</span><span class="s1">-</span><span class="si">{dir_}</span><span class="s1">&#39;</span><span class="p">]</span>
                     <span class="c1"># QNT = RandomVariableSubset(RVd[&#39;QNT&#39;],</span>
                     <span class="c1">#     tags=[f&#39;{c_id}-QNT-{loc}-{dir_}&#39;, ])</span>
 
@@ -4010,7 +4008,7 @@
                             <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
                                 <span class="n">cf_tag</span> <span class="o">=</span> <span class="s1">&#39;REP-&#39;</span> <span class="o">+</span> <span class="n">c_id</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">DSG_ID</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">DS_ID</span> <span class="o">+</span> \
-                                         <span class="s1">&#39;-cost&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">&#39;</span>
+                                         <span class="s1">&#39;-cost&#39;</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-LOC-</span><span class="si">{loc}</span><span class="s1">-DIR-</span><span class="si">{dir_}</span><span class="s1">&#39;</span>
 
                                 <span class="n">CF_RV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_REP_dict</span><span class="p">[</span><span class="n">cf_tag</span><span class="p">]</span>
                                 <span class="c1"># CF_RV = RandomVariableSubset(RVd[&#39;DV_REP&#39;],</span>
@@ -4037,7 +4035,7 @@
                             <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;distribution_kind&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
                                 <span class="n">cf_tag</span> <span class="o">=</span> <span class="s1">&#39;REP-&#39;</span> <span class="o">+</span> <span class="n">c_id</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">DSG_ID</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">DS_ID</span> <span class="o">+</span> \
-                                         <span class="s1">&#39;-time&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">&#39;</span>
+                                         <span class="s1">&#39;-time&#39;</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-LOC-</span><span class="si">{loc}</span><span class="s1">-DIR-</span><span class="si">{dir_}</span><span class="s1">&#39;</span>
 
                                 <span class="n">CF_RV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DV_REP_dict</span><span class="p">[</span><span class="n">cf_tag</span><span class="p">]</span>
                                 <span class="c1"># CF_RV = RandomVariableSubset(RVd[&#39;DV_REP&#39;],</span>
@@ -4092,7 +4090,7 @@
                 <span class="k">for</span> <span class="n">csg_id</span><span class="p">,</span> <span class="n">__</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csg_list</span><span class="p">):</span>
                     <span class="c1"># assign the appropriate random variable to the fragility</span>
                     <span class="c1"># function</span>
-                    <span class="n">ff_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;-LOC-</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s1">-DIR-</span><span class="si">{</span><span class="n">dir_</span><span class="si">}</span><span class="s1">-CSG-</span><span class="si">{</span><span class="n">csg_id</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="n">ff_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;-LOC-</span><span class="si">{loc}</span><span class="s1">-DIR-</span><span class="si">{dir_}</span><span class="s1">-CSG-</span><span class="si">{csg_id}</span><span class="s1">&#39;</span>
                                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">d_tags</span><span class="p">]</span>
                     <span class="n">EDP_limit</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_FF_dict</span><span class="p">[</span><span class="n">ff_tag</span><span class="p">]</span> <span class="k">for</span> <span class="n">ff_tag</span> <span class="ow">in</span> <span class="n">ff_tags</span><span class="p">]</span>
                     <span class="c1"># EDP_limit = RandomVariableSubset(RVd[&#39;FR-&#39; + c_id],</span>
@@ -4270,9 +4268,9 @@
                             <span class="n">FG_damages</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">in_this_DSG</span><span class="p">,</span>
                                            <span class="p">(</span><span class="n">FG</span><span class="o">.</span><span class="n">_ID</span><span class="p">,</span> <span class="n">PG_ID</span><span class="p">,</span> <span class="n">DS_tag</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">csg_w</span>
                         <span class="k">elif</span> <span class="n">DSG</span><span class="o">.</span><span class="n">_DS_set_kind</span> <span class="o">==</span> <span class="s1">&#39;mutually exclusive&#39;</span><span class="p">:</span>
-                            <span class="n">mut_ex_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;DSG-</span><span class="si">{</span><span class="n">fg_id</span><span class="si">}</span><span class="s1">-DSG-</span><span class="si">{</span><span class="n">DSG</span><span class="o">.</span><span class="n">_ID</span><span class="si">}</span><span class="s1">-&#39;</span> \
-                                        <span class="sa">f</span><span class="s1">&#39;LOC-</span><span class="si">{</span><span class="n">PG</span><span class="o">.</span><span class="n">_location</span><span class="si">}</span><span class="s1">-&#39;</span> \
-                                        <span class="sa">f</span><span class="s1">&#39;DIR-</span><span class="si">{</span><span class="n">PG</span><span class="o">.</span><span class="n">_direction</span><span class="si">}</span><span class="s1">-CSG-</span><span class="si">{</span><span class="n">csg_i</span><span class="si">}</span><span class="s1">&#39;</span>
+                            <span class="n">mut_ex_id</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;DSG-</span><span class="si">{fg_id}</span><span class="s1">-DSG-</span><span class="si">{DSG._ID}</span><span class="s1">-&#39;</span> \
+                                        <span class="n">f</span><span class="s1">&#39;LOC-</span><span class="si">{PG._location}</span><span class="s1">-&#39;</span> \
+                                        <span class="n">f</span><span class="s1">&#39;DIR-</span><span class="si">{PG._direction}</span><span class="s1">-CSG-</span><span class="si">{csg_i}</span><span class="s1">&#39;</span>
                             <span class="n">DS_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DSG_dict</span><span class="p">[</span><span class="n">mut_ex_id</span><span class="p">]</span><span class="o">.</span><span class="n">samples_DF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
                                 <span class="n">in_this_DSG</span><span class="p">]</span>
 
@@ -4504,19 +4502,11 @@
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -4527,6 +4517,7 @@
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

@@ -49,11 +49,11 @@ Detailed documentation of the available methods and their use is available at ht
 
 `pelicun` runs under Python 3.6+ . The following packages are required for it to work properly:
 
-- `numpy` >= 1.17.0
+- `numpy` >= 1.19.0
 
-- `scipy` >= 1.3.0
+- `scipy` >= 1.5.0
 
-- `pandas` >= 1.0.0
+- `pandas` >= 1.1.0
 
 We recommend installing these using `pip`.
 
@@ -67,24 +67,24 @@ pip install pelicun
 
 ## Changelog
 
-### Major changes in v2.0
+### Major changes in v2.5
 
-* Migrated to the latest version of Python, numpy, scipy, and pandas see setup.py for required minimum versions of those tools.
-* Python 2.x is no longer supported.
-* Improve DL input structure to
-    * make it easier to define complex performance models
-    * make input files easier to read
-    * support custom, non-PACT units for component quantities
-    * support different component quantities on every floor
-* Updated FEMA P58 DL data to use ea for equipment instead of units such as KV, CF, AP, TN.
-* Added FEMA P58 2nd edition DL data.
-* Supported EDP inputs in standard csv format.
-* Add a function that produces SimCenter DM and DV json output files.
-* Add a differential evolution algorithm to the EDP fitting function to do a better job at finding the global optimum.
-* Enhance DL_calculation.py to handle multi-stripe analysis (significant contributions by Joanna Zou):
-    * recognize stripe_ID and occurrence rate in BIM/EVENT file
-    * fit a collapse fragility function to empirical collapse probabilities
-    * perform loss assessment for each stripe independently and produce corresponding outputs
+* Extend the uq module to support:
+    * More efficient sampling, especially when most of the random variables in the model are either independent or perfectly correlated.
+    * More accurate and more efficient fitting of multivariate probability distributions to raw EDP data.
+    * Arbitrary marginals (i.e., beyond the basic Normal and Lognormal) for joint distributions.
+    * Latin Hypercube Sampling
+* Aggregate DL data from JSON files to HDF5 files to reduce the number of files and make it easier to share databases.
+* Add log file that records every important calculation detail and warnings.
+* Extend auto-population logic with solutions for HAZUS EQ assessments. 
+* Introduce external auto-population scripts and provide an example for hurricane assessments.
+* Add a script to help users convert HDF files to CSV (HDF_to_CSV.py under tools)
+* Use unique and standardized attribute names in the input files
+* Add new EDP types: RID, PMD, SA, SV, SD, PGD, DWD, RDR.
+* Migrate to the latest version of Python, numpy, scipy, and pandas see setup.py for required minimum versions of those tools.
+* Bug fixes and minor improvements to support user needs:
+    * Add 1.2 scale factor for EDPs controlling non-directional Fragility Groups.
+    * Remove dependency on scipy's truncnorm function to avoid long computation times due to a bug in recent scipy versions.
 
 ## License
 

@@ -1,7 +1,9 @@
 
 
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,34 +13,32 @@
   
 
   
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
-
-  
   
   
   
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-        <script src="_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script src="_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script src="_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script type="text/javascript" src="_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script type="text/javascript" src="_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
@@ -80,7 +80,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,6 +98,7 @@
 <li class="toctree-l1"><a class="reference internal" href="common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="common/user_manual/license.html">9. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
@@ -106,17 +106,15 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
-<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/architecture/pelicun/architecture.html">1. Software Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/verification/pelicun/verification.html">2. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common/developer_manual/API/pelicun/API.html">4. API Documentation</a></li>
 </ul>
 
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -155,7 +153,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="index.html">Docs</a> &raquo;</li>
         
       <li>Index</li>
     
@@ -381,37 +379,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.ConsequenceFunction.median">median() (pelicun.model.ConsequenceFunction method)</a>
 </li>
-      <li>
-    module
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API.html#module-pelicun">pelicun</a>
-</li>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_auto.html#module-pelicun.auto">pelicun.auto</a>
-</li>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_base.html#module-pelicun.base">pelicun.base</a>
-</li>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_control.html#module-pelicun.control">pelicun.control</a>
-</li>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_db.html#module-pelicun.db">pelicun.db</a>
-</li>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_file_io.html#module-pelicun.file_io">pelicun.file_io</a>
-</li>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_model.html#module-pelicun.model">pelicun.model</a>
-</li>
-        <li><a href="common/developer_manual/verification/pelicun/test_control.html#module-pelicun.tests.test_control">pelicun.tests.test_control</a>
-</li>
-        <li><a href="common/developer_manual/verification/pelicun/test_db.html#module-pelicun.tests.test_db">pelicun.tests.test_db</a>
-</li>
-        <li><a href="common/developer_manual/verification/pelicun/test_file_io.html#module-pelicun.tests.test_file_io">pelicun.tests.test_file_io</a>
-</li>
-        <li><a href="common/developer_manual/verification/pelicun/test_model.html#module-pelicun.tests.test_model">pelicun.tests.test_model</a>
-</li>
-        <li><a href="common/developer_manual/verification/pelicun/test_uq.html#module-pelicun.tests.test_uq">pelicun.tests.test_uq</a>
-</li>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_uq.html#module-pelicun.uq">pelicun.uq</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="common/developer_manual/API/pelicun/API_pelicun_uq.html#pelicun.uq.mvn_orthotope_density">mvn_orthotope_density() (in module pelicun.uq)</a>
@@ -444,99 +411,34 @@
         <li><a href="common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.PerformanceGroup.P_exc">(pelicun.model.PerformanceGroup method)</a>
 </li>
       </ul></li>
-      <li>
-    pelicun
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API.html#module-pelicun">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API.html#module-pelicun">pelicun (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.auto
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_auto.html#module-pelicun.auto">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API_pelicun_auto.html#module-pelicun.auto">pelicun.auto (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.base
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_base.html#module-pelicun.base">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API_pelicun_base.html#module-pelicun.base">pelicun.base (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.control
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_control.html#module-pelicun.control">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API_pelicun_control.html#module-pelicun.control">pelicun.control (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.db
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_db.html#module-pelicun.db">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API_pelicun_db.html#module-pelicun.db">pelicun.db (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.file_io
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_file_io.html#module-pelicun.file_io">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API_pelicun_file_io.html#module-pelicun.file_io">pelicun.file_io (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.model
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_model.html#module-pelicun.model">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API_pelicun_model.html#module-pelicun.model">pelicun.model (module)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    pelicun.tests.test_control
-
-      <ul>
-        <li><a href="common/developer_manual/verification/pelicun/test_control.html#module-pelicun.tests.test_control">module</a>
+      <li><a href="common/developer_manual/verification/pelicun/test_control.html#module-pelicun.tests.test_control">pelicun.tests.test_control (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.tests.test_db
-
-      <ul>
-        <li><a href="common/developer_manual/verification/pelicun/test_db.html#module-pelicun.tests.test_db">module</a>
+      <li><a href="common/developer_manual/verification/pelicun/test_db.html#module-pelicun.tests.test_db">pelicun.tests.test_db (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.tests.test_file_io
-
-      <ul>
-        <li><a href="common/developer_manual/verification/pelicun/test_file_io.html#module-pelicun.tests.test_file_io">module</a>
+      <li><a href="common/developer_manual/verification/pelicun/test_file_io.html#module-pelicun.tests.test_file_io">pelicun.tests.test_file_io (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.tests.test_model
-
-      <ul>
-        <li><a href="common/developer_manual/verification/pelicun/test_model.html#module-pelicun.tests.test_model">module</a>
+      <li><a href="common/developer_manual/verification/pelicun/test_model.html#module-pelicun.tests.test_model">pelicun.tests.test_model (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.tests.test_uq
-
-      <ul>
-        <li><a href="common/developer_manual/verification/pelicun/test_uq.html#module-pelicun.tests.test_uq">module</a>
+      <li><a href="common/developer_manual/verification/pelicun/test_uq.html#module-pelicun.tests.test_uq">pelicun.tests.test_uq (module)</a>
 </li>
-      </ul></li>
-      <li>
-    pelicun.uq
-
-      <ul>
-        <li><a href="common/developer_manual/API/pelicun/API_pelicun_uq.html#module-pelicun.uq">module</a>
+      <li><a href="common/developer_manual/API/pelicun/API_pelicun_uq.html#module-pelicun.uq">pelicun.uq (module)</a>
 </li>
-      </ul></li>
       <li><a href="common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.PerformanceGroup">PerformanceGroup (class in pelicun.model)</a>
 </li>
       <li><a href="common/developer_manual/API/pelicun/API_pelicun_model.html#pelicun.model.prep_bounded_linear_median_DV">prep_bounded_linear_median_DV() (in module pelicun.model)</a>
@@ -802,19 +704,11 @@
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -825,6 +719,7 @@
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

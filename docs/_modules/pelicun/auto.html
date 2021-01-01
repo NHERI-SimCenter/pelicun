@@ -1,7 +1,8 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
@@ -11,34 +12,32 @@
   
 
   
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
-
-  
   
   
   
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
@@ -80,7 +79,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -99,6 +97,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
@@ -106,17 +105,15 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">3. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">5. API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Software Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">2. Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">4. API Documentation</a></li>
 </ul>
 
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -155,7 +152,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
@@ -225,10 +222,10 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 
 <span class="n">ap_DesignLevel</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mi">1940</span><span class="p">:</span> <span class="s1">&#39;Pre-Code&#39;</span><span class="p">,</span>
@@ -357,7 +354,7 @@
         <span class="c1"># load the module</span>
         <span class="n">ASP</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">auto_script_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ASP</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">auto_script</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">__import__</span><span class="p">(</span><span class="n">ASP</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">auto_script</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="fm">__import__</span><span class="p">(</span><span class="n">ASP</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">auto_populate_ext</span> <span class="o">=</span> <span class="n">auto_script</span><span class="o">.</span><span class="n">auto_populate</span>
 
         <span class="c1"># generate the DL input data</span>
@@ -457,7 +454,7 @@
                     <span class="p">},</span>
                     <span class="s1">&#39;Inhabitants&#39;</span><span class="p">:</span> <span class="p">{</span>
                         <span class="s1">&#39;OccupancyType&#39;</span><span class="p">:</span> <span class="n">ot</span><span class="p">,</span>
-                        <span class="s1">&#39;PeakPopulation&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">population</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="s1">&#39;PeakPopulation&#39;</span><span class="p">:</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{population}</span><span class="s1">&#39;</span>
                     <span class="p">},</span>
                     <span class="s1">&#39;ReplacementCost&#39;</span><span class="p">:</span> <span class="n">replacementCost</span><span class="p">,</span>
                     <span class="s1">&#39;ReplacementTime&#39;</span><span class="p">:</span> <span class="n">replacementTime</span>
@@ -515,7 +512,7 @@
             <span class="c1"># only one structural component for IM-based approach</span>
             <span class="k">if</span> <span class="n">is_IM_based</span><span class="p">:</span>
 
-                <span class="n">FG_S</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;S-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dl</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">FG_S</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;S-</span><span class="si">{bt}</span><span class="s1">-</span><span class="si">{dl}</span><span class="s1">-</span><span class="si">{ot}</span><span class="s1">&#39;</span>
 
                 <span class="n">loss_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="s1">&#39;Components&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -531,9 +528,9 @@
             <span class="c1"># story-based approach</span>
             <span class="k">else</span><span class="p">:</span>
 
-                <span class="n">FG_S</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;S-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dl</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="n">FG_NSD</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;NSD-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="n">FG_NSA</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;NSA-</span><span class="si">{</span><span class="n">dl</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">FG_S</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;S-</span><span class="si">{bt}</span><span class="s1">-</span><span class="si">{dl}</span><span class="s1">-</span><span class="si">{ot}</span><span class="s1">&#39;</span>
+                <span class="n">FG_NSD</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;NSD-</span><span class="si">{ot}</span><span class="s1">&#39;</span>
+                <span class="n">FG_NSA</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;NSA-</span><span class="si">{dl}</span><span class="s1">-</span><span class="si">{ot}</span><span class="s1">&#39;</span>
 
                 <span class="n">loss_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="s1">&#39;Components&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -568,8 +565,8 @@
 
                 <span class="n">foundation_type</span> <span class="o">=</span> <span class="s1">&#39;S&#39;</span>
 
-                <span class="n">FG_GF_H</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;GF-H_</span><span class="si">{</span><span class="n">foundation_type</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="n">FG_GF_V</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;GF-V_</span><span class="si">{</span><span class="n">foundation_type</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">FG_GF_H</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;GF-H_</span><span class="si">{foundation_type}</span><span class="s1">-</span><span class="si">{bt}</span><span class="s1">&#39;</span>
+                <span class="n">FG_GF_V</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;GF-V_</span><span class="si">{foundation_type}</span><span class="s1">-</span><span class="si">{bt}</span><span class="s1">&#39;</span>
 
                 <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;Components&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                     <span class="n">FG_GF_H</span><span class="p">:</span> <span class="p">[</span>
@@ -705,19 +702,11 @@
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -728,6 +717,7 @@
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

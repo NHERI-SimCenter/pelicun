@@ -1,48 +1,47 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>3.1.1. Testing the pelicun.control module &mdash; pelicun  documentation</title>
+  <title>2.1.1. Testing the pelicun.control module &mdash; pelicun  documentation</title>
   
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
-
-  
-  
-  
-  
-
-  
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script src="../../../../_static/jquery.js"></script>
-        <script src="../../../../_static/underscore.js"></script>
-        <script src="../../../../_static/doctools.js"></script>
-        <script src="../../../../_static/language_data.js"></script>
-        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="3.1.2. Testing the pelicun.uq module" href="test_uq.html" />
-    <link rel="prev" title="3. Verification" href="verification.html" /> 
+    <link rel="next" title="2.1.2. Testing the pelicun.db module" href="test_db.html" />
+    <link rel="prev" title="2. Verification" href="verification.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,7 +81,6 @@
           
         </div>
 
-        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -101,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_manual/license.html">9. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
@@ -108,25 +107,26 @@
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../architecture/pelicun/architecture.html">1. Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../how_to_extend/pelicun/how_to_extend.html">2. How to Extend</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="verification.html">3. Verification</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="verification.html#continuous-integration">3.1. Continuous Integration</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">3.1.1. control</a></li>
-<li class="toctree-l3"><a class="reference internal" href="test_uq.html">3.1.2. uq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../architecture/pelicun/architecture.html">1. Software Architecture</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="verification.html">2. Verification</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="verification.html#continuous-integration">2.1. Continuous Integration</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">2.1.1. control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test_db.html">2.1.2. db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test_file_io.html">2.1.3. file_io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test_model.html">2.1.4. model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="test_uq.html">2.1.5. uq</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="verification.html#benchmark-problems">3.2. Benchmark problems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification.html#benchmark-problems">2.2. Benchmark problems</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">4. Coding Style</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API/pelicun/API.html">5. API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API/pelicun/API.html">4. API Documentation</a></li>
 </ul>
 
             
           
         </div>
-        
       </div>
     </nav>
 
@@ -165,11 +165,11 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="verification.html"><span class="section-number">3. </span>Verification</a> &raquo;</li>
+          <li><a href="verification.html">2. Verification</a> &raquo;</li>
         
-      <li><span class="section-number">3.1.1. </span>Testing the pelicun.control module</li>
+      <li>2.1.1. Testing the pelicun.control module</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -189,9 +189,9 @@
            <div itemprop="articleBody">
             
   <div class="section" id="module-pelicun.tests.test_control">
-<span id="testing-the-pelicun-control-module"></span><h1><span class="section-number">3.1.1. </span>Testing the pelicun.control module<a class="headerlink" href="#module-pelicun.tests.test_control" title="Permalink to this headline">¶</a></h1>
+<span id="testing-the-pelicun-control-module"></span><h1>2.1.1. Testing the pelicun.control module<a class="headerlink" href="#module-pelicun.tests.test_control" title="Permalink to this headline">¶</a></h1>
 <p>These are unit and integration tests on the control module of pelicun.</p>
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_central_tendencies">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_central_tendencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_central_tendencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_central_tendencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a loss assessment with customized inputs that reduce the
@@ -200,7 +200,7 @@ to test the results against pre-defined reference values in spite of the
 randomness involved in the calculations.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_basic">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_EDP_uncertainty_basic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_EDP_uncertainty_basic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_basic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a loss assessment with customized inputs that focus on testing the
@@ -212,7 +212,7 @@ results against pre-defined reference values in spite of the  randomness
 involved in the calculations.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_detection_limit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a loss assessment with customized inputs that focus on testing the
@@ -228,7 +228,7 @@ simulations. Such cases should not be a problem if the limits can be
 estimated and they are specified as detection limits in input file.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_failed_analyses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a loss assessment with customized inputs that focus on testing the
@@ -244,7 +244,7 @@ These values shall be handled by detection limits of 10 and 100 for PID
 and PFA, respectively.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_3D">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_EDP_uncertainty_3D</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_EDP_uncertainty_3D"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_3D" title="Permalink to this definition">¶</a></dt>
 <dd><p>.</p>
@@ -260,7 +260,7 @@ different directions. (3D refers to the numerical model used for response
 estimation.)</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_single_sample">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_EDP_uncertainty_single_sample</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_EDP_uncertainty_single_sample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_single_sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a loss assessment with customized inputs that focus on testing the
@@ -275,7 +275,7 @@ is properly handled as a deterministic value or a random EDP using the
 additional sources of uncertainty.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_EDP_uncertainty_zero_variance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a loss assessment with customized inputs that focus on testing the
@@ -291,7 +291,7 @@ and the purpose of the test is to ensure that such cases are handled
 appropriately.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_QNT_uncertainty_independent">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_QNT_uncertainty_independent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_QNT_uncertainty_independent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_QNT_uncertainty_independent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -302,7 +302,7 @@ randomness involved in the calculations.
 This test assumes that component quantities are independent.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_QNT_uncertainty_dependencies">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_QNT_uncertainty_dependencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_QNT_uncertainty_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_QNT_uncertainty_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -314,9 +314,9 @@ This test checks if dependencies between component quantities are handled
 appropriately.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies">
-<code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dep</span><span class="o">=</span><span class="default_value">'IND'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies</code><span class="sig-paren">(</span><em class="sig-param">dep='IND'</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
 propagation of uncertainty in component fragilities. Dispersions in other
 calculation parameters are reduced to negligible levels. This allows us to
@@ -325,7 +325,7 @@ randomness involved in the calculations. Component fragilites are assumed
 independent in this test.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_PG">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_PG</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_PG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_PG" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -336,7 +336,7 @@ randomness involved in the calculations. Component fragilites are assumed
 perfectly correlated between performance groups in this test.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DIR">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DIR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DIR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -348,7 +348,7 @@ perfectly correlated between performance groups controlled by the same EDPs
 in identical directions in this test.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_LOC">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_LOC</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_LOC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_LOC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -360,7 +360,7 @@ perfectly correlated between performance groups at identical locations in
 this test.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_ATC">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_ATC</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_ATC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_ATC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -372,7 +372,7 @@ perfectly correlated within performance groups if such correlation is
 prescribed by ATC in the FEMA P58 document.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_CSG">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_CSG</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_CSG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_CSG" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -383,7 +383,7 @@ randomness involved in the calculations. Component fragilites are assumed
 perfectly correlated within a performance group in this test.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DS">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_FRAG_uncertainty_dependencies_DS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -394,7 +394,7 @@ randomness involved in the calculations. Component fragilites are assumed
 perfectly correlated between damage states in this test.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_DV_uncertainty_dependencies">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_DV_uncertainty_dependencies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_DV_uncertainty_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_DV_uncertainty_dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -404,7 +404,7 @@ levels. This allows us to test the results against pre-defined reference
 values in spite of the randomness involved in the calculations.</p>
 </dd></dl>
 
-<dl class="py function">
+<dl class="function">
 <dt id="pelicun.tests.test_control.test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data">
 <code class="sig-prename descclassname">pelicun.tests.test_control.</code><code class="sig-name descname">test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/tests/test_control.html#test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.tests.test_control.test_FEMA_P58_Assessment_DV_uncertainty_dependencies_with_partial_DV_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform loss assessment with customized inputs that focus on testing the
@@ -428,19 +428,11 @@ values in spite of the randomness involved in the calculations.</p>
 
   <div role="contentinfo">
     <p>
-        
         &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
 
     </p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -451,6 +443,7 @@ values in spite of the randomness involved in the calculations.</p>
 
   </div>
   
+
 
   <script type="text/javascript">
       jQuery(function () {

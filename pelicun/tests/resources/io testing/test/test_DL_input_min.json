@@ -1,7 +1,7 @@
 {
     "GeneralInformation": {
-        "planArea": 100.0,
-        "stories": 3
+        "PlanArea": 100.0,
+        "NumberofStories": 3
     },
     "DamageAndLoss": {
         "ResponseModel":{
