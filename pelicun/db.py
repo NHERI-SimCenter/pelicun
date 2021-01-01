@@ -59,7 +59,7 @@ This module has classes and methods to manage databases used by pelicun.
 
 from .base import *
 from pathlib import Path
-import json, h5py
+import json
 import xml.etree.ElementTree as ET
 import shutil
 
@@ -171,6 +171,7 @@ def save_to_standard_HDF(df, name, target_path, mode='w'):
     Saves a DataFrame in a standard HDF format using h5py.
 
     """
+    import h5py # import here to avoid an issue on Stampede2
 
     df = df.T
 
