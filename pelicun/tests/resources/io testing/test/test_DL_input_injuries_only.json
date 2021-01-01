@@ -1,6 +1,6 @@
 {
     "GeneralInformation": {
-        "stories": 2,
+        "NumberofStories": 2,
         "units": {
             "force": "N",
             "length": "m",
