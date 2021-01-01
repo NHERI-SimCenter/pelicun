@@ -35,7 +35,6 @@ setup(
         'scipy>=1.5.0',
         'pandas>=1.1.0',
         'tables',
-        'h5py',
         'xlrd'
     ],
     classifiers = [
@@ -53,6 +52,7 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering',
         ],
     extras_require={
