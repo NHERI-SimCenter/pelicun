@@ -169,7 +169,7 @@ def auto_populate(DL_input_path, EDP_input_path,
         DL_input = json.load(f)
 
     # get the BIM data
-    BIM = DL_input.get('GeneralInformation', DL_input.get('GI', None))
+    BIM = DL_input.get('GeneralInformation', None)
     if BIM is None:
         raise ValueError(
             "No Building Information provided for the auto-population routine."
@@ -218,28 +218,23 @@ def auto_populate(DL_input_path, EDP_input_path,
         EDP_input = pd.read_csv(EDP_input_path, sep='\s+', header=0,
                                 index_col=0)
 
-        if 'GeneralInformation' in DL_input.keys():
-            BIM_in = DL_input['GeneralInformation']
-        elif 'GI' in DL_input.keys():
-            BIM_in = DL_input['GI']
-
         is_IM_based = DL_method[-2:] == 'IM'
 
-        stories = BIM_in['numStory']
+        stories = BIM['NumberofStories']
         # use only 1 story if DM is based on IM
         if DL_method == 'HAZUS MH EQ IM':
             stories = 1
-        BIM_in.update({'stories':stories})
+        BIM.update({'NumberofStories':stories})
 
         # HAZUS Earthquake
         if DL_method in ['HAZUS MH EQ', 'HAZUS MH EQ IM']:
 
-            bt = BIM_in['structType']
+            bt = BIM['StructureType']
 
             if bt == 'RV.structType':
                 bt = EDP_input['structType'].values[0]
 
-            year_built = BIM_in['yearBuilt']
+            year_built = BIM['YearBuilt']
 
             if bt not in ['W1', 'W2', 'S3', 'PC1', 'MH']:
                 if bt not in ['URM']:
@@ -258,14 +253,14 @@ def auto_populate(DL_input_path, EDP_input_path,
                     else:
                         bt += 'M'
 
-            if BIM_in['occupancy'] in ap_Occupancy.keys():
-                ot = ap_Occupancy[BIM_in['occupancy']]
+            if BIM['OccupancyClass'] in ap_Occupancy.keys():
+                ot = ap_Occupancy[BIM['OccupancyClass']]
             else:
-                ot = BIM_in['occupancy']
+                ot = BIM['OccupancyClass']
 
-            replacementCost = BIM_in.get('replacementCost', 1.0)
-            replacementTime = BIM_in.get('replacementTime', 1.0)
-            population = BIM_in.get('population', 1.0)
+            replacementCost = BIM.get('ReplacementCost', 1.0)
+            replacementTime = BIM.get('ReplacementTime', 1.0)
+            population = BIM.get('Population', 1.0)
 
             loss_dict = {
                 '_method': DL_method,
@@ -442,9 +437,9 @@ def auto_populate(DL_input_path, EDP_input_path,
             pass
 
         elif DL_method == 'FEMA P58':
-            if BIM_in.get('asset_type',None) == 'Water_Pipe':
+            if BIM.get('AssetType',None) == 'Water_Pipe':
 
-                material = BIM_in['material']
+                material = BIM['Material']
 
                 if material in ['Asbestos cement', 'Cast iron']:
                     # brittle material
@@ -453,8 +448,8 @@ def auto_populate(DL_input_path, EDP_input_path,
                     # ductile material
                     config = 'P0001b'
 
-                segment_count = BIM_in['segment_count']
-                segment_length = BIM_in['segments'][0]['length']
+                segment_count = BIM['SegmentCount']
+                segment_length = BIM['Segments'][0]['length']
                 cg_count = int(segment_length / (100 * ft))
                 quantities = '1'
                 for s in range(1, cg_count):
