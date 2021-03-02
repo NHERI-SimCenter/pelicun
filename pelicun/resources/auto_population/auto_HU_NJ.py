@@ -136,40 +136,109 @@ def parse_BIM(BIM_in):
     if np.isnan(foundation):
         foundation = 3501
 
+    nunits = BIM_in.get('NumberOfUnits',1)
+    if np.isnan(nunits):
+        nunits = 1
+
     # Average January Temp.
     ap_ajt = {
         'Above': 'above',
         'Below': 'below'
     }
 
+    # Year built
+    alname_yearbuilt = ['yearBuilt', 'YearBuiltMODIV', 'YearBuilt']
+    try:
+        yearbuilt = BIM_in['YearBuiltNJDEP']
+    except:
+        for i in alname_yearbuilt:
+            if i in BIM_in.keys():
+                yearbuilt = BIM_in[i]
+                break
+    print('yearbuilt = ', yearbuilt)
+
+    # Number of Stories
+    alname_nstories = ['stories', 'NumberofStories0', 'NumberOfStories']
+    try:
+        nstories = BIM_in['NumberofStories1']
+    except:
+        for i in alname_nstories:
+            if i in BIM_in.keys():
+                nstories = BIM_in[i]
+                break
+
+    # Plan Area
+    alname_area = ['area', 'PlanArea1', 'PlanArea']
+    try:
+        area = BIM_in['PlanArea0']
+    except:
+        for i in alname_area:
+            if i in BIM_in.keys():
+                area = BIM_in[i]
+                break
+
+    # if getting RES3 only (without subclass) then converting it to default RES3A
+    oc = BIM_in.get('occupancy','RES1')
+    if oc == 'RES3':
+        oc = 'RES3A'
+
+    # maps for flood zone
+    ap_FloodZone = {
+        # Coastal areas with a 1% or greater chance of flooding and an
+        # additional hazard associated with storm waves.
+        6101: 'VE',
+        6102: 'VE',
+        6103: 'AE',
+        6104: 'AE',
+        6105: 'AO',
+        6106: 'AE',
+        6107: 'AH',
+        6108: 'AO',
+        6109: 'A',
+        6110: 'X',
+        6111: 'X',
+        6112: 'X',
+        6113: 'OW',
+        6114: 'D',
+        6115: 'NA',
+        6119: 'NA'
+    }
+    if type(BIM_in['FloodZone']) == int:
+        # NJDEP code for flood zone (conversion to the FEMA designations)
+        floodzone_fema = ap_FloodZone[BIM_in['FloodZone']]
+    else:
+        # standard input should follow the FEMA flood zone designations
+        floodzone_fema = BIM_in['FloodZone']
+
     # first, pull in the provided data
     BIM = dict(
-        occupancy_class=str(BIM_in.get('OccupancyClass','RES1')),
+        occupancy_class=str(oc),
         bldg_type=BIM_in['BuildingType'],
-        year_built=int(BIM_in['YearBuiltNJDEP']),
+        year_built=int(yearbuilt),
         # double check with Tracey for format - (NumberStories0 is 4-digit code)
         # (NumberStories1 is image-processed story number)
-        stories=int(BIM_in['NumberofStories1']),
-        area=BIM_in['PlanArea0'],
-        flood_zone=BIM_in['FloodZone'],
-        V_ult=float(BIM_in['DSWII']),
-        avg_jan_temp=ap_ajt[BIM_in.get('AvgJanTemp','Below')],
+        stories=int(nstories),
+        area=float(area),
+        flood_zone=floodzone_fema,
+        V_ult=float(BIM_in['DesignWindSpeed']),
+        avg_jan_temp=ap_ajt[BIM_in.get('AverageJanuaryTemperature','Below')],
         roof_shape=ap_RoofType[BIM_in['RoofShape']],
         roof_slope=float(BIM_in.get('RoofSlope',0.25)), # default 0.25
         sheathing_t=float(BIM_in.get('SheathingThick',1.0)), # default 1.0
         roof_system=str(ap_RoofSyste[roof_system]), # only valid for masonry structures
         garage_tag=float(BIM_in.get('Garage',-1.0)),
         lulc=BIM_in.get('LULC',-1),
-        z0 = float(BIM_in.get('z0',-1)), # if the z0 is already in the input file
-        mean_roof_height=float(BIM_in.get('MeanRoofHt',15.0)), # default 15
+        z0 = float(BIM_in.get('RoughnessLength',-1)), # if the z0 is already in the input file
+        Terrain = BIM_in.get('Terrain',-1),
+        mean_roof_height=float(BIM_in.get('MeanRoofHeight',15.0)), # default 15
         design_level=str(ap_DesignLevel[design_level]), # default engineered
-        no_units=int(BIM_in.get('NoUnits')),
+        no_units=int(nunits),
         window_area=float(BIM_in.get('WindowArea',0.20)),
-        first_floor_ht1=float(BIM_in.get('FirstFloorHt1',10.0)),
+        first_floor_ht1=float(BIM_in.get('FirstFloorHeight',10.0)),
         split_level=bool(ap_SplitLevel[BIM_in.get('SplitLevel',0)]), # dfault: no
         fdtn_type=int(foundation), # default: pile
-        city=BIM_in['City'],
-        wind_zone=str(BIM_in['WindZone'])
+        city=BIM_in.get('City','NA'),
+        wind_zone=str(BIM_in.get('WindZone', 'I'))
     )
 
     # add inferred, generic meta-variables
@@ -237,8 +306,8 @@ def parse_BIM(BIM_in):
     terrain = 15 # Default in Reorganized Rulesets - WIND
     if (BIM['z0'] > 0):
         terrain = int(100 * BIM['z0'])
-    else:
-        if BIM['flood_zone'] in [6101, 6102, 6104, 6106, 6109]:
+    elif (BIM['lulc'] > 0):
+        if (BIM['flood_zone'].startswith('V') or BIM['flood_zone'] in ['A', 'AE', 'A1-30', 'AR', 'A99']):
             terrain = 3
         elif ((BIM['lulc'] >= 5000) and (BIM['lulc'] <= 5999)):
             terrain = 3 # Open
@@ -249,6 +318,19 @@ def parse_BIM(BIM_in):
         elif ((BIM['lulc'] >= 1110) and (BIM['lulc'] <= 1140)) or ((BIM['lulc'] >= 6250) and (BIM['lulc'] <= 6252)):
             terrain = 35 # Suburban
         elif ((BIM['lulc'] >= 4100) and (BIM['lulc'] <= 4300)) or (BIM['lulc'] == 1600):
+            terrain = 70 # light trees
+    elif (BIM['Terrain'] > 0):
+        if (BIM['flood_zone'].startswith('V') or BIM['flood_zone'] in ['A', 'AE', 'A1-30', 'AR', 'A99']):
+            terrain = 3
+        elif ((BIM['Terrain'] >= 50) and (BIM['Terrain'] <= 59)):
+            terrain = 3 # Open
+        elif ((BIM['Terrain'] == 44) or (BIM['Terrain'] == 62)) or (BIM['Terrain'] == 76):
+            terrain = 3 # Open
+        elif ((BIM['Terrain'] >= 20) and (BIM['Terrain'] <= 29)):
+            terrain = 15 # Light suburban
+        elif (BIM['Terrain'] == 11) or (BIM['Terrain'] == 61):
+            terrain = 35 # Suburban
+        elif ((BIM['Terrain'] >= 41) and (BIM['Terrain'] <= 43)) or (BIM['Terrain'] in [16, 17]):
             terrain = 70 # light trees
 
     BIM.update(dict(
