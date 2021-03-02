@@ -1,7 +1,7 @@
 {
 	"GeneralInformation": {
-        "planArea": 111.484,
-        "stories": 3,
+        "PlanArea": 111.484,
+        "NumberofStories": 3,
         "units": {
             "force": "N",
             "length": "ft",

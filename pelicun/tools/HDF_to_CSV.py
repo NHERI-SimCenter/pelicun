@@ -37,17 +37,32 @@
 # Contributors:
 # Adam Zsarnóczay
 
-name = "pelicun"
+import pandas as pd
+import sys, argparse
+from pathlib import Path
 
-__version__ = '2.5.0'
+def convert_HDF(HDF_path):
 
-__copyright__ = """Copyright (c) 2018 Leland Stanford Junior University and 
-The Regents of the University of California"""
+    HDF_ext = HDF_path.split('.')[-1]
+    CSV_base = HDF_path[:-len(HDF_ext)-1]
 
-__license__ = "BSD 3-Clause License"
+    HDF_path = Path(HDF_path).resolve()
 
+    store = pd.HDFStore(HDF_path)
 
+    for key in store.keys():
 
+        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/","_")}.csv')
 
+    store.close()
 
+if __name__ == '__main__':
 
+    args = sys.argv[1:]
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('HDF_path')
+
+    args = parser.parse_args(args)
+
+    convert_HDF(args.HDF_path)
