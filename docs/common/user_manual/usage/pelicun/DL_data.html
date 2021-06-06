@@ -1,0 +1,611 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>2.4. Damage and Loss Model Parameters &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="2.5. Output Files" href="outputs.html" />
+    <link rel="prev" title="2.3. Response Data File" href="res_data.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../../index.html">
+
+
+
+  
+  <img src="../../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="usage.html">2. User Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="uses.html">2.1. Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html">2.2. Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="res_data.html">2.3. Response Data File</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">2.4. Damage and Loss Model Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#databases">2.4.1. Databases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-file-format">2.4.2. Data File Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="outputs.html">2.5. Output Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">2.6. Standalone Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#dl-calculation">2.7. DL_calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html#exportdb">2.8. exportDB</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="usage.html"><span class="section-number">2. </span>User Guide</a> &raquo;</li>
+        
+      <li><span class="section-number">2.4. </span>Damage and Loss Model Parameters</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../../_sources/common/user_manual/usage/pelicun/DL_data.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="damage-and-loss-model-parameters">
+<span id="lbl-db-dl-dat"></span><h1><span class="section-number">2.4. </span>Damage and Loss Model Parameters<a class="headerlink" href="#damage-and-loss-model-parameters" title="Permalink to this headline">¶</a></h1>
+<p>Parameters of several widely used damage and loss models are bundled with pelicun and stored in the <cite>resources</cite> folder in HDF5 file format. Each HDF5 file can be converted into a series of JSON files using the <cite>export_DB</cite> tool provided with pelicun (see :numref:blb). Working with JSON files makes it easier to edit and extend the existing databases. Pelicun recognizes both file formats.</p>
+<div class="section" id="databases">
+<h2><span class="section-number">2.4.1. </span>Databases<a class="headerlink" href="#databases" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><dl class="field-list">
+<dt class="field-odd">FEMA P58 1st Edition</dt>
+<dd class="field-odd"><p>The <cite>FEMA_P58_1st_ed.hdf</cite> database includes the fragility functions provided with the first edition of FEMA P58. It is based on the XML files included with the PACT tool and Excel spreadsheets provided as part of Volume 3 of FEMA P58. All of the sources used to generate this database are available under <cite>resources/data_sources</cite>.</p>
+</dd>
+<dt class="field-even">FEMA P58 2nd Edition</dt>
+<dd class="field-even"><p>The <cite>FEMA_P58_2nd_ed.hdf</cite> database includes the updated fragility functions provided with the second edition of FEMA P58. This is the default database for pelciun damage and loss calculations. It is based on the XML files included with the PACT tool and Excel spreadsheets provided as part of Volume 3 of FEMA P58. All of the sources used to generate this database are available under <cite>resources/data_sources</cite>.</p>
+</dd>
+<dt class="field-odd">HAZUS Earthquake Model</dt>
+<dd class="field-odd"><p>There are three databases provided based on the HAZUS earthquake model. The <cite>HAZUS_MH_2.1_EQ</cite> database contains fragility and consequence functions controlled by building level EDPs (i.e., peak drift and peak acceleration). The damage model is described in detail in Section 5.4.2, while the loss models are described in sections 11.2 and 12.2 in version 4.2 of the Hazus Earthquake Technical Manual. Using these models requires information about the peak roof drift and the peak roof acceleration.</p>
+<p>The <cite>HAZUS_MH_2.1_EQ_eqv_PGA</cite> database contains fragility and consequence functions controlled by Peak Ground Acceleration only. This allows for estimating ground shaking impact without performing response simulation. The equivalent PGA-based damage models are described in detail in Section 5.4.3 in version 4.2 of the Hazus Earthquake Technical Manual. The loss models in this database are identical to those in the previously mentioned one.</p>
+<p>The <cite>HAZUS_MH_2.1_EQ_story</cite> database contains fragility and consequence functions controlled by story-level EDPs. This is an experimental database that was derived based on the building-level EDP damage models in Hazus. The story-level damage model provides higher resolution information about building damage, but requires higher resolution building response data. The loss models in this database are based on the loss models in the previous databases. They have been calibrated to provide the same building-level losses as the Hazus loss models.</p>
+<p>The data used to generate the Hazus earthquake damage and loss files is available under <cite>resources/data_sources/HAZUS_MH_2.1_EQ_*/</cite></p>
+</dd>
+<dt class="field-even">HAZUS Hurricane Model</dt>
+<dd class="field-even"><p>The <cite>HAZUS_MH_2.1_HU</cite> database contains fragility functions controlled by Peak Wind Gust speed and corresponding consequence functions for loss ratio. The models were fitted to damage and loss data used within the Hazus framework. The models in pelicun are different from those in Hazus. Hazus uses an uncoupled approach for damage and losses. A series of data points define the fragility and consequence functions with linear interpolation used in-between the available points. That data is described in sections 5.6 and 8.2 in version 4.2 of the Hazus Hurricane Technical Manual. Note that the raw data is not provided in the Technical Manual, but it is available in the database that comnes with the Hazus software.</p>
+<p>Based on the raw data from Hazus, we fitted a damage model that assumes fragility functions have either a normal or a lognormal CDF format. Fitting was performed using a maximum likelihood approach and points above 200 mph wind speed were discarded to avoid bias due to the substantial sampling error in those results. The loss model in this database is deterministic - it assumes a constant loss ratio for each damage state. The loss ratios were fitted to Hazus loss data. The solution in pelicun provides a coupled damage and loss model for hurricane damage and loss assessment.</p>
+<p>The data used to generate the Hazus hurricane damage and loss files is available under <cite>resources/data_sources/HAZUS_MH_2.1_HU</cite></p>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="data-file-format">
+<h2><span class="section-number">2.4.2. </span>Data File Format<a class="headerlink" href="#data-file-format" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>The sample file below shows the organization of damage and loss model data in the JSON files used in pelicun.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="s2">&quot;Bolted shear tab gravity connections&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;QuantityUnit&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;EA&quot;</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;Directional&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;Correlated&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">&quot;EDP&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;Type&quot;</span><span class="p">:</span> <span class="s2">&quot;Story Drift Ratio&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Unit&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="mf">1.0</span><span class="p">,</span>
+      <span class="s2">&quot;ea&quot;</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;Offset&quot;</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;GeneralInformation&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;ID&quot;</span><span class="p">:</span> <span class="s2">&quot;B1031.001&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Author&quot;</span><span class="p">:</span> <span class="s2">&quot;Greg Deierlein&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Official&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;DateCreated&quot;</span><span class="p">:</span> <span class="s2">&quot;2019-02-19T17:48:25.4980925-08:00&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Approved&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;Incomplete&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+    <span class="s2">&quot;Notes&quot;</span><span class="p">:</span> <span class="s2">&quot;None&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;Ratings&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;DataQuality&quot;</span><span class="p">:</span> <span class="s2">&quot;Superior&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DataRelevance&quot;</span><span class="p">:</span> <span class="s2">&quot;Superior&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Documentation&quot;</span><span class="p">:</span> <span class="s2">&quot;Superior&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Rationality&quot;</span><span class="p">:</span> <span class="s2">&quot;Superior&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;DSGroups&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;MedianEDP&quot;</span><span class="p">:</span> <span class="s2">&quot;0.04&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="s2">&quot;0.4&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;LogNormal&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;DSGroupType&quot;</span><span class="p">:</span> <span class="s2">&quot;MutuallyExclusive&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;DamageStates&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;Weight&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>
+          <span class="s2">&quot;LongLeadTime&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+          <span class="s2">&quot;Consequences&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;RedTag&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="mf">1.0</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionCost&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;U&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;n&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;LogNormal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionTime&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;U&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;n&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;LogNormal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.3536</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Yielding of shear tab and elongation of bolt holes, possible crack initiation around bolt holes or at shear tab weld.  Damage in field is either obscured or deemed to not warrant repair.  No repair conducted.&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;RepairMeasures&quot;</span><span class="p">:</span> <span class="s2">&quot;Careful inspection and welded repair to any cracks and possible replacement of shear tab if bolt hole deformations are excessive (possible for deeper 6-bolt or deeper shear tabs).  Field condition is deemed to not warrant repair by field observation.  This Damage State is Mutually Exclusive with DS2.  See fragility DS1 and DS2 probabilities.&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;DamageImageName&quot;</span><span class="p">:</span> <span class="s2">&quot;B1031.001-DS1-1.jpg&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;Weight&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+          <span class="s2">&quot;LongLeadTime&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+          <span class="s2">&quot;Consequences&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;RedTag&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="mf">1.0</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionCost&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;16536.0&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;10176.0&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.3706</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionTime&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;16.0497&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;9.8767&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.447</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Yielding of shear tab and elongation of bolt holes, possible crack initiation around bolt holes or at shear tab weld. &quot;</span><span class="p">,</span>
+          <span class="s2">&quot;RepairMeasures&quot;</span><span class="p">:</span> <span class="s2">&quot;Careful inspection and welded repair to any cracks and possible replacement of shear tab if bolt hole deformations are excessive (possible for deeper 6-bolt or deeper shear tabs). &quot;</span><span class="p">,</span>
+          <span class="s2">&quot;DamageImageName&quot;</span><span class="p">:</span> <span class="s2">&quot;B1031.001-DS1-1.jpg&quot;</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;MedianEDP&quot;</span><span class="p">:</span> <span class="s2">&quot;0.08&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="s2">&quot;0.4&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;LogNormal&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;DSGroupType&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;DamageStates&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;Weight&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+          <span class="s2">&quot;LongLeadTime&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+          <span class="s2">&quot;Consequences&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;RedTag&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="mf">1.0</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionCost&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;15564.0&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;11024.5&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.3789</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionTime&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;15.1062&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;10.7002&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.4539</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Partial tearing of shear tab and possibility of bolt shear failure (6-bolt or deeper connections).&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;RepairMeasures&quot;</span><span class="p">:</span> <span class="s2">&quot;Repairs will include either welded repair of shear tab or possible complete replacement of shear tab and installation of new bolts.  Repairs may require shoring of beam.&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;DamageImageName&quot;</span><span class="p">:</span> <span class="s2">&quot;B1031.001-DS2-1.jpg&quot;</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;MedianEDP&quot;</span><span class="p">:</span> <span class="s2">&quot;0.11&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="s2">&quot;0.4&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;LogNormal&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;DSGroupType&quot;</span><span class="p">:</span> <span class="s2">&quot;Single&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;DamageStates&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="s2">&quot;Weight&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+          <span class="s2">&quot;LongLeadTime&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+          <span class="s2">&quot;Consequences&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;RedTag&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="mf">1.0</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionCost&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;15264.0&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;10812.0&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.3836</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;ReconstructionTime&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;Amount&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;14.8151&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;10.494&quot;</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;Quantity&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">5.0</span><span class="p">,</span>
+                <span class="mf">20.0</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;CurveType&quot;</span><span class="p">:</span> <span class="s2">&quot;Normal&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="mf">0.4579</span><span class="p">,</span>
+              <span class="s2">&quot;Bounds&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;None&quot;</span>
+              <span class="p">]</span>
+            <span class="p">}</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;Description&quot;</span><span class="p">:</span> <span class="s2">&quot;Complete separation of shear tab, close to complete loss of vertical load resistance. &quot;</span><span class="p">,</span>
+          <span class="s2">&quot;RepairMeasures&quot;</span><span class="p">:</span> <span class="s2">&quot;Repair will include complete replacement of shear tab and installation of new bolts. Repairs will require shoring of beam.&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;DamageImageName&quot;</span><span class="p">:</span> <span class="s2">&quot;B1031.001-DS3-1.jpg&quot;</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+div.wy-side-scroll{
+	background:#cb463f;
+}
+
+# LIGHT BLUE  background:#0099ff
+#  BLUE: background:#0B619C
+#  RED: background:#cb463f;
+
+#span.caption-text{
+#    color: #000000;
+#}
+
+#.wy-menu-vertical header, .wy-menu-vertical p.caption {
+#    color: #000000;
+#}
+
+td{
+    white-space: normal !important;
+}

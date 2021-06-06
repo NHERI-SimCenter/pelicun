@@ -1,47 +1,56 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>4.3. pelicun.control module &mdash; pelicun  documentation</title>
+  <title>2.1.3. pelicun.control module &mdash; pelicun  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="4.4. pelicun.db module" href="API_pelicun_db.html" />
-    <link rel="prev" title="4.2. pelicun.base module" href="API_pelicun_base.html" /> 
+    <link rel="next" title="2.1.4. pelicun.db module" href="API_pelicun_db.html" />
+    <link rel="prev" title="2.1.2. pelicun.base module" href="API_pelicun_base.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../../_static/css/bootstrap.css" rel="stylesheet">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -53,23 +62,26 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
 
-          
-            <a href="../../../../index.html">
-          
+  <a href="../../../../index.html">
 
-          
-            
-            <img src="../../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
-          
-          </a>
 
-          
-            
-            
-          
 
-          
+  
+  <img src="../../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,9 +90,10 @@
   </form>
 </div>
 
-          
+
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -88,36 +101,41 @@
               
             
             
-              <p class="caption"><span class="caption-text">User Manual</span></p>
+              <p class="caption"><span class="caption-text">About</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/ack.html">1. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/about/pelicun/about.html">2. About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/installation/pelicun/installation.html">3. Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/examples/pelicun/examples.html">6. Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/license.html">9. Copyright and License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../architecture/pelicun/architecture.html">1. Software Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../verification/pelicun/verification.html">2. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="API.html">4. API Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_auto.html">4.1. auto</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_base.html">4.2. base</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">4.3. control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_db.html">4.4. db</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_file_io.html">4.5. file_io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_model.html">4.6. model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_uq.html">4.7. uq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="API.html">2. API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="API.html#modules">2.1. Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_auto.html">2.1.1. auto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_base.html">2.1.2. base</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">2.1.3. control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_db.html">2.1.4. db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_file_io.html">2.1.5. file_io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_model.html">2.1.6. model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_uq.html">2.1.7. uq</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -125,6 +143,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -159,20 +178,22 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="API.html">4. API Documentation</a> &raquo;</li>
+          <li><a href="API.html"><span class="section-number">2. </span>API Documentation</a> &raquo;</li>
         
-      <li>4.3. pelicun.control module</li>
+      <li><span class="section-number">2.1.3. </span>pelicun.control module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../../../../_sources/common/developer_manual/API/pelicun/API_pelicun_control.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -187,7 +208,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="module-pelicun.control">
-<span id="pelicun-control-module"></span><h1>4.3. pelicun.control module<a class="headerlink" href="#module-pelicun.control" title="Permalink to this headline">¶</a></h1>
+<span id="pelicun-control-module"></span><h1><span class="section-number">2.1.3. </span>pelicun.control module<a class="headerlink" href="#module-pelicun.control" title="Permalink to this headline">¶</a></h1>
 <p>This module has classes and methods that control the performance assessment.</p>
 <p class="rubric">Contents</p>
 <table class="longtable docutils align-default">
@@ -207,9 +228,9 @@
 </tr>
 </tbody>
 </table>
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.control.Assessment">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.control.</code><code class="sig-name descname">Assessment</code><span class="sig-paren">(</span><em class="sig-param">log_file=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pelicun.control.</span></code><code class="sig-name descname"><span class="pre">Assessment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.Assessment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A high-level class that collects features common to all supported loss
 assessment methods. This class will only rarely be called directly when
@@ -229,29 +250,29 @@ using pelicun.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.calculate_damage" title="pelicun.control.Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.calculate_damage" title="pelicun.control.Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>()</p></td>
 <td><p>Characterize the damage experienced in each random event realization.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.calculate_losses" title="pelicun.control.Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>(self)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.calculate_losses" title="pelicun.control.Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>()</p></td>
 <td><p>Characterize the consequences of damage in each random event realization.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.define_loss_model" title="pelicun.control.Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.define_loss_model" title="pelicun.control.Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>()</p></td>
 <td><p>Create the stochastic loss model based on the inputs provided earlier.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.define_random_variables" title="pelicun.control.Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>(self)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.define_random_variables" title="pelicun.control.Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>()</p></td>
 <td><p>Define the random variables used for loss assessment.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.read_inputs" title="pelicun.control.Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(self, path_DL_input, path_EDP_input)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.Assessment.read_inputs" title="pelicun.control.Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(path_DL_input, path_EDP_input[, …])</p></td>
 <td><p>Read and process the input files to describe the loss assessment task.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.save_outputs" title="pelicun.control.Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(self, output_path, EDP_file, …)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.Assessment.save_outputs" title="pelicun.control.Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(output_path, EDP_file, DM_file, …)</p></td>
 <td><p>Export the results.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.Assessment.beta_tot">
-<em class="property">property </em><code class="sig-name descname">beta_tot</code><a class="headerlink" href="#pelicun.control.Assessment.beta_tot" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beta_tot</span></code><a class="headerlink" href="#pelicun.control.Assessment.beta_tot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the total additional uncertainty for post processing.</p>
 <p>The total additional uncertainty is the squared root of sum of squared
 uncertainties corresponding to ground motion and modeling.</p>
@@ -267,9 +288,9 @@ is assigned.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.Assessment.read_inputs">
-<code class="sig-name descname">read_inputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">path_DL_input</em>, <em class="sig-param">path_EDP_input</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.read_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_inputs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_DL_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_EDP_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.read_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read and process the input files to describe the loss assessment task.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -291,41 +312,41 @@ properly read by the method.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.Assessment.define_random_variables">
-<code class="sig-name descname">define_random_variables</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.define_random_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">define_random_variables</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.define_random_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define the random variables used for loss assessment.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.Assessment.define_loss_model">
-<code class="sig-name descname">define_loss_model</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.define_loss_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">define_loss_model</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.define_loss_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the stochastic loss model based on the inputs provided earlier.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.Assessment.calculate_damage">
-<code class="sig-name descname">calculate_damage</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.calculate_damage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_damage</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.calculate_damage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Characterize the damage experienced in each random event realization.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.Assessment.calculate_losses">
-<code class="sig-name descname">calculate_losses</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.calculate_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_losses</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.calculate_losses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Characterize the consequences of damage in each random event realization.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.Assessment.save_outputs">
-<code class="sig-name descname">save_outputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">output_path</em>, <em class="sig-param">EDP_file</em>, <em class="sig-param">DM_file</em>, <em class="sig-param">DV_file</em>, <em class="sig-param">suffix=''</em>, <em class="sig-param">detailed_results=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.save_outputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">save_outputs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EDP_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DM_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DV_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detailed_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#Assessment.save_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Export the results.</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.control.FEMA_P58_Assessment">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.control.</code><code class="sig-name descname">FEMA_P58_Assessment</code><span class="sig-paren">(</span><em class="sig-param">inj_lvls=2</em>, <em class="sig-param">log_file=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pelicun.control.</span></code><code class="sig-name descname"><span class="pre">FEMA_P58_Assessment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inj_lvls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pelicun.control.Assessment" title="pelicun.control.Assessment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pelicun.control.Assessment</span></code></a></p>
 <p>An Assessment class that implements the loss assessment method in FEMA P58.</p>
 <dl class="field-list simple">
@@ -343,32 +364,32 @@ properly read by the method.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.aggregate_results" title="pelicun.control.FEMA_P58_Assessment.aggregate_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_results</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.aggregate_results" title="pelicun.control.FEMA_P58_Assessment.aggregate_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_results</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.calculate_damage" title="pelicun.control.FEMA_P58_Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>(self)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.calculate_damage" title="pelicun.control.FEMA_P58_Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>()</p></td>
 <td><p>Characterize the damage experienced in each random event realization.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.calculate_losses" title="pelicun.control.FEMA_P58_Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.calculate_losses" title="pelicun.control.FEMA_P58_Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>()</p></td>
 <td><p>Characterize the consequences of damage in each random event realization.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.define_loss_model" title="pelicun.control.FEMA_P58_Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>(self)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.define_loss_model" title="pelicun.control.FEMA_P58_Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>()</p></td>
 <td><p>Create the stochastic loss model based on the inputs provided earlier.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.define_random_variables" title="pelicun.control.FEMA_P58_Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.define_random_variables" title="pelicun.control.FEMA_P58_Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>()</p></td>
 <td><p>Define the random variables used for loss assessment.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.read_inputs" title="pelicun.control.FEMA_P58_Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(self, path_DL_input, path_EDP_input)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.read_inputs" title="pelicun.control.FEMA_P58_Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(path_DL_input, path_EDP_input[, …])</p></td>
 <td><p>Read and process the input files to describe the loss assessment task.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.save_outputs" title="pelicun.control.FEMA_P58_Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(self, \*args, \*\*kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.FEMA_P58_Assessment.save_outputs" title="pelicun.control.FEMA_P58_Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.FEMA_P58_Assessment.read_inputs">
-<code class="sig-name descname">read_inputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">path_DL_input</em>, <em class="sig-param">path_EDP_input</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.read_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_inputs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_DL_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_EDP_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.read_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read and process the input files to describe the loss assessment task.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -390,9 +411,9 @@ properly read by the method.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.FEMA_P58_Assessment.define_random_variables">
-<code class="sig-name descname">define_random_variables</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.define_random_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">define_random_variables</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.define_random_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define the random variables used for loss assessment.</p>
 <p>Following the FEMA P58 methodology, the groups of parameters below are
 considered random. Simple correlation structures within each group can
@@ -453,9 +474,9 @@ Consequently, correlation between various groups of component injury
 expectations can be specified. See _create_RV_injuries() for details.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.FEMA_P58_Assessment.define_loss_model">
-<code class="sig-name descname">define_loss_model</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.define_loss_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">define_loss_model</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.define_loss_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the stochastic loss model based on the inputs provided earlier.</p>
 <p>Following the FEMA P58 methodology, the components specified in the
 Damage and Loss input file are used to create Fragility Groups. Each
@@ -464,9 +485,9 @@ the building at several locations. See _create_fragility_groups() for
 more details about the creation of Fragility Groups.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.FEMA_P58_Assessment.calculate_damage">
-<code class="sig-name descname">calculate_damage</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.calculate_damage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_damage</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.calculate_damage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Characterize the damage experienced in each random event realization.</p>
 <p>First, the time of the event (month, weekday/weekend, hour) is randomly
 generated for each realization. Given the event time, the number of
@@ -479,9 +500,9 @@ state are estimated. See _calc_damage() for more details on damage
 estimation.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.FEMA_P58_Assessment.calculate_losses">
-<code class="sig-name descname">calculate_losses</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.calculate_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_losses</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.calculate_losses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Characterize the consequences of damage in each random event realization.</p>
 <p>For the sake of efficiency, only the decision variables requested in
 the input file are estimated. The following consequences are handled by
@@ -511,21 +532,21 @@ specified in the component data file. For more information on
 assigning red tags to realizations see the _calc_red_tag() method.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.FEMA_P58_Assessment.aggregate_results">
-<code class="sig-name descname">aggregate_results</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.aggregate_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.aggregate_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">aggregate_results</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.aggregate_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.aggregate_results" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.FEMA_P58_Assessment.save_outputs">
-<code class="sig-name descname">save_outputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.save_outputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">save_outputs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#FEMA_P58_Assessment.save_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.FEMA_P58_Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="pelicun.control.HAZUS_Assessment">
-<em class="property">class </em><code class="sig-prename descclassname">pelicun.control.</code><code class="sig-name descname">HAZUS_Assessment</code><span class="sig-paren">(</span><em class="sig-param">hazard='EQ'</em>, <em class="sig-param">inj_lvls=4</em>, <em class="sig-param">log_file=True</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pelicun.control.</span></code><code class="sig-name descname"><span class="pre">HAZUS_Assessment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hazard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EQ'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inj_lvls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pelicun.control.Assessment" title="pelicun.control.Assessment"><code class="xref py py-class docutils literal notranslate"><span class="pre">pelicun.control.Assessment</span></code></a></p>
 <p>An Assessment class that implements the damage and loss assessment method
 following the HAZUS Technical Manual and the HAZUS software.</p>
@@ -556,32 +577,32 @@ default: 4</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.aggregate_results" title="pelicun.control.HAZUS_Assessment.aggregate_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_results</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.aggregate_results" title="pelicun.control.HAZUS_Assessment.aggregate_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_results</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.calculate_damage" title="pelicun.control.HAZUS_Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>(self)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.calculate_damage" title="pelicun.control.HAZUS_Assessment.calculate_damage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_damage</span></code></a>()</p></td>
 <td><p>Characterize the damage experienced in each random event realization.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.calculate_losses" title="pelicun.control.HAZUS_Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.calculate_losses" title="pelicun.control.HAZUS_Assessment.calculate_losses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_losses</span></code></a>()</p></td>
 <td><p>Characterize the consequences of damage in each random event realization.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.define_loss_model" title="pelicun.control.HAZUS_Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>(self)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.define_loss_model" title="pelicun.control.HAZUS_Assessment.define_loss_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_loss_model</span></code></a>()</p></td>
 <td><p>Create the stochastic loss model based on the inputs provided earlier.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.define_random_variables" title="pelicun.control.HAZUS_Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.define_random_variables" title="pelicun.control.HAZUS_Assessment.define_random_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">define_random_variables</span></code></a>()</p></td>
 <td><p>Define the random variables used for loss assessment.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.read_inputs" title="pelicun.control.HAZUS_Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(self, path_DL_input, path_EDP_input)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.read_inputs" title="pelicun.control.HAZUS_Assessment.read_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_inputs</span></code></a>(path_DL_input, path_EDP_input[, …])</p></td>
 <td><p>Read and process the input files to describe the loss assessment task.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.save_outputs" title="pelicun.control.HAZUS_Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(self, \*args, \*\*kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.control.HAZUS_Assessment.save_outputs" title="pelicun.control.HAZUS_Assessment.save_outputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_outputs</span></code></a>(*args, **kwargs)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.HAZUS_Assessment.read_inputs">
-<code class="sig-name descname">read_inputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">path_DL_input</em>, <em class="sig-param">path_EDP_input</em>, <em class="sig-param">verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.read_inputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">read_inputs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_DL_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_EDP_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.read_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.read_inputs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read and process the input files to describe the loss assessment task.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -603,9 +624,9 @@ properly read by the method.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.HAZUS_Assessment.define_random_variables">
-<code class="sig-name descname">define_random_variables</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.define_random_variables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">define_random_variables</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.define_random_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.define_random_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Define the random variables used for loss assessment.</p>
 <p>Following the HAZUS methodology, only the groups of parameters below
 are considered random. Correlations within groups are not considered
@@ -629,9 +650,9 @@ exceedance of each Damage State. EDP limits are grouped by Fragility
 Groups. See _create_RV_fragilities() for details.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.HAZUS_Assessment.define_loss_model">
-<code class="sig-name descname">define_loss_model</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.define_loss_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">define_loss_model</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.define_loss_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.define_loss_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create the stochastic loss model based on the inputs provided earlier.</p>
 <p>Following the HAZUS methodology, the component assemblies specified in
 the Damage and Loss input file are used to create Fragility Groups.
@@ -641,9 +662,9 @@ _create_fragility_groups() for more details about the creation of
 Fragility Groups.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.HAZUS_Assessment.calculate_damage">
-<code class="sig-name descname">calculate_damage</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.calculate_damage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_damage</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.calculate_damage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.calculate_damage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Characterize the damage experienced in each random event realization.</p>
 <p>First, the time of the event (month, weekday/weekend, hour) is randomly
 generated for each realization. Given the event time, if we are interested
@@ -657,9 +678,9 @@ See _calc_damage() for more details on damage estimation.</p>
 data.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.HAZUS_Assessment.calculate_losses">
-<code class="sig-name descname">calculate_losses</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.calculate_losses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calculate_losses</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.calculate_losses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.calculate_losses" title="Permalink to this definition">¶</a></dt>
 <dd><p>Characterize the consequences of damage in each random event realization.</p>
 <p>For the sake of efficiency, only the decision variables requested in
 the input file are estimated. The following consequences are handled by
@@ -674,14 +695,14 @@ various severity specified in the component data file. For more
 information about estimating injuries _calc_non_collapse_injuries.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.HAZUS_Assessment.aggregate_results">
-<code class="sig-name descname">aggregate_results</code><span class="sig-paren">(</span><em class="sig-param">self</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.aggregate_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.aggregate_results" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">aggregate_results</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.aggregate_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.aggregate_results" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="pelicun.control.HAZUS_Assessment.save_outputs">
-<code class="sig-name descname">save_outputs</code><span class="sig-paren">(</span><em class="sig-param">self</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.save_outputs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">save_outputs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/control.html#HAZUS_Assessment.save_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.control.HAZUS_Assessment.save_outputs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -693,20 +714,25 @@ information about estimating injuries _calc_non_collapse_injuries.</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -714,7 +740,6 @@ information about estimating injuries _calc_non_collapse_injuries.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
@@ -733,11 +758,58 @@ information about estimating injuries _calc_non_collapse_injuries.</p>
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-158130480-7', 'auto');
+    
     ga('send', 'pageview');
     </script>
 
     
-   
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
 
 </body>
 </html>

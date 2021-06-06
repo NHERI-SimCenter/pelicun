@@ -247,8 +247,20 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif AT == 'HAZUS_EQ':
             path_CMP_data += '/resources/HAZUS_MH_2.1_EQ.hdf'
         elif AT == 'HAZUS_HU':
-            path_CMP_data += '/resources/HAZUS_MH_2.1_HU.hdf'
+            #path_CMP_data += '/resources/HAZUS_MH_2.1_HU.hdf'
+            path_CMP_data = path_CMP_data + '/resources/HAZUS_MH_2.1.hdf'
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
+
+    # HAZUS combination of flood and wind losses
+    if AT == 'HAZUS_HU':
+        log_msg('\t\t\tCombinations')
+        comb = DL_input.get('Combinations', None)
+        path_combination_data = pelicun_path
+        if comb is not None:
+            if AT == 'HAZUS_HU':
+                path_combination_data += '/resources/HAZUS_MH_2.1_MISC.hdf'
+        data['data_sources'].update({'path_combination_data': path_combination_data})
+        data['loss_combination'] = comb
 
     # The population data is only needed if we are interested in injuries
     if inhabitants is not None:
@@ -552,7 +564,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         PGA = 'acceleration',
         SA = 'acceleration',
         SV = 'speed',
-        SD = 'length'
+        SD = 'length',
+        FWD = 'length'
     )
     if AT in ['P58', 'HAZUS_EQ']:
         EDP_keys = ['PID', 'PRD', 'PFA',
@@ -560,7 +573,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'PGA', 'SA', 'SV', 'SD',
                     'RDR','DWD']
     elif AT in ['HAZUS_HU']:
-        EDP_keys = ['PWS', ]
+        EDP_keys = ['PWS', 'FWD']
 
     # response model info ------------------------------------------------------
     if response is None:
@@ -1025,6 +1038,65 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     return data
 
 
+def read_combination_DL_data(path_combination_data, comp_info, assessment_type='HAZUS_HU',
+    verbose=False):
+    """
+    Read the combination rules for hurricane damage and loss for the components of the asset.
+
+    Parameters
+    ----------
+    path_combination_data: string
+        Location of the folder that contains the combination rules.
+    comp_info: list
+        List of data names that contains the comibnation rules.
+    assessment_type: {'HAZUS_HU'}
+        Tailors the warnings and verifications towards the type of assessment.
+        default: 'HAZUS_HU'.
+    verbose: boolean
+        If True, the function echoes the information read from the files. This
+        can be useful to ensure that the information in the files is properly
+        read by the method.
+
+    Returns
+    -------
+    data: dict
+        A dictionary with damage and loss data for each component.
+
+    """
+
+    AT = assessment_type
+
+    comb_data_dict = {}
+    if os.path.isdir(path_combination_data):
+        tmp_dir = Path(path_combination_data).resolve()
+        for c_id in comp_info:
+            with open(tmp_dir / f'{c_id}.json', 'r') as f:
+                comb_data_dict.update({c_id: json.load(f)})
+    ## TODO: hdf type
+    elif path_combination_data.endswith('hdf'):
+        for c_id in comp_info:
+            for i in range(4000):
+                try:
+                    store = pd.HDFStore(path_combination_data)
+                    store.open()
+                except HDF5ExtError:
+                    comb_data_table = None
+                    sleep(0.1)
+                    continue
+                else:
+                    comb_data_table = store['HAZUS Subassembly Loss Ratio']
+                    store.close()
+                    break
+            if comb_data_table is not None:
+                comb_data_dict.update(
+                    {c_id: {'LossRatio': comb_data_table[c_id].tolist()}})
+            else:
+                raise IOError("Couldn't read the HDF file for DL data after 20 "
+                              "tries because it was blocked by other processes.")
+
+    return comb_data_dict
+
+
 def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
     verbose=False):
     """
@@ -1098,30 +1170,60 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
 
     # else if an HDF5 file is provided we assume it contains the DL data
     elif path_CMP.endswith('hdf'):
-
-        # this for loop is needed to avoid issues from race conditions on HPC
-        for i in range(1000):
-            try:
-                store = pd.HDFStore(path_CMP)
-                store.open()
-
-            except HDF5ExtError:
-                CMP_table = None
-                sleep(0.1)
-                continue
-
-            else:
-                CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
-                store.close()
-                break
-
-        if CMP_table is not None:
+        # hurricane
+        if AT == 'HAZUS_HU':
             for c_id in s_cmp_keys:
-                DL_data_dict.update(
-                    {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
+                if c_id.startswith('fl'):
+                    path_CMP_m = path_CMP.replace('.hdf','_FL.hdf') # flood DL
+                else:
+                    path_CMP_m = path_CMP.replace('.hdf','_HU.hdf') # wind DL
+                # this for loop is needed to avoid issues from race conditions on HPC
+                for i in range(10000):
+                    try:
+                        store = pd.HDFStore(path_CMP_m)
+                        store.open()
+
+                    except HDF5ExtError:
+                        CMP_table = None
+                        sleep(0.1)
+                        continue
+
+                    else:
+                        CMP_table = store.select('data', where=f'index in {c_id}')
+                        store.close()
+                        break
+
+                if CMP_table is not None:
+                    DL_data_dict.update(
+                        {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
+                else:
+                    raise IOError("Couldn't read the HDF file for DL data after iterative "
+                                  "tries because it was blocked by other processes.")
         else:
-            raise IOError("Couldn't read the HDF file for DL data after 20 "
-                          "tries because it was blocked by other processes.")
+            # this for loop is needed to avoid issues from race conditions on HPC
+            for i in range(1000):
+                try:
+                    store = pd.HDFStore(path_CMP)
+                    store.open()
+
+                except HDF5ExtError:
+                    CMP_table = None
+                    sleep(0.1)
+                    continue
+
+                else:
+                    CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
+                    store.close()
+                    break
+
+            if CMP_table is not None:
+                for c_id in s_cmp_keys:
+                    DL_data_dict.update(
+                        {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
+            else:
+                raise IOError("Couldn't read the HDF file for DL data after 20 "
+                              "tries because it was blocked by other processes.")
+
 
     else:
         raise ValueError(
@@ -1224,6 +1326,9 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
         elif EDP_type == 'Peak Gust Wind Speed':
             demand_type = 'PWS'
             #demand_factor = mph
+        elif EDP_type == 'Flood Water Depth':
+            demand_type = 'FWD'
+            # demand_factor = ft
         elif EDP_type == 'Peak Ground Acceleration':
             demand_type = 'PGA'
             #demand_factor = g
@@ -1443,8 +1548,15 @@ def write_SimCenter_EDP_output(output_dir, EDP_filename, EDP_df):
     for col in np.transpose(col_info):
         df_res.loc[0, (col[0], col[1], col[2], 'median')] = EDP_df[
             '1-{}-{}-{}'.format(col[0], col[1], col[2])].median()
-        df_res.loc[0, (col[0], col[1], col[2], 'beta')] = np.log(
-            EDP_df['1-{}-{}-{}'.format(col[0], col[1], col[2])]).std()
+        if np.min(EDP_df['1-{}-{}-{}'.format(col[0], col[1], col[2])]) <= 0:
+            # negative EDP values are also possible, so switching to normal
+            # distribution (e.g., flood water depth FWD can be negative)
+            df_res.loc[0, (col[0], col[1], col[2], 'beta')] = \
+                EDP_df['1-{}-{}-{}'.format(col[0], col[1], col[2])].std()
+        else:
+            # assume lognormal distribution for this kind of EDP
+            df_res.loc[0, (col[0], col[1], col[2], 'beta')] = np.log(
+                EDP_df['1-{}-{}-{}'.format(col[0], col[1], col[2])]).std()
 
     df_res.dropna(axis=1, how='all', inplace=True)
 
@@ -1564,6 +1676,110 @@ def write_SimCenter_DM_output(output_dir, DM_filename, SUMMARY_df, DMG_df):
     with open(posixpath.join(output_dir, DM_filename), 'w') as f:
         df_res.to_csv(f)
 
+def write_SimCenter_DM_output_hu(output_dir, DM_filename, SUMMARY_df, DMG_df):
+
+    # first, get the collapses from the SUMMARY_df
+    df_res_c = pd.DataFrame([0,],
+        columns=pd.MultiIndex.from_tuples([('probability',' '),]),
+        index=[0, ])
+    df_res_c['probability'] = SUMMARY_df[('collapses', 'collapsed')].mean()
+
+    # aggregate the damage data along Performance Groups
+    DMG_agg = DMG_df.groupby(level=['FG', 'DSG_DS'], axis=1).sum()
+
+    comp_types = []
+    FG_list = [c for c in DMG_agg.columns.get_level_values('FG').unique()]
+
+    for fg_i, fg_id in enumerate(FG_list):
+        cur_DMG = DMG_agg.groupby(level=['FG'], axis=1).get_group(fg_id)
+
+        for comp_type in ['CECB', 'CERB', 'MECB', 'MERB', 'MH', 'MLRI', 'MLRM',
+                          'MMUH', 'MSF', 'SECB', 'SERB', 'SPMB', 'WMUH', 'WSF']:
+            if fg_id.startswith(comp_type) > 0:
+                comp_types.append('Wind')
+        for comp_type in ['fl']:
+            if fg_id.startswith(comp_type) > 0:
+                comp_types.append('Flood')
+
+        # second, get the damage state likelihoods
+        tmp_colname = list(cur_DMG.columns.get_level_values('DSG_DS'))
+        tmp_colname.insert(0,'0')
+        df_res_l = pd.DataFrame(
+            columns=pd.MultiIndex.from_product([[comp_types[fg_i]], tmp_colname],
+                                               names=['comp_type', 'DSG_DS']),
+            index=[0, ])
+
+        # third, get the damage quantities conditioned on damage state
+        tmp_colname = list(cur_DMG.columns.get_level_values('DSG_DS'))
+        tmp_colname.append('4_2')
+
+        df_res_q = pd.DataFrame(
+            columns=pd.MultiIndex.from_product([[comp_types[fg_i]], tmp_colname],
+                                               names=['comp_type', 'DSG_DS']),
+            index=[0, ])
+
+        type_cols = fg_id
+        df_sel = cur_DMG.loc[:, type_cols].groupby(level='DSG_DS',axis=1).sum()
+        df_sel = df_sel / len(type_cols)
+
+        # calculate the probability of DSG exceedance
+        df_sel[df_sel > 0.0] = df_sel[df_sel > 0.0] / df_sel[df_sel > 0.0]
+
+        cols = df_sel.columns
+        for i in range(len(cols)):
+            filter = np.where(df_sel.iloc[:, i].values > 0.0)[0]
+            df_sel.iloc[filter, idx[0:i]] = 1.0
+
+        df_sel_exc = pd.Series(np.mean(df_sel.values, axis=0),
+                               index=df_sel.columns)
+
+        DS_0 = 1.0 - df_sel_exc['1_1']
+        for i in range(len(df_sel_exc.index) - 1):
+            df_sel_exc.iloc[i] = df_sel_exc.iloc[i] - df_sel_exc.iloc[i + 1]
+
+        # Add the probability of no damage for convenience.
+        df_sel_exc.loc['0'] = DS_0
+        df_sel_exc = df_sel_exc.sort_index()
+
+        # store the results in the output DF
+        df_res_l.loc[:, idx[comp_types[fg_i], :]] = df_sel_exc.values
+
+        # get the quantity of components in the highest damage state
+        # skip this part for now to reduce file size
+        if False:
+            df_init = cur_DMG.loc[:, type_cols].groupby(level='DSG_DS', axis=1).sum()
+            df_init = (df_init / len(type_cols)).round(2)
+
+            df_sel = df_sel.sum(axis=1)
+
+            for lvl, lvl_label in zip([1.0, 2.0, 3.0, 4.0, 5.0],
+                                      ['1_1', '2_1', '3_1', '4_1', '4_2']):
+
+                df_cond = df_init[df_sel == lvl]
+
+                if df_cond.size > 0:
+                    unique_vals, unique_counts = np.unique(
+                        df_cond[lvl_label].values, return_counts=True)
+                    unique_counts = np.around(unique_counts / df_cond.shape[0],
+                                              decimals=4)
+                    sorter = np.argsort(unique_counts)[::-1][:4]
+                    DQ = list(zip(unique_vals[sorter], unique_counts[sorter]))
+
+                    # store the damaged quantities in the output df
+                    df_res_q.loc[:,idx[comp_type, lvl_label]] = str(DQ)
+
+        # join the output dataframes
+        if fg_i == 0:
+            df_res = df_res_l
+        else:
+            df_res = pd.concat([df_res, df_res_l], axis = 1, keys=['DS likelihood','DS likelihood'])
+
+    # join the output dataframes
+    df_res['Collapse','probability',' '] = df_res_c['probability']
+    # save the output
+    with open(posixpath.join(output_dir, DM_filename), 'w') as f:
+        df_res.to_csv(f)
+
 def write_SimCenter_DM_output_old(output_dir, DM_filename, DMG_df):
 
     # Start with the probability of being in a particular damage state.
@@ -1651,7 +1867,20 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
         FG_list = [c for c in DV_cost.columns.get_level_values('FG').unique()]
         for comp_type in ['S', 'NS', 'NSA', 'NSD']:
             if np.sum([fg.startswith(comp_type) for fg in FG_list]) > 0:
-                comp_types.append(comp_type)
+                if any([fg.startswith('SE') or fg.startswith('SP') for fg in FG_list]):
+                    # additional name check for HAZUS building class tags
+                    continue
+                else:
+                    comp_types.append(comp_type)
+
+        # Hurricane comp_types:
+        for comp_type in ['CECB', 'CERB', 'MECB', 'MERB', 'MH', 'MLRI', 'MLRM',
+                          'MMUH', 'MSF', 'SECB', 'SERB', 'SPMB', 'WMUH', 'WSF']:
+            if np.sum([fg.startswith(comp_type) for fg in FG_list]) > 0:
+                comp_types.append('Wind')
+        for comp_type in ['fl']:
+            if np.sum([fg.startswith(comp_type) for fg in FG_list]) > 0:
+                comp_types.append('Flood')
 
         repl_cost = GI['replacement_cost']
 
@@ -1689,6 +1918,11 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
         df_res_C = pd.DataFrame(columns=MI, index=[0, ])
 
         for comp_type in ['NSA', 'NSD', 'NS']:
+            if comp_type in comp_types:
+                del df_res_C[('Repair Cost', comp_type, '4_2')]
+
+        # Hurricane comp_types
+        for comp_type in ['Wind', 'Flood']:
             if comp_type in comp_types:
                 del df_res_C[('Repair Cost', comp_type, '4_2')]
 
@@ -1733,6 +1967,19 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
 
             type_cols = [c for c in DV_res.columns.get_level_values('FG').unique() if c.startswith(type_ID)]
 
+            # Hurricane comp_types:
+            if type_ID == 'Wind':
+                for k in  ['CECB', 'CERB', 'MECB', 'MERB', 'MH', 'MLRI', 'MLRM', 'MMUH', 'MSF', 'SECB', 'SERB', 'SPMB', 'WMUH', 'WSF']:
+                    try:
+                        type_cols = [c for c in DV_res.columns.get_level_values('FG').unique() if c.startswith(k)]
+                        if type_cols:
+                            break
+                    except:
+                        print('Cannot find fragility ID for the wind loss type.')
+            elif type_ID == 'Flood':
+                type_cols = [c for c in DV_res.columns.get_level_values('FG').unique() \
+                             if c.startswith('fl')]
+
             df_cost = DV_res.loc[:, type_cols].groupby(level='DSG_DS',axis=1).sum()
 
             # create a df with 1s at cells with damage and identify the governing DS
@@ -1750,12 +1997,24 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
             else:
                 ds_list = ['1_1', '2_1', '3_1', '4_1']
 
+            # Hurricane ds_list
+            if type_ID == 'Wind':
+                ds_list = ['1_1', '2_1', '3_1', '4_1']
+            elif type_ID == 'Flood':
+                # flood ds (Hazus does not have ds, ds here just indicates fwd)
+                ds_list = ['10_1', '11_1', '12_1', '13_1', '14_1', '15_1', '16_1',
+                           '17_1', '18_1', '19_1', '1_1', '2_1', '3_1', '4_1',
+                           '5_1', '6_1', '7_1', '8_1', '9_1']
+
             # store the results in the output DF
             df_cost = df_cost.sum(axis=1)
             df_cost.loc[:] = np.minimum(df_cost.values, repl_cost)
             mean_costs = [df_cost.loc[df_sel == dsg_i+1].mean() for dsg_i, dsg in enumerate(ds_list)]
 
-            df_res_C.loc[:, idx['Repair Cost', type_ID, ds_list, 'mean']] = mean_costs
+            #df_res_C.loc[:, idx['Repair Cost', type_ID, ds_list, 'mean']] = mean_costs
+            # Looping to fill the mean_costs (for various damage state numbers)
+            for cur_ds in ds_list:
+                df_res_C.loc[:, idx['Repair Cost', type_ID, cur_ds, 'mean']] = mean_costs[ds_list.index(cur_ds)]
             df_res_C.loc[:, idx['Repair Cost', type_ID, 'aggregate', 'mean']] = df_cost.mean()
 
             df_res_C = df_res_C.astype(float) #.round(0)

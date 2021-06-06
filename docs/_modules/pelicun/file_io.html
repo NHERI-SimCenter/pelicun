@@ -1,45 +1,54 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>pelicun.file_io &mdash; pelicun  documentation</title>
   
 
   
-  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+
   
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script type="text/javascript" src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../_static/css/bootstrap.css" rel="stylesheet">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,23 +60,26 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
 
-          
-            <a href="../../index.html">
-          
+  <a href="../../index.html">
 
-          
-            
-            <img src="../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
-          
-          </a>
 
-          
-            
-            
-          
 
-          
+  
+  <img src="../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,9 +88,10 @@
   </form>
 </div>
 
-          
+
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -86,34 +99,37 @@
               
             
             
-              <p class="caption"><span class="caption-text">User Manual</span></p>
+              <p class="caption"><span class="caption-text">About</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/ack.html">1. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/about/pelicun/about.html">2. About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/license.html">9. Copyright and License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/architecture/pelicun/architecture.html">1. Software Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/verification/pelicun/verification.html">2. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">4. API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
 </ul>
 
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -148,11 +164,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
@@ -211,6 +229,7 @@
 <span class="c1"># Contributors:</span>
 <span class="c1"># Adam Zsarnóczay</span>
 <span class="c1"># Pouria Kourehpaz</span>
+<span class="c1"># Kuanshi Zhong</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module has classes and methods that handle file input and output.</span>
@@ -230,14 +249,14 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">.base</span> <span class="k">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">.db</span> <span class="k">import</span> <span class="n">convert_Series_to_dict</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">.db</span> <span class="kn">import</span> <span class="n">convert_Series_to_dict</span>
 
 <span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">posixpath</span>
 
-<span class="kn">from</span> <span class="nn">tables.exceptions</span> <span class="k">import</span> <span class="n">HDF5ExtError</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">tables.exceptions</span> <span class="kn">import</span> <span class="n">HDF5ExtError</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
 
 
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -440,8 +459,6 @@
 
     <span class="c1"># general information</span>
     <span class="n">GI</span> <span class="o">=</span> <span class="n">jd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GeneralInformation&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">GI</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">GI</span> <span class="o">=</span> <span class="n">jd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;GI&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="c1"># units</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">GI</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;units&#39;</span> <span class="ow">in</span> <span class="n">GI</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
@@ -487,13 +504,8 @@
     <span class="c1"># other attributes that can be used by a P58 assessment</span>
     <span class="k">if</span> <span class="n">AT</span> <span class="o">==</span> <span class="s1">&#39;P58&#39;</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">target_att</span><span class="p">,</span> <span class="n">source_att</span><span class="p">,</span> <span class="n">f_conv</span><span class="p">,</span> <span class="n">unit_kind</span><span class="p">,</span> <span class="n">dv_req</span> <span class="ow">in</span> <span class="p">[</span>
-            <span class="p">[</span><span class="s1">&#39;plan_area&#39;</span><span class="p">,</span> <span class="s1">&#39;planArea&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;injuries&#39;</span><span class="p">],</span>
-            <span class="p">[</span><span class="s1">&#39;stories&#39;</span><span class="p">,</span> <span class="s1">&#39;stories&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">],</span>
-            <span class="c1"># The following lines are commented out for now, because we do not</span>
-            <span class="c1"># use these pieces of data anyway.</span>
-            <span class="c1">#[&#39;building_type&#39;, &#39;type&#39;, str, &#39;&#39;],</span>
-            <span class="c1">#[&#39;height&#39;, &#39;height&#39;, float, &#39;length&#39;],</span>
-            <span class="c1">#[&#39;year_built&#39;, &#39;year&#39;, int, &#39;&#39;],</span>
+            <span class="p">[</span><span class="s1">&#39;plan_area&#39;</span><span class="p">,</span> <span class="s1">&#39;PlanArea&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="s1">&#39;injuries&#39;</span><span class="p">],</span>
+            <span class="p">[</span><span class="s1">&#39;stories&#39;</span><span class="p">,</span> <span class="s1">&#39;NumberofStories&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">],</span>
         <span class="p">]:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">GI</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">source_att</span> <span class="ow">in</span> <span class="n">GI</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="k">if</span> <span class="n">unit_kind</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
@@ -509,7 +521,7 @@
                         <span class="s2">&quot;estimate </span><span class="si">{}</span><span class="s2"> decision variable(s).&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_att</span><span class="p">,</span>
                                                                    <span class="n">dv_req</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">AT</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;HAZUS&#39;</span><span class="p">):</span>
-        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;stories&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">GI</span><span class="p">[</span><span class="s1">&#39;stories&#39;</span><span class="p">])})</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;stories&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">GI</span><span class="p">[</span><span class="s1">&#39;NumberofStories&#39;</span><span class="p">])})</span>
 
     <span class="c1"># is this a coupled assessment?</span>
     <span class="k">if</span> <span class="n">res_description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1185,7 +1197,7 @@
 
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">pop_table</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;pop&#39;</span><span class="p">,</span>
-                                         <span class="n">where</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;index in {[occupancy, ]}&#39;</span><span class="p">)</span>
+                                         <span class="n">where</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;index in </span><span class="si">{</span><span class="p">[</span><span class="n">occupancy</span><span class="p">,</span> <span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="n">store</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">break</span>
 
@@ -1273,7 +1285,7 @@
         <span class="n">CMP_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path_CMP</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">c_id</span> <span class="ow">in</span> <span class="n">s_cmp_keys</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">CMP_dir</span> <span class="o">/</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{c_id}</span><span class="s1">.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">CMP_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">DL_data_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">c_id</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)})</span>
 
     <span class="c1"># else if an HDF5 file is provided we assume it contains the DL data</span>
@@ -1291,7 +1303,7 @@
                 <span class="k">continue</span>
 
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">CMP_table</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">f</span><span class="s1">&#39;index in </span><span class="si">{s_cmp_keys}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">CMP_table</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;index in </span><span class="si">{</span><span class="n">s_cmp_keys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="n">store</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                 <span class="k">break</span>
 
@@ -1435,7 +1447,7 @@
         <span class="k">else</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
             <span class="n">demand_type</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">(</span>
-                <span class="n">f</span><span class="s1">&#39;Unexpected EDP type in component </span><span class="si">{c_id}</span><span class="s1">: </span><span class="si">{EDP_type}</span><span class="s1">&#39;</span><span class="p">))</span>
+                <span class="sa">f</span><span class="s1">&#39;Unexpected EDP type in component </span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">EDP_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">demand_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="n">c_id</span><span class="p">]</span>
             <span class="k">continue</span>
@@ -1472,89 +1484,90 @@
                 <span class="n">DS_data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">DS_i</span><span class="p">[</span><span class="s1">&#39;Description&#39;</span><span class="p">],</span>
                            <span class="s1">&#39;weight&#39;</span>     <span class="p">:</span> <span class="n">DS_i</span><span class="p">[</span><span class="s1">&#39;Weight&#39;</span><span class="p">]}</span>
 
-                <span class="n">DS_C</span> <span class="o">=</span> <span class="n">DS_i</span><span class="p">[</span><span class="s1">&#39;Consequences&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s1">&#39;ReconstructionCost&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">DS_CC</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;ReconstructionCost&#39;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s1">&#39;medians&#39;</span>          <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]]),</span>
-                            <span class="s1">&#39;quantities&#39;</span>       <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Quantity&#39;</span><span class="p">]),</span>
-                            <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
-                            <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
-                        <span class="p">}})</span>
+                <span class="n">DS_C</span> <span class="o">=</span> <span class="n">DS_i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Consequences&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">DS_C</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;ReconstructionCost&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">DS_CC</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;ReconstructionCost&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                            <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s1">&#39;medians&#39;</span>          <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]]),</span>
+                                <span class="s1">&#39;quantities&#39;</span>       <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Quantity&#39;</span><span class="p">]),</span>
+                                <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
+                                <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
+                            <span class="p">}})</span>
 
-                        <span class="c1"># convert the quantity units to standard ones</span>
-                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">data_unit</span>
-                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s1">&#39;medians&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]),]),</span>
-                            <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
-                            <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
-                        <span class="p">}})</span>
+                            <span class="c1"># convert the quantity units to standard ones</span>
+                            <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">data_unit</span>
+                            <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s1">&#39;medians&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">DS_CC</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]),]),</span>
+                                <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
+                                <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
+                            <span class="p">}})</span>
 
-                    <span class="c1"># convert the median units to standard ones</span>
-                    <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">data_unit</span>
-                    <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="c1"># convert the median units to standard ones</span>
+                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">data_unit</span>
+                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_cost&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-                <span class="k">if</span> <span class="s1">&#39;ReconstructionTime&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">DS_CT</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;ReconstructionTime&#39;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
-                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_time&#39;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s1">&#39;medians&#39;</span>          <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]]),</span>
-                            <span class="s1">&#39;quantities&#39;</span>       <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Quantity&#39;</span><span class="p">]),</span>
-                            <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
-                            <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
-                        <span class="p">}})</span>
+                    <span class="k">if</span> <span class="s1">&#39;ReconstructionTime&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">DS_CT</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;ReconstructionTime&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                            <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_time&#39;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s1">&#39;medians&#39;</span>          <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]]),</span>
+                                <span class="s1">&#39;quantities&#39;</span>       <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Quantity&#39;</span><span class="p">]),</span>
+                                <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
+                                <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
+                            <span class="p">}})</span>
 
-                        <span class="c1"># convert the quantity units to standard ones</span>
-                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">data_unit</span>
-                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_time&#39;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s1">&#39;medians&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]),]),</span>
-                            <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
-                            <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
-                        <span class="p">}})</span>
+                            <span class="c1"># convert the quantity units to standard ones</span>
+                            <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">data_unit</span>
+                            <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;quantities&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;repair_time&#39;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s1">&#39;medians&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">DS_CT</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]),]),</span>
+                                <span class="s1">&#39;distribution_kind&#39;</span><span class="p">:</span> <span class="n">curve_type</span><span class="p">[</span><span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CurveType&#39;</span><span class="p">,</span><span class="s1">&#39;N/A&#39;</span><span class="p">)],</span>
+                                <span class="s1">&#39;cov&#39;</span>              <span class="p">:</span> <span class="n">DS_CT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
+                            <span class="p">}})</span>
 
-                    <span class="c1"># convert the median units to standard ones</span>
-                    <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">data_unit</span>
-                    <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                        <span class="c1"># convert the median units to standard ones</span>
+                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">data_unit</span>
+                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;repair_time&#39;</span><span class="p">][</span><span class="s1">&#39;medians&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-                <span class="k">if</span> <span class="s1">&#39;RedTag&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">DS_CR</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;RedTag&#39;</span><span class="p">]</span>
-                    <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;red_tag&#39;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="s1">&#39;theta&#39;</span><span class="p">:</span> <span class="n">DS_CR</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">],</span>
-                        <span class="c1"># &#39;distribution_kind&#39;: curve_type[DS_CR[&#39;CurveType&#39;]],</span>
-                        <span class="s1">&#39;cov&#39;</span>  <span class="p">:</span> <span class="n">DS_CR</span><span class="p">[</span><span class="s1">&#39;Beta&#39;</span><span class="p">],</span>
-                    <span class="p">}})</span>
-
-                <span class="k">if</span> <span class="s1">&#39;Injuries&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                    <span class="n">DS_CI</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">DS_CI</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;injuries&#39;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s1">&#39;theta&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">I_i</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">I_i</span> <span class="ow">in</span> <span class="n">DS_CI</span><span class="p">],</span>
+                    <span class="k">if</span> <span class="s1">&#39;RedTag&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">DS_CR</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;RedTag&#39;</span><span class="p">]</span>
+                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;red_tag&#39;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s1">&#39;theta&#39;</span><span class="p">:</span> <span class="n">DS_CR</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">],</span>
                             <span class="c1"># &#39;distribution_kind&#39;: curve_type[DS_CR[&#39;CurveType&#39;]],</span>
-                            <span class="s1">&#39;cov&#39;</span>  <span class="p">:</span> <span class="p">[</span><span class="n">I_i</span><span class="p">[</span><span class="s1">&#39;Beta&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">I_i</span> <span class="ow">in</span> <span class="n">DS_CI</span><span class="p">],</span>
+                            <span class="s1">&#39;cov&#39;</span>  <span class="p">:</span> <span class="n">DS_CR</span><span class="p">[</span><span class="s1">&#39;Beta&#39;</span><span class="p">],</span>
                         <span class="p">}})</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                            <span class="s1">&#39;injuries&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">I_i</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">I_i</span> <span class="ow">in</span> <span class="n">DS_CI</span><span class="p">]})</span>
 
-                    <span class="c1"># if there is a chance of injuries, load the affected floor area</span>
-                    <span class="n">affected_area</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">DS_i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AffectedArea&#39;</span><span class="p">,</span>
-                                                   <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;SF&#39;</span><span class="p">])</span>
-                    <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;SF&#39;</span><span class="p">:</span>
-                        <span class="n">affected_area</span> <span class="o">=</span> <span class="n">affected_area</span> <span class="o">*</span> <span class="n">SF</span>
-                    <span class="k">else</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">(</span>
-                            <span class="s1">&#39;Unknown unit for affected floor area: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                                <span class="n">unit</span><span class="p">)))</span>
-                        <span class="n">affected_area</span> <span class="o">=</span> <span class="mf">0.</span>
-                    <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;affected_area&#39;</span><span class="p">:</span> <span class="n">affected_area</span><span class="p">})</span>
+                    <span class="k">if</span> <span class="s1">&#39;Injuries&#39;</span> <span class="ow">in</span> <span class="n">DS_C</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="n">DS_CI</span> <span class="o">=</span> <span class="n">DS_C</span><span class="p">[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">DS_CI</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Beta&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;injuries&#39;</span><span class="p">:</span> <span class="p">{</span>
+                                <span class="s1">&#39;theta&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">I_i</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">I_i</span> <span class="ow">in</span> <span class="n">DS_CI</span><span class="p">],</span>
+                                <span class="c1"># &#39;distribution_kind&#39;: curve_type[DS_CR[&#39;CurveType&#39;]],</span>
+                                <span class="s1">&#39;cov&#39;</span>  <span class="p">:</span> <span class="p">[</span><span class="n">I_i</span><span class="p">[</span><span class="s1">&#39;Beta&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">I_i</span> <span class="ow">in</span> <span class="n">DS_CI</span><span class="p">],</span>
+                            <span class="p">}})</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                                <span class="s1">&#39;injuries&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">I_i</span><span class="p">[</span><span class="s1">&#39;Amount&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">I_i</span> <span class="ow">in</span> <span class="n">DS_CI</span><span class="p">]})</span>
 
-                    <span class="c1"># convert the units to standard ones</span>
-                    <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;affected_area&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">data_unit</span>
+                        <span class="c1"># if there is a chance of injuries, load the affected floor area</span>
+                        <span class="n">affected_area</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">DS_i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AffectedArea&#39;</span><span class="p">,</span>
+                                                       <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="s1">&#39;SF&#39;</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;SF&#39;</span><span class="p">:</span>
+                            <span class="n">affected_area</span> <span class="o">=</span> <span class="n">affected_area</span> <span class="o">*</span> <span class="n">SF</span>
+                        <span class="k">else</span><span class="p">:</span> <span class="c1"># pragma: no cover</span>
+                            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">(</span>
+                                <span class="s1">&#39;Unknown unit for affected floor area: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                    <span class="n">unit</span><span class="p">)))</span>
+                            <span class="n">affected_area</span> <span class="o">=</span> <span class="mf">0.</span>
+                        <span class="n">DS_data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;affected_area&#39;</span><span class="p">:</span> <span class="n">affected_area</span><span class="p">})</span>
+
+                        <span class="c1"># convert the units to standard ones</span>
+                        <span class="n">DS_data</span><span class="p">[</span><span class="s1">&#39;affected_area&#39;</span><span class="p">]</span> <span class="o">/=</span> <span class="n">data_unit</span>
 
                 <span class="n">DSG_data</span><span class="p">[</span><span class="s1">&#39;DS_set&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;DS-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">DS_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span> <span class="n">DS_data</span><span class="p">})</span>
 
@@ -1660,16 +1673,17 @@
         <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
 
     <span class="c1"># third, get the damage quantities conditioned on damage state</span>
-    <span class="n">df_res_q</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">([</span><span class="n">comp_types</span><span class="p">,</span>
-                                            <span class="p">[</span><span class="s1">&#39;1_1&#39;</span><span class="p">,</span> <span class="s1">&#39;2_1&#39;</span><span class="p">,</span> <span class="s1">&#39;3_1&#39;</span><span class="p">,</span> <span class="s1">&#39;4_1&#39;</span><span class="p">,</span> <span class="s1">&#39;4_2&#39;</span><span class="p">]],</span>
-                                           <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;comp_type&#39;</span><span class="p">,</span> <span class="s1">&#39;DSG_DS&#39;</span><span class="p">]),</span>
-        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">])</span>
+    <span class="c1"># we do not do that for now</span>
+    <span class="c1"># df_res_q = pd.DataFrame(</span>
+    <span class="c1">#     columns=pd.MultiIndex.from_product([comp_types,</span>
+    <span class="c1">#                                         [&#39;1_1&#39;, &#39;2_1&#39;, &#39;3_1&#39;, &#39;4_1&#39;, &#39;4_2&#39;]],</span>
+    <span class="c1">#                                        names=[&#39;comp_type&#39;, &#39;DSG_DS&#39;]),</span>
+    <span class="c1">#     index=[0, ])</span>
 
     <span class="k">for</span> <span class="n">comp_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;NSA&#39;</span><span class="p">,</span> <span class="s1">&#39;NSD&#39;</span><span class="p">,</span> <span class="s1">&#39;NS&#39;</span><span class="p">,</span> <span class="s1">&#39;other&#39;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">comp_type</span> <span class="ow">in</span> <span class="n">comp_types</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">df_res_l</span><span class="p">[(</span><span class="n">comp_type</span><span class="p">,</span> <span class="s1">&#39;4_2&#39;</span><span class="p">)]</span>
-            <span class="k">del</span> <span class="n">df_res_q</span><span class="p">[(</span><span class="n">comp_type</span><span class="p">,</span> <span class="s1">&#39;4_2&#39;</span><span class="p">)]</span>
+            <span class="c1"># del df_res_q[(comp_type, &#39;4_2&#39;)]</span>
 
     <span class="c1"># for each type of component...</span>
     <span class="k">for</span> <span class="n">comp_type</span> <span class="ow">in</span> <span class="n">comp_types</span><span class="p">:</span>
@@ -1705,7 +1719,9 @@
         <span class="n">df_sel_exc</span> <span class="o">=</span> <span class="n">df_sel_exc</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 
         <span class="c1"># store the results in the output DF</span>
-        <span class="n">df_res_l</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">[</span><span class="n">comp_type</span><span class="p">,</span> <span class="p">:]]</span> <span class="o">=</span> <span class="n">df_sel_exc</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">for</span> <span class="n">dsg_i</span> <span class="ow">in</span> <span class="n">df_sel_exc</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">df_sel_exc</span><span class="p">[</span><span class="n">dsg_i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">df_res_l</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">[</span><span class="n">comp_type</span><span class="p">,</span> <span class="n">dsg_i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df_sel_exc</span><span class="p">[</span><span class="n">dsg_i</span><span class="p">]</span>
 
         <span class="c1"># get the quantity of components in the highest damage state</span>
         <span class="c1"># skip this part for now to reduce file size</span>
@@ -1886,7 +1902,7 @@
     <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="n">lvls</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="p">[</span><span class="n">lvls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;sev{i+1}&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">lvls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;sev</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
 
         <span class="n">headers</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">,],</span>
                    <span class="n">lvls</span><span class="p">,</span>
@@ -1955,9 +1971,9 @@
     <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">DV_inj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">DV_res</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">SUMMARY_df</span><span class="p">[(</span><span class="s1">&#39;injuries&#39;</span><span class="p">,</span><span class="n">f</span><span class="s1">&#39;sev{i+1}&#39;</span><span class="p">)])</span>
+                <span class="n">DV_res</span> <span class="o">=</span> <span class="n">describe</span><span class="p">(</span><span class="n">SUMMARY_df</span><span class="p">[(</span><span class="s1">&#39;injuries&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;sev</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)])</span>
 
-                <span class="n">df_res_Iagg</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;sev{i+1}&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregate&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">DV_res</span><span class="p">[[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">df_res_Iagg</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">[</span><span class="s1">&#39;Injuries&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;sev</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;aggregate&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;median&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">DV_res</span><span class="p">[[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span><span class="s1">&#39;10%&#39;</span><span class="p">,</span><span class="s1">&#39;50%&#39;</span><span class="p">,</span><span class="s1">&#39;90%&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
 
                 <span class="n">df_res_Iagg</span> <span class="o">=</span> <span class="n">df_res_Iagg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="c1">#.round(6)</span>
 
@@ -2021,20 +2037,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -2042,7 +2063,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
@@ -2061,11 +2081,58 @@
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-158130480-7', 'auto');
+    
     ga('send', 'pageview');
     </script>
 
     
-   
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
 
 </body>
 </html>
