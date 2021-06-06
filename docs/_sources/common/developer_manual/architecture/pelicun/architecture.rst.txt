@@ -1,7 +1,7 @@
 .. _lblArchitecture:
 
-*********************
-Software Architecture
-*********************
+*************
+Architecture
+*************
 
-Coming soon...
+Architecture text...

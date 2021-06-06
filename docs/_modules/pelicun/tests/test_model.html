@@ -1,45 +1,54 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>pelicun.tests.test_model &mdash; pelicun  documentation</title>
   
 
   
-  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+
   
   
 
   
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../_static/language_data.js"></script>
-        <script type="text/javascript" src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script type="text/javascript" src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
     
     <script type="text/javascript" src="../../../_static/js/theme.js"></script>
 
     
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
+    <link rel="search" title="Search" href="../../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../_static/css/bootstrap.css" rel="stylesheet">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -51,23 +60,26 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
 
-          
-            <a href="../../../index.html">
-          
+  <a href="../../../index.html">
 
-          
-            
-            <img src="../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
-          
-          </a>
 
-          
-            
-            
-          
 
-          
+  
+  <img src="../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,9 +88,10 @@
   </form>
 </div>
 
-          
+
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -86,34 +99,37 @@
               
             
             
-              <p class="caption"><span class="caption-text">User Manual</span></p>
+              <p class="caption"><span class="caption-text">About</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/ack.html">1. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/about/pelicun/about.html">2. About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/installation/pelicun/installation.html">3. Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/examples/pelicun/examples.html">6. Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/license.html">9. Copyright and License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/architecture/pelicun/architecture.html">1. Software Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/verification/pelicun/verification.html">2. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/API/pelicun/API.html">4. API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
 </ul>
 
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -148,11 +164,13 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
@@ -217,8 +235,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">pytest</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numpy.testing</span> <span class="k">import</span> <span class="n">assert_allclose</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">norm</span><span class="p">,</span> <span class="n">truncnorm</span>
+<span class="kn">from</span> <span class="nn">numpy.testing</span> <span class="kn">import</span> <span class="n">assert_allclose</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span><span class="p">,</span> <span class="n">truncnorm</span>
 
 <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">inspect</span>
 <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
@@ -226,16 +244,16 @@
 <span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">current_dir</span><span class="p">)</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">))</span>
 
-<span class="kn">from</span> <span class="nn">pelicun.model</span> <span class="k">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">pelicun.tests.test_reference_data</span> <span class="k">import</span> <span class="n">standard_normal_table</span>
+<span class="kn">from</span> <span class="nn">pelicun.model</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pelicun.tests.test_reference_data</span> <span class="kn">import</span> <span class="n">standard_normal_table</span>
 <span class="c1">#from pelicun.uq import RandomVariable, RandomVariableSubset</span>
-<span class="kn">from</span> <span class="nn">pelicun.uq</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pelicun.uq</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="c1"># -------------------------------------------------------------------------------</span>
 <span class="c1"># Fragility_Function</span>
 <span class="c1"># ------------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std</span><span class="p">():</span>
+<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_unit_mean_unit_std</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a lognormal fragility function with theta=1.0 and beta=1.0, test if</span>
 <span class="sd">    the calculated exceedance probabilities are sufficiently accurate.</span>
@@ -260,7 +278,7 @@
 
     <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_P_exc</span><span class="p">,</span> <span class="n">reference_P_exc</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_non_trivial_case"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_non_trivial_case">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_non_trivial_case</span><span class="p">():</span>
+<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_non_trivial_case"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_non_trivial_case">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_non_trivial_case</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a lognormal fragility function with theta=0.5 and beta=0.2, test if</span>
 <span class="sd">    the calculated exceedance probabilities are sufficiently accurate.</span>
@@ -289,7 +307,7 @@
 
     <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_P_exc</span><span class="p">,</span> <span class="n">reference_P_exc</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_zero_input"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_zero_input">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_zero_input</span><span class="p">():</span>
+<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_zero_input"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_zero_input">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_zero_input</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a zero EDP input to a lognormal fragility function, the result shall</span>
 <span class="sd">    be 0 exceedance probability, even though zero input in log space shall</span>
@@ -309,7 +327,7 @@
 
     <span class="k">assert</span> <span class="n">test_P_exc</span> <span class="o">==</span> <span class="mf">0.</span></div>
 
-<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input</span><span class="p">():</span>
+<div class="viewcode-block" id="test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_lognormal_nonzero_scalar_input</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given a nonzero scalar EDP input, the fragility function should return a</span>
 <span class="sd">    nonzero scalar output.</span>
@@ -326,7 +344,7 @@
 
     <span class="k">assert</span> <span class="n">test_P_exc</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">standard_normal_table</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="test_FragilityFunction_Pexc_multiple_damage_states_with_correlation"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_multiple_damage_states_with_correlation">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_multiple_damage_states_with_correlation</span><span class="p">():</span>
+<div class="viewcode-block" id="test_FragilityFunction_Pexc_multiple_damage_states_with_correlation"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_FragilityFunction_Pexc_multiple_damage_states_with_correlation">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_Pexc_multiple_damage_states_with_correlation</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the fragility function returns an appropriate list of exceedance</span>
 <span class="sd">    probabilities for various scenarios with multiple damage states that have</span>
@@ -394,7 +412,7 @@
     <span class="n">ref_res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ref_res</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">assert_allclose</span><span class="p">(</span><span class="n">ref_res</span><span class="p">,</span> <span class="n">test_res</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="test_FragilityFunction_DSG_ID_given_EDP_general"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_FragilityFunction_DSG_ID_given_EDP_general">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_DSG_ID_given_EDP_general</span><span class="p">():</span>
+<div class="viewcode-block" id="test_FragilityFunction_DSG_ID_given_EDP_general"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_FragilityFunction_DSG_ID_given_EDP_general">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityFunction_DSG_ID_given_EDP_general</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the DSG_IDs returned by the function are appropriate using</span>
 <span class="sd">    exceedance probabilities from the already tested P_exc function.</span>
@@ -507,7 +525,7 @@
 <span class="c1"># Consequence_Function</span>
 <span class="c1"># ------------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="test_ConsequenceFunction_fixed_median_value"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_ConsequenceFunction_fixed_median_value">[docs]</a><span class="k">def</span> <span class="nf">test_ConsequenceFunction_fixed_median_value</span><span class="p">():</span>
+<div class="viewcode-block" id="test_ConsequenceFunction_fixed_median_value"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_ConsequenceFunction_fixed_median_value">[docs]</a><span class="k">def</span> <span class="nf">test_ConsequenceFunction_fixed_median_value</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the function returns the prescribed median.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -524,7 +542,7 @@
         <span class="k">assert</span> <span class="n">conseq_function</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">==</span> <span class="mf">1.0</span>
         <span class="k">assert</span> <span class="n">conseq_function</span><span class="o">.</span><span class="n">median</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span> <span class="o">==</span> <span class="mf">1.0</span></div>
 
-<div class="viewcode-block" id="test_ConsequenceFunction_bounded_linear_median_value"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_ConsequenceFunction_bounded_linear_median_value">[docs]</a><span class="k">def</span> <span class="nf">test_ConsequenceFunction_bounded_linear_median_value</span><span class="p">():</span>
+<div class="viewcode-block" id="test_ConsequenceFunction_bounded_linear_median_value"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_ConsequenceFunction_bounded_linear_median_value">[docs]</a><span class="k">def</span> <span class="nf">test_ConsequenceFunction_bounded_linear_median_value</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the function returns an appropriate output for single quantities</span>
 <span class="sd">    and for quantity arrays, and if it raises an error if the quantity is not</span>
@@ -559,7 +577,7 @@
         <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_medians</span><span class="p">,</span> <span class="n">ref_vals</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test_ConsequenceFunction_sample_unit_DV"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_ConsequenceFunction_sample_unit_DV">[docs]</a><span class="k">def</span> <span class="nf">test_ConsequenceFunction_sample_unit_DV</span><span class="p">():</span>
+<div class="viewcode-block" id="test_ConsequenceFunction_sample_unit_DV"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_ConsequenceFunction_sample_unit_DV">[docs]</a><span class="k">def</span> <span class="nf">test_ConsequenceFunction_sample_unit_DV</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the function samples the DV distribution properly. Note that we</span>
 <span class="sd">    have already tested the sampling algorithm in the uq module, so we will not</span>
@@ -678,7 +696,7 @@
 <span class="c1"># ------------------------------------------------------------------------------</span>
 <span class="c1"># Damage State</span>
 <span class="c1"># ------------------------------------------------------------------------------</span>
-<div class="viewcode-block" id="test_DamageState_weight"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_DamageState_weight">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_weight</span><span class="p">():</span>
+<div class="viewcode-block" id="test_DamageState_weight"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_DamageState_weight">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_weight</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the damage state returns the assigned weight value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -687,7 +705,7 @@
     <span class="k">assert</span> <span class="n">DS</span><span class="o">.</span><span class="n">weight</span> <span class="o">==</span> <span class="mf">0.4</span></div>
 
 
-<div class="viewcode-block" id="test_DamageState_description"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_DamageState_description">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_description</span><span class="p">():</span>
+<div class="viewcode-block" id="test_DamageState_description"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_DamageState_description">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_description</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the damage state returns the assigned description.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -697,7 +715,7 @@
     <span class="k">assert</span> <span class="n">DS</span><span class="o">.</span><span class="n">description</span> <span class="o">==</span> <span class="n">ref_str</span></div>
 
 
-<div class="viewcode-block" id="test_DamageState_repair_cost_sampling"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_DamageState_repair_cost_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_repair_cost_sampling</span><span class="p">():</span>
+<div class="viewcode-block" id="test_DamageState_repair_cost_sampling"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_DamageState_repair_cost_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_repair_cost_sampling</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the repair cost consequence function is properly linked to the</span>
 <span class="sd">    damage state and if it returns the requested samples.</span>
@@ -733,7 +751,7 @@
     <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_vals</span><span class="p">,</span> <span class="n">ref_medians</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test_DamageState_reconstruction_time_sampling"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_DamageState_reconstruction_time_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_reconstruction_time_sampling</span><span class="p">():</span>
+<div class="viewcode-block" id="test_DamageState_reconstruction_time_sampling"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_DamageState_reconstruction_time_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_reconstruction_time_sampling</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the reconstruction time consequence function is properly linked to</span>
 <span class="sd">    the damage state and if it returns the requested samples.</span>
@@ -769,7 +787,7 @@
 
     <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_vals</span><span class="p">,</span> <span class="n">ref_medians</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="test_DamageState_red_tag_sampling"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_DamageState_red_tag_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_red_tag_sampling</span><span class="p">():</span>
+<div class="viewcode-block" id="test_DamageState_red_tag_sampling"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_DamageState_red_tag_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_red_tag_sampling</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the red tag consequence function is properly linked to the damage</span>
 <span class="sd">    state and if it returns the requested samples.</span>
@@ -806,7 +824,7 @@
     <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">test_vals</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.</span></div>
 
 
-<div class="viewcode-block" id="test_DamageState_injury_sampling"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_DamageState_injury_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_injury_sampling</span><span class="p">():</span>
+<div class="viewcode-block" id="test_DamageState_injury_sampling"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_DamageState_injury_sampling">[docs]</a><span class="k">def</span> <span class="nf">test_DamageState_injury_sampling</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the set of injury consequence functions is properly linked to the</span>
 <span class="sd">    damage state and if it returns the requested samples.</span>
@@ -871,7 +889,7 @@
 <span class="c1"># ------------------------------------------------------------------------------</span>
 <span class="c1"># Damage State Group</span>
 <span class="c1"># ------------------------------------------------------------------------------</span>
-<div class="viewcode-block" id="test_DamageStateGroup_kind"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_DamageStateGroup_kind">[docs]</a><span class="k">def</span> <span class="nf">test_DamageStateGroup_kind</span><span class="p">():</span>
+<div class="viewcode-block" id="test_DamageStateGroup_kind"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_DamageStateGroup_kind">[docs]</a><span class="k">def</span> <span class="nf">test_DamageStateGroup_kind</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the damage state group returns the assigned group type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -884,7 +902,7 @@
 <span class="c1"># Performance Group</span>
 <span class="c1"># ------------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="test_PerformanceGroup_Pexc"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_PerformanceGroup_Pexc">[docs]</a><span class="k">def</span> <span class="nf">test_PerformanceGroup_Pexc</span><span class="p">():</span>
+<div class="viewcode-block" id="test_PerformanceGroup_Pexc"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_PerformanceGroup_Pexc">[docs]</a><span class="k">def</span> <span class="nf">test_PerformanceGroup_Pexc</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the performance group returns exceedance probabilities from the</span>
 <span class="sd">    assigned fragility function for a given damage state group appropriately.</span>
@@ -934,7 +952,7 @@
 <span class="c1"># ------------------------------------------------------------------------------</span>
 <span class="c1"># Fragility Group</span>
 <span class="c1"># ------------------------------------------------------------------------------</span>
-<div class="viewcode-block" id="test_FragilityGroup_description_and_name"><a class="viewcode-back" href="../../../common/developer_manual/verification/pelicun/test_model.html#pelicun.tests.test_model.test_FragilityGroup_description_and_name">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityGroup_description_and_name</span><span class="p">():</span>
+<div class="viewcode-block" id="test_FragilityGroup_description_and_name"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_model.html#pelicun.tests.test_model.test_FragilityGroup_description_and_name">[docs]</a><span class="k">def</span> <span class="nf">test_FragilityGroup_description_and_name</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test if the fragility group returns the assigned description.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -966,20 +984,25 @@
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -987,7 +1010,6 @@
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
@@ -1006,11 +1028,58 @@
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-158130480-7', 'auto');
+    
     ga('send', 'pageview');
     </script>
 
     
-   
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
 
 </body>
 </html>

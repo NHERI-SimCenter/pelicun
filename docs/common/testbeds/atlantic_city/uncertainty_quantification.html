@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Uncertainty Quantification &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../index.html">
+
+
+
+  
+  <img src="../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Uncertainty Quantification</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/common/testbeds/atlantic_city/uncertainty_quantification.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="uncertainty-quantification">
+<span id="lbl-testbed-ac-uncertainty-quantification"></span><h1>Uncertainty Quantification<a class="headerlink" href="#uncertainty-quantification" title="Permalink to this headline">¶</a></h1>
+<p>Multiple sources of uncertainty are considered in this testbed including: the uncertainty in
+asset representation, hazard characterization, and damage and loss assessment. For these uncertainty
+sources, different strategies were implemented in the workflow to quantify their influence. THe following
+sections will introduce the details about each component.</p>
+<div class="section" id="in-asset-representation">
+<h2>In Asset Representation<a class="headerlink" href="#in-asset-representation" title="Permalink to this headline">¶</a></h2>
+<p>As discussed in <a class="reference internal" href="asset_representation.html#lbl-testbed-ac-asset-representation"><span class="std std-ref">Asset Representation</span></a>, the HAZUS Hurricane Technical Manual differentiates
+buildings based on asset attibutes for the subjected hazard type (wind or storm surge). These attributes
+are the buildings properties or structure features that would influence the
+resulting damage and loss of the asset under the given hazard. Among these key attributes, some are
+determined by developed rulesets with more basic building information.  These rules are based on the statistics
+in the available data. Taking the shutters of assets that were built before 2000, the Human Subjects Data
+indicates that roughly 45% of house owners were likely to apply shutters on some or all of their windows before a hurricane makes landfall.  Accordingly, in the
+asset representation (ruleset), a pre-2000 house has 45% probability to be assigned to have shutters, and 55%
+probability to be assigned with no shutter. Note that the resulting HAZUS building type is deterministic for
+each individual sample while the uncertainty induced by different possible attribute options are evaluted
+via multiple random realizations. <code class="xref std std-numref docutils literal notranslate"><span class="pre">uq_rulesets</span></code> summarizes the three building attributes whose values
+are randomly generated in this testbed.</p>
+<table class="docutils align-center" id="uq-rulesets">
+<caption><span class="caption-text">Random sampling in the rulesets.</span><a class="headerlink" href="#uq-rulesets" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Building Attribute</p></th>
+<th class="head"><p>Basic Attributes</p></th>
+<th class="head"><p>Example sampling law</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Second Water Resistance (SWR)</p></td>
+<td><p>YearBuilt, RoofShape</p></td>
+<td><p>IF YearBuiltNJDEP &gt; 2000, RoofShape = Gable or Hip, SWR = yes (60%) and no (40%)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Roof Deck Attachment (RDA)</p></td>
+<td><p>YearBuilt</p></td>
+<td><p>IF YearBuilt &lt;= 2000, RDA = A (50%) and B (50%)</p></td>
+</tr>
+<tr class="row-even"><td><p>Shutters</p></td>
+<td><p>YearBuilt, Wind Bore Debris (WBD)</p></td>
+<td><p>IF YearBuilt &lt;= 2000, WBD = yes, shutters = yes (45%) and no (55%)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="in-hazard-characterization">
+<h2>In Hazard Characterization<a class="headerlink" href="#in-hazard-characterization" title="Permalink to this headline">¶</a></h2>
+<p>Given a specific category of hurricane, there are two different sources of uncertainty for site peak wind speed
+and storm surge values: (1) the uncertainty induced by possible different storm tracks, storm radii, storm
+translational speeds, central pressures, or handing angles (which is usually termed as epistemic uncertainty);
+and (2) the inherent variation in observing the random events at the site (which is usually termed as aleatory
+uncertainty). Both these two uncertainty sources can be taken into account for in the introduced workflow.</p>
+<p>For the epistemic uncertainty, multiple scenarios can be simulated using the synthetic simulation methods as
+introduced in <a class="reference internal" href="hazard_characterization.html#lbl-testbed-ac-hazard-characterization-synthetic"><span class="std std-ref">Synthetic Storm Scenario</span></a>. For instance, the linear analytical simulation
+for the boundary layer winds ([<a href="#id2"><span class="problematic" id="id3">Snaiki17a_</span></a>], [<a href="#id4"><span class="problematic" id="id5">Snaiki17b_</span></a>]) can be performed with randomly sampled storm properties
+(e.g., central pressure) to generate multiple realizations of peak wind speed that are possible at the given site.
+These multiple realizations are then randomly sampled and used as the EDP in simulating the damage and loss
+assessment (more details in the next section).</p>
+<p>For the aleatory uncertainty, this workflow adapts a nearest-neighbors method to propagate uncertainty through the workflow, as
+illustrated in <code class="xref std std-numref docutils literal notranslate"><span class="pre">nearestneighbors</span></code>. The peak wind speed and storm surge values are simulated
+on a prescribed grid (wind fields) or pre-selected save points (storm surge) (blue round dots), and for each selected asset location (red square dot),
+the workflow  randomly selects 5 samples of
+the intensity measure (wind speed and storm surge) from the 4 nearest neighbors (yellow circles). Note this random
+sampling is performed along with the multiple realizations from the epistemic uncertainty quantification, so the
+two uncertainty sources are considered simultaneously.</p>
+<div class="align-center figure" id="nearestneighbors" style="width: 800px">
+<img alt="../../../_images/nn.png" src="../../../_images/nn.png" />
+<p class="caption"><span class="caption-text">Nearest-neighbors method for sampling site hazard uncertainty.</span><a class="headerlink" href="#nearestneighbors" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="in-damage-and-loss-assessment">
+<h2>In Damage and Loss Assessment<a class="headerlink" href="#in-damage-and-loss-assessment" title="Permalink to this headline">¶</a></h2>
+<p>The testbed implemented <span class="xref std std-ref">pelicun</span> (Probabilistic Estimation of Losses, Injuries, and Community resilience Under
+Natural disasters) to quantify damage (damage states) and loss (in the form of decision variables, e.g., loss ratio).
+Uncertainty from the hazard characterization step is first considered by the random sampling module in pelicun to
+numerically sample the (joint) distribution of intensity measures (which are treated as engineering parameter
+demands, EDPs in the HAZUS method). In specific, 1000 samples of combined wind speed and storm surge pairs are generated
+for each asset in this testbed. Second, the corresponding damage and loss models are populated for each asset from HAZUS
+based on the <a class="reference internal" href="asset_representation.html#lbl-testbed-ac-asset-representation"><span class="std std-ref">Asset Representation</span></a>. As described
+in <a class="reference internal" href="damage_and_loss.html#lbl-testbed-ac-damage-and-loss"><span class="std std-ref">Damage and Loss Estimation</span></a>, the damage models are continuous functions (normal or lognormal distribution
+functions) fit to the synthetic data by maximizing the likelihood of the observations assuming a Binomial distribution of
+outcomes at each intensity level in the HAZUS database. Hence, at a given intensity level (a certain wind peed or storm
+surge), the damage state and corresponding loss ratio of an asset follow probabilistic distributions, considering all
+uncertainty in the key properties that can influence the building performance.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>

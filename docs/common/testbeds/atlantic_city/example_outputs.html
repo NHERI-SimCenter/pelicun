@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Example Outputs &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../index.html">
+
+
+
+  
+  <img src="../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Example Outputs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/common/testbeds/atlantic_city/example_outputs.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="example-outputs">
+<span id="lbl-testbed-ac-example-outputs"></span><h1>Example Outputs<a class="headerlink" href="#example-outputs" title="Permalink to this headline">¶</a></h1>
+<p>The estimated wind-only, flood-only, and total losses under the four hurricane
+scenarios (<code class="xref std std-numref docutils literal notranslate"><span class="pre">hurricane_cat</span></code>) are shown in <code class="xref std std-numref docutils literal notranslate"><span class="pre">dl_c2</span></code> to <code class="xref std std-numref docutils literal notranslate"><span class="pre">dl_c5</span></code>.</p>
+<div class="align-center figure" id="dl-c2" style="width: 800px">
+<img alt="../../../_images/DL_category2.png" src="../../../_images/DL_category2.png" />
+<p class="caption"><span class="caption-text">Estimated regional loss maps for the <strong>Category 2</strong> hurricane.</span><a class="headerlink" href="#dl-c2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="dl-c3" style="width: 800px">
+<img alt="../../../_images/DL_category3.png" src="../../../_images/DL_category3.png" />
+<p class="caption"><span class="caption-text">Estimated regional loss maps for the <strong>Category 3</strong> hurricane.</span><a class="headerlink" href="#dl-c3" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="dl-c4" style="width: 800px">
+<img alt="../../../_images/DL_category4.png" src="../../../_images/DL_category4.png" />
+<p class="caption"><span class="caption-text">Estimated regional loss maps for the <strong>Category 4</strong> hurricane.</span><a class="headerlink" href="#dl-c4" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="dl-c5" style="width: 800px">
+<img alt="../../../_images/DL_category5.png" src="../../../_images/DL_category5.png" />
+<p class="caption"><span class="caption-text">Estimated regional loss maps for the <strong>Category 5</strong> hurricane.</span><a class="headerlink" href="#dl-c5" title="Permalink to this image">¶</a></p>
+</div>
+<p>Average expected loss ratios are also computed for individual cities, which are
+summarized in <code class="xref std std-numref docutils literal notranslate"><span class="pre">cl_c2</span></code> to <code class="xref std std-numref docutils literal notranslate"><span class="pre">cl_c5</span></code></p>
+<div class="align-center figure" id="cl-c2" style="width: 800px">
+<img alt="../../../_images/city_loss_c2.png" src="../../../_images/city_loss_c2.png" />
+<p class="caption"><span class="caption-text">City-wise average expected loss ratios (<strong>Category 2</strong> hurricane).</span><a class="headerlink" href="#cl-c2" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="cl-c3" style="width: 800px">
+<img alt="../../../_images/city_loss_c3.png" src="../../../_images/city_loss_c3.png" />
+<p class="caption"><span class="caption-text">City-wise average expected loss ratios (<strong>Category 3</strong> hurricane).</span><a class="headerlink" href="#cl-c3" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="cl-c4" style="width: 800px">
+<img alt="../../../_images/city_loss_c4.png" src="../../../_images/city_loss_c4.png" />
+<p class="caption"><span class="caption-text">City-wise average expected loss ratios (<strong>Category 4</strong> hurricane).</span><a class="headerlink" href="#cl-c4" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="cl-c5" style="width: 800px">
+<img alt="../../../_images/city_loss_c5.png" src="../../../_images/city_loss_c5.png" />
+<p class="caption"><span class="caption-text">City-wise average expected loss ratios (<strong>Category 5</strong> hurricane).</span><a class="headerlink" href="#cl-c5" title="Permalink to this image">¶</a></p>
+</div>
+<p>For the top five cities with most assets in the building inventory, the average
+expected wind losses are computed for different built eras. Buildings before 1980s generally
+have relatively higher wind loss ratios where 1970s is found to be the worst decade for
+Atlantic City, Brigantine, and Galloway. Since 1980, the building performance is improved
+where the post-2000 buildings are found to behave much better than buildings in the other groups.</p>
+<div class="align-center figure" id="wl-atlantic" style="width: 800px">
+<img alt="../../../_images/atlantic_wind_loss.png" src="../../../_images/atlantic_wind_loss.png" />
+<p class="caption"><span class="caption-text">Average expected wind loss ratios (Atlantic City).</span><a class="headerlink" href="#wl-atlantic" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="wl-brigantine" style="width: 800px">
+<img alt="../../../_images/brigantine_wind_loss.png" src="../../../_images/brigantine_wind_loss.png" />
+<p class="caption"><span class="caption-text">Average expected wind loss ratios (Brigantine).</span><a class="headerlink" href="#wl-brigantine" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="wl-galloway" style="width: 800px">
+<img alt="../../../_images/galloway_wind_loss.png" src="../../../_images/galloway_wind_loss.png" />
+<p class="caption"><span class="caption-text">Average expected wind loss ratios (Galloway).</span><a class="headerlink" href="#wl-galloway" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="wl-margate" style="width: 800px">
+<img alt="../../../_images/margate_wind_loss.png" src="../../../_images/margate_wind_loss.png" />
+<p class="caption"><span class="caption-text">Average expected wind loss ratios (Margate City).</span><a class="headerlink" href="#wl-margate" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="wl-ventor" style="width: 800px">
+<img alt="../../../_images/ventor_wind_loss.png" src="../../../_images/ventor_wind_loss.png" />
+<p class="caption"><span class="caption-text">Average expected wind loss ratios (Ventor City).</span><a class="headerlink" href="#wl-ventor" title="Permalink to this image">¶</a></p>
+</div>
+<p>The results from the loss estimation for each scenario above (Category 2-5) and each available inventory,
+can be accessed (<code class="xref std std-numref docutils literal notranslate"><span class="pre">example_results</span></code>).</p>
+<table class="docutils align-center" id="example-results">
+<caption><span class="caption-text">Access points for example results</span><a class="headerlink" href="#example-results" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Scenario</p></th>
+<th class="head"><p>Inventory Options</p></th>
+<th class="head"><p>Location</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Scaled Category 2</p></td>
+<td><p>Flood-Exposed Inventory, Exploration Inventory</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/e8cd13d7bf5ff5fb8a9ddeff7847a952/Category2.zip"><code class="xref download docutils literal notranslate"><span class="pre">Category2.zip</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Scaled Category 3</p></td>
+<td><p>Flood-Exposed Inventory, Exploration Inventory</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/2e83304a2af2f12c3dafc60bfdc0612b/Category3.zip"><code class="xref download docutils literal notranslate"><span class="pre">Category2.zip</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Scaled Category 4</p></td>
+<td><p>Flood-Exposed Inventory, Exploration Inventory</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/ece4239c8b708f9908d068f7bceb6a90/Category4.zip"><code class="xref download docutils literal notranslate"><span class="pre">Category2.zip</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Category 5</p></td>
+<td><p>Flood-Exposed Inventory, Exploration Inventory</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/545b998e65fa603cf82d050e8d3bfefe/Category5.zip"><code class="xref download docutils literal notranslate"><span class="pre">Category2.zip</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>

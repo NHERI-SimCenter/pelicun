@@ -26,11 +26,17 @@ The following packages are required for pelicun. They are automatically installe
 +---------+-----------------+
 | package | minimum version |
 +=========+=================+
-| numpy   | 1.17            |
+| numpy   | 1.19            |
 +---------+-----------------+
-| scipy   | 1.3             |
+| scipy   | 1.5             |
 +---------+-----------------+
-| pandas  | 1.0             |
+| pandas  | 1.1             |
++---------+-----------------+
+| tables  |                 |
++---------+-----------------+
+| h5py    |                 |
++---------+-----------------+
+| xlrd    |                 |
 +---------+-----------------+
 
 

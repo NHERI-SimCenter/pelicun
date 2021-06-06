@@ -1,47 +1,56 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>4.4. pelicun.db module &mdash; pelicun  documentation</title>
+  <title>2.1.4. pelicun.db module &mdash; pelicun  documentation</title>
   
-
-  
-  
-  
-  
-
-  
-  <script type="text/javascript" src="../../../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../../../_static/language_data.js"></script>
-        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
-        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
-        <script type="text/javascript" src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
-    
-    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
-
-    
 
   
   <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
   <link rel="stylesheet" href="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="next" title="4.5. pelicun.file_io module" href="API_pelicun_file_io.html" />
-    <link rel="prev" title="4.3. pelicun.control module" href="API_pelicun_control.html" /> 
+    <link rel="next" title="2.1.5. pelicun.file_io module" href="API_pelicun_file_io.html" />
+    <link rel="prev" title="2.1.3. pelicun.control module" href="API_pelicun_control.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../../_static/css/bootstrap.css" rel="stylesheet">
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -53,23 +62,26 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: #F2F2F2" >
           
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
 
-          
-            <a href="../../../../index.html">
-          
+  <a href="../../../../index.html">
 
-          
-            
-            <img src="../../../../_static/pelicun-Logo-grey.png" class="logo" alt="Logo"/>
-          
-          </a>
 
-          
-            
-            
-          
 
-          
+  
+  <img src="../../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,9 +90,10 @@
   </form>
 </div>
 
-          
+
         </div>
 
+        
         <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
           
             
@@ -88,36 +101,41 @@
               
             
             
-              <p class="caption"><span class="caption-text">User Manual</span></p>
+              <p class="caption"><span class="caption-text">About</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/ack.html">1. Acknowledgments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/about/pelicun/about.html">2. About</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/installation/pelicun/installation.html">3. Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/usage/pelicun/usage.html">4. User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/troubleshooting/pelicun/troubleshooting.html">5. Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/examples/pelicun/examples.html">6. Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/requirements/pelicun/requirements.html">7. Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/bugs.html">8. Bugs &amp; Feature Requests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/license.html">9. Copyright and License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/release_notes/pelicun/release_notes.html">10. Release Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Technical Manual</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/technical_manual.html">1. Technical Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Developer Manual</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../architecture/pelicun/architecture.html">1. Software Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../verification/pelicun/verification.html">2. Verification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">3. Coding Style</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="API.html">4. API Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_auto.html">4.1. auto</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_base.html">4.2. base</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_control.html">4.3. control</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">4.4. db</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_file_io.html">4.5. file_io</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_model.html">4.6. model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_pelicun_uq.html">4.7. uq</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="API.html">2. API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="API.html#modules">2.1. Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_auto.html">2.1.1. auto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_base.html">2.1.2. base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_control.html">2.1.3. control</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">2.1.4. db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_file_io.html">2.1.5. file_io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_model.html">2.1.6. model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_uq.html">2.1.7. uq</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -125,6 +143,7 @@
             
           
         </div>
+        
       </div>
     </nav>
 
@@ -159,20 +178,22 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="API.html">4. API Documentation</a> &raquo;</li>
+          <li><a href="API.html"><span class="section-number">2. </span>API Documentation</a> &raquo;</li>
         
-      <li>4.4. pelicun.db module</li>
+      <li><span class="section-number">2.1.4. </span>pelicun.db module</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../../../../_sources/common/developer_manual/API/pelicun/API_pelicun_db.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -187,7 +208,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="module-pelicun.db">
-<span id="pelicun-db-module"></span><h1>4.4. pelicun.db module<a class="headerlink" href="#module-pelicun.db" title="Permalink to this headline">¶</a></h1>
+<span id="pelicun-db-module"></span><h1><span class="section-number">2.1.4. </span>pelicun.db module<a class="headerlink" href="#module-pelicun.db" title="Permalink to this headline">¶</a></h1>
 <p>This module has classes and methods to manage databases used by pelicun.</p>
 <p class="rubric">Contents</p>
 <table class="longtable docutils align-default">
@@ -225,9 +246,9 @@
 </tr>
 </tbody>
 </table>
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.dict_generator">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">dict_generator</code><span class="sig-paren">(</span><em class="sig-param">indict</em>, <em class="sig-param">pre=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#dict_generator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.dict_generator" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">dict_generator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pre</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#dict_generator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.dict_generator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lists all branches of a tree defined by a dictionary.</p>
 <p>The dictionary can have nested dictionaries and lists. When encountering a
 list, its elements are returned as separate branches with each element’s id
@@ -237,9 +258,9 @@ element number in the list.</p>
 branches.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.get_val_from_dict">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">get_val_from_dict</code><span class="sig-paren">(</span><em class="sig-param">indict</em>, <em class="sig-param">col</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#get_val_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.get_val_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">get_val_from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#get_val_from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.get_val_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the value from a branch of a dictionary.</p>
 <p>The dictionary can have nested dictionaries and lists. When walking through
 lists, #i in the branch data identifies the ith element of the list.</p>
@@ -247,27 +268,27 @@ lists, #i in the branch data identifies the ith element of the list.</p>
 defined by the dict_generator method above.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.save_to_standard_HDF">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">save_to_standard_HDF</code><span class="sig-paren">(</span><em class="sig-param">df</em>, <em class="sig-param">name</em>, <em class="sig-param">target_path</em>, <em class="sig-param">mode='w'</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#save_to_standard_HDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.save_to_standard_HDF" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">save_to_standard_HDF</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#save_to_standard_HDF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.save_to_standard_HDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves a DataFrame in a standard HDF format using h5py.</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.convert_json_files_to_HDF">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">convert_json_files_to_HDF</code><span class="sig-paren">(</span><em class="sig-param">data_source_dir</em>, <em class="sig-param">DL_dir</em>, <em class="sig-param">db_name</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#convert_json_files_to_HDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.convert_json_files_to_HDF" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">convert_json_files_to_HDF</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DL_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#convert_json_files_to_HDF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.convert_json_files_to_HDF" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts data from json files to a single HDF5 file</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.convert_Series_to_dict">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">convert_Series_to_dict</code><span class="sig-paren">(</span><em class="sig-param">comp_Series</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#convert_Series_to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.convert_Series_to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">convert_Series_to_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp_Series</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#convert_Series_to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.convert_Series_to_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts data from a table to a json file</p>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.convert_P58_data_to_json">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">convert_P58_data_to_json</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#convert_P58_data_to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.convert_P58_data_to_json" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">convert_P58_data_to_json</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#convert_P58_data_to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.convert_P58_data_to_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create JSON data files from publicly available P58 data.</p>
 <p>FEMA P58 damage and loss information is publicly available in an Excel
 spreadsheet and also in a series of XML files as part of the PACT tool.
@@ -291,9 +312,9 @@ subfolder in it that contains the XML files.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.create_HAZUS_EQ_json_files">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">create_HAZUS_EQ_json_files</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_EQ_json_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_EQ_json_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">create_HAZUS_EQ_json_files</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_EQ_json_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_EQ_json_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create JSON data files from publicly available HAZUS data.</p>
 <p>HAZUS damage and loss information is publicly available in the technical
 manuals. The relevant tables have been converted into a JSON input file
@@ -320,9 +341,9 @@ to a ‘DL json’ subfolder.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.create_HAZUS_EQ_story_json_files">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">create_HAZUS_EQ_story_json_files</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_EQ_story_json_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_EQ_story_json_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">create_HAZUS_EQ_story_json_files</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_EQ_story_json_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_EQ_story_json_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create JSON data files from publicly available HAZUS data.</p>
 <p>HAZUS damage and loss information is publicly available in the technical
 manuals. The relevant tables have been converted into a JSON input file
@@ -349,9 +370,9 @@ to a ‘DL json’ subfolder.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.create_HAZUS_EQ_PGA_json_files">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">create_HAZUS_EQ_PGA_json_files</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_EQ_PGA_json_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_EQ_PGA_json_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">create_HAZUS_EQ_PGA_json_files</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_EQ_PGA_json_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_EQ_PGA_json_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create JSON data files from publicly available HAZUS data.</p>
 <p>HAZUS damage and loss information is publicly available in the technical
 manuals. The relevant tables have been converted into a JSON input file
@@ -379,9 +400,9 @@ to a ‘DL json’ subfolder.</p>
 </dl>
 </dd></dl>
 
-<dl class="function">
+<dl class="py function">
 <dt id="pelicun.db.create_HAZUS_HU_json_files">
-<code class="sig-prename descclassname">pelicun.db.</code><code class="sig-name descname">create_HAZUS_HU_json_files</code><span class="sig-paren">(</span><em class="sig-param">data_dir</em>, <em class="sig-param">target_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_HU_json_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_HU_json_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">pelicun.db.</span></code><code class="sig-name descname"><span class="pre">create_HAZUS_HU_json_files</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/db.html#create_HAZUS_HU_json_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.db.create_HAZUS_HU_json_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create JSON data files from publicly available HAZUS data.</p>
 <p>HAZUS damage and loss information is publicly available in the technical
 manuals and the HAZUS software tool. The relevant data have been collected
@@ -420,20 +441,25 @@ to a ‘DL json’ subfolder.</p>
            
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright (c) 2018-2020, Leland Stanford Junior University and The Regents of the University of California
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
@@ -441,7 +467,6 @@ to a ‘DL json’ subfolder.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
@@ -460,11 +485,58 @@ to a ‘DL json’ subfolder.</p>
     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-158130480-7', 'auto');
+    
     ga('send', 'pageview');
     </script>
 
     
-   
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
 
 </body>
 </html>

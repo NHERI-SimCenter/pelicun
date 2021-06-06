@@ -1,0 +1,583 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Hazard Characterization &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../index.html">
+
+
+
+  
+  <img src="../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Hazard Characterization</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/common/testbeds/atlantic_city/hazard_characterization.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="hazard-characterization">
+<span id="lbl-testbed-ac-hazard-characterization"></span><h1>Hazard Characterization<a class="headerlink" href="#hazard-characterization" title="Permalink to this headline">¶</a></h1>
+<p>Both the wind and flood hazards affect the building inventory in this testbed. As the initial implementation of
+the regional assessment workflow incorporates the HAZUS Hurricane Damage and Loss Assessment methodology,
+hazards are quantified by two intensity measures: Peak Wind Speed (PWS) and Peak Water Depth (PWD).
+The PWS refers to the maximum 3-second gust measured at the reference height of 10m in open terrain
+(equivalent to Exposure C in ASCE 7-16). The PWD is the maximum depth of flooding (height of storm
+surge above grade) during the storm.</p>
+<p>The following sections will introduce the options for generating these two types of hazard inputs using
+either a historical scenario or a synthetic storm scenario, as discussed in the following sections.
+Note that as part of the Asset Representation Process (see <a class="reference internal" href="asset_representation.html#lbl-testbed-ac-asset-representation"><span class="std std-ref">Asset Representation</span></a>), the design wind speeds from
+ASCE 7 are already included for each building footprint for reference.</p>
+<div class="section" id="synthetic-storm-scenario">
+<span id="lbl-testbed-ac-hazard-characterization-synthetic"></span><h2>Synthetic Storm Scenario<a class="headerlink" href="#synthetic-storm-scenario" title="Permalink to this headline">¶</a></h2>
+<p>An Atlantic City landfall scenario was generated using the Storm Hazard Projection Tool developed in the
+NJcoast project ([<a class="reference internal" href="#njcoast20">NJCoast20</a>]). The constructed hazard scenario uses NJcoast’s basic simulation option,
+which identifies the 25 hurricane tracks from the SHP tool’s surrogate model that match the targeted
+storm scenario, in this case: a hurricane with Category 5 intensity (central pressure differential
+of 75-100 mbar, radius of maximum winds of 15.4 to 98 mi) making landfall near the Atlantic City
+Beach Patrol Station (39.348308° N, -74.452544° W) under average tides. This scenario is sufficient
+to inundate coastal areas in the testbed geography and generate significant wave run-up in some
+locales. The SHP Tool generates these through the following underlying computational models.</p>
+<div class="section" id="wind-modeling">
+<h3>Wind Modeling<a class="headerlink" href="#wind-modeling" title="Permalink to this headline">¶</a></h3>
+<p>The SHP Tool generates its wind fields using a highly efficient, linear analytical model for the boundary
+layer winds of a moving hurricane developed by Snaiki and Wu ([<a class="reference internal" href="#snaiki17a">Snaiki17a</a>], [<a class="reference internal" href="#snaiki17b">Snaiki17b</a>]).
+To account for the exposure in each New Jersey county, an effective roughness length (weighted average)
+of the upwind terrain is used based on the Land Use/Land Cover data reported by the state’s Bureau of
+GIS. In order to generate a wind field, this model requires the time-evolving hurricane track,
+characterized by the position (latitude, longitude), the central pressure, the radius of maximum winds,
+and the forward speed. While the model is
+fully height-resolving and time-evolving, for a given input hurricane scenario, the wind hazard is
+characterized by the maximum 10-minute mean wind speed observed during the entire hurricane track.
+This is reported at the reference height of 10 m over a uniform grid (0.85-mile spacing, 1.37 km)
+across the entire state in miles per hour, which is then accordingly adjusted for compatibility with
+the averaging interval assumed by the HAZUS Hurricane Damage and Loss Model. Since the wind speed
+(<span class="math notranslate nohighlight">\(V(600s, 10m, z_0)\)</span>) from the NJcoast SHP Tool is averaged over the time window of 1 hour,
+a number of standard conversions (see <a class="reference internal" href="pws_conversion.html#lbl-testbed-ac-wind-speed-conversion"><span class="std std-ref">Standard Wind Speed Conversions</span></a>)
+parse the wind speed to the 3-second and open-terrain PWS
+(i.e., <span class="math notranslate nohighlight">\(V(3s, 10m, Exposure C)\)</span>).</p>
+<p>As the initial developer of this model has made the underlying code available for this testbed,
+users have two ways to engage this model to generate wind fields for this testbed:
+1. Users can adopt the aforementioned default sythetic Category 5 scenario striking Atlantic City
+2. Users can generate a custom storm scenario by providing the requied inputs into this linear
+1. analytical model to generate a customized windfield for use with this testbed.</p>
+<p>Wind fields described by either approach are then locally interpolated to the coordiantes associated with each
+footprint. The resulting 3s-gust peak wind speed (PWS) ranges from 178 mph to 191 mph given the simulated
+Category-5 hurricane event (<code class="xref std std-numref docutils literal notranslate"><span class="pre">pws</span></code>). Because the SPH model tracks the maximum wind speed over the
+entire hurricane time history - so the inland cities are subjected to slightly higher wind speed than
+the coastal cities.</p>
+<div class="align-center figure" id="pws" style="width: 1000px">
+<img alt="../../../_images/pws.png" src="../../../_images/pws.png" />
+<p class="caption"><span class="caption-text">Interpolated peak wind speed (3s-gust) for each asset in the inventory.</span><a class="headerlink" href="#pws" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="storm-surge-modeling">
+<span id="lbl-testbed-ac-hazard-characterization-storm"></span><h3>Storm Surge Modeling<a class="headerlink" href="#storm-surge-modeling" title="Permalink to this headline">¶</a></h3>
+<p>Coastal hazard descriptions use the outputs of the aforementioned SHP Tool, which estimates storm
+surge and total run up due to the breaking of near-shore waves for an arbitrary hurricane scenario
+using surrogate modeling techniques (<a class="reference internal" href="#jia13" id="id2"><span>[Jia13]</span></a>, <a class="reference internal" href="#jia15" id="id3"><span>[Jia15]</span></a>). The SHP Tool
+leverages the US Army Corps of Engineers (USACE) NACCS: North Atlantic Coastal
+Comprehensive Study (<a class="reference internal" href="#nadalcaraballo15" id="id4"><span>[NadalCaraballo15]</span></a>), which contains over 1000 high-fidelity
+numerical simulations of hurricanes using the ADCIRC (<a class="reference internal" href="#luettich92" id="id5"><span>[Luettich92]</span></a>) storm surge model,
+coupled with STWAVE (<a class="reference internal" href="#smith01" id="id6"><span>[Smith01]</span></a>) to capture the additional effects of waves offshore.
+It is important to note that the grid adopted for the NACCS execution of ADCIRC does extend
+into the riverine systems to capture the storm surge influx; however, the grid extensions
+up-river have limited extent and there was no explicit modeling of the riverine systems
+and interactions between those systems and the storm surge. The
+NACCS database was further enhanced with wave run-up simulations that capture the interaction of
+the waves with site-specific bathymetry/topography (2015 USGS CoNED Topobathy DEM: New
+Jersey and Delaware (1888 - 2014) dataset) to project the total run up inland, along transects spaced
+0.5 km apart along the New Jersey coast. This results in a prediction of storm surge height at the
+USACE-defined save points along the New Jersey coast that are, on average, 200 m apart, with finer
+resolution in areas with complex topographies. The SHP Tool was executed for the testbed scenario
+to estimate the depth of storm surge above ground, geospatially interpolated to 110,000 nearshore
+locations at approximately 120 m spacing, accompanied by the Limit of Moderate Wave Action
+(LiMWA) and wet-dry boundary respectively defining the extent of damaging waves and inundation
+over land at each of the transect points. These are then interpolated to the location of the coastal
+parcels to express the property exposure to storm surge (<code class="xref std std-numref docutils literal notranslate"><span class="pre">pwd</span></code>). In the initial implementation, as demonstrated
+in this test, only the peak water depth (PWD) was considered, which will be used in the HAZUS
+Flood Damage and Loss Assessment.</p>
+<div class="align-center figure" id="pwd" style="width: 1000px">
+<img alt="../../../_images/pwd.png" src="../../../_images/pwd.png" />
+<p class="caption"><span class="caption-text">Interpolated peak water depth for each asset in the inventory.</span><a class="headerlink" href="#pwd" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="multiple-category-analysis-mca">
+<h3>Multiple Category Analysis (MCA)<a class="headerlink" href="#multiple-category-analysis-mca" title="Permalink to this headline">¶</a></h3>
+<p>Note that the resulting 3s-gust PWS values by this Category-5 hurricane is much higher than
+the design wind speed specified by ASCE 7-16 (<a class="reference internal" href="pws_conversion.html#asce16" id="id7"><span>[ASCE16]</span></a>) for the Atlantic County which ranges
+from 105 mph to 115 mph. Since this extreme scenario bears a small likelihood, this testbed
+also scales the wind and flood water field down to lower categories to conduct the so-called
+Multiple Category Analysis to exam the building performance under different intense scenarios
+(<code class="xref std std-numref docutils literal notranslate"><span class="pre">hurricane_cat</span></code>) and were used later in the Verification Results (see <a class="reference internal" href="sample_results.html#lbl-testbed-ac-sample-results"><span class="std std-ref">Verification Results</span></a>).</p>
+<table class="docutils align-default" id="hurricane-cat">
+<caption><span class="caption-text">Scaled peak wind speed and peak water depth for different hurricane categories.</span><a class="headerlink" href="#hurricane-cat" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>Hurricane Category</p></td>
+<td><p>2</p></td>
+<td><p>3</p></td>
+<td><p>4</p></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-even"><td><p>Peak Wind Speed (mph)</p></td>
+<td><p>101 - 108</p></td>
+<td><p>119 - 127</p></td>
+<td><p>136 - 145</p></td>
+<td><p>178 - 191</p></td>
+</tr>
+<tr class="row-odd"><td><p>Peak Water Depth (ft)</p></td>
+<td><p>0 - 7</p></td>
+<td><p>0 - 11</p></td>
+<td><p>0 - 15</p></td>
+<td><p>0 - 18</p></td>
+</tr>
+</tbody>
+</table>
+<p>Users can access the synthetic wind field and storm surge inputs for the defined scenario, as well as the suite
+created for the MCA (<code class="xref std std-numref docutils literal notranslate"><span class="pre">synthetic_data</span></code>).</p>
+<table class="docutils align-center" id="synthetic-data">
+<caption><span class="caption-text">Access points for synthetic storm scenario files</span><a class="headerlink" href="#synthetic-data" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Hazard</p></th>
+<th class="head"><p>Access Point</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Wind Field</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/2dfb05b6a649a19456ed8ad4195653fb/SyntheticWind.zip"><code class="xref download docutils literal notranslate"><span class="pre">Synthetic</span> <span class="pre">wind</span> <span class="pre">data</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Storm Surge</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/747cc28228f48538e1b3c2b1a9e1feff/SyntheticStormSurge.zip"><code class="xref download docutils literal notranslate"><span class="pre">Synthetic</span> <span class="pre">storm</span> <span class="pre">surge</span> <span class="pre">data</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="historical-storm-scenario">
+<h2>Historical Storm Scenario<a class="headerlink" href="#historical-storm-scenario" title="Permalink to this headline">¶</a></h2>
+<p>Hindcast simulations of historical storm events are equally valuable, particularly when they are coupled
+with observations of damage and loss across an inventory. As such this testbed includes the option to use
+existing hindcast data from established community providers as input to the loss estimation workflow.
+New Jersey’s most notable storm event in recent history was Superstorm Sandy (2012). According to <a class="reference internal" href="#njdep15" id="id8"><span>[NJDEP15]</span></a>
+and <a class="reference internal" href="#usdoc13" id="id9"><span>[USDOC13]</span></a>, Sandy’s devastation included 346,000 homes damaged. The New Jersey State Hazard Mitigation
+Plan <a class="reference internal" href="#njshmp" id="id10"><span>[NJSHMP]</span></a> further notes that storm surge accounts for 90% of the deaths and property damage during
+hurricanes in this region. While Atlantic County was designated as a “Sandy-Affected Community”
+by FEMA and the State of New Jersey, the wind and storm surge intensities in the county were significantly
+less than those observed in the more northern counties. Nonetheless, these historical inputs are provided
+to demonstrate the workflow’s ability to support hindcast evaluations of damage and loss in actual storm events.</p>
+<div class="section" id="id11">
+<h3>Wind Modeling<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>Hindcast wind fields for this event were made available by Peter Vickery and Applied Research Associates (ARA).
+Their hurricane model derives wind speeds based on numerically solving the differential equations of a
+translating storm and iteratively calibrating based on field observations over the weeks following an event.
+The ARA_Example.zip provides the peak 3-s gust peak wind speed field of Hurricane Sandy on a grid that can be
+directly used in the presented hurricane workflow, as visualized in <code class="xref std std-numref docutils literal notranslate"><span class="pre">ara_pws</span></code> for Atlantic County.</p>
+<div class="align-center figure" id="ara-pws" style="width: 500px">
+<img alt="../../../_images/ARA_PWS.png" src="../../../_images/ARA_PWS.png" />
+<p class="caption"><span class="caption-text">ARA 3-s gust peak wind speed (3-s gust at 10 m) in Atlantic County during Hurricane Sandy.</span><a class="headerlink" href="#ara-pws" title="Permalink to this image">¶</a></p>
+</div>
+<p>Alternatively, users can also use other available wind field resources. For instance,
+<a class="reference external" href="https://www.rms.com/event-response/hwind/legacy-archive/storms">RMS Legacy Archive</a> provides access to
+historical hurricane events including the <a class="reference external" href="https://legacy-archive.rms.com/storms/sandy2012.html">Superstorm Sandy</a>
+for an alternate description of the field. Similar to the ARA peak wind speed field, in order to run the workflow, users
+would first convert the data from other resources to the format as shown in <a class="reference download internal" download="" href="../../../_downloads/e000feabcd03691d92efbbee9a613a6c/ARA_Example.zip"><code class="xref download docutils literal notranslate"><span class="pre">ARA_Example.zip</span></code></a>.</p>
+</div>
+<div class="section" id="id12">
+<h3>Storm Surge Modeling<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p>ADCIRC hindcast of Superstorm Sandy was generated by the Westerink Group at the University of Notre Dame and
+made available to the SimCentetr. <code class="xref std std-numref docutils literal notranslate"><span class="pre">adcirc_pwd</span></code> shows the peak storm surge from the hindcast. Note that
+the scope of the hindcast focused on the heavier-impacted regions of New York and Northern New Jersey,
+which were resolved with a finer mesh than more southern counties like Atlantic County, i.e., ~0.5 km (New York and Norther New Jersey) vs. ~3 km (Southern counties) between two closest nodes. In futher constrast with the NACCS ADCIRC runs referenced in <a class="reference internal" href="#lbl-testbed-ac-hazard-characterization-storm"><span class="std std-ref">Storm Surge Modeling</span></a>,
+the grids adopted for the Sandy hindcast in this region of New Jersey did not extend into the riverine systems. Noting these
+limits of the simulation, peak water depth over land displayed in <code class="xref std std-numref docutils literal notranslate"><span class="pre">adcirc_sitepwd</span></code> assumes zero values in the rivering
+systems and at any point inland of the grid points shown in <code class="xref std std-numref docutils literal notranslate"><span class="pre">adcirc_waterelev</span></code>. The
+<a class="reference download internal" download="" href="../../../_downloads/130bb4ce868cf8d46c7a6df5124c80e8/ADCIRC_Example.zip"><code class="xref download docutils literal notranslate"><span class="pre">ADCIRC_Example.zip</span></code></a> provides the peak water depth grid that can be used in
+the presented hurricane workflow.</p>
+<div class="align-center figure" id="adcirc-pwd" style="width: 500px">
+<img alt="../../../_images/ADCIRC_PWD.png" src="../../../_images/ADCIRC_PWD.png" />
+<p class="caption"><span class="caption-text">Simulated storm surge field of Hurricane Sandy by ADCIRC (by courtesy of Dr. Westerink).</span><a class="headerlink" href="#adcirc-pwd" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="adcirc-waterelev" style="width: 500px">
+<img alt="../../../_images/ADCIRC_waterelev.png" src="../../../_images/ADCIRC_waterelev.png" />
+<p class="caption"><span class="caption-text">Simulated water elevation of Hurricane Sandy by ADCIRC (Atlantic County).</span><a class="headerlink" href="#adcirc-waterelev" title="Permalink to this image">¶</a></p>
+</div>
+<div class="align-center figure" id="adcirc-sitepwd" style="width: 500px">
+<img alt="../../../_images/ADCIRC_sitePWD.png" src="../../../_images/ADCIRC_sitePWD.png" />
+<p class="caption"><span class="caption-text">Simulated water depth over land for Hurricane Sandy by ADCIRC (Atlantic County).</span><a class="headerlink" href="#adcirc-sitepwd" title="Permalink to this image">¶</a></p>
+</div>
+<table class="docutils align-center" id="superstorm-data">
+<caption><span class="caption-text">Access points for Superstorm Sandy files</span><a class="headerlink" href="#superstorm-data" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Hazard</p></th>
+<th class="head"><p>Access Point</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Wind Field</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/e000feabcd03691d92efbbee9a613a6c/ARA_Example.zip"><code class="xref download docutils literal notranslate"><span class="pre">ARA_Example.zip</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Storm Surge</p></td>
+<td><p><a class="reference download internal" download="" href="../../../_downloads/130bb4ce868cf8d46c7a6df5124c80e8/ADCIRC_Example.zip"><code class="xref download docutils literal notranslate"><span class="pre">ADCIRC_Example.zip</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="citation">
+<dt class="label" id="snaiki17a"><span class="brackets">Snaiki17a</span></dt>
+<dd><p>Snaiki, R. and Wu, T. (2017a) “Modeling tropical cyclone boundary layer: Height-resolving
+pressure and wind fields,” Journal of Wind Engineering and Industrial Aerodynamics, 170, 18-27.</p>
+</dd>
+<dt class="label" id="snaiki17b"><span class="brackets">Snaiki17b</span></dt>
+<dd><p>Snaiki, R. and Wu, T. (2017b) “A linear height-resolving wind field model for tropical
+cyclone boundary layer,” Journal of Wind Engineering and Industrial Aerodynamics, 171, 248-260.</p>
+</dd>
+<dt class="label" id="atc20"><span class="brackets">ATC20</span></dt>
+<dd><p>ATC (2020b), ATC Hazards By Location, <a class="reference external" href="https://hazards.atcouncil.org/">https://hazards.atcouncil.org/</a>, Applied Technology Council, Redwood City, CA.</p>
+</dd>
+<dt class="label" id="njcoast20"><span class="brackets">NJCoast20</span></dt>
+<dd><p>NJ Coast (2020), Storm Hazard Projection Tool, NJ Coast, <a class="reference external" href="https://njcoast.us/resources-shp/">https://njcoast.us/resources-shp/</a></p>
+</dd>
+<dt class="label" id="asce16"><span class="brackets"><a class="fn-backref" href="#id7">ASCE16</a></span></dt>
+<dd><p>ASCE (2016), Minimum Design Loads for Buildings and Other Structures, ASCE 7-16,
+American Society of Civil Engineers.</p>
+</dd>
+<dt class="label" id="esdu02"><span class="brackets">ESDU02</span></dt>
+<dd><p>Engineering Sciences Data Unit (ESDU). (2002). “Strong winds in the atmospheric boundary
+layer—Part 2: Discrete gust speeds.” ESDU International plc, London, U.K.</p>
+</dd>
+<dt class="label" id="jia13"><span class="brackets"><a class="fn-backref" href="#id2">Jia13</a></span></dt>
+<dd><p>Jia G. and A. A. Taflanidis (2013) “Kriging metamodeling for approximation of high-dimensional
+wave and surge responses in real-time storm/hurricane risk assessment,” Computer Methods in
+Applied Mechanics and Engineering, V(261-262), 24-38.</p>
+</dd>
+<dt class="label" id="jia15"><span class="brackets"><a class="fn-backref" href="#id3">Jia15</a></span></dt>
+<dd><p>Jia G., A. A. Taflanidis, N. C. Nadal-Caraballo, J. Melby, A. Kennedy, and J. Smith (2015) “Surrogate
+modeling for peak and time dependent storm surge prediction over an extended coastal region using
+an existing database of synthetic storms,” Natural Hazards, V81, 909-938</p>
+</dd>
+<dt class="label" id="nadalcaraballo15"><span class="brackets"><a class="fn-backref" href="#id4">NadalCaraballo15</a></span></dt>
+<dd><p>Nadal‐Caraballo N.C, J. A. Melby, V. M. Gonzalez, and A. T. Cox (2015), North Atlantic Coast
+Comprehensive Study – Coastal Storm Hazards from Virginia to Maine, ERDC/CHL TR-15-5, U.S.
+Army Engineer Research and Development Center, Vicksburg, MS.</p>
+</dd>
+<dt class="label" id="luettich92"><span class="brackets"><a class="fn-backref" href="#id5">Luettich92</a></span></dt>
+<dd><p>Luettich R.A, J. J. Westerink, and N. W. Scheffner (1992), ADCIRC: An advanced three-dimensional
+circulation model for shelves, coasts, and estuaries. Report 1. Theory and methodology of ADCIRC-
+2DDI and ADCIRC-3DL, Dredging Research Program Technical Report DRP-92-6, U.S Army
+Engineers Waterways Experiment Station, Vicksburg, MS.</p>
+</dd>
+<dt class="label" id="smith01"><span class="brackets"><a class="fn-backref" href="#id6">Smith01</a></span></dt>
+<dd><p>Smith J.M, A. R. Sherlock, and D. T. Resio (2001) “STWAVE: Steady-state spectral wave model user’s
+manual for STWAVE, Version 3.0,” Defense Technical Information Center, US Army Corps of
+Engineering, Vicksburg, MS.</p>
+</dd>
+<dt class="label" id="usdoc13"><span class="brackets"><a class="fn-backref" href="#id9">USDOC13</a></span></dt>
+<dd><p>U.S. Department of Commerce (2013), Hurricne Sandy: Potential Economic Activity Lost and Gained in New
+Jersey and New York.</p>
+</dd>
+<dt class="label" id="njdep15"><span class="brackets"><a class="fn-backref" href="#id8">NJDEP15</a></span></dt>
+<dd><p>New Jersey Department of Environmental Protection (NJDEP) (2015), Damage Assessment
+Report on the Effects of Hurricane Sandy on the State of New Jersey’s Natural Resources.</p>
+</dd>
+<dt class="label" id="njshmp"><span class="brackets"><a class="fn-backref" href="#id10">NJSHMP</a></span></dt>
+<dd><p>State of New Jersey Office of Emergency Management (2012), The State of New Jersey’s Hazard Mitigation Plan, <a class="reference external" href="http://ready.nj.gov/mitigation/2012-mitigation-plan.shtml">http://ready.nj.gov/mitigation/2012-mitigation-plan.shtml</a>.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>

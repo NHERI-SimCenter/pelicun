@@ -1,0 +1,4711 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Verification Results &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../index.html">
+
+
+
+  
+  <img src="../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Verification Results</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/common/testbeds/atlantic_city/sample_results.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="verification-results">
+<span id="lbl-testbed-ac-sample-results"></span><h1>Verification Results<a class="headerlink" href="#verification-results" title="Permalink to this headline">¶</a></h1>
+<p>This page summarizes sample results from the testbed runs with three major focuses:</p>
+<ol class="arabic simple">
+<li><p>verifying the estimated loss ratios by hand-calculations,</p></li>
+<li><p>demonstrating the sensitivity study with different hurricane categories, and</p></li>
+<li><p>illustrating the influence of building properties on the hurricane loss using the observations from the sample results.</p></li>
+</ol>
+<div class="section" id="building-inventory">
+<h2>Building Inventory<a class="headerlink" href="#building-inventory" title="Permalink to this headline">¶</a></h2>
+<p>From the entire building inventory, 85 buildings (<code class="xref std std-numref docutils literal notranslate"><span class="pre">sample_table</span></code>) are selected from 5 building
+classes and 8 built eras. <code class="xref std std-numref docutils literal notranslate"><span class="pre">scatter_matrix</span></code> shows the data distributions of the built year, surface
+roughness (<span class="math notranslate nohighlight">\(z_0\)</span>), peak wind speed (PWS), and peak water depth (PWD).</p>
+<table class="docutils align-center" id="sample-table">
+<caption><span class="caption-text">Sampled building inventory</span><a class="headerlink" href="#sample-table" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+<col style="width: 2%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>BldgID</p></th>
+<th class="head"><p>Address</p></th>
+<th class="head"><p>City</p></th>
+<th class="head"><p>State</p></th>
+<th class="head"><p>Latitude</p></th>
+<th class="head"><p>Longitude</p></th>
+<th class="head"><p>OccupancyClass</p></th>
+<th class="head"><p>BuildingType</p></th>
+<th class="head"><p>UseCode</p></th>
+<th class="head"><p>BldgClass</p></th>
+<th class="head"><p>DesignLevel</p></th>
+<th class="head"><p>YearBuiltNJDEP</p></th>
+<th class="head"><p>YearBuiltMODIV</p></th>
+<th class="head"><p>NumberofStories0</p></th>
+<th class="head"><p>NumberofStories1</p></th>
+<th class="head"><p>NoUnits</p></th>
+<th class="head"><p>PlanArea0</p></th>
+<th class="head"><p>PlanArea1</p></th>
+<th class="head"><p>FoundationType</p></th>
+<th class="head"><p>SplitLevel</p></th>
+<th class="head"><p>ElevationR0</p></th>
+<th class="head"><p>ElevationR1</p></th>
+<th class="head"><p>FirstFloorHt0</p></th>
+<th class="head"><p>FirstFloorHt1</p></th>
+<th class="head"><p>FloodZone</p></th>
+<th class="head"><p>DSWI</p></th>
+<th class="head"><p>DSWII</p></th>
+<th class="head"><p>DSWIII</p></th>
+<th class="head"><p>DSWIV</p></th>
+<th class="head"><p>WindZone</p></th>
+<th class="head"><p>AvgJanTemp</p></th>
+<th class="head"><p>RoofShape</p></th>
+<th class="head"><p>RoofSlope</p></th>
+<th class="head"><p>RoofCover</p></th>
+<th class="head"><p>RoofSystem</p></th>
+<th class="head"><p>MeanRoofHt</p></th>
+<th class="head"><p>WindowArea</p></th>
+<th class="head"><p>Garage</p></th>
+<th class="head"><p>HazusClassW</p></th>
+<th class="head"><p>HazusClassIN</p></th>
+<th class="head"><p>HazusClassWA</p></th>
+<th class="head"><p>AnalysisDefault</p></th>
+<th class="head"><p>AnalysisAdopted</p></th>
+<th class="head"><p>Modifications</p></th>
+<th class="head"><p>z0</p></th>
+<th class="head"><p>structureType</p></th>
+<th class="head"><p>replacementCost</p></th>
+<th class="head"><p>originID</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>NJBF000083279</p></td>
+<td><p>119 KATHERINE AVENUE</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.44089743</p></td>
+<td><p>-74.71993727</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1946</p></td>
+<td><p>1946</p></td>
+<td><p>3102</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1704.073412</p></td>
+<td><p>1704.073412</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>12.76</p></td>
+<td><p>22.41</p></td>
+<td><p>1</p></td>
+<td><p>0.34</p></td>
+<td><p>6112</p></td>
+<td><p>109.123386</p></td>
+<td><p>118.815168</p></td>
+<td><p>128.490756</p></td>
+<td><p>133.374685</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>17.58580746</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>778</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>NJBF000058080</p></td>
+<td><p>124 N HUNTINGTON AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.33166965</p></td>
+<td><p>-74.50396983</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1946</p></td>
+<td><p>1946</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>964.2719128</p></td>
+<td><p>964.2719128</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>30.76</p></td>
+<td><p>36.4</p></td>
+<td><p>1</p></td>
+<td><p>0.97</p></td>
+<td><p>6106</p></td>
+<td><p>113.36632</p></td>
+<td><p>123.196083</p></td>
+<td><p>132.896558</p></td>
+<td><p>139.462592</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>33.58059091</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>93</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>NJBF000077636</p></td>
+<td><p>2429 BAYSHORE AVE</p></td>
+<td><p>Brigantine</p></td>
+<td><p>NJ</p></td>
+<td><p>39.40000135</p></td>
+<td><p>-74.38391896</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1946</p></td>
+<td><p>1946</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1286.818181</p></td>
+<td><p>1286.818181</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>34.01</p></td>
+<td><p>44.41</p></td>
+<td><p>1</p></td>
+<td><p>0.53</p></td>
+<td><p>6106</p></td>
+<td><p>115.129299</p></td>
+<td><p>124.655717</p></td>
+<td><p>134.538718</p></td>
+<td><p>140.4739</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td><p>Wood</p></td>
+<td><p>39.2087959</p></td>
+<td><p>0</p></td>
+<td><p>1.2</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1210</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>NJBF000068930</p></td>
+<td><p>3534 BARGAINTOWN ROAD</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.35805051</p></td>
+<td><p>-74.58051923</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1953</p></td>
+<td><p>1953</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1678.518665</p></td>
+<td><p>1678.518665</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>17.14</p></td>
+<td><p>28.12</p></td>
+<td><p>1</p></td>
+<td><p>0.14</p></td>
+<td><p>6112</p></td>
+<td><p>111.296122</p></td>
+<td><p>121.561301</p></td>
+<td><p>131.246895</p></td>
+<td><p>137.501093</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>22.62949098</p></td>
+<td><p>0</p></td>
+<td><p>1.2</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>713</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>NJBF000079126</p></td>
+<td><p>207 2ND STREET NO</p></td>
+<td><p>Galloway</p></td>
+<td><p>NJ</p></td>
+<td><p>39.40969176</p></td>
+<td><p>-74.36320682</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>15</p></td>
+<td><p>NE</p></td>
+<td><p>1953</p></td>
+<td><p>1953</p></td>
+<td><p>3102</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>747.7406916</p></td>
+<td><p>747.7406916</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>17.21</p></td>
+<td><p>24.07</p></td>
+<td><p>1</p></td>
+<td><p>2.71</p></td>
+<td><p>6106</p></td>
+<td><p>115.447759</p></td>
+<td><p>124.950731</p></td>
+<td><p>134.877889</p></td>
+<td><p>140.678075</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>20.63738016</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>5179</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>NJBF000078208</p></td>
+<td><p>1413 BAYSHORE AVE</p></td>
+<td><p>Brigantine</p></td>
+<td><p>NJ</p></td>
+<td><p>39.40365222</p></td>
+<td><p>-74.37511144</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>19</p></td>
+<td><p>NE</p></td>
+<td><p>1953</p></td>
+<td><p>2018</p></td>
+<td><p>3102</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>1654.601925</p></td>
+<td><p>1654.601925</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>42.33</p></td>
+<td><p>51.22</p></td>
+<td><p>1</p></td>
+<td><p>0.41</p></td>
+<td><p>6106</p></td>
+<td><p>115.270483</p></td>
+<td><p>124.785062</p></td>
+<td><p>134.686887</p></td>
+<td><p>140.566348</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td><p>Wood</p></td>
+<td><p>46.77500968</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1591</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>NJBF000054995</p></td>
+<td><p>108 OSBORNE RD</p></td>
+<td><p>Somers Point</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32483344</p></td>
+<td><p>-74.60466135</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1964</p></td>
+<td><p>1964</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1781.609397</p></td>
+<td><p>1781.609397</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>10.68</p></td>
+<td><p>24.41</p></td>
+<td><p>1</p></td>
+<td><p>-0.71</p></td>
+<td><p>6110</p></td>
+<td><p>111.383965</p></td>
+<td><p>121.529443</p></td>
+<td><p>131.233897</p></td>
+<td><p>137.487706</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>17.54588115</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1760</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>NJBF000058039</p></td>
+<td><p>300 N JEROME AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.33159311</p></td>
+<td><p>-74.50743266</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1964</p></td>
+<td><p>1964</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1390.50149</p></td>
+<td><p>1390.50149</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>38.38</p></td>
+<td><p>50.97</p></td>
+<td><p>3</p></td>
+<td><p>8.1</p></td>
+<td><p>6106</p></td>
+<td><p>113.291144</p></td>
+<td><p>123.135714</p></td>
+<td><p>132.833592</p></td>
+<td><p>139.392906</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>44.67703156</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1658</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>NJBF000055748</p></td>
+<td><p>2 DOLPHIN DR</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32688437</p></td>
+<td><p>-74.50032485</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>20</p></td>
+<td><p>NE</p></td>
+<td><p>1964</p></td>
+<td><p>1964</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2428.992315</p></td>
+<td><p>2428.992315</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>28.96</p></td>
+<td><p>37.74</p></td>
+<td><p>3</p></td>
+<td><p>6.68</p></td>
+<td><p>6106</p></td>
+<td><p>113.515244</p></td>
+<td><p>123.314794</p></td>
+<td><p>133.016747</p></td>
+<td><p>139.60025</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>33.34836023</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1057</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>NJBF000063022</p></td>
+<td><p>105 E.LAKEVIEW DRIVE</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.34071989</p></td>
+<td><p>-74.61302018</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1975</p></td>
+<td><p>1975</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2101.807978</p></td>
+<td><p>2101.807978</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>31.47</p></td>
+<td><p>41.76</p></td>
+<td><p>3</p></td>
+<td><p>4.16</p></td>
+<td><p>6110</p></td>
+<td><p>110.941781</p></td>
+<td><p>121.197095</p></td>
+<td><p>130.925304</p></td>
+<td><p>137.083765</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>36.61496261</p></td>
+<td><p>0</p></td>
+<td><p>1.2</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1388</p></td>
+</tr>
+<tr class="row-even"><td><p>11</p></td>
+<td><p>NJBF000066110</p></td>
+<td><p>505 N SUFFOLK AVE</p></td>
+<td><p>Ventnor City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.34893143</p></td>
+<td><p>-74.48029156</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1975</p></td>
+<td><p>1975</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1369.5075</p></td>
+<td><p>1369.5075</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>29.19</p></td>
+<td><p>39.67</p></td>
+<td><p>1</p></td>
+<td><p>0.61</p></td>
+<td><p>6106</p></td>
+<td><p>113.655963</p></td>
+<td><p>123.425699</p></td>
+<td><p>133.149889</p></td>
+<td><p>139.650975</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>34.43054298</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>3538</p></td>
+</tr>
+<tr class="row-odd"><td><p>12</p></td>
+<td><p>NJBF000073492</p></td>
+<td><p>10 OCEAN DRIVE WEST</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.38113137</p></td>
+<td><p>-74.40999679</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1975</p></td>
+<td><p>1975</p></td>
+<td><p>3103</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1832.035426</p></td>
+<td><p>1832.035426</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>34.18</p></td>
+<td><p>44.84</p></td>
+<td><p>3</p></td>
+<td><p>1.89</p></td>
+<td><p>6106</p></td>
+<td><p>114.793626</p></td>
+<td><p>124.361982</p></td>
+<td><p>134.195585</p></td>
+<td><p>140.313277</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td><p>Wood</p></td>
+<td><p>39.51043841</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4746</p></td>
+</tr>
+<tr class="row-even"><td><p>13</p></td>
+<td><p>NJBF000057403</p></td>
+<td><p>12 EDGEWOOD DR</p></td>
+<td><p>Somers Point</p></td>
+<td><p>NJ</p></td>
+<td><p>39.33051161</p></td>
+<td><p>-74.60016024</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1981</p></td>
+<td><p>1981</p></td>
+<td><p>3101</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1660.572695</p></td>
+<td><p>1660.572695</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>39.3</p></td>
+<td><p>50.93</p></td>
+<td><p>1</p></td>
+<td><p>1.17</p></td>
+<td><p>6106</p></td>
+<td><p>111.360647</p></td>
+<td><p>121.536699</p></td>
+<td><p>131.242921</p></td>
+<td><p>137.499083</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>45.11670199</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>644</p></td>
+</tr>
+<tr class="row-odd"><td><p>14</p></td>
+<td><p>NJBF000057446</p></td>
+<td><p>28 N HAVERFORD AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.33058915</p></td>
+<td><p>-74.50212761</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>18</p></td>
+<td><p>NE</p></td>
+<td><p>1981</p></td>
+<td><p>1981</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1102.124105</p></td>
+<td><p>1102.124105</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>31.45</p></td>
+<td><p>37.36</p></td>
+<td><p>3</p></td>
+<td><p>0.93</p></td>
+<td><p>6106</p></td>
+<td><p>113.422316</p></td>
+<td><p>123.240902</p></td>
+<td><p>132.942559</p></td>
+<td><p>139.514928</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>34.40348935</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1002</p></td>
+</tr>
+<tr class="row-even"><td><p>15</p></td>
+<td><p>NJBF000051577</p></td>
+<td><p>112 SO 19TH AVE</p></td>
+<td><p>Longport</p></td>
+<td><p>NJ</p></td>
+<td><p>39.3085663</p></td>
+<td><p>-74.53042506</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>19</p></td>
+<td><p>NE</p></td>
+<td><p>1981</p></td>
+<td><p>1981</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2212.132327</p></td>
+<td><p>2212.132327</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>35.91</p></td>
+<td><p>45.71</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>6106</p></td>
+<td><p>113.143422</p></td>
+<td><p>122.999786</p></td>
+<td><p>132.672024</p></td>
+<td><p>139.218871</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>40.80993031</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>3574</p></td>
+</tr>
+<tr class="row-odd"><td><p>16</p></td>
+<td><p>NJBF000062825</p></td>
+<td><p>14 OSPREY COURT</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.34030729</p></td>
+<td><p>-74.60663497</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1996</p></td>
+<td><p>1996</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>3061.752943</p></td>
+<td><p>3061.752943</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>30.15</p></td>
+<td><p>38.03</p></td>
+<td><p>3</p></td>
+<td><p>6.37</p></td>
+<td><p>6112</p></td>
+<td><p>111.061978</p></td>
+<td><p>121.310588</p></td>
+<td><p>131.030056</p></td>
+<td><p>137.222356</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>34.08946275</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1229</p></td>
+</tr>
+<tr class="row-even"><td><p>17</p></td>
+<td><p>NJBF000080725</p></td>
+<td><p>60 KIRKWOOD CIRCLE</p></td>
+<td><p>Galloway</p></td>
+<td><p>NJ</p></td>
+<td><p>39.41602305</p></td>
+<td><p>-74.36369075</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1996</p></td>
+<td><p>1996</p></td>
+<td><p>3102</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1521.689008</p></td>
+<td><p>1521.689008</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>17.16</p></td>
+<td><p>27.22</p></td>
+<td><p>1</p></td>
+<td><p>0.48</p></td>
+<td><p>6106</p></td>
+<td><p>115.372023</p></td>
+<td><p>124.878935</p></td>
+<td><p>134.799662</p></td>
+<td><p>140.591237</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>22.19046033</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>5006</p></td>
+</tr>
+<tr class="row-odd"><td><p>18</p></td>
+<td><p>NJBF000052235</p></td>
+<td><p>21 SUNSET BLVD.</p></td>
+<td><p>Longport</p></td>
+<td><p>NJ</p></td>
+<td><p>39.31354056</p></td>
+<td><p>-74.53655555</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>19</p></td>
+<td><p>NE</p></td>
+<td><p>1996</p></td>
+<td><p>1996</p></td>
+<td><p>3102</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>2287.826589</p></td>
+<td><p>2287.826589</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>37.4</p></td>
+<td><p>47.53</p></td>
+<td><p>1</p></td>
+<td><p>-0.54</p></td>
+<td><p>6106</p></td>
+<td><p>112.933799</p></td>
+<td><p>122.834135</p></td>
+<td><p>132.508544</p></td>
+<td><p>139.034476</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>42.46263153</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>3490</p></td>
+</tr>
+<tr class="row-even"><td><p>19</p></td>
+<td><p>NJBF000063149</p></td>
+<td><p>150A BEVIS MILL ROAD</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.34098334</p></td>
+<td><p>-74.64006741</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>2006</p></td>
+<td><p>2006</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>3226.849111</p></td>
+<td><p>3226.849111</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>15.98</p></td>
+<td><p>28.26</p></td>
+<td><p>3</p></td>
+<td><p>2.71</p></td>
+<td><p>6110</p></td>
+<td><p>110.538024</p></td>
+<td><p>120.738619</p></td>
+<td><p>130.511821</p></td>
+<td><p>136.518553</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>22.12207138</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1234</p></td>
+</tr>
+<tr class="row-odd"><td><p>20</p></td>
+<td><p>NJBF000055958</p></td>
+<td><p>1748 MAYS LANDING S.P.RD</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32736631</p></td>
+<td><p>-74.63842395</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>2006</p></td>
+<td><p>2006</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1973.228583</p></td>
+<td><p>1973.228583</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>44.59</p></td>
+<td><p>54.42</p></td>
+<td><p>3</p></td>
+<td><p>6.67</p></td>
+<td><p>6106</p></td>
+<td><p>110.808034</p></td>
+<td><p>120.937296</p></td>
+<td><p>130.682753</p></td>
+<td><p>136.753477</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>49.50772892</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1527</p></td>
+</tr>
+<tr class="row-even"><td><p>21</p></td>
+<td><p>NJBF000079672</p></td>
+<td><p>224 QUAY BLVD</p></td>
+<td><p>Galloway</p></td>
+<td><p>NJ</p></td>
+<td><p>39.41227522</p></td>
+<td><p>-74.35850232</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>19</p></td>
+<td><p>NE</p></td>
+<td><p>2006</p></td>
+<td><p>2006</p></td>
+<td><p>3102</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>1886.896463</p></td>
+<td><p>1886.896463</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>49.29</p></td>
+<td><p>54.5</p></td>
+<td><p>1</p></td>
+<td><p>2.09</p></td>
+<td><p>6106</p></td>
+<td><p>115.515226</p></td>
+<td><p>125.014941</p></td>
+<td><p>134.952091</p></td>
+<td><p>140.720169</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>51.89537976</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4301</p></td>
+</tr>
+<tr class="row-odd"><td><p>22</p></td>
+<td><p>NJBF000053161</p></td>
+<td><p>423 BAY AVE</p></td>
+<td><p>Somers Point</p></td>
+<td><p>NJ</p></td>
+<td><p>39.3189379</p></td>
+<td><p>-74.58771563</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>2015</p></td>
+<td><p>2015</p></td>
+<td><p>3102</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1340.105103</p></td>
+<td><p>1340.105103</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>22.24</p></td>
+<td><p>34.56</p></td>
+<td><p>3</p></td>
+<td><p>0.11</p></td>
+<td><p>6106</p></td>
+<td><p>111.802644</p></td>
+<td><p>121.888778</p></td>
+<td><p>131.574061</p></td>
+<td><p>137.919915</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>28.39625358</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1477</p></td>
+</tr>
+<tr class="row-even"><td><p>23</p></td>
+<td><p>NJBF000060264</p></td>
+<td><p>221 N CLERMONT AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.33567688</p></td>
+<td><p>-74.49940658</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>20</p></td>
+<td><p>NE</p></td>
+<td><p>2015</p></td>
+<td><p>2015</p></td>
+<td><p>3103</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>1185.58877</p></td>
+<td><p>1185.58877</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>69.05</p></td>
+<td><p>74.61</p></td>
+<td><p>3</p></td>
+<td><p>-2.59</p></td>
+<td><p>6106</p></td>
+<td><p>113.410497</p></td>
+<td><p>123.231798</p></td>
+<td><p>132.936675</p></td>
+<td><p>139.498669</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>71.83210025</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4193</p></td>
+</tr>
+<tr class="row-odd"><td><p>24</p></td>
+<td><p>NJBF000062062</p></td>
+<td><p>8206 BAYSHORE DR WEST</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.338735</p></td>
+<td><p>-74.51212</p></td>
+<td><p>RES1</p></td>
+<td><p>3001</p></td>
+<td></td>
+<td><p>22</p></td>
+<td><p>NE</p></td>
+<td><p>2015</p></td>
+<td><p>2015</p></td>
+<td><p>3102</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>1673.62059</p></td>
+<td><p>1673.62059</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>39.76</p></td>
+<td><p>45.53</p></td>
+<td><p>3</p></td>
+<td><p>5.7</p></td>
+<td><p>6106</p></td>
+<td><p>113.086593</p></td>
+<td><p>122.972278</p></td>
+<td><p>132.667723</p></td>
+<td><p>139.195935</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>42.64444635</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4123</p></td>
+</tr>
+<tr class="row-even"><td><p>25</p></td>
+<td><p>NJBF000081863</p></td>
+<td><p>1 N SHORE ROAD</p></td>
+<td><p>Absecon</p></td>
+<td><p>NJ</p></td>
+<td><p>39.42388503</p></td>
+<td><p>-74.49982203</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1925</p></td>
+<td><p>0</p></td>
+<td><p>3401</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>4704.929432</p></td>
+<td><p>4704.929432</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>51.02</p></td>
+<td><p>65.84</p></td>
+<td><p>1</p></td>
+<td><p>2.28</p></td>
+<td><p>6112</p></td>
+<td><p>112.484837</p></td>
+<td><p>122.282696</p></td>
+<td><p>131.918542</p></td>
+<td><p>138.088621</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>58.43117522</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>493</p></td>
+</tr>
+<tr class="row-odd"><td><p>26</p></td>
+<td><p>NJBF000069338</p></td>
+<td><p>117 S NEW YORK AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.35974596</p></td>
+<td><p>-74.42787204</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>45</p></td>
+<td><p>ME</p></td>
+<td><p>1930</p></td>
+<td><p>1930</p></td>
+<td><p>3401</p></td>
+<td><p>3</p></td>
+<td><p>2</p></td>
+<td><p>604.1005315</p></td>
+<td><p>604.1005315</p></td>
+<td><p>3507</p></td>
+<td><p>YES</p></td>
+<td><p>48.29</p></td>
+<td><p>55.95</p></td>
+<td><p>1</p></td>
+<td><p>-0.54</p></td>
+<td><p>6106</p></td>
+<td><p>114.664046</p></td>
+<td><p>124.256657</p></td>
+<td><p>134.059346</p></td>
+<td><p>140.330643</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>52.12151513</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>947</p></td>
+</tr>
+<tr class="row-even"><td><p>27</p></td>
+<td><p>NJBF000055216</p></td>
+<td><p>9300 AMHERST AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32546032</p></td>
+<td><p>-74.51723828</p></td>
+<td><p>COM8</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1946</p></td>
+<td><p>1946</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>13901.71132</p></td>
+<td><p>13901.71132</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>13.8</p></td>
+<td><p>19.45</p></td>
+<td><p>1</p></td>
+<td><p>-0.77</p></td>
+<td><p>6106</p></td>
+<td><p>113.1657</p></td>
+<td><p>123.032821</p></td>
+<td><p>132.722552</p></td>
+<td><p>139.27414</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>16.62780063</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1223</p></td>
+</tr>
+<tr class="row-odd"><td><p>28</p></td>
+<td><p>NJBF000075034</p></td>
+<td><p>326 S MAIN ST</p></td>
+<td><p>Pleasantville</p></td>
+<td><p>NJ</p></td>
+<td><p>39.388503</p></td>
+<td><p>-74.525201</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1955</p></td>
+<td><p>1955</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1647.747398</p></td>
+<td><p>1647.747398</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>16.79</p></td>
+<td><p>22.67</p></td>
+<td><p>1</p></td>
+<td><p>1.09</p></td>
+<td><p>6112</p></td>
+<td><p>112.212548</p></td>
+<td><p>122.202666</p></td>
+<td><p>131.85152</p></td>
+<td><p>138.156115</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>19.72695846</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>6602</p></td>
+</tr>
+<tr class="row-even"><td><p>29</p></td>
+<td><p>NJBF000054971</p></td>
+<td><p>127 N WASHINGTON AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32478959</p></td>
+<td><p>-74.51586363</p></td>
+<td><p>RES3B</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>22</p></td>
+<td><p>ME</p></td>
+<td><p>1951</p></td>
+<td><p>1951</p></td>
+<td><p>3301</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>3078.127629</p></td>
+<td><p>3078.127629</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>28.8</p></td>
+<td><p>38.12</p></td>
+<td><p>1</p></td>
+<td><p>0.17</p></td>
+<td><p>6106</p></td>
+<td><p>113.205698</p></td>
+<td><p>123.064686</p></td>
+<td><p>132.754935</p></td>
+<td><p>139.3108</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>33.45973317</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>727</p></td>
+</tr>
+<tr class="row-odd"><td><p>30</p></td>
+<td><p>NJBF000073390</p></td>
+<td><p>8012 BLACK HORSE PIKE</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.38033785</p></td>
+<td><p>-74.49374336</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td><p>999</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1950</p></td>
+<td><p>1950</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2404.890882</p></td>
+<td><p>2404.890882</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>24.54</p></td>
+<td><p>37.44</p></td>
+<td><p>1</p></td>
+<td><p>0.78</p></td>
+<td><p>6106</p></td>
+<td><p>112.990314</p></td>
+<td><p>122.846352</p></td>
+<td><p>132.538498</p></td>
+<td><p>138.895767</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>30.99333269</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1287</p></td>
+</tr>
+<tr class="row-even"><td><p>31</p></td>
+<td><p>NJBF000057470</p></td>
+<td><p>199 NEW RD</p></td>
+<td><p>Somers Point</p></td>
+<td><p>NJ</p></td>
+<td><p>39.34250417</p></td>
+<td><p>-74.600954</p></td>
+<td><p>COM3</p></td>
+<td><p>3003</p></td>
+<td><p>51</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1969</p></td>
+<td><p>1972</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>3419.706048</p></td>
+<td><p>3419.706048</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>11.92</p></td>
+<td><p>22.21</p></td>
+<td><p>1</p></td>
+<td><p>-0.4</p></td>
+<td><p>6112</p></td>
+<td><p>111.127063</p></td>
+<td><p>121.382275</p></td>
+<td><p>131.095304</p></td>
+<td><p>137.307981</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>17.06549151</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1928</p></td>
+</tr>
+<tr class="row-odd"><td><p>32</p></td>
+<td><p>NJBF000055129</p></td>
+<td><p>9306 AMHERST AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32521983</p></td>
+<td><p>-74.517374</p></td>
+<td><p>COM8</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1969</p></td>
+<td><p>0</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1383.820097</p></td>
+<td><p>1383.820097</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>38.93</p></td>
+<td><p>44.76</p></td>
+<td><p>1</p></td>
+<td><p>2.54</p></td>
+<td><p>6106</p></td>
+<td><p>113.166311</p></td>
+<td><p>123.033188</p></td>
+<td><p>132.722748</p></td>
+<td><p>139.274482</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>41.84739883</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1224</p></td>
+</tr>
+<tr class="row-even"><td><p>33</p></td>
+<td><p>NJBF000055126</p></td>
+<td><p>9314 AMHERST AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.3252134</p></td>
+<td><p>-74.51763481</p></td>
+<td><p>COM8</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1969</p></td>
+<td><p>0</p></td>
+<td><p>3401</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>6896.468324</p></td>
+<td><p>6896.468324</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>48.24</p></td>
+<td><p>61.68</p></td>
+<td><p>1</p></td>
+<td><p>2.03</p></td>
+<td><p>6106</p></td>
+<td><p>113.160717</p></td>
+<td><p>123.02868</p></td>
+<td><p>132.718091</p></td>
+<td><p>139.269253</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>54.9626489</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4429</p></td>
+</tr>
+<tr class="row-odd"><td><p>34</p></td>
+<td><p>NJBF000095464</p></td>
+<td><p>51 N WHITE HORSE PK</p></td>
+<td><p>Hammonton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.65027125</p></td>
+<td><p>-74.7907762</p></td>
+<td><p>COM4</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1970</p></td>
+<td><p>1970</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2130.323792</p></td>
+<td><p>2130.323792</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>11.53</p></td>
+<td><p>23.92</p></td>
+<td><p>1</p></td>
+<td><p>0.88</p></td>
+<td><p>6112</p></td>
+<td><p>108.018414</p></td>
+<td><p>116.337196</p></td>
+<td><p>126.216513</p></td>
+<td><p>129.465836</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>17.72781306</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1709</p></td>
+</tr>
+<tr class="row-even"><td><p>35</p></td>
+<td><p>NJBF000054073</p></td>
+<td><p>9309-11 VENTNOR AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32229704</p></td>
+<td><p>-74.51448533</p></td>
+<td><p>COM3</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1979</p></td>
+<td><p>1979</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2187.293921</p></td>
+<td><p>2187.293921</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>32.61</p></td>
+<td><p>43.22</p></td>
+<td><p>1</p></td>
+<td><p>2.14</p></td>
+<td><p>6106</p></td>
+<td><p>113.273087</p></td>
+<td><p>123.117634</p></td>
+<td><p>132.807583</p></td>
+<td><p>139.370481</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>37.91919315</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4740</p></td>
+</tr>
+<tr class="row-odd"><td><p>36</p></td>
+<td><p>NJBF000095306</p></td>
+<td><p>91 LINDA AVE</p></td>
+<td><p>Hammonton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.64934151</p></td>
+<td><p>-74.79326324</p></td>
+<td><p>COM4</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>ME</p></td>
+<td><p>1980</p></td>
+<td><p>1980</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>2819.791689</p></td>
+<td><p>2819.791689</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>16.63</p></td>
+<td><p>24.36</p></td>
+<td><p>1</p></td>
+<td><p>1.4</p></td>
+<td><p>6112</p></td>
+<td><p>108.000397</p></td>
+<td><p>116.326086</p></td>
+<td><p>126.202341</p></td>
+<td><p>129.445146</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>20.49300661</p></td>
+<td><p>0</p></td>
+<td><p>1.2</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1704</p></td>
+</tr>
+<tr class="row-even"><td><p>37</p></td>
+<td><p>NJBF000069522</p></td>
+<td><p>100 S NORTH CAROLINA AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36117815</p></td>
+<td><p>-74.42469566</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td><p>100</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1982</p></td>
+<td><p>1982</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>0</p></td>
+<td><p>31554.39973</p></td>
+<td><p>31554.39973</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>29.85</p></td>
+<td><p>36.09</p></td>
+<td><p>1</p></td>
+<td><p>0.47</p></td>
+<td><p>6106</p></td>
+<td><p>114.714629</p></td>
+<td><p>124.299534</p></td>
+<td><p>134.107991</p></td>
+<td><p>140.359489</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>32.96561069</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>2879</p></td>
+</tr>
+<tr class="row-odd"><td><p>38</p></td>
+<td><p>NJBF000067126</p></td>
+<td><p>5219 WELLINGTON AVE</p></td>
+<td><p>Ventnor City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.35219284</p></td>
+<td><p>-74.480485</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1982</p></td>
+<td><p>1982</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>3112.718698</p></td>
+<td><p>3112.718698</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>13.83</p></td>
+<td><p>21.16</p></td>
+<td><p>1</p></td>
+<td><p>1.86</p></td>
+<td><p>6106</p></td>
+<td><p>113.610088</p></td>
+<td><p>123.386618</p></td>
+<td><p>133.110071</p></td>
+<td><p>139.594352</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>17.49422256</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4865</p></td>
+</tr>
+<tr class="row-even"><td><p>39</p></td>
+<td><p>NJBF000083345</p></td>
+<td><p>529 S NEW YORK RD</p></td>
+<td><p>Galloway</p></td>
+<td><p>NJ</p></td>
+<td><p>39.44275733</p></td>
+<td><p>-74.47802367</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td><p>562</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1992</p></td>
+<td><p>1992</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>3439.636383</p></td>
+<td><p>3439.636383</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>26.82</p></td>
+<td><p>35.75</p></td>
+<td><p>1</p></td>
+<td><p>-0.02</p></td>
+<td><p>6112</p></td>
+<td><p>112.802825</p></td>
+<td><p>122.472991</p></td>
+<td><p>132.127159</p></td>
+<td><p>138.213243</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>31.28504917</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>3761</p></td>
+</tr>
+<tr class="row-odd"><td><p>40</p></td>
+<td><p>NJBF000070351</p></td>
+<td><p>1411 DREXEL AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.3667895</p></td>
+<td><p>-74.4320585</p></td>
+<td><p>RES3C</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>E</p></td>
+<td><p>2007</p></td>
+<td><p>2007</p></td>
+<td><p>3305</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>766.9773282</p></td>
+<td><p>766.9773282</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>27.06</p></td>
+<td><p>37.98</p></td>
+<td><p>1</p></td>
+<td><p>1.27</p></td>
+<td><p>6106</p></td>
+<td><p>114.48954</p></td>
+<td><p>124.106103</p></td>
+<td><p>133.900371</p></td>
+<td><p>140.166241</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>32.52154366</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>6248</p></td>
+</tr>
+<tr class="row-even"><td><p>41</p></td>
+<td><p>NJBF000075076</p></td>
+<td><p>306 S MAIN ST</p></td>
+<td><p>Pleasantville</p></td>
+<td><p>NJ</p></td>
+<td><p>39.38863732</p></td>
+<td><p>-74.52490788</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>2010</p></td>
+<td><p>2010</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>11692.02322</p></td>
+<td><p>11692.02322</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>15.06</p></td>
+<td><p>21.7</p></td>
+<td><p>1</p></td>
+<td><p>0.95</p></td>
+<td><p>6110</p></td>
+<td><p>112.217859</p></td>
+<td><p>122.206414</p></td>
+<td><p>131.855345</p></td>
+<td><p>138.159782</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>18.38054021</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>6393</p></td>
+</tr>
+<tr class="row-odd"><td><p>42</p></td>
+<td><p>NJBF000074931</p></td>
+<td><p>310 E BLACK HORSE PIKE</p></td>
+<td><p>Pleasantville</p></td>
+<td><p>NJ</p></td>
+<td><p>39.38820591</p></td>
+<td><p>-74.51848316</p></td>
+<td><p>COM1</p></td>
+<td><p>3003</p></td>
+<td><p>959</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>2015</p></td>
+<td><p>2015</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>5687.644715</p></td>
+<td><p>5687.644715</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>10.94</p></td>
+<td><p>23.23</p></td>
+<td><p>1</p></td>
+<td><p>-0.32</p></td>
+<td><p>6106</p></td>
+<td><p>112.364416</p></td>
+<td><p>122.323968</p></td>
+<td><p>131.979664</p></td>
+<td><p>138.293419</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>17.08336503</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>6002</p></td>
+</tr>
+<tr class="row-even"><td><p>43</p></td>
+<td><p>NJBF000086450</p></td>
+<td><p>6935 BLACK HORSE PIKE</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.51390851</p></td>
+<td><p>-74.77842456</p></td>
+<td><p>COM4</p></td>
+<td><p>3004</p></td>
+<td><p>210</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1948</p></td>
+<td><p>1948</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>16322.74663</p></td>
+<td><p>16322.74663</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>14.43</p></td>
+<td><p>20.93</p></td>
+<td><p>1</p></td>
+<td><p>1.98</p></td>
+<td><p>6110</p></td>
+<td><p>108.468344</p></td>
+<td><p>117.609405</p></td>
+<td><p>127.30293</p></td>
+<td><p>131.226104</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>17.67638697</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>555</p></td>
+</tr>
+<tr class="row-odd"><td><p>44</p></td>
+<td><p>NJBF000067933</p></td>
+<td><p>17 S CALIFORNIA AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.35505965</p></td>
+<td><p>-74.4438384</p></td>
+<td><p>RES3A</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>45</p></td>
+<td><p>NE</p></td>
+<td><p>1940</p></td>
+<td><p>1940</p></td>
+<td><p>3301</p></td>
+<td><p>4</p></td>
+<td><p>3</p></td>
+<td><p>1106.02091</p></td>
+<td><p>1106.02091</p></td>
+<td><p>3505</p></td>
+<td><p>YES</p></td>
+<td><p>67.49</p></td>
+<td><p>76.87</p></td>
+<td><p>3</p></td>
+<td><p>6.23</p></td>
+<td><p>6106</p></td>
+<td><p>114.377438</p></td>
+<td><p>124.016144</p></td>
+<td><p>133.79143</p></td>
+<td><p>140.150842</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td><p>Wood</p></td>
+<td><p>72.17815322</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>3903</p></td>
+</tr>
+<tr class="row-even"><td><p>45</p></td>
+<td><p>NJBF000071585</p></td>
+<td><p>1000 SEWELL AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.371001</p></td>
+<td><p>-74.42897166</p></td>
+<td><p>RES3C</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>33</p></td>
+<td><p>ME</p></td>
+<td><p>1920</p></td>
+<td><p>1920</p></td>
+<td><p>3301</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2434.136116</p></td>
+<td><p>2434.136116</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>23.18</p></td>
+<td><p>29.25</p></td>
+<td><p>3</p></td>
+<td><p>-0.06</p></td>
+<td><p>6106</p></td>
+<td><p>114.50636</p></td>
+<td><p>124.118298</p></td>
+<td><p>133.917324</p></td>
+<td><p>140.154888</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>26.21392565</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1575</p></td>
+</tr>
+<tr class="row-odd"><td><p>46</p></td>
+<td><p>NJBF000067532</p></td>
+<td><p>112 S TEXAS AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.35374935</p></td>
+<td><p>-74.44195231</p></td>
+<td><p>RES3A</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>45</p></td>
+<td><p>NE</p></td>
+<td><p>1951</p></td>
+<td><p>1951</p></td>
+<td><p>3301</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>1190.423227</p></td>
+<td><p>1190.423227</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>30.12</p></td>
+<td><p>41.29</p></td>
+<td><p>3</p></td>
+<td><p>5.53</p></td>
+<td><p>6106</p></td>
+<td><p>114.434654</p></td>
+<td><p>124.064327</p></td>
+<td><p>133.842736</p></td>
+<td><p>140.198904</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td><p>Wood</p></td>
+<td><p>35.70291661</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>675</p></td>
+</tr>
+<tr class="row-even"><td><p>47</p></td>
+<td><p>NJBF000057402</p></td>
+<td></td>
+<td><p>Somers Point</p></td>
+<td><p>NJ</p></td>
+<td><p>39.33050917</p></td>
+<td><p>-74.59520012</p></td>
+<td><p>COM1</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1969</p></td>
+<td><p>0</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>11849.89921</p></td>
+<td><p>11849.89921</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>12.8</p></td>
+<td><p>21.15</p></td>
+<td><p>1</p></td>
+<td><p>0.76</p></td>
+<td><p>6112</p></td>
+<td><p>111.45316</p></td>
+<td><p>121.621223</p></td>
+<td><p>131.32293</p></td>
+<td><p>137.601687</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>16.97565766</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1399</p></td>
+</tr>
+<tr class="row-odd"><td><p>48</p></td>
+<td><p>NJBF000054164</p></td>
+<td></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32258811</p></td>
+<td><p>-74.5203292</p></td>
+<td><p>RES3B</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1969</p></td>
+<td><p>0</p></td>
+<td><p>3301</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>4125.121338</p></td>
+<td><p>4125.121338</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>15.45</p></td>
+<td><p>28.72</p></td>
+<td><p>3</p></td>
+<td><p>-0.39</p></td>
+<td><p>6106</p></td>
+<td><p>113.14151</p></td>
+<td><p>123.011634</p></td>
+<td><p>132.698438</p></td>
+<td><p>139.2482</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>22.08220942</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1457</p></td>
+</tr>
+<tr class="row-even"><td><p>49</p></td>
+<td><p>NJBF000070799</p></td>
+<td><p>24 N VERMONT AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36847723</p></td>
+<td><p>-74.41510563</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td><p>29</p></td>
+<td><p>NaN</p></td>
+<td><p>E</p></td>
+<td><p>1969</p></td>
+<td><p>0</p></td>
+<td><p>3303</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>3227.227931</p></td>
+<td><p>3227.227931</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>76.59</p></td>
+<td><p>86.08</p></td>
+<td><p>3</p></td>
+<td><p>8.75</p></td>
+<td><p>6106</p></td>
+<td><p>114.831509</p></td>
+<td><p>124.398829</p></td>
+<td><p>134.225009</p></td>
+<td><p>140.406687</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>81.33669568</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1221</p></td>
+</tr>
+<tr class="row-odd"><td><p>50</p></td>
+<td><p>NJBF000095360</p></td>
+<td><p>51 N WHITE HORSE PK</p></td>
+<td><p>Hammonton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.64970618</p></td>
+<td><p>-74.79125476</p></td>
+<td><p>GOV2</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>E</p></td>
+<td><p>1970</p></td>
+<td><p>1970</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>11339.30035</p></td>
+<td><p>11339.30035</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>21.05</p></td>
+<td><p>27.5</p></td>
+<td><p>1</p></td>
+<td><p>2.79</p></td>
+<td><p>6112</p></td>
+<td><p>108.016068</p></td>
+<td><p>116.338541</p></td>
+<td><p>126.216419</p></td>
+<td><p>129.465977</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>24.27340785</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1707</p></td>
+</tr>
+<tr class="row-even"><td><p>51</p></td>
+<td><p>NJBF000056903</p></td>
+<td><p>180 EXTON RD</p></td>
+<td><p>Somers Point</p></td>
+<td><p>NJ</p></td>
+<td><p>39.3295025</p></td>
+<td><p>-74.6092315</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td><p>20</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1971</p></td>
+<td><p>1971</p></td>
+<td><p>3301</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>6588.726024</p></td>
+<td><p>6588.726024</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>29.15</p></td>
+<td><p>41.95</p></td>
+<td><p>1</p></td>
+<td><p>1.56</p></td>
+<td><p>6110</p></td>
+<td><p>111.217464</p></td>
+<td><p>121.395159</p></td>
+<td><p>131.10962</p></td>
+<td><p>137.326055</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>35.55092647</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>699</p></td>
+</tr>
+<tr class="row-odd"><td><p>52</p></td>
+<td><p>NJBF000083177</p></td>
+<td><p>334 WAVELAND AVE</p></td>
+<td><p>Galloway</p></td>
+<td><p>NJ</p></td>
+<td><p>39.4389745</p></td>
+<td><p>-74.52216105</p></td>
+<td><p>COM4</p></td>
+<td><p>3004</p></td>
+<td><p>660</p></td>
+<td><p>15</p></td>
+<td><p>ME</p></td>
+<td><p>1989</p></td>
+<td><p>1989</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>949.9101366</p></td>
+<td><p>949.9101366</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>11.67</p></td>
+<td><p>21.16</p></td>
+<td><p>1</p></td>
+<td><p>-0.78</p></td>
+<td><p>6112</p></td>
+<td><p>111.936404</p></td>
+<td><p>121.737682</p></td>
+<td><p>131.320812</p></td>
+<td><p>137.414387</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>16.41406922</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>5395</p></td>
+</tr>
+<tr class="row-even"><td><p>53</p></td>
+<td><p>NJBF000054347</p></td>
+<td><p>20A N WASHINGTON AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32312337</p></td>
+<td><p>-74.51492155</p></td>
+<td><p>RES3C</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>39</p></td>
+<td><p>ME</p></td>
+<td><p>1984</p></td>
+<td><p>1984</p></td>
+<td><p>3301</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>1094.607767</p></td>
+<td><p>1094.607767</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>52.72</p></td>
+<td><p>65.86</p></td>
+<td><p>3</p></td>
+<td><p>3.9</p></td>
+<td><p>6106</p></td>
+<td><p>113.251173</p></td>
+<td><p>123.100433</p></td>
+<td><p>132.79051</p></td>
+<td><p>139.351221</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>59.2856875</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>3017</p></td>
+</tr>
+<tr class="row-odd"><td><p>54</p></td>
+<td><p>NJBF000070949</p></td>
+<td><p>118 HOUSTON AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36895475</p></td>
+<td><p>-74.41774422</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>37</p></td>
+<td><p>E</p></td>
+<td><p>1991</p></td>
+<td><p>1991</p></td>
+<td><p>3303</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1259.671486</p></td>
+<td><p>1259.671486</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>30.01</p></td>
+<td><p>36.71</p></td>
+<td><p>3</p></td>
+<td><p>7.52</p></td>
+<td><p>6106</p></td>
+<td><p>114.769858</p></td>
+<td><p>124.345442</p></td>
+<td><p>134.166361</p></td>
+<td><p>140.359354</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>33.36162631</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4047</p></td>
+</tr>
+<tr class="row-even"><td><p>55</p></td>
+<td><p>NJBF000071205</p></td>
+<td><p>207 GRAMMERCY PL</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36975058</p></td>
+<td><p>-74.41456687</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>28</p></td>
+<td><p>E</p></td>
+<td><p>1997</p></td>
+<td><p>1997</p></td>
+<td><p>3303</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>2265.173094</p></td>
+<td><p>2265.173094</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>29.29</p></td>
+<td><p>39.72</p></td>
+<td><p>3</p></td>
+<td><p>6.43</p></td>
+<td><p>6106</p></td>
+<td><p>114.827925</p></td>
+<td><p>124.395492</p></td>
+<td><p>134.22256</p></td>
+<td><p>140.397614</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>34.50184309</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>2432</p></td>
+</tr>
+<tr class="row-odd"><td><p>56</p></td>
+<td><p>NJBF000071172</p></td>
+<td><p>136 N RHODE ISLAND AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36965582</p></td>
+<td><p>-74.41743749</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>27</p></td>
+<td><p>E</p></td>
+<td><p>2005</p></td>
+<td><p>2005</p></td>
+<td><p>3303</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2166.425644</p></td>
+<td><p>2166.425644</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>24.47</p></td>
+<td><p>30.67</p></td>
+<td><p>3</p></td>
+<td><p>-0.21</p></td>
+<td><p>6106</p></td>
+<td><p>114.768135</p></td>
+<td><p>124.343779</p></td>
+<td><p>134.165188</p></td>
+<td><p>140.354467</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>27.57236549</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1209</p></td>
+</tr>
+<tr class="row-even"><td><p>57</p></td>
+<td><p>NJBF000071182</p></td>
+<td><p>410 MADISON AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36968698</p></td>
+<td><p>-74.41779165</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>E</p></td>
+<td><p>2005</p></td>
+<td><p>2005</p></td>
+<td><p>3303</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1107.846639</p></td>
+<td><p>1107.846639</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>38.14</p></td>
+<td><p>53.01</p></td>
+<td><p>3</p></td>
+<td><p>2.52</p></td>
+<td><p>6106</p></td>
+<td><p>114.760228</p></td>
+<td><p>124.336941</p></td>
+<td><p>134.157648</p></td>
+<td><p>140.34853</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>45.57743371</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>2603</p></td>
+</tr>
+<tr class="row-odd"><td><p>58</p></td>
+<td><p>NJBF000070851</p></td>
+<td><p>117 N CONGRESS AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36864162</p></td>
+<td><p>-74.41869082</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>E</p></td>
+<td><p>2011</p></td>
+<td><p>2011</p></td>
+<td><p>3303</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>802.0152211</p></td>
+<td><p>802.0152211</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>35.33</p></td>
+<td><p>42.74</p></td>
+<td><p>3</p></td>
+<td><p>1.3</p></td>
+<td><p>6106</p></td>
+<td><p>114.753413</p></td>
+<td><p>124.33133</p></td>
+<td><p>134.150448</p></td>
+<td><p>140.348989</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>39.03848087</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4149</p></td>
+</tr>
+<tr class="row-even"><td><p>59</p></td>
+<td><p>NJBF000070902</p></td>
+<td><p>118 N MASSACHUSETTS AVE</p></td>
+<td><p>Atlantic City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.36880762</p></td>
+<td><p>-74.41846797</p></td>
+<td><p>RES3D</p></td>
+<td><p>3004</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>E</p></td>
+<td><p>2011</p></td>
+<td><p>2011</p></td>
+<td><p>3303</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>709.3505582</p></td>
+<td><p>709.3505582</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>42.15</p></td>
+<td><p>54.26</p></td>
+<td><p>3</p></td>
+<td><p>-0.95</p></td>
+<td><p>6106</p></td>
+<td><p>114.756199</p></td>
+<td><p>124.33369</p></td>
+<td><p>134.153217</p></td>
+<td><p>140.350157</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td><p>Wood</p></td>
+<td><p>48.20750768</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1310</p></td>
+</tr>
+<tr class="row-odd"><td><p>60</p></td>
+<td><p>NJBF000097484</p></td>
+<td><p>221 COLUMBIA RD</p></td>
+<td><p>Hammonton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.66442193</p></td>
+<td><p>-74.76504316</p></td>
+<td><p>AGR1</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>15</p></td>
+<td><p>NE</p></td>
+<td><p>1940</p></td>
+<td><p>1940</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1472.420015</p></td>
+<td><p>1472.420015</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>16.89</p></td>
+<td><p>24.04</p></td>
+<td><p>1</p></td>
+<td><p>2.98</p></td>
+<td><p>6103</p></td>
+<td><p>108.195876</p></td>
+<td><p>116.411555</p></td>
+<td><p>126.333375</p></td>
+<td><p>129.627018</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>20.46252452</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1822</p></td>
+</tr>
+<tr class="row-even"><td><p>61</p></td>
+<td><p>NJBF000088045</p></td>
+<td></td>
+<td><p>Port Republic</p></td>
+<td><p>NJ</p></td>
+<td><p>39.54763197</p></td>
+<td><p>-74.46234038</p></td>
+<td><p>COM4</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1940</p></td>
+<td><p>0</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1646.407216</p></td>
+<td><p>1646.407216</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>29.84</p></td>
+<td><p>39.58</p></td>
+<td><p>1</p></td>
+<td><p>0.17</p></td>
+<td><p>6106</p></td>
+<td><p>112.455822</p></td>
+<td><p>121.567875</p></td>
+<td><p>131.158504</p></td>
+<td><p>136.943158</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>34.7065761</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>184</p></td>
+</tr>
+<tr class="row-odd"><td><p>62</p></td>
+<td><p>NJBF000052049</p></td>
+<td><p>23 MAYS LANDING RD</p></td>
+<td><p>Somers Point</p></td>
+<td><p>NJ</p></td>
+<td><p>39.31265761</p></td>
+<td><p>-74.61287565</p></td>
+<td><p>COM1</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1956</p></td>
+<td><p>1956</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>34819.11281</p></td>
+<td><p>34819.11281</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>17.07</p></td>
+<td><p>24.59</p></td>
+<td><p>1</p></td>
+<td><p>0.16</p></td>
+<td><p>6110</p></td>
+<td><p>111.46761</p></td>
+<td><p>121.545171</p></td>
+<td><p>131.236146</p></td>
+<td><p>137.492116</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>20.82998617</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>625</p></td>
+</tr>
+<tr class="row-even"><td><p>63</p></td>
+<td><p>NJBF000087482</p></td>
+<td><p>7 NEW YORK RD</p></td>
+<td><p>Port Republic</p></td>
+<td><p>NJ</p></td>
+<td><p>39.5346575</p></td>
+<td><p>-74.4655905</p></td>
+<td><p>IND3</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>E</p></td>
+<td><p>1950</p></td>
+<td><p>1950</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1479.066246</p></td>
+<td><p>1479.066246</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>12.94</p></td>
+<td><p>18.93</p></td>
+<td><p>1</p></td>
+<td><p>2.07</p></td>
+<td><p>6112</p></td>
+<td><p>112.476775</p></td>
+<td><p>121.669075</p></td>
+<td><p>131.268282</p></td>
+<td><p>137.073269</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>15.93881638</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.7</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>55</p></td>
+</tr>
+<tr class="row-odd"><td><p>64</p></td>
+<td><p>NJBF000088315</p></td>
+<td><p>838 CHESTNUT NECK RD</p></td>
+<td><p>Port Republic</p></td>
+<td><p>NJ</p></td>
+<td><p>39.54803791</p></td>
+<td><p>-74.46150522</p></td>
+<td><p>COM4</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1956</p></td>
+<td><p>0</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>528.1563887</p></td>
+<td><p>528.1563887</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>14.2</p></td>
+<td><p>21.22</p></td>
+<td><p>1</p></td>
+<td><p>1.43</p></td>
+<td><p>6102</p></td>
+<td><p>112.467603</p></td>
+<td><p>121.577652</p></td>
+<td><p>131.168241</p></td>
+<td><p>136.954051</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>17.71108713</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>119</p></td>
+</tr>
+<tr class="row-even"><td><p>65</p></td>
+<td><p>NJBF000083941</p></td>
+<td><p>45 MILL STREET</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.45229668</p></td>
+<td><p>-74.73683343</p></td>
+<td><p>IND4</p></td>
+<td><p>3002</p></td>
+<td><p>330</p></td>
+<td><p>NaN</p></td>
+<td><p>E</p></td>
+<td><p>1963</p></td>
+<td><p>1963</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>120820.4836</p></td>
+<td><p>120820.4836</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>11.07</p></td>
+<td><p>19.29</p></td>
+<td><p>1</p></td>
+<td><p>-0.32</p></td>
+<td><p>6110</p></td>
+<td><p>108.957248</p></td>
+<td><p>118.534814</p></td>
+<td><p>128.209824</p></td>
+<td><p>132.873379</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>15.17759393</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>155</p></td>
+</tr>
+<tr class="row-odd"><td><p>66</p></td>
+<td><p>NJBF000057684</p></td>
+<td><p>1723 MAYS LANDING S.P.RD</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.33098611</p></td>
+<td><p>-74.64185131</p></td>
+<td><p>IND2</p></td>
+<td><p>3002</p></td>
+<td><p>959</p></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1969</p></td>
+<td><p>0</p></td>
+<td><p>3401</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>7153.751923</p></td>
+<td><p>7153.751923</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>58.56</p></td>
+<td><p>63.78</p></td>
+<td><p>1</p></td>
+<td><p>0.89</p></td>
+<td><p>6106</p></td>
+<td><p>110.696883</p></td>
+<td><p>120.834901</p></td>
+<td><p>130.592793</p></td>
+<td><p>136.629403</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5703</p></td>
+<td></td>
+<td><p>61.16946147</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>566</p></td>
+</tr>
+<tr class="row-even"><td><p>67</p></td>
+<td><p>NJBF000054248</p></td>
+<td></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32284517</p></td>
+<td><p>-74.50597053</p></td>
+<td><p>RES1</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>NE</p></td>
+<td><p>1969</p></td>
+<td><p>0</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1784.081426</p></td>
+<td><p>1784.081426</p></td>
+<td><p>3502</p></td>
+<td><p>NO</p></td>
+<td><p>17.79</p></td>
+<td><p>23.06</p></td>
+<td><p>5</p></td>
+<td><p>6.92</p></td>
+<td><p>6106</p></td>
+<td><p>113.450713</p></td>
+<td><p>123.261201</p></td>
+<td><p>132.957108</p></td>
+<td><p>139.535946</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>20.42213724</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>4254</p></td>
+</tr>
+<tr class="row-odd"><td><p>68</p></td>
+<td><p>NJBF000095674</p></td>
+<td><p>726 LAUREL AVE</p></td>
+<td><p>Hammonton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.65166561</p></td>
+<td><p>-74.75729323</p></td>
+<td><p>AGR1</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1971</p></td>
+<td><p>1971</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1640.125943</p></td>
+<td><p>1640.125943</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>29.76</p></td>
+<td><p>42.38</p></td>
+<td><p>1</p></td>
+<td><p>-0.31</p></td>
+<td><p>6109</p></td>
+<td><p>108.303556</p></td>
+<td><p>116.597915</p></td>
+<td><p>126.489728</p></td>
+<td><p>129.877356</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>36.06909592</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1715</p></td>
+</tr>
+<tr class="row-even"><td><p>69</p></td>
+<td><p>NJBF000087584</p></td>
+<td><p>39 NEW YORK RD</p></td>
+<td><p>Port Republic</p></td>
+<td><p>NJ</p></td>
+<td><p>39.5370114</p></td>
+<td><p>-74.46578565</p></td>
+<td><p>IND3</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>E</p></td>
+<td><p>1975</p></td>
+<td><p>1975</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1430.483559</p></td>
+<td><p>1430.483559</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>15.29</p></td>
+<td><p>23.51</p></td>
+<td><p>1</p></td>
+<td><p>2.8</p></td>
+<td><p>6112</p></td>
+<td><p>112.459606</p></td>
+<td><p>121.637147</p></td>
+<td><p>131.234482</p></td>
+<td><p>137.033784</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>19.40077165</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>257</p></td>
+</tr>
+<tr class="row-odd"><td><p>70</p></td>
+<td><p>NJBF000053112</p></td>
+<td></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.318737</p></td>
+<td><p>-74.51508087</p></td>
+<td><p>RES3F</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>E</p></td>
+<td><p>1976</p></td>
+<td><p>0</p></td>
+<td><p>3305</p></td>
+<td><p>6</p></td>
+<td><p>1</p></td>
+<td><p>28111.9281</p></td>
+<td><p>28111.9281</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>75.32</p></td>
+<td><p>86.21</p></td>
+<td><p>1</p></td>
+<td><p>1.75</p></td>
+<td><p>6106</p></td>
+<td><p>113.313927</p></td>
+<td><p>123.148328</p></td>
+<td><p>132.835999</p></td>
+<td><p>139.402402</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>80.7670378</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>2296</p></td>
+</tr>
+<tr class="row-even"><td><p>71</p></td>
+<td><p>NJBF000098453</p></td>
+<td><p>625 PINE RD</p></td>
+<td><p>Hammonton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.67831622</p></td>
+<td><p>-74.78339242</p></td>
+<td><p>AGR1</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1986</p></td>
+<td><p>1986</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>2170.33778</p></td>
+<td><p>2170.33778</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>26.28</p></td>
+<td><p>39.17</p></td>
+<td><p>1</p></td>
+<td><p>1.62</p></td>
+<td><p>6112</p></td>
+<td><p>107.994716</p></td>
+<td><p>116.135721</p></td>
+<td><p>126.086063</p></td>
+<td><p>129.259305</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Hip</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>32.72701947</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1870</p></td>
+</tr>
+<tr class="row-odd"><td><p>72</p></td>
+<td><p>NJBF000053545</p></td>
+<td><p>9220 ATLANTIC AVE</p></td>
+<td><p>Margate City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.32034007</p></td>
+<td><p>-74.51157318</p></td>
+<td><p>RES3F</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>21</p></td>
+<td><p>E</p></td>
+<td><p>1987</p></td>
+<td><p>1987</p></td>
+<td><p>3305</p></td>
+<td><p>8</p></td>
+<td><p>1</p></td>
+<td><p>14121.51208</p></td>
+<td><p>14121.51208</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>104.76</p></td>
+<td><p>115.75</p></td>
+<td><p>1</p></td>
+<td><p>0.16</p></td>
+<td><p>6106</p></td>
+<td><p>113.365914</p></td>
+<td><p>123.1914</p></td>
+<td><p>132.882173</p></td>
+<td><p>139.453496</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>110.2528801</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>589</p></td>
+</tr>
+<tr class="row-even"><td><p>73</p></td>
+<td><p>NJBF000087545</p></td>
+<td><p>12 WILSON AVE</p></td>
+<td><p>Port Republic</p></td>
+<td><p>NJ</p></td>
+<td><p>39.53607688</p></td>
+<td><p>-74.46237926</p></td>
+<td><p>IND3</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>E</p></td>
+<td><p>1990</p></td>
+<td><p>1990</p></td>
+<td><p>3401</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1721.502536</p></td>
+<td><p>1721.502536</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>32.77</p></td>
+<td><p>39.82</p></td>
+<td><p>1</p></td>
+<td><p>1.85</p></td>
+<td><p>6106</p></td>
+<td><p>112.52408</p></td>
+<td><p>121.709016</p></td>
+<td><p>131.308922</p></td>
+<td><p>137.117012</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>36.29581307</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>146</p></td>
+</tr>
+<tr class="row-odd"><td><p>74</p></td>
+<td><p>NJBF000063537</p></td>
+<td><p>FRED &amp; WASH, MARS</p></td>
+<td><p>Ventnor City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.34198192</p></td>
+<td><p>-74.50057162</p></td>
+<td><p>IND2</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>1990</p></td>
+<td><p>1990</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1071.658668</p></td>
+<td><p>1071.658668</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>13.31</p></td>
+<td><p>24.37</p></td>
+<td><p>1</p></td>
+<td><p>-0.85</p></td>
+<td><p>6106</p></td>
+<td><p>113.298113</p></td>
+<td><p>123.140676</p></td>
+<td><p>132.844813</p></td>
+<td><p>139.380323</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>18.84262261</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>2766</p></td>
+</tr>
+<tr class="row-even"><td><p>75</p></td>
+<td><p>NJBF000098401</p></td>
+<td><p>290 N MYRTLE ST</p></td>
+<td><p>Hammonton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.67553498</p></td>
+<td><p>-74.78056863</p></td>
+<td><p>AGR1</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>18</p></td>
+<td><p>NE</p></td>
+<td><p>2001</p></td>
+<td><p>2001</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>2</p></td>
+<td><p>6256.082064</p></td>
+<td><p>6256.082064</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>18.62</p></td>
+<td><p>28.06</p></td>
+<td><p>1</p></td>
+<td><p>2.22</p></td>
+<td><p>6112</p></td>
+<td><p>108.027347</p></td>
+<td><p>116.183375</p></td>
+<td><p>126.127888</p></td>
+<td><p>129.320299</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>23.33910772</p></td>
+<td><p>0</p></td>
+<td><p>1.2</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.15</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1867</p></td>
+</tr>
+<tr class="row-odd"><td><p>76</p></td>
+<td><p>NJBF000067372</p></td>
+<td><p>177 THOMPSONS LANE</p></td>
+<td><p>Egg Harbor</p></td>
+<td><p>NJ</p></td>
+<td><p>39.352883</p></td>
+<td><p>-74.703189</p></td>
+<td><p>IND2</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>ME</p></td>
+<td><p>2002</p></td>
+<td><p>2002</p></td>
+<td><p>3401</p></td>
+<td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>2815.424598</p></td>
+<td><p>2815.424598</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>56.15</p></td>
+<td><p>61.91</p></td>
+<td><p>1</p></td>
+<td><p>-0.16</p></td>
+<td><p>6106</p></td>
+<td><p>109.785134</p></td>
+<td><p>119.717197</p></td>
+<td><p>129.515454</p></td>
+<td><p>135.035245</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>59.02858244</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>927</p></td>
+</tr>
+<tr class="row-even"><td><p>77</p></td>
+<td><p>NJBF000086947</p></td>
+<td><p>1314 WHITE HORSE PK</p></td>
+<td><p>Egg Harbor City</p></td>
+<td><p>NJ</p></td>
+<td><p>39.52260519</p></td>
+<td><p>-74.63968079</p></td>
+<td><p>COM1</p></td>
+<td><p>3002</p></td>
+<td></td>
+<td><p>NaN</p></td>
+<td><p>ME</p></td>
+<td><p>2014</p></td>
+<td><p>2014</p></td>
+<td><p>3401</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>14249.81597</p></td>
+<td><p>14249.81597</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>14.15</p></td>
+<td><p>20.2</p></td>
+<td><p>1</p></td>
+<td><p>2.48</p></td>
+<td><p>6110</p></td>
+<td><p>109.845021</p></td>
+<td><p>119.115247</p></td>
+<td><p>128.724006</p></td>
+<td><p>133.738514</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Flat</p></td>
+<td><p>0</p></td>
+<td><p>NaN</p></td>
+<td></td>
+<td><p>17.17357067</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>1912</p></td>
+</tr>
+<tr class="row-odd"><td><p>78</p></td>
+<td><p>NJBF000087554</p></td>
+<td><p>7430 FOURTH AVENUE</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.53616832</p></td>
+<td><p>-74.82814986</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1930</p></td>
+<td><p>1930</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2645.349468</p></td>
+<td><p>2645.349468</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>23.55</p></td>
+<td><p>33.19</p></td>
+<td><p>3</p></td>
+<td><p>7.63</p></td>
+<td><p>6112</p></td>
+<td><p>108.026649</p></td>
+<td><p>116.973154</p></td>
+<td><p>126.686446</p></td>
+<td><p>130.109685</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>28.36948585</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>624</p></td>
+</tr>
+<tr class="row-even"><td><p>79</p></td>
+<td><p>NJBF000087549</p></td>
+<td><p>7503 SMITH AVENUE</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.5361019</p></td>
+<td><p>-74.83402395</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1950</p></td>
+<td><p>1950</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2516.419055</p></td>
+<td><p>2516.419055</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>19.26</p></td>
+<td><p>31.05</p></td>
+<td><p>3</p></td>
+<td><p>5.29</p></td>
+<td><p>6112</p></td>
+<td><p>107.983588</p></td>
+<td><p>116.922563</p></td>
+<td><p>126.635654</p></td>
+<td><p>130.018687</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>25.15591973</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>622</p></td>
+</tr>
+<tr class="row-odd"><td><p>80</p></td>
+<td><p>NJBF000088027</p></td>
+<td><p>5800 DUERER STREET</p></td>
+<td><p>Mullica</p></td>
+<td><p>NJ</p></td>
+<td><p>39.54746456</p></td>
+<td><p>-74.6497497</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1965</p></td>
+<td><p>1965</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2089.842487</p></td>
+<td><p>2089.842487</p></td>
+<td><p>3507</p></td>
+<td><p>NO</p></td>
+<td><p>15.98</p></td>
+<td><p>25.89</p></td>
+<td><p>1</p></td>
+<td><p>0.14</p></td>
+<td><p>6112</p></td>
+<td><p>109.676326</p></td>
+<td><p>118.743177</p></td>
+<td><p>128.391779</p></td>
+<td><p>133.163263</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>20.93521022</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>5489</p></td>
+</tr>
+<tr class="row-even"><td><p>81</p></td>
+<td><p>NJBF000087074</p></td>
+<td><p>1322 ORCHARD ROAD</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.52478617</p></td>
+<td><p>-74.84367394</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1972</p></td>
+<td><p>1972</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2714.153995</p></td>
+<td><p>2714.153995</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>12.24</p></td>
+<td><p>18.64</p></td>
+<td><p>3</p></td>
+<td><p>-1.91</p></td>
+<td><p>6112</p></td>
+<td><p>107.946298</p></td>
+<td><p>116.924886</p></td>
+<td><p>126.630311</p></td>
+<td><p>129.97558</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>15.44008616</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>590</p></td>
+</tr>
+<tr class="row-odd"><td><p>82</p></td>
+<td><p>NJBF000087596</p></td>
+<td><p>1544 STRAWBERRY STREET</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.53733256</p></td>
+<td><p>-74.83106146</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>1987</p></td>
+<td><p>1987</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1772.40784</p></td>
+<td><p>1772.40784</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>11.38</p></td>
+<td><p>16.7</p></td>
+<td><p>3</p></td>
+<td><p>-1.24</p></td>
+<td><p>6112</p></td>
+<td><p>108.001945</p></td>
+<td><p>116.938833</p></td>
+<td><p>126.652884</p></td>
+<td><p>130.052988</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>14.0393187</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>627</p></td>
+</tr>
+<tr class="row-even"><td><p>83</p></td>
+<td><p>NJBF000087002</p></td>
+<td><p>7304 SMITH AVENUE</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.52373536</p></td>
+<td><p>-74.83141577</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>16</p></td>
+<td><p>NE</p></td>
+<td><p>1999</p></td>
+<td><p>1999</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1939.653621</p></td>
+<td><p>1939.653621</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>8.87</p></td>
+<td><p>17.66</p></td>
+<td><p>3</p></td>
+<td><p>-1.73</p></td>
+<td><p>6112</p></td>
+<td><p>108.037389</p></td>
+<td><p>117.03968</p></td>
+<td><p>126.744833</p></td>
+<td><p>130.182036</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>13.2645104</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>588</p></td>
+</tr>
+<tr class="row-odd"><td><p>84</p></td>
+<td><p>NJBF000087082</p></td>
+<td><p>7312 STRAND AVENUE</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.52490167</p></td>
+<td><p>-74.83825392</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>2006</p></td>
+<td><p>2006</p></td>
+<td><p>3101</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>1674.050741</p></td>
+<td><p>1674.050741</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>38.78</p></td>
+<td><p>49.09</p></td>
+<td><p>3</p></td>
+<td><p>8.66</p></td>
+<td><p>6112</p></td>
+<td><p>107.984664</p></td>
+<td><p>116.970952</p></td>
+<td><p>126.676665</p></td>
+<td><p>130.055715</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>43.93759089</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.35</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>591</p></td>
+</tr>
+<tr class="row-even"><td><p>85</p></td>
+<td><p>NJBF000087143</p></td>
+<td><p>7321 SMITH AVENUE</p></td>
+<td><p>Hamilton</p></td>
+<td><p>NJ</p></td>
+<td><p>39.52575156</p></td>
+<td><p>-74.82945332</p></td>
+<td><p>RES1</p></td>
+<td><p>3005</p></td>
+<td></td>
+<td><p>17</p></td>
+<td><p>NE</p></td>
+<td><p>2013</p></td>
+<td><p>2013</p></td>
+<td><p>3101</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>2135.294029</p></td>
+<td><p>2135.294029</p></td>
+<td><p>3505</p></td>
+<td><p>NO</p></td>
+<td><p>24.98</p></td>
+<td><p>38.2</p></td>
+<td><p>3</p></td>
+<td><p>7.79</p></td>
+<td><p>6109</p></td>
+<td><p>108.045976</p></td>
+<td><p>117.041594</p></td>
+<td><p>126.747986</p></td>
+<td><p>130.192958</p></td>
+<td><p>I</p></td>
+<td><p>Above</p></td>
+<td><p>Gable</p></td>
+<td><p>0</p></td>
+<td><p>5701</p></td>
+<td></td>
+<td><p>31.59178059</p></td>
+<td><p>0</p></td>
+<td><p>1.1</p></td>
+<td></td>
+<td></td>
+<td></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td></td>
+<td><p>0.03</p></td>
+<td><p>nav</p></td>
+<td><p>1</p></td>
+<td><p>592</p></td>
+</tr>
+</tbody>
+</table>
+<div class="align-center figure" id="scatter-matrix" style="width: 800px">
+<img alt="../../../_images/ScatterMatrix.png" src="../../../_images/ScatterMatrix.png" />
+<p class="caption"><span class="caption-text">Scatter matrix of sampled buildings.</span><a class="headerlink" href="#scatter-matrix" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="hand-calculation">
+<h2>Hand Calculation<a class="headerlink" href="#hand-calculation" title="Permalink to this headline">¶</a></h2>
+<p>Hand calculations of wind, flood, and combined losses are conducted using the
+input building information and intensity measures for the sampled buildings.
+The calculations are made for all the four hurricane categories:</p>
+<p><code class="xref std std-numref docutils literal notranslate"><span class="pre">hand_calc</span></code> compares the hand-calculated loss ratios and the simulated
+results which are in good agreement. The finite differences seen in the flood loss ratios
+are due to the random sampling process in estimating the expected loss ratios.</p>
+<div class="align-center figure" id="hand-calc" style="width: 800px">
+<img alt="../../../_images/SimuVSHandCalc.png" src="../../../_images/SimuVSHandCalc.png" />
+<p class="caption"><span class="caption-text">Hand-calculated results vs. simulated results.</span><a class="headerlink" href="#hand-calc" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+<div class="section" id="wind-loss-by-building-class-and-year">
+<h2>Wind Loss by Building Class and Year<a class="headerlink" href="#wind-loss-by-building-class-and-year" title="Permalink to this headline">¶</a></h2>
+<p>To understand the driving factors that influence the regional loss assessment results.
+The 85 sampled buildings are grouped into five building classes and the average wind loss values
+are computed (<code class="xref std std-numref docutils literal notranslate"><span class="pre">wind_loss_bt</span></code>). Regardless of the hurricane category, concrete, steel,
+and masonry buildings perform better than wood buildings and manufactured homes on average.</p>
+<div class="align-center figure" id="wind-loss-bt" style="width: 800px">
+<img alt="../../../_images/WindLossBuildingType.png" src="../../../_images/WindLossBuildingType.png" />
+<p class="caption"><span class="caption-text">Average expected wind losses by building class.</span><a class="headerlink" href="#wind-loss-bt" title="Permalink to this image">¶</a></p>
+</div>
+<p>To further investigate the influence of built year on the wind loss of wood buildings,
+<code class="xref std std-numref docutils literal notranslate"><span class="pre">wind_loss_yr</span></code> shows the estimated expected wind loss ratios by the year of built.
+Coupled with the hurricane category effect, in the Category 5 hurricane, the built year does not
+show as a driving factor, but in the other three scenarios, the wind losses are shown to be
+related to the built year. The worst cases are seen in 1970s and 1980s, while the building in the
+past two decades perform much better than the other groups.  Note that this
+comparison is made for the limited sample size in this verification study.</p>
+<div class="align-center figure" id="wind-loss-yr" style="width: 800px">
+<img alt="../../../_images/WoodBuildingWindLoss.png" src="../../../_images/WoodBuildingWindLoss.png" />
+<p class="caption"><span class="caption-text">Average expected wind losses of wood buildings by built year.</span><a class="headerlink" href="#wind-loss-yr" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>
