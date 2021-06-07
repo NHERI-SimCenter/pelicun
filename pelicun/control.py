@@ -755,7 +755,7 @@ class FEMA_P58_Assessment(Assessment):
         self._FG_in = read_component_DL_data(
             self._AIM_in['data_sources']['path_CMP_data'],
             BIM['components'],
-            assessment_type=self._assessment_type, verbose=verbose)
+            assessment_type=self._assessment_type, avail_edp=self._EDP_in, verbose=verbose)
 
         data = self._FG_in
 
@@ -2788,7 +2788,7 @@ class HAZUS_Assessment(Assessment):
         log_msg('\tDamage and Loss data files...')
         self._FG_in = read_component_DL_data(
             self._AIM_in['data_sources']['path_CMP_data'], BIM['components'],
-            assessment_type=self._assessment_type, verbose=verbose)
+            assessment_type=self._assessment_type, avail_edp=self._EDP_in, verbose=verbose)
 
         data = self._FG_in
         log_msg('\t\tAvailable Fragility Groups:')
@@ -3218,7 +3218,8 @@ class HAZUS_Assessment(Assessment):
 
         # reconstruction cost
         if DVs['rec_cost']:
-            if self._hazard == 'HU':
+            if self._hazard == 'HU'and ('PWS' in self._EDP_in) and ('PIH' in self._EDP_in):
+                # if running hurricane with combined wind and flood hazard
                 # individual losses
                 indiv_loss = self._DV_dict['rec_cost'].groupby(level=[0], axis=1).sum()
                 # loss weight from HAZUS HU (now just default coupled at
