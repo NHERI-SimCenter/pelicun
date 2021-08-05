@@ -277,3 +277,70 @@ AP = A
 CF = ft3 / minute
 KV = kV * A
 
+# Input specs
+
+CMP_data_path = dict(
+    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf',
+    HAZUS_HU = '/resources/HAZUS_MH_2.1.hdf',
+    HAZUS_FL = '/resources/HAZUS_MH_2.1_FL.hdf',
+    HAZUS_MISC = '/resources/HAZUS_MH_2.1_MISC.hdf'
+)
+
+POP_data_path = dict(
+    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf'
+)
+
+default_units = dict(
+    force =        'N',
+    length =       'm',
+    area =         'm2',
+    volume =       'm3',
+    speed =        'mps',
+    acceleration = 'mps2',
+)
+
+EDP_units = dict(
+    # PID, PRD, RID, and MID are not here because they are unitless
+    PFA = 'acceleration',
+    PWS = 'speed',
+    PGA = 'acceleration',
+    SA = 'acceleration',
+    SV = 'speed',
+    SD = 'length',
+    PIH = 'length'
+)
+
+EDP_to_demand_type = {
+    'Story Drift Ratio' :             'PID',
+    'Roof Drift Ratio' :              'PRD',
+    'Damageable Wall Drift' :         'DWD',
+    'Racking Drift Ratio' :           'RDR',
+    'Peak Floor Acceleration' :       'PFA',
+    'Peak Floor Velocity' :           'PFV',
+    'Peak Gust Wind Speed' :          'PWS',
+    'Peak Inundation Height' :        'PIH',
+    'Flood Water Depth' :             'PIH', # temporary workaround
+    'Peak Ground Acceleration' :      'PGA',
+    'Peak Ground Velocity' :          'PGV',
+    'Spectral Acceleration' :         'SA',
+    'Spectral Velocity' :             'SV',
+    'Spectral Displacement' :         'SD',
+    'Permanent Ground Deformation' :  'PGD',
+    'Mega Drift Ratio' :              'PMD',
+    'Residual Drift Ratio' :          'RID',
+}
+
+# PFA in FEMA P58 corresponds to the top of the given story. The ground floor
+# has an index of 0. When damage of acceleration-sensitive components
+# is controlled by the acceleration of the bottom of the story, the
+# corresponding PFA location needs to be reduced by 1. The SimCenter framework
+# assumes that PFA corresponds to the bottom of the given story
+# by default, hence, we would need to subtract 1 from the location values.
+# Rather than changing the locations themselves, we assign an offset of -1
+# so that the results still get collected at the appropriate story.
+EDP_offset_adjustment = dict(
+    PFA = -1,
+    PFV = -1
+)

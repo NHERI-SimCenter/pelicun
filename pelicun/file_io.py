@@ -79,6 +79,26 @@ convert_dv_name = {
     'DV_red_tag': 'Red Tag ',
 }
 
+dependency_to_acronym = {
+        'btw. Fragility Groups'  : 'FG',
+        'btw. Performance Groups': 'PG',
+        'btw. Floors'            : 'LOC',
+        'btw. Directions'        : 'DIR',
+        'btw. Component Groups'  : 'CSG',
+        'btw. Damage States'     : 'DS',
+        'Independent'            : 'IND',
+        'per ATC recommendation' : 'ATC',
+    }
+
+HAZUS_occ_converter = {
+        'RES' : 'Residential',
+        'COM' : 'Commercial',
+        'REL' : 'Commercial',
+        'EDU' : 'Educational',
+        'IND' : 'Industrial',
+        'AGR' : 'Industrial'
+    }
+
 # this is a convenience function for converting strings to float or None
 def float_or_None(string):
     try:
@@ -241,15 +261,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     path_CMP_data = DL_input.get("ComponentDataFolder", "")
 
     if path_CMP_data == "":
-        path_CMP_data = pelicun_path
-        if AT == 'P58':
-            path_CMP_data += '/resources/FEMA_P58_2nd_ed.hdf'
-        elif AT == 'HAZUS_EQ':
-            path_CMP_data += '/resources/HAZUS_MH_2.1_EQ.hdf'
-        elif AT == 'HAZUS_HU':
-            path_CMP_data += '/resources/HAZUS_MH_2.1.hdf'
-        elif AT == 'HAZUS_FL':
-            path_CMP_data += '/resources/HAZUS_MH_2.1_FL.hdf'
+        # Use the P58 path as default
+        path_CMP_data = pelicun_path + CMP_data_path[AT]
 
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
 
@@ -260,7 +273,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         path_combination_data = pelicun_path
         if comb is not None:
             if AT == 'HAZUS_HU':
-                path_combination_data += '/resources/HAZUS_MH_2.1_MISC.hdf'
+                path_combination_data += CMP_data_path['HAZUS_MISC']
         data['data_sources'].update({'path_combination_data': path_combination_data})
         data['loss_combination'] = comb
 
@@ -272,11 +285,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     if data['decision_variables']['injuries']:
         if path_POP_data == "":
-            path_POP_data = pelicun_path
-            if AT == 'P58':
-                path_POP_data += '/resources/FEMA_P58_2nd_ed.hdf'
-            elif AT == 'HAZUS_EQ':
-                path_POP_data += '/resources/HAZUS_MH_2.1_EQ.hdf'
+            path_POP_data = pelicun_path + POP_data_path[AT]
+
         data['data_sources'].update({'path_POP_data': path_POP_data})
 
     # general information
@@ -311,14 +321,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'acceleration': data['unit_names']['length']+'ps2'})
     else:
         show_warning("No units were specified in the input file.")
-        data['unit_names'].update({
-            'force':        'N',
-            'length':       'm',
-            'area':         'm2',
-            'volume':       'm3',
-            'speed':        'mps',
-            'acceleration': 'mps2',
-        })
+        data['unit_names'].update(default_units)
 
     for unit_type, unit_name in data['unit_names'].items():
         data['units'].update({unit_type: globals()[unit_name]})
@@ -505,26 +508,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                         "unit.".format(fg_id))
                 comp_data['unit'] = comp_data['unit'][0]
 
-                # some basic pre-processing
-                # sort the dirs and their weights to have better structured
-                # matrices later
-                #dir_order = np.argsort(comp_data['directions'])
-                #comp_data['directions'] = [comp_data['directions'][d_i] for d_i
-                #                     in dir_order]
-
-                # get the location(s) of components based on non-zero quantities
-                #comp_data.update({
-                #    'locations': (np.where(comp_data['quantities'] > 0.)[
-                #                      0] + 1).tolist()
-                #})
-                # remove the zeros from the quantities
-                #nonzero = comp_data['quantities'] > 0.
-                #comp_data['quantities'] = comp_data['quantities'][
-                #    nonzero].tolist()
-
-                # scale the quantities according to the specified unit
-
-                # store the component data
+            # store the component data
             data['components'].update({fg_id: comp_data})
     else:
         show_warning("No components were defined in the input file.")
@@ -559,16 +543,6 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         raise ValueError(
             "Number of realizations is not specified in the input file.")
 
-    EDP_units = dict(
-        # PID, PRD, RID, and MID are not here because they are unitless
-        PFA = 'acceleration',
-        PWS = 'speed',
-        PGA = 'acceleration',
-        SA = 'acceleration',
-        SV = 'speed',
-        SD = 'length',
-        PIH = 'length'
-    )
     if AT in ['P58', 'HAZUS_EQ']:
         EDP_keys = ['PID', 'PRD', 'PFA',
                     'PGV', 'RID', 'PMD',
@@ -796,16 +770,6 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     # set defaults
     # We assume 'Independent' for all unspecified fields except for the
     # fragilities where 'per ATC recommendation' is the default setting.
-    dependency_to_acronym = {
-        'btw. Fragility Groups'  : 'FG',
-        'btw. Performance Groups': 'PG',
-        'btw. Floors'            : 'LOC',
-        'btw. Directions'        : 'DIR',
-        'btw. Component Groups'  : 'CSG',
-        'btw. Damage States'     : 'DS',
-        'Independent'            : 'IND',
-        'per ATC recommendation' : 'ATC',
-    }
 
     for target_att, source_att, dv_req in [
         ['quantities', 'Quantities', ''],
@@ -973,15 +937,6 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     data: dict
         A dictionary with the population distribution data.
     """
-
-    HAZUS_occ_converter = {
-        'RES' : 'Residential',
-        'COM' : 'Commercial',
-        'REL' : 'Commercial',
-        'EDU' : 'Educational',
-        'IND' : 'Industrial',
-        'AGR' : 'Industrial'
-    }
 
     AT = assessment_type
 
@@ -1273,27 +1228,6 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp
         c_data['distribution_kind'] = ci_data['distribution']
         c_data['cov'] = [float_or_None(cov) for cov in ci_data['cov']]
 
-        # replace N/A distribution with normal and negligible cov
-        #c_data['cov'] = [0.0001 if dk == 'N/A' else cov
-        #                 for cov,dk in list(zip(c_data['cov'],
-        #                                        c_data['distribution_kind']))]
-        #c_data['distribution_kind'] = ['normal' if dk == 'N/A' else dk
-        #                               for dk in c_data['distribution_kind']]
-        #c_data['cov'] = [0.0001 if cov==None else cov
-        #                 for cov in c_data['cov']]
-
-        #c_data['kind'] = ci_data['kind']
-        #c_data['unit'] = ci_data['unit'][0] * globals()[ci_data['unit'][1]]
-        #c_data['quantities'] = (np.asarray(ci_data['quantities']) * c_data[
-        #    'unit']).tolist()
-
-        # calculate the quantity weights in each direction
-        #dirs = np.asarray(c_data['directions'], dtype=np.int)
-        #u_dirs = np.unique(dirs)
-        #weights = np.asarray(c_data['csg_weights'])
-        #c_data['dir_weights'] = [sum(weights[np.where(dirs == d_i)])
-        #                         for d_i in u_dirs]
-
         c_data['ID'] = c_id
         c_data['name'] = DL_data['Name']
         c_data['description'] = DL_GI['Description']
@@ -1305,75 +1239,29 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp
         if DL_EDP['Unit'][1] == 'in':
             DL_EDP['Unit'][1] = 'inch'
         demand_factor = globals()[DL_EDP['Unit'][1]] * DL_EDP['Unit'][0]
-        if EDP_type == 'Story Drift Ratio':
-            demand_type = 'PID'
-        elif EDP_type == 'Roof Drift Ratio':
-            demand_type = 'PRD'
-        elif EDP_type == 'Damageable Wall Drift':
-            demand_type = 'DWD'
-        elif EDP_type == 'Racking Drift Ratio':
-            demand_type = 'RDR'
-        elif EDP_type == 'Peak Floor Acceleration':
-            demand_type = 'PFA'
-            #demand_factor = g
-            # PFA corresponds to the top of the given story. The ground floor
-            # has an idex of 0. When damage of acceleration-sensitive components
-            # is controlled by the acceleration of the bottom of the story, the
-            # corresponding PFA location needs to be reduced by 1. Our framework
-            # assumes that PFA corresponds to the bottom of the given story
-            # by default, we need to subtract 1 from the location values. Rather
-            # than changing the locations themselves, we assign an offset of -1
-            # so that the results still get collected at the appropriate story.
-            c_data['offset'] = c_data['offset'] - 1
-        elif EDP_type == 'Peak Floor Velocity':
-            demand_type = 'PFV'
-            #demand_factor = mps
-            c_data['offset'] = c_data['offset'] - 1
-        elif EDP_type == 'Peak Gust Wind Speed':
-            demand_type = 'PWS'
-            #demand_factor = mph
-        elif EDP_type == 'Peak Inundation Height':
-            demand_type = 'PIH'
-            # demand_factor = ft
-        elif EDP_type == 'Flood Water Depth': #temprorary workaround
-            demand_type = 'PIH'
-            # demand_factor = ft
-        elif EDP_type == 'Peak Ground Acceleration':
-            demand_type = 'PGA'
-            #demand_factor = g
-        elif EDP_type == 'Peak Ground Velocity':
-            demand_type = 'PGV'
-            #demand_factor = cmps
-        elif EDP_type == 'Spectral Acceleration':
-            demand_type = 'SA'
-            #demand_factor = g
-        elif EDP_type == 'Spectral Velocity':
-            demand_type = 'SV'
-            #demand_factor = mps
-        elif EDP_type == 'Spectral Displacement':
-            demand_type = 'SD'
-            #demand_factor = m
-        elif EDP_type == 'Permanent Ground Deformation':
-            demand_type = 'PGD'
-        elif EDP_type == 'Mega Drift Ratio':
-            demand_type = 'PMD'
-        elif EDP_type == 'Residual Drift Ratio':
-            demand_type = 'RID'
-        elif EDP_type in [
-            'Link Rotation Angle',
-            'Link Beam Chord Rotation']:
-            demand_type = None
-            warnings.warn(UserWarning(
-                'Component {} requires {} as EDP, which is not yet '
-                'implemented.'.format(c_data['ID'], EDP_type)))
-        else: # pragma: no cover
-            demand_type = None
-            warnings.warn(UserWarning(
-                f'Unexpected EDP type in component {c_id}: {EDP_type}'))
+
+        demand_type = EDP_to_demand_type.get(EDP_type, None)
+
         if demand_type is None:
+            if EDP_type in ['Link Rotation Angle',
+                            'Link Beam Chord Rotation']:
+
+                warnings.warn(UserWarning(
+                    'Component {} requires {} as EDP, which is not yet '
+                    'implemented.'.format(c_data['ID'], EDP_type)))
+
+            else:  # pragma: no cover
+                warnings.warn(UserWarning(
+                    f'Unexpected EDP type in component {c_id}: {EDP_type}'))
+
             del data[c_id]
             continue
-        c_data['demand_type'] = demand_type
+
+        else:
+            c_data['demand_type'] = demand_type
+
+        if demand_type in EDP_offset_adjustment.keys():
+            c_data['offset'] = c_data['offset'] + EDP_offset_adjustment[demand_type]
 
         # check if the DL_EDP is available in the _EDP_in
         # if not: delete the relavant data and print warning info
@@ -1991,7 +1879,8 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
 
             # Hurricane comp_types:
             if type_ID == 'Wind':
-                for k in  ['CECB', 'CERB', 'MECB', 'MERB', 'MH', 'MLRI', 'MLRM', 'MMUH', 'MSF', 'SECB', 'SERB', 'SPMB', 'WMUH', 'WSF']:
+                for k in  ['CECB', 'CERB', 'MECB', 'MERB', 'MH', 'MLRI', 'MLRM',
+                           'MMUH', 'MSF', 'SECB', 'SERB', 'SPMB', 'WMUH', 'WSF']:
                     try:
                         type_cols = [c for c in DV_res.columns.get_level_values('FG').unique() if c.startswith(k)]
                         if type_cols:
