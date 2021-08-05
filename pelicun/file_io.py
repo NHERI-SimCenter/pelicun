@@ -1101,7 +1101,7 @@ def read_combination_DL_data(path_combination_data, comp_info, assessment_type='
     return comb_data_dict
 
 
-def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp=[],
+def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp=None,
     verbose=False):
     """
     Read the damage and loss data for the components of the asset.
@@ -1126,7 +1126,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
     avail_edp: list
-        EDP name string list 
+        EDP name string list. default: None
     verbose: boolean
         If True, the function echoes the information read from the files. This
         can be useful to ensure that the information in the files is properly
@@ -1377,7 +1377,7 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp
 
         # check if the DL_EDP is available in the _EDP_in
         # if not: delete the relavant data and print warning info
-        if demand_type not in avail_edp:
+        if (avail_edp is not None) and (demand_type not in avail_edp):
             del data[c_id]
             warnings.warn(UserWarning('{} as EDP is not available in the input. '
                'This may occur in using IMasEDP with missing IM field(s). '
