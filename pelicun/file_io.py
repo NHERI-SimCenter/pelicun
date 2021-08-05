@@ -2023,7 +2023,7 @@ def write_SimCenter_DV_output(output_dir, DV_filename, GI, SUMMARY_df, DV_dict):
             if type_ID == 'Wind':
                 ds_list = ['1_1', '2_1', '3_1', '4_1']
             elif type_ID == 'Flood':
-                # flood ds (Hazus does not have ds, ds here just indicates fwd)
+                # flood ds (Hazus does not have ds, ds here just indicates PIH)
                 ds_list = ['10_1', '11_1', '12_1', '13_1', '14_1', '15_1', '16_1',
                            '17_1', '18_1', '19_1', '1_1', '2_1', '3_1', '4_1',
                            '5_1', '6_1', '7_1', '8_1', '9_1']
