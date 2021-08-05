@@ -1097,7 +1097,7 @@ def read_combination_DL_data(path_combination_data, comp_info, assessment_type='
     return comb_data_dict
 
 
-def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
+def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp=[],
     verbose=False):
     """
     Read the damage and loss data for the components of the asset.
@@ -1121,6 +1121,8 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
     assessment_type: {'P58', 'HAZUS_EQ', 'HAZUS_HU'}
         Tailors the warnings and verifications towards the type of assessment.
         default: 'P58'.
+    avail_edp: list
+        EDP name string list 
     verbose: boolean
         If True, the function echoes the information read from the files. This
         can be useful to ensure that the information in the files is properly
@@ -1365,6 +1367,15 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58',
             del data[c_id]
             continue
         c_data['demand_type'] = demand_type
+
+        # check if the DL_EDP is available in the _EDP_in
+        # if not: delete the relavant data and print warning info
+        if demand_type not in avail_edp:
+            del data[c_id]
+            warnings.warn(UserWarning('{} as EDP is not available in the input. '
+               'This may occur in using IMasEDP with missing IM field(s). '
+               'Note: the corresponding fragility group {} is neglected while the simulation will continue.'.format(demand_type, c_data['ID'])))
+            continue
 
         # dictionary to convert DL data to internal representation
         curve_type = {'LogNormal': 'lognormal',
@@ -1775,7 +1786,11 @@ def write_SimCenter_DM_output_hu(output_dir, DM_filename, SUMMARY_df, DMG_df):
             df_res = pd.concat([df_res, df_res_l], axis = 1, keys=['DS likelihood','DS likelihood'])
 
     # join the output dataframes
-    df_res['Collapse','probability',' '] = df_res_c['probability']
+    if len(FG_list) == 1:
+        # wind-only or flood-only results
+        df_res = pd.concat([df_res_c, df_res_l], axis=1, keys=['Collapse','DS likelihood'])
+    else:
+        df_res['Collapse','probability',' '] = df_res_c['probability']
     # save the output
     with open(posixpath.join(output_dir, DM_filename), 'w') as f:
         df_res.to_csv(f)
