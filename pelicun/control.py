@@ -258,9 +258,9 @@ class Assessment(object):
         if self._hazard == 'EQ':
             self._EDP_in = read_SimCenter_EDP_input(
                 path_EDP_input,
-                EDP_kinds=('PID', 'PRD', 'RID', 'PFA', 'PMD',
-                           'PGA', 'PGV', 'SA', 'SV', 'SD',
-                           'PGD','DWD', 'RDR'),
+                #EDP_kinds=('PID', 'PRD', 'RID', 'PFA', 'PMD',
+                #           'PGA', 'PGV', 'SA', 'SV', 'SD',
+                #           'PGD','DWD', 'RDR'),
                 units=dict(PID=1.,
                            PRD=1.,
                            RID=1.,
@@ -277,7 +277,8 @@ class Assessment(object):
                 verbose=verbose)
         elif self._hazard == 'HU':
             self._EDP_in = read_SimCenter_EDP_input(
-                path_EDP_input, EDP_kinds=('PWS','PIH',),
+                path_EDP_input,
+                #EDP_kinds=('PWS','PIH',),
                 units=dict(PWS=self._AIM_in['units']['speed'],
                            PIH=self._AIM_in['units']['length']),
                 verbose=verbose)

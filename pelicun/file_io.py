@@ -820,7 +820,8 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     return data
 
-def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
+def read_SimCenter_EDP_input(input_path,
+                             #EDP_kinds=('PID', 'PFA'),
                              units = dict(PID=1., PFA=1.),
                              verbose=False):
     """
@@ -837,9 +838,6 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
     ----------
     input_path: string
         Location of the EDP input file.
-    EDP_kinds: tuple of strings, default: ('PID', 'PFA')
-        Collection of the kinds of EDPs in the input file. The default pair of
-        'PID' and 'PFA' can be replaced or extended by any other EDPs.
     units: dict, default: {'PID':1., 'PFA':1}
         Defines the unit conversion that shall be applied to the EDP values.
     verbose: boolean
@@ -874,25 +872,31 @@ def read_SimCenter_EDP_input(input_path, EDP_kinds=('PID', 'PFA'),
 
     # search the header for EDP information
     for column in EDP_raw.columns:
-        for kind in EDP_kinds:
-            if kind in column:
 
-                if kind not in data.keys():
-                    data.update({kind: []})
+        # extract info about the location, direction, EDP_kind and scenario
+        info = column.split('-')
 
-                # extract info about the location, direction, and scenario
-                info = column.split('-')
+        if len(info) != 4:
+            continue
 
-                # get the scale factor to perform unit conversion
-                f_unit = units[kind]
+        kind = info[1].replace(' ','')
 
-                # store the data
-                data[kind].append(dict(
-                    raw_data=(EDP_raw[column].values * f_unit).tolist(),
-                    location=info[2],
-                    direction=info[3],
-                    scenario_id=info[0]
-                ))
+        #for kind in EDP_kinds:
+        #    if kind in column:
+
+        if kind not in data.keys():
+            data.update({kind: []})
+
+        # get the scale factor to perform unit conversion
+        f_unit = units[kind.split('_')[0]]
+
+        # store the data
+        data[kind].append(dict(
+            raw_data=(EDP_raw[column].values * f_unit).tolist(),
+            location=info[2],
+            direction=info[3],
+            scenario_id=info[0]
+        ))
 
     if verbose: pp.pprint(data)
 
