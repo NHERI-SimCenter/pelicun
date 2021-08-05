@@ -325,7 +325,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     if AT == 'P58':
         for target_att, source_att, f_conv, unit_kind, dv_req in [
             ['plan_area', 'PlanArea', float, 'area', 'injuries'],
-            ['stories', 'NumberofStories', int, '', 'all'],
+            ['stories', 'NumberOfStories', int, '', 'all'],
         ]:
             if (GI is not None) and (source_att in GI.keys()):
                 if unit_kind != '':
@@ -341,7 +341,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                         "estimate {} decision variable(s).".format(source_att,
                                                                    dv_req))
     elif AT.startswith('HAZUS'):
-        data['general'].update({'stories': int(GI['NumberofStories'])})
+        data['general'].update({'stories': int(GI['NumberOfStories'])})
 
     # is this a coupled assessment?
     if res_description is not None:

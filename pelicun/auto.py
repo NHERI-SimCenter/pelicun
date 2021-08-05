@@ -197,7 +197,8 @@ def auto_populate(DL_input_path, EDP_input_path,
         })
 
         # add the even time information - if needed
-        if event_time is not None:
+        if (('Inhabitants' in DL_ap['LossModel'].keys()) and
+            (event_time is not None)):
             DL_ap['LossModel']['Inhabitants'].update({'EventTime': event_time})
 
         # assemble the extended DL input
@@ -500,7 +501,8 @@ def auto_populate(DL_input_path, EDP_input_path,
                     }
                 }
 
-        if event_time is not None:
+        if (('Inhabitants' in DL_ap['LossModel'].keys()) and
+            (event_time is not None)):
                 loss_dict['LossModel']['Inhabitants'].update({'EventTime': event_time})
 
         DL_input.update({'DamageAndLoss':loss_dict})
