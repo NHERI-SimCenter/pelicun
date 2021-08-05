@@ -307,7 +307,6 @@ def auto_populate(DL_input_path, EDP_input_path,
             else:
                 loss_dict['ResponseModel'].update({
                     'DetectionLimits': {
-                        "PFA": "100.0",
                         "PID": "0.20",
                         "PRD": "0.20"
                     }})
