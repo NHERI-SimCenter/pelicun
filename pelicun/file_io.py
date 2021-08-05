@@ -247,8 +247,10 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         elif AT == 'HAZUS_EQ':
             path_CMP_data += '/resources/HAZUS_MH_2.1_EQ.hdf'
         elif AT == 'HAZUS_HU':
-            #path_CMP_data += '/resources/HAZUS_MH_2.1_HU.hdf'
-            path_CMP_data = path_CMP_data + '/resources/HAZUS_MH_2.1.hdf'
+            path_CMP_data += '/resources/HAZUS_MH_2.1.hdf'
+        elif AT == 'HAZUS_FL':
+            path_CMP_data += '/resources/HAZUS_MH_2.1_FL.hdf'
+
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
 
     # HAZUS combination of flood and wind losses
@@ -565,7 +567,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         SA = 'acceleration',
         SV = 'speed',
         SD = 'length',
-        FWD = 'length'
+        PIH = 'length'
     )
     if AT in ['P58', 'HAZUS_EQ']:
         EDP_keys = ['PID', 'PRD', 'PFA',
@@ -573,7 +575,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
                     'PGA', 'SA', 'SV', 'SD',
                     'RDR','DWD']
     elif AT in ['HAZUS_HU']:
-        EDP_keys = ['PWS', 'FWD']
+        EDP_keys = ['PWS', 'PIH']
+    elif AT in ['HAZUS_FL']:
+        EDP_keys = ['PIH']
 
     # response model info ------------------------------------------------------
     if response is None:
@@ -1328,8 +1332,11 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp
         elif EDP_type == 'Peak Gust Wind Speed':
             demand_type = 'PWS'
             #demand_factor = mph
-        elif EDP_type == 'Flood Water Depth':
-            demand_type = 'FWD'
+        elif EDP_type == 'Peak Inundation Height':
+            demand_type = 'PIH'
+            # demand_factor = ft
+        elif EDP_type == 'Flood Water Depth': #temprorary workaround
+            demand_type = 'PIH'
             # demand_factor = ft
         elif EDP_type == 'Peak Ground Acceleration':
             demand_type = 'PGA'
@@ -1561,7 +1568,7 @@ def write_SimCenter_EDP_output(output_dir, EDP_filename, EDP_df):
             '1-{}-{}-{}'.format(col[0], col[1], col[2])].median()
         if np.min(EDP_df['1-{}-{}-{}'.format(col[0], col[1], col[2])]) <= 0:
             # negative EDP values are also possible, so switching to normal
-            # distribution (e.g., flood water depth FWD can be negative)
+            # distribution (e.g., inundation height PIH can be negative)
             df_res.loc[0, (col[0], col[1], col[2], 'beta')] = \
                 EDP_df['1-{}-{}-{}'.format(col[0], col[1], col[2])].std()
         else:

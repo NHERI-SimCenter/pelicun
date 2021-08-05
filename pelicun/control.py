@@ -277,9 +277,9 @@ class Assessment(object):
                 verbose=verbose)
         elif self._hazard == 'HU':
             self._EDP_in = read_SimCenter_EDP_input(
-                path_EDP_input, EDP_kinds=('PWS','FWD',),
+                path_EDP_input, EDP_kinds=('PWS','PIH',),
                 units=dict(PWS=self._AIM_in['units']['speed'],
-                           FWD=self._AIM_in['units']['length']),
+                           PIH=self._AIM_in['units']['length']),
                 verbose=verbose)
 
         data = self._EDP_in
@@ -361,7 +361,7 @@ class Assessment(object):
             elif (('PFV' in col) or ('PGV' in col) or ('SV' in col) or
                   ('PWS' in col)):
                 scale_factor = self._AIM_in['units']['speed']
-            elif ('PGD', 'FWD' in col):
+            elif ('PGD', 'PIH' in col):
                 scale_factor = self._AIM_in['units']['length']
             else:
                 scale_factor = 1.0
