@@ -2,7 +2,7 @@
 	"GeneralInformation": {
         "height": 8,
         "PlanArea": 111.484,
-        "NumberofStories": 3,
+        "NumberOfStories": 3,
         "type": "W1",
         "units": {
             "force": "N",

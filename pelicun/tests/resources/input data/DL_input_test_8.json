@@ -1,7 +1,7 @@
 {
     "GeneralInformation": {
         "PlanArea": 100.0,
-        "NumberofStories": 2,
+        "NumberOfStories": 2,
         "units": {
             "force": "N",
             "length": "m",

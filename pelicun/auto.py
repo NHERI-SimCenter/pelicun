@@ -220,11 +220,11 @@ def auto_populate(DL_input_path, EDP_input_path,
 
         is_IM_based = DL_method[-2:] == 'IM'
 
-        stories = BIM['NumberofStories']
+        stories = BIM['NumberOfStories']
         # use only 1 story if DM is based on IM
         if DL_method == 'HAZUS MH EQ IM':
             stories = 1
-        BIM.update({'NumberofStories':stories})
+        BIM.update({'NumberOfStories':stories})
 
         # HAZUS Earthquake
         if DL_method in ['HAZUS MH EQ', 'HAZUS MH EQ IM']:
