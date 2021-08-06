@@ -4,13 +4,6 @@
 </p>
 
 <p align="center">
-	<a href="https://travis-ci.org/NHERI-SimCenter/pelicun", alt="TravisCI">
-		<img src="https://travis-ci.org/NHERI-SimCenter/pelicun.svg?branch=master" /></a>
-	<a href="https://coveralls.io/github/NHERI-SimCenter/pelicun?branch=master", alt="Coverage Status">
-		<img src="https://coveralls.io/repos/github/NHERI-SimCenter/pelicun/badge.svg?branch=master" /></a>
-</p>
-
-<p align="center">
 	<a href="https://doi.org/10.5281/zenodo.2558558", alt="DOI">
 		<img src="https://zenodo.org/badge/DOI/10.5281/zenodo.2558558.svg" /></a>
 </p>
@@ -67,24 +60,12 @@ pip install pelicun
 
 ## Changelog
 
-### Major changes in v2.5
+### Changes in v2.6
 
-* Extend the uq module to support:
-    * More efficient sampling, especially when most of the random variables in the model are either independent or perfectly correlated.
-    * More accurate and more efficient fitting of multivariate probability distributions to raw EDP data.
-    * Arbitrary marginals (i.e., beyond the basic Normal and Lognormal) for joint distributions.
-    * Latin Hypercube Sampling
-* Aggregate DL data from JSON files to HDF5 files to reduce the number of files and make it easier to share databases.
-* Add log file that records every important calculation detail and warnings.
-* Extend auto-population logic with solutions for HAZUS EQ assessments. 
-* Introduce external auto-population scripts and provide an example for hurricane assessments.
-* Add a script to help users convert HDF files to CSV (HDF_to_CSV.py under tools)
-* Use unique and standardized attribute names in the input files
-* Add new EDP types: RID, PMD, SA, SV, SD, PGD, DWD, RDR.
-* Migrate to the latest version of Python, numpy, scipy, and pandas see setup.py for required minimum versions of those tools.
-* Bug fixes and minor improvements to support user needs:
-    * Add 1.2 scale factor for EDPs controlling non-directional Fragility Groups.
-    * Remove dependency on scipy's truncnorm function to avoid long computation times due to a bug in recent scipy versions.
+* Support EDPs with more than 3 characters and/or a variable in their name. For example, SA_1.0 or SA_T1
+* Support fitting normal distribution to raw EDP data (lognormal was already available)
+* Extract key settings to base.py to make them more accessible for users.
+* Minor bugfixes mostly related to hurricane storm surge assessment
 
 ## License
 
