@@ -197,7 +197,8 @@ def auto_populate(DL_input_path, EDP_input_path,
         })
 
         # add the even time information - if needed
-        if event_time is not None:
+        if (('Inhabitants' in DL_ap['LossModel'].keys()) and
+            (event_time is not None)):
             DL_ap['LossModel']['Inhabitants'].update({'EventTime': event_time})
 
         # assemble the extended DL input
@@ -220,11 +221,11 @@ def auto_populate(DL_input_path, EDP_input_path,
 
         is_IM_based = DL_method[-2:] == 'IM'
 
-        stories = BIM['NumberofStories']
+        stories = BIM['NumberOfStories']
         # use only 1 story if DM is based on IM
         if DL_method == 'HAZUS MH EQ IM':
             stories = 1
-        BIM.update({'NumberofStories':stories})
+        BIM.update({'NumberOfStories':stories})
 
         # HAZUS Earthquake
         if DL_method in ['HAZUS MH EQ', 'HAZUS MH EQ IM']:
@@ -306,7 +307,6 @@ def auto_populate(DL_input_path, EDP_input_path,
             else:
                 loss_dict['ResponseModel'].update({
                     'DetectionLimits': {
-                        "PFA": "100.0",
                         "PID": "0.20",
                         "PRD": "0.20"
                     }})
@@ -500,7 +500,8 @@ def auto_populate(DL_input_path, EDP_input_path,
                     }
                 }
 
-        if event_time is not None:
+        if (('Inhabitants' in DL_ap['LossModel'].keys()) and
+            (event_time is not None)):
                 loss_dict['LossModel']['Inhabitants'].update({'EventTime': event_time})
 
         DL_input.update({'DamageAndLoss':loss_dict})

@@ -251,6 +251,8 @@ def run_pelicun(DL_input_path, EDP_input_path,
 			A = HAZUS_Assessment(hazard = 'EQ', log_file=log_file)
 		elif DL_method == 'HAZUS MH HU':
 			A = HAZUS_Assessment(hazard = 'HU', log_file=log_file)
+		elif DL_method == 'HAZUS MH FL':
+			A = HAZUS_Assessment(hazard = 'FL', log_file=log_file)
 
 		A.read_inputs(DL_input_path, EDP_files[s_i], verbose=False) # make DL inputs into array of all BIM files
 
