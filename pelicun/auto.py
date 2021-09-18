@@ -500,7 +500,7 @@ def auto_populate(DL_input_path, EDP_input_path,
                     }
                 }
 
-        if (('Inhabitants' in DL_ap['LossModel'].keys()) and
+        if (('Inhabitants' in loss_dict['LossModel'].keys()) and
             (event_time is not None)):
                 loss_dict['LossModel']['Inhabitants'].update({'EventTime': event_time})
 
