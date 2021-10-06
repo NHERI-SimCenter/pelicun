@@ -329,7 +329,7 @@ class Assessment(object):
         log_msg('Calculating losses...')
         self._DV_dict = {}
 
-    def save_outputs(self, output_path, EDP_file, DM_file, DV_file,
+    def save_outputs(self, output_path, BIM_file, EDP_file, DM_file, DV_file,
                      suffix="", detailed_results=True):
         """
         Export the results.
@@ -459,6 +459,11 @@ class Assessment(object):
                         stats_only=True)
 
             #if True:
+            # create the BIM file
+            log_msg('\t\tSimCenter BIM file')
+            write_SimCenter_BIM_output(
+                output_path, suffix + BIM_file, self._AIM_in['GI'])
+
             # create the EDP file
             if self._assessment_type.startswith('HAZUS'):
                 log_msg('\t\tSimCenter EDP file')
@@ -3247,7 +3252,7 @@ class HAZUS_Assessment(Assessment):
 
         # reconstruction cost
         if DVs['rec_cost']:
-            if self._hazard == 'HU'and ('PWS' in self._EDP_in) and ('PIH' in self._EDP_in):
+            if self._hazard == 'HU' and ('PWS' in self._EDP_in) and ('PIH' in self._EDP_in):
                 # if running hurricane with combined wind and flood hazard
                 # individual losses
                 indiv_loss = self._DV_dict['rec_cost'].groupby(level=[0], axis=1).sum()
@@ -3262,8 +3267,15 @@ class HAZUS_Assessment(Assessment):
                     tmp1 = (loss_weight[0][i] * rlz[0]) / 100.
                     tmp2 = (loss_weight[1][i] * rlz[1]) / 100.
                     combined_loss.append(np.min([100., (np.sum(tmp1 + tmp2) - tmp1.T.dot(tmp2))* 100.]))
-                SUMMARY.loc[ncID, ('reconstruction', 'cost')] = combined_loss
+                # convert to loss ratio
+                # combined
+                SUMMARY.loc[ncID, ('reconstruction', 'cost')] = [x / 100.0 for x in combined_loss]
+                # individual
+                self._DV_dict['rec_cost'] = self._DV_dict['rec_cost'] / 100.0
             else:
+                # convert to loss ratio
+                if self._hazard == 'HU':
+                    self._DV_dict['rec_cost'] = self._DV_dict['rec_cost'] / 100.0
                 SUMMARY.loc[ncID, ('reconstruction', 'cost')] = \
                     self._DV_dict['rec_cost'].sum(axis=1)
 

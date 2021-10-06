@@ -63,7 +63,6 @@ from .db import convert_Series_to_dict
 
 import json, posixpath
 
-from tables.exceptions import HDF5ExtError
 from time import sleep
 
 
@@ -133,6 +132,75 @@ def process_loc(string, stories):
         else:
             return None
 
+def get_required_resources(input_path, assessment_type):
+    """
+    List the data files required to perform an assessment.
+
+    It extracts the information from the config file about the methods and
+    functional data required for the analysis and provides a list of paths to
+    the files that would be used.
+    This method is helpful in an HPC context to copy the required resources to
+    the local node from the shared file storage.
+
+    Parameters
+    ----------
+    input_path: string
+        Location of the DL input json file.
+    assessment_type: {'P58', 'HAZUS_EQ', 'HAZUS_HU'}
+        Identifies the default databases based on the type of assessment.
+
+    Returns
+    -------
+    resources: list of strings
+        A list of paths to the required resource files.
+    """
+
+    resources = {}
+
+    AT = assessment_type
+
+    with open(input_path, 'r') as f:
+        jd = json.load(f)
+
+    DL_input = jd['DamageAndLoss']
+
+    loss = DL_input.get('LossModel', None)
+    if loss is not None:
+        inhabitants = loss.get('Inhabitants', None)
+        dec_vars    = loss.get('DecisionVariables', None)
+
+        if dec_vars is not None:
+            injuries = bool(dec_vars.get('Injuries', False))
+    else:
+        inhabitants = None
+        dec_vars = None
+        injuries = False
+
+    # check if the user specified custom data sources
+    path_CMP_data = DL_input.get("ComponentDataFolder", "")
+
+    if path_CMP_data == "":
+        # Use the P58 path as default
+        path_CMP_data = pelicun_path + CMP_data_path[AT]
+
+    resources.update({'component': path_CMP_data})
+
+    # HAZUS combination of flood and wind losses
+    if ((AT == 'HAZUS_HU') and (DL_input.get('Combinations', None) is not None)):
+        path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
+        resources.update({'combination': path_combination_data})
+
+    # The population data is only needed if we are interested in injuries
+    if inhabitants is not None:
+        path_POP_data = inhabitants.get("PopulationDataFile", "")
+    else:
+        path_POP_data = ""
+
+    if ((injuries) and (path_POP_data == "")):
+        path_POP_data = pelicun_path + POP_data_path[AT]
+        resources.update({'population': path_POP_data})
+
+    return resources
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
@@ -272,8 +340,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         comb = DL_input.get('Combinations', None)
         path_combination_data = pelicun_path
         if comb is not None:
-            if AT == 'HAZUS_HU':
-                path_combination_data += CMP_data_path['HAZUS_MISC']
+            path_combination_data = DL_input.get('CombinationDataFile', None)
+            if path_combination_data is None:
+                path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
         data['data_sources'].update({'path_combination_data': path_combination_data})
         data['loss_combination'] = comb
 
@@ -291,6 +360,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     # general information
     GI = jd.get("GeneralInformation", None)
+    data['GI'] = GI
 
     # units
     if (GI is not None) and ('units' in GI.keys()):
@@ -968,28 +1038,15 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     # else if an HDF5 file is provided
     elif path_POP.endswith('hdf'):
 
-        # this for loop is needed to avoid issues from race conditions on HPC
-        for i in range(1000):
-            try:
-                store = pd.HDFStore(path_POP)
-                store.open()
-
-            except HDF5ExtError:
-                pop_table = None
-                sleep(0.01)
-                continue
-
-            else:
-                pop_table = store.select('pop',
-                                         where=f'index in {[occupancy, ]}')
-                store.close()
-                break
+        store = pd.HDFStore(path_POP)
+        store.open()
+        pop_table = store.select('pop', where=f'index in {[occupancy, ]}')
+        store.close()
 
         if pop_table is not None:
             data = convert_Series_to_dict(pop_table.loc[occupancy, :])
         else:
-            raise IOError("Couldn't read the HDF file for POP data after 20 "
-                          "tries because it was blocked by other processes.")
+            raise IOError("Couldn't read the HDF file for POP data.")
 
     # convert peak population to persons/m2
     if 'peak' in data.keys():
@@ -1038,24 +1095,17 @@ def read_combination_DL_data(path_combination_data, comp_info, assessment_type='
     ## TODO: hdf type
     elif path_combination_data.endswith('hdf'):
         for c_id in comp_info:
-            for i in range(4000):
-                try:
-                    store = pd.HDFStore(path_combination_data)
-                    store.open()
-                except HDF5ExtError:
-                    comb_data_table = None
-                    sleep(0.1)
-                    continue
-                else:
-                    comb_data_table = store['HAZUS Subassembly Loss Ratio']
-                    store.close()
-                    break
+
+            store = pd.HDFStore(path_combination_data)
+            store.open()
+            comb_data_table = store['HAZUS Subassembly Loss Ratio']
+            store.close()
+
             if comb_data_table is not None:
                 comb_data_dict.update(
                     {c_id: {'LossRatio': comb_data_table[c_id].tolist()}})
             else:
-                raise IOError("Couldn't read the HDF file for DL data after 20 "
-                              "tries because it was blocked by other processes.")
+                raise IOError("Couldn't read the HDF file for combination data.")
 
     return comb_data_dict
 
@@ -1142,53 +1192,30 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp
                     path_CMP_m = path_CMP.replace('.hdf','_FL.hdf') # flood DL
                 else:
                     path_CMP_m = path_CMP.replace('.hdf','_HU.hdf') # wind DL
-                # this for loop is needed to avoid issues from race conditions on HPC
-                for i in range(10000):
-                    try:
-                        store = pd.HDFStore(path_CMP_m)
-                        store.open()
 
-                    except HDF5ExtError:
-                        CMP_table = None
-                        sleep(0.1)
-                        continue
-
-                    else:
-                        CMP_table = store.select('data', where=f'index in {c_id}')
-                        store.close()
-                        break
+                store = pd.HDFStore(path_CMP_m)
+                store.open()
+                CMP_table = store.select('data', where=f'index in {c_id}')
+                store.close()
 
                 if CMP_table is not None:
                     DL_data_dict.update(
                         {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
                 else:
-                    raise IOError("Couldn't read the HDF file for DL data after iterative "
-                                  "tries because it was blocked by other processes.")
+                    raise IOError("Couldn't read the HDF file for DL data.")
         else:
-            # this for loop is needed to avoid issues from race conditions on HPC
-            for i in range(1000):
-                try:
-                    store = pd.HDFStore(path_CMP)
-                    store.open()
 
-                except HDF5ExtError:
-                    CMP_table = None
-                    sleep(0.1)
-                    continue
-
-                else:
-                    CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
-                    store.close()
-                    break
+            store = pd.HDFStore(path_CMP)
+            store.open()
+            CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
+            store.close()
 
             if CMP_table is not None:
                 for c_id in s_cmp_keys:
                     DL_data_dict.update(
                         {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
             else:
-                raise IOError("Couldn't read the HDF file for DL data after 20 "
-                              "tries because it was blocked by other processes.")
-
+                raise IOError("Couldn't read the HDF file for DL data.")
 
     else:
         raise ValueError(
@@ -1436,6 +1463,31 @@ def write_SimCenter_DL_output(output_dir, output_filename, output_df, index_name
     # TODO: this requires pandas 1.0+ > wait until next release
     #with open(file_path[:-3]+'zip', 'w') as f:
     #    output_df.to_csv(f, compression=dict(mehtod='zip', archive_name=output_filename))
+
+def write_SimCenter_BIM_output(output_dir, BIM_filename, BIM_dict):
+
+    #flatten the dictionary
+    BIM_flat_dict = {}
+    for key, item in BIM_dict.items():
+        if isinstance(item, dict):
+            for sub_key, sub_item in item.items():
+                BIM_flat_dict.update({f'{key}_{sub_key}': sub_item})
+        else:
+            BIM_flat_dict.update({key: [item,]})
+
+    # create the output DF
+    #BIM_flat_dict.update({"index": [0,]})
+    for header_to_remove in ['geometry', 'Footprint']:
+        try:
+            BIM_flat_dict.pop(header_to_remove)
+        except:
+            pass
+
+    df_res = pd.DataFrame.from_dict(BIM_flat_dict)
+
+    df_res.dropna(axis=1, how='all', inplace=True)
+
+    df_res.to_csv('BIM.csv')
 
 def write_SimCenter_EDP_output(output_dir, EDP_filename, EDP_df):
 
