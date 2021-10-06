@@ -202,7 +202,7 @@ def auto_populate(DL_input_path, EDP_input_path,
             DL_ap['LossModel']['Inhabitants'].update({'EventTime': event_time})
 
         # assemble the extended DL input
-        DL_input.update({'BIM_Inferred': BIM_ap})
+        DL_input['GeneralInformation'].update(BIM_ap)
         DL_input.update({'DamageAndLoss': DL_ap})
 
         # save it to the DL file with the ap suffix
