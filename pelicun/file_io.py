@@ -340,8 +340,9 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         comb = DL_input.get('Combinations', None)
         path_combination_data = pelicun_path
         if comb is not None:
-            if AT == 'HAZUS_HU':
-                path_combination_data += CMP_data_path['HAZUS_MISC']
+            path_combination_data = DL_input.get('CombinationDataFile', None)
+            if path_combination_data is None:
+                path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
         data['data_sources'].update({'path_combination_data': path_combination_data})
         data['loss_combination'] = comb
 
