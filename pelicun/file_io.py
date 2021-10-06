@@ -133,6 +133,75 @@ def process_loc(string, stories):
         else:
             return None
 
+def get_required_resources(input_path, assessment_type):
+    """
+    List the data files required to perform an assessment.
+
+    It extracts the information from the config file about the methods and
+    functional data required for the analysis and provides a list of paths to
+    the files that would be used.
+    This method is helpful in an HPC context to copy the required resources to
+    the local node from the shared file storage.
+
+    Parameters
+    ----------
+    input_path: string
+        Location of the DL input json file.
+    assessment_type: {'P58', 'HAZUS_EQ', 'HAZUS_HU'}
+        Identifies the default databases based on the type of assessment.
+
+    Returns
+    -------
+    resources: list of strings
+        A list of paths to the required resource files.
+    """
+
+    resources = {}
+
+    AT = assessment_type
+
+    with open(input_path, 'r') as f:
+        jd = json.load(f)
+
+    DL_input = jd['DamageAndLoss']
+
+    loss = DL_input.get('LossModel', None)
+    if loss is not None:
+        inhabitants = loss.get('Inhabitants', None)
+        dec_vars    = loss.get('DecisionVariables', None)
+
+        if dec_vars is not None:
+            injuries = bool(dec_vars.get('Injuries', False))
+    else:
+        inhabitants = None
+        dec_vars = None
+        injuries = False
+
+    # check if the user specified custom data sources
+    path_CMP_data = DL_input.get("ComponentDataFolder", "")
+
+    if path_CMP_data == "":
+        # Use the P58 path as default
+        path_CMP_data = pelicun_path + CMP_data_path[AT]
+
+    resources.update({'component': path_CMP_data})
+
+    # HAZUS combination of flood and wind losses
+    if ((AT == 'HAZUS_HU') and (DL_input.get('Combinations', None) is not None)):
+        path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
+        resources.update({'combination': path_combination_data})
+
+    # The population data is only needed if we are interested in injuries
+    if inhabitants is not None:
+        path_POP_data = inhabitants.get("PopulationDataFile", "")
+    else:
+        path_POP_data = ""
+
+    if ((injuries) and (path_POP_data == "")):
+        path_POP_data = pelicun_path + POP_data_path[AT]
+        resources.update({'population': path_POP_data})
+
+    return resources
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
