@@ -63,7 +63,6 @@ from .db import convert_Series_to_dict
 
 import json, posixpath
 
-from tables.exceptions import HDF5ExtError
 from time import sleep
 
 
@@ -1037,28 +1036,15 @@ def read_population_distribution(path_POP, occupancy, assessment_type='P58',
     # else if an HDF5 file is provided
     elif path_POP.endswith('hdf'):
 
-        # this for loop is needed to avoid issues from race conditions on HPC
-        for i in range(1000):
-            try:
-                store = pd.HDFStore(path_POP)
-                store.open()
-
-            except HDF5ExtError:
-                pop_table = None
-                sleep(0.01)
-                continue
-
-            else:
-                pop_table = store.select('pop',
-                                         where=f'index in {[occupancy, ]}')
-                store.close()
-                break
+        store = pd.HDFStore(path_POP)
+        store.open()
+        pop_table = store.select('pop', where=f'index in {[occupancy, ]}')
+        store.close()
 
         if pop_table is not None:
             data = convert_Series_to_dict(pop_table.loc[occupancy, :])
         else:
-            raise IOError("Couldn't read the HDF file for POP data after 20 "
-                          "tries because it was blocked by other processes.")
+            raise IOError("Couldn't read the HDF file for POP data.")
 
     # convert peak population to persons/m2
     if 'peak' in data.keys():
@@ -1107,24 +1093,17 @@ def read_combination_DL_data(path_combination_data, comp_info, assessment_type='
     ## TODO: hdf type
     elif path_combination_data.endswith('hdf'):
         for c_id in comp_info:
-            for i in range(4000):
-                try:
-                    store = pd.HDFStore(path_combination_data)
-                    store.open()
-                except HDF5ExtError:
-                    comb_data_table = None
-                    sleep(0.1)
-                    continue
-                else:
-                    comb_data_table = store['HAZUS Subassembly Loss Ratio']
-                    store.close()
-                    break
+
+            store = pd.HDFStore(path_combination_data)
+            store.open()
+            comb_data_table = store['HAZUS Subassembly Loss Ratio']
+            store.close()
+
             if comb_data_table is not None:
                 comb_data_dict.update(
                     {c_id: {'LossRatio': comb_data_table[c_id].tolist()}})
             else:
-                raise IOError("Couldn't read the HDF file for DL data after 20 "
-                              "tries because it was blocked by other processes.")
+                raise IOError("Couldn't read the HDF file for combination data.")
 
     return comb_data_dict
 
@@ -1211,53 +1190,30 @@ def read_component_DL_data(path_CMP, comp_info, assessment_type='P58', avail_edp
                     path_CMP_m = path_CMP.replace('.hdf','_FL.hdf') # flood DL
                 else:
                     path_CMP_m = path_CMP.replace('.hdf','_HU.hdf') # wind DL
-                # this for loop is needed to avoid issues from race conditions on HPC
-                for i in range(10000):
-                    try:
-                        store = pd.HDFStore(path_CMP_m)
-                        store.open()
 
-                    except HDF5ExtError:
-                        CMP_table = None
-                        sleep(0.1)
-                        continue
-
-                    else:
-                        CMP_table = store.select('data', where=f'index in {c_id}')
-                        store.close()
-                        break
+                store = pd.HDFStore(path_CMP_m)
+                store.open()
+                CMP_table = store.select('data', where=f'index in {c_id}')
+                store.close()
 
                 if CMP_table is not None:
                     DL_data_dict.update(
                         {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
                 else:
-                    raise IOError("Couldn't read the HDF file for DL data after iterative "
-                                  "tries because it was blocked by other processes.")
+                    raise IOError("Couldn't read the HDF file for DL data.")
         else:
-            # this for loop is needed to avoid issues from race conditions on HPC
-            for i in range(1000):
-                try:
-                    store = pd.HDFStore(path_CMP)
-                    store.open()
 
-                except HDF5ExtError:
-                    CMP_table = None
-                    sleep(0.1)
-                    continue
-
-                else:
-                    CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
-                    store.close()
-                    break
+            store = pd.HDFStore(path_CMP)
+            store.open()
+            CMP_table = store.select('data', where=f'index in {s_cmp_keys}')
+            store.close()
 
             if CMP_table is not None:
                 for c_id in s_cmp_keys:
                     DL_data_dict.update(
                         {c_id: convert_Series_to_dict(CMP_table.loc[c_id, :])})
             else:
-                raise IOError("Couldn't read the HDF file for DL data after 20 "
-                              "tries because it was blocked by other processes.")
-
+                raise IOError("Couldn't read the HDF file for DL data.")
 
     else:
         raise ValueError(
