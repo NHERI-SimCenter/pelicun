@@ -148,5 +148,18 @@
     "cost_and_time": false,
     "injury_lvls": true
   },
-  "damage_logic": null
+  "damage_logic": null,
+  "GI": {
+        "height": 8,
+        "PlanArea": 111.484,
+        "NumberOfStories": 3,
+        "type": "W1",
+        "units": {
+            "force": "N",
+            "length": "m",
+            "temperature": "C",
+            "time": "sec"
+        },
+        "year": 1945
+    }
 }

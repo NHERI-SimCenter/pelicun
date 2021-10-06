@@ -109,5 +109,15 @@
     "rec_times": "IND",
     "red_tags": "IND"
   },
-  "damage_logic": null
+  "damage_logic": null,
+  "GI": {
+        "PlanArea": 100.0,
+        "NumberOfStories": 3,
+        "units": {
+            "force": "N",
+            "length": "m",
+            "temperature": "C",
+            "time": "sec"
+        }
+    }
 }
