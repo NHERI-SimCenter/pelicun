@@ -40,11 +40,20 @@
 
 from time import gmtime, strftime
 
+DL_method_to_AT = {
+    'FEMA P58': 'FEMA_P58',
+    'HAZUS MH EQ': 'HAZUS_EQ',
+    'HAZUS MH': 'HAZUS_EQ',
+    'HAZUS MH EQ IM': 'HAZUS_EQ',
+    'HAZUS MH HU': 'HAZUS_HU',
+    'HAZUS MH FL': 'HAZUS_FL'
+}
+
 def log_msg(msg):
 
-	formatted_msg = '{} {}'.format(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime()), msg)
+    formatted_msg = '{} {}'.format(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime()), msg)
 
-	print(formatted_msg)
+    print(formatted_msg)
 
 log_msg('First line of DL_calculation')
 
@@ -58,6 +67,7 @@ idx = pd.IndexSlice
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 from pelicun.base import str2bool
+from pelicun.file_io import get_required_resources
 from pelicun.control import FEMA_P58_Assessment, HAZUS_Assessment
 from pelicun.auto import auto_populate
 
@@ -127,194 +137,245 @@ def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
 # END temporary functions ----
 
 def run_pelicun(DL_input_path, EDP_input_path,
-	DL_method, realization_count, EDP_file, DM_file, DV_file,
-	output_path=None, detailed_results=True, coupled_EDP=False,
-	log_file=True, event_time=None, ground_failure=False,
-	auto_script_path=None):
+    DL_method, realization_count, BIM_file, EDP_file, DM_file, DV_file,
+    output_path=None, detailed_results=True, coupled_EDP=False,
+    log_file=True, event_time=None, ground_failure=False,
+    auto_script_path=None, resource_dir=None):
 
-	DL_input_path = os.path.abspath(DL_input_path) # BIM file
-	EDP_input_path = os.path.abspath(EDP_input_path) # dakotaTab
+    DL_input_path = os.path.abspath(DL_input_path) # BIM file
+    EDP_input_path = os.path.abspath(EDP_input_path) # dakotaTab
 
-	# If the output dir was not specified, results are saved in the directory of
-	# the input file.
-	if output_path is None:
-		output_path = ntpath.dirname(DL_input_path)
+    # If the output dir was not specified, results are saved in the directory of
+    # the input file.
+    if output_path is None:
+        output_path = ntpath.dirname(DL_input_path)
 
-	# delete output files from previous runs
-	files = os.listdir(output_path)
-	for filename in files:
-		if (filename[-3:] == 'csv') and (
-			('DL_summary' in filename) or
-			('DMG' in filename) or
-			('DV_' in filename) or
-			('EDP' in filename)
-			):
-			try:
-				os.remove(posixpath.join(output_path, filename))
-			except:
-				pass
+    # delete output files from previous runs
+    files = os.listdir(output_path)
+    for filename in files:
+        if (filename[-3:] == 'csv') and (
+            ('DL_summary' in filename) or
+            ('DMG' in filename) or
+            ('DV_' in filename) or
+            ('EDP' in filename)
+            ):
+            try:
+                os.remove(posixpath.join(output_path, filename))
+            except:
+                pass
 
-	# If the event file is specified, we expect a multi-stripe analysis...
-	try:
-		# Collect stripe and rate information for every event
-		with open(DL_input_path, 'r') as f:
-			event_list = json.load(f)['Events'][0]
+    # If the event file is specified, we expect a multi-stripe analysis...
+    try:
+        # Collect stripe and rate information for every event
+        with open(DL_input_path, 'r') as f:
+            event_list = json.load(f)['Events'][0]
 
-		df_event = pd.DataFrame(columns=['name', 'stripe', 'rate', 'IM'],
-								index=np.arange(len(event_list)))
+        df_event = pd.DataFrame(columns=['name', 'stripe', 'rate', 'IM'],
+                                index=np.arange(len(event_list)))
 
-		for evt_i, event in enumerate(event_list):
-			df_event.iloc[evt_i] = [event['name'], event['stripe'], event['rate'], event['IM']]
+        for evt_i, event in enumerate(event_list):
+            df_event.iloc[evt_i] = [event['name'], event['stripe'], event['rate'], event['IM']]
 
-		# Create a separate EDP input for each stripe
-		EDP_input_full = pd.read_csv(EDP_input_path, sep='\s+', header=0,
-									 index_col=0)
+        # Create a separate EDP input for each stripe
+        EDP_input_full = pd.read_csv(EDP_input_path, sep='\s+', header=0,
+                                     index_col=0)
 
-		# EDP_input_full.to_csv(EDP_input_path[:-4]+'_1.out', sep=' ')
+        # EDP_input_full.to_csv(EDP_input_path[:-4]+'_1.out', sep=' ')
 
-		stripes = df_event['stripe'].unique()
-		EDP_files = []
-		IM_list = []
-		num_events = []
-		num_collapses = []
-		for stripe in stripes:
-			events = df_event[df_event['stripe']==stripe]['name'].values
+        stripes = df_event['stripe'].unique()
+        EDP_files = []
+        IM_list = []
+        num_events = []
+        num_collapses = []
+        for stripe in stripes:
+            events = df_event[df_event['stripe']==stripe]['name'].values
 
-			EDP_input = EDP_input_full[EDP_input_full['MultipleEvent'].isin(events)]
+            EDP_input = EDP_input_full[EDP_input_full['MultipleEvent'].isin(events)]
 
-			EDP_files.append(EDP_input_path[:-4]+'_{}.out'.format(stripe))
+            EDP_files.append(EDP_input_path[:-4]+'_{}.out'.format(stripe))
 
-			EDP_input.to_csv(EDP_files[-1], sep=' ')
+            EDP_input.to_csv(EDP_files[-1], sep=' ')
 
-			IM_list.append(df_event[df_event['stripe']==stripe]['IM'].values[0])
+            IM_list.append(df_event[df_event['stripe']==stripe]['IM'].values[0])
 
-			# record number of collapses and number of events per stripe
-			PID_columns = [col for col in list(EDP_input) if 'PID' in col] # list of column headers with PID
-			num_events.append(EDP_input.shape[0])
-			count = 0
-			for row in range(num_events[-1]):
-				print(row)
-				for col in PID_columns:
-					if EDP_input.iloc[row][col] >= 0.20: # TODO: PID collapse limit as argument
-						count += 1
-						break
-			num_collapses.append(count)
+            # record number of collapses and number of events per stripe
+            PID_columns = [col for col in list(EDP_input) if 'PID' in col] # list of column headers with PID
+            num_events.append(EDP_input.shape[0])
+            count = 0
+            for row in range(num_events[-1]):
+                print(row)
+                for col in PID_columns:
+                    if EDP_input.iloc[row][col] >= 0.20: # TODO: PID collapse limit as argument
+                        count += 1
+                        break
+            num_collapses.append(count)
 
-		# fit lognormal distribution to all points by maximum likelihood estimation (MLE)
-		theta, beta = lognormal_MLE(IM_list, num_events, num_collapses)
-		beta_adj = np.sqrt(beta**2 + 0.35**2) # TODO: adjust dispersion by 0.35 to account for modeling uncertainty
-		print("theta: " + str(theta))
-		print("beta_adj: " + str(beta_adj))
+        # fit lognormal distribution to all points by maximum likelihood estimation (MLE)
+        theta, beta = lognormal_MLE(IM_list, num_events, num_collapses)
+        beta_adj = np.sqrt(beta**2 + 0.35**2) # TODO: adjust dispersion by 0.35 to account for modeling uncertainty
+        print("theta: " + str(theta))
+        print("beta_adj: " + str(beta_adj))
 
-		# write BIM file with new probability of collapse for each IM
-		DL_files = []
-		for i in range(len(stripes)):
-			DL_input_stripe = update_collapsep(DL_input_path, stripes[i], theta, beta_adj, IM_list[i])
-			DL_files.append(DL_input_stripe)
+        # write BIM file with new probability of collapse for each IM
+        DL_files = []
+        for i in range(len(stripes)):
+            DL_input_stripe = update_collapsep(DL_input_path, stripes[i], theta, beta_adj, IM_list[i])
+            DL_files.append(DL_input_stripe)
 
-	except: # run analysis for single IM
-		stripes = [1]
-		EDP_files = [EDP_input_path]
-		DL_files = [DL_input_path]
+    except: # run analysis for single IM
+        stripes = [1]
+        EDP_files = [EDP_input_path]
+        DL_files = [DL_input_path]
 
-	# run the analysis and save results separately for each stripe
-	#print(stripes, EDP_files)
+    # run the analysis and save results separately for each stripe
+    #print(stripes, EDP_files)
 
-	for s_i, stripe in enumerate(stripes):
+    for s_i, stripe in enumerate(stripes):
 
-		DL_input_path = DL_files[s_i]
+        DL_input_path = DL_files[s_i]
 
-		# read the type of assessment from the DL input file
-		with open(DL_input_path, 'r') as f:
-			DL_input = json.load(f)
+        # read the type of assessment from the DL input file
+        with open(DL_input_path, 'r') as f:
+            DL_input = json.load(f)
 
-		# check if the DL input file has information about the loss model
-		if 'DamageAndLoss' in DL_input:
-			pass
-		else:
-			# if the loss model is not defined, give a warning
-			print('WARNING No loss model defined in the BIM file. Trying to auto-populate.')
+        # check if the DL input file has information about the loss model
+        if 'DamageAndLoss' in DL_input:
+            pass
+        else:
+            # if the loss model is not defined, give a warning
+            print('WARNING No loss model defined in the BIM file. Trying to auto-populate.')
 
-			EDP_input_path = EDP_files[s_i]
+            EDP_input_path = EDP_files[s_i]
 
-			# and try to auto-populate the loss model using the BIM information
-			DL_input, DL_input_path = auto_populate(DL_input_path, EDP_input_path,
-													DL_method, realization_count,
-													coupled_EDP, event_time,
-													ground_failure,
-													auto_script_path)
+            # and try to auto-populate the loss model using the BIM information
+            DL_input, DL_input_path = auto_populate(DL_input_path, EDP_input_path,
+                                                    DL_method, realization_count,
+                                                    coupled_EDP, event_time,
+                                                    ground_failure,
+                                                    auto_script_path)
 
 
-		DL_method = DL_input['DamageAndLoss']['_method']
+        DL_method = DL_input['DamageAndLoss']['_method']
 
-		stripe_str = '' if len(stripes) == 1 else str(stripe)+'_'
+        stripe_str = '' if len(stripes) == 1 else str(stripe)+'_'
 
-		if DL_method == 'FEMA P58':
-			A = FEMA_P58_Assessment(log_file=log_file)
-		elif DL_method in ['HAZUS MH EQ', 'HAZUS MH', 'HAZUS MH EQ IM']:
-			A = HAZUS_Assessment(hazard = 'EQ', log_file=log_file)
-		elif DL_method == 'HAZUS MH HU':
-			A = HAZUS_Assessment(hazard = 'HU', log_file=log_file)
-		elif DL_method == 'HAZUS MH FL':
-			A = HAZUS_Assessment(hazard = 'FL', log_file=log_file)
+        # Copy the resources to the specified location - if needed
+        if resource_dir is not None:
+            resource_dir = os.path.abspath(resource_dir)
 
-		A.read_inputs(DL_input_path, EDP_files[s_i], verbose=False) # make DL inputs into array of all BIM files
+            AT = DL_method_to_AT[DL_method]
 
-		A.define_random_variables()
+            resources = get_required_resources(DL_input_path, AT)
 
-		A.define_loss_model()
+            # take each resource file
+            for name, resource in resources.items():
 
-		A.calculate_damage()
+                resource_filename = os.path.basename(resource)
 
-		A.calculate_losses()
+                # copy it to the designated location
+                if ((AT == 'HAZUS_HU') and (name == 'component')):
+                    # hurricane assessments require two files
+                    temp_resource = resource.replace('.hdf','_FL.hdf')
+                    temp_filename = os.path.basename(temp_resource)
+                    new_path = os.path.join(resource_dir, temp_filename)
+                    if not os.path.exists(new_path):
+                        shutil.copy(temp_resource, new_path)
 
-		A.aggregate_results()
+                    temp_resource = resource.replace('.hdf','_HU.hdf')
+                    temp_filename = os.path.basename(temp_resource)
+                    new_path = os.path.join(resource_dir, temp_filename)
+                    if not os.path.exists(new_path):
+                        shutil.copy(temp_resource, new_path)
 
-		A.save_outputs(output_path, EDP_file, DM_file, DV_file, stripe_str,
-					   detailed_results=detailed_results)
+                    new_path = new_path[:-7]+'.hdf'
 
-	return 0
+                else:
+                    new_path = os.path.join(resource_dir, resource_filename)
+                    if not os.path.exists(new_path):
+                        shutil.copy(resource, new_path)
+
+                # and update the DL config file to point to that location
+                if name == 'component':
+                    DL_input['DamageAndLoss']['ComponentDataFolder'] = new_path
+                elif name == 'population':
+                    DL_input['DamageAndLoss']['LossModel']['Inhabitants']['PopulationDataFile'] = new_path
+                elif name == 'combination':
+                    DL_input['DamageAndLoss']['CombinationDataFile'] = new_path
+
+            with open(DL_input_path, 'w') as f:
+                json.dump(DL_input, f, indent=2)
+
+        log_msg('Running damage and loss simulation...')
+        if DL_method == 'FEMA P58':
+            A = FEMA_P58_Assessment(log_file=log_file)
+        elif DL_method in ['HAZUS MH EQ', 'HAZUS MH', 'HAZUS MH EQ IM']:
+            A = HAZUS_Assessment(hazard = 'EQ', log_file=log_file)
+        elif DL_method == 'HAZUS MH HU':
+            A = HAZUS_Assessment(hazard = 'HU', log_file=log_file)
+        elif DL_method == 'HAZUS MH FL':
+            A = HAZUS_Assessment(hazard = 'FL', log_file=log_file)
+
+        A.read_inputs(DL_input_path, EDP_files[s_i], verbose=False) # make DL inputs into array of all BIM files
+
+        A.define_random_variables()
+
+        A.define_loss_model()
+
+        A.calculate_damage()
+
+        A.calculate_losses()
+
+        A.aggregate_results()
+
+        A.save_outputs(output_path, BIM_file, EDP_file, DM_file, DV_file, stripe_str,
+                       detailed_results=detailed_results)
+
+    return 0
 
 def main(args):
 
-	parser = argparse.ArgumentParser()
-	parser.add_argument('--filenameDL')
-	parser.add_argument('--filenameEDP')
-	parser.add_argument('--DL_Method', default = None)
-	parser.add_argument('--Realizations', default = None)
-	parser.add_argument('--outputEDP', default='EDP.csv')
-	parser.add_argument('--outputDM', default = 'DM.csv')
-	parser.add_argument('--outputDV', default = 'DV.csv')
-	parser.add_argument('--dirnameOutput', default = None)
-	parser.add_argument('--event_time', default=None)
-	parser.add_argument('--detailed_results', default = True,
-		type = str2bool, nargs='?', const=True)
-	parser.add_argument('--coupled_EDP', default = False,
-		type = str2bool, nargs='?', const=False)
-	parser.add_argument('--log_file', default = True,
-		type = str2bool, nargs='?', const=True)
-	parser.add_argument('--ground_failure', default = False,
-		type = str2bool, nargs='?', const=False)
-	parser.add_argument('--auto_script', default=None)
-	args = parser.parse_args(args)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--filenameDL')
+    parser.add_argument('--filenameEDP')
+    parser.add_argument('--DL_Method', default = None)
+    parser.add_argument('--Realizations', default = None)
+    parser.add_argument('--outputBIM', default='BIM.csv')
+    parser.add_argument('--outputEDP', default='EDP.csv')
+    parser.add_argument('--outputDM', default = 'DM.csv')
+    parser.add_argument('--outputDV', default = 'DV.csv')
+    parser.add_argument('--dirnameOutput', default = None)
+    parser.add_argument('--event_time', default=None)
+    parser.add_argument('--detailed_results', default = True,
+        type = str2bool, nargs='?', const=True)
+    parser.add_argument('--coupled_EDP', default = False,
+        type = str2bool, nargs='?', const=False)
+    parser.add_argument('--log_file', default = True,
+        type = str2bool, nargs='?', const=True)
+    parser.add_argument('--ground_failure', default = False,
+        type = str2bool, nargs='?', const=False)
+    parser.add_argument('--auto_script', default=None)
+    parser.add_argument('--resource_dir', default=None)
+    args = parser.parse_args(args)
 
-	log_msg('Initializing pelicun calculation...')
+    log_msg('Initializing pelicun calculation...')
 
-	#print(args)
-	run_pelicun(
-		args.filenameDL, args.filenameEDP,
-		args.DL_Method, args.Realizations,
-		args.outputEDP, args.outputDM, args.outputDV,
-		output_path = args.dirnameOutput,
-		detailed_results = args.detailed_results,
-		coupled_EDP = args.coupled_EDP,
-		log_file = args.log_file,
-		event_time = args.event_time,
-		ground_failure = args.ground_failure,
-		auto_script_path = args.auto_script)
+    #print(args)
+    run_pelicun(
+        args.filenameDL, args.filenameEDP,
+        args.DL_Method, args.Realizations,
+        args.outputBIM, args.outputEDP,
+        args.outputDM, args.outputDV,
+        output_path = args.dirnameOutput,
+        detailed_results = args.detailed_results,
+        coupled_EDP = args.coupled_EDP,
+        log_file = args.log_file,
+        event_time = args.event_time,
+        ground_failure = args.ground_failure,
+        auto_script_path = args.auto_script,
+        resource_dir = args.resource_dir)
 
-	log_msg('pelicun calculation completed.')
+    log_msg('pelicun calculation completed.')
 
 if __name__ == '__main__':
 
-	main(sys.argv[1:])
+    main(sys.argv[1:])
