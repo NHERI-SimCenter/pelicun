@@ -51,9 +51,7 @@ log_msg('First line of DL_calculation')
 import sys, os, json, ntpath, posixpath, argparse
 import numpy as np
 import pandas as pd
-
-from scipy.stats import norm, binom
-from scipy.optimize import minimize
+import shutil
 
 idx = pd.IndexSlice
 
@@ -70,19 +68,21 @@ from pelicun.auto import auto_populate
 # ------------------------------------------------------------------------------
 
 def neg_log_likelihood(params, IM, num_records, num_collapses):
-	theta = params[0]
-	beta = params[1]
+    from scipy.stats import norm, binom
 
-	log_IM = [np.log(m) for m in IM]
-	p = norm.cdf(log_IM, loc=theta, scale=beta)
+    theta = params[0]
+    beta = params[1]
 
-	# likelihood of observing num_collapse(i) collapses, given num_records observations, using the current parameter estimates
-	likelihood = np.maximum(binom.pmf(num_collapses, num_records, p),
-							np.nextafter(0,1))
+    log_IM = [np.log(m) for m in IM]
+    p = norm.cdf(log_IM, loc=theta, scale=beta)
 
-	neg_loglik = -np.sum(np.log(likelihood))
+    # likelihood of observing num_collapse(i) collapses, given num_records observations, using the current parameter estimates
+    likelihood = np.maximum(binom.pmf(num_collapses, num_records, p),
+                            np.nextafter(0,1))
 
-	return neg_loglik
+    neg_loglik = -np.sum(np.log(likelihood))
+
+    return neg_loglik
 
 # FUNCTION: lognormal_MLE ------------------------------------------------------
 # returns maximum likelihood estimation (MLE) of lognormal fragility function parameters
@@ -91,34 +91,38 @@ def neg_log_likelihood(params, IM, num_records, num_collapses):
 # using dynamic structural analysis.” Earthquake Spectra, 31(1), 579-599.
 
 def lognormal_MLE(IM,num_records,num_collapses):
-	# initial guess for parameters
-	params0 = [np.log(1.0), 0.4]
-	#params = minimize(neg_log_likelihood, params0, args=(IM, num_records, num_collapses), method='Nelder-Mead',
-    #					options={'maxfev': 400*2,
-	#						 'adaptive': True})
+    from scipy.optimize import minimize
 
-	params = minimize(neg_log_likelihood, params0, args=(IM, num_records, num_collapses), bounds=((None, None), (1e-10, None)))
-	theta = np.exp(params.x[0])
-	beta = params.x[1]
+    # initial guess for parameters
+    params0 = [np.log(1.0), 0.4]
+    #params = minimize(neg_log_likelihood, params0, args=(IM, num_records, num_collapses), method='Nelder-Mead',
+    #               options={'maxfev': 400*2,
+    #                   'adaptive': True})
 
-	return theta, beta
+    params = minimize(neg_log_likelihood, params0, args=(IM, num_records, num_collapses), bounds=((None, None), (1e-10, None)))
+    theta = np.exp(params.x[0])
+    beta = params.x[1]
+
+    return theta, beta
 
 # FUNCTION: update_collapsep ---------------------------------------------------
 # creates copy of BIM.json for each IM with updated collapse probability
 # ------------------------------------------------------------------------------
 
 def update_collapsep(BIMfile, RPi, theta, beta, num_collapses):
-	with open(BIMfile, 'r') as f:
-		BIM = json.load(f)
-		Pcol = norm.cdf(np.log(num_collapses/theta)/beta)
-		BIM['DamageAndLoss']['BuildingResponse']['CollapseProbability'] = Pcol
-	f.close()
+    from scipy.stats import norm
 
-	outfilename = 'BIM_{}.json'.format(RPi)
-	with open(outfilename, 'w') as g:
-		json.dump(BIM,g,indent=4)
+    with open(BIMfile, 'r') as f:
+        BIM = json.load(f)
+        Pcol = norm.cdf(np.log(num_collapses/theta)/beta)
+        BIM['DamageAndLoss']['BuildingResponse']['CollapseProbability'] = Pcol
+    f.close()
 
-	return outfilename
+    outfilename = 'BIM_{}.json'.format(RPi)
+    with open(outfilename, 'w') as g:
+        json.dump(BIM,g,indent=4)
+
+    return outfilename
 
 # END temporary functions ----
 
