@@ -359,6 +359,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     # general information
     GI = jd.get("GeneralInformation", None)
+    data['GI'] = GI
 
     # units
     if (GI is not None) and ('units' in GI.keys()):
@@ -1461,6 +1462,31 @@ def write_SimCenter_DL_output(output_dir, output_filename, output_df, index_name
     # TODO: this requires pandas 1.0+ > wait until next release
     #with open(file_path[:-3]+'zip', 'w') as f:
     #    output_df.to_csv(f, compression=dict(mehtod='zip', archive_name=output_filename))
+
+def write_SimCenter_BIM_output(output_dir, BIM_filename, BIM_dict):
+
+    #flatten the dictionary
+    BIM_flat_dict = {}
+    for key, item in BIM_dict.items():
+        if isinstance(item, dict):
+            for sub_key, sub_item in item.items():
+                BIM_flat_dict.update({f'{key}_{sub_key}': sub_item})
+        else:
+            BIM_flat_dict.update({key: [item,]})
+
+    # create the output DF
+    #BIM_flat_dict.update({"index": [0,]})
+    for header_to_remove in ['geometry', 'Footprint']:
+        try:
+            BIM_flat_dict.pop(header_to_remove)
+        except:
+            pass
+
+    df_res = pd.DataFrame.from_dict(BIM_flat_dict)
+
+    df_res.dropna(axis=1, how='all', inplace=True)
+
+    df_res.to_csv('BIM.csv')
 
 def write_SimCenter_EDP_output(output_dir, EDP_filename, EDP_df):
 

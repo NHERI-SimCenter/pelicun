@@ -329,7 +329,7 @@ class Assessment(object):
         log_msg('Calculating losses...')
         self._DV_dict = {}
 
-    def save_outputs(self, output_path, EDP_file, DM_file, DV_file,
+    def save_outputs(self, output_path, BIM_file, EDP_file, DM_file, DV_file,
                      suffix="", detailed_results=True):
         """
         Export the results.
@@ -459,6 +459,11 @@ class Assessment(object):
                         stats_only=True)
 
             #if True:
+            # create the BIM file
+            log_msg('\t\tSimCenter BIM file')
+            write_SimCenter_BIM_output(
+                output_path, suffix + BIM_file, self._AIM_in['GI'])
+
             # create the EDP file
             if self._assessment_type.startswith('HAZUS'):
                 log_msg('\t\tSimCenter EDP file')
