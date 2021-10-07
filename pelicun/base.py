@@ -53,6 +53,8 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 
+from .__init__ import __version__ as pelicun_version
+
 idx = pd.IndexSlice
 
 # set printing options
@@ -96,6 +98,15 @@ def set_log_file(filepath):
     with open(filepath, 'w') as f:
         f.write(f'pelicun {pelicun_version} | ')
         f.write(f'Local TimeZone: {datetime.utcnow().astimezone().tzinfo}\n')
+
+    print_system_info()
+
+def print_system_info():
+
+    log_msg('System information')
+    log_msg('\tpython: '+sys.version)
+    log_msg('\tnumpy: '+np.__version__)
+    log_msg('\tpandas: '+pd.__version__)
 
 def log_msg(msg='', prepend_timestamp=True):
     """
