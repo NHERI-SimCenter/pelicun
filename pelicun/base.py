@@ -94,7 +94,8 @@ def show_warning(warning_msg):
 def set_log_file(filepath):
     globals()['log_file'] = filepath
     with open(filepath, 'w') as f:
-        f.write('pelicun\n')
+        f.write(f'pelicun {pelicun_version} | ')
+        f.write(f'Local TimeZone: {datetime.utcnow().astimezone().tzinfo}\n')
 
 def log_msg(msg='', prepend_timestamp=True):
     """
@@ -109,7 +110,8 @@ def log_msg(msg='', prepend_timestamp=True):
 
     """
     if prepend_timestamp:
-        formatted_msg = '{} {}'.format(datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%fZ')[:-4], msg)
+        formatted_msg = '{} {}'.format(
+            datetime.now().strftime('%Y-%m-%dT%H:%M:%S:%fZ')[:-4], msg)
     else:
         formatted_msg = msg
 
