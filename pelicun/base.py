@@ -46,6 +46,8 @@ import os, sys, time
 import warnings
 from datetime import datetime
 from time import strftime
+from pathlib import Path
+import argparse
 
 from copy import deepcopy
 
@@ -59,7 +61,7 @@ idx = pd.IndexSlice
 
 # set printing options
 import pprint
-pp = pprint.PrettyPrinter(indent=4, width=300)
+pp = pprint.PrettyPrinter(indent=2, width=80-24)
 
 pd.options.display.max_rows = 20
 pd.options.display.max_columns = None
@@ -120,7 +122,7 @@ options = Options()
 log_file = None
 
 # get the absolute path of the pelicun directory
-pelicun_path = os.path.dirname(os.path.abspath(__file__))
+pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
@@ -145,17 +147,33 @@ def show_warning(warning_msg):
 def set_log_file(filepath):
     globals()['log_file'] = filepath
     with open(filepath, 'w') as f:
-        f.write(f'pelicun {pelicun_version} | ')
-        f.write(f'Local TimeZone: {datetime.utcnow().astimezone().tzinfo}\n')
+        f.write(f'pelicun {pelicun_version} | \n')
 
     print_system_info()
 
 def print_system_info():
 
-    log_msg('System information')
-    log_msg('\tpython: '+sys.version)
-    log_msg('\tnumpy: '+np.__version__)
-    log_msg('\tpandas: '+pd.__version__)
+    log_msg ('System Information:\n'
+             f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+             f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+             f'python: {sys.version}\n'
+             f'numpy: {np.__version__}\n'
+             f'pandas: {pd.__version__}\n')
+
+def log_div(prepend_timestamp=False):
+    """
+    Print a divider line to the log file
+
+    """
+
+    if prepend_timestamp:
+        msg = options.log_div
+
+    else:
+        msg = '-' * 80
+
+    log_msg(msg, prepend_timestamp = prepend_timestamp)
+
 
 def log_msg(msg='', prepend_timestamp=True):
     """
@@ -169,17 +187,24 @@ def log_msg(msg='', prepend_timestamp=True):
        Message to print.
 
     """
-    if prepend_timestamp:
-        formatted_msg = '{} {}'.format(
-            datetime.now().strftime('%Y-%m-%dT%H:%M:%S:%fZ')[:-4], msg)
-    else:
-        formatted_msg = msg
 
-    #print(formatted_msg)
+    msg_lines = msg.split('\n')
 
-    if globals()['log_file'] is not None:
-        with open(globals()['log_file'], 'a') as f:
-            f.write('\n'+formatted_msg)
+    for msg_i, msg_line in enumerate(msg_lines):
+
+        if (prepend_timestamp and (msg_i==0)):
+            formatted_msg = '{} {}'.format(
+                datetime.now().strftime(options.log_time_format), msg_line)
+        elif prepend_timestamp:
+            formatted_msg = options.log_pref + msg_line
+        else:
+            formatted_msg = msg_line
+
+        #print(formatted_msg)
+
+        if globals()['log_file'] is not None:
+            with open(globals()['log_file'], 'a') as f:
+                f.write('\n'+formatted_msg)
 
 def describe(df):
 
@@ -383,7 +408,6 @@ EDP_to_demand_type = {
     'Peak Floor Velocity' :           'PFV',
     'Peak Gust Wind Speed' :          'PWS',
     'Peak Inundation Height' :        'PIH',
-    'Flood Water Depth' :             'PIH', # temporary workaround
     'Peak Ground Acceleration' :      'PGA',
     'Peak Ground Velocity' :          'PGV',
     'Spectral Acceleration' :         'SA',
