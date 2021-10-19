@@ -1,0 +1,34 @@
+{
+  "DemandAssessment": {
+    "RawDataUnits": {
+      "PID": null,
+      "PRD": null,
+      "RID": null,
+      "DWD": null,
+      "RDR": null,
+      "PMD": null,
+      "PFA": "g",
+      "PGA": "g",
+      "SA" : "g",
+      "PFV": "mps2",
+      "PGV": "mps2",
+      "SV" : "mps",
+      "PGD": "m",
+      "SD" : "m",
+      "PWS": "mph",
+      "PIH": "ft"
+    },
+    "FitDistribution": {
+      "ALL": {
+        "DistributionFamily": "lognormal"
+      }
+    },
+    "Resample": {
+      "Realizations": 1000,
+      "PreserveRawOrder": false
+    },
+    "Misc": {
+      "RandomSeed": null
+    }
+  }
+}
