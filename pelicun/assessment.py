@@ -50,6 +50,7 @@ This module has classes and methods that control the performance assessment.
 
 from .base import *
 from .file_io import *
+from .model import *
 
 class Assessment(object):
     """
@@ -83,6 +84,7 @@ class Assessment(object):
 
         log_div()
         log_msg('Reading the configuration file...')
+
         if options.verbose:
             log_msg(f'{options.log_pref}file path: {path_config}\n ',
                     prepend_timestamp=False)
@@ -92,6 +94,30 @@ class Assessment(object):
 
         log_msg(prepend_timestamp=False)
         log_msg('Configuration file successfully parsed.')
+
+
+    def read_raw_data(self):
+        """
+        Read the raw data that serves as input to the assessment.
+
+        """
+
+        log_div()
+        log_msg('Reading raw data...')
+
+        if options.verbose:
+            log_msg(f'{options.log_pref}file path: {self.raw_data_path}\n ',
+                    prepend_timestamp=False)
+
+        self.raw_data = read_data_file(self.raw_data_path,
+                                     assessment_type=self._assessment_type)
+
+        log_msg(prepend_timestamp=False)
+        log_msg('Raw data successfully loaded.')
+
+    @property
+    def raw_data_path(self):
+        return self.config['RawDataPath']
 
 class DemandAssessment(Assessment):
     """
