@@ -133,6 +133,27 @@ class DemandAssessment(Assessment):
         self._assessment_type = 'demand'
 
 
+    def read_raw_data(self):
+        """
+        Read the raw demand data.
+
+        """
+        super(DemandAssessment, self).read_raw_data()
+
+        log_div()
+
+        # initialize a demand model using the raw data
+        log_msg('Initializing demand model...\n')
+
+        self.demand_model = DemandModel(self.raw_data,
+                                        self.config['RawDataUnits'])
+
+        if options.verbose:
+            log_msg("Parsed Demand Data:\n"+str(self.demand_model.demand_data))
+
+        log_msg(prepend_timestamp=False)
+        log_msg('Demand model successfully initialized.')
+
 class DamageAssessment(Assessment):
     """
     An Assessment class for characterizing the damage done to an asset.
