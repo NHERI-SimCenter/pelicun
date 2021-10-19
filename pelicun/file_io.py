@@ -272,6 +272,8 @@ def read_config_file(config_path, assessment_type):
         if options.verbose:
             log_msg("Parsed Config:\n"+pp.pformat(config))
 
+        return config
+
     def parse_damage_config(raw_data):
         pass
 
