@@ -66,9 +66,58 @@ pd.options.display.max_columns = None
 pd.options.display.expand_frame_repr = True
 pd.options.display.width = 300
 
-log_file = None
+class Options(object):
 
-log_div = '-' * (80-21)  # 21 to have a total length of 80 with the time added
+    def __init__(self):
+        self._verbose = False
+        self._log_show_ms = False
+
+        self.reset_log_strings()
+
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, value):
+        self._verbose = bool(value)
+
+    @property
+    def log_show_ms(self):
+        return self._log_show_ms
+
+    @log_show_ms.setter
+    def log_show_ms(self, value):
+        self._log_show_ms = bool(value)
+
+        self.reset_log_strings()
+
+    @property
+    def log_pref(self):
+        return self._log_pref
+
+    @property
+    def log_div(self):
+        return self._log_div
+
+    @property
+    def log_time_format(self):
+        return self._log_time_format
+
+    def reset_log_strings(self):
+
+        if self._log_show_ms:
+            self._log_time_format = '%H:%M:%S:%f'
+            self._log_pref = ' ' * 16 # the length of the time string in the log file
+            self._log_div = '-' * (80 - 17) # to have a total length of 80 with the time added
+        else:
+            self._log_time_format = '%H:%M:%S'
+            self._log_pref = ' ' * 9
+            self._log_div = '-' * (80 - 10)
+
+options = Options()
+
+log_file = None
 
 # get the absolute path of the pelicun directory
 pelicun_path = os.path.dirname(os.path.abspath(__file__))
