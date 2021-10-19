@@ -181,13 +181,13 @@ def get_required_resources(input_path, assessment_type):
 
     if path_CMP_data == "":
         # Use the P58 path as default
-        path_CMP_data = pelicun_path + CMP_data_path[AT]
+        path_CMP_data = pelicun_path / CMP_data_path[AT]
 
     resources.update({'component': path_CMP_data})
 
     # HAZUS combination of flood and wind losses
     if ((AT == 'HAZUS_HU') and (DL_input.get('Combinations', None) is not None)):
-        path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
+        path_combination_data = pelicun_path / CMP_data_path['HAZUS_MISC']
         resources.update({'combination': path_combination_data})
 
     # The population data is only needed if we are interested in injuries
@@ -427,7 +427,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     if path_CMP_data == "":
         # Use the P58 path as default
-        path_CMP_data = pelicun_path + CMP_data_path[AT]
+        path_CMP_data = pelicun_path / CMP_data_path[AT]
 
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
 
@@ -439,7 +439,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         if comb is not None:
             path_combination_data = DL_input.get('CombinationDataFile', None)
             if path_combination_data is None:
-                path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
+                path_combination_data = pelicun_path / CMP_data_path['HAZUS_MISC']
         data['data_sources'].update({'path_combination_data': path_combination_data})
         data['loss_combination'] = comb
 
@@ -451,7 +451,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     if data['decision_variables']['injuries']:
         if path_POP_data == "":
-            path_POP_data = pelicun_path + POP_data_path[AT]
+            path_POP_data = pelicun_path / POP_data_path[AT]
 
         data['data_sources'].update({'path_POP_data': path_POP_data})
 
