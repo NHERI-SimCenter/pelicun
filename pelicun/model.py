@@ -56,9 +56,83 @@ loss assessment.
     PerformanceGroup
     FragilityGroup
 
+    DemandModel
+
 """
 
 from .base import *
+
+class DemandModel(object):
+    """
+    Handles the demand information used by the assessments.
+
+    """
+
+    def __init__(self, raw_data, units):
+
+        self._raw_data = raw_data
+
+        self.parse_demands(units)
+
+    def parse_demands(self, units):
+
+        # Initialize the list of demand names
+        demand_names = []
+        demand_ids = []
+
+        for demand_id, name in enumerate(self._raw_data.columns.values):
+
+            # Remove all whitespace to avoid ambiguity
+            name = name.replace(' ', '')
+
+            if name not in ['ERROR', 'STRIPE']:
+
+                # Split by the '-' character
+                info = name.split('-')
+
+                # The first number (event_ID) is optional and currently not used
+                if len(info)==4:
+                    info = info[1:]
+
+                if len(info)!=3:
+                    raise ValueError(f"Demand name {name} does not follow the "
+                                     f"naming convention used in pelicun.")
+
+                demand_names.append(info)
+                demand_ids.append(demand_id)
+
+            elif name == 'ERROR':
+
+                self.error_list = self._raw_data.iloc[:, demand_id]
+
+            elif name == 'STRIPE':
+
+                self.stripe_list = self._raw_data.iloc[:, demand_id]
+
+        # Prepare a MultiIndex for the columns
+        demand_names = np.transpose(demand_names)
+
+        demand_types = np.unique(demand_names[0])
+        demand_locations = np.unique(demand_names[1])
+        demand_directions = np.unique(demand_names[2])
+
+        MI = pd.MultiIndex.from_product(
+            [demand_types,demand_locations,demand_directions],
+            names = ['type', 'loc', 'dir'])
+
+        # Initialize the demand DF
+        demand_data = pd.DataFrame(columns=MI, index=self._raw_data.index)
+
+        # Store the raw data in the demand DataFrame
+        for demand_id, info in zip(demand_ids, demand_names.T):
+
+            demand_data.loc[:,(info[0], info[1], info[2])] = self._raw_data.iloc[:,demand_id]
+
+        # Remove the empty columns
+        demand_data.dropna(axis=1, how='all', inplace=True)
+
+        self.demand_data = demand_data
+
 
 class FragilityFunction(object):
     """
