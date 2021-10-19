@@ -70,7 +70,21 @@ pd.options.display.width = 300
 
 class Options(object):
 
+    """
+
+    Parameters
+
+    verbose: boolean
+        If True, the pelicun echoes more information throughout the assessment.
+        This can be useful for debugging purposes.
+
+    log_show_ms: boolean
+        If True, the timestamps in the log file are in microsecond precision.
+
+    """
+
     def __init__(self):
+
         self._verbose = False
         self._log_show_ms = False
 

@@ -219,10 +219,6 @@ def read_config_file(config_path, assessment_type):
     assessment_type: {'demand', 'damage', 'loss'}
         The type of assessment to be configured. We seek different information
         for each assessment type.
-    verbose: boolean
-        If True, the function echoes the information read from the file. This
-        can be useful to ensure that the information in the file is properly
-        read by the method.
 
     Returns
     -------

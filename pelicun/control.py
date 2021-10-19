@@ -37,6 +37,7 @@
 # Contributors:
 # Adam Zsarnóczay
 # Pouria Kourehpaz
+# Kuanshi Zhong
 
 """
 This module has classes and methods that control the performance assessment.
