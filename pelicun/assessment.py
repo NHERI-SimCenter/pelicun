@@ -101,8 +101,10 @@ class DemandAssessment(Assessment):
     def __init__(self, log_file=True):
         super(DemandAssessment, self).__init__(log_file)
 
-        log_msg('type: Demand Assessment')
-        log_msg(log_div)
+        log_msg(f'{options.log_pref}type: Demand Assessment\n',
+                prepend_timestamp=False)
+
+        self._assessment_type = 'demand'
 
 
 class DamageAssessment(Assessment):
@@ -114,7 +116,8 @@ class DamageAssessment(Assessment):
         super(DamageAssessment, self).__init__(log_file)
 
         log_msg('type: Damage Assessment')
-        log_msg(log_div)
+
+        self._assessment_type = 'damage'
 
 class LossAssessment(Assessment):
     """
@@ -126,5 +129,6 @@ class LossAssessment(Assessment):
         super(LossAssessment, self).__init__(log_file)
 
         log_msg('type: Loss Assessment')
-        log_msg(log_div)
+
+        self._assessment_type = 'loss'
 
