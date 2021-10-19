@@ -296,6 +296,67 @@ def read_config_file(config_path, assessment_type):
         raise ValueError(
             f"{assessment_type} not a known assessment type")
 
+def read_data_file(data_path, assessment_type):
+    """
+    Read tabulated raw data from a file
+
+    The data file format depends on the assessment type, see more details in
+    the methods developed to parse each type of raw data. The user guide
+    section of the documentation also provides a detailed description of the
+    standard format for each file type
+
+    Parameters
+    ----------
+    data_path: string
+        Location of the csv file with the data.
+    assessment_type: {'demand', 'damage', 'loss'}
+        The type of assessment to be configured. We seek different information
+        for each assessment type.
+
+    Returns
+    -------
+    data: DataFrame
+        A pandas DataFrame with the parsed configuration data.
+    """
+
+    if assessment_type == 'demand':
+        return read_demand_data(data_path)
+
+
+def read_demand_data(data_path):
+    """
+    Read tabulated raw demand data from a file
+
+    Each column in the file corresponds to a demand type; each row corresponds
+    to a simulation/sample. The first column is expected to be the index and
+    the first row is a header. The header identifies each demand type. The user
+    guide section of the documentation provides more information about the
+    header format.
+
+    Parameters
+    ----------
+    data_path: string
+        Location of the csv file with the data.
+
+    Returns
+    -------
+    raw_demand: DataFrame
+        A pandas DataFrame with the parsed configuration data.
+    """
+
+    log_msg('opening the demand data file...')
+
+    # We assume that the data is stored in a standard csv file
+    raw_demand = pd.read_csv(data_path, header=0, index_col=0)
+
+    # reindex the data
+    raw_demand.index = np.arange(raw_demand.shape[0])
+
+    if options.verbose:
+        log_msg(f"Parsed Demand Data:\n{raw_demand}")
+
+    return raw_demand
+
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
