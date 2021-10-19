@@ -49,6 +49,7 @@ This module has classes and methods that control the performance assessment.
 """
 
 from .base import *
+from .file_io import *
 
 class Assessment(object):
     """
@@ -56,15 +57,41 @@ class Assessment(object):
     methods. This class is only rarely called directly.
     """
 
-    def __init__(selfself, log_file=True):
+    def __init__(self, log_file=True):
 
         # initialize the log file
         if log_file:
             set_log_file('pelicun_log.txt')
 
-        log_msg(log_div)
+        #initialize the assessment type
+        self._assessment_type = None
+
+        log_div()
         log_msg('Assessement Started')
-        log_msg(log_div)
+
+    def read_configuration(self, path_config):
+        """
+        Read and process the configuration file for pelicun.
+
+        Parameters
+        ----------
+        path_config: string
+            Path to the json file that contains the configuration for the
+            assessment to run.
+
+        """
+
+        log_div()
+        log_msg('Reading the configuration file...')
+        if options.verbose:
+            log_msg(f'{options.log_pref}file path: {path_config}\n ',
+                    prepend_timestamp=False)
+
+        self.config = read_config_file(path_config,
+                                       assessment_type=self._assessment_type)
+
+        log_msg(prepend_timestamp=False)
+        log_msg('Configuration file successfully parsed.')
 
 class DemandAssessment(Assessment):
     """

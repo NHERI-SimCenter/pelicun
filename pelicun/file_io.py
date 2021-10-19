@@ -197,10 +197,107 @@ def get_required_resources(input_path, assessment_type):
         path_POP_data = ""
 
     if ((injuries) and (path_POP_data == "")):
-        path_POP_data = pelicun_path + POP_data_path[AT]
+        path_POP_data = pelicun_path / POP_data_path[AT]
         resources.update({'population': path_POP_data})
 
     return resources
+
+def read_config_file(config_path, assessment_type):
+    """
+    Read the configuration of an assessment from a json file.
+
+    The configuration file follows a standard format designed for pelicun. The
+    SimCenter PBE Application automatically prepares such a file after the
+    desired assessment is set up in its GUI. The user guide section of the
+    documentation provides a detailed description of the file format and the
+    accepted entries in each field
+
+    Parameters
+    ----------
+    config_path: string
+        Location of the config json file.
+    assessment_type: {'demand', 'damage', 'loss'}
+        The type of assessment to be configured. We seek different information
+        for each assessment type.
+    verbose: boolean
+        If True, the function echoes the information read from the file. This
+        can be useful to ensure that the information in the file is properly
+        read by the method.
+
+    Returns
+    -------
+    config: dict
+        A dictionary with the parsed configuration data.
+    """
+
+    def parse_demand_config(raw_data):
+
+        config = raw_data['DemandAssessment']
+
+        with open(pelicun_path / "settings/default_config.json", 'r') as f:
+            defaults = json.load(f)['DemandAssessment']
+
+        # check raw data path
+        raw_data_path = Path(config.get('RawDataPath', None)).resolve()
+
+        if ((raw_data_path is None) or (not raw_data_path.is_file())):
+            raise ValueError("The raw demand data path is either missing from "
+                             "the configuration file, or it does not point to "
+                             "an existing file.")
+
+        # add default units (if needed)
+        for demand_type, demand_unit in defaults['RawDataUnits'].items():
+            if demand_type not in config['RawDataUnits'].keys():
+                config['RawDataUnits'].update({demand_type: demand_unit})
+
+        # add default fitting configuration
+        for demand_type, fit_config in defaults['FitDistribution'].items():
+            if demand_type not in config['FitDistribution'].keys():
+                config['FitDistribution'].update({demand_type: fit_config})
+
+        # add default resampling settings
+        if 'Resample' in config.keys():
+
+            # Note that if there is no "Resample" in the config file, we do not
+            # resample the demand data. The default config is only loaded if
+            # there is a "Resample" key in there with no other information
+            # provided.
+            if not config['Resample']:
+                config['Resample'] = defaults['Resample']
+
+        # add default miscellaneous settings
+        if 'Misc' not in config.keys():
+            config.update({'Misc': {}})
+
+        for misc_key, misc_setting in defaults['Misc'].items():
+            if misc_key not in config["Misc"].keys():
+                config['Misc'].update({misc_key: misc_setting})
+
+        if options.verbose:
+            log_msg("Parsed Config:\n"+pp.pformat(config))
+
+    def parse_damage_config(raw_data):
+        pass
+
+    def parse_loss_config(raw_data):
+        pass
+
+    with open(config_path, 'r') as f:
+        jd = json.load(f)
+
+    if assessment_type == 'demand':
+        return parse_demand_config(jd)
+
+    elif assessment_type == 'damage':
+        return parse_damage_config(jd)
+
+    elif assessment_type == 'loss':
+        return parse_loss_config(jd)
+
+    else:
+        raise ValueError(
+            f"{assessment_type} not a known assessment type")
+
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
