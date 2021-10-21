@@ -72,9 +72,15 @@ class DemandModel(object):
 
         self._raw_data = raw_data
 
-        self.parse_demands(units)
+        self.parse_demands()
 
-    def parse_demands(self, units):
+        self.convert_units(units)
+
+    def parse_demands(self):
+        """
+        Create a DataFrame that holds all relevant demand information.
+
+        """
 
         # Initialize the list of demand names
         demand_names = []
@@ -132,6 +138,45 @@ class DemandModel(object):
         demand_data.dropna(axis=1, how='all', inplace=True)
 
         self.demand_data = demand_data
+
+
+    def convert_units(self, units):
+        """
+        Scale the demand values according to the prescribed units
+
+        """
+
+        # get a list of demand types in the model
+        demand_type_list = self.demand_data.columns.get_level_values('type').values
+
+        # for each demand type
+        for demand_type in set(demand_type_list):
+
+            # the short demand is the acronym without the specific details that
+            # come after the _ character in the name (e.g., SA for SA_1.00)
+            short_demand = demand_type.split('_')[0]
+
+            # get the target unit for this demand type
+            target_unit = units.get(short_demand, 'missing')
+
+            # throw an error if there is no target unit specified
+            if target_unit == 'missing':
+                raise ValueError(f"No units defined for {demand_type}")
+
+            # scale the values if the unit is not None (e.g. None makes sense
+            # for drifts, for example
+            if target_unit != None:
+
+                # scale factors are defined in the base module
+                # everything is scaled to Standard Units
+                scale_factor = globals()[target_unit]
+
+                # get the columns in the demand DF that correspond to this
+                # demand type
+                demand_loc = np.where(demand_type_list == demand_type)[0]
+
+                # scale the values in the columns
+                self.demand_data.iloc[:, demand_loc] *= scale_factor
 
 
 class FragilityFunction(object):
