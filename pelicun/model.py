@@ -66,11 +66,25 @@ class DemandModel(object):
     """
     Handles the demand information used by the assessments.
 
+    Parameters
+    ----------
+    demand_data: DataFrame
+        Each column corresponds to a demand type - location - direction and each
+        row to a sample.
+    error_list: ndarray of bool
+        Identifies if there was an error in each simulation that yielded the
+        samples in demand_data.
+    stripe_list: ndarray of float
+        Identifies the stripe (by a scalar number) that the demand belongs to.
+        This information is used when evaluating multiple stripes for a
+        time-based assessment.
+
     """
 
     def __init__(self, raw_data, units):
 
         self._raw_data = raw_data
+        self._units = units
 
         self.parse_demands()
 
@@ -109,7 +123,7 @@ class DemandModel(object):
 
             elif name == 'ERROR':
 
-                self.error_list = self._raw_data.iloc[:, demand_id]
+                self.error_list = self._raw_data.iloc[:, demand_id].astype(bool)
 
             elif name == 'STRIPE':
 
@@ -138,7 +152,6 @@ class DemandModel(object):
         demand_data.dropna(axis=1, how='all', inplace=True)
 
         self.demand_data = demand_data
-
 
     def convert_units(self, units):
         """
@@ -173,10 +186,10 @@ class DemandModel(object):
 
                 # get the columns in the demand DF that correspond to this
                 # demand type
-                demand_loc = np.where(demand_type_list == demand_type)[0]
+                #demand_loc = np.where(demand_type_list == demand_type)[0]
 
                 # scale the values in the columns
-                self.demand_data.iloc[:, demand_loc] *= scale_factor
+                self.demand_data.loc[:, idx[demand_type, :, :]] *= scale_factor
 
 
 class FragilityFunction(object):
