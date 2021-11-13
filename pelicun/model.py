@@ -123,11 +123,13 @@ class DemandModel(object):
 
             elif name == 'ERROR':
 
-                self.error_list = self._raw_data.iloc[:, demand_id].astype(bool)
+                self.error_list = (
+                    self._raw_data.iloc[:, demand_id].astype(bool))
 
             elif name == 'STRIPE':
 
-                self.stripe_list = self._raw_data.iloc[:, demand_id]
+                self.stripe_list = (
+                    self._raw_data.iloc[:, demand_id].astype(float))
 
         # Prepare a MultiIndex for the columns
         demand_names = np.transpose(demand_names)
@@ -137,16 +139,18 @@ class DemandModel(object):
         demand_directions = np.unique(demand_names[2])
 
         MI = pd.MultiIndex.from_product(
-            [demand_types,demand_locations,demand_directions],
+            [demand_types, demand_locations, demand_directions],
             names = ['type', 'loc', 'dir'])
 
         # Initialize the demand DF
-        demand_data = pd.DataFrame(columns=MI, index=self._raw_data.index)
+        demand_data = pd.DataFrame(columns=MI, index=self._raw_data.index,
+                                   dtype=float)
 
         # Store the raw data in the demand DataFrame
         for demand_id, info in zip(demand_ids, demand_names.T):
 
-            demand_data.loc[:,(info[0], info[1], info[2])] = self._raw_data.iloc[:,demand_id]
+            demand_data.loc[:,(info[0], info[1], info[2])] = (
+                self._raw_data.iloc[:,demand_id].astype(float))
 
         # Remove the empty columns
         demand_data.dropna(axis=1, how='all', inplace=True)
