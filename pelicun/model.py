@@ -187,6 +187,201 @@ class DemandModel(object):
                 # get the columns in the demand DF that correspond to this
                 # demand type
                 #demand_loc = np.where(demand_type_list == demand_type)[0]
+    def calibrate(self, calibration_settings, remove_errors=True):
+        """
+        Find the parameters of a probability distribution that describes demands
+
+        """
+
+        def parse_settings(settings, demand_type):
+
+            active_d_types = (
+                demand_samples.columns.get_level_values('type').unique())
+
+            if demand_type == 'ALL':
+                cols = tuple(active_d_types)
+
+                # the default scale factor is 1.0
+                scale_factor = 1.0
+
+            else:
+                cols = []
+
+                for d_type in active_d_types:
+                    if d_type.split('_')[0] == demand_type:
+                        cols.append(d_type)
+
+                cols = tuple(cols)
+
+                # When the demand type is provided we can obtain a demand type
+                # specific scale factor
+                scale_factor = self._get_unit_conversion_scale_factor(demand_type)
+
+            # load the distribution family
+            cal_df.loc['family', idx[cols,:,:]] = settings['DistributionFamily']
+
+            # load the censor limits
+            if 'CensorAt' in settings.keys():
+                censor_lower, censor_upper = settings['CensorAt']
+                cal_df.loc['censor_lower', idx[cols,:,:]] = censor_lower
+                cal_df.loc['censor_upper', idx[cols,:,:]] = censor_upper
+
+            # load the truncation limits
+            if 'TruncateAt' in settings.keys():
+                truncate_lower, truncate_upper = settings['TruncateAt']
+                cal_df.loc['truncate_lower', idx[cols,:,:]] = truncate_lower
+                cal_df.loc['truncate_upper', idx[cols,:,:]] = truncate_upper
+
+            # scale the censor and truncation limits
+            rows_to_scale = ['censor_lower', 'censor_upper',
+                             'truncate_lower', 'truncate_upper']
+            cal_df.loc[rows_to_scale, idx[cols,:,:]] *= scale_factor
+
+            # load the prescribed additional uncertainty
+            if 'AddUncertainty' in settings.keys():
+
+                sig_increase = settings['AddUncertainty']
+
+                # scale the sig value if the target distribution family is normal
+                if settings['DistributionFamily'] == 'normal':
+                    sig_increase *= scale_factor
+
+                cal_df.loc['sig_increase', idx[cols,:,:]] = sig_increase
+
+        def get_filter_mask(lower_lims, upper_lims):
+
+            demands_of_interest = demand_samples.iloc[:, ~np.isnan(upper_lims)]
+            limits_of_interest = upper_lims[~np.isnan(upper_lims)]
+            upper_mask = np.all(demands_of_interest < limits_of_interest,
+                                axis=1)
+
+            demands_of_interest = demand_samples.iloc[:, ~np.isnan(lower_lims)]
+            limits_of_interest = lower_lims[~np.isnan(lower_lims)]
+            lower_mask = np.all(demands_of_interest > limits_of_interest,
+                                axis=1)
+
+            return np.all([lower_mask, upper_mask], axis=0)
+
+        # start by removing results from erroneous simulations (if needed)
+        if remove_errors:
+            demand_samples = self.demand_data.loc[~self.error_list,:].copy()
+        else:
+            demand_samples = self.demand_data.copy()
+
+        errors_removed = np.sum(self.error_list)
+        log_msg(f"\nBased on the values in the ERROR column, "
+                f"{errors_removed} samples were removed.",
+                prepend_timestamp=False)
+
+        # initialize a DataFrame that contains calibration information
+        cal_df = pd.DataFrame(
+            columns=demand_samples.columns,
+            index = ['family',
+                     'censor_lower','censor_upper',
+                     'truncate_lower','truncate_upper',
+                     'sig_increase', 'theta_0', 'theta_1'])
+
+        # start by assigning the default option ('ALL') to every demand column
+        parse_settings(calibration_settings['ALL'], 'ALL')
+
+        # then parse the additional settings and make the necessary adjustments
+        for demand_type in calibration_settings.keys():
+            if demand_type != 'ALL':
+                parse_settings(calibration_settings[demand_type], demand_type)
+
+        if options.verbose:
+            log_msg(f"\nCalibration settings:\n"+str(cal_df),
+                    prepend_timestamp=False)
+
+        # save the settings
+        self.model_params = cal_df.copy()
+
+        # Remove those demands that are kept empirical -> i.e., no fitting
+        # Currently, empirical demands are decoupled from those that have a
+        # distribution fit to their samples. The correlation between empirical
+        # and other demands is not preserved in the demand model.
+        for col in cal_df.columns:
+            if cal_df.loc['family', col] == 'empirical':
+                demand_samples.drop(col, 1, inplace=True)
+                cal_df.drop(col, 1, inplace=True)
+
+        # Remove the samples outside of censoring limits
+        # Currently, non-empirical demands are assumed to have some level of
+        # correlation, hence, a censored value in any demand triggers the
+        # removal of the entire sample from the population.
+        upper_lims = cal_df.loc['censor_upper', :].values.astype(float)
+        lower_lims = cal_df.loc['censor_lower', :].values.astype(float)
+
+        censor_mask = get_filter_mask(lower_lims, upper_lims)
+        censored_count = np.sum(~censor_mask)
+
+        demand_samples = demand_samples.loc[censor_mask, :]
+
+        log_msg(f"\nBased on the provided censoring limits, "
+                f"{censored_count} samples were censored.",
+                prepend_timestamp=False)
+
+        # Check if there is any sample outside of truncation limits
+        # If yes, that suggest an error either in the samples or the
+        # configuration. We handle such errors gracefully: the analysis is not
+        # terminated, but we show an error in the log file.
+        upper_lims = cal_df.loc['truncate_upper', :].values.astype(float)
+        lower_lims = cal_df.loc['truncate_lower', :].values.astype(float)
+
+        truncate_mask = get_filter_mask(lower_lims, upper_lims)
+        truncated_count = np.sum(~truncate_mask)
+
+        if truncated_count > 0:
+
+            demand_samples = demand_samples.loc[truncate_mask, :]
+
+            log_msg(f"\nBased on the provided truncation limits, "
+                    f"{truncated_count} samples were removed before demand "
+                    f"calibration.",
+                    prepend_timestamp=False)
+
+        if options.verbose:
+            log_msg(f"\nDemand data used for calibration:\n"+str(demand_samples),
+                    prepend_timestamp=False)
+
+        # fit the joint distribution
+        demand_theta, demand_rho = fit_distribution(
+            raw_samples = demand_samples.values.T,
+            distribution = cal_df.loc['family',:].values,
+            censored_count = censored_count,
+            detection_limits = np.array(
+                [cal_df.loc['censor_lower',:].values,
+                 cal_df.loc['censor_upper',:].values], dtype=float),
+            truncation_limits = np.array(
+                [cal_df.loc['truncate_lower',:].values,
+                 cal_df.loc['truncate_upper',:].values], dtype=float),
+            multi_fit=False
+        )
+
+        # save the calibration results
+        self.model_params.loc[['theta_0','theta_1'], cal_df.columns] = (
+            demand_theta.T
+        )
+
+        # increase the variance of the marginal distributions, if needed
+        sig_inc = np.nan_to_num(
+            self.model_params.loc['sig_increase', :].values.astype(float))
+        sig_0 = self.model_params.loc['theta_1', :].values.astype(float)
+
+        self.model_params.loc['theta_1', :] = (
+            np.sqrt(sig_0 ** 2. + sig_inc ** 2.))
+
+        log_msg(f"\nDemand model parameters:\n"+str(self.model_params),
+                prepend_timestamp=False)
+
+        # save the correlation matrix
+        self.model_rho = pd.DataFrame(demand_rho,
+                                      columns = cal_df.columns,
+                                      index = cal_df.columns)
+
+        log_msg(f"\nDemand model correlation matrix:\n" +
+                str(self.model_rho),
+                prepend_timestamp=False)
 
                 # scale the values in the columns
                 self.demand_data.loc[:, idx[demand_type, :, :]] *= scale_factor
