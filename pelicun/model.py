@@ -61,6 +61,7 @@ loss assessment.
 """
 
 from .base import *
+from .uq import fit_distribution
 
 class DemandModel(object):
     """
@@ -86,9 +87,13 @@ class DemandModel(object):
         self._raw_data = raw_data
         self._units = units
 
+        #initialize flags
+        self.error_list = np.zeros(raw_data.shape[0], dtype=bool)
+        self.stripe_list = np.ones(raw_data.shape[0])
+
         self.parse_demands()
 
-        self.convert_units(units)
+        self.convert_units()
 
     def parse_demands(self):
         """
@@ -157,7 +162,40 @@ class DemandModel(object):
 
         self.demand_data = demand_data
 
-    def convert_units(self, units):
+    def _get_unit_conversion_scale_factor(self, demand_type):
+        """
+        Return the scale factor for a particular demand type given the units
+        provided by the user.
+
+        """
+
+        # the short demand is the acronym without the specific details that
+        # come after the _ character in the name (e.g., SA for SA_1.00)
+        short_demand = demand_type.split('_')[0]
+
+        # get the target unit for this demand type
+        target_unit = self._units.get(short_demand, 'missing')
+
+        # throw an error if there is no target unit specified
+        if target_unit == 'missing':
+            raise ValueError(f"No units defined for {demand_type}")
+
+        # scale the values if the unit is not None (e.g. None makes sense
+        # for drifts, for example
+        if target_unit != None:
+
+            # scale factors are defined in the base module
+            # everything is scaled to Standard Units
+            scale_factor = globals()[target_unit]
+
+        else:
+
+            scale_factor = 1.0
+
+        return scale_factor
+
+
+    def convert_units(self):
         """
         Scale the demand values according to the prescribed units
 
@@ -169,28 +207,14 @@ class DemandModel(object):
         # for each demand type
         for demand_type in set(demand_type_list):
 
-            # the short demand is the acronym without the specific details that
-            # come after the _ character in the name (e.g., SA for SA_1.00)
-            short_demand = demand_type.split('_')[0]
+            scale_factor = self._get_unit_conversion_scale_factor(demand_type)
 
-            # get the target unit for this demand type
-            target_unit = units.get(short_demand, 'missing')
-
-            # throw an error if there is no target unit specified
-            if target_unit == 'missing':
-                raise ValueError(f"No units defined for {demand_type}")
-
-            # scale the values if the unit is not None (e.g. None makes sense
-            # for drifts, for example
-            if target_unit != None:
-
-                # scale factors are defined in the base module
-                # everything is scaled to Standard Units
-                scale_factor = globals()[target_unit]
+            if scale_factor != 1.0:
 
                 # get the columns in the demand DF that correspond to this
-                # demand type
-                #demand_loc = np.where(demand_type_list == demand_type)[0]
+                # demand type and scale the values in those columns
+                self.demand_data.loc[:, idx[demand_type, :, :]] *= scale_factor
+
     def calibrate(self, calibration_settings, remove_errors=True):
         """
         Find the parameters of a probability distribution that describes demands
@@ -386,9 +410,6 @@ class DemandModel(object):
         log_msg(f"\nDemand model correlation matrix:\n" +
                 str(self.model_rho),
                 prepend_timestamp=False)
-
-                # scale the values in the columns
-                self.demand_data.loc[:, idx[demand_type, :, :]] *= scale_factor
 
 
 class FragilityFunction(object):
