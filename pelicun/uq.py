@@ -65,7 +65,7 @@ from scipy.optimize import minimize
 import warnings
 
 
-def mvn_orthotope_density(mu, COV, lower=None, upper=None):
+def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
     """
     Estimate the probability density within a hyperrectangle for an MVN distr.
 
@@ -116,20 +116,20 @@ def mvn_orthotope_density(mu, COV, lower=None, upper=None):
 
     ndim = mu.size
 
-    if lower is None:
+    if np.all(np.isnan(lower)):
         lower = -np.ones(ndim) * np.inf
     else:
         lower = np.atleast_1d(lower)
 
-    if upper is None:
+    if np.all(np.isnan(upper)):
         upper = np.ones(ndim) * np.inf
     else:
         upper = np.atleast_1d(upper)
 
     # replace None with np.inf
-    lower[np.where(lower == None)[0]] = -np.inf
+    lower[np.where(np.isnan(lower))[0]] = -np.inf
     lower = lower.astype(np.float64)
-    upper[np.where(upper == None)[0]] = np.inf
+    upper[np.where(np.isnan(upper))[0]] = np.inf
     upper = upper.astype(np.float64)
 
     # standardize the truncation limits
@@ -363,8 +363,9 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
 
     return NLL
 
-def fit_distribution(raw_samples, distribution, truncation_limits=[None, None],
-                     censored_count=0, detection_limits=[None, None],
+def fit_distribution(raw_samples, distribution,
+                     truncation_limits=[np.nan, np.nan],
+                     censored_count=0, detection_limits=[np.nan, np.nan],
                      multi_fit=False, alpha_lim=1e-4):
     """
     Fit a distribution to samples using maximum likelihood estimation.
@@ -449,18 +450,17 @@ def fit_distribution(raw_samples, distribution, truncation_limits=[None, None],
         det_limits = np.tile(det_limits[0], samples.shape[0]
                              ).reshape([samples.shape[0], 2])
 
-    # Convert samples to log space if the distribution is lognormal
-    if distribution == 'lognormal':
-        samples = np.log(samples)
-        for dim in range(tr_limits.shape[0]):
-            for var in range(tr_limits.shape[1]):
-                if tr_limits[dim][var] is not None:
-                    tr_limits[dim][var] = np.log(tr_limits[dim][var])
-        for dim in range(det_limits.shape[0]):
-            for var in range(det_limits.shape[1]):
-                if det_limits[dim][var] is not None:
-                    det_limits[dim][var] = np.log(det_limits[dim][var])
+        if distribution == 'lognormal':
 
+            samples[d_i] = np.log(samples[d_i])
+
+            for lim in range(2):
+                if not np.isnan(tr_limits[d_i][lim]):
+                    tr_limits[d_i][lim] = np.log(tr_limits[d_i][lim])
+
+            for lim in range(2):
+                if not np.isnan(det_limits[d_i][lim]):
+                    det_limits[d_i][lim] = np.log(det_limits[d_i][lim])
 
     # Define initial values of distribution parameters
     if distribution in ['normal', 'lognormal']:
@@ -493,7 +493,7 @@ def fit_distribution(raw_samples, distribution, truncation_limits=[None, None],
     #     the number of samples is too small
     if ((n_samples < 3) or
         # there are no truncation or detection limits involved
-        (np.all(tr_limits == None) and np.all(det_limits == None))):
+        (np.all(np.isnan(tr_limits)) and np.all(np.isnan(det_limits)))):
 
         # In this case, it is typically hard to improve on the method of
         # moments estimates for the parameters of the marginal distributions
@@ -508,14 +508,21 @@ def fit_distribution(raw_samples, distribution, truncation_limits=[None, None],
 
             inits_i = inits[dim:dim + 1]
 
-            tr_limits_i = [None, None]
+            # Censored samples are only considered in the following step, but
+            # we fit a truncated distribution if there are censored samples to
+            # make it easier to fit the censored distribution later.
+            tr_limits_i = [np.nan, np.nan]
             for lim in range(2):
-                if ((tr_limits[dim][lim] is None) and
-                    (det_limits[dim][lim] is not None)):
+                if ((np.isnan(tr_limits[dim][lim])) and
+                    (not np.isnan(det_limits[dim][lim]))):
                     tr_limits_i[lim] = det_limits[dim][lim]
-                elif det_limits[dim][lim] is not None:
-                    tr_limits_i[lim] = np.max([tr_limits[dim][lim],
-                                               det_limits[dim][lim]])
+                elif not np.isnan(det_limits[dim][lim]):
+                    if lim == 0:
+                        tr_limits_i[lim] = np.min([tr_limits[dim][lim],
+                                                   det_limits[dim][lim]])
+                    elif lim == 1:
+                        tr_limits_i[lim] = np.max([tr_limits[dim][lim],
+                                                   det_limits[dim][lim]])
                 else:
                     tr_limits_i[lim] = tr_limits[dim][lim]
 
