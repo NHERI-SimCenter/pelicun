@@ -155,6 +155,24 @@ class DemandAssessment(Assessment):
         log_msg(prepend_timestamp=False)
         log_msg('Demand model successfully initialized.')
 
+
+    def calibrate_demand_model(self):
+        """
+        Calibrate the demand model to fit the raw demand data
+
+        The characteristics of the multivariate distribution used in the model
+        are defined in the configuration file.
+
+        """
+        log_div()
+        log_msg('Calibrating demand model...')
+
+        self.demand_model.calibrate(self.config['FitDistribution'])
+
+        log_msg(prepend_timestamp=False)
+        log_msg('Demand model calibration successful.')
+
+
 class DamageAssessment(Assessment):
     """
     An Assessment class for characterizing the damage done to an asset.
