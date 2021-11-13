@@ -270,7 +270,8 @@ def read_config_file(config_path, assessment_type):
                 config['Misc'].update({misc_key: misc_setting})
 
         if options.verbose:
-            log_msg("Parsed Config:\n"+pp.pformat(config))
+            log_msg("Parsed Config:\n"+pp.pformat(config),
+                    prepend_timestamp=False)
 
         return config
 
@@ -344,7 +345,7 @@ def read_demand_data(data_path):
         A pandas DataFrame with the parsed configuration data.
     """
 
-    log_msg('opening the demand data file...')
+    log_msg('opening the demand data file...', prepend_timestamp=False)
 
     # We assume that the data is stored in a standard csv file
     raw_demand = pd.read_csv(data_path, header=0, index_col=0)
@@ -353,7 +354,7 @@ def read_demand_data(data_path):
     raw_demand.index = np.arange(raw_demand.shape[0])
 
     if options.verbose:
-        log_msg(f"Parsed Demand Data:\n{raw_demand}")
+        log_msg(f"Parsed Demand Data:\n{raw_demand}", prepend_timestamp=False)
 
     return raw_demand
 

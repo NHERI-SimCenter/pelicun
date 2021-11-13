@@ -68,6 +68,8 @@ pd.options.display.max_columns = None
 pd.options.display.expand_frame_repr = True
 pd.options.display.width = 300
 
+idx = pd.IndexSlice
+
 class Options(object):
 
     """
@@ -147,12 +149,21 @@ def show_matrix(data, describe=False):
 
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
+
     if '\\' in filename:
         file_path = filename.split('\\')
     elif '/' in filename:
         file_path = filename.split('/')
-    python_file = '/'.join(file_path[-3:])
+    else:
+        file_path = None
+
+    if file_path is not None:
+        python_file = '/'.join(file_path[-3:])
+    else:
+        python_file = filename
+
     print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
+
 warnings.showwarning = _warning
 
 def show_warning(warning_msg):
@@ -189,7 +200,7 @@ def log_div(prepend_timestamp=False):
     log_msg(msg, prepend_timestamp = prepend_timestamp)
 
 
-def log_msg(msg='', prepend_timestamp=True):
+def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
     """
     Print a message to the screen with the current time as prefix
 
@@ -210,6 +221,8 @@ def log_msg(msg='', prepend_timestamp=True):
             formatted_msg = '{} {}'.format(
                 datetime.now().strftime(options.log_time_format), msg_line)
         elif prepend_timestamp:
+            formatted_msg = options.log_pref + msg_line
+        elif prepend_blank_space:
             formatted_msg = options.log_pref + msg_line
         else:
             formatted_msg = msg_line

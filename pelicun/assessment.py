@@ -86,7 +86,7 @@ class Assessment(object):
         log_msg('Reading the configuration file...')
 
         if options.verbose:
-            log_msg(f'{options.log_pref}file path: {path_config}\n ',
+            log_msg(f'file path: {path_config}\n ',
                     prepend_timestamp=False)
 
         self.config = read_config_file(path_config,
@@ -106,7 +106,7 @@ class Assessment(object):
         log_msg('Reading raw data...')
 
         if options.verbose:
-            log_msg(f'{options.log_pref}file path: {self.raw_data_path}\n ',
+            log_msg(f'file path: {self.raw_data_path}\n ',
                     prepend_timestamp=False)
 
         self.raw_data = read_data_file(self.raw_data_path,
@@ -127,7 +127,7 @@ class DemandAssessment(Assessment):
     def __init__(self, log_file=True):
         super(DemandAssessment, self).__init__(log_file)
 
-        log_msg(f'{options.log_pref}type: Demand Assessment\n',
+        log_msg(f'type: Demand Assessment\n',
                 prepend_timestamp=False)
 
         self._assessment_type = 'demand'
@@ -149,7 +149,8 @@ class DemandAssessment(Assessment):
                                         self.config['RawDataUnits'])
 
         if options.verbose:
-            log_msg("Parsed Demand Data:\n"+str(self.demand_model.demand_data))
+            log_msg("Parsed Demand Data:\n"+str(self.demand_model.demand_data),
+                    prepend_timestamp=False)
 
         log_msg(prepend_timestamp=False)
         log_msg('Demand model successfully initialized.')
