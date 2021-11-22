@@ -89,6 +89,12 @@ class Options(object):
 
         self._verbose = False
         self._log_show_ms = False
+        self._print_log = False
+
+        self.defaults = None
+
+        self._seed = None
+        self._rng = np.random.default_rng()
 
         self.reset_log_strings()
 
@@ -122,6 +128,50 @@ class Options(object):
     def log_time_format(self):
         return self._log_time_format
 
+    @property
+    def seed(self):
+        return self._seed
+
+    @seed.setter
+    def seed(self, value):
+        self._seed = value
+
+        self._rng = np.random.default_rng(self._seed)
+
+    @property
+    def rng(self):
+        return self._rng
+
+    @property
+    def log_file(self):
+        return globals()['log_file']
+
+    @log_file.setter
+    def log_file(self, value):
+
+        if value is None:
+            globals()['log_file'] = value
+        else:
+
+            filepath = Path(value).resolve()
+
+            if not filepath.is_file():
+                raise ValueError(f"The filepath provided does not point to an "
+                                 f"valid location: {filepath}")
+
+            globals()['log_file'] = str(filepath)
+
+            with open(filepath, 'w') as f:
+                f.write('')
+
+    @property
+    def print_log(self):
+        return self._print_log
+
+    @print_log.setter
+    def print_log(self, value):
+        self._print_log = str2bool(value)
+
     def reset_log_strings(self):
 
         if self._log_show_ms:
@@ -133,12 +183,43 @@ class Options(object):
             self._log_pref = ' ' * 9
             self._log_div = '-' * (80 - 10)
 
+    def scale_factor(self, unit):
+
+        if unit is not None:
+
+            if unit in globals().keys():
+                scale_factor = globals()[unit]
+
+            else:
+                raise ValueError(f"Unknown unit: {unit}")
+        else:
+            scale_factor = 1.0
+
+        return scale_factor
+
 options = Options()
 
 log_file = None
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
+
+def set_options(config_options):
+
+    if config_options is not None:
+
+        for key, value in config_options.items():
+
+            if key == "Verbose":
+                options.verbose = value
+            elif key == "Seed":
+                options.seed = value
+            elif key == "LogShowMS":
+                options.log_show_ms = value
+            elif key == "LogFile":
+                options.log_file = value
+            elif key == "PrintLog":
+                options.print_log = value
 
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
@@ -169,21 +250,16 @@ warnings.showwarning = _warning
 def show_warning(warning_msg):
     warnings.warn(UserWarning(warning_msg))
 
-def set_log_file(filepath):
-    globals()['log_file'] = filepath
-    with open(filepath, 'w') as f:
-        f.write(f'pelicun {pelicun_version} | \n')
-
-    print_system_info()
-
 def print_system_info():
 
-    log_msg ('System Information:\n'
-             f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
-             f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
-             f'python: {sys.version}\n'
-             f'numpy: {np.__version__}\n'
-             f'pandas: {pd.__version__}\n')
+    log_msg('System Information:',
+            prepend_timestamp=False, prepend_blank_space=False)
+    log_msg(f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+            f'python: {sys.version}\n'
+            f'numpy: {np.__version__}\n'
+            f'pandas: {pd.__version__}\n',
+            prepend_timestamp=False)
 
 def log_div(prepend_timestamp=False):
     """
@@ -227,7 +303,8 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
         else:
             formatted_msg = msg_line
 
-        #print(formatted_msg)
+        if options.print_log:
+            print(formatted_msg)
 
         if globals()['log_file'] is not None:
             with open(globals()['log_file'], 'a') as f:

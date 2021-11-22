@@ -693,13 +693,14 @@ class RandomVariable(object):
         identical.
     """
 
-    def __init__(self, name, distribution, theta=None, truncation_limits=None,
+    def __init__(self, name, distribution, theta=np.nan,
+                 truncation_limits=np.nan,
                  bounds=None, custom_expr=None, raw_samples=None, anchor=None):
 
         self.name = name
 
         if ((distribution not in ['empirical', 'coupled_empirical']) and
-            (theta is None)):
+            (np.all(np.isnan(theta)))):
             raise ValueError(
                 f"A random variable that follows a {distribution} distribution "
                 f"is characterized by a set of parameters (theta). The "
@@ -786,38 +787,38 @@ class RandomVariable(object):
         self._RV_set = value
 
     @property
-    def samples(self):
+    def sample(self):
         """
-        Return the empirical or generated samples.
+        Return the empirical or generated sample.
         """
-        return self._samples
+        return self._sample
 
     @property
-    def samples_DF(self):
+    def sample_DF(self):
         """
-        Return the empirical or generated samples in a pandas Series.
+        Return the empirical or generated sample in a pandas Series.
         """
-        return self._samples_DF
+        return self._sample_DF
 
-    @samples.setter
-    def samples(self, value):
+    @sample.setter
+    def sample(self, value):
         """
-        Assign samples to the random variable
+        Assign a sample to the random variable
         """
-        self._samples = value
-        self._samples_DF = pd.Series(value)
+        self._sample = value
+        self._sample_DF = pd.Series(value)
 
     @property
-    def uni_samples(self):
+    def uni_sample(self):
         """
-        Return the samples from the controlling uniform distribution.
+        Return the sample from the controlling uniform distribution.
         """
         return self._anchor._uni_samples
 
-    @uni_samples.setter
-    def uni_samples(self, value):
+    @uni_sample.setter
+    def uni_sample(self, value):
         """
-        Assign the controlling samples to the random variable
+        Assign the controlling sample to the random variable
 
         Parameters
         ----------
@@ -849,12 +850,12 @@ class RandomVariable(object):
         if self.distribution == 'normal':
             mu, sig = self.theta
 
-            if self.truncation_limits is not None:
+            if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
-                if a is None:
+                if np.isnan(a):
                     a = -np.inf
-                if b is None:
+                if np.isnan(b):
                     b = np.inf
 
                 p_a, p_b = [norm.cdf((lim - mu) / sig) for lim in [a, b]]
@@ -874,12 +875,12 @@ class RandomVariable(object):
         elif self.distribution == 'lognormal':
             theta, beta = self.theta
 
-            if self.truncation_limits is not None:
+            if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
-                if a is None:
+                if np.isnan(a):
                     a = np.nextafter(0, 1)
-                if b is None:
+                if np.isnan(b):
                     b = np.inf
 
                 p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
@@ -902,12 +903,12 @@ class RandomVariable(object):
         elif self.distribution == 'uniform':
             a, b = self.theta
 
-            if a is None:
+            if np.isnan(a):
                 a = -np.inf
-            if b is None:
+            if np.isnan(b):
                 b = np.inf
 
-            if self.truncation_limits is not None:
+            if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
             result = uniform.cdf(values, loc=a, scale=b-a)
@@ -924,12 +925,12 @@ class RandomVariable(object):
         if self.distribution == 'normal':
             mu, sig = self.theta
 
-            if self.truncation_limits is not None:
+            if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
-                if a is None:
+                if np.isnan(a):
                     a = -np.inf
-                if b is None:
+                if np.isnan(b):
                     b = np.inf
 
                 p_a, p_b = [norm.cdf((lim-mu)/sig) for lim in [a, b]]
@@ -952,15 +953,15 @@ class RandomVariable(object):
         elif self.distribution == 'lognormal':
             theta, beta = self.theta
 
-            if self.truncation_limits is not None:
+            if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
-                if a is None:
+                if np.isnan(a):
                     a = np.nextafter(0, 1)
                 else:
                     a = np.maximum(np.nextafter(0, 1), a)
 
-                if b is None:
+                if np.isnan(b):
                     b = np.inf
 
                 p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
@@ -976,12 +977,12 @@ class RandomVariable(object):
         elif self.distribution == 'uniform':
             a, b = self.theta
 
-            if a is None:
+            if np.isnan(a):
                 a = -np.inf
-            if b is None:
+            if np.isnan(b):
                 b = np.inf
 
-            if self.truncation_limits is not None:
+            if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
             result = uniform.ppf(values, loc=a, scale=b-a)
@@ -1018,7 +1019,7 @@ class RandomVariable(object):
         Creates samples using inverse probability integral transformation.
         """
 
-        self.samples = self.inverse_transform(self.uni_samples)
+        self.sample = self.inverse_transform(self.uni_sample)
 
 class RandomVariableSet(object):
     """
@@ -1073,11 +1074,11 @@ class RandomVariableSet(object):
         return len(self._variables)
 
     @property
-    def samples(self):
+    def sample(self):
         """
-        Return the samples of the variables in the set
+        Return the sample of the variables in the set
         """
-        return dict([(name, rv.samples) for name, rv
+        return dict([(name, rv.sample) for name, rv
                      in self._variables.items()])
 
     def Rho(self, var_subset=None):
@@ -1102,7 +1103,7 @@ class RandomVariableSet(object):
         matrix.
         """
 
-        U_RV = np.array([RV.uni_samples for RV_name, RV in self.RV.items()])
+        U_RV = np.array([RV.uni_sample for RV_name, RV in self.RV.items()])
 
         # First try doing the Cholesky transformation
         try:
@@ -1128,9 +1129,9 @@ class RandomVariableSet(object):
             UC_RV = norm.cdf(NC_RV)
 
         for (RV_name, RV), uc_RV in zip(self.RV.items(), UC_RV):
-            RV.uni_samples = uc_RV
+            RV.uni_sample = uc_RV
 
-    def orthotope_density(self, lower=None, upper=None, var_subset=None):
+    def orthotope_density(self, lower=np.nan, upper=np.nan, var_subset=None):
         """
         Estimate the probability density within an orthotope for the RV set.
 
@@ -1166,15 +1167,15 @@ class RandomVariableSet(object):
 
         """
 
-        if lower is not None:
+        if np.any(~np.isnan(lower)):
             target_shape = lower.shape
-        elif upper is not None:
+        elif np.any(~np.isnan(upper)):
             target_shape = upper.shape
         else:
             return 1.0
 
-        lower_std = np.full(target_shape, None)
-        upper_std = np.full(target_shape, None)
+        lower_std = np.full(target_shape, np.nan)
+        upper_std = np.full(target_shape, np.nan)
 
         # collect the variables involved
         if var_subset is None:
@@ -1187,10 +1188,10 @@ class RandomVariableSet(object):
 
             var = self._variables[var_name]
 
-            if (lower is not None) and (lower[var_i] is not None):
+            if (np.any(~np.isnan(lower))) and (~np.isnan(lower[var_i])):
                 lower_std[var_i] = norm.ppf(var.cdf(lower[var_i]), loc=0, scale=1)
 
-            if (upper is not None) and (upper[var_i] is not None):
+            if (np.any(~np.isnan(upper))) and (~np.isnan(upper[var_i])):
                 upper_std[var_i] = norm.ppf(var.cdf(upper[var_i]), loc=0, scale=1)
 
         # then calculate the orthotope results in std normal space
@@ -1251,14 +1252,14 @@ class RandomVariableRegistry(object):
         self._sets.update({RV_set.name: RV_set})
 
     @property
-    def RV_samples(self):
+    def RV_sample(self):
         """
-        Return the samples for every random variable in the registry
+        Return the sample for every random variable in the registry
         """
-        return dict([(name, rv.samples) for name,rv in self.RV.items()])
+        return dict([(name, rv.sample) for name, rv in self.RV.items()])
 
 
-    def generate_samples(self, sample_size, method='LHS_midpoint', seed=None):
+    def generate_sample(self, sample_size, method='LHS_midpoint'):
         """
         Generates samples for all variables in the registry.
 
@@ -1277,7 +1278,7 @@ class RandomVariableRegistry(object):
             Random seed used for sampling.
         """
         # Initialize the random number generator
-        rng = np.random.default_rng(seed)
+        rng = options.rng
 
         # Generate a dictionary with IDs of the free (non-anchored) variables
         RV_list = [RV_name for RV_name, RV in self.RV.items() if
@@ -1303,7 +1304,7 @@ class RandomVariableRegistry(object):
 
         # Assign the controlling samples to the RVs
         for RV_name, RV_id in RV_ID.items():
-            self.RV[RV_name].uni_samples = U_RV[RV_id]
+            self.RV[RV_name].uni_sample = U_RV[RV_id]
 
         # Apply correlations for the pre-defined RV sets
         for RV_set_name, RV_set in self.RV_set.items():

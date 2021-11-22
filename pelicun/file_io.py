@@ -202,162 +202,371 @@ def get_required_resources(input_path, assessment_type):
 
     return resources
 
-def read_config_file(config_path, assessment_type):
+def load_default_options():
     """
-    Read the configuration of an assessment from a json file.
+    Load the default_config.json file to set options to default values
 
-    The configuration file follows a standard format designed for pelicun. The
-    SimCenter PBE Application automatically prepares such a file after the
-    desired assessment is set up in its GUI. The user guide section of the
-    documentation provides a detailed description of the file format and the
-    accepted entries in each field
+    """
+
+    with open(pelicun_path / "settings/default_config.json", 'r') as f:
+        options.defaults = json.load(f)
+
+    set_options(options.defaults.get('Options', None))
+
+def merge_default_config(config):
+
+    defaults = options.defaults
+
+    if config.get('DemandAssessment', False):
+
+        demand_def = defaults['DemandAssessment']
+        demand_config = config['DemandAssessment']
+
+        if 'Calibration' in demand_config.keys():
+
+            calib_config = demand_config['Calibration']
+            calib_def = demand_def['Calibration']
+
+            for key, value in calib_def.items():
+
+                if key in ['Marginals',]:
+                    continue
+
+                if key not in calib_def:
+                    calib_def.update({key: value})
+
+            marginal_config = calib_config['Marginals']
+            marginal_def = calib_def['Marginals']
+
+            for key, value in marginal_def.items():
+
+                if key not in marginal_config:
+                    marginal_config.update({key: value})
+
+        if 'Sampling' in demand_config.keys():
+
+            sample_config = demand_config['Sampling']
+
+            for key, value in demand_def['Sampling'].items():
+
+                if key not in sample_config:
+                    sample_config.update({key: value})
+
+        if 'OutputUnits' in demand_def.keys():
+
+            if 'OutputUnits' not in demand_config.keys():
+                demand_config.update({'OutputUnits': {}})
+
+            for key, value in demand_def['OutputUnits'].items():
+
+                if key not in demand_config['OutputUnits']:
+                    demand_config['OutputUnits'].update({key: value})
+
+    return config
+
+
+def save_to_csv(data, filepath, units=None, orientation=0):
+    """
+    Saves data to a CSV file following standard SimCenter schema.
+
+    The produced CSV files have a single header line and an index column. The
+    second line may start with 'units' in the index or the first column may be
+    'units' to provide the units for the data in the file.
+
+    The following data types in pelicun can be saved with this function:
+
+    Demand Data: Each column in a table corresponds to a demand type; each
+    row corresponds to a simulation/sample. The header identifies each demand
+    type. The user guide section of the documentation provides more
+    information about the header format. Target need to be specified in the
+    second row of the DataFrame.
 
     Parameters
     ----------
-    config_path: string
-        Location of the config json file.
-    assessment_type: {'demand', 'damage', 'loss'}
-        The type of assessment to be configured. We seek different information
-        for each assessment type.
+    data: DataFrame
+        The data to save
+    filepath: string
+        The location of the destination file
+    units: Series, optional
+        Provides a Series with variables and corresponding units.
+    level: string, optional
+        Identifies the level referenced in the units dictionary when the data
+        has a MultiIndex header.
+    orientation: int, {0, 1}, default: 0
+        If 0, variables are organized along columns; otherwise they are along
+        the rows. This is important when converting values to follow the
+        prescribed units.
 
-    Returns
-    -------
-    config: dict
-        A dictionary with the parsed configuration data.
     """
 
-    def parse_demand_config(raw_data):
+    log_div()
+    log_msg(f'Saving data to {filepath}...')
 
-        config = raw_data['DemandAssessment']
+    filepath = Path(filepath).resolve()
 
-        with open(pelicun_path / "settings/default_config.json", 'r') as f:
-            defaults = json.load(f)['DemandAssessment']
+    if data is not None:
 
-        # check raw data path
-        raw_data_path = Path(config.get('RawDataPath', None)).resolve()
+        # make sure we do not modify the original data
+        data = data.copy()
 
-        if ((raw_data_path is None) or (not raw_data_path.is_file())):
-            raise ValueError("The raw demand data path is either missing from "
-                             "the configuration file, or it does not point to "
-                             "an existing file.")
+        # convert units and add unit information, if needed
+        if units is not None:
 
-        # add default units (if needed)
-        for demand_type, demand_unit in defaults['RawDataUnits'].items():
-            if demand_type not in config['RawDataUnits'].keys():
-                config['RawDataUnits'].update({demand_type: demand_unit})
+            log_msg(f'Converting units...', prepend_timestamp=False)
 
-        # add default fitting configuration
-        for demand_type, fit_config in defaults['FitDistribution'].items():
-            if demand_type not in config['FitDistribution'].keys():
-                config['FitDistribution'].update({demand_type: fit_config})
+            # if the orientation is 1, we might not need to scale all columns
+            if orientation == 1:
+                cols_to_scale = [dt in [float, int] for dt in data.dtypes]
+                cols_to_scale = data.columns[cols_to_scale]
 
-        # add default resampling settings
-        if 'Resample' in config.keys():
+            labels_to_keep = []
 
-            # Note that if there is no "Resample" in the config file, we do not
-            # resample the demand data. The default config is only loaded if
-            # there is a "Resample" key in there with no other information
-            # provided.
-            if not config['Resample']:
-                config['Resample'] = defaults['Resample']
+            for unit_name in units.unique():
 
-        # add default miscellaneous settings
-        if 'Misc' not in config.keys():
-            config.update({'Misc': {}})
+                labels = units.loc[units==unit_name].index.values
 
-        for misc_key, misc_setting in defaults['Misc'].items():
-            if misc_key not in config["Misc"].keys():
-                config['Misc'].update({misc_key: misc_setting})
+                unit_factor = 1./globals()[unit_name]
 
-        if options.verbose:
-            log_msg("Parsed Config:\n"+pp.pformat(config),
+                active_labels = []
+
+                if orientation == 0:
+                    for label in labels:
+                        if label in data.columns:
+                            active_labels.append(label)
+
+                    if len(active_labels) > 0:
+                        data.loc[:, active_labels] *= unit_factor
+
+                else: #elif orientation == 1:
+                    for label in labels:
+                        if label in data.index:
+                            active_labels.append(label)
+
+                    if len(active_labels) > 0:
+                        data.loc[active_labels, cols_to_scale] *= unit_factor
+
+                labels_to_keep += active_labels
+
+            units = units.loc[labels_to_keep].to_frame()
+
+            if orientation == 0:
+                data = pd.concat([units.T, data], axis=0)
+                data.sort_index(axis=1, inplace=True)
+            else:
+                data = pd.concat([units, data], axis=1)
+                data.sort_index(inplace=True)
+
+            log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+
+        # convert MultiIndex to regular index with '-' separators
+        if isinstance(data.index, pd.MultiIndex):
+
+            log_msg(f'Converting MultiIndex to regular index...',
                     prepend_timestamp=False)
 
-        return config
+            simple_index = ['-'.join(id) for id in data.index]
+            data.index = simple_index
 
-    def parse_damage_config(raw_data):
-        pass
+        # same thing for the columns
+        if isinstance(data.columns, pd.MultiIndex):
 
-    def parse_loss_config(raw_data):
-        pass
+            log_msg(f'Converting MultiIndex header to regular header...',
+                    prepend_timestamp=False)
 
-    with open(config_path, 'r') as f:
-        jd = json.load(f)
+            simple_column = ['-'.join(id) for id in data.columns]
+            data.columns = simple_column
 
-    if assessment_type == 'demand':
-        return parse_demand_config(jd)
 
-    elif assessment_type == 'damage':
-        return parse_damage_config(jd)
+        if filepath.suffix == '.csv':
 
-    elif assessment_type == 'loss':
-        return parse_loss_config(jd)
+            # save the contents of the DataFrame into a csv
+
+            data.to_csv(filepath)
+
+            log_msg(f'File successfully saved.', prepend_timestamp=False)
+
+        else:
+            raise ValueError(
+                f'ERROR: Unexpected file type received when trying '
+                f'to save to csv: {filepath}')
+
+        log_msg(f'Data successfully saved to file.',
+                prepend_timestamp=False)
 
     else:
-        raise ValueError(
-            f"{assessment_type} not a known assessment type")
+        log_msg(f'WARNING: Data was empty, no file saved.',
+                prepend_timestamp=False)
 
-def read_data_file(data_path, assessment_type):
+def load_from_csv(filepath, orientation=0, reindex=True, return_units=False):
     """
-    Read tabulated raw data from a file
+    Loads data from a CSV file assuming it follows standard SimCenter schema.
 
-    The data file format depends on the assessment type, see more details in
-    the methods developed to parse each type of raw data. The user guide
-    section of the documentation also provides a detailed description of the
-    standard format for each file type
+    CSV files are assumed to have a single header line and an index column. The
+    second line may start with 'units' in the index and provide the units for
+    each column in the file.
+
+    The following data types can be loaded with this function:
+
+    Demand Data: Each column in a table corresponds to a demand type; each
+    row corresponds to a simulation/sample. The header identifies each demand
+    type. The user guide section of the documentation provides more
+    information about the header format. Units need to be specified in the
+    second row of the file.
 
     Parameters
     ----------
-    data_path: string
-        Location of the csv file with the data.
-    assessment_type: {'demand', 'damage', 'loss'}
-        The type of assessment to be configured. We seek different information
-        for each assessment type.
+    filepath: string
+        The location of the source file
+    orientation: int, {0, 1}, default: 0
+        If 0, variables are organized along columns; otherwise they are along
+        the rows. This is important when converting values to follow the
+        prescribed units.
+    reindex: bool
+        If True, reindexes the table to ensure a 0-based, continuous index
+    return_units: bool
+        If True, returns the units as well as the data to allow for adjustments
+        in unit conversion.
 
     Returns
     -------
     data: DataFrame
-        A pandas DataFrame with the parsed configuration data.
+        Data loaded from the file.
+    units: Series
+        Labels from the data and corresponding units specified in the file. If
+        no units are specified, this return value is "None". units are only
+        returned if return_units is set to True.
     """
 
-    if assessment_type == 'demand':
-        return read_demand_data(data_path)
+    log_div()
+    log_msg(f'Loading data from {filepath}...')
 
+    # check if the filepath is valid
+    filepath = Path(filepath).resolve()
 
-def read_demand_data(data_path):
+    if not filepath.is_file():
+        raise ValueError(f"The filepath provided does not point to an existing "
+                         f"file: {filepath}")
+
+    if filepath.suffix == '.csv':
+
+        # load the contents of the csv into a DataFrame
+
+        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
+
+        log_msg(f'File successfully opened.', prepend_timestamp=False)
+
+    else:
+        raise ValueError(f'ERROR: Unexpected file type received when trying '
+                         f'to load from csv: {filepath}')
+
+    # if there is information about units, perform the conversion to SI
+    if (data.index[0] == 'units') or (data.columns[0] == 'units'):
+
+        log_msg(f'Converting units...', prepend_timestamp=False)
+
+        if orientation == 0:
+            units = data.loc['units',:].copy().dropna()
+            data.drop('units', inplace=True)
+            data = data.astype(float)
+
+        else:  #elif orientation==1:
+            units = data.loc[:, 'units'].copy().dropna()
+            data.drop('units', axis=1, inplace=True)
+
+            cols_to_scale = []
+            for col in data.columns:
+                try:
+                    data.loc[:, col] = data.loc[:,col].astype(float)
+                    cols_to_scale.append(col)
+                except:
+                    pass
+
+        unique_unit_names = units.unique()
+
+        for unit_name in unique_unit_names:
+
+            unit_factor = globals()[unit_name]
+            unit_labels = units.loc[units==unit_name].index
+
+            if orientation == 0:
+                data.loc[:,unit_labels] *= unit_factor
+
+            else:  #elif orientation==1:
+                data.loc[unit_labels, cols_to_scale] *= unit_factor
+
+        log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+
+    else:
+
+        # enforcing float datatype is important even if there is no unit
+        # conversion
+        units = None
+        data = data.astype(float)
+
+    # convert column to MultiIndex if needed
+    column_labels = np.array([label.split('-') for label in data.columns])
+
+    if column_labels.shape[1] > 1:
+        log_msg(f'Converting header to MultiIndex...',
+                prepend_timestamp=False)
+
+        data.columns = pd.MultiIndex.from_arrays(column_labels.T)
+
+    data.sort_index(axis=1, inplace=True)
+
+    # reindex the data, if needed
+    if reindex:
+
+        data.index = np.arange(data.shape[0])
+
+    else:
+
+        # convert index to MultiIndex if needed
+        index_labels = np.array([label.split('-') for label in data.index])
+
+        if index_labels.shape[1] > 1:
+            log_msg(f'Converting index to MultiIndex...',
+                    prepend_timestamp=False)
+
+            data.index = pd.MultiIndex.from_arrays(index_labels.T)
+
+        data.sort_index(inplace=True)
+
+    log_msg(f'Data successfully loaded from file.', prepend_timestamp=False)
+
+    if return_units:
+
+        # convert index in units Series to MultiIndex if needed
+        index_labels = np.array([label.split('-') for label in units.index])
+        if index_labels.shape[1] > 1:
+            units.index = pd.MultiIndex.from_arrays(index_labels.T)
+
+        units.sort_index(inplace=True)
+
+        return data, units
+
+    else:
+        return data
+
+def convert_units(self):
     """
-    Read tabulated raw demand data from a file
+    Scale the demand values according to the prescribed units
 
-    Each column in the file corresponds to a demand type; each row corresponds
-    to a simulation/sample. The first column is expected to be the index and
-    the first row is a header. The header identifies each demand type. The user
-    guide section of the documentation provides more information about the
-    header format.
-
-    Parameters
-    ----------
-    data_path: string
-        Location of the csv file with the data.
-
-    Returns
-    -------
-    raw_demand: DataFrame
-        A pandas DataFrame with the parsed configuration data.
     """
 
-    log_msg('opening the demand data file...', prepend_timestamp=False)
+    # get a list of demand types in the model
+    demand_type_list = self.demand_data.columns.get_level_values('type').values
 
-    # We assume that the data is stored in a standard csv file
-    raw_demand = pd.read_csv(data_path, header=0, index_col=0)
+    # for each demand type
+    for demand_type in set(demand_type_list):
 
-    # reindex the data
-    raw_demand.index = np.arange(raw_demand.shape[0])
+        scale_factor = self._get_unit_conversion_scale_factor(demand_type)
 
-    if options.verbose:
-        log_msg(f"Parsed Demand Data:\n{raw_demand}", prepend_timestamp=False)
+        if scale_factor != 1.0:
 
-    return raw_demand
-
+            # get the columns in the demand DF that correspond to this
+            # demand type and scale the values in those columns
+            self.demand_data.loc[:, idx[demand_type, :, :]] *= scale_factor
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """

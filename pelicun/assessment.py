@@ -52,149 +52,56 @@ from .base import *
 from .file_io import *
 from .model import *
 
+load_default_options()
+
 class Assessment(object):
     """
-    A high-level class that collects features common to all supported assessment
-    methods. This class is only rarely called directly.
+    Assessment objects manage the models, data, and calculations in pelicun.
+
     """
 
-    def __init__(self, log_file=True):
+    def __init__(self):
 
-        # initialize the log file
-        if log_file:
-            set_log_file('pelicun_log.txt')
+        log_msg(f'pelicun {pelicun_version} | \n',
+                prepend_timestamp=False, prepend_blank_space=False)
 
-        #initialize the assessment type
-        self._assessment_type = None
+        print_system_info()
 
         log_div()
         log_msg('Assessement Started')
 
-    def read_configuration(self, path_config):
-        """
-        Read and process the configuration file for pelicun.
-
-        Parameters
-        ----------
-        path_config: string
-            Path to the json file that contains the configuration for the
-            assessment to run.
-
-        """
-
-        log_div()
-        log_msg('Reading the configuration file...')
-
-        if options.verbose:
-            log_msg(f'file path: {path_config}\n ',
-                    prepend_timestamp=False)
-
-        self.config = read_config_file(path_config,
-                                       assessment_type=self._assessment_type)
-
-        log_msg(prepend_timestamp=False)
-        log_msg('Configuration file successfully parsed.')
-
-
-    def read_raw_data(self):
-        """
-        Read the raw data that serves as input to the assessment.
-
-        """
-
-        log_div()
-        log_msg('Reading raw data...')
-
-        if options.verbose:
-            log_msg(f'file path: {self.raw_data_path}\n ',
-                    prepend_timestamp=False)
-
-        self.raw_data = read_data_file(self.raw_data_path,
-                                     assessment_type=self._assessment_type)
-
-        log_msg(prepend_timestamp=False)
-        log_msg('Raw data successfully loaded.')
-
     @property
-    def raw_data_path(self):
-        return self.config['RawDataPath']
+    def demand(self):
+        """
+        Return a DemandModel object that manages the demands for the assessment.
+
+        """
+
+        if hasattr(self, '_demand'):
+            return self._demand
+
+        else:
+            self._demand = DemandModel()
+            return self.demand
+
 
 class DemandAssessment(Assessment):
     """
     An Assessment class for characterizing the demands acting on an asset.
     """
 
-    def __init__(self, log_file=True):
-        super(DemandAssessment, self).__init__(log_file)
+    def __init__(self, config_file, log_file=True):
+        pass
 
-        log_msg(f'type: Demand Assessment\n',
-                prepend_timestamp=False)
-
-        self._assessment_type = 'demand'
-
-
-    def read_raw_data(self):
+    def generate_samples(self):
         """
-        Read the raw demand data.
-
-        """
-        super(DemandAssessment, self).read_raw_data()
-
-        log_div()
-
-        # initialize a demand model using the raw data
-        log_msg('Initializing demand model...\n')
-
-        self.demand_model = DemandModel(self.raw_data,
-                                        self.config['RawDataUnits'])
-
-        if options.verbose:
-            log_msg("Parsed Demand Data:\n"+str(self.demand_model.demand_data),
-                    prepend_timestamp=False)
-
-        log_msg(prepend_timestamp=False)
-        log_msg('Demand model successfully initialized.')
-
-
-    def calibrate_demand_model(self):
-        """
-        Calibrate the demand model to fit the raw demand data
-
-        The characteristics of the multivariate distribution used in the model
-        are defined in the configuration file.
+        Generate demand samples
 
         """
         log_div()
-        log_msg('Calibrating demand model...')
+        log_msg('Generating demand samples...')
 
-        self.demand_model.calibrate(self.config['FitDistribution'])
+        self.demand_model.generate_sample(self.config['Resample'])
 
         log_msg(prepend_timestamp=False)
-        log_msg('Demand model calibration successful.')
-
-
-class DamageAssessment(Assessment):
-    """
-    An Assessment class for characterizing the damage done to an asset.
-    """
-
-    def __init__(self, log_file=True):
-        super(DamageAssessment, self).__init__(log_file)
-
-        log_msg('type: Damage Assessment')
-
-        self._assessment_type = 'damage'
-
-class LossAssessment(Assessment):
-    """
-    An Assessment class for characterizing the losses experienced by an asset
-    and its inhabitants or users.
-    """
-
-    def __init__(self, log_file=True):
-        super(LossAssessment, self).__init__(log_file)
-
-        log_msg('type: Loss Assessment')
-
-        self._assessment_type = 'loss'
-
+        log_msg('Demand sample generation successful')

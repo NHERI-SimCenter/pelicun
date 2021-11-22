@@ -61,176 +61,188 @@ loss assessment.
 """
 
 from .base import *
-from .uq import fit_distribution
+from .uq import *
+from .file_io import save_to_csv, load_from_csv
 
 class DemandModel(object):
     """
-    Handles the demand information used by the assessments.
+    Manages demand information used in assessments.
 
     Parameters
     ----------
-    demand_data: DataFrame
-        Each column corresponds to a demand type - location - direction and each
-        row to a sample.
-    error_list: ndarray of bool
-        Identifies if there was an error in each simulation that yielded the
-        samples in demand_data.
-    stripe_list: ndarray of float
-        Identifies the stripe (by a scalar number) that the demand belongs to.
-        This information is used when evaluating multiple stripes for a
-        time-based assessment.
+    marginal_params: DataFrame
+        Available after the model has been calibrated or calibration data has
+        been imported. Defines the marginal distribution of each demand
+        variable.
+    correlation: DataFrame
+        Available after the model has been calibrated or calibration data has
+        been imported. Defines the correlation between the demand variables in
+        standard normal space. That is, the variables are sampled in standard
+        normal space and then transformed into the space of their respective
+        distributions and the correlation matrix corresponds to the space where
+        they are sampled.
+    empirical_data: DataFrame
+        Available after the model has been calibrated or calibration data has
+        been imported. It provides an empirical dataset for the demand
+        variables that are modeled with an empirical distribution.
+    sample: DataFrame
+        Available after a sample has been generated. Demand variables are
+        listed in columns and each row provides an independent realization of
+        the joint demand distribution.
+    units: Series
+        Available after any demand data has been loaded. The index identifies
+        the demand variables and the values provide the unit for each variable.
 
     """
 
-    def __init__(self, raw_data, units):
+    def __init__(self):
 
-        self._raw_data = raw_data
-        self._units = units
+        self.marginal_params = None
+        self.correlation = None
+        self.empirical_data = None
+        self.units = None
 
-        #initialize flags
-        self.error_list = np.zeros(raw_data.shape[0], dtype=bool)
-        self.stripe_list = np.ones(raw_data.shape[0])
+        self._RVs = None
+        self._sample = None
 
-        self.parse_demands()
+    @property
+    def sample(self):
 
-        self.convert_units()
+        if self._sample is None:
 
-    def parse_demands(self):
-        """
-        Create a DataFrame that holds all relevant demand information.
+            sample = pd.DataFrame(self._RVs.RV_sample)
 
-        """
-
-        # Initialize the list of demand names
-        demand_names = []
-        demand_ids = []
-
-        for demand_id, name in enumerate(self._raw_data.columns.values):
-
-            # Remove all whitespace to avoid ambiguity
-            name = name.replace(' ', '')
-
-            if name not in ['ERROR', 'STRIPE']:
-
-                # Split by the '-' character
-                info = name.split('-')
-
-                # The first number (event_ID) is optional and currently not used
-                if len(info)==4:
-                    info = info[1:]
-
-                if len(info)!=3:
-                    raise ValueError(f"Demand name {name} does not follow the "
-                                     f"naming convention used in pelicun.")
-
-                demand_names.append(info)
-                demand_ids.append(demand_id)
-
-            elif name == 'ERROR':
-
-                self.error_list = (
-                    self._raw_data.iloc[:, demand_id].astype(bool))
-
-            elif name == 'STRIPE':
-
-                self.stripe_list = (
-                    self._raw_data.iloc[:, demand_id].astype(float))
-
-        # Prepare a MultiIndex for the columns
-        demand_names = np.transpose(demand_names)
-
-        demand_types = np.unique(demand_names[0])
-        demand_locations = np.unique(demand_names[1])
-        demand_directions = np.unique(demand_names[2])
-
-        MI = pd.MultiIndex.from_product(
-            [demand_types, demand_locations, demand_directions],
-            names = ['type', 'loc', 'dir'])
-
-        # Initialize the demand DF
-        demand_data = pd.DataFrame(columns=MI, index=self._raw_data.index,
-                                   dtype=float)
-
-        # Store the raw data in the demand DataFrame
-        for demand_id, info in zip(demand_ids, demand_names.T):
-
-            demand_data.loc[:,(info[0], info[1], info[2])] = (
-                self._raw_data.iloc[:,demand_id].astype(float))
-
-        # Remove the empty columns
-        demand_data.dropna(axis=1, how='all', inplace=True)
-
-        self.demand_data = demand_data
-
-    def _get_unit_conversion_scale_factor(self, demand_type):
-        """
-        Return the scale factor for a particular demand type given the units
-        provided by the user.
-
-        """
-
-        # the short demand is the acronym without the specific details that
-        # come after the _ character in the name (e.g., SA for SA_1.00)
-        short_demand = demand_type.split('_')[0]
-
-        # get the target unit for this demand type
-        target_unit = self._units.get(short_demand, 'missing')
-
-        # throw an error if there is no target unit specified
-        if target_unit == 'missing':
-            raise ValueError(f"No units defined for {demand_type}")
-
-        # scale the values if the unit is not None (e.g. None makes sense
-        # for drifts, for example
-        if target_unit != None:
-
-            # scale factors are defined in the base module
-            # everything is scaled to Standard Units
-            scale_factor = globals()[target_unit]
+            sample.columns = self.marginal_params.index
 
         else:
+            sample = self._sample
 
-            scale_factor = 1.0
+        return sample
 
-        return scale_factor
-
-
-    def convert_units(self):
+    def save_sample(self, filepath):
         """
-        Scale the demand values according to the prescribed units
+        Save demand sample to a csv file
 
         """
 
-        # get a list of demand types in the model
-        demand_type_list = self.demand_data.columns.get_level_values('type').values
+        save_to_csv(self.sample, filepath, units=self.units)
 
-        # for each demand type
-        for demand_type in set(demand_type_list):
 
-            scale_factor = self._get_unit_conversion_scale_factor(demand_type)
-
-            if scale_factor != 1.0:
-
-                # get the columns in the demand DF that correspond to this
-                # demand type and scale the values in those columns
-                self.demand_data.loc[:, idx[demand_type, :, :]] *= scale_factor
-
-    def calibrate(self, calibration_settings, remove_errors=True):
+    def load_sample(self, filepath):
         """
-        Find the parameters of a probability distribution that describes demands
+        Load demand sample data and parse it.
+
+        Besides parsing the sample, the method also reads and saves the units
+        specified for each demand variable. If no units are specified, Standard
+        Units are assumed.
+
+        Parameters
+        ----------
+        filepath: string
+            Location of the file with the demand sample.
+
+        """
+
+        def parse_header(raw_header):
+
+            old_MI = raw_header
+
+            # The first number (event_ID) in the demand labels is optional and
+            # currently not used. We remove it if it was in the raw data.
+            if old_MI.nlevels == 4:
+
+                if options.verbose:
+                    log_msg(f'Removing event_ID from header...',
+                            prepend_timestamp=False)
+
+                new_column_index = np.array(
+                    [old_MI.get_level_values(i) for i in range(1, 4)])
+
+            else:
+                new_column_index = np.array(
+                    [old_MI.get_level_values(i) for i in range(3)])
+
+            # Remove whitespace to avoid ambiguity
+
+            if options.verbose:
+                log_msg(f'Removing whitespace from header...',
+                        prepend_timestamp=False)
+
+            wspace_remove = np.vectorize(lambda name: name.replace(' ', ''))
+
+            new_column_index = wspace_remove(new_column_index)
+
+            # Creating new, cleaned-up header
+
+            new_MI = pd.MultiIndex.from_arrays(
+                new_column_index, names=['type', 'loc', 'dir'])
+
+            return new_MI
+
+
+
+        demand_data, units = load_from_csv(filepath, return_units=True)
+
+        log_div()
+        log_msg(f'Loading demand data...')
+
+        parsed_data = demand_data.copy()
+
+        # start with cleaning up the header
+
+        parsed_data.columns = parse_header(parsed_data.columns)
+
+        # Remove errors, if needed
+        if 'ERROR' in parsed_data.columns.get_level_values(0):
+
+            log_msg(f'Removing errors from the raw data...',
+                    prepend_timestamp=False)
+
+            error_list = parsed_data.loc[:,idx['ERROR',:,:]].values.astype(bool)
+
+            parsed_data = parsed_data.loc[~error_list, :].copy()
+            parsed_data.drop('ERROR', level=0, axis=1, inplace=True)
+
+            log_msg(f"\nBased on the values in the ERROR column, "
+                    f"{np.sum(error_list)} demand samples were removed.\n",
+                    prepend_timestamp=False)
+
+        self._sample = parsed_data
+
+        log_msg(f'Demand data successfully parsed.', prepend_timestamp=False)
+
+        # parse the index for the units
+        units.index = parse_header(units.index)
+
+        self.units = units
+
+        log_msg(f'Demand units successfully parsed.', prepend_timestamp=False)
+
+    def calibrate_model(self, config):
+        """
+        Calibrate a demand model to describe the raw demand data
+
+        The raw data shall be parsed first to ensure that it follows the
+        schema expected by this method. The calibration settings define the
+        characteristics of the multivariate distribution that is fit to the
+        raw data.
+
+        Parameters
+        ----------
+        config: dict
+            A dictionary, typically read from a json file, that specifies the
+            distribution family, truncation and censoring limits, and other
+            settings for the calibration.
 
         """
 
         def parse_settings(settings, demand_type):
 
             active_d_types = (
-                demand_samples.columns.get_level_values('type').unique())
+                demand_sample.columns.get_level_values('type').unique())
 
             if demand_type == 'ALL':
                 cols = tuple(active_d_types)
-
-                # the default scale factor is 1.0
-                scale_factor = 1.0
 
             else:
                 cols = []
@@ -241,29 +253,27 @@ class DemandModel(object):
 
                 cols = tuple(cols)
 
-                # When the demand type is provided we can obtain a demand type
-                # specific scale factor
-                scale_factor = self._get_unit_conversion_scale_factor(demand_type)
-
             # load the distribution family
-            cal_df.loc['family', idx[cols,:,:]] = settings['DistributionFamily']
+            cal_df.loc[idx[cols,:,:], 'family'] = settings['DistributionFamily']
 
             # load the censor limits
             if 'CensorAt' in settings.keys():
                 censor_lower, censor_upper = settings['CensorAt']
-                cal_df.loc['censor_lower', idx[cols,:,:]] = censor_lower
-                cal_df.loc['censor_upper', idx[cols,:,:]] = censor_upper
+                cal_df.loc[idx[cols,:,:], 'censor_lower'] = censor_lower
+                cal_df.loc[idx[cols,:,:], 'censor_upper'] = censor_upper
 
             # load the truncation limits
             if 'TruncateAt' in settings.keys():
                 truncate_lower, truncate_upper = settings['TruncateAt']
-                cal_df.loc['truncate_lower', idx[cols,:,:]] = truncate_lower
-                cal_df.loc['truncate_upper', idx[cols,:,:]] = truncate_upper
+                cal_df.loc[idx[cols,:,:], 'truncate_lower'] = truncate_lower
+                cal_df.loc[idx[cols,:,:], 'truncate_upper'] = truncate_upper
 
-            # scale the censor and truncation limits
+            # scale the censor and truncation limits, if needed
+            scale_factor = options.scale_factor(settings.get('Unit', None))
+
             rows_to_scale = ['censor_lower', 'censor_upper',
                              'truncate_lower', 'truncate_upper']
-            cal_df.loc[rows_to_scale, idx[cols,:,:]] *= scale_factor
+            cal_df.loc[idx[cols,:,:], rows_to_scale] *= scale_factor
 
             # load the prescribed additional uncertainty
             if 'AddUncertainty' in settings.keys():
@@ -274,143 +284,321 @@ class DemandModel(object):
                 if settings['DistributionFamily'] == 'normal':
                     sig_increase *= scale_factor
 
-                cal_df.loc['sig_increase', idx[cols,:,:]] = sig_increase
+                cal_df.loc[idx[cols,:,:], 'sig_increase'] = sig_increase
 
         def get_filter_mask(lower_lims, upper_lims):
 
-            demands_of_interest = demand_samples.iloc[:, ~np.isnan(upper_lims)]
+            demands_of_interest = demand_sample.iloc[:, ~np.isnan(upper_lims)]
             limits_of_interest = upper_lims[~np.isnan(upper_lims)]
             upper_mask = np.all(demands_of_interest < limits_of_interest,
                                 axis=1)
 
-            demands_of_interest = demand_samples.iloc[:, ~np.isnan(lower_lims)]
+            demands_of_interest = demand_sample.iloc[:, ~np.isnan(lower_lims)]
             limits_of_interest = lower_lims[~np.isnan(lower_lims)]
             lower_mask = np.all(demands_of_interest > limits_of_interest,
                                 axis=1)
 
             return np.all([lower_mask, upper_mask], axis=0)
 
-        # start by removing results from erroneous simulations (if needed)
-        if remove_errors:
-            demand_samples = self.demand_data.loc[~self.error_list,:].copy()
-        else:
-            demand_samples = self.demand_data.copy()
+        log_div()
+        log_msg('Calibrating demand model...')
 
-        errors_removed = np.sum(self.error_list)
-        log_msg(f"\nBased on the values in the ERROR column, "
-                f"{errors_removed} samples were removed.",
-                prepend_timestamp=False)
+        demand_sample = self.sample
 
         # initialize a DataFrame that contains calibration information
         cal_df = pd.DataFrame(
-            columns=demand_samples.columns,
-            index = ['family',
-                     'censor_lower','censor_upper',
-                     'truncate_lower','truncate_upper',
-                     'sig_increase', 'theta_0', 'theta_1'])
+            columns=['family',
+                     'censor_lower', 'censor_upper',
+                     'truncate_lower', 'truncate_upper',
+                     'sig_increase', 'theta_0', 'theta_1'],
+            index=demand_sample.columns,
+            dtype=float
+            )
+
+        cal_df['family'] = cal_df['family'].astype(str)
 
         # start by assigning the default option ('ALL') to every demand column
-        parse_settings(calibration_settings['ALL'], 'ALL')
+        parse_settings(config['ALL'], 'ALL')
 
         # then parse the additional settings and make the necessary adjustments
-        for demand_type in calibration_settings.keys():
+        for demand_type in config.keys():
             if demand_type != 'ALL':
-                parse_settings(calibration_settings[demand_type], demand_type)
+                parse_settings(config[demand_type], demand_type)
 
         if options.verbose:
-            log_msg(f"\nCalibration settings:\n"+str(cal_df),
+            log_msg(f"\nCalibration settings successfully parsed:\n"+str(cal_df),
                     prepend_timestamp=False)
+        else:
+            log_msg(
+                f"\nCalibration settings successfully parsed:\n",
+                prepend_timestamp=False)
 
         # save the settings
-        self.model_params = cal_df.copy()
-
-        # Remove those demands that are kept empirical -> i.e., no fitting
-        # Currently, empirical demands are decoupled from those that have a
-        # distribution fit to their samples. The correlation between empirical
-        # and other demands is not preserved in the demand model.
-        for col in cal_df.columns:
-            if cal_df.loc['family', col] == 'empirical':
-                demand_samples.drop(col, 1, inplace=True)
-                cal_df.drop(col, 1, inplace=True)
+        model_params = cal_df.copy()
 
         # Remove the samples outside of censoring limits
         # Currently, non-empirical demands are assumed to have some level of
         # correlation, hence, a censored value in any demand triggers the
         # removal of the entire sample from the population.
-        upper_lims = cal_df.loc['censor_upper', :].values.astype(float)
-        lower_lims = cal_df.loc['censor_lower', :].values.astype(float)
+        upper_lims = cal_df.loc[:, 'censor_upper'].values
+        lower_lims = cal_df.loc[:, 'censor_lower'].values
 
-        censor_mask = get_filter_mask(lower_lims, upper_lims)
-        censored_count = np.sum(~censor_mask)
+        if ~np.all(np.isnan(np.array([upper_lims, lower_lims]))):
 
-        demand_samples = demand_samples.loc[censor_mask, :]
+            censor_mask = get_filter_mask(lower_lims, upper_lims)
+            censored_count = np.sum(~censor_mask)
 
-        log_msg(f"\nBased on the provided censoring limits, "
-                f"{censored_count} samples were censored.",
-                prepend_timestamp=False)
+            demand_sample = demand_sample.loc[censor_mask, :]
+
+            log_msg(f"\nBased on the provided censoring limits, "
+                    f"{censored_count} samples were censored.",
+                    prepend_timestamp=False)
+        else:
+            censored_count = 0
 
         # Check if there is any sample outside of truncation limits
-        # If yes, that suggest an error either in the samples or the
+        # If yes, that suggests an error either in the samples or the
         # configuration. We handle such errors gracefully: the analysis is not
         # terminated, but we show an error in the log file.
-        upper_lims = cal_df.loc['truncate_upper', :].values.astype(float)
-        lower_lims = cal_df.loc['truncate_lower', :].values.astype(float)
+        upper_lims = cal_df.loc[:, 'truncate_upper'].values
+        lower_lims = cal_df.loc[:, 'truncate_lower'].values
 
-        truncate_mask = get_filter_mask(lower_lims, upper_lims)
-        truncated_count = np.sum(~truncate_mask)
+        if ~np.all(np.isnan(np.array([upper_lims, lower_lims]))):
 
-        if truncated_count > 0:
+            truncate_mask = get_filter_mask(lower_lims, upper_lims)
+            truncated_count = np.sum(~truncate_mask)
 
-            demand_samples = demand_samples.loc[truncate_mask, :]
+            if truncated_count > 0:
 
-            log_msg(f"\nBased on the provided truncation limits, "
-                    f"{truncated_count} samples were removed before demand "
-                    f"calibration.",
-                    prepend_timestamp=False)
+                demand_sample = demand_sample.loc[truncate_mask, :]
+
+                log_msg(f"\nBased on the provided truncation limits, "
+                        f"{truncated_count} samples were removed before demand "
+                        f"calibration.",
+                        prepend_timestamp=False)
+
+        # Separate and save the demands that are kept empirical -> i.e., no
+        # fitting. Currently, empirical demands are decoupled from those that
+        # have a distribution fit to their samples. The correlation between
+        # empirical and other demands is not preserved in the demand model.
+        empirical_edps = []
+        for edp in cal_df.index:
+            if cal_df.loc[edp, 'family'] == 'empirical':
+                empirical_edps.append(edp)
+
+        self.empirical_data = demand_sample.loc[:, empirical_edps].copy()
+
+        # remove the empirical demands from the samples used for calibration
+        demand_sample = demand_sample.drop(empirical_edps, 1)
+
+        # and the calibration settings
+        cal_df = cal_df.drop(empirical_edps, 0)
 
         if options.verbose:
-            log_msg(f"\nDemand data used for calibration:\n"+str(demand_samples),
+            log_msg(f"\nDemand data used for calibration:\n"+str(demand_sample),
                     prepend_timestamp=False)
 
         # fit the joint distribution
+        log_msg(f"\nFitting the prescribed joint demand distribution...",
+                prepend_timestamp=False)
+
         demand_theta, demand_rho = fit_distribution(
-            raw_samples = demand_samples.values.T,
-            distribution = cal_df.loc['family',:].values,
+            raw_samples = demand_sample.values.T,
+            distribution = cal_df.loc[:, 'family'].values,
             censored_count = censored_count,
-            detection_limits = np.array(
-                [cal_df.loc['censor_lower',:].values,
-                 cal_df.loc['censor_upper',:].values], dtype=float),
-            truncation_limits = np.array(
-                [cal_df.loc['truncate_lower',:].values,
-                 cal_df.loc['truncate_upper',:].values], dtype=float),
+            detection_limits = cal_df.loc[:,
+                               ['censor_lower', 'censor_upper']].values.T,
+            truncation_limits = cal_df.loc[:,
+                                ['truncate_lower', 'truncate_upper']].values.T,
             multi_fit=False
         )
 
+        # fit the joint distribution
+        log_msg(f"\nCalibration successful, processing results...",
+                prepend_timestamp=False)
+
         # save the calibration results
-        self.model_params.loc[['theta_0','theta_1'], cal_df.columns] = (
-            demand_theta.T
-        )
+        model_params.loc[cal_df.index, ['theta_0','theta_1']] = demand_theta
 
         # increase the variance of the marginal distributions, if needed
-        sig_inc = np.nan_to_num(
-            self.model_params.loc['sig_increase', :].values.astype(float))
-        sig_0 = self.model_params.loc['theta_1', :].values.astype(float)
+        if ~np.all(np.isnan(model_params.loc[:, 'sig_increase'].values)):
 
-        self.model_params.loc['theta_1', :] = (
-            np.sqrt(sig_0 ** 2. + sig_inc ** 2.))
+            log_msg(f"\nIncreasing demand variance...",
+                    prepend_timestamp=False)
 
-        log_msg(f"\nDemand model parameters:\n"+str(self.model_params),
+            sig_inc = np.nan_to_num(model_params.loc[:, 'sig_increase'].values)
+            sig_0 = model_params.loc[:, 'theta_1'].values
+
+            model_params.loc[:, 'theta_1'] = (
+                np.sqrt(sig_0 ** 2. + sig_inc ** 2.))
+
+        # remove unneeded fields from model_params
+        for col in ['sig_increase', 'censor_lower', 'censor_upper']:
+            model_params = model_params.drop(col, 1)
+
+        # reorder the remaining fields for clarity
+        model_params = model_params[[
+            'family','theta_0','theta_1','truncate_lower','truncate_upper']]
+
+        self.marginal_params = model_params
+
+        log_msg(f"\nCalibrated demand model marginal distributions:\n" +
+                str(model_params),
                 prepend_timestamp=False)
 
         # save the correlation matrix
-        self.model_rho = pd.DataFrame(demand_rho,
-                                      columns = cal_df.columns,
-                                      index = cal_df.columns)
+        self.correlation = pd.DataFrame(demand_rho,
+                                      columns = cal_df.index,
+                                      index = cal_df.index)
 
-        log_msg(f"\nDemand model correlation matrix:\n" +
-                str(self.model_rho),
+        log_msg(f"\nCalibrated demand model correlation matrix:\n" +
+                str(self.correlation),
                 prepend_timestamp=False)
 
+    def save_model(self, file_prefix = 'demands'):
+        """
+        Save parameters of the demand model to a set of csv files
+
+        """
+
+        # save the correlation and empirical data
+        save_to_csv(self.correlation, file_prefix + '_correlation.csv')
+        save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
+                    units=self.units)
+
+        # the log standard deviations in the marginal parameters need to be
+        # scaled up before feeding to the saving method where they will be
+        # scaled back down and end up being saved unscaled to the target file
+
+        marginal_params = self.marginal_params.copy()
+
+        log_rows = marginal_params['family']=='lognormal'
+        log_demands = marginal_params.loc[log_rows,:]
+
+        for label in log_demands.index:
+
+            if label in self.units.index:
+
+                unit_factor = globals()[self.units[label]]
+
+                marginal_params.loc[label, 'theta_1'] *= unit_factor
+
+        save_to_csv(marginal_params, file_prefix+'_marginals.csv',
+                    units=self.units, orientation=1)
+
+    def load_model(self, file_prefix = 'demands'):
+
+        self.empirical_data = load_from_csv(file_prefix+'_empirical.csv')
+        self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
+                                            inplace=True)
+
+        self.correlation = load_from_csv(file_prefix + '_correlation.csv',
+                                         reindex=False)
+        self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
+        self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
+
+        # the log standard deviations in the marginal parameters need to be
+        # adjusted after getting the data from the loading method where they
+        # were scaled according to the units of the corresponding variable
+        marginal_params, units = load_from_csv(file_prefix + '_marginals.csv',
+                                               orientation=1, reindex=False,
+                                               return_units=True)
+        marginal_params.index.set_names(['type', 'loc', 'dir'],inplace=True)
+
+        log_rows = marginal_params.loc[:, 'family'] == 'lognormal'
+        log_demands = marginal_params.loc[log_rows,:].index.values
+
+        for label in log_demands:
+
+            if label in units.index:
+
+                unit_factor = globals()[units[label]]
+
+                marginal_params.loc[label, 'theta_1'] /= unit_factor
+
+        self.units = units
+        self.marginal_params = marginal_params
+
+    def _create_RVs(self, preserve_order=False):
+        """
+        Create a random variable registry for the joint distribution of demands.
+
+        """
+
+        # initialize the registry
+        RV_reg = RandomVariableRegistry()
+
+        # add a random variable for each demand variable
+        for rv_params in self.marginal_params.itertuples():
+
+            edp = rv_params.Index
+            rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
+
+            if rv_params.family == 'empirical':
+
+                if preserve_order:
+                    dist_family = 'coupled_empirical'
+                else:
+                    dist_family = 'empirical'
+
+                # empirical RVs need the data points
+                RV_reg.add_RV(RandomVariable(
+                    name=rv_tag,
+                    distribution=dist_family,
+                    raw_samples=self.empirical_data.loc[:, edp].values
+                ))
+
+            else:
+
+                # all other RVs need parameters of their distributions
+                RV_reg.add_RV(RandomVariable(
+                    name=rv_tag,
+                    distribution=rv_params.family,
+                    theta=[rv_params.theta_0, rv_params.theta_1],
+                    truncation_limits=[rv_params.truncate_lower,
+                                       rv_params.truncate_upper],
+
+
+                ))
+
+        log_msg(f"\n{self.marginal_params.shape[0]} random variables created.",
+                prepend_timestamp=False)
+
+        # add an RV set to consider the correlation between demands
+        rv_set_tags = [f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
+                       for edp in self.correlation.index.values]
+
+        RV_reg.add_RV_set(RandomVariableSet(
+            'EDP_set', list(RV_reg.RVs(rv_set_tags).values()),
+            self.correlation.values))
+
+        log_msg(f"\nCorrelations between {len(rv_set_tags)} random variables "
+                f"successfully defined.",
+                prepend_timestamp=False)
+
+        self._RVs = RV_reg
+
+    def generate_sample(self, config):
+
+        if self.marginal_params is None:
+            raise ValueError('Model parameters have not been specified. Either'
+                             'load parameters from a file or calibrate the '
+                             'model using raw demand data.')
+
+        log_div()
+        log_msg(f'Generating sample from demand variables...')
+
+        self._create_RVs(
+            preserve_order=config.get('PreserveRawOrder', False))
+
+        sample_size = config['SampleSize']
+        self._RVs.generate_sample(sample_size=sample_size)
+
+        # replace the potentially existing raw sample with the generated one
+        self._sample = None
+
+        log_msg(f"\nSuccessfully generated {sample_size} realizations.",
+                prepend_timestamp=False)
 
 class FragilityFunction(object):
     """
@@ -543,7 +731,7 @@ class FragilityFunction(object):
         #         'function.')
 
         #samples = pd.DataFrame(self._EDP_limit.samples)
-        samples = pd.DataFrame(dict([(lim_i.name, lim_i.samples)
+        samples = pd.DataFrame(dict([(lim_i.name, lim_i.sample)
                                      for lim_i in self._EDP_limit]))
 
         if type(EDP) not in [pd.Series, pd.DataFrame]:
@@ -809,9 +997,9 @@ class ConsequenceFunction(object):
 
             # get the samples
             if quantity is not None:
-                samples = pd.Series(self._DV_distribution.samples).loc[quantity.index]
+                samples = pd.Series(self._DV_distribution.sample).loc[quantity.index]
             else:
-                samples = pd.Series(self._DV_distribution.samples).iloc[:sample_size]
+                samples = pd.Series(self._DV_distribution.sample).iloc[:sample_size]
             samples = samples * median
 
             return samples
