@@ -84,24 +84,16 @@ class Assessment(object):
             self._demand = DemandModel()
             return self.demand
 
-
-class DemandAssessment(Assessment):
-    """
-    An Assessment class for characterizing the demands acting on an asset.
-    """
-
-    def __init__(self, config_file, log_file=True):
-        pass
-
-    def generate_samples(self):
+    @property
+    def damage(self):
         """
-        Generate demand samples
+        Return a DamageModel object that manages the damages for the assessment.
 
         """
-        log_div()
-        log_msg('Generating demand samples...')
 
-        self.demand_model.generate_sample(self.config['Resample'])
+        if hasattr(self, '_damage'):
+            return self._damage
 
-        log_msg(prepend_timestamp=False)
-        log_msg('Demand sample generation successful')
+        else:
+            self._damage = DamageModel()
+            return self.damage

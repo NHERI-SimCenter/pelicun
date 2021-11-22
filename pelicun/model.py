@@ -600,6 +600,20 @@ class DemandModel(object):
         log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
 
+class DamageModel(object):
+    """
+    Manages damage information used in assessments.
+
+    Parameters
+    ----------
+
+    """
+
+    def __init__(self):
+
+        pass
+
+
 class FragilityFunction(object):
     """
     Describes the relationship between asset response and damage.
