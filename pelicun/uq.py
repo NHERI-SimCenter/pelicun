@@ -513,8 +513,8 @@ def fit_distribution(raw_samples, distribution,
 
     # Define initial values of distribution parameters
     # Initialize arrays
-    mu_init = np.empty(n_dims)
-    sig_init = np.empty_like(mu_init)
+    mu_init = np.ones(n_dims)*np.nan
+    sig_init = np.ones_like(mu_init)*np.nan
 
     for d_i, distribution in enumerate(dist_list):
 

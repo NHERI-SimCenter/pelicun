@@ -58,6 +58,14 @@ class Assessment(object):
     """
     Assessment objects manage the models, data, and calculations in pelicun.
 
+    Parameters
+    ----------
+    demand: DemandModel()
+        ...
+    damage: DamageModel()
+        ...
+    stories: int
+        Number of stories.
     """
 
     def __init__(self):
@@ -70,10 +78,12 @@ class Assessment(object):
         log_div()
         log_msg('Assessement Started')
 
+        self.stories = None
+
     @property
     def demand(self):
         """
-        Return a DemandModel object that manages the demands for the assessment.
+        Return a DemandModel object that manages the demand information.
 
         """
 
@@ -85,9 +95,23 @@ class Assessment(object):
             return self.demand
 
     @property
+    def asset(self):
+        """
+        Return an AssetModel object that manages the asset information.
+
+        """
+
+        if hasattr(self, '_asset'):
+            return self._asset
+
+        else:
+            self._asset = AssetModel(self)
+            return self.asset
+
+    @property
     def damage(self):
         """
-        Return a DamageModel object that manages the damages for the assessment.
+        Return an DamageModel object that manages the damage information.
 
         """
 
@@ -95,5 +119,5 @@ class Assessment(object):
             return self._damage
 
         else:
-            self._damage = DamageModel()
+            self._damage = DamageModel(self)
             return self.damage

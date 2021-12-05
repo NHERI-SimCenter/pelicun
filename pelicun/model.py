@@ -127,7 +127,6 @@ class DemandModel(object):
 
         save_to_csv(self.sample, filepath, units=self.units)
 
-
     def load_sample(self, filepath):
         """
         Load demand sample data and parse it.
@@ -455,7 +454,7 @@ class DemandModel(object):
                 str(self.correlation),
                 prepend_timestamp=False)
 
-    def save_model(self, file_prefix = 'demands'):
+    def save_model(self, file_prefix):
         """
         Save parameters of the demand model to a set of csv files
 
@@ -486,7 +485,7 @@ class DemandModel(object):
         save_to_csv(marginal_params, file_prefix+'_marginals.csv',
                     units=self.units, orientation=1)
 
-    def load_model(self, file_prefix = 'demands'):
+    def load_model(self, file_prefix):
 
         self.empirical_data = load_from_csv(file_prefix+'_empirical.csv')
         self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
@@ -600,6 +599,346 @@ class DemandModel(object):
         log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
 
+class AssetModel(object):
+    """
+    Manages asset information used in assessments.
+
+    Parameters
+    ----------
+
+    """
+
+    def __init__(self, assessment):
+
+        self._asmnt = assessment
+
+        self.cmp_marginal_params = None
+        self.cmp_units = None
+
+        self._cmp_RVs = None
+        self._cmp_sample = None
+
+    @property
+    def cmp_sample(self):
+
+        if self._cmp_sample is None:
+
+            cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
+
+            cmp_sample.columns = self.cmp_marginal_params.index
+
+        else:
+            cmp_sample = self._cmp_sample
+
+        return cmp_sample
+
+    def save_cmp_sample(self, filepath):
+        """
+        Save component quantity sample to a csv file
+
+        """
+
+        # prepare a units array
+        sample = self.cmp_sample
+
+        units = pd.Series(name='units', index=sample.columns)
+
+        for cmp_id, unit_name in self.cmp_units.items():
+            units.loc[cmp_id, :] = unit_name
+
+        save_to_csv(sample, filepath, units=units)
+
+    def load_cmp_sample(self, filepath):
+        """
+        Load component quantity sample from a csv file
+
+        """
+
+        sample, units = load_from_csv(filepath, return_units=True)
+
+        self._cmp_sample = sample
+
+        self.cmp_units = units.groupby(level=0).first()
+
+    def load_cmp_model(self, file_prefix):
+        """
+        Load the model that describes component quantities in the building.
+
+        """
+
+        def get_locations(loc_str):
+
+            try:
+                res = int(loc_str)
+                return np.array([res, ])
+
+            except:
+                stories = self._asmnt.stories
+
+                if "-" in loc_str:
+                    s_low, s_high = loc_str.split('-')
+                    s_low = get_locations(s_low)
+                    s_high = get_locations(s_high)
+                    return np.arange(s_low[0], s_high[0] + 1)
+
+                elif "," in loc_str:
+                    return np.array(loc_str.split(','), dtype=int)
+
+                elif loc_str == "all":
+                    return np.arange(1, stories + 1)
+
+                elif loc_str == "top":
+                    return np.array([stories, ])
+
+                elif loc_str == "roof":
+                    return np.array([stories, ])
+
+                else:
+                    raise ValueError(f"Cannot parse location string: "
+                                     f"{loc_str}")
+
+        def get_directions(dir_str):
+
+            if pd.isnull(dir_str):
+                return np.ones(1)
+
+            else:
+
+                try:
+                    res = int(dir_str)
+                    return np.array([res, ])
+
+                except:
+
+                    if "," in dir_str:
+                        return np.array(dir_str.split(','), dtype=int)
+
+                    elif "-" in dir_str:
+                        d_low, d_high = dir_str.split('-')
+                        d_low = get_directions(d_low)
+                        d_high = get_directions(d_high)
+                        return np.arange(d_low[0], d_high[0] + 1)
+
+                    else:
+                        raise ValueError(f"Cannot parse direction string: "
+                                         f"{dir_str}")
+
+        def get_blocks(block_str):
+
+            if pd.isnull(block_str):
+                return np.ones(1) * np.nan
+
+            else:
+
+                try:
+                    res = float(block_str)
+                    return np.array([res, ])
+
+                except:
+
+                    if "," in block_str:
+                        return np.array(block_str.split(','), dtype=int)
+
+                    else:
+                        raise ValueError(f"Cannot parse theta_0 string: "
+                                         f"{block_str}")
+
+        # Currently, we assume independent component distributions are defined
+        # throughout the building. Correlations may be added afterward or this
+        # method can be extended to read correlation matrices too if needed.
+        marginal_params, units = load_from_csv(
+            file_prefix + '_marginals.csv',
+            orientation=1,
+            reindex=False,
+            return_units=True,
+            convert=[])
+
+        self.cmp_units = units.copy()
+
+        marginal_params = pd.concat([marginal_params, units], axis=1)
+
+        # First, we need to expand the table to have unique component blocks in
+        # each row
+
+        log_msg(f"\nParsing model file to characterize each component block",
+                prepend_timestamp=False)
+
+        # Create a multiindex that identifies individual component blocks
+        MI_list = []
+        for row in marginal_params.itertuples():
+            locs = get_locations(row.location)
+            dirs = get_directions(row.direction)
+            blocks = range(1, len(get_blocks(row.theta_0)) + 1)
+
+            MI_list.append(pd.MultiIndex.from_product(
+                [[row.Index, ], locs, dirs, blocks],
+                names=['cmp', 'loc', 'dir', 'block']))
+
+        MI = MI_list[0].append(MI_list[1:])
+
+        # Create a DataFrame that will hold marginal params for component blocks
+        marginal_cols = ['units', 'family', 'theta_0', 'theta_1',
+                         'truncate_lower', 'truncate_upper']
+        cmp_marginal_params = pd.DataFrame(
+            columns=marginal_cols,
+            index=MI,
+            dtype=float
+        )
+        cmp_marginal_params[['units', 'family']] = (
+            cmp_marginal_params[['units', 'family']].astype(object))
+
+        # Fill the DataFrame with information on component quantity variables
+
+        for row in marginal_params.itertuples():
+
+            locs = get_locations(row.location)
+            dirs = get_directions(row.direction)
+            theta_0s = get_blocks(row.theta_0)
+            theta_1s = get_blocks(row.theta_1)
+            trnc_ls = get_blocks(row.truncate_lower)
+            trnc_us = get_blocks(row.truncate_upper)
+
+            # parse the distribution characteristics
+            if len(theta_1s) != len(theta_0s):
+
+                if len(theta_1s) == 1:
+                    theta_1s = theta_1s[0] * np.ones(theta_0s.shape)
+
+                else:
+                    raise ValueError(f"Unable to parse theta_1 string: "
+                                     f"{row.theta_1}")
+
+            if len(trnc_ls) != len(theta_0s):
+
+                if len(trnc_ls) == 1:
+                    trnc_ls = trnc_ls[0] * np.ones(theta_0s.shape)
+
+                else:
+                    raise ValueError(f"Unable to parse theta_1 string: "
+                                     f"{row.truncate_lower}")
+
+            if len(trnc_us) != len(theta_0s):
+
+                if len(trnc_us) == 1:
+                    trnc_us = trnc_us[0] * np.ones(theta_0s.shape)
+
+                else:
+                    raise ValueError(f"Unable to parse theta_1 string: "
+                                     f"{row.truncate_upper}")
+
+            blocks = range(1, len(theta_0s) + 1)
+
+            for block in blocks:
+                MI = pd.MultiIndex.from_product(
+                    [[row.Index, ], locs, dirs, [block, ]],
+                    names=['cmp', 'loc', 'dir', 'block'])
+
+                cmp_marginal_params.loc[MI, marginal_cols] = [
+                    row.units, row.family, theta_0s[block - 1],
+                    theta_1s[block - 1],
+                    trnc_ls[block - 1], trnc_us[block - 1]]
+
+        log_msg(f"Model parameters successfully parsed. "
+                f"{cmp_marginal_params.shape[0]} component blocks identified",
+                prepend_timestamp=False)
+
+        # Now we can take care of converting the values to SI units
+        log_msg(f"Converting model parameters to internal units...",
+                prepend_timestamp=False)
+
+        unique_units = cmp_marginal_params['units'].unique()
+
+        for unit_name in unique_units:
+
+            try:
+                unit_factor = globals()[unit_name]
+
+            except:
+                raise ValueError(f"Specified unit name not recognized: "
+                                 f"{unit_name}")
+
+            unit_ids = cmp_marginal_params.loc[
+                cmp_marginal_params['units'] == unit_name].index
+
+            cmp_marginal_params.loc[
+                unit_ids,
+                ['theta_0', 'truncate_lower', 'truncate_upper']] *= unit_factor
+
+            sigma_ids = cmp_marginal_params.loc[unit_ids].loc[
+                cmp_marginal_params.loc[unit_ids, 'family'] == 'normal'].index
+
+            cmp_marginal_params.loc[sigma_ids, 'theta_1'] *= unit_factor
+
+        self.cmp_marginal_params = cmp_marginal_params
+
+        log_msg(f"Model parameters successfully loaded.",
+                prepend_timestamp=False)
+
+        log_msg(f"\nComponent model marginal distributions:\n" +
+                str(cmp_marginal_params),
+                prepend_timestamp=False)
+
+        # the empirical data and correlation files can be added later, if needed
+
+    def _create_cmp_RVs(self):
+
+        # initialize the registry
+        RV_reg = RandomVariableRegistry()
+
+        # add a random variable for each component quantity variable
+        for rv_params in self.cmp_marginal_params.itertuples():
+
+            cmp = rv_params.Index
+            rv_tag = f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}'
+
+            if pd.isnull(rv_params.family):
+
+                # we use an empirical RV to generate deterministic values
+                RV_reg.add_RV(RandomVariable(
+                    name=rv_tag,
+                    distribution='empirical',
+                    raw_samples=np.ones(10000) * rv_params.theta_0
+                ))
+
+            else:
+
+                # all other RVs need parameters of their distributions
+                RV_reg.add_RV(RandomVariable(
+                    name=rv_tag,
+                    distribution=rv_params.family,
+                    theta=[rv_params.theta_0, rv_params.theta_1],
+                    truncation_limits=[rv_params.truncate_lower,
+                                       rv_params.truncate_upper],
+
+                ))
+
+        log_msg(f"\n{self.cmp_marginal_params.shape[0]} "
+                f"random variables created.",
+                prepend_timestamp=False)
+
+        self._cmp_RVs = RV_reg
+
+    def generate_cmp_sample(self, sample_size):
+
+        if self.cmp_marginal_params is None:
+            raise ValueError('Model parameters have not been specified. Load'
+                             'parameters from a file before generating a '
+                             'sample.')
+
+        log_div()
+        log_msg(f'Generating sample from component quantity variables...')
+
+        self._create_cmp_RVs()
+
+        self._cmp_RVs.generate_sample(sample_size=sample_size)
+
+        # replace the potentially existing sample with the generated one
+        self._cmp_sample = None
+
+        log_msg(f"\nSuccessfully generated {sample_size} realizations.",
+                prepend_timestamp=False)
+
+
 class DamageModel(object):
     """
     Manages damage information used in assessments.
@@ -609,9 +948,10 @@ class DamageModel(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, assessment):
 
-        pass
+        self._asmnt = assessment
+
 
 
 class FragilityFunction(object):

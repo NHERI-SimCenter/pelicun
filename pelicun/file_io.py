@@ -373,7 +373,8 @@ def save_to_csv(data, filepath, units=None, orientation=0):
             log_msg(f'Converting MultiIndex header to regular header...',
                     prepend_timestamp=False)
 
-            simple_column = ['-'.join(id) for id in data.columns]
+            simple_column = ['-'.join([str(id_i) for id_i in id])
+                             for id in data.columns]
             data.columns = simple_column
 
 
@@ -397,7 +398,8 @@ def save_to_csv(data, filepath, units=None, orientation=0):
         log_msg(f'WARNING: Data was empty, no file saved.',
                 prepend_timestamp=False)
 
-def load_from_csv(filepath, orientation=0, reindex=True, return_units=False):
+def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
+                  convert=None):
     """
     Loads data from a CSV file assuming it follows standard SimCenter schema.
 
@@ -473,13 +475,16 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False):
             units = data.loc[:, 'units'].copy().dropna()
             data.drop('units', axis=1, inplace=True)
 
-            cols_to_scale = []
-            for col in data.columns:
-                try:
-                    data.loc[:, col] = data.loc[:,col].astype(float)
-                    cols_to_scale.append(col)
-                except:
-                    pass
+            if convert is None:
+                cols_to_scale = []
+                for col in data.columns:
+                    try:
+                        data.loc[:, col] = data.loc[:,col].astype(float)
+                        cols_to_scale.append(col)
+                    except:
+                        pass
+            else:
+                cols_to_scale = convert
 
         unique_unit_names = units.unique()
 
