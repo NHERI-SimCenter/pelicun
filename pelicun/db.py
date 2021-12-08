@@ -59,10 +59,403 @@ This module has classes and methods to manage databases used by pelicun.
 
 from .base import *
 from pathlib import Path
+import re
 import json
+
 import xml.etree.ElementTree as ET
 import shutil
 
+
+def parse_DS_Hierarchy(DSH):
+    """
+    Parses the DS hierarchy into a set of arrays.
+    """
+    if 'Seq' == DSH[:3]:
+        DSH = DSH[4:-1]
+
+    DS_setup = []
+
+    while len(DSH) > 0:
+        if DSH[:2] == 'DS':
+            DS_setup.append(DSH[:3])
+            DSH = DSH[4:]
+        elif DSH[:5] in ['MutEx', 'Simul']:
+            closing_pos = DSH.find(')')
+            subDSH = DSH[:closing_pos + 1]
+            DSH = DSH[closing_pos + 2:]
+
+            DS_setup.append([subDSH[:5]] + subDSH[6:-1].split(','))
+
+    return DS_setup
+
+def create_FEMA_P58_fragility_db(source_file,
+                                 target_data_file='fragility_FEMA_P58_2nd.csv',
+                                 target_meta_file='fragility_FEMA_P58_2nd.json'):
+    """
+    Create a database file based on the FEMA P58 FragilityDatabase xls
+
+    The method was developed to process v3.1.2 of the database that is provided
+    with FEMA P58 2nd edition.
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the fragility database file.
+    target_data_file: string
+        Path where the fragility data file should be saved. A csv file is
+        expected.
+    target_meta_file: string
+        Path where the fragility metadata should be saved. A json file is
+        expected.
+
+    """
+
+    # parse the source file
+    df = pd.read_excel(source_file, sheet_name='Summary', header=2, index_col=1,
+                       true_values=["YES", "Yes", "yes"],
+                       false_values=["NO", "No", "no"])
+
+    # remove the empty rows and columns
+    df.dropna(axis=0, how='all', inplace=True)
+    df.dropna(axis=1, how='all', inplace=True)
+
+    # filter the columns that we need for the fragility database
+    cols_to_db = [
+        "Demand Parameter (value):",
+        "Demand Parameter (unit):",
+        "Demand Location (use floor above? Yes/No)",
+        "Directional?",
+        "DS Hierarchy",
+        "DS 1, Probability",
+        "DS 1, Median Demand",
+        "DS 1, Total Dispersion (Beta)",
+        "DS 2, Probability",
+        "DS 2, Median Demand",
+        "DS 2, Total Dispersion (Beta)",
+        "DS 3, Probability",
+        "DS 3, Median Demand",
+        "DS 3, Total Dispersion (Beta)",
+        "DS 4, Probability",
+        "DS 4, Median Demand",
+        "DS 4, Total Dispersion (Beta)",
+        "DS 5, Probability",
+        "DS 5, Median Demand",
+        "DS 5, Total Dispersion (Beta)",
+    ]
+
+    # filter the columns that we need for the metadata
+    cols_to_meta = [
+        "Component Name",
+        "Component Description",
+        "Construction Quality:",
+        "Seismic Installation Conditions:",
+        "Comments / Notes",
+        "Author",
+        "Fragility Unit of Measure",
+        "Round to Integer Unit?",
+        "DS 1, Description",
+        "DS 1, Repair Description",
+        "DS 2, Description",
+        "DS 2, Repair Description",
+        "DS 3, Description",
+        "DS 3, Repair Description",
+        "DS 4, Description",
+        "DS 4, Repair Description",
+        "DS 5, Description",
+        "DS 5, Repair Description",
+    ]
+
+    # remove special characters to make it easier to work with column names
+    str_map = {
+        ord(' '): "_",
+        ord(':'): None,
+        ord('('): None,
+        ord(')'): None,
+        ord('?'): None,
+        ord('/'): None,
+        ord(','): None,
+    }
+
+    df_db_source = df.loc[:, cols_to_db]
+    df_db_source.columns = [s.translate(str_map) for s in cols_to_db]
+    df_db_source.sort_index(inplace=True)
+
+    df_meta = df.loc[:, cols_to_meta]
+    df_meta.columns = [s.translate(str_map) for s in cols_to_meta]
+
+    # initialize the output fragility table
+    df_db = pd.DataFrame(
+        columns=[
+            "Incomplete",
+            "Demand-Type",
+            "Demand-Unit",
+            "Demand-Offset",
+            "Demand-Directional",
+            "LS1-Family",
+            "LS1-Theta_0",
+            "LS1-Theta_1",
+            "LS1-DamageStateWeights",
+            "LS2-Family",
+            "LS2-Theta_0",
+            "LS2-Theta_1",
+            "LS2-DamageStateWeights",
+            "LS3-Family",
+            "LS3-Theta_0",
+            "LS3-Theta_1",
+            "LS3-DamageStateWeights",
+            "LS4-Family",
+            "LS4-Theta_0",
+            "LS4-Theta_1",
+            "LS4-DamageStateWeights"
+        ],
+        index=df_db_source.index,
+        dtype=float
+    )
+
+    # initialize the dictionary that stores the fragility metadata
+    meta_dict = {}
+
+    # conversion dictionary for demand types
+    convert_demand_type = {
+        'Story Drift Ratio': "Peak Interstory Drift Ratio",
+        'Link Rotation Angle': "Peak Link Rotation Angle",
+        'Effective Drift': "Peak Effective Drift Ratio",
+        'Link Beam Chord Rotation': "Peak Link Beam Chord Rotation",
+        'Peak Floor Acceleration': "Peak Floor Acceleration",
+        'Peak Floor Velocity': "Peak Floor Velocity"
+    }
+
+    # conversion dictionary for demand unit names
+    convert_demand_unit = {
+        'Unit less': 'ea',
+        'Radians': 'rad',
+        'g': 'g',
+        'meter/sec': 'mps'
+    }
+
+
+    # for each component...
+    # (this approach is not efficient, but easy to follow which was considered
+    # more important than efficiency.)
+    for cmp in df_db_source.itertuples():
+
+        # assume the component information is complete
+        incomplete = False
+
+        # store demand specifications
+        df_db.loc[cmp.Index, 'Demand-Type'] = (
+            convert_demand_type[cmp.Demand_Parameter_value])
+        df_db.loc[cmp.Index, 'Demand-Unit'] = (
+            convert_demand_unit[cmp.Demand_Parameter_unit])
+        df_db.loc[cmp.Index, 'Demand-Offset'] = (
+            int(cmp.Demand_Location_use_floor_above_YesNo))
+        df_db.loc[cmp.Index, 'Demand-Directional'] = (
+            int(cmp.Directional))
+
+        # parse the damage state hierarchy
+        DS_setup = parse_DS_Hierarchy(cmp.DS_Hierarchy)
+
+        # get the raw metadata for the component
+        cmp_meta = df_meta.loc[cmp.Index, :]
+
+        # store the global (i.e., not DS-specific) metadata
+
+        # every component is assumed to have a comp. description
+        comments = cmp_meta['Component_Description']
+
+        # the additional fields are added to the description if they exist
+
+        if cmp_meta['Construction_Quality'] != 'Not Specified':
+            comments += f'\nConstruction Quality: ' \
+                        f'{cmp_meta["Construction_Quality"]}'
+
+        if cmp_meta['Seismic_Installation_Conditions'] not in [
+            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+            comments += f'\nSeismic Installation Conditions: ' \
+                        f'{cmp_meta["Seismic_Installation_Conditions"]}'
+
+        if cmp_meta['Comments__Notes'] != 'None':
+            comments += f'\nNotes: {cmp_meta["Comments__Notes"]}'
+
+        if cmp_meta['Author'] not in ['Not Given', 'By User']:
+            comments += f'\nAuthor: {cmp_meta["Author"]}'
+
+        # get the suggested block size and replace the misleading values with ea
+        block_size = cmp_meta['Fragility_Unit_of_Measure'].split(' ')[::-1]
+        if block_size[1] in ['TN', 'CF', 'KV', 'AP']:
+            block_size = ['1', 'EA']
+
+        meta_data = {
+            "Description": cmp_meta['Component_Name'],
+            "Comments": comments,
+            "SuggestedComponentBlockSize": ' '.join(block_size),
+            "RoundUpToIntegerQuantity": cmp_meta['Round_to_Integer_Unit'],
+            "LimitStates": {}
+        }
+
+        # now look at each Limit State
+        for LS_i, LS_contents in enumerate(DS_setup):
+
+            LS_i = LS_i + 1
+            LS_contents = np.atleast_1d(LS_contents)
+
+            ls_meta = {}
+
+            # start with the special cases with multiple DSs in an LS
+            if LS_contents[0] in ['MutEx', 'Simul']:
+
+                # collect the fragility data for the member DSs
+                median_demands = []
+                dispersions = []
+                weights = []
+                for ds in LS_contents[1:]:
+                    median_demands.append(
+                        getattr(cmp, f"DS_{ds[2]}_Median_Demand"))
+
+                    dispersions.append(
+                        getattr(cmp, f"DS_{ds[2]}_Total_Dispersion_Beta"))
+
+                    weights.append(getattr(cmp, f"DS_{ds[2]}_Probability"))
+
+                # make sure the specified distribution parameters are appropriate
+                if ((np.unique(median_demands).size != 1) or
+                    (np.unique(dispersions).size != 1)):
+                    raise ValueError(f"Incorrect mutually exclusive DS "
+                                     f"definition in component {cmp.Index} at "
+                                     f"Limit State {LS_i}")
+
+                if LS_contents[0] == 'MutEx':
+
+                    # in mutually exclusive cases, make sure the specified DS
+                    # weights sum up to one
+                    np.testing.assert_allclose(
+                        np.sum(np.array(weights, dtype=float)), 1.0,
+                        err_msg=f"Mutually exclusive Damage State weights do "
+                                f"not sum to 1.0 in component {cmp.Index} at "
+                                f"Limit State {LS_i}")
+
+                    # and save all DS metadata under this Limit State
+                    for ds in LS_contents[1:]:
+                        ds_id = ds[2]
+
+                        ls_meta.update({f"DS{ds_id}": {
+                            "Description": cmp_meta[f"DS_{ds_id}_Description"],
+                            "RepairAction": cmp_meta[
+                                f"DS_{ds_id}_Repair_Description"]
+                        }})
+
+                else:
+                    # in simultaneous cases, convert simultaneous weights into
+                    # mutexc weights
+                    sim_ds_count = len(LS_contents) - 1
+                    ds_count = 2 ** (sim_ds_count) - 1
+
+                    sim_weights = []
+
+                    for ds_id in range(1, ds_count + 1):
+                        ds_map = format(ds_id, f'0{sim_ds_count}b')
+
+                        sim_weights.append(np.product(
+                            [weights[ds_i]
+                             if ds_map[-ds_i - 1] == '1' else 1.0-weights[ds_i]
+                             for ds_i in range(sim_ds_count)]))
+
+                        # save ds metadata - we need to be clever here
+                        # the original metadata is saved for the pure cases
+                        # when only one DS is triggered
+                        # all other DSs store information about which
+                        # combination of pure DSs they represent
+
+                        if ds_map.count('1') == 1:
+
+                            ds_pure_id = ds_map[::-1].find('1') + 1
+
+                            ls_meta.update({f"DS{ds_id}": {
+                                "Description": f"Pure DS{ds_pure_id}. " +
+                                               cmp_meta[f"DS_{ds_pure_id}_Description"],
+                                "RepairAction": cmp_meta[f"DS_{ds_pure_id}_Repair_Description"]
+                            }})
+
+                        else:
+
+                            ds_combo = [f'DS{_.start() + 1}'
+                                        for _ in re.finditer('1', ds_map[::-1])]
+
+                            ls_meta.update({f"DS{ds_id}": {
+                                "Description": 'Combination of ' +
+                                               ' & '.join(ds_combo),
+                                "RepairAction": 'Combination of pure DS repair '
+                                                'actions.'
+                            }})
+
+                    # adjust weights to respect the assumption that at least
+                    # one DS will occur (i.e., the case with all DSs returning
+                    # False is not part of the event space)
+                    sim_weights = np.array(sim_weights) / np.sum(sim_weights)
+
+                    weights = sim_weights
+
+                theta_0 = median_demands[0]
+                theta_1 = dispersions[0]
+                weights = ' | '.join([f"{w:.6f}" for w in weights])
+
+                df_db.loc[cmp.Index, f'LS{LS_i}-DamageStateWeights'] = weights
+
+            # then look at the sequential DS cases
+            elif LS_contents[0].startswith('DS'):
+
+                # this is straightforward, store the data in the table and dict
+                ds_id = LS_contents[0][2]
+
+                theta_0 = getattr(cmp, f"DS_{ds_id}_Median_Demand")
+                theta_1 = getattr(cmp, f"DS_{ds_id}_Total_Dispersion_Beta")
+
+                ls_meta.update({f"DS{ds_id}": {
+                    "Description": cmp_meta[f"DS_{ds_id}_Description"],
+                    "RepairAction": cmp_meta[f"DS_{ds_id}_Repair_Description"]
+                }})
+
+            # FEMA P58 assumes lognormal distribution for every fragility
+            df_db.loc[cmp.Index, f'LS{LS_i}-Family'] = 'lognormal'
+
+            # identify incomplete cases...
+
+            # where theta is missing
+            if theta_0 != 'By User':
+                df_db.loc[cmp.Index, f'LS{LS_i}-Theta_0'] = theta_0
+            else:
+                incomplete = True
+
+            # where beta is missing
+            if theta_1 != 'By User':
+                df_db.loc[cmp.Index, f'LS{LS_i}-Theta_1'] = theta_1
+            else:
+                incomplete = True
+
+            # store the collected metadata for this limit state
+            meta_data['LimitStates'].update({f"LS{LS_i}": ls_meta})
+
+        # store the incomplete flag for this component
+        df_db.loc[cmp.Index, 'Incomplete'] = int(incomplete)
+
+        # store the metadata for this component
+        meta_dict.update({cmp.Index: meta_data})
+
+    # convert to optimal datatypes to reduce file size
+    df_db = df_db.convert_dtypes()
+
+    # save the fragility data
+    df_db.to_csv(target_data_file)
+
+    # save the metadata
+    with open(target_meta_file, 'w+') as f:
+        json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the fragility data from FEMA P58")
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# LEGACY CODE
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def dict_generator(indict, pre=None):
     """
@@ -380,7 +773,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
         'Simul': 'Simultaneous'
     }
 
-    def decode_DS_Hierarchy(DSH):
+    def parse_DS_Hierarchy(DSH):
 
         if 'Seq' == DSH[:3]:
             DSH = DSH[4:-1]
