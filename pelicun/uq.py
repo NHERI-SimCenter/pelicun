@@ -686,6 +686,9 @@ class RandomVariable(object):
         Provide an expression that is a Python syntax for a custom CDF. The
         controlling variable shall be "x" and the parameters shall be "p1",
         "p2", etc.
+    f_map: function, optional
+        A user-defined function that is applied on the realizations before
+        returning a sample.
     anchor: RandomVariable, optional
         Anchors this to another variable. If the anchor is not None, this
         variable will be perfectly correlated with its anchor. Note that
@@ -695,7 +698,8 @@ class RandomVariable(object):
 
     def __init__(self, name, distribution, theta=np.nan,
                  truncation_limits=np.nan,
-                 bounds=None, custom_expr=None, raw_samples=None, anchor=None):
+                 bounds=None, custom_expr=None, raw_samples=None,
+                 f_map=None, anchor=None):
 
         self.name = name
 
@@ -722,9 +726,11 @@ class RandomVariable(object):
         self._truncation_limits = truncation_limits
         self._bounds = bounds
         self._custom_expr = custom_expr
+        self._f_map = f_map
         self._raw_samples = np.atleast_1d(raw_samples)
         self._uni_samples = None
         self._RV_set = None
+
         if anchor == None:
             self._anchor = self
         else:
@@ -791,14 +797,24 @@ class RandomVariable(object):
         """
         Return the empirical or generated sample.
         """
-        return self._sample
+        if self._f_map is not None:
+
+            return self._f_map(self._sample)
+
+        else:
+            return self._sample
 
     @property
     def sample_DF(self):
         """
         Return the empirical or generated sample in a pandas Series.
         """
-        return self._sample_DF
+        if self._f_map is not None:
+
+            return self._sample_DF.apply(self._f_map)
+
+        else:
+            return self._sample_DF
 
     @sample.setter
     def sample(self, value):
@@ -1281,6 +1297,7 @@ class RandomVariableRegistry(object):
         rng = options.rng
 
         # Generate a dictionary with IDs of the free (non-anchored) variables
+        # TODO: add efficient determinstic option (for convenience)
         RV_list = [RV_name for RV_name, RV in self.RV.items() if
                    RV.anchor == RV]
         RV_ID = dict([(RV_name, ID) for ID, RV_name in enumerate(RV_list)])
