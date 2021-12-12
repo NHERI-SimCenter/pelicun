@@ -955,6 +955,296 @@ class DamageModel(object):
 
         self._asmnt = assessment
 
+        self.fragility_params = None
+
+        self._frg_RVs = None
+        self._frg_sample = None
+        self._lsds_RVs = None
+        self._lsds_sample = None
+
+    @property
+    def frg_sample(self):
+
+        if self._frg_sample is None:
+
+            frg_sample = pd.DataFrame(self._frg_RVs.RV_sample)
+
+            frg_sample = convert_to_MultiIndex(frg_sample, axis=1)['FRG']
+
+            self._frg_sample = frg_sample
+
+        else:
+            frg_sample = self._frg_sample
+
+        return frg_sample
+
+    @property
+    def lsds_sample(self):
+
+        if self._lsds_sample is None:
+
+            lsds_sample = pd.DataFrame(self._lsds_RVs.RV_sample)
+
+            lsds_sample = convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+
+            lsds_sample = lsds_sample.astype(int)
+
+            self._lsds_sample = lsds_sample
+
+        else:
+            lsds_sample = self._lsds_sample
+
+        return lsds_sample
+
+    def load_fragility_model(self, data_paths):
+        """
+        Load limit state fragility functions and damage state assignments
+
+        Parameters
+        ----------
+        data_paths: list of string
+            List of paths to data files with fragility information. Default
+            datasets can be accessed as PelicunDefault/XY.
+        """
+
+        # replace default flag with default data path
+        for d_i, data_path in enumerate(data_paths):
+
+            if 'PelicunDefault/' in data_path:
+                data_paths[d_i] = data_path.replace('PelicunDefault/',
+                                                   str(pelicun_path)+'/resources/')
+
+        data_list = []
+        # load the data files one by one
+        for data_path in data_paths:
+
+            data = load_from_csv(
+                data_path,
+                orientation=1,
+                reindex=False,
+                convert=[]
+            )
+
+            data_list.append(data)
+
+        fragility_params = pd.concat(data_list, axis=0)
+
+        # drop redefinitions of components
+        fragility_params = fragility_params.groupby(fragility_params.index).first()
+
+        # get the component types defined in the asset model
+        cmp_labels = self._asmnt.asset.cmp_sample.columns
+
+        # only keep the fragility parameters for the components in the model
+        cmp_unique = cmp_labels.unique(level=0)
+        fragility_params = fragility_params.loc[cmp_unique, :]
+
+        # now convert the units - where needed
+        unique_units = fragility_params[('Demand', 'Unit')].unique()
+
+        for unit_name in unique_units:
+
+            try:
+                unit_factor = globals()[unit_name]
+
+            except:
+                raise ValueError(f"Specified unit name not recognized: "
+                                 f"{unit_name}")
+
+            unit_ids = fragility_params.loc[
+                fragility_params[('Demand', 'Unit')] == unit_name].index
+
+            for LS_i in fragility_params.columns.unique(level=0):
+
+                if 'LS' in LS_i:
+
+                    # theta_0 needs to be scaled for both all families
+                    fragility_params.loc[
+                        unit_ids, (LS_i, 'Theta_0')] *= unit_factor
+
+                    # theta_1 needs to be scaled for normal
+                    sigma_ids = fragility_params.loc[unit_ids].loc[
+                        fragility_params.loc[unit_ids, (LS_i, 'Family')] == 'normal'].index
+
+                    # theta_1 needs to be scaled for uniform
+                    sigma_ids = fragility_params.loc[unit_ids].loc[
+                        fragility_params.loc[
+                            unit_ids, (LS_i, 'Family')] == 'uniform'].index
+
+                    fragility_params.loc[
+                        sigma_ids, (LS_i, 'Theta_1')] *= unit_factor
+
+        # check for components with incomplete fragility information
+        cmp_incomplete_list = fragility_params.loc[
+            fragility_params[('Incomplete','')]==1].index
+
+        fragility_params.drop(cmp_incomplete_list, inplace=True)
+
+        log_msg(f"\nWARNING: Fragility information is incomplete for the "
+                f"following component(s) {cmp_incomplete_list}. They were "
+                f"removed from the analysis.\n",
+                prepend_timestamp=False)
+
+        self.fragility_params = fragility_params
+
+        log_msg(f"Fragility parameters successfully parsed.",
+                prepend_timestamp=False)
+
+    def _create_frg_RVs(self):
+
+        # initialize the registry
+        frg_RV_reg = RandomVariableRegistry()
+        lsds_RV_reg = RandomVariableRegistry()
+
+        rv_count = 0
+
+        # get the component types defined in the asset model
+        cmp_labels = self._asmnt.asset.cmp_sample.columns
+
+        for label in cmp_labels:
+
+            cmp_id = label[0]
+
+            if cmp_id in self.fragility_params.index:
+
+                frg_params = self.fragility_params.loc[cmp_id,:]
+
+                limit_states = []
+                [limit_states.append(val[2:]) if 'LS' in val else val
+                for val in frg_params.index.get_level_values(0).unique()]
+
+                ds_id = 0
+
+                frg_rv_set_tags = []
+                for ls_id in limit_states:
+
+                    theta_0 = frg_params.loc[(f'LS{ls_id}','Theta_0')]
+
+                    # check if the limit state is defined for the component
+                    if ~np.isnan(theta_0):
+
+                        frg_rv_tag = f'FRG-{label[0]}-{label[1]}-{label[2]}-{label[3]}-{ls_id}'
+                        lsds_rv_tag = f'LSDS-{label[0]}-{label[1]}-{label[2]}-{label[3]}-{ls_id}'
+
+                        family, theta_1, ds_weights = frg_params.loc[
+                            [(f'LS{ls_id}','Family'),
+                             (f'LS{ls_id}','Theta_1'),
+                             (f'LS{ls_id}','DamageStateWeights')]]
+
+                        # Start with the limit state capacities...
+                        # if the limit state is deterministic, we use an
+                        # empirical RV
+                        if pd.isnull(family):
+
+                            frg_RV_reg.add_RV(RandomVariable(
+                                name=frg_rv_tag,
+                                distribution='empirical',
+                                raw_samples=np.ones(10000) * theta_0
+                            ))
+
+                        else:
+
+                            # all other RVs have parameters of their distributions
+                            frg_RV_reg.add_RV(RandomVariable(
+                                name=frg_rv_tag,
+                                distribution=family,
+                                theta=[theta_0, theta_1],
+                            ))
+
+                        # add the RV to the set of correlated variables
+                        frg_rv_set_tags.append(frg_rv_tag)
+
+                        # Now add the LS->DS assignments
+                        # if the limit state has a single damage state assigned
+                        # to it, we don't need random sampling
+                        if pd.isnull(ds_weights):
+
+                            ds_id += 1
+
+                            lsds_RV_reg.add_RV(RandomVariable(
+                                name=lsds_rv_tag,
+                                distribution='empirical',
+                                raw_samples=np.ones(10000) * ds_id
+                            ))
+
+                        else:
+
+                            # parse the DS weights
+                            ds_weights = np.array(
+                                ds_weights.replace(" ", "").split('|'),
+                                dtype=float)
+
+                            def map_ds(values, offset=int(ds_id+1)):
+                                return values+offset
+
+                            lsds_RV_reg.add_RV(RandomVariable(
+                                name=lsds_rv_tag,
+                                distribution='multinomial',
+                                theta=ds_weights,
+                                f_map=map_ds
+                            ))
+
+                            ds_id += len(ds_weights)
+
+                        rv_count += 1
+
+                # Assign correlation between limit state random variables
+                # Note that we assume perfectly correlated limit state random
+                # variables here. This approach is in line with how mainstream
+                # PBE calculations are performed.
+                # Assigning more sophisticated correlations between limit state
+                # RVs is possible, if needed. Please let us know through the
+                # SimCenter Message Board if you are interested in such a
+                # feature.
+                frg_RV_reg.add_RV_set(RandomVariableSet(
+                    f'FRG-{label[0]}-{label[1]}-{label[2]}-{label[3]}_set',
+                    list(frg_RV_reg.RVs(frg_rv_set_tags).values()),
+                    np.ones((len(frg_rv_set_tags),len(frg_rv_set_tags)))))
+
+        log_msg(f"\n2x{rv_count} random variables created.",
+                prepend_timestamp=False)
+
+        self._frg_RVs = frg_RV_reg
+        self._lsds_RVs = lsds_RV_reg
+
+    def _generate_frg_sample(self, sample_size):
+
+        if self.fragility_params is None:
+            raise ValueError('Fragility parameters have not been specified. '
+                             'Load parameters from the default fragility '
+                             'databases or provide your own fragility '
+                             'definitions before generating a sample.')
+
+        log_div()
+        log_msg(f'Generating sample from fragility variables...')
+
+        self._create_frg_RVs()
+
+        self._frg_RVs.generate_sample(sample_size=sample_size)
+
+        self._lsds_RVs.generate_sample(sample_size=sample_size)
+
+        # replace the potentially existing raw sample with the generated one
+        self._frg_sample = None
+        self._lsds_sample = None
+
+        log_msg(f"\nSuccessfully generated {sample_size} realizations.",
+                prepend_timestamp=False)
+
+    def calculate(self, sample_size):
+        """
+        Calculate the damage state of each component block in the asset.
+
+        """
+
+        # Generate an array with component capacities for each block and
+        # generate a second array that assigns a specific damage state to
+        # each component limit state. The latter is primarily needed to handle
+        # limit states with multiple, mutually exclusive DS options
+        self._generate_frg_sample(sample_size)
+
+        # Use the above arrays to evaluate the damage state of each block
+
 
 
 class FragilityFunction(object):
