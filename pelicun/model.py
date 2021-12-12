@@ -112,7 +112,9 @@ class DemandModel(object):
 
             sample = pd.DataFrame(self._RVs.RV_sample)
 
-            sample.columns = self.marginal_params.index
+            sample = convert_to_MultiIndex(sample, axis=1)['EDP']
+
+            self._sample = sample
 
         else:
             sample = self._sample
@@ -625,7 +627,9 @@ class AssetModel(object):
 
             cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
 
-            cmp_sample.columns = self.cmp_marginal_params.index
+            cmp_sample = convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
+
+            self._cmp_sample = cmp_sample
 
         else:
             cmp_sample = self._cmp_sample
@@ -937,7 +941,6 @@ class AssetModel(object):
 
         log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
-
 
 class DamageModel(object):
     """

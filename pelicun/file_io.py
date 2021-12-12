@@ -503,19 +503,22 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
     else:
 
+        data = data.convert_dtypes()
         # enforcing float datatype is important even if there is no unit
         # conversion
         units = None
-        data = data.astype(float)
+        if orientation == 0:
+            data = data.astype(float)
+
+        else:
+            for col in data.columns:
+                try:
+                    data.loc[:, col] = data.loc[:, col].astype(float)
+                except:
+                    pass
 
     # convert column to MultiIndex if needed
-    column_labels = np.array([label.split('-') for label in data.columns])
-
-    if column_labels.shape[1] > 1:
-        log_msg(f'Converting header to MultiIndex...',
-                prepend_timestamp=False)
-
-        data.columns = pd.MultiIndex.from_arrays(column_labels.T)
+    data = convert_to_MultiIndex(data, axis=1)
 
     data.sort_index(axis=1, inplace=True)
 
@@ -525,15 +528,8 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
         data.index = np.arange(data.shape[0])
 
     else:
-
         # convert index to MultiIndex if needed
-        index_labels = np.array([label.split('-') for label in data.index])
-
-        if index_labels.shape[1] > 1:
-            log_msg(f'Converting index to MultiIndex...',
-                    prepend_timestamp=False)
-
-            data.index = pd.MultiIndex.from_arrays(index_labels.T)
+        data = convert_to_MultiIndex(data, axis=0)
 
         data.sort_index(inplace=True)
 
@@ -542,9 +538,7 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
     if return_units:
 
         # convert index in units Series to MultiIndex if needed
-        index_labels = np.array([label.split('-') for label in units.index])
-        if index_labels.shape[1] > 1:
-            units.index = pd.MultiIndex.from_arrays(index_labels.T)
+        units = convert_to_MultiIndex(units, axis=0)
 
         units.sort_index(inplace=True)
 

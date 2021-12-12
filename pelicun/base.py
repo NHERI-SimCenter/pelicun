@@ -221,6 +221,59 @@ def set_options(config_options):
             elif key == "PrintLog":
                 options.print_log = value
 
+def convert_to_MultiIndex(data, axis=0):
+    """
+    Converts the index of a DataFrame to a MultiIndex
+
+    We assume that the index uses standard SimCenter convention to identify
+    different levels: a dash character ('-') is expected to separate each level
+    of the index.
+
+    Parameters
+    ----------
+    data: DataFrame
+        The DataFrame that will be modified.
+    axis: int
+        Identifies if the index (0) or the columns (1) shall be edited.
+
+    Returns
+    -------
+    data: DataFrame
+        The modified DataFrame
+    """
+
+    if axis == 0:
+        index_labels = [label.split('-') for label in data.index]
+
+    elif axis == 1:
+        index_labels = [label.split('-') for label in data.columns]
+
+    else:
+        raise ValueError(f"Invalid axis parameter: {axis}")
+
+    max_lbl_len = np.max([len(labels) for labels in index_labels])
+
+    for l_i, labels in enumerate(index_labels):
+
+        if len(labels) != max_lbl_len:
+            labels += ['', ] * (max_lbl_len - len(labels))
+            index_labels[l_i] = labels
+
+    index_labels = np.array(index_labels)
+
+    if index_labels.shape[1] > 1:
+        if options.verbose:
+            log_msg(f'Converting index to MultiIndex...',
+                    prepend_timestamp=False)
+
+        if axis == 0:
+            data.index = pd.MultiIndex.from_arrays(index_labels.T)
+
+        else:
+            data.columns = pd.MultiIndex.from_arrays(index_labels.T)
+
+    return data
+
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
     if describe:
