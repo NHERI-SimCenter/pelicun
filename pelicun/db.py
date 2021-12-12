@@ -441,6 +441,9 @@ def create_FEMA_P58_fragility_db(source_file,
         # store the metadata for this component
         meta_dict.update({cmp.Index: meta_data})
 
+    # rename the index
+    df_db.index.name = "ID"
+
     # convert to optimal datatypes to reduce file size
     df_db = df_db.convert_dtypes()
 
@@ -452,6 +455,235 @@ def create_FEMA_P58_fragility_db(source_file,
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the fragility data from FEMA P58")
+
+def create_HAZUS_EQ_fragility_db(source_file,
+                                 target_data_file='fragility_HAZUS_EQ.csv',
+                                 target_meta_file='fragility_HAZUS_EQ.json'):
+    """
+    Create a database file based on the HAZUS EQ Technical Manual
+
+    This method was developed to process a json file with tabulated data from
+    v4.2.3 of the Hazus Earthquake Technical Manual. The json file is included
+    in the resources folder of pelicun
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the fragility database file.
+    target_data_file: string
+        Path where the fragility data file should be saved. A csv file is
+        expected.
+    target_meta_file: string
+        Path where the fragility metadata should be saved. A json file is
+        expected.
+
+    """
+
+    # parse the source file
+    with open(source_file, 'r') as f:
+        raw_data = json.load(f)
+
+    # prepare lists of labels for various building features
+    design_levels = list(
+        raw_data['Structural_Fragility_Groups']['EDP_limits'].keys())
+
+    building_types = list(
+        raw_data['Structural_Fragility_Groups']['P_collapse'].keys())
+
+    convert_design_level = {
+        'High_code': 'HC',
+        'Moderate_code': 'MC',
+        'Low_code': 'LC',
+        'Pre_code': 'PC'
+    }
+
+    # initialize the fragility table
+    df_db = pd.DataFrame(
+        columns=[
+            "ID",
+            "Incomplete",
+            "Demand-Type",
+            "Demand-Unit",
+            "Demand-Offset",
+            "Demand-Directional",
+            "LS1-Family",
+            "LS1-Theta_0",
+            "LS1-Theta_1",
+            "LS1-DamageStateWeights",
+            "LS2-Family",
+            "LS2-Theta_0",
+            "LS2-Theta_1",
+            "LS2-DamageStateWeights",
+            "LS3-Family",
+            "LS3-Theta_0",
+            "LS3-Theta_1",
+            "LS3-DamageStateWeights",
+            "LS4-Family",
+            "LS4-Theta_0",
+            "LS4-Theta_1",
+            "LS4-DamageStateWeights"
+        ],
+        index=np.arange(len(building_types) * len(design_levels) * 5),
+        dtype=float
+    )
+    counter = 0
+
+    # First, prepare the structural fragilities
+    S_data = raw_data['Structural_Fragility_Groups']
+
+    for bt in building_types:
+        for dl in design_levels:
+            if bt in S_data['EDP_limits'][dl].keys():
+
+                # create the component id
+                cmp_id = f'STR.{bt}.{convert_design_level[dl]}'
+                df_db.loc[counter, 'ID'] = cmp_id
+
+                # store demand specifications
+                df_db.loc[counter, 'Demand-Type'] = "Peak Roof Drift Ratio"
+                df_db.loc[counter, 'Demand-Unit'] = "rad"
+                df_db.loc[counter, 'Demand-Offset'] = 0
+
+                # store the Limit State parameters
+                for LS_i in range(1, 5):
+
+                    df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
+                    df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
+                    S_data['EDP_limits'][dl][bt][LS_i - 1]
+                    df_db.loc[counter, f'LS{LS_i}-Theta_1'] = \
+                    S_data['Fragility_beta'][dl]
+
+                    if LS_i == 4:
+                        p_coll = S_data['P_collapse'][bt]
+                        df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
+                            f'{1.0 - p_coll} | {p_coll}')
+
+                counter += 1
+
+    # Second, the non-structural drift sensitive one
+    NSD_data = raw_data['NonStructural_Drift_Sensitive_Fragility_Groups']
+
+    # create the component id
+    df_db.loc[counter, 'ID'] = f'NSD'
+
+    # store demand specifications
+    df_db.loc[counter, 'Demand-Type'] = "Peak Roof Drift Ratio"
+    df_db.loc[counter, 'Demand-Unit'] = "rad"
+    df_db.loc[counter, 'Demand-Offset'] = 0
+
+    # store the Limit State parameters
+    for LS_i in range(1, 5):
+        df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
+        df_db.loc[counter, f'LS{LS_i}-Theta_0'] = NSD_data['EDP_limits'][
+            LS_i - 1]
+        df_db.loc[counter, f'LS{LS_i}-Theta_1'] = NSD_data['Fragility_beta']
+
+    counter += 1
+
+    # Third, the non-structural acceleration sensitive fragilities
+    NSA_data = raw_data['NonStructural_Acceleration_Sensitive_Fragility_Groups']
+
+    for dl in design_levels:
+
+        # create the component id
+        cmp_id = f'NSA.{convert_design_level[dl]}'
+        df_db.loc[counter, 'ID'] = cmp_id
+
+        # store demand specifications
+        df_db.loc[counter, 'Demand-Type'] = "Peak Floor Acceleration"
+        df_db.loc[counter, 'Demand-Unit'] = "g"
+        df_db.loc[counter, 'Demand-Offset'] = 1
+
+        # store the Limit State parameters
+        for LS_i in range(1, 5):
+            df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
+            df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
+            NSA_data['EDP_limits'][dl][LS_i - 1]
+            df_db.loc[counter, f'LS{LS_i}-Theta_1'] = NSA_data['Fragility_beta']
+
+        counter += 1
+
+    # Fourth, the lifeline facilities
+    LF_data = raw_data['Lifeline_Facilities']
+
+    for bt in building_types:
+        for dl in design_levels:
+            if bt in LF_data['EDP_limits'][dl].keys():
+
+                # create the component id
+                cmp_id = f'LF.{bt}.{convert_design_level[dl]}'
+                df_db.loc[counter, 'ID'] = cmp_id
+
+                # store demand specifications
+                df_db.loc[counter, 'Demand-Type'] = "Peak Ground Acceleration"
+                df_db.loc[counter, 'Demand-Unit'] = "g"
+                df_db.loc[counter, 'Demand-Offset'] = 0
+
+                # store the Limit State parameters
+                for LS_i in range(1, 5):
+
+                    df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
+                    df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
+                    LF_data['EDP_limits'][dl][bt][LS_i - 1]
+                    df_db.loc[counter, f'LS{LS_i}-Theta_1'] = \
+                    LF_data['Fragility_beta'][dl]
+
+                    if LS_i == 4:
+                        p_coll = LF_data['P_collapse'][bt]
+                        df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
+                            f'{1.0 - p_coll} | {p_coll}')
+
+                counter += 1
+
+    # Fifth, the ground failure fragilities
+    GF_data = raw_data['Ground_Failure']
+
+    for direction in ['Horizontal', 'Vertical']:
+        for f_depth in ['Shallow', 'Deep']:
+            # create the component id
+            cmp_id = f'GF.{direction[0]}.{f_depth[0]}'
+            df_db.loc[counter, 'ID'] = cmp_id
+
+            # store demand specifications
+            df_db.loc[counter, 'Demand-Type'] = "Permanent Ground Deformation"
+            df_db.loc[counter, 'Demand-Unit'] = "inch"
+            df_db.loc[counter, 'Demand-Offset'] = 0
+
+            # store the Limit State parameters
+            df_db.loc[counter, f'LS1-Family'] = 'lognormal'
+            df_db.loc[counter, f'LS1-Theta_0'] = \
+            GF_data['EDP_limits'][direction][f_depth]
+            df_db.loc[counter, f'LS1-Theta_1'] = \
+            GF_data['Fragility_beta'][direction][f_depth]
+            p_complete = GF_data['P_Complete']
+            df_db.loc[counter, f'LS1-DamageStateWeights'] = (
+                f'{1.0 - p_complete} | {p_complete}')
+
+            counter += 1
+
+    # remove empty rows (from the end)
+    df_db.dropna(how='all', inplace=True)
+
+    # All Hazus components have complete fragility info,
+    df_db.loc[:, 'Incomplete'] = 0
+
+    # none of them are directional,
+    df_db.loc[:, 'Demand-Directional'] = 0
+
+    # rename the index
+    df_db.set_index("ID", inplace=True)
+
+    # convert to optimal datatypes to reduce file size
+    df_db = df_db.convert_dtypes()
+
+    # save the fragility data
+    df_db.to_csv(target_data_file)
+
+    # save the metadata - later
+    #with open(target_meta_file, 'w+') as f:
+    #    json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the fragility data from Hazus EQ")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # LEGACY CODE
@@ -921,7 +1153,7 @@ def convert_P58_data_to_json(data_dir, target_dir):
                 if json_output['Ratings'][key] is np.nan:
                     json_output['Ratings'][key] = 'Undefined'
 
-            DSH = decode_DS_Hierarchy(row['DS Hierarchy'])
+            DSH = parse_DS_Hierarchy(row['DS Hierarchy'])
 
             json_output.update({'DSGroups': []})
 
