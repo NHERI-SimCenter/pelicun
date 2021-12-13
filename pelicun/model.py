@@ -962,6 +962,8 @@ class DamageModel(object):
         self._lsds_RVs = None
         self._lsds_sample = None
 
+        self._sample = None
+
     @property
     def frg_sample(self):
 
@@ -995,6 +997,11 @@ class DamageModel(object):
             lsds_sample = self._lsds_sample
 
         return lsds_sample
+
+    @property
+    def sample(self):
+
+        return self._sample
 
     def load_fragility_model(self, data_paths):
         """
@@ -1215,8 +1222,8 @@ class DamageModel(object):
                              'databases or provide your own fragility '
                              'definitions before generating a sample.')
 
-        log_div()
-        log_msg(f'Generating sample from fragility variables...')
+        log_msg(f'Generating sample from fragility variables...',
+                prepend_timestamp=False)
 
         self._create_frg_RVs()
 
@@ -1231,11 +1238,208 @@ class DamageModel(object):
         log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
 
+    def get_required_demand_types(self):
+        """
+        Returns a list of demands needed to calculate damage to components
+
+        Note that we assume that a fragility sample is available.
+
+        """
+
+        log_msg(f'Collecting required demand information...',
+                prepend_timestamp=False)
+
+        EDP_req = pd.Series(
+            index=self.frg_sample.groupby(level=[0,1,2], axis=1).first().columns)
+
+        # get the list of  active components
+        cmp_list = EDP_req.index.get_level_values(0).unique()
+
+        # for each component
+        for cmp in cmp_list:
+
+            # get the parameters from the fragility db
+            directional, offset, demand_type = self.fragility_params.loc[
+                cmp, [('Demand', 'Directional'),
+                      ('Demand', 'Offset'),
+                      ('Demand', 'Type')]]
+
+            if directional:
+
+                # respect both the location and direction for directional
+                # components
+                locations, directions = [
+                    EDP_req[cmp].groupby(level=[0, 1]).first(
+                    ).index.get_level_values(lvl).values.astype(int)
+                    for lvl in range(2)]
+
+            else:
+
+                # only store the location and use 0 as direction for the
+                # non-directional components
+                locations = EDP_req[cmp].index.get_level_values(0).unique(
+                ).values.astype(int)
+                directions = np.zeros(locations.shape, dtype=int)
+
+            # parse the demand type
+
+            # first check if there is a subtype included
+            if '|' in demand_type:
+                demand_type, subtype = demand_type.split('|')
+                demand_type = EDP_to_demand_type[demand_type]
+                EDP_type = f'{demand_type}_{subtype}'
+            else:
+                demand_type = EDP_to_demand_type[demand_type]
+                EDP_type = demand_type
+
+            # consider the default offset, if needed
+            if demand_type in options.demand_offset.keys():
+
+                offset = int(offset + options.demand_offset[demand_type])
+
+            else:
+                offset = int(offset)
+
+            # add the required EDPs to the list
+            EDP_req[cmp] = [f'{EDP_type}-{loc+offset}-{dir}'
+                            for loc, dir in zip(locations, directions)]
+
+        # return the unique EDP requirements
+        return EDP_req
+
+    def _assemble_required_demand_data(self, EDP_req):
+
+        log_msg(f'Assembling demand data for calculation...',
+                prepend_timestamp=False)
+
+        demands = pd.DataFrame(columns=EDP_req, index=self.frg_sample.index)
+        demands = convert_to_MultiIndex(demands, axis=1)
+
+        demand_source = self._asmnt.demand.sample
+
+        # And fill it with data
+        for col in demands.columns:
+
+            # if non-directional demand is requested...
+            if col[2] == '0':
+
+                # check if the demand at the given location is available
+                available_demands = demand_source.groupby(
+                    level=[0, 1], axis=1).first().columns
+
+                if col[:2] in available_demands:
+                    # take the maximum of all available directions and scale it
+                    # using the nondirectional multiplier specified in the
+                    # options (the default value is 1.2)
+                    demands[col] = demand_source.loc[:, (col[0], col[1])].max(
+                        axis=1) * options.nondir_multi(col[0])
+
+            elif col in demand_source.columns:
+
+                demands[col] = demand_source[col]
+
+        # Report missing demand data
+        for col in demands.columns[np.all(demands.isna(), axis=0)]:
+            log_msg(f'\nWARNING: Cannot find demand data for {col}. The '
+                    f'corresponding damages cannot be calculated.',
+                    prepend_timestamp=False)
+
+        demands.dropna(axis=1, how='all', inplace=True)
+
+        return demands
+
+    def _evaluate_damage(self, CMP_to_EDP, demands):
+        """
+        Use the provided demands and the LS capacity sample the evaluate damage
+
+        Parameters
+        ----------
+        CMP_to_EDP: Series
+            Identifies the EDP assigned to each component
+        demands: DataFrame
+            Provides a sample of the demands required (and available) for the
+            damage assessment.
+
+        Returns
+        -------
+        dmg_sample: DataFrame
+            Assigns a Damage State to each component block in the asset model.
+        """
+        dmg_eval = pd.DataFrame(columns=self.frg_sample.columns,
+                                index=self.frg_sample.index)
+
+        # for each available demand
+        for demand in demands.columns:
+
+            # get the corresponding component - loc - dir
+            cmp_affected = CMP_to_EDP[
+                CMP_to_EDP == '-'.join(demand)].index.values
+
+            full_cmp_list = []
+
+            # assemble a list of cmp - loc - dir - block - ls
+            for cmp in cmp_affected:
+                vals = dmg_eval.loc[:, cmp].columns.values
+
+                full_cmp_list += [cmp + val for val in vals]
+
+            # evaluate ls exceedance for each case
+            dmg_eval.loc[:, full_cmp_list] = (
+                    self.frg_sample.loc[:, full_cmp_list].sub(
+                        demands[demand], axis=0) < 0)
+
+        # drop the columns that do not have valid results
+        dmg_eval.dropna(how='all', axis=1, inplace=True)
+
+        # initialize the DataFrame that stores the damage states
+        cmp_sample = self._asmnt.asset.cmp_sample
+        dmg_sample = pd.DataFrame(np.zeros(cmp_sample.shape),
+                                  columns=cmp_sample.columns,
+                                  index=cmp_sample.index, dtype=int)
+
+        # get a list of limit state ids among all components in the damage model
+        ls_list = dmg_eval.columns.get_level_values(4).unique()
+
+        # for each consecutive limit state...
+        for LS_id in ls_list:
+            # get all cmp - loc - dir - block where this limit state occurs
+            dmg_e_ls = dmg_eval.loc[:, idx[:, :, :, :, LS_id]].dropna(axis=1)
+
+            # Get the damage states corresponding to this limit state in each
+            # block
+            # Note that limit states with a set of mutually exclusive damage
+            # states options have their damage state picked here.
+            lsds = self.lsds_sample.loc[:, dmg_e_ls.columns]
+
+            # Drop the limit state level from the columns to make the damage
+            # exceedance DataFrame compatible with the other DataFrames in the
+            # following steps
+            dmg_e_ls.columns = dmg_e_ls.columns.droplevel(4)
+
+            # Same thing for the lsds DataFrame
+            lsds.columns = dmg_e_ls.columns
+
+            # Update the damage state in the result with the values from the
+            # lsds DF if the limit state was exceeded according to the
+            # dmg_e_ls DF.
+            # This one-liner updates the given Limit State exceedance in the
+            # entire damage model. If subsequent Limit States are also exceeded,
+            # those cells in the result matrix will get overwritten by higher
+            # damage states.
+            dmg_sample.loc[:, dmg_e_ls.columns] = (
+                dmg_sample.loc[:, dmg_e_ls.columns].mask(dmg_e_ls, lsds))
+
+        return dmg_sample
+
+
     def calculate(self, sample_size):
         """
         Calculate the damage state of each component block in the asset.
 
         """
+
+        log_div()
+        log_msg(f'Calculating damages...')
 
         # Generate an array with component capacities for each block and
         # generate a second array that assigns a specific damage state to
@@ -1243,9 +1447,24 @@ class DamageModel(object):
         # limit states with multiple, mutually exclusive DS options
         self._generate_frg_sample(sample_size)
 
-        # Use the above arrays to evaluate the damage state of each block
+        # Get the required demand types for the analysis
+        EDP_req = self.get_required_demand_types()
 
+        # Create the table of demands
+        demands = self._assemble_required_demand_data(EDP_req.unique())
 
+        # Evaluate the Damage State of each Component Block
+        dmg_sample = self._evaluate_damage(EDP_req, demands)
+
+        # Finally, apply the damage prescribed damage logic
+
+        self._sample = dmg_sample
+
+        log_msg(f'Damage calculation successfully completed.')
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# LEGACY CODE
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 class FragilityFunction(object):
     """
