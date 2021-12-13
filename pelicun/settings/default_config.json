@@ -4,7 +4,14 @@
     "Seed": null,
     "LogShowMS": false,
     "LogFile": "pelicun_log.txt",
-    "PrintLog": false
+    "PrintLog": false,
+    "DemandOffset": {
+      "PFA": -1,
+      "PFV": -1
+    },
+    "NonDirectionalMultipliers": {
+      "ALL": 1.2
+    }
   },
   "DemandAssessment": {
     "Calibration": {
