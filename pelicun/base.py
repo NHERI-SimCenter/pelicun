@@ -98,6 +98,21 @@ class Options(object):
 
         self.reset_log_strings()
 
+        self.demand_offset = {}
+        self.nondir_multi_dict = {}
+
+    def nondir_multi(self, EDP_type):
+
+        if EDP_type in self.nondir_multi_dict.keys():
+            return self.nondir_multi_dict[EDP_type]
+
+        elif 'ALL' in self.nondir_multi_dict.keys():
+            return self.nondir_multi_dict['ALL']
+
+        else:
+            raise ValueError(f"Scale factor for non-directional demand "
+                             f"calculation of {EDP_type} not specified.")
+
     @property
     def verbose(self):
         return self._verbose
@@ -220,6 +235,10 @@ def set_options(config_options):
                 options.log_file = value
             elif key == "PrintLog":
                 options.print_log = value
+            elif key == "DemandOffset":
+                options.demand_offset = value
+            elif key == "NonDirectionalMultipliers":
+                options.nondir_multi_dict = value
 
 def convert_to_MultiIndex(data, axis=0):
     """
@@ -558,7 +577,9 @@ EDP_units = dict(
 
 EDP_to_demand_type = {
     'Story Drift Ratio' :             'PID',
+    'Peak Interstory Drift Ratio':    'PID',
     'Roof Drift Ratio' :              'PRD',
+    'Peak Roof Drift Ratio' :         'PRD',
     'Damageable Wall Drift' :         'DWD',
     'Racking Drift Ratio' :           'RDR',
     'Peak Floor Acceleration' :       'PFA',
@@ -570,9 +591,13 @@ EDP_to_demand_type = {
     'Spectral Acceleration' :         'SA',
     'Spectral Velocity' :             'SV',
     'Spectral Displacement' :         'SD',
+    'Peak Spectral Acceleration' :    'SA',
+    'Peak Spectral Velocity' :        'SV',
+    'Peak Spectral Displacement' :    'SD',
     'Permanent Ground Deformation' :  'PGD',
     'Mega Drift Ratio' :              'PMD',
     'Residual Drift Ratio' :          'RID',
+    'Residual Interstory Drift Ratio':'RID',
 }
 
 # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
