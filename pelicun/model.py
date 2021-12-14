@@ -1432,7 +1432,85 @@ class DamageModel(object):
         return dmg_sample
 
 
-    def calculate(self, sample_size):
+    def _perform_dmg_task(self, task):
+        """
+        Perform a task from a damage process.
+
+        """
+        cmp_list = self.sample.columns.get_level_values(0).unique().tolist()
+
+        # get the source component
+        source_cmp = task[0].split('_')[1]
+
+        # check if it exists
+        if source_cmp not in cmp_list:
+            raise ValueError(f"source component not found among components in "
+                             f"the damage sample: {source_cmp}")
+
+        source_cmp_df = self.sample.loc[:,source_cmp]
+
+        for source_event, target_infos in task[1].items():
+
+            if source_event.startswith('LS'):
+
+                ls_i = int(source_event[2:])
+                # TODO: implement source LS support
+
+            elif source_event.startswith('DS'):
+
+                ds_list = [int(source_event[2:]),]
+
+            else:
+                raise ValueError(f"Unable to parse source event in damage "
+                                 f"process: {source_event}")
+
+            if len(ds_list) == 1:
+
+                source_mask = source_cmp_df.loc[source_cmp_df.values == ds_list[0]].index
+
+            else:
+                pass # TODO: implement multiple DS support
+
+            target_infos = np.atleast_1d(target_infos)
+
+            for target_info in target_infos:
+
+                target_cmp, target_event = target_info.split('_')
+
+                if target_cmp == 'ALL':
+
+                    target_cmp = deepcopy(cmp_list)
+
+                    if source_cmp in target_cmp:
+                        target_cmp.remove(source_cmp)
+
+                if target_event.startswith('LS'):
+
+                    ls_i = int(target_event[2:])
+
+                    # TODO: implement target LS support
+
+                elif target_event.startswith('DS'):
+
+                    ds_i = int(target_event[2:])
+
+                elif target_event == 'NA':
+
+                    ds_i = None
+
+                else:
+                    raise ValueError(f"Unable to parse target event in damage "
+                                     f"process: {target_event}")
+
+                if ds_i is None:
+
+                    self._sample.loc[source_mask, target_cmp] = np.nan
+
+                else:
+                    self._sample.loc[source_mask, target_cmp] = ds_i
+
+
+    def calculate(self, sample_size, dmg_process=None):
         """
         Calculate the damage state of each component block in the asset.
 
@@ -1456,9 +1534,14 @@ class DamageModel(object):
         # Evaluate the Damage State of each Component Block
         dmg_sample = self._evaluate_damage(EDP_req, demands)
 
-        # Finally, apply the damage prescribed damage logic
-
         self._sample = dmg_sample
+
+        # Finally, apply the damage prescribed damage process, if any
+        if dmg_process is not None:
+
+            for task in dmg_process.items():
+
+                self._perform_dmg_task(task)
 
         log_msg(f'Damage calculation successfully completed.')
 
