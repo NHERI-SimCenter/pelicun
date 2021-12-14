@@ -281,9 +281,6 @@ def convert_to_MultiIndex(data, axis=0):
     index_labels = np.array(index_labels)
 
     if index_labels.shape[1] > 1:
-        if options.verbose:
-            log_msg(f'Converting index to MultiIndex...',
-                    prepend_timestamp=False)
 
         if axis == 0:
             data.index = pd.MultiIndex.from_arrays(index_labels.T)

@@ -127,7 +127,12 @@ class DemandModel(object):
 
         """
 
+        log_div()
+        log_msg(f'Saving demand sample...')
+
         save_to_csv(self.sample, filepath, units=self.units)
+
+        log_msg(f'Demand sample successfully saved.', prepend_timestamp=False)
 
     def load_sample(self, filepath):
         """
@@ -180,12 +185,10 @@ class DemandModel(object):
 
             return new_MI
 
-
-
-        demand_data, units = load_from_csv(filepath, return_units=True)
-
         log_div()
         log_msg(f'Loading demand data...')
+
+        demand_data, units = load_from_csv(filepath, return_units=True)
 
         parsed_data = demand_data.copy()
 
@@ -462,6 +465,9 @@ class DemandModel(object):
 
         """
 
+        log_div()
+        log_msg(f'Saving demand model...')
+
         # save the correlation and empirical data
         save_to_csv(self.correlation, file_prefix + '_correlation.csv')
         save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
@@ -487,7 +493,12 @@ class DemandModel(object):
         save_to_csv(marginal_params, file_prefix+'_marginals.csv',
                     units=self.units, orientation=1)
 
+        log_msg(f'Demand model successfully saved.', prepend_timestamp=False)
+
     def load_model(self, file_prefix):
+
+        log_div()
+        log_msg(f'Loading demand model...')
 
         self.empirical_data = load_from_csv(file_prefix+'_empirical.csv')
         self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
@@ -519,6 +530,8 @@ class DemandModel(object):
 
         self.units = units
         self.marginal_params = marginal_params
+
+        log_msg(f'Demand model successfully loaded.', prepend_timestamp=False)
 
     def _create_RVs(self, preserve_order=False):
         """
@@ -642,6 +655,9 @@ class AssetModel(object):
 
         """
 
+        log_div()
+        log_msg(f'Saving asset components sample...')
+
         # prepare a units array
         sample = self.cmp_sample
 
@@ -652,17 +668,26 @@ class AssetModel(object):
 
         save_to_csv(sample, filepath, units=units)
 
+        log_msg(f'Asset components sample successfully saved.',
+                prepend_timestamp=False)
+
     def load_cmp_sample(self, filepath):
         """
         Load component quantity sample from a csv file
 
         """
 
+        log_div()
+        log_msg(f'Loading asset components sample...')
+
         sample, units = load_from_csv(filepath, return_units=True)
 
         self._cmp_sample = sample
 
         self.cmp_units = units.groupby(level=0).first()
+
+        log_msg(f'Asset components sample successfully loaded.',
+                prepend_timestamp=False)
 
     def load_cmp_model(self, file_prefix):
         """
@@ -1003,6 +1028,30 @@ class DamageModel(object):
 
         return self._sample
 
+    def save_sample(self, filepath):
+        """
+        Save damage sample to a csv file
+
+        """
+        log_div()
+        log_msg(f'Saving damage sample...')
+
+        save_to_csv(self.sample, filepath)
+
+        log_msg(f'Damage sample successfully saved.', prepend_timestamp=False)
+
+    def load_sample(self, filepath):
+        """
+        Load damage sample data.
+
+        """
+        log_div()
+        log_msg(f'Loading damage sample...')
+
+        self._sample = load_from_csv(filepath)
+
+        log_msg(f'Damage sample successfully loaded.', prepend_timestamp=False)
+
     def load_fragility_model(self, data_paths):
         """
         Load limit state fragility functions and damage state assignments
@@ -1013,6 +1062,9 @@ class DamageModel(object):
             List of paths to data files with fragility information. Default
             datasets can be accessed as PelicunDefault/XY.
         """
+
+        log_div()
+        log_msg(f'Loading fragility model...')
 
         # replace default flag with default data path
         for d_i, data_path in enumerate(data_paths):
