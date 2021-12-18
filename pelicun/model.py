@@ -406,7 +406,7 @@ class DemandModel(object):
         log_msg(f"\nFitting the prescribed joint demand distribution...",
                 prepend_timestamp=False)
 
-        demand_theta, demand_rho = fit_distribution(
+        demand_theta, demand_rho = fit_distribution_to_sample(
             raw_samples = demand_sample.values.T,
             distribution = cal_df.loc[:, 'family'].values,
             censored_count = censored_count,

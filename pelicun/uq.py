@@ -46,7 +46,7 @@ quantification in pelicun.
 .. autosummary::
 
     mvn_orthotope_density
-    fit_distribution
+    fit_distribution_to_sample
     RandomVariable
     RandomVariableSet
     RandomVariableRegistry
@@ -286,7 +286,6 @@ def _mvn_scale(x, rho):
 
     return b / a
 
-
 def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
                         dist_list, tr_limits, det_limits, censored_count,
                         enforce_bounds=False):
@@ -402,12 +401,12 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
 
     return NLL
 
-def fit_distribution(raw_samples, distribution,
-                     truncation_limits=[np.nan, np.nan],
-                     censored_count=0, detection_limits=[np.nan, np.nan],
-                     multi_fit=False, alpha_lim=1e-4):
+def fit_distribution_to_sample(raw_samples, distribution,
+                               truncation_limits=[np.nan, np.nan],
+                               censored_count=0, detection_limits=[np.nan, np.nan],
+                               multi_fit=False, alpha_lim=1e-4):
     """
-    Fit a distribution to samples using maximum likelihood estimation.
+    Fit a distribution to sample using maximum likelihood estimation.
 
     The number of dimensions of the distribution are inferred from the
     shape of the sample data. Censoring is automatically considered if the
@@ -652,6 +651,85 @@ def fit_distribution(raw_samples, distribution,
     #    print(val)
 
     return theta, rho_hat
+
+def _OLS_percentiles(params, values, perc, family):
+
+    theta_0 = params[0]
+    theta_1 = params[1]
+
+    if theta_0 <= 0:
+        return 1e10
+
+    if theta_1 <= 0:
+        return 1e10
+
+    if family == 'normal':
+
+        val_hat = norm.ppf(perc, loc=theta_0, scale=theta_1)
+
+    elif family == 'lognormal':
+
+        val_hat = np.exp(norm.ppf(perc, loc=np.log(theta_0), scale=theta_1))
+
+    else:
+        raise ValueError(f"Distribution family not recognized: {family}")
+
+    return np.sum((val_hat - values) ** 2.0)
+
+def fit_distribution_to_percentiles(values, percentiles, families):
+    """
+    Fit distribution to pre-defined values at a finite number of percentiles.
+
+    Parameters
+    ----------
+    values: array of float
+        Pre-defined values at the given percentiles. At least two values are
+        expected.
+    percentiles: array of float
+        Percentiles where values are defined. At least two percentiles are
+        expected.
+    families: array of strings {'normal', 'lognormal'}
+        Defines the distribution family candidates.
+
+    Returns
+    -------
+    family: string
+        The optimal choice of family among the provided list of families
+    theta: array of float
+        Parameters of the fitted distribution.
+    """
+
+    out_list = []
+
+    percentiles = np.array(percentiles)
+
+    median_id = np.argmin(np.abs(percentiles - 0.5))
+    extreme_id = np.argmax(percentiles - 0.5)
+
+    for family in families:
+
+        inits = [values[median_id],]
+
+        if family == 'normal':
+            inits.append((np.abs(values[extreme_id] - inits[0]) /
+                          np.abs(norm.ppf(percentiles[extreme_id],
+                                          loc=0, scale=1))
+                          ))
+
+        elif family == 'lognormal':
+            inits.append((np.abs(np.log(values[extreme_id]/inits[0])) /
+                          np.abs(norm.ppf(percentiles[extreme_id],
+                                          loc=0, scale=1))
+                          ))
+
+        out_list.append(minimize(_OLS_percentiles, inits,
+                                 args=(values, percentiles, family),
+                                 method='BFGS'))
+
+    best_out_id = np.argmin([out.fun for out in out_list])
+
+    return families[best_out_id], out_list[best_out_id].x
+
 
 class RandomVariable(object):
     """
