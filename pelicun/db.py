@@ -58,6 +58,7 @@ This module has classes and methods to manage databases used by pelicun.
 """
 
 from .base import *
+from .uq import fit_distribution_to_percentiles
 from pathlib import Path
 import re
 import json
@@ -68,7 +69,7 @@ import shutil
 
 def parse_DS_Hierarchy(DSH):
     """
-    Parses the DS hierarchy into a set of arrays.
+    Parses the FEMA P58 DS hierarchy into a set of arrays.
     """
     if 'Seq' == DSH[:3]:
         DSH = DSH[4:-1]
@@ -89,13 +90,13 @@ def parse_DS_Hierarchy(DSH):
     return DS_setup
 
 def create_FEMA_P58_fragility_db(source_file,
-                                 target_data_file='fragility_FEMA_P58_2nd.csv',
-                                 target_meta_file='fragility_FEMA_P58_2nd.json'):
+                                 target_data_file='fragility_DB_FEMA_P58_2nd.csv',
+                                 target_meta_file='fragility_DB_FEMA_P58_2nd.json'):
     """
-    Create a database file based on the FEMA P58 FragilityDatabase xls
+    Create a fragility parameter database based on the FEMA P58 data
 
-    The method was developed to process v3.1.2 of the database that is provided
-    with FEMA P58 2nd edition.
+    The method was developed to process v3.1.2 of the FragilityDatabase xls
+    that is provided with FEMA P58 2nd edition.
 
     Parameters
     ----------
@@ -282,8 +283,6 @@ def create_FEMA_P58_fragility_db(source_file,
 
         # get the suggested block size and replace the misleading values with ea
         block_size = cmp_meta['Fragility_Unit_of_Measure'].split(' ')[::-1]
-        if block_size[1] in ['TN', 'CF', 'KV', 'AP']:
-            block_size = ['1', 'EA']
 
         meta_data = {
             "Description": cmp_meta['Component_Name'],
@@ -456,9 +455,854 @@ def create_FEMA_P58_fragility_db(source_file,
 
     print("Successfully parsed and saved the fragility data from FEMA P58")
 
+def create_FEMA_P58_bldg_repair_db(source_file,
+                                   target_data_file='bldg_repair_DB_FEMA_P58_2nd.csv',
+                                   target_meta_file='bldg_repair_DB_FEMA_P58_2nd.json'):
+    """
+    Create a repair consequence parameter database based on the FEMA P58 data
+
+    The method was developed to process v3.1.2 of the FragilityDatabase xls
+    that is provided with FEMA P58 2nd edition.
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the fragility database file.
+    target_data_file: string
+        Path where the consequence data file should be saved. A csv file is
+        expected.
+    target_meta_file: string
+        Path where the consequence metadata should be saved. A json file is
+        expected.
+
+    """
+
+    # parse the source file
+    df = pd.concat(
+        [pd.read_excel(source_file, sheet_name=sheet, header=2, index_col=1)
+         for sheet in ['Summary', 'Cost Summary']], axis=1)
+
+    # remove duplicate columns
+    # (there are such because we joined two tables that were read separately)
+    df = df.loc[:, ~df.columns.duplicated()]
+
+    # remove empty rows and columns
+    df.dropna(axis=0, how='all', inplace=True)
+    df.dropna(axis=1, how='all', inplace=True)
+
+    # filter the columns we need for the repair database
+    cols_to_db = [
+        "Fragility Unit of Measure",
+        'DS Hierarchy',
+    ]
+    for DS_i in range(1, 6):
+        cols_to_db += [
+            f"Best Fit, DS{DS_i}",
+            f"Lower Qty Mean, DS{DS_i}",
+            f"Upper Qty Mean, DS{DS_i}",
+            f"Lower Qty Cutoff, DS{DS_i}",
+            f"Upper Qty Cutoff, DS{DS_i}",
+            f"CV / Dispersion, DS{DS_i}",
+
+            f"Best Fit, DS{DS_i}.1",
+            f"Lower Qty Mean, DS{DS_i}.1",
+            f"Upper Qty Mean, DS{DS_i}.1",
+            f"Lower Qty Cutoff, DS{DS_i}.1",
+            f"Upper Qty Cutoff, DS{DS_i}.1",
+            f"CV / Dispersion, DS{DS_i}.2",
+            f"DS {DS_i}, Long Lead Time",
+
+            f'Repair Cost, p10, DS{DS_i}',
+            f'Repair Cost, p50, DS{DS_i}',
+            f'Repair Cost, p90, DS{DS_i}',
+            f'Time, p10, DS{DS_i}',
+            f'Time, p50, DS{DS_i}',
+            f'Time, p90, DS{DS_i}',
+            f'Mean Value, DS{DS_i}',
+            f'Mean Value, DS{DS_i}.1',
+        ]
+
+    # filter the columns that we need for the metadata
+    cols_to_meta = [
+        "Component Name",
+        "Component Description",
+        "Construction Quality:",
+        "Seismic Installation Conditions:",
+        "Comments / Notes",
+        "Author",
+        "Fragility Unit of Measure",
+        "Round to Integer Unit?",
+        "DS 1, Description",
+        "DS 1, Repair Description",
+        "DS 2, Description",
+        "DS 2, Repair Description",
+        "DS 3, Description",
+        "DS 3, Repair Description",
+        "DS 4, Description",
+        "DS 4, Repair Description",
+        "DS 5, Description",
+        "DS 5, Repair Description",
+    ]
+
+    # remove special characters to make it easier to work with column names
+    str_map = {
+        ord(' '): "_",
+        ord('.'): "_",
+        ord(':'): None,
+        ord('('): None,
+        ord(')'): None,
+        ord('?'): None,
+        ord('/'): None,
+        ord(','): None,
+    }
+
+    df_db_source = df.loc[:, cols_to_db]
+    df_db_source.columns = [s.translate(str_map) for s in cols_to_db]
+    df_db_source.sort_index(inplace=True)
+
+    df_meta = df.loc[:, cols_to_meta]
+    df_meta.columns = [s.translate(str_map) for s in cols_to_meta]
+
+    df_db_source.replace('BY USER', np.nan, inplace=True)
+
+    # initialize the output loss table
+    # define the columns
+    out_cols = [
+        "Incomplete",
+        "Driver",
+        "Quantity-Unit",
+        "DV-Unit",
+    ]
+    for DS_i in range(1, 16):
+        out_cols += [
+            f"DS{DS_i}-Family",
+            f"DS{DS_i}-Theta_0",
+            f"DS{DS_i}-Theta_1",
+            f"DS{DS_i}-LongLeadTime",
+        ]
+
+    # create the MultiIndex
+    comps = df_db_source.index.values
+    DVs = ['Cost', 'Time']
+    df_MI = pd.MultiIndex.from_product([comps, DVs], names=['ID', 'DV'])
+
+    df_db = pd.DataFrame(
+        columns=out_cols,
+        index=df_MI,
+        dtype=float
+    )
+
+    # initialize the dictionary that stores the loss metadata
+    meta_dict = {}
+
+    convert_family = {
+        'LogNormal': 'lognormal',
+        'Normal': 'normal'
+    }
+
+    # for each component...
+    # (this approach is not efficient, but easy to follow which was considered
+    # more important than efficiency.)
+    for cmp in df_db_source.itertuples():
+
+        # assume the component information is complete
+        incomplete_cost = False
+        incomplete_time = False
+
+        # store units
+
+        df_db.loc[cmp.Index, 'Quantity-Unit'] = (
+            ' '.join(cmp.Fragility_Unit_of_Measure.split(' ')[::-1]).strip())
+        df_db.loc[(cmp.Index, 'Cost'), 'DV-Unit'] = "US$_2011"
+        df_db.loc[(cmp.Index, 'Time'), 'DV-Unit'] = "worker_day"
+
+        # get the raw metadata for the component
+        cmp_meta = df_meta.loc[cmp.Index, :]
+
+        # store the global (i.e., not DS-specific) metadata
+
+        # every component is assumed to have a comp. description
+        comments = cmp_meta['Component_Description']
+
+        # the additional fields are added to the description if they exist
+        if cmp_meta['Construction_Quality'] != 'Not Specified':
+            comments += f'\nConstruction Quality: ' \
+                        f'{cmp_meta["Construction_Quality"]}'
+
+        if cmp_meta['Seismic_Installation_Conditions'] not in [
+            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+            comments += f'\nSeismic Installation Conditions: ' \
+                        f'{cmp_meta["Seismic_Installation_Conditions"]}'
+
+        if cmp_meta['Comments__Notes'] != 'None':
+            comments += f'\nNotes: {cmp_meta["Comments__Notes"]}'
+
+        if cmp_meta['Author'] not in ['Not Given', 'By User']:
+            comments += f'\nAuthor: {cmp_meta["Author"]}'
+
+        # get the suggested block size and replace the misleading values with ea
+        block_size = cmp_meta['Fragility_Unit_of_Measure'].split(' ')[::-1]
+
+        meta_data = {
+            "Description": cmp_meta['Component_Name'],
+            "Comments": comments,
+            "SuggestedComponentBlockSize": ' '.join(block_size),
+            "RoundUpToIntegerQuantity": cmp_meta['Round_to_Integer_Unit'],
+            "ControllingDemand": "Damage Quantity",
+            "DamageStates": {}
+        }
+
+        # Handle components with simultaneous damage states separately
+        if 'Simul' in cmp.DS_Hierarchy:
+
+            # Note that we are assuming that all damage states are triggered by
+            # a single limit state in these components.
+            # This assumption holds for the second edition of FEMA P58, but it
+            # might need to be revisited in future editions.
+
+            cost_est = {}
+            time_est = {}
+
+            # get the p10, p50, and p90 estimates for all damage states
+            for DS_i in range(1, 6):
+
+                if not pd.isna(getattr(cmp, f'Repair_Cost_p10_DS{DS_i}')):
+
+                    cost_est.update({f'DS{DS_i}': np.array([
+                        getattr(cmp, f'Repair_Cost_p10_DS{DS_i}'),
+                        getattr(cmp, f'Repair_Cost_p50_DS{DS_i}'),
+                        getattr(cmp, f'Repair_Cost_p90_DS{DS_i}'),
+                        getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}'),
+                        getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}')
+                    ])})
+
+                    time_est.update({f'DS{DS_i}': np.array([
+                        getattr(cmp, f'Time_p10_DS{DS_i}'),
+                        getattr(cmp, f'Time_p50_DS{DS_i}'),
+                        getattr(cmp, f'Time_p90_DS{DS_i}'),
+                        getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1'),
+                        getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}_1'),
+                        int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES')
+                    ])})
+
+            # now prepare the equivalent mutex damage states
+            sim_ds_count = len(cost_est.keys())
+            ds_count = 2 ** (sim_ds_count) - 1
+
+            for DS_i in range(1, ds_count + 1):
+                ds_map = format(DS_i, f'0{sim_ds_count}b')
+
+                cost_vals = np.sum([cost_est[f'DS{ds_i + 1}']
+                                    if ds_map[-ds_i - 1] == '1' else np.zeros(5)
+                                    for ds_i in range(sim_ds_count)],
+                                   axis=0)
+
+                time_vals = np.sum([time_est[f'DS{ds_i + 1}']
+                                    if ds_map[-ds_i - 1] == '1' else np.zeros(6)
+                                    for ds_i in range(sim_ds_count)],
+                                   axis=0)
+
+                # fit a distribution
+                family_hat, theta_hat = fit_distribution_to_percentiles(
+                    cost_vals[:3], [0.1, 0.5, 0.9], ['normal', 'lognormal'])
+
+                cost_theta = theta_hat
+                if family_hat == 'normal':
+                    cost_theta[1] = cost_theta[1] / cost_theta[0]
+
+                time_theta = [time_vals[1],
+                              np.sqrt(cost_theta[1] ** 2.0 + 0.25 ** 2.0)]
+
+                # Note that here we assume that the cutoff quantities are
+                # identical across damage states.
+                # This assumption holds for the second edition of FEMA P58, but
+                # it might need to be revisited in future editions.
+                cost_qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS1')
+                cost_qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS1')
+                time_qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS1_1')
+                time_qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS1_1')
+
+                # store the results
+                df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = family_hat
+
+                df_db.loc[(cmp.Index,'Cost'), f'DS{DS_i}-Theta_0'] = (
+                    f"{cost_vals[3]:g},{cost_vals[4]:g}|"
+                    f"{cost_qnt_low:g},{cost_qnt_up:g}")
+
+                df_db.loc[(cmp.Index,'Cost'),
+                          f'DS{DS_i}-Theta_1'] = f"{cost_theta[1]:g}"
+
+                df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = family_hat
+
+                df_db.loc[(cmp.Index,'Time'), f'DS{DS_i}-Theta_0'] = (
+                    f"{time_vals[3]:g},{time_vals[4]:g}|"
+                    f"{time_qnt_low:g},{time_qnt_up:g}")
+
+                df_db.loc[(cmp.Index,'Time'),
+                          f'DS{DS_i}-Theta_1'] = f"{time_theta[1]:g}"
+
+                df_db.loc[(cmp.Index, 'Time'),
+                          f'DS{DS_i}-LongLeadTime'] = int(time_vals[5] > 0)
+
+                if ds_map.count('1') == 1:
+
+                    ds_pure_id = ds_map[::-1].find('1') + 1
+
+                    meta_data['DamageStates'].update({f"DS{DS_i}": {
+                        "Description": f"Pure DS{ds_pure_id}. " +
+                                       cmp_meta[f"DS_{ds_pure_id}_Description"],
+                        "RepairAction":
+                            cmp_meta[f"DS_{ds_pure_id}_Repair_Description"]
+                    }})
+
+                else:
+
+                    ds_combo = [f'DS{_.start() + 1}'
+                                for _ in re.finditer('1', ds_map[::-1])]
+
+                    meta_data['DamageStates'].update({f"DS{DS_i}": {
+                        "Description": 'Combination of ' +
+                                       ' & '.join(ds_combo),
+                        "RepairAction": 'Combination of pure DS repair '
+                                        'actions.'
+                    }})
+
+        # for every other component...
+        else:
+            # now look at each Damage State
+            for DS_i in range(1, 6):
+
+                # cost
+                if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}')):
+                    df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}')])
+
+                    if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')):
+
+                        theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')
+                        theta_0_up = getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}')
+                        qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS{DS_i}')
+                        qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}')
+
+                        if theta_0_low == 0. and theta_0_up == 0.:
+                            df_db.loc[(cmp.Index, 'Cost'),
+                                      f'DS{DS_i}-Family'] = np.nan
+
+                        else:
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_0'] = (
+                                f"{theta_0_low:g},{theta_0_up:g}|"
+                                f"{qnt_low:g},{qnt_up:g}")
+
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}'):g}")
+
+                    else:
+                        incomplete_cost = True
+
+                    meta_data['DamageStates'].update({
+                        f"DS{DS_i}": {
+                            "Description": cmp_meta[f"DS_{DS_i}_Description"],
+                            "RepairAction": cmp_meta[f"DS_{DS_i}_Repair_Description"]}})
+
+                # time
+                if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}_1')):
+
+                    df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}_1')])
+
+                    if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')):
+
+                        theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')
+                        theta_0_up = getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}_1')
+                        qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS{DS_i}_1')
+                        qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}_1')
+
+                        if theta_0_low == 0. and theta_0_up == 0.:
+                            df_db.loc[(cmp.Index, 'Time'),
+                                      f'DS{DS_i}-Family'] = np.nan
+
+                        else:
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_0'] = (
+                                f"{theta_0_low:g},{theta_0_up:g}|"
+                                f"{qnt_low:g},{qnt_up:g}")
+
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}_2'):g}")
+
+                        df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = (
+                            int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES'))
+
+                    else:
+                        incomplete_time = True
+
+        df_db.loc[(cmp.Index, 'Cost'), 'Incomplete'] = int(incomplete_cost)
+        df_db.loc[(cmp.Index, 'Time'), 'Incomplete'] = int(incomplete_time)
+
+        # store the metadata for this component
+        meta_dict.update({cmp.Index: meta_data})
+
+    # review the database and drop rows with no information
+    cmp_to_drop = []
+    for cmp in df_db.index:
+
+        empty = True
+
+        for DS_i in range(1, 6):
+            if not pd.isna(df_db.loc[cmp, f'DS{DS_i}-Family']):
+                empty = False
+                break
+
+        if empty:
+            cmp_to_drop.append(cmp)
+
+    df_db.drop(cmp_to_drop, axis=0, inplace=True)
+    for cmp in cmp_to_drop:
+        if cmp[0] in meta_dict.keys():
+            del meta_dict[cmp[0]]
+
+    # rename the index
+    df_db.index.name = "ID"
+
+    # convert to optimal datatypes to reduce file size
+    df_db = df_db.convert_dtypes()
+
+    df_db = convert_to_SimpleIndex(df_db, 0)
+
+    # save the consequence data
+    df_db.to_csv(target_data_file)
+
+    # save the metadata
+    with open(target_meta_file, 'w+') as f:
+        json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the repair consequence data from FEMA "
+          "P58")
+
+def create_FEMA_P58_bldg_injury_db(source_file,
+                                   target_data_file='bldg_injury_DB_FEMA_P58_2nd.csv',
+                                   target_meta_file='bldg_injury_DB_FEMA_P58_2nd.json'):
+    """
+    Create an injury consequence parameter database based on the FEMA P58 data
+
+    The method was developed to process v3.1.2 of the FragilityDatabase xls
+    that is provided with FEMA P58 2nd edition.
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the fragility database file.
+    target_data_file: string
+        Path where the consequence data file should be saved. A csv file is
+        expected.
+    target_meta_file: string
+        Path where the consequence metadata should be saved. A json file is
+        expected.
+
+    """
+
+    # parse the source file
+    df = pd.read_excel(source_file, sheet_name='Summary', header=2, index_col=1)
+
+    # remove empty rows and columns
+    df.dropna(axis=0, how='all', inplace=True)
+    df.dropna(axis=1, how='all', inplace=True)
+
+    for col in df.columns:
+        print(col)
+
+    return 0
+
+    # filter the columns we need for the injury database
+    cols_to_db = [
+        "Fragility Unit of Measure",
+        'DS Hierarchy',
+    ]
+    for DS_i in range(1, 6):
+        cols_to_db += [
+            f"Best Fit, DS{DS_i}",
+            f"Lower Qty Mean, DS{DS_i}",
+            f"Upper Qty Mean, DS{DS_i}",
+            f"Lower Qty Cutoff, DS{DS_i}",
+            f"Upper Qty Cutoff, DS{DS_i}",
+            f"CV / Dispersion, DS{DS_i}",
+
+            f"Best Fit, DS{DS_i}.1",
+            f"Lower Qty Mean, DS{DS_i}.1",
+            f"Upper Qty Mean, DS{DS_i}.1",
+            f"Lower Qty Cutoff, DS{DS_i}.1",
+            f"Upper Qty Cutoff, DS{DS_i}.1",
+            f"CV / Dispersion, DS{DS_i}.2",
+            f"DS {DS_i}, Long Lead Time",
+
+            f'Repair Cost, p10, DS{DS_i}',
+            f'Repair Cost, p50, DS{DS_i}',
+            f'Repair Cost, p90, DS{DS_i}',
+            f'Time, p10, DS{DS_i}',
+            f'Time, p50, DS{DS_i}',
+            f'Time, p90, DS{DS_i}',
+            f'Mean Value, DS{DS_i}',
+            f'Mean Value, DS{DS_i}.1',
+        ]
+
+    # filter the columns that we need for the metadata
+    cols_to_meta = [
+        "Component Name",
+        "Component Description",
+        "Construction Quality:",
+        "Seismic Installation Conditions:",
+        "Comments / Notes",
+        "Author",
+        "Fragility Unit of Measure",
+        "Round to Integer Unit?",
+        "DS 1, Description",
+        "DS 1, Repair Description",
+        "DS 2, Description",
+        "DS 2, Repair Description",
+        "DS 3, Description",
+        "DS 3, Repair Description",
+        "DS 4, Description",
+        "DS 4, Repair Description",
+        "DS 5, Description",
+        "DS 5, Repair Description",
+    ]
+
+    # remove special characters to make it easier to work with column names
+    str_map = {
+        ord(' '): "_",
+        ord('.'): "_",
+        ord(':'): None,
+        ord('('): None,
+        ord(')'): None,
+        ord('?'): None,
+        ord('/'): None,
+        ord(','): None,
+    }
+
+    df_db_source = df.loc[:, cols_to_db]
+    df_db_source.columns = [s.translate(str_map) for s in cols_to_db]
+    df_db_source.sort_index(inplace=True)
+
+    df_meta = df.loc[:, cols_to_meta]
+    df_meta.columns = [s.translate(str_map) for s in cols_to_meta]
+
+    df_db_source.replace('BY USER', np.nan, inplace=True)
+
+    # initialize the output loss table
+    # define the columns
+    out_cols = [
+        "Incomplete",
+        "Driver",
+        "Quantity-Unit",
+        "DV-Unit",
+    ]
+    for DS_i in range(1, 16):
+        out_cols += [
+            f"DS{DS_i}-Family",
+            f"DS{DS_i}-Theta_0",
+            f"DS{DS_i}-Theta_1",
+            f"DS{DS_i}-LongLeadTime",
+        ]
+
+    # create the MultiIndex
+    comps = df_db_source.index.values
+    DVs = ['Cost', 'Time']
+    df_MI = pd.MultiIndex.from_product([comps, DVs], names=['ID', 'DV'])
+
+    df_db = pd.DataFrame(
+        columns=out_cols,
+        index=df_MI,
+        dtype=float
+    )
+
+    # initialize the dictionary that stores the loss metadata
+    meta_dict = {}
+
+    convert_family = {
+        'LogNormal': 'lognormal',
+        'Normal': 'normal'
+    }
+
+    # for each component...
+    # (this approach is not efficient, but easy to follow which was considered
+    # more important than efficiency.)
+    for cmp in df_db_source.itertuples():
+
+        # assume the component information is complete
+        incomplete_cost = False
+        incomplete_time = False
+
+        # store units
+
+        df_db.loc[cmp.Index, 'Quantity-Unit'] = (
+            ' '.join(cmp.Fragility_Unit_of_Measure.split(' ')[::-1]).strip())
+        df_db.loc[(cmp.Index, 'Cost'), 'DV-Unit'] = "US$_2011"
+        df_db.loc[(cmp.Index, 'Time'), 'DV-Unit'] = "worker_day"
+
+        # get the raw metadata for the component
+        cmp_meta = df_meta.loc[cmp.Index, :]
+
+        # store the global (i.e., not DS-specific) metadata
+
+        # every component is assumed to have a comp. description
+        comments = cmp_meta['Component_Description']
+
+        # the additional fields are added to the description if they exist
+        if cmp_meta['Construction_Quality'] != 'Not Specified':
+            comments += f'\nConstruction Quality: ' \
+                        f'{cmp_meta["Construction_Quality"]}'
+
+        if cmp_meta['Seismic_Installation_Conditions'] not in [
+            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+            comments += f'\nSeismic Installation Conditions: ' \
+                        f'{cmp_meta["Seismic_Installation_Conditions"]}'
+
+        if cmp_meta['Comments__Notes'] != 'None':
+            comments += f'\nNotes: {cmp_meta["Comments__Notes"]}'
+
+        if cmp_meta['Author'] not in ['Not Given', 'By User']:
+            comments += f'\nAuthor: {cmp_meta["Author"]}'
+
+        # get the suggested block size and replace the misleading values with ea
+        block_size = cmp_meta['Fragility_Unit_of_Measure'].split(' ')[::-1]
+
+        meta_data = {
+            "Description": cmp_meta['Component_Name'],
+            "Comments": comments,
+            "SuggestedComponentBlockSize": ' '.join(block_size),
+            "RoundUpToIntegerQuantity": cmp_meta['Round_to_Integer_Unit'],
+            "ControllingDemand": "Damage Quantity",
+            "DamageStates": {}
+        }
+
+        # Handle components with simultaneous damage states separately
+        if 'Simul' in cmp.DS_Hierarchy:
+
+            # Note that we are assuming that all damage states are triggered by
+            # a single limit state in these components.
+            # This assumption holds for the second edition of FEMA P58, but it
+            # might need to be revisited in future editions.
+
+            cost_est = {}
+            time_est = {}
+
+            # get the p10, p50, and p90 estimates for all damage states
+            for DS_i in range(1, 6):
+
+                if not pd.isna(getattr(cmp, f'Repair_Cost_p10_DS{DS_i}')):
+
+                    cost_est.update({f'DS{DS_i}': np.array([
+                        getattr(cmp, f'Repair_Cost_p10_DS{DS_i}'),
+                        getattr(cmp, f'Repair_Cost_p50_DS{DS_i}'),
+                        getattr(cmp, f'Repair_Cost_p90_DS{DS_i}'),
+                        getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}'),
+                        getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}')
+                    ])})
+
+                    time_est.update({f'DS{DS_i}': np.array([
+                        getattr(cmp, f'Time_p10_DS{DS_i}'),
+                        getattr(cmp, f'Time_p50_DS{DS_i}'),
+                        getattr(cmp, f'Time_p90_DS{DS_i}'),
+                        getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1'),
+                        getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}_1'),
+                        int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES')
+                    ])})
+
+            # now prepare the equivalent mutex damage states
+            sim_ds_count = len(cost_est.keys())
+            ds_count = 2 ** (sim_ds_count) - 1
+
+            for DS_i in range(1, ds_count + 1):
+                ds_map = format(DS_i, f'0{sim_ds_count}b')
+
+                cost_vals = np.sum([cost_est[f'DS{ds_i + 1}']
+                                    if ds_map[-ds_i - 1] == '1' else np.zeros(5)
+                                    for ds_i in range(sim_ds_count)],
+                                   axis=0)
+
+                time_vals = np.sum([time_est[f'DS{ds_i + 1}']
+                                    if ds_map[-ds_i - 1] == '1' else np.zeros(6)
+                                    for ds_i in range(sim_ds_count)],
+                                   axis=0)
+
+                # fit a distribution
+                family_hat, theta_hat = fit_distribution_to_percentiles(
+                    cost_vals[:3], [0.1, 0.5, 0.9], ['normal', 'lognormal'])
+
+                cost_theta = theta_hat
+                if family_hat == 'normal':
+                    cost_theta[1] = cost_theta[1] / cost_theta[0]
+
+                time_theta = [time_vals[1],
+                              np.sqrt(cost_theta[1] ** 2.0 + 0.25 ** 2.0)]
+
+                # Note that here we assume that the cutoff quantities are
+                # identical across damage states.
+                # This assumption holds for the second edition of FEMA P58, but
+                # it might need to be revisited in future editions.
+                cost_qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS1')
+                cost_qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS1')
+                time_qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS1_1')
+                time_qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS1_1')
+
+                # store the results
+                df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = family_hat
+
+                df_db.loc[(cmp.Index,'Cost'), f'DS{DS_i}-Theta_0'] = (
+                    f"{cost_vals[3]:g},{cost_vals[4]:g}|"
+                    f"{cost_qnt_low:g},{cost_qnt_up:g}")
+
+                df_db.loc[(cmp.Index,'Cost'),
+                          f'DS{DS_i}-Theta_1'] = f"{cost_theta[1]:g}"
+
+                df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = family_hat
+
+                df_db.loc[(cmp.Index,'Time'), f'DS{DS_i}-Theta_0'] = (
+                    f"{time_vals[3]:g},{time_vals[4]:g}|"
+                    f"{time_qnt_low:g},{time_qnt_up:g}")
+
+                df_db.loc[(cmp.Index,'Time'),
+                          f'DS{DS_i}-Theta_1'] = f"{time_theta[1]:g}"
+
+                df_db.loc[(cmp.Index, 'Time'),
+                          f'DS{DS_i}-LongLeadTime'] = int(time_vals[5] > 0)
+
+                if ds_map.count('1') == 1:
+
+                    ds_pure_id = ds_map[::-1].find('1') + 1
+
+                    meta_data['DamageStates'].update({f"DS{DS_i}": {
+                        "Description": f"Pure DS{ds_pure_id}. " +
+                                       cmp_meta[f"DS_{ds_pure_id}_Description"],
+                        "RepairAction":
+                            cmp_meta[f"DS_{ds_pure_id}_Repair_Description"]
+                    }})
+
+                else:
+
+                    ds_combo = [f'DS{_.start() + 1}'
+                                for _ in re.finditer('1', ds_map[::-1])]
+
+                    meta_data['DamageStates'].update({f"DS{DS_i}": {
+                        "Description": 'Combination of ' +
+                                       ' & '.join(ds_combo),
+                        "RepairAction": 'Combination of pure DS repair '
+                                        'actions.'
+                    }})
+
+        # for every other component...
+        else:
+            # now look at each Damage State
+            for DS_i in range(1, 6):
+
+                # cost
+                if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}')):
+                    df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}')])
+
+                    if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')):
+
+                        theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')
+                        theta_0_up = getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}')
+                        qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS{DS_i}')
+                        qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}')
+
+                        if theta_0_low == 0. and theta_0_up == 0.:
+                            df_db.loc[(cmp.Index, 'Cost'),
+                                      f'DS{DS_i}-Family'] = np.nan
+
+                        else:
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_0'] = (
+                                f"{theta_0_low:g},{theta_0_up:g}|"
+                                f"{qnt_low:g},{qnt_up:g}")
+
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}'):g}")
+
+                    else:
+                        incomplete_cost = True
+
+                    meta_data['DamageStates'].update({
+                        f"DS{DS_i}": {
+                            "Description": cmp_meta[f"DS_{DS_i}_Description"],
+                            "RepairAction": cmp_meta[f"DS_{DS_i}_Repair_Description"]}})
+
+                # time
+                if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}_1')):
+
+                    df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}_1')])
+
+                    if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')):
+
+                        theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')
+                        theta_0_up = getattr(cmp, f'Upper_Qty_Mean_DS{DS_i}_1')
+                        qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS{DS_i}_1')
+                        qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}_1')
+
+                        if theta_0_low == 0. and theta_0_up == 0.:
+                            df_db.loc[(cmp.Index, 'Time'),
+                                      f'DS{DS_i}-Family'] = np.nan
+
+                        else:
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_0'] = (
+                                f"{theta_0_low:g},{theta_0_up:g}|"
+                                f"{qnt_low:g},{qnt_up:g}")
+
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}_2'):g}")
+
+                        df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = (
+                            int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES'))
+
+                    else:
+                        incomplete_time = True
+
+        df_db.loc[(cmp.Index, 'Cost'), 'Incomplete'] = int(incomplete_cost)
+        df_db.loc[(cmp.Index, 'Time'), 'Incomplete'] = int(incomplete_time)
+
+        # store the metadata for this component
+        meta_dict.update({cmp.Index: meta_data})
+
+    # review the database and drop rows with no information
+    cmp_to_drop = []
+    for cmp in df_db.index:
+
+        empty = True
+
+        for DS_i in range(1, 6):
+            if not pd.isna(df_db.loc[cmp, f'DS{DS_i}-Family']):
+                empty = False
+                break
+
+        if empty:
+            cmp_to_drop.append(cmp)
+
+    df_db.drop(cmp_to_drop, axis=0, inplace=True)
+    for cmp in cmp_to_drop:
+        if cmp[0] in meta_dict.keys():
+            del meta_dict[cmp[0]]
+
+    # rename the index
+    df_db.index.name = "ID"
+
+    # convert to optimal datatypes to reduce file size
+    df_db = df_db.convert_dtypes()
+
+    df_db = convert_to_SimpleIndex(df_db, 0)
+
+    # save the consequence data
+    df_db.to_csv(target_data_file)
+
+    # save the metadata
+    with open(target_meta_file, 'w+') as f:
+        json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the repair consequence data from FEMA "
+          "P58")
+
 def create_HAZUS_EQ_fragility_db(source_file,
-                                 target_data_file='fragility_HAZUS_EQ.csv',
-                                 target_meta_file='fragility_HAZUS_EQ.json'):
+                                 target_data_file='fragility_DB_HAZUS_EQ.csv',
+                                 target_meta_file='fragility_DB_HAZUS_EQ.json'):
     """
     Create a database file based on the HAZUS EQ Technical Manual
 
