@@ -299,8 +299,7 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
     """
 
-    log_div()
-    log_msg(f'Saving data to {filepath}...')
+    log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     filepath = Path(filepath).resolve()
 
@@ -360,23 +359,11 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
         # convert MultiIndex to regular index with '-' separators
         if isinstance(data.index, pd.MultiIndex):
-
-            log_msg(f'Converting MultiIndex to regular index...',
-                    prepend_timestamp=False)
-
-            simple_index = ['-'.join(id) for id in data.index]
-            data.index = simple_index
+            data = convert_to_SimpleIndex(data)
 
         # same thing for the columns
         if isinstance(data.columns, pd.MultiIndex):
-
-            log_msg(f'Converting MultiIndex header to regular header...',
-                    prepend_timestamp=False)
-
-            simple_column = ['-'.join([str(id_i) for id_i in id])
-                             for id in data.columns]
-            data.columns = simple_column
-
+            data = convert_to_SimpleIndex(data, axis=1)
 
         if filepath.suffix == '.csv':
 
@@ -384,15 +371,13 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
             data.to_csv(filepath)
 
-            log_msg(f'File successfully saved.', prepend_timestamp=False)
+            log_msg(f'Data successfully saved to file.',
+                    prepend_timestamp=False)
 
         else:
             raise ValueError(
                 f'ERROR: Unexpected file type received when trying '
                 f'to save to csv: {filepath}')
-
-        log_msg(f'Data successfully saved to file.',
-                prepend_timestamp=False)
 
     else:
         log_msg(f'WARNING: Data was empty, no file saved.',
@@ -439,7 +424,6 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
         returned if return_units is set to True.
     """
 
-    log_div()
     log_msg(f'Loading data from {filepath}...')
 
     # check if the filepath is valid
@@ -546,6 +530,10 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
     else:
         return data
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# LEGACY CODE
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def convert_units(self):
     """

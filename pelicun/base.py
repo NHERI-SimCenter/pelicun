@@ -240,6 +240,43 @@ def set_options(config_options):
             elif key == "NonDirectionalMultipliers":
                 options.nondir_multi_dict = value
 
+def convert_to_SimpleIndex(data, axis=0):
+    """
+    Converts the index of a DataFrame to a simple, one-level index
+
+    The target index uses standard SimCenter convention to identify different
+    levels: a dash character ('-') is used to separate each level of the index.
+
+    Parameters
+    ----------
+    data: DataFrame
+        The DataFrame that will be modified.
+    axis: int
+        Identifies if the index (0) or the columns (1) shall be edited.
+
+    Returns
+    -------
+    data: DataFrame
+        The modified DataFrame
+    """
+
+
+
+    if axis == 0:
+        simple_index = ['-'.join([str(id_i) for id_i in id])
+                        for id in data.index]
+        data.index = simple_index
+
+    elif axis == 1:
+        simple_index = ['-'.join([str(id_i) for id_i in id])
+                        for id in data.columns]
+        data.columns = simple_index
+
+    else:
+        raise ValueError(f"Invalid axis parameter: {axis}")
+
+    return data
+
 def convert_to_MultiIndex(data, axis=0):
     """
     Converts the index of a DataFrame to a MultiIndex
