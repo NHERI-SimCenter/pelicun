@@ -1191,7 +1191,10 @@ def create_FEMA_P58_bldg_injury_db(source_file,
                             if (pd.isna(theta_0) or pd.isna(theta_1) or
                                 pd.isna(A_affected)):
 
-                                locals()[f'incomplete_{severity}'] = True
+                                if severity == 'S1':
+                                    incomplete_S1 = True
+                                else:
+                                    incomplete_S2 = True
 
                 if ~np.isnan(casualty_flag):
 
@@ -1246,6 +1249,253 @@ def create_FEMA_P58_bldg_injury_db(source_file,
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the injury consequence data from FEMA "
+          "P58")
+
+def create_FEMA_P58_bldg_redtag_db(source_file,
+                                   target_data_file='bldg_redtag_DB_FEMA_P58_2nd.csv',
+                                   target_meta_file='bldg_redtag_DB_FEMA_P58_2nd.json'):
+    """
+    Create an red tag consequence parameter database based on the FEMA P58 data
+
+    The method was developed to process v3.1.2 of the FragilityDatabase xls
+    that is provided with FEMA P58 2nd edition.
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the fragility database file.
+    target_data_file: string
+        Path where the consequence data file should be saved. A csv file is
+        expected.
+    target_meta_file: string
+        Path where the consequence metadata should be saved. A json file is
+        expected.
+
+    """
+
+    # parse the source file
+    df = pd.read_excel(source_file, sheet_name='Summary', header=2, index_col=1,
+                       true_values=["YES", "Yes", "yes"],
+                       false_values=["NO", "No", "no"])
+
+    # take another pass with booleans because the first does not always work
+    for true_str in ["YES", "Yes", "yes"]:
+        df.replace(true_str, True, inplace=True)
+
+    for false_str in ["NO", "No", "no"]:
+        df.replace(false_str, False, inplace=True)
+
+    # remove empty rows and columns
+    df.dropna(axis=0, how='all', inplace=True)
+    df.dropna(axis=1, how='all', inplace=True)
+
+    # filter the columns we need for the injury database
+    cols_to_db = [
+        'DS Hierarchy',
+    ]
+    for DS_i in range(1, 6):
+        cols_to_db += [
+            f'DS {DS_i}, Unsafe Placard Trigger Flag',
+            f'DS {DS_i}, Unsafe Placard Damage Median',
+            f'DS {DS_i}, Unsafe Placard Damage Dispersion'
+        ]
+
+    # filter the columns that we need for the metadata
+    cols_to_meta = [
+        "Component Name",
+        "Component Description",
+        "Construction Quality:",
+        "Seismic Installation Conditions:",
+        "Comments / Notes",
+        "Author",
+        "Fragility Unit of Measure",
+        "Round to Integer Unit?",
+        "DS 1, Description",
+        "DS 2, Description",
+        "DS 3, Description",
+        "DS 4, Description",
+        "DS 5, Description",
+    ]
+
+    # remove special characters to make it easier to work with column names
+    str_map = {
+        ord(' '): "_",
+        ord('.'): "_",
+        ord('-'): "_",
+        ord(':'): None,
+        ord('('): None,
+        ord(')'): None,
+        ord('?'): None,
+        ord('/'): None,
+        ord(','): None,
+    }
+
+    df_db_source = df.loc[:, cols_to_db]
+    df_db_source.columns = [s.translate(str_map) for s in cols_to_db]
+    df_db_source.sort_index(inplace=True)
+
+    df_meta = df.loc[:, cols_to_meta]
+    df_meta.columns = [s.translate(str_map) for s in cols_to_meta]
+
+    df_db_source.replace('BY USER', np.nan, inplace=True)
+    df_db_source.replace('By User', np.nan, inplace=True)
+
+    # initialize the output loss table
+    # define the columns
+    out_cols = [
+        "Incomplete",
+    ]
+    for DS_i in range(1, 6):
+        out_cols += [
+            f"DS{DS_i}-Family",
+            f"DS{DS_i}-Theta_0",
+            f"DS{DS_i}-Theta_1"
+        ]
+
+    # create the database index
+    comps = df_db_source.index.values
+
+    df_db = pd.DataFrame(
+        columns=out_cols,
+        index=comps,
+        dtype=float
+    )
+
+    # initialize the dictionary that stores the loss metadata
+    meta_dict = {}
+
+    # for each component...
+    # (this approach is not efficient, but easy to follow which was considered
+    # more important than efficiency.)
+    for cmp in df_db_source.itertuples():
+
+        # assume the component information is complete
+        incomplete = False
+
+        # get the raw metadata for the component
+        cmp_meta = df_meta.loc[cmp.Index, :]
+
+        # store the global (i.e., not DS-specific) metadata
+
+        # every component is assumed to have a comp. description
+        comments = cmp_meta['Component_Description']
+
+        # the additional fields are added to the description if they exist
+        if cmp_meta['Construction_Quality'] != 'Not Specified':
+            comments += f'\nConstruction Quality: ' \
+                        f'{cmp_meta["Construction_Quality"]}'
+
+        if cmp_meta['Seismic_Installation_Conditions'] not in [
+            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+            comments += f'\nSeismic Installation Conditions: ' \
+                        f'{cmp_meta["Seismic_Installation_Conditions"]}'
+
+        if cmp_meta['Comments__Notes'] != 'None':
+            comments += f'\nNotes: {cmp_meta["Comments__Notes"]}'
+
+        if cmp_meta['Author'] not in ['Not Given', 'By User']:
+            comments += f'\nAuthor: {cmp_meta["Author"]}'
+
+        # get the suggested block size and replace the misleading values with ea
+        block_size = cmp_meta['Fragility_Unit_of_Measure'].split(' ')[::-1]
+
+        meta_data = {
+            "Description": cmp_meta['Component_Name'],
+            "Comments": comments,
+            "SuggestedComponentBlockSize": ' '.join(block_size),
+            "RoundUpToIntegerQuantity": cmp_meta['Round_to_Integer_Unit'],
+            "ControllingDemand": "Damage Quantity",
+            "DamageStates": {}
+        }
+
+
+
+        # Handle components with simultaneous damage states separately
+        if 'Simul' in cmp.DS_Hierarchy:
+
+            pass
+            # Note that we are assuming that components with simultaneous
+            # damage states do not have damage that would trigger a red tag.
+            # This assumption holds for the second edition of FEMA P58, but it
+            # might need to be revisited in future editions.
+
+        # for every other component...
+        else:
+            # now look at each Damage State
+            for DS_i in range(1, 6):
+
+                redtag_flag = getattr(
+                    cmp, f'DS_{DS_i}_Unsafe_Placard_Trigger_Flag')
+
+                if redtag_flag==True:
+
+                    theta_0 = getattr(cmp, f'DS_{DS_i}_Unsafe_Placard_Damage_'
+                                           f'Median')
+                    theta_1 = getattr(cmp, f'DS_{DS_i}_Unsafe_Placard_Damage_'
+                                           f'Dispersion')
+
+                    if theta_0 != 0.0:
+
+                        df_db.loc[cmp.Index, f'DS{DS_i}-Family'] = 'lognormal'
+
+                        df_db.loc[cmp.Index, f'DS{DS_i}-Theta_0'] = theta_0
+
+                        df_db.loc[cmp.Index, f'DS{DS_i}-Theta_1'] = theta_1
+
+                        if (pd.isna(theta_0) or pd.isna(theta_1)):
+
+                            incomplete = True
+
+                if ~np.isnan(redtag_flag):
+
+                    meta_data['DamageStates'].update({
+                        f"DS{DS_i}": {"Description":
+                                          cmp_meta[f"DS_{DS_i}_Description"]}})
+
+        df_db.loc[cmp.Index, 'Incomplete'] = int(incomplete)
+
+        # store the metadata for this component
+        meta_dict.update({cmp.Index: meta_data})
+
+    # review the database and drop rows with no information
+    cmp_to_drop = []
+    for cmp in df_db.index:
+
+        empty = True
+
+        for DS_i in range(1, 6):
+            if not pd.isna(df_db.loc[cmp, f'DS{DS_i}-Family']):
+                empty = False
+                break
+
+        if empty:
+            cmp_to_drop.append(cmp)
+
+    df_db.drop(cmp_to_drop, axis=0, inplace=True)
+    cmp_kept = df_db.index.get_level_values(0).unique()
+
+    cmp_to_drop = []
+    for cmp in meta_dict.keys():
+        if cmp not in cmp_kept:
+            cmp_to_drop.append(cmp)
+
+    for cmp in cmp_to_drop:
+        del meta_dict[cmp]
+
+    # convert to optimal datatypes to reduce file size
+    df_db = df_db.convert_dtypes()
+
+    # rename the index
+    df_db.index.name = "ID"
+
+    # save the consequence data
+    df_db.to_csv(target_data_file)
+
+    # save the metadata
+    with open(target_meta_file, 'w+') as f:
+        json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the red tag consequence data from FEMA "
           "P58")
 
 def create_HAZUS_EQ_fragility_db(source_file,
