@@ -1880,7 +1880,7 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     df_db = convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
-    #df_db.set_index("ID", inplace=True)
+    df_db.index.name = "ID"
 
     # convert to optimal datatypes to reduce file size
     df_db = df_db.convert_dtypes()
@@ -1893,6 +1893,137 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     #    json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the repair consequence data from Hazus "
+          "EQ")
+
+def create_Hazus_EQ_bldg_injury_db(source_file,
+                                   target_data_file='bldg_injury_DB_Hazus_EQ.csv',
+                                   target_meta_file='bldg_injury_DB_Hazus_EQ.json'):
+    """
+    Create a database file based on the HAZUS EQ Technical Manual
+
+    This method was developed to process a json file with tabulated data from
+    v4.2.3 of the Hazus Earthquake Technical Manual. The json file is included
+    in the resources folder of pelicun
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the Hazus database file.
+    target_data_file: string
+        Path where the injury DB file should be saved. A csv file is
+        expected.
+    target_meta_file: string
+        Path where the injury DB metadata should be saved. A json file is
+        expected.
+
+    """
+
+    # parse the source file
+    with open(source_file, 'r') as f:
+        raw_data = json.load(f)
+
+    # prepare lists of labels for various building features
+    building_types = list(
+        raw_data['Structural_Fragility_Groups']['P_collapse'].keys())
+
+    # initialize the output loss table
+    # define the columns
+    out_cols = [
+        "Incomplete",
+        "Quantity-Unit",
+        "DV-Unit",
+    ]
+    for DS_i in range(1, 6):
+        out_cols += [
+            f"DS{DS_i}-Theta_0",
+        ]
+
+    # create the MultiIndex
+    cmp_types = ['STR', 'LF']
+    comps = [f'{cmp_type}.{bt}'
+             for cmp_type in cmp_types for bt in building_types]
+    DVs = ['S1', 'S2', 'S3', 'S4']
+    df_MI = pd.MultiIndex.from_product([comps, DVs], names=['ID', 'DV'])
+
+    df_db = pd.DataFrame(
+        columns=out_cols,
+        index=df_MI,
+        dtype=float
+    )
+
+    # First, prepare the structural damage consequences
+    S_data = raw_data['Structural_Fragility_Groups']
+
+    for bt in building_types:
+
+        # create the component id
+        cmp_id = f'STR.{bt}'
+
+        # store the consequence values for each Damage State
+        for DS_i in range(1, 6):
+
+            # DS5 is stored under 'collapse'
+            if DS_i == 5:
+                ds_i = 'Collapse'
+            else:
+                ds_i = f'DS{DS_i}'
+
+            for S_i in range(1,5):
+                s_label = f'S{S_i}'
+                df_db.loc[(cmp_id, s_label), f'DS{DS_i}-Theta_0'] = (
+                    S_data['Injury_rates'][ds_i][bt][S_i-1])
+
+    # Second, the lifeline facilities
+    LF_data = raw_data['Lifeline_Facilities']
+
+    for bt in building_types:
+
+        # create the component id
+        cmp_id = f'STR.{bt}'
+
+        # store the consequence values for each Damage State
+        for DS_i in range(1, 6):
+
+            # DS5 is stored under 'collapse'
+            if DS_i == 5:
+                ds_i = 'Collapse'
+            else:
+                ds_i = f'DS{DS_i}'
+
+            for S_i in range(1, 5):
+                s_label = f'S{S_i}'
+                df_db.loc[(cmp_id, s_label), f'DS{DS_i}-Theta_0'] = (
+                    S_data['Injury_rates'][ds_i][bt][S_i - 1])
+
+    # remove empty rows
+    df_db.dropna(how='all', inplace=True)
+
+    # All Hazus components have complete fragility info,
+    df_db.loc[:, 'Incomplete'] = 0
+
+    # The damage quantity unit is the same for all consequence values
+    df_db.loc[:, 'Quantity-Unit'] = "1 EA"
+
+    # The output units are also indentical among all components
+    df_db.loc[:, 'DV-Unit'] = "injury_rate"
+
+    # convert to simple index
+    df_db = convert_to_SimpleIndex(df_db, 0)
+
+    # rename the index
+    df_db.index.name = "ID"
+
+    # convert to optimal datatypes to reduce file size
+    df_db = df_db.convert_dtypes()
+
+    # save the consequence data
+    df_db.to_csv(target_data_file)
+
+    # save the metadata - later
+    #with open(target_meta_file, 'w+') as f:
+    #    json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the injury consequence data from Hazus "
           "EQ")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
