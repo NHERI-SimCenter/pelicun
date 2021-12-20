@@ -1498,9 +1498,9 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
     print("Successfully parsed and saved the red tag consequence data from FEMA "
           "P58")
 
-def create_HAZUS_EQ_fragility_db(source_file,
-                                 target_data_file='fragility_DB_HAZUS_EQ.csv',
-                                 target_meta_file='fragility_DB_HAZUS_EQ.json'):
+def create_Hazus_EQ_fragility_db(source_file,
+                                 target_data_file='fragility_DB_Hazus_EQ.csv',
+                                 target_meta_file='fragility_DB_Hazus_EQ.json'):
     """
     Create a database file based on the HAZUS EQ Technical Manual
 
@@ -1726,6 +1726,174 @@ def create_HAZUS_EQ_fragility_db(source_file,
     #    json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the fragility data from Hazus EQ")
+
+def create_Hazus_EQ_bldg_repair_db(source_file,
+                                   target_data_file='bldg_repair_DB_Hazus_EQ.csv',
+                                   target_meta_file='bldg_repair_DB_Hazus_EQ.json'):
+    """
+    Create a database file based on the HAZUS EQ Technical Manual
+
+    This method was developed to process a json file with tabulated data from
+    v4.2.3 of the Hazus Earthquake Technical Manual. The json file is included
+    in the resources folder of pelicun
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the Hazus database file.
+    target_data_file: string
+        Path where the repair DB file should be saved. A csv file is
+        expected.
+    target_meta_file: string
+        Path where the repair DB metadata should be saved. A json file is
+        expected.
+
+    """
+
+    # parse the source file
+    with open(source_file, 'r') as f:
+        raw_data = json.load(f)
+
+    # prepare lists of labels for various building features
+    occupancies = list(
+        raw_data['Structural_Fragility_Groups']['Repair_cost'].keys())
+
+    # initialize the output loss table
+    # define the columns
+    out_cols = [
+        "Incomplete",
+        "Quantity-Unit",
+        "DV-Unit",
+    ]
+    for DS_i in range(1, 6):
+        out_cols += [
+            f"DS{DS_i}-Theta_0",
+        ]
+
+    # create the MultiIndex
+    cmp_types = ['STR', 'NSD', 'NSA', 'LF']
+    comps = [f'{cmp_type}.{occ_type}'
+             for cmp_type in cmp_types for occ_type in occupancies]
+    DVs = ['Cost', 'Time']
+    df_MI = pd.MultiIndex.from_product([comps, DVs], names=['ID', 'DV'])
+
+    df_db = pd.DataFrame(
+        columns=out_cols,
+        index=df_MI,
+        dtype=float
+    )
+
+    # First, prepare the structural damage consequences
+    S_data = raw_data['Structural_Fragility_Groups']
+
+    for occ_type in occupancies:
+
+        # create the component id
+        cmp_id = f'STR.{occ_type}'
+
+        # store the consequence values for each Damage State
+        for DS_i in range(1, 6):
+
+            # DS4 and DS5 have identical repair consequences
+            if DS_i == 5:
+                ds_i = 4
+            else:
+                ds_i = DS_i
+
+            df_db.loc[
+                (cmp_id, 'Cost'),
+                f'DS{DS_i}-Theta_0'] = S_data['Repair_cost'][occ_type][ds_i-1]
+
+            df_db.loc[
+                (cmp_id, 'Time'),
+                f'DS{DS_i}-Theta_0'] = S_data['Repair_time'][occ_type][ds_i-1]
+
+    # Second, the non-structural drift sensitive one
+    NSD_data = raw_data['NonStructural_Drift_Sensitive_Fragility_Groups']
+
+    for occ_type in occupancies:
+
+        # create the component id
+        cmp_id = f'NSD.{occ_type}'
+
+        # store the consequence values for each Damage State
+        for DS_i in range(1, 5):
+
+            df_db.loc[
+                (cmp_id, 'Cost'),
+                f'DS{DS_i}-Theta_0'] = NSD_data['Repair_cost'][occ_type][DS_i-1]
+
+    # Third, the non-structural acceleration sensitive fragilities
+    NSA_data = raw_data['NonStructural_Acceleration_Sensitive_Fragility_Groups']
+
+    for occ_type in occupancies:
+
+        # create the component id
+        cmp_id = f'NSA.{occ_type}'
+
+        # store the consequence values for each Damage State
+        for DS_i in range(1, 5):
+
+            df_db.loc[
+                (cmp_id, 'Cost'),
+                f'DS{DS_i}-Theta_0'] = NSA_data['Repair_cost'][occ_type][DS_i-1]
+
+    # Fourth, the lifeline facilities
+    LF_data = raw_data['Lifeline_Facilities']
+
+    for occ_type in occupancies:
+
+        # create the component id
+        cmp_id = f'LF.{occ_type}'
+
+        # store the consequence values for each Damage State
+        for DS_i in range(1, 6):
+
+            # DS4 and DS5 have identical repair consequences
+            if DS_i == 5:
+                ds_i = 4
+            else:
+                ds_i = DS_i
+
+            df_db.loc[
+                (cmp_id, 'Cost'),
+                f'DS{DS_i}-Theta_0'] = LF_data['Repair_cost'][occ_type][ds_i - 1]
+
+            df_db.loc[
+                (cmp_id, 'Time'),
+                f'DS{DS_i}-Theta_0'] = LF_data['Repair_time'][occ_type][ds_i - 1]
+
+    # remove empty rows (from the end)
+    df_db.dropna(how='all', inplace=True)
+
+    # All Hazus components have complete fragility info,
+    df_db.loc[:, 'Incomplete'] = 0
+
+    # The damage quantity unit is the same for all consequence values
+    df_db.loc[:, 'Quantity-Unit'] = "1 EA"
+
+    # The output units are also indentical among all components
+    df_db.loc[idx[:, 'Cost'], 'DV-Unit'] = "loss_ratio"
+    df_db.loc[idx[:, 'Time'], 'DV-Unit'] = "day"
+
+    # convert to simple index
+    df_db = convert_to_SimpleIndex(df_db, 0)
+
+    # rename the index
+    #df_db.set_index("ID", inplace=True)
+
+    # convert to optimal datatypes to reduce file size
+    df_db = df_db.convert_dtypes()
+
+    # save the consequence data
+    df_db.to_csv(target_data_file)
+
+    # save the metadata - later
+    #with open(target_meta_file, 'w+') as f:
+    #    json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the repair consequence data from Hazus "
+          "EQ")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # LEGACY CODE
