@@ -60,9 +60,13 @@ class Assessment(object):
 
     Parameters
     ----------
-    demand: DemandModel()
+    demand: DemandModel
         ...
-    damage: DamageModel()
+    asset: AssetModel
+        ...
+    damage: DamageModel
+        ...
+    bldg_repair: BldgRepairModel
         ...
     stories: int
         Number of stories.
@@ -121,3 +125,17 @@ class Assessment(object):
         else:
             self._damage = DamageModel(self)
             return self.damage
+
+    @property
+    def bldg_repair(self):
+        """
+        Return an BldgRepairModel object that manages the repair information.
+
+        """
+
+        if hasattr(self, '_bldg_repair'):
+            return self._bldg_repair
+
+        else:
+            self._bldg_repair = BldgRepairModel(self)
+            return self.bldg_repair

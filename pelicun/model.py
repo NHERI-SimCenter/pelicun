@@ -1597,6 +1597,72 @@ class DamageModel(object):
 
         log_msg(f'Damage calculation successfully completed.')
 
+class LossModel(object):
+    """
+    Parent object for loss models.
+
+    All loss assessment methods should be children of this class.
+
+    Parameters
+    ----------
+
+    """
+
+    def __init__(self, assessment):
+
+        self._asmnt = assessment
+
+        self._sample = None
+
+    @property
+    def sample(self):
+
+        return self._sample
+
+    def save_sample(self, filepath):
+        """
+        Save loss sample to a csv file
+
+        """
+        log_div()
+        log_msg(f'Saving loss sample...')
+
+        save_to_csv(self.sample, filepath)
+
+        log_msg(f'Loss sample successfully saved.', prepend_timestamp=False)
+
+    def load_sample(self, filepath):
+        """
+        Load damage sample data.
+
+        """
+        log_div()
+        log_msg(f'Loading loss sample...')
+
+        self._sample = load_from_csv(filepath)
+
+        log_msg(f'Loss sample successfully loaded.', prepend_timestamp=False)
+
+class BldgRepairModel(LossModel):
+    """
+    Manages building repair consequence assessments.
+
+    Parameters
+    ----------
+
+    """
+
+    def __init__(self, assessment):
+        super(BldgRepairModel, self).__init__(assessment)
+
+    def load_model(self, data_paths, mapping_path):
+
+        pass
+
+    def calculate(self, sample_size):
+
+        pass
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # LEGACY CODE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
