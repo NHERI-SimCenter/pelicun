@@ -9,6 +9,7 @@
       "PFA": -1,
       "PFV": -1
     },
+    "SamplingMethod": "LHS_midpoint",
     "NonDirectionalMultipliers": {
       "ALL": 1.2
     }

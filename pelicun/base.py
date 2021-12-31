@@ -92,6 +92,7 @@ class Options(object):
         self._print_log = False
 
         self.defaults = None
+        self.sampling_method = None
 
         self._seed = None
         self._rng = np.random.default_rng()
@@ -235,6 +236,8 @@ def set_options(config_options):
                 options.log_file = value
             elif key == "PrintLog":
                 options.print_log = value
+            elif key == "SamplingMethod":
+                options.sampling_method = value
             elif key == "DemandOffset":
                 options.demand_offset = value
             elif key == "NonDirectionalMultipliers":

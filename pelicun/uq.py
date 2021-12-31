@@ -1353,7 +1353,7 @@ class RandomVariableRegistry(object):
         return dict([(name, rv.sample) for name, rv in self.RV.items()])
 
 
-    def generate_sample(self, sample_size, method='LHS_midpoint'):
+    def generate_sample(self, sample_size, method=None):
         """
         Generates samples for all variables in the registry.
 
@@ -1362,8 +1362,8 @@ class RandomVariableRegistry(object):
 
         sample_size: int
             The number of samples requested per variable.
-        method: {'random', 'LHS', 'LHS_midpoint'}, optional
-            The sample generation method to use. 'random' stands for
+        method: {'MonteCarlo', 'LHS', 'LHS_midpoint'}, optional
+            The sample generation method to use. 'MonteCarlo' stands for
             conventional random sampling; 'LHS' is Latin HyperCube Sampling
             with random sample location within each bin of the hypercube;
             'LHS_midpoint' is like LHS, but the samples are assigned to the
@@ -1371,6 +1371,9 @@ class RandomVariableRegistry(object):
         seed: int, optional
             Random seed used for sampling.
         """
+        if method is None:
+            method = options.sampling_method
+
         # Initialize the random number generator
         rng = options.rng
 
@@ -1394,7 +1397,7 @@ class RandomVariableRegistry(object):
                 U_RV = rng.random(size=[RV_count, sample_size])
                 U_RV = (bin_low + U_RV) / sample_size
 
-        elif method == 'random':
+        elif method == 'MonteCarlo':
             U_RV = rng.random(size=[RV_count, sample_size])
 
         # Assign the controlling samples to the RVs
