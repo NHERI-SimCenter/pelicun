@@ -1,0 +1,8 @@
+name: pelicun
+dependencies:
+  - python=3.5
+  - numpy
+  - scipy
+  - pandas
+  - sphinx
+  - numpydoc

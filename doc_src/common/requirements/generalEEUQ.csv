@@ -1,0 +1,14 @@
+EE1, "Ability to determine response of Building Subject to Earthquake hazard including formal treatment of randomness and uncertainty uncertainty", GC, M , 1.0   
+EE2, "Ability of Practicing Engineers to use multiple coupled resources (applications, databases, viz tools) in engineering practice", GC, M, 1.0
+EE3, "Ability to utilize resources beyond the desktop including HPC ", GC, M, 1.0  
+EE4, "Tool should incorporate data from www ", GC, M, 1.0  
+EE5, "Tool available for download from web ", GC, M, 1.0  
+EE6, "Ability to benefit from programs that move research results into practice and obtain training ", GC, M, 
+EE7, "Ability to use educational provisions to gain interdisclipinary education so as to gain expertise in earth sciences and physics, engineering mechanics, geotechnical engineering, and structural engineering in order to be qualified to perform these simulations ", GC, D,  
+EE8, "Documentation exists on tool usage ", SP, M, 1.1   
+EE9, "Video Exists demonstrating usage ", SP, M, 1.1   
+EE10, "Verification Examples Exist ", SP, M, 1.1  
+EE11, "Validation Examples Exist, validated against tests or other software ", GC, M,
+EE12, "Tool to allow user to load and save user inputs ", SP, M, 1.0  
+EE13, "Add to Standard Earthquake a variable indicating analysis failure ", UF, D,    
+EE14, "Installer which installs application and all needed software ", UF, D,    

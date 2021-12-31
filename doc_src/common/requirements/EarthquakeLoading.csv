@@ -1,0 +1,18 @@
+EL, "Ability to select from different Earthquake Input Motion Options", SP, M, 1.0   
+EL1, "Ability to select from Multiple input motions and view UQ due to all the discrete events ", GC, M, 1.0   
+EL2, "Ability to select from list of SimCenter motions ", SP, M, 1.0  
+EL3, "Ability to select from list of PEER motions ", SP, D, 1.0  
+EL4, "Ability to use OpenSHA and selection methods to generate motions ", UF, D, 1.0  
+EL5, "Ability to Utilize Own Application in Workflow ", SP, M, 1.0  
+EL6, "Ability to use Broadband ", SP, D,   
+EL7, "Ability to include Soil Structure Interaction Effects ", GC, M, 1.1   
+EL7.1, "1D nonlinear site response with effective stress analysis ", SP, M, 1.1   
+EL7.2, "Nonlinear site response with bidirectional loading ", SP, M, 1.2   
+EL7.3, "Nonlinear site response with full stochastic characterization of soil layers ", SP, M,   
+EL7.4, "Nonlinear site response, bidirectional different input motions  ", SP, M,    
+EL7.5, "Ability to couple models from point of rupture through rock and soil into structure, which represents future of professional design practice ", GC, M,    
+EL7.5.1, "Interface using DRM method", SP, M,    
+EL8, "Utilize PEER NGA www ground motion selection tool", UF, D, 2.0  
+EL9, "Ability to select from synthetic ground motions", SP, M, 1.0  
+EL9.1, "per Vlachos, Papakonstantinou, Deodatis (2017)", SP, D, 1.1   
+EL9.2, "per Dabaghi, Der Kiureghian (2017)", UF, D, 2.0   

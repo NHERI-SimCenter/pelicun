@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pelicun.auto &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../index.html">
+
+
+
+  
+  <img src="../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../common/developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>pelicun.auto</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pelicun.auto</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module has classes and methods that auto-populate DL models.</span>
+
+<span class="sd">.. rubric:: Contents</span>
+
+<span class="sd">.. autosummary::</span>
+
+<span class="sd">    auto_populate</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">ap_DesignLevel</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1940</span><span class="p">:</span> <span class="s1">&#39;Pre-Code&#39;</span><span class="p">,</span>
+    <span class="mi">1940</span><span class="p">:</span> <span class="s1">&#39;Low-Code&#39;</span><span class="p">,</span>
+    <span class="mi">1975</span><span class="p">:</span> <span class="s1">&#39;Moderate-Code&#39;</span><span class="p">,</span>
+    <span class="mi">2100</span><span class="p">:</span> <span class="s1">&#39;High-Code&#39;</span>
+<span class="p">}</span>
+
+<span class="n">ap_DesignLevel_W1</span> <span class="o">=</span> <span class="p">{</span>
+       <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Pre-Code&#39;</span><span class="p">,</span>
+       <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Low-Code&#39;</span><span class="p">,</span>
+    <span class="mi">1975</span><span class="p">:</span> <span class="s1">&#39;Moderate-Code&#39;</span><span class="p">,</span>
+    <span class="mi">2100</span><span class="p">:</span> <span class="s1">&#39;High-Code&#39;</span>
+<span class="p">}</span>
+
+<span class="n">ap_Occupancy</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Other/Unknown&#39;</span><span class="p">:</span> <span class="s1">&#39;RES3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Residential - Single-Family&#39;</span><span class="p">:</span> <span class="s1">&#39;RES1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Residential - Town-Home&#39;</span><span class="p">:</span> <span class="s1">&#39;RES3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Residential - Multi-Family&#39;</span><span class="p">:</span> <span class="s1">&#39;RES3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Residential - Mixed Use&#39;</span><span class="p">:</span> <span class="s1">&#39;RES3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Office&#39;</span><span class="p">:</span> <span class="s1">&#39;COM4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Hotel&#39;</span><span class="p">:</span> <span class="s1">&#39;RES4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;School&#39;</span><span class="p">:</span> <span class="s1">&#39;EDU1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Industrial - Light&#39;</span><span class="p">:</span> <span class="s1">&#39;IND2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Industrial - Warehouse&#39;</span><span class="p">:</span> <span class="s1">&#39;IND2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Industrial - Heavy&#39;</span><span class="p">:</span> <span class="s1">&#39;IND1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Retail&#39;</span><span class="p">:</span> <span class="s1">&#39;COM1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Parking&#39;</span> <span class="p">:</span> <span class="s1">&#39;COM10&#39;</span>
+<span class="p">}</span>
+
+<span class="n">convert_design_level</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;High-Code&#39;</span>    <span class="p">:</span> <span class="s1">&#39;HC&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Moderate-Code&#39;</span><span class="p">:</span> <span class="s1">&#39;MC&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Low-Code&#39;</span>     <span class="p">:</span> <span class="s1">&#39;LC&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Pre-Code&#39;</span>     <span class="p">:</span> <span class="s1">&#39;PC&#39;</span>
+    <span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">story_scale</span><span class="p">(</span><span class="n">stories</span><span class="p">,</span> <span class="n">comp_type</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">comp_type</span> <span class="o">==</span> <span class="s1">&#39;NSA&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.00</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.22</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.40</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.45</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.50</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.90</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">2.05</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">2.15</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">2.20</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">stories</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">stories</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mf">2.30</span> <span class="o">+</span> <span class="p">(</span><span class="n">stories</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="o">*</span><span class="mf">0.04</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">&gt;=</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">3.10</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
+
+    <span class="k">elif</span> <span class="n">comp_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="s1">&#39;NSD&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.45</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.90</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">2.50</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">2.75</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">3.00</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">3.50</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">3.50</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">3.50</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">==</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">4.50</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">stories</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">stories</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mf">4.50</span> <span class="o">+</span> <span class="p">(</span><span class="n">stories</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span><span class="o">*</span><span class="mf">0.07</span>
+        <span class="k">elif</span> <span class="n">stories</span> <span class="o">&gt;=</span> <span class="mi">50</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">7.30</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">1.0</span>
+
+<div class="viewcode-block" id="auto_populate"><a class="viewcode-back" href="../../common/developer_manual/API/pelicun/API_pelicun_auto.html#pelicun.auto.auto_populate">[docs]</a><span class="k">def</span> <span class="nf">auto_populate</span><span class="p">(</span><span class="n">DL_input_path</span><span class="p">,</span> <span class="n">EDP_input_path</span><span class="p">,</span>
+                  <span class="n">DL_method</span><span class="p">,</span> <span class="n">realization_count</span><span class="p">,</span> <span class="n">coupled_EDP</span><span class="p">,</span> <span class="n">event_time</span><span class="p">,</span>
+                  <span class="n">ground_failure</span><span class="p">,</span> <span class="n">auto_script_path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Short description</span>
+
+<span class="sd">    Assumptions:</span>
+<span class="sd">    - The BIM is stored under &#39;GeneralInformation&#39; or &#39;GI&#39; in the root of</span>
+<span class="sd">    DL_input</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    DL_input_path:</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DL_input</span>
+<span class="sd">    DL_ap_path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c1"># load the available DL input information</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DL_input_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">DL_input</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># get the BIM data</span>
+    <span class="n">BIM</span> <span class="o">=</span> <span class="n">DL_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GeneralInformation&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">BIM</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;No Building Information provided for the auto-population routine.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">auto_script_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># if an external auto pop script is provided</span>
+
+        <span class="c1"># load the module</span>
+        <span class="n">ASP</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">auto_script_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ASP</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">auto_script</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">__import__</span><span class="p">(</span><span class="n">ASP</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">auto_populate_ext</span> <span class="o">=</span> <span class="n">auto_script</span><span class="o">.</span><span class="n">auto_populate</span>
+
+        <span class="c1"># generate the DL input data</span>
+        <span class="n">BIM_ap</span><span class="p">,</span> <span class="n">DL_ap</span> <span class="o">=</span> <span class="n">auto_populate_ext</span><span class="p">(</span><span class="n">BIM</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">)</span>
+
+        <span class="c1"># add the response model information</span>
+        <span class="n">DL_ap</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s1">&#39;ResponseModel&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;ResponseDescription&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;EDP_Distribution&#39;</span><span class="p">:</span> <span class="s1">&#39;empirical&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;Realizations&#39;</span>    <span class="p">:</span> <span class="n">realization_count</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">})</span>
+
+        <span class="c1"># add the even time information - if needed</span>
+        <span class="k">if</span> <span class="n">event_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">DL_ap</span><span class="p">[</span><span class="s1">&#39;LossModel&#39;</span><span class="p">][</span><span class="s1">&#39;Inhabitants&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;EventTime&#39;</span><span class="p">:</span> <span class="n">event_time</span><span class="p">})</span>
+
+        <span class="c1"># assemble the extended DL input</span>
+        <span class="n">DL_input</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;BIM_Inferred&#39;</span><span class="p">:</span> <span class="n">BIM_ap</span><span class="p">})</span>
+        <span class="n">DL_input</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;DamageAndLoss&#39;</span><span class="p">:</span> <span class="n">DL_ap</span><span class="p">})</span>
+
+        <span class="c1"># save it to the DL file with the ap suffix</span>
+        <span class="n">DL_ap_path</span> <span class="o">=</span> <span class="n">DL_input_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_ap.json&#39;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DL_ap_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">DL_input</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># and also return these information</span>
+        <span class="k">return</span> <span class="n">DL_input</span><span class="p">,</span> <span class="n">DL_ap_path</span>
+
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># otherwise, use the old autopop method</span>
+
+        <span class="n">EDP_input</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">EDP_input_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">is_IM_based</span> <span class="o">=</span> <span class="n">DL_method</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="s1">&#39;IM&#39;</span>
+
+        <span class="n">stories</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;NumberofStories&#39;</span><span class="p">]</span>
+        <span class="c1"># use only 1 story if DM is based on IM</span>
+        <span class="k">if</span> <span class="n">DL_method</span> <span class="o">==</span> <span class="s1">&#39;HAZUS MH EQ IM&#39;</span><span class="p">:</span>
+            <span class="n">stories</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">BIM</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;NumberofStories&#39;</span><span class="p">:</span><span class="n">stories</span><span class="p">})</span>
+
+        <span class="c1"># HAZUS Earthquake</span>
+        <span class="k">if</span> <span class="n">DL_method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;HAZUS MH EQ&#39;</span><span class="p">,</span> <span class="s1">&#39;HAZUS MH EQ IM&#39;</span><span class="p">]:</span>
+
+            <span class="n">bt</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;StructureType&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">bt</span> <span class="o">==</span> <span class="s1">&#39;RV.structType&#39;</span><span class="p">:</span>
+                <span class="n">bt</span> <span class="o">=</span> <span class="n">EDP_input</span><span class="p">[</span><span class="s1">&#39;structType&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">year_built</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;YearBuilt&#39;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">bt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;W1&#39;</span><span class="p">,</span> <span class="s1">&#39;W2&#39;</span><span class="p">,</span> <span class="s1">&#39;S3&#39;</span><span class="p">,</span> <span class="s1">&#39;PC1&#39;</span><span class="p">,</span> <span class="s1">&#39;MH&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">bt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;URM&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">stories</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">bt</span> <span class="o">+=</span> <span class="s1">&#39;L&#39;</span>
+                    <span class="k">elif</span> <span class="n">stories</span> <span class="o">&lt;=</span> <span class="mi">7</span><span class="p">:</span>
+                        <span class="n">bt</span> <span class="o">+=</span> <span class="s1">&#39;M&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">bt</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;RM&#39;</span><span class="p">]:</span>
+                            <span class="n">bt</span> <span class="o">+=</span> <span class="s1">&#39;M&#39;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">bt</span> <span class="o">+=</span> <span class="s1">&#39;H&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">stories</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">bt</span> <span class="o">+=</span> <span class="s1">&#39;L&#39;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">bt</span> <span class="o">+=</span> <span class="s1">&#39;M&#39;</span>
+
+            <span class="k">if</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;OccupancyClass&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ap_Occupancy</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">ot</span> <span class="o">=</span> <span class="n">ap_Occupancy</span><span class="p">[</span><span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;OccupancyClass&#39;</span><span class="p">]]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ot</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;OccupancyClass&#39;</span><span class="p">]</span>
+
+            <span class="n">replacementCost</span> <span class="o">=</span> <span class="n">BIM</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ReplacementCost&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">replacementTime</span> <span class="o">=</span> <span class="n">BIM</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ReplacementTime&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">population</span> <span class="o">=</span> <span class="n">BIM</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Population&#39;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+            <span class="n">loss_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;_method&#39;</span><span class="p">:</span> <span class="n">DL_method</span><span class="p">,</span>
+                <span class="s1">&#39;DamageModel&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;StructureType&#39;</span><span class="p">:</span> <span class="n">bt</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;LossModel&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;DecisionVariables&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;ReconstructionCost&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s1">&#39;ReconstructionTime&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s1">&#39;Injuries&#39;</span><span class="p">:</span> <span class="kc">True</span>
+                    <span class="p">},</span>
+                    <span class="s1">&#39;Inhabitants&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;OccupancyType&#39;</span><span class="p">:</span> <span class="n">ot</span><span class="p">,</span>
+                        <span class="s1">&#39;PeakPopulation&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">population</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="p">},</span>
+                    <span class="s1">&#39;ReplacementCost&#39;</span><span class="p">:</span> <span class="n">replacementCost</span><span class="p">,</span>
+                    <span class="s1">&#39;ReplacementTime&#39;</span><span class="p">:</span> <span class="n">replacementTime</span>
+                <span class="p">},</span>
+                <span class="s1">&#39;ResponseModel&#39;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;ResponseDescription&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s1">&#39;Realizations&#39;</span><span class="p">:</span> <span class="n">realization_count</span><span class="p">,</span>
+                        <span class="s2">&quot;CoupledAssessment&quot;</span><span class="p">:</span> <span class="n">coupled_EDP</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;Dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;Fragilities&quot;</span><span class="p">:</span> <span class="s2">&quot;btw. Performance Groups&quot;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="c1"># add uncertainty if the EDPs are not coupled</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">coupled_EDP</span><span class="p">:</span>
+                <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;ResponseModel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;AdditionalUncertainty&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;GroundMotion&quot;</span><span class="p">:</span> <span class="s2">&quot;0.10&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Modeling&quot;</span>    <span class="p">:</span> <span class="s2">&quot;0.20&quot;</span>
+                        <span class="p">}})</span>
+
+            <span class="k">if</span> <span class="n">is_IM_based</span><span class="p">:</span>
+                <span class="n">loss_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;ComponentDataFolder&quot;</span><span class="p">:</span> <span class="n">pelicun_path</span><span class="o">+</span><span class="s2">&quot;/resources/HAZUS_MH_2.1_EQ_eqv_PGA.hdf&quot;</span>
+                    <span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;ResponseModel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s1">&#39;DetectionLimits&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;PFA&quot;</span><span class="p">:</span> <span class="s2">&quot;100.0&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;PID&quot;</span><span class="p">:</span> <span class="s2">&quot;0.20&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;PRD&quot;</span><span class="p">:</span> <span class="s2">&quot;0.20&quot;</span>
+                    <span class="p">}})</span>
+                <span class="n">loss_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s2">&quot;ComponentDataFolder&quot;</span><span class="p">:</span> <span class="n">pelicun_path</span><span class="o">+</span><span class="s2">&quot;/resources/HAZUS_MH_2.1_EQ_story.hdf&quot;</span>
+                    <span class="p">})</span>
+
+            <span class="k">if</span> <span class="s1">&#39;W1&#39;</span> <span class="ow">in</span> <span class="n">bt</span><span class="p">:</span>
+                <span class="n">DesignL</span> <span class="o">=</span> <span class="n">ap_DesignLevel_W1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">DesignL</span> <span class="o">=</span> <span class="n">ap_DesignLevel</span>
+
+            <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">DesignL</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">year_built</span> <span class="o">&lt;=</span> <span class="n">year</span><span class="p">:</span>
+                    <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;DamageModel&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="p">{</span><span class="s1">&#39;DesignLevel&#39;</span><span class="p">:</span> <span class="n">DesignL</span><span class="p">[</span><span class="n">year</span><span class="p">]})</span>
+                    <span class="k">break</span>
+
+            <span class="n">dl</span> <span class="o">=</span> <span class="n">convert_design_level</span><span class="p">[</span><span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;DamageModel&#39;</span><span class="p">][</span><span class="s1">&#39;DesignLevel&#39;</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="s1">&#39;C3&#39;</span> <span class="ow">in</span> <span class="n">bt</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dl</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;LC&#39;</span><span class="p">,</span> <span class="s1">&#39;PC&#39;</span><span class="p">]:</span>
+                    <span class="n">dl</span> <span class="o">=</span> <span class="s1">&#39;LC&#39;</span>
+
+            <span class="c1"># only one structural component for IM-based approach</span>
+            <span class="k">if</span> <span class="n">is_IM_based</span><span class="p">:</span>
+
+                <span class="n">FG_S</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;S-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dl</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
+
+                <span class="n">loss_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s1">&#39;Components&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="n">FG_S</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">{</span><span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;median_quantity&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;ea&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;distribution&#39;</span><span class="p">:</span> <span class="s1">&#39;N/A&#39;</span>
+                            <span class="p">}]</span>
+                    <span class="p">}})</span>
+
+            <span class="c1"># story-based approach</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">FG_S</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;S-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">dl</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">FG_NSD</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;NSD-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">FG_NSA</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;NSA-</span><span class="si">{</span><span class="n">dl</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">ot</span><span class="si">}</span><span class="s1">&#39;</span>
+
+                <span class="n">loss_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s1">&#39;Components&#39;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="n">FG_S</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">{</span><span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;1, 2&#39;</span><span class="p">,</span>
+                             <span class="c1">#&#39;median_quantity&#39;: &#39;{q}&#39;.format(q = 0.5), #/stories),</span>
+                             <span class="s1">&#39;median_quantity&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{q}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">story_scale</span><span class="p">(</span><span class="n">stories</span><span class="p">,</span> <span class="s1">&#39;S&#39;</span><span class="p">)</span><span class="o">/</span><span class="n">stories</span><span class="o">/</span><span class="mf">2.</span><span class="p">),</span>
+                             <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;ea&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;distribution&#39;</span><span class="p">:</span> <span class="s1">&#39;N/A&#39;</span>
+                            <span class="p">}],</span>
+                        <span class="n">FG_NSA</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">{</span><span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                             <span class="c1">#&#39;median_quantity&#39;: &#39;{q}&#39;.format(q = 1.0), #/stories),</span>
+                             <span class="s1">&#39;median_quantity&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{q}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">story_scale</span><span class="p">(</span><span class="n">stories</span><span class="p">,</span> <span class="s1">&#39;NSA&#39;</span><span class="p">)</span><span class="o">/</span><span class="n">stories</span><span class="p">),</span>
+                             <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;ea&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;distribution&#39;</span><span class="p">:</span> <span class="s1">&#39;N/A&#39;</span>
+                            <span class="p">}],</span>
+                        <span class="n">FG_NSD</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">{</span><span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="s1">&#39;all&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;1, 2&#39;</span><span class="p">,</span>
+                             <span class="c1">#&#39;median_quantity&#39;: &#39;{q}&#39;.format(q = 0.5), #/stories),</span>
+                             <span class="s1">&#39;median_quantity&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{q}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">q</span> <span class="o">=</span> <span class="n">story_scale</span><span class="p">(</span><span class="n">stories</span><span class="p">,</span> <span class="s1">&#39;NSD&#39;</span><span class="p">)</span><span class="o">/</span><span class="n">stories</span><span class="o">/</span><span class="mf">2.</span><span class="p">),</span>
+                             <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;ea&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;distribution&#39;</span><span class="p">:</span> <span class="s1">&#39;N/A&#39;</span>
+                            <span class="p">}]</span>
+                    <span class="p">}})</span>
+
+            <span class="c1"># if damage from ground failure is included</span>
+            <span class="k">if</span> <span class="n">ground_failure</span><span class="p">:</span>
+
+                <span class="n">foundation_type</span> <span class="o">=</span> <span class="s1">&#39;S&#39;</span>
+
+                <span class="n">FG_GF_H</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;GF-H_</span><span class="si">{</span><span class="n">foundation_type</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="n">FG_GF_V</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;GF-V_</span><span class="si">{</span><span class="n">foundation_type</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">bt</span><span class="si">}</span><span class="s1">&#39;</span>
+
+                <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;Components&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="n">FG_GF_H</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;median_quantity&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;ea&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;distribution&#39;</span><span class="p">:</span> <span class="s1">&#39;N/A&#39;</span>
+                        <span class="p">}],</span>
+                    <span class="n">FG_GF_V</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s1">&#39;location&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;median_quantity&#39;</span><span class="p">:</span> <span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="s1">&#39;ea&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;distribution&#39;</span><span class="p">:</span> <span class="s1">&#39;N/A&#39;</span>
+                        <span class="p">}]</span>
+                <span class="p">})</span>
+
+                <span class="c1"># define logic that connects ground failure with building damage</span>
+                <span class="n">loss_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+                    <span class="s1">&#39;DamageLogic&#39;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;propagate&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;source_FG&#39;</span><span class="p">:</span> <span class="n">FG_GF_H</span><span class="p">,</span>
+                         <span class="s1">&#39;target_FG&#39;</span><span class="p">:</span> <span class="n">FG_S</span><span class="p">,</span>
+                         <span class="s1">&#39;DS_links&#39;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s1">&#39;1_1&#39;</span><span class="p">:</span> <span class="s1">&#39;3_1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;2_1&#39;</span><span class="p">:</span> <span class="s1">&#39;4_1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;2_2&#39;</span><span class="p">:</span> <span class="s1">&#39;4_2&#39;</span>
+                         <span class="p">}</span>
+                        <span class="p">},</span>
+                        <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;propagate&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;source_FG&#39;</span><span class="p">:</span> <span class="n">FG_GF_V</span><span class="p">,</span>
+                         <span class="s1">&#39;target_FG&#39;</span><span class="p">:</span> <span class="n">FG_S</span><span class="p">,</span>
+                         <span class="s1">&#39;DS_links&#39;</span><span class="p">:</span> <span class="p">{</span>
+                             <span class="s1">&#39;1_1&#39;</span><span class="p">:</span> <span class="s1">&#39;3_1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;2_1&#39;</span><span class="p">:</span> <span class="s1">&#39;4_1&#39;</span><span class="p">,</span>
+                             <span class="s1">&#39;2_2&#39;</span><span class="p">:</span> <span class="s1">&#39;4_2&#39;</span>
+                         <span class="p">}</span>
+                        <span class="p">}</span>
+                    <span class="p">]</span>
+                <span class="p">})</span>
+
+        <span class="c1"># HAZUS Hurricane</span>
+        <span class="k">elif</span> <span class="n">DL_method</span> <span class="o">==</span> <span class="s1">&#39;HAZUS MH HU&#39;</span><span class="p">:</span>
+
+            <span class="c1">#TODO: use the HU NJ autopop script by default</span>
+            <span class="k">pass</span>
+
+        <span class="k">elif</span> <span class="n">DL_method</span> <span class="o">==</span> <span class="s1">&#39;FEMA P58&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">BIM</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AssetType&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Water_Pipe&#39;</span><span class="p">:</span>
+
+                <span class="n">material</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;Material&#39;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">material</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Asbestos cement&#39;</span><span class="p">,</span> <span class="s1">&#39;Cast iron&#39;</span><span class="p">]:</span>
+                    <span class="c1"># brittle material</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="s1">&#39;P0001a&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># ductile material</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="s1">&#39;P0001b&#39;</span>
+
+                <span class="n">segment_count</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;SegmentCount&#39;</span><span class="p">]</span>
+                <span class="n">segment_length</span> <span class="o">=</span> <span class="n">BIM</span><span class="p">[</span><span class="s1">&#39;Segments&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;length&#39;</span><span class="p">]</span>
+                <span class="n">cg_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">segment_length</span> <span class="o">/</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">ft</span><span class="p">))</span>
+                <span class="n">quantities</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cg_count</span><span class="p">):</span>
+                    <span class="n">quantities</span> <span class="o">+=</span> <span class="s1">&#39;, 1&#39;</span>
+
+                <span class="n">loss_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;_method&quot;</span>            <span class="p">:</span> <span class="s2">&quot;FEMA P58&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ResponseModel&quot;</span>      <span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ResponseDescription&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;EDP_Distribution&quot;</span> <span class="p">:</span> <span class="s2">&quot;empirical&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;Realizations&quot;</span>     <span class="p">:</span> <span class="s2">&quot;1000&quot;</span><span class="p">,</span>   <span class="c1"># need to fix this later</span>
+                            <span class="s2">&quot;CoupledAssessment&quot;</span><span class="p">:</span> <span class="kc">True</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;DamageModel&quot;</span>        <span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;CollapseProbability&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;Value&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0&quot;</span><span class="p">,</span>
+                        <span class="p">},</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;LossModel&quot;</span>          <span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;ReplacementCost&quot;</span>  <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ReplacementTime&quot;</span>  <span class="p">:</span> <span class="s2">&quot;180&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;DecisionVariables&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;Injuries&quot;</span>          <span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                            <span class="s2">&quot;ReconstructionCost&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                            <span class="s2">&quot;ReconstructionTime&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                            <span class="s2">&quot;RedTag&quot;</span>            <span class="p">:</span> <span class="kc">False</span>
+                        <span class="p">},</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;Dependencies&quot;</span>       <span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;CostAndTime&quot;</span>        <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                        <span class="s2">&quot;Fragilities&quot;</span>        <span class="p">:</span> <span class="s2">&quot;btw. Damage States&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Quantities&quot;</span>         <span class="p">:</span> <span class="s2">&quot;Independent&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ReconstructionCosts&quot;</span><span class="p">:</span> <span class="s2">&quot;Independent&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;ReconstructionTimes&quot;</span><span class="p">:</span> <span class="s2">&quot;Independent&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;ComponentDataFolder&quot;</span><span class="p">:</span> <span class="s2">&quot;c:/Adam/Dropbox/Kutatas/2019 SC Testbeds/Memphis/&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Components&quot;</span>         <span class="p">:</span> <span class="p">{</span>
+                        <span class="n">config</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;location&quot;</span>       <span class="p">:</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;direction&quot;</span>      <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;median_quantity&quot;</span><span class="p">:</span> <span class="n">quantities</span><span class="p">,</span>
+                                <span class="s2">&quot;unit&quot;</span>           <span class="p">:</span> <span class="s2">&quot;ea&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;distribution&quot;</span>   <span class="p">:</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+                            <span class="p">}</span>
+                        <span class="p">],</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">event_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;LossModel&#39;</span><span class="p">][</span><span class="s1">&#39;Inhabitants&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;EventTime&#39;</span><span class="p">:</span> <span class="n">event_time</span><span class="p">})</span>
+
+        <span class="n">DL_input</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;DamageAndLoss&#39;</span><span class="p">:</span><span class="n">loss_dict</span><span class="p">})</span>
+
+        <span class="n">DL_ap_path</span> <span class="o">=</span> <span class="n">DL_input_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;_ap.json&#39;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">DL_ap_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">DL_input</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">DL_input</span><span class="p">,</span> <span class="n">DL_ap_path</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>

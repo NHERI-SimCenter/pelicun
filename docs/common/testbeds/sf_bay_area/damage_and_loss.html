@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Damage and Loss Estimation &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../index.html">
+
+
+
+  
+  <img src="../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Damage and Loss Estimation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../_sources/common/testbeds/sf_bay_area/damage_and_loss.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="damage-and-loss-estimation">
+<span id="lbl-testbed-sf-damage-and-loss"></span><h1>Damage and Loss Estimation<a class="headerlink" href="#damage-and-loss-estimation" title="Permalink to this headline">¶</a></h1>
+<p>The building performance assessment was performed on a
+story-level basis using <strong>PELICUN</strong> (<a class="reference internal" href="#zsarnoczay20" id="id2"><span>[Zsarnóczay20]</span></a>), where damage and losses are calculated with storylevel
+fragility functions based on the peak story drift and
+floor acceleration demands. The story-based damage and loss
+fragility functions are derived from corresponding building-level
+damage and loss functions from the HAZUS earthquake
+model (<a class="reference internal" href="overview.html#fema18" id="id3"><span>[FEMA18]</span></a>) based on the characteristic data for each
+building (e.g., year of construction, structure type, occupancy
+type). Specially, four major states included in this
+testbed are <strong>Slight (DS1)</strong>, <strong>Moderate (DS2)</strong>, <strong>Extensive (DS3)</strong>,
+and <strong>Complete (DS4)</strong>, and one <strong>None (DS0)</strong> damage
+state. The four major damage states are defined seperately for the
+structural and non-structural damages. More detailed
+descriptions for the example W1 building are provided below.
+The full descriptions can be found in the <a class="reference internal" href="overview.html#fema18" id="id4"><span>[FEMA18]</span></a>.
+Collapse safety limit states are evaluated directly from the
+story drift demands, where a collapse of one or more stories is
+considered as partial collapse of the entire building.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>W1: Wood Light Frame (Structural)</strong>:</p>
+<p>1. Slight: Small plaster or gypsum-board cracks at corners of door and
+window openings and wall-ceiling intersections; small cracks in masonry chimneys and
+masonry veneer.</p>
+<p>2. Moderate: Large plaster or gypsum-board cracks at corners of door
+and window openings; small diagonal cracks across shear wall panels exhibited by small
+cracks in stucco and gypsum wall panels; large cracks in brick chimneys; toppling of tall
+masonry chimneys.</p>
+<p>3. Extensive: Large diagonal cracks across shear wall panels or large
+cracks at plywood joints; permanent lateral movement of floors and roof; toppling of most
+brick chimneys; cracks in foundations; splitting of wood sill plates and/or slippage of
+structure over foundations; partial collapse of “room-over-garage” or other “soft-story”
+configurations; small foundations cracks.</p>
+<p>4. Complete: Structure may have large permanent lateral displacement,
+may collapse, or be in imminent danger of collapse due to cripple wall failure or the failure
+of the lateral load-resisting system; some structures may slip and fall off the foundations;
+large foundation cracks. Approximately 3% of the total area of W1 buildings with Complete
+damage is expected to be collapsed.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Non-structural Damage (Partition Walls)</strong>:</p>
+<p>1. Slight: A few cracks are observed at intersections of walls and
+ceilings and at corners of door openings.</p>
+<p>2. Moderate: Larger and more extensive cracks requiring repair and
+repainting; some partitions may require replacement of gypsum board or other finishes.</p>
+<p>3. Extensive: Most of the partitions are cracked and a significant
+portion may require replacement of finishes; some door frames in the partitions are also
+damaged and require re-setting.</p>
+<p>4. Complete: Most partition finish materials and framing may have to
+be removed and replaced, damaged studs repaired, and walls refinished. Most door frames
+may also have to be repaired and replaced.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Non-structural Damage (Suspended Cellings)</strong>:</p>
+<ol class="arabic simple">
+<li><p>Slight: : A few ceiling tiles have moved or fallen down.</p></li>
+</ol>
+<p>2. Moderate: Falling of tiles is more extensive; in addition, the ceiling
+support framing (T-bars) has disconnected and/or buckled at a few locations; lenses have
+fallen off some light fixtures and a few fixtures have fallen; localized repairs are necessary.</p>
+<p>3. Extensive: The ceiling system exhibits extensive buckling,
+disconnected T-bars and falling ceiling tiles; ceiling partially collapses at a few locations and
+some light fixtures fall; repair typically involves removal of most or all ceiling tiles.</p>
+<p>4. Complete: The ceiling system is buckled throughout and/or fallen
+and requires complete replacement; many light fixtures fall.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Non-structural Damage (Exterior Wall Panels)</strong>:</p>
+<ol class="arabic simple">
+<li><p>Slight: : Slight movement of the panels, requiring realignment.</p></li>
+</ol>
+<p>2. Moderate: The movements are more extensive; connections of
+panels to structural frame are damaged requiring further inspection and repairs; some
+window frames may need realignment.</p>
+<p>3. Extensive: Most of the panels are cracked or otherwise damaged
+and misaligned, and most panel connections to the structural frame are damaged requiring
+thorough review and repairs; a few panels fall or are in imminent danger of falling; some
+window panes are broken and some pieces of glass have fallen.</p>
+<p>4. Complete: Most panels are severely damaged, most connections
+are broken or severely damaged, some panels have fallen and most are in imminent
+danger of falling; extensive glass breakage and falling.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Non-structural Damage (Electrical Mechanical Equipment, Piping, Ducts)</strong>:</p>
+<p>1. Slight: : The most vulnerable equipment (e.g., unanchored or
+mounted on spring isolators) moves and damages attached piping or ducts.</p>
+<p>2. Moderate: Movements are larger and damage is more extensive;
+piping leaks occur at a few locations; elevator machinery and rails may require realignment.</p>
+<p>3. Extensive: Equipment on spring isolators topples and falls; other
+unanchored equipment slides or falls, breaking connections to piping and ducts; leaks
+develop at many locations; anchored equipment indicate stretched bolts or strain at
+anchorages.</p>
+<p>4. Complete: Equipment is damaged by sliding, overturning or failure
+of their supports and is not operable; piping is leaking at many locations; some pipe and
+duct supports have failed, causing pipes and ducts to fall or hang down; elevator rails are
+buckled or have broken supports and/or counterweights have derailed.</p>
+</div>
+<p>The story drift and floor accelerations from 25 non-linear analyses of each
+building are used to define multivariate lognormal distributions
+of peak drifts and accelerations for each story of the building,
+and the dispersion in the drift and acceleration demands is
+inflated by 0.22 to account for additional modeling uncertainties
+not considered in the non-linear dynamic analyses.</p>
+<p>Using the distributions of earthquake demands, and damage and loss
+functions, <strong>PELICUN</strong> generates 20,000 realizations of damage and
+losses for each building, and stores statistics of the resulting
+performance data that are relevant for regional-scale evaluation.
+The results are output as HDF5 (Hierarchical Data Format) files
+that can be processed and visualized through MatLab, Python,
+Jupyter notebooks, or converted to CSV format.</p>
+<dl class="citation">
+<dt class="label" id="zsarnoczay20"><span class="brackets"><a class="fn-backref" href="#id2">Zsarnóczay20</a></span></dt>
+<dd><p>Zsarnóczay, A., and Deierlein, G. G. (2020). “PELICUN – A Computational Framework for Estimating Damage, Loss and Community Resilience,”
+in Proceedings, 17th World Conference on Earthquake Engineering, (Sendai: WCEE).</p>
+</dd>
+<dt class="label" id="fema18"><span class="brackets">FEMA18</span><span class="fn-backref">(<a href="#id3">1</a>,<a href="#id4">2</a>)</span></dt>
+<dd><p>FEMA (2018), HAZUS – Multi-hazard Loss Estimation Methodology 2.1, Earthquake Model Technical Manual, Federal Emergency Management Agency, Washington D.C.</p>
+</dd>
+</dl>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>

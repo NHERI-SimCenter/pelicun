@@ -1,0 +1,842 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>2.1.7. pelicun.uq module &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="prev" title="2.1.6. pelicun.model module" href="API_pelicun_model.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../../index.html">
+
+
+
+  
+  <img src="../../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="API.html">2. API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="API.html#modules">2.1. Modules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_auto.html">2.1.1. auto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_base.html">2.1.2. base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_control.html">2.1.3. control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_db.html">2.1.4. db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_file_io.html">2.1.5. file_io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_pelicun_model.html">2.1.6. model</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">2.1.7. uq</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="API.html"><span class="section-number">2. </span>API Documentation</a> &raquo;</li>
+        
+      <li><span class="section-number">2.1.7. </span>pelicun.uq module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../../_sources/common/developer_manual/API/pelicun/API_pelicun_uq.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pelicun.uq">
+<span id="pelicun-uq-module"></span><h1><span class="section-number">2.1.7. </span>pelicun.uq module<a class="headerlink" href="#module-pelicun.uq" title="Permalink to this headline">¶</a></h1>
+<p>This module defines constants, classes and methods for uncertainty
+quantification in pelicun.</p>
+<p class="rubric">Contents</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.mvn_orthotope_density" title="pelicun.uq.mvn_orthotope_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mvn_orthotope_density</span></code></a>(mu, COV[, lower, upper])</p></td>
+<td><p>Estimate the probability density within a hyperrectangle for an MVN distr.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.uq.fit_distribution" title="pelicun.uq.fit_distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_distribution</span></code></a>(raw_samples, distribution)</p></td>
+<td><p>Fit a distribution to samples using maximum likelihood estimation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariable" title="pelicun.uq.RandomVariable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomVariable</span></code></a>(name, distribution[, theta, …])</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableSet" title="pelicun.uq.RandomVariableSet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomVariableSet</span></code></a>(name, RV_list, Rho)</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry" title="pelicun.uq.RandomVariableRegistry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomVariableRegistry</span></code></a>()</p></td>
+<td><p>Description</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt id="pelicun.uq.mvn_orthotope_density">
+<code class="sig-prename descclassname"><span class="pre">pelicun.uq.</span></code><code class="sig-name descname"><span class="pre">mvn_orthotope_density</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">COV</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#mvn_orthotope_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.mvn_orthotope_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the probability density within a hyperrectangle for an MVN distr.</p>
+<p>Use the method of Alan Genz (1992) to estimate the probability density
+of a multivariate normal distribution within an n-orthotope (i.e.,
+hyperrectangle) defined by its lower and upper bounds. Limits can be
+relaxed in any direction by assigning infinite bounds (i.e. numpy.inf).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mu: float scalar or ndarray</strong></dt><dd><p>Mean(s) of the non-truncated distribution.</p>
+</dd>
+<dt><strong>COV: float ndarray</strong></dt><dd><p>Covariance matrix of the non-truncated distribution</p>
+</dd>
+<dt><strong>lower: float vector, optional, default: None</strong></dt><dd><p>Lower bound(s) for the truncated distributions. A scalar value can be
+used for a univariate case, while a list of bounds is expected in
+multivariate cases. If the distribution is non-truncated from below
+in a subset of the dimensions, use either <cite>None</cite> or assign an infinite
+value (i.e. -numpy.inf) to those dimensions.</p>
+</dd>
+<dt><strong>upper: float vector, optional, default: None</strong></dt><dd><p>Upper bound(s) for the truncated distributions. A scalar value can be
+used for a univariate case, while a list of bounds is expected in
+multivariate cases. If the distribution is non-truncated from above
+in a subset of the dimensions, use either <cite>None</cite> or assign an infinite
+value (i.e. numpy.inf) to those dimensions.</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>alpha: float</strong></dt><dd><p>Estimate of the probability density within the hyperrectangle</p>
+</dd>
+<dt><strong>eps_alpha: float</strong></dt><dd><p>Estimate of the error in alpha.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pelicun.uq.fit_distribution">
+<code class="sig-prename descclassname"><span class="pre">pelicun.uq.</span></code><code class="sig-name descname"><span class="pre">fit_distribution</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncation_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">censored_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detection_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_lim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#fit_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.fit_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a distribution to samples using maximum likelihood estimation.</p>
+<p>The number of dimensions of the distribution are inferred from the
+shape of the sample data. Censoring is automatically considered if the
+number of censored samples and the corresponding detection limits are
+provided. Infinite or unspecified truncation limits lead to fitting a
+non-truncated distribution in that dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>raw_samples: float ndarray</strong></dt><dd><p>Raw data that serves as the basis of estimation. The number of samples
+equals the number of columns and each row introduces a new feature. In
+other words: a list of sample lists is expected where each sample list
+is a collection of samples of one variable.</p>
+</dd>
+<dt><strong>distribution: {‘normal’, ‘lognormal’}</strong></dt><dd><p>Defines the target probability distribution type. Different types of
+distributions can be mixed by providing a list rather than a single
+value. Each element of the list corresponds to one of the features in
+the raw_samples.</p>
+</dd>
+<dt><strong>truncation_limits: float ndarray, optional, default: [None, None]</strong></dt><dd><p>Lower and/or upper truncation limits for the specified distributions.
+A two-element vector can be used for a univariate case, while two lists
+of limits are expected in multivariate cases. If the distribution is
+non-truncated from one side in a subset of the dimensions, use either
+<cite>None</cite> or assign an infinite value (i.e. numpy.inf) to those dimensions.</p>
+</dd>
+<dt><strong>censored_count: int, optional, default: None</strong></dt><dd><p>The number of censored samples that are beyond the detection limits.
+All samples outside the detection limits are aggregated into one set.
+This works the same way in one and in multiple dimensions. Prescription
+of specific censored sample counts for sub-regions of the input space
+outside the detection limits is not supported.</p>
+</dd>
+<dt><strong>detection_limits: float ndarray, optional, default: [None, None]</strong></dt><dd><p>Lower and/or upper detection limits for the provided samples. A
+two-element vector can be used for a univariate case, while two lists
+of limits are expected in multivariate cases. If the data is not
+censored from one side in a subset of the dimensions, use either <cite>None</cite>
+or assign an infinite value (i.e. numpy.inf) to those dimensions.</p>
+</dd>
+<dt><strong>multi_fit: bool, optional, default: False</strong></dt><dd><p>If True, we attempt to fit a multivariate distribution to the samples.
+Otherwise, we fit each marginal univariate distribution independently
+and estimate the correlation matrix in the end based on the fitted
+marginals. Using multi_fit can be advantageous with censored data and
+if the correlation in the data is not Gaussian. It leads to
+substantially longer calculation time and does not always produce
+better results, especially when the number of dimensions is large.</p>
+</dd>
+<dt><strong>alpha_lim: float, optional, default:None</strong></dt><dd><p>Introduces a lower limit to the probability density within the
+n-orthotope defined by the truncation limits. Assigning a reasonable
+minimum (such as 1e-4) can be useful when the mean of the distribution
+is several standard deviations from the truncation limits and the
+sample size is small. Such cases without a limit often converge to
+distant means with inflated variances. Besides being incorrect
+estimates, those solutions only offer negligible reduction in the
+negative log likelihood, while making subsequent sampling of the
+truncated normal distribution very challenging.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>theta: float ndarray</dt><dd><p>Estimates of the parameters of the fitted probability distribution in
+each dimension. The following parameters are returned for the supported
+distributions:
+normal - mean, standard deviation;
+lognormal - median, log standard deviation;</p>
+</dd>
+<dt>Rho: float 2D ndarray, optional</dt><dd><p>In the multivariate case, returns the estimate of the correlation
+matrix.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pelicun.uq.RandomVariable">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pelicun.uq.</span></code><code class="sig-name descname"><span class="pre">RandomVariable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncation_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_expr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Description</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: string</strong></dt><dd><p>A unique string that identifies the random variable.</p>
+</dd>
+<dt><strong>distribution: {‘normal’, ‘lognormal’, ‘multinomial’, ‘custom’, ‘empirical’,</strong></dt><dd><p>‘coupled_empirical’, ‘uniform’}, optional
+Defines the type of probability distribution for the random variable.</p>
+</dd>
+<dt><strong>theta: float scalar or ndarray, optional</strong></dt><dd><p>Set of parameters that define the cumulative distribution function of
+the variable given its distribution type. The following parameters are
+expected currently for the supported distribution types:
+normal - mean, standard deviation;
+lognormal - median, log standard deviation;
+uniform - a, b, the lower and upper bounds of the distribution;
+multinomial - likelihood of each unique event (the last event’s
+likelihood is adjusted automatically to ensure the likelihoods sum up
+to one);
+custom - according to the custom expression provided;
+empirical and coupled_empirical - N/A.</p>
+</dd>
+<dt><strong>truncation_limits: float ndarray, optional</strong></dt><dd><p>Defines the [a,b] truncation limits for the distribution. Use None to
+assign no limit in one direction.</p>
+</dd>
+<dt><strong>bounded: float ndarray, optional</strong></dt><dd><p>Defines the [P_a, P_b] probability bounds for the distribution. Use None
+to assign no lower or upper bound.</p>
+</dd>
+<dt><strong>custom_expr: string, optional</strong></dt><dd><p>Provide an expression that is a Python syntax for a custom CDF. The
+controlling variable shall be “x” and the parameters shall be “p1”,
+“p2”, etc.</p>
+</dd>
+<dt><strong>anchor: RandomVariable, optional</strong></dt><dd><p>Anchors this to another variable. If the anchor is not None, this
+variable will be perfectly correlated with its anchor. Note that
+the attributes of this variable and its anchor do not have to be
+identical.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.RV_set" title="pelicun.uq.RandomVariable.RV_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RV_set</span></code></a></dt><dd><p>Return the RV_set this RV is a member of</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.anchor" title="pelicun.uq.RandomVariable.anchor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">anchor</span></code></a></dt><dd><p>Return the anchor of the variable (if any).</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.bounds" title="pelicun.uq.RandomVariable.bounds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bounds</span></code></a></dt><dd><p>Return the assigned probability bounds.</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.custom_expr" title="pelicun.uq.RandomVariable.custom_expr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">custom_expr</span></code></a></dt><dd><p>Return the assigned custom expression for CDF.</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.distribution" title="pelicun.uq.RandomVariable.distribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distribution</span></code></a></dt><dd><p>Return the assigned probability distribution type.</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.samples" title="pelicun.uq.RandomVariable.samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">samples</span></code></a></dt><dd><p>Return the empirical or generated samples.</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.samples_DF" title="pelicun.uq.RandomVariable.samples_DF"><code class="xref py py-obj docutils literal notranslate"><span class="pre">samples_DF</span></code></a></dt><dd><p>Return the empirical or generated samples in a pandas Series.</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.theta" title="pelicun.uq.RandomVariable.theta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">theta</span></code></a></dt><dd><p>Return the assigned probability distribution parameters.</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.truncation_limits" title="pelicun.uq.RandomVariable.truncation_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">truncation_limits</span></code></a></dt><dd><p>Return the assigned truncation limits.</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariable.uni_samples" title="pelicun.uq.RandomVariable.uni_samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">uni_samples</span></code></a></dt><dd><p>Return the samples from the controlling uniform distribution.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariable.cdf" title="pelicun.uq.RandomVariable.cdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cdf</span></code></a>(values)</p></td>
+<td><p>Returns the cdf at the given values</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariable.inverse_transform" title="pelicun.uq.RandomVariable.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(values)</p></td>
+<td><p>Uses inverse probability integral transformation on the provided values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariable.inverse_transform_sampling" title="pelicun.uq.RandomVariable.inverse_transform_sampling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform_sampling</span></code></a>()</p></td>
+<td><p>Creates samples using inverse probability integral transformation.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.distribution">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">distribution</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the assigned probability distribution type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.theta">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">theta</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the assigned probability distribution parameters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.truncation_limits">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">truncation_limits</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.truncation_limits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the assigned truncation limits.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.bounds">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bounds</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the assigned probability bounds.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.custom_expr">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">custom_expr</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.custom_expr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the assigned custom expression for CDF.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.RV_set">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">RV_set</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.RV_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the RV_set this RV is a member of</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.samples_DF">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">samples_DF</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.samples_DF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the empirical or generated samples in a pandas Series.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.samples">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">samples</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the empirical or generated samples.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.uni_samples">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">uni_samples</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.uni_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the samples from the controlling uniform distribution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.anchor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">anchor</span></code><a class="headerlink" href="#pelicun.uq.RandomVariable.anchor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the anchor of the variable (if any).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.cdf">
+<code class="sig-name descname"><span class="pre">cdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariable.cdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariable.cdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cdf at the given values</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.inverse_transform">
+<code class="sig-name descname"><span class="pre">inverse_transform</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariable.inverse_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariable.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses inverse probability integral transformation on the provided values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariable.inverse_transform_sampling">
+<code class="sig-name descname"><span class="pre">inverse_transform_sampling</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariable.inverse_transform_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariable.inverse_transform_sampling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates samples using inverse probability integral transformation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pelicun.uq.RandomVariableSet">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pelicun.uq.</span></code><code class="sig-name descname"><span class="pre">RandomVariableSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RV_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Rho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Description</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: string</strong></dt><dd><p>A unique string that identifies the set of random variables.</p>
+</dd>
+<dt><strong>RV_list: list of RandomVariable</strong></dt><dd><p>Defines the random variables in the set</p>
+</dd>
+<dt><strong>Rho: float 2D ndarray</strong></dt><dd><p>Defines the correlation matrix that describes the correlation between
+the random variables in the set. Currently, only the Gaussian copula
+is supported.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariableSet.RV" title="pelicun.uq.RandomVariableSet.RV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RV</span></code></a></dt><dd><p>Return the random variable(s) assigned to the set</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariableSet.samples" title="pelicun.uq.RandomVariableSet.samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">samples</span></code></a></dt><dd><p>Return the samples of the variables in the set</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariableSet.size" title="pelicun.uq.RandomVariableSet.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a></dt><dd><p>Return the size (i.e., number of variables in the) RV set</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableSet.Rho" title="pelicun.uq.RandomVariableSet.Rho"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rho</span></code></a>([var_subset])</p></td>
+<td><p>Return the (subset of the) correlation matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableSet.apply_correlation" title="pelicun.uq.RandomVariableSet.apply_correlation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_correlation</span></code></a>()</p></td>
+<td><p>Apply correlation to n dimensional uniform samples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableSet.orthotope_density" title="pelicun.uq.RandomVariableSet.orthotope_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orthotope_density</span></code></a>([lower, upper, var_subset])</p></td>
+<td><p>Estimate the probability density within an orthotope for the RV set.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableSet.RV">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">RV</span></code><a class="headerlink" href="#pelicun.uq.RandomVariableSet.RV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the random variable(s) assigned to the set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableSet.size">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">size</span></code><a class="headerlink" href="#pelicun.uq.RandomVariableSet.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the size (i.e., number of variables in the) RV set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableSet.samples">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">samples</span></code><a class="headerlink" href="#pelicun.uq.RandomVariableSet.samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the samples of the variables in the set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableSet.Rho">
+<code class="sig-name descname"><span class="pre">Rho</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableSet.Rho"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableSet.Rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the (subset of the) correlation matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableSet.apply_correlation">
+<code class="sig-name descname"><span class="pre">apply_correlation</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableSet.apply_correlation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableSet.apply_correlation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply correlation to n dimensional uniform samples.</p>
+<p>Currently, correlation is applied using a Gaussian copula. First, we
+try using Cholesky transformation. If the correlation matrix is not
+positive semidefinite and Cholesky fails, use SVD to apply the
+correlations while preserving as much as possible from the correlation
+matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableSet.orthotope_density">
+<code class="sig-name descname"><span class="pre">orthotope_density</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableSet.orthotope_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableSet.orthotope_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate the probability density within an orthotope for the RV set.</p>
+<p>Use the mvn_orthotope_density function in this module for the
+calculation. The distribution of individual RVs is not limited to the
+normal family. The provided limits are converted to the standard normal
+space that is the basis of all RVs in pelicun. Truncation limits and
+correlation (using Gaussian copula) are automatically taken into
+consideration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lower: float ndarray, optional, default: None</strong></dt><dd><p>Lower bound(s) of the orthotope. A scalar value can be used for a
+univariate RV; a list of bounds is expected in multivariate cases.
+If the orthotope is not bounded from below in a dimension, use
+‘None’ to that dimension.</p>
+</dd>
+<dt><strong>upper: float ndarray, optional, default: None</strong></dt><dd><p>Upper bound(s) of the orthotope. A scalar value can be used for a
+univariate RV; a list of bounds is expected in multivariate cases.
+If the orthotope is not bounded from above in a dimension, use
+‘None’ to that dimension.</p>
+</dd>
+<dt><strong>var_subset: list of strings, optional, default: None</strong></dt><dd><p>If provided, allows for selecting only a subset of the variables in
+the RV_set for the density calculation.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>alpha: float</dt><dd><p>Estimate of the probability density within the orthotope.</p>
+</dd>
+<dt>eps_alpha: float</dt><dd><p>Estimate of the error in alpha.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pelicun.uq.RandomVariableRegistry">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pelicun.uq.</span></code><code class="sig-name descname"><span class="pre">RandomVariableRegistry</span></code><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableRegistry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Description</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry.RV" title="pelicun.uq.RandomVariableRegistry.RV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RV</span></code></a></dt><dd><p>Return all random variable(s) in the registry</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry.RV_samples" title="pelicun.uq.RandomVariableRegistry.RV_samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RV_samples</span></code></a></dt><dd><p>Return the samples for every random variable in the registry</p>
+</dd>
+<dt><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry.RV_set" title="pelicun.uq.RandomVariableRegistry.RV_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RV_set</span></code></a></dt><dd><p>Return the random variable set(s) in the registry.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry.RVs" title="pelicun.uq.RandomVariableRegistry.RVs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RVs</span></code></a>(keys)</p></td>
+<td><p>Return a subset of the random variables in the registry</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry.add_RV" title="pelicun.uq.RandomVariableRegistry.add_RV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_RV</span></code></a>(RV)</p></td>
+<td><p>Add a new random variable to the registry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry.add_RV_set" title="pelicun.uq.RandomVariableRegistry.add_RV_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_RV_set</span></code></a>(RV_set)</p></td>
+<td><p>Add a new set of random variables to the registry</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pelicun.uq.RandomVariableRegistry.generate_samples" title="pelicun.uq.RandomVariableRegistry.generate_samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_samples</span></code></a>(sample_size[, method, seed])</p></td>
+<td><p>Generates samples for all variables in the registry.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableRegistry.RV">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">RV</span></code><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry.RV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all random variable(s) in the registry</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableRegistry.RVs">
+<code class="sig-name descname"><span class="pre">RVs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableRegistry.RVs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry.RVs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a subset of the random variables in the registry</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableRegistry.add_RV">
+<code class="sig-name descname"><span class="pre">add_RV</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RV</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableRegistry.add_RV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry.add_RV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new random variable to the registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableRegistry.RV_set">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">RV_set</span></code><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry.RV_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the random variable set(s) in the registry.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableRegistry.add_RV_set">
+<code class="sig-name descname"><span class="pre">add_RV_set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RV_set</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableRegistry.add_RV_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry.add_RV_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new set of random variables to the registry</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableRegistry.RV_samples">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">RV_samples</span></code><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry.RV_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the samples for every random variable in the registry</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pelicun.uq.RandomVariableRegistry.generate_samples">
+<code class="sig-name descname"><span class="pre">generate_samples</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LHS_midpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pelicun/uq.html#RandomVariableRegistry.generate_samples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pelicun.uq.RandomVariableRegistry.generate_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates samples for all variables in the registry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sample_size: int</strong></dt><dd><p>The number of samples requested per variable.</p>
+</dd>
+<dt><strong>method: {‘random’, ‘LHS’, ‘LHS_midpoint’}, optional</strong></dt><dd><p>The sample generation method to use. ‘random’ stands for
+conventional random sampling; ‘LHS’ is Latin HyperCube Sampling
+with random sample location within each bin of the hypercube;
+‘LHS_midpoint’ is like LHS, but the samples are assigned to the
+midpoints of the hypercube bins.</p>
+</dd>
+<dt><strong>seed: int, optional</strong></dt><dd><p>Random seed used for sampling.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,1258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>pelicun.tests.test_uq &mdash; pelicun  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\css\lightbox.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\jquery-1.11.0.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2\js\lightbox.min.js"></script>
+        <script src="../../../_static/sphinxcontrib-images\LightBox2\lightbox2-customize\jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+<style media="screen">.vega-actions a {margin-right: 5px;}</style>
+<link href="../../../_static/css/bootstrap.css" rel="stylesheet">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #F2F2F2" >
+          
+<a href="https://simcenter.designsafe-ci.org/" style="margin-bottom: 0px;">
+  <img src="../../../_static/img/SimCenter-Only.png" class="logo" alt="Org-Logo" />
+</a>
+<hr style="margin: 0px;">
+
+  <a href="../../../index.html">
+
+
+
+  
+  <img src="../../../_static/pelicun-Logo.png" class="logo" alt="Logo"/>
+
+</a>
+
+
+  
+  
+
+
+
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/about/pelicun/about.html">1. About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/pelAck.html">2. Acknowledgments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/license.html">3. Copyright and License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/glossary.html">4. Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/front-matter/abbreviations.html">5. Abbreviations</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/installation/pelicun/installation.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/usage/pelicun/usage.html">2. User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/troubleshooting/pelicun/troubleshooting.html">3. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/reqments/reqPelicun.html">4. Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/user_manual/bugs.html">5. Bugs &amp; Feature Requests</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Technical Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/technical_manual/pelicun/background/background.html">1. Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/technical_manual/pelicun/verification/verification.html">2. Verification</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Developer Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/coding_style/pelicun/coding_style.html">1. Coding Style</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../common/developer_manual/API/pelicun/API.html">2. API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pelicun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>pelicun.tests.test_uq</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for pelicun.tests.test_uq</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2018 Leland Stanford Junior University</span>
+<span class="c1"># Copyright (c) 2018 The Regents of the University of California</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of pelicun.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1"># 1. Redistributions of source code must retain the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1"># 2. Redistributions in binary form must reproduce the above copyright notice,</span>
+<span class="c1"># this list of conditions and the following disclaimer in the documentation</span>
+<span class="c1"># and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1"># 3. Neither the name of the copyright holder nor the names of its contributors</span>
+<span class="c1"># may be used to endorse or promote products derived from this software without</span>
+<span class="c1"># specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the BSD 3-Clause License along with</span>
+<span class="c1"># pelicun. If not, see &lt;http://www.opensource.org/licenses/&gt;.</span>
+<span class="c1">#</span>
+<span class="c1"># Contributors:</span>
+<span class="c1"># Adam Zsarnóczay</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">These are unit and integration tests on the uq module of pelicun.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">numpy.testing</span> <span class="kn">import</span> <span class="n">assert_allclose</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">inspect</span>
+<span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">current_dir</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">))</span>
+
+<span class="kn">from</span> <span class="nn">pelicun.tests.test_pelicun</span> <span class="kn">import</span> <span class="n">assert_normal_distribution</span>
+<span class="kn">from</span> <span class="nn">pelicun.uq</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># ORTHOTOPE DENSITY</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="test_MVN_CDF_univariate"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_MVN_CDF_univariate">[docs]</a><span class="k">def</span> <span class="nf">test_MVN_CDF_univariate</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the MVN CDF function provides accurate results for the special</span>
+<span class="sd">    univariate case.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Testing is based on the CDF results from scipy&#39;s norm function.</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">ref_var</span> <span class="o">=</span> <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="o">/</span><span class="mf">5.</span><span class="o">-</span><span class="mf">1.5</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="o">/</span><span class="mf">3.</span>
+    <span class="k">for</span> <span class="n">l</span><span class="p">,</span><span class="n">u</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">):</span>
+        <span class="n">ref_l</span><span class="p">,</span> <span class="n">ref_u</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">([</span><span class="n">l</span><span class="p">,</span><span class="n">u</span><span class="p">],</span><span class="n">loc</span><span class="o">=</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">ref_std</span><span class="p">)</span>
+        <span class="n">ref_res</span> <span class="o">=</span> <span class="n">ref_u</span><span class="o">-</span><span class="n">ref_l</span>
+        <span class="n">test_res</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">mvn_orthotope_density</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_var</span><span class="p">,</span>
+                                             <span class="n">lower</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">u</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">ref_res</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_res</span><span class="p">)</span>
+
+    <span class="c1"># test if the function works properly with infinite boundaries</span>
+    <span class="n">test_res</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">mvn_orthotope_density</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_var</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">test_res</span> <span class="o">==</span> <span class="mf">1.</span></div>
+
+<div class="viewcode-block" id="test_MVN_CDF_multivariate"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_MVN_CDF_multivariate">[docs]</a><span class="k">def</span> <span class="nf">test_MVN_CDF_multivariate</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the MVN CDF function provides accurate results for multivariate</span>
+<span class="sd">    cases.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Testing is based on univariate results compared to estimates of MVN CDF</span>
+    <span class="c1"># with special correlation structure</span>
+
+    <span class="c1"># First, assume perfect correlation. Results should be identical for all</span>
+    <span class="c1"># dimensions</span>
+
+    <span class="k">for</span> <span class="n">dims</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+        <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dims</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">1.0</span>
+        <span class="n">ref_COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ref_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)</span> <span class="o">*</span> <span class="n">ref_rho</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_COV</span><span class="p">,</span> <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span>
+
+        <span class="n">lower</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">-</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">2.5</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">+</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">1.5</span>
+
+        <span class="n">test_res</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">mvn_orthotope_density</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_COV</span><span class="p">,</span>
+                                             <span class="n">lower</span><span class="o">=</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">upper</span><span class="p">)</span>
+
+        <span class="n">ref_l</span><span class="p">,</span> <span class="n">ref_u</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">([</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="n">ref_res</span> <span class="o">=</span> <span class="n">ref_u</span> <span class="o">-</span> <span class="n">ref_l</span>
+
+        <span class="k">assert</span> <span class="n">ref_res</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_res</span><span class="p">)</span>
+
+    <span class="c1"># Second, assume independence. Results should be equal to the univariate</span>
+    <span class="c1"># result on the power of the number of dimensions.</span>
+    <span class="k">for</span> <span class="n">dims</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+        <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dims</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.0</span>
+        <span class="n">ref_COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ref_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)</span> <span class="o">*</span> <span class="n">ref_rho</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_COV</span><span class="p">,</span> <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span>
+
+        <span class="n">lower</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">-</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">2.5</span>
+        <span class="n">upper</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">+</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">1.5</span>
+
+        <span class="n">test_res</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">mvn_orthotope_density</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_COV</span><span class="p">,</span>
+                                             <span class="n">lower</span><span class="o">=</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="n">upper</span><span class="p">)</span>
+
+        <span class="n">ref_l</span><span class="p">,</span> <span class="n">ref_u</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">([</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+        <span class="n">ref_res</span> <span class="o">=</span> <span class="n">ref_u</span> <span class="o">-</span> <span class="n">ref_l</span>
+
+        <span class="k">assert</span> <span class="n">ref_res</span><span class="o">**</span><span class="n">dims</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_res</span><span class="p">)</span></div>
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># Random_Variable objects</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="test_RandomVariable_incorrect_none_defined"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_RandomVariable_incorrect_none_defined">[docs]</a><span class="k">def</span> <span class="nf">test_RandomVariable_incorrect_none_defined</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the random variable object raises an error when the distribution</span>
+<span class="sd">    is not empirical and no parameters are provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e_info</span><span class="p">:</span>
+        <span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_RandomVariable_incorrect_multinomial_definition"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_RandomVariable_incorrect_multinomial_definition">[docs]</a><span class="k">def</span> <span class="nf">test_RandomVariable_incorrect_multinomial_definition</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the random variable object raises an error when a multinomial</span>
+<span class="sd">    distribution is defined with incorrect parameters, and test</span>
+<span class="sd">    that it does not raise an error when the right parameters are provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">p_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+    <span class="c1"># correct parameters</span>
+    <span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;multinomial&#39;</span><span class="p">,</span>
+                   <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+
+    <span class="c1"># sum(p) less than 1.0 -&gt; should be automatically corrected</span>
+    <span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;multinomial&#39;</span><span class="p">,</span>
+                   <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+
+    <span class="c1"># sum(p) more than 1.0 -&gt; should raise an error</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e_info</span><span class="p">:</span>
+        <span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;multinomial&#39;</span><span class="p">,</span>
+                       <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span></div>
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># SAMPLING</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="test_sampling_tr_alpha_error"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_sampling_tr_alpha_error">[docs]</a><span class="k">def</span> <span class="nf">test_sampling_tr_alpha_error</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the function raises an error when the probability density that the</span>
+<span class="sd">    truncation limits define is not sufficiently accurate for further use.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+                                 <span class="n">truncation_limits</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">9.9</span><span class="p">]))</span>
+
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e_info</span><span class="p">:</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_sampling_non_truncated"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_sampling_non_truncated">[docs]</a><span class="k">def</span> <span class="nf">test_sampling_non_truncated</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the sampling method returns appropriate samples for a non-truncated</span>
+<span class="sd">    univariate and multivariate normal distribution.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># univariate case</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="o">**</span><span class="mf">2.</span><span class="p">)</span>
+
+    <span class="c1"># bivariate case, various correlation coefficients</span>
+    <span class="n">rho_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">rho</span> <span class="ow">in</span> <span class="n">rho_list</span><span class="p">:</span>
+        <span class="n">ref_mean</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]</span>
+        <span class="n">ref_std</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">rho</span><span class="p">],[</span><span class="n">rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+        <span class="n">ref_COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ref_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)</span> <span class="o">*</span> <span class="n">ref_rho</span>
+
+        <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+            <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                         <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">]))</span>
+
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+            <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                              <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">))],</span>
+                              <span class="n">ref_rho</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+
+            <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_COV</span><span class="p">)</span>
+
+    <span class="c1"># multi-dimensional case</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">dims</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span><span class="n">dims</span><span class="p">))</span><span class="o">*</span><span class="mf">0.3</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">ref_COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ref_std</span><span class="p">,</span><span class="n">ref_std</span><span class="p">)</span> <span class="o">*</span> <span class="n">ref_rho</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">))],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_COV</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_sampling_truncated_wide_limits"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_sampling_truncated_wide_limits">[docs]</a><span class="k">def</span> <span class="nf">test_sampling_truncated_wide_limits</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the sampling method returns appropriate samples for a truncated</span>
+<span class="sd">    univariate and multivariate normal distribution when the truncation limits</span>
+<span class="sd">    are sufficiently wide to consider the result a normal distribution.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># assign a non-symmetric, but very wide set of limits for all cases</span>
+
+    <span class="c1"># univariate case</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">ref_var</span> <span class="o">=</span> <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1e10</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="mf">1e9</span>
+
+    <span class="c1"># truncation both ways</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">],</span>
+                                 <span class="n">truncation_limits</span> <span class="o">=</span> <span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span>
+                                      <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span>
+    <span class="c1"># upper truncation</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">],</span>
+                                 <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">upper</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span>
+                                      <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span>
+
+    <span class="c1"># lower truncation</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">],</span>
+                                 <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="kc">None</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span>
+                                      <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">)</span>
+
+    <span class="c1"># bivariate case, various correlation coefficients</span>
+    <span class="n">rho_list</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">lower</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">upper</span>
+    <span class="k">for</span> <span class="n">rho</span> <span class="ow">in</span> <span class="n">rho_list</span><span class="p">:</span>
+        <span class="n">ref_mean</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]</span>
+        <span class="n">ref_std</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+        <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">rho</span><span class="p">],</span> <span class="p">[</span><span class="n">rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>
+        <span class="n">ref_COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ref_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)</span> <span class="o">*</span> <span class="n">ref_rho</span>
+
+        <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+            <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span>
+                <span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                               <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">],</span>
+                               <span class="n">truncation_limits</span> <span class="o">=</span> <span class="p">[</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]]))</span>
+
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+            <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                              <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">))],</span>
+                              <span class="n">ref_rho</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+
+            <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_COV</span><span class="p">)</span>
+
+    <span class="c1"># multi-dimensional case</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.3</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">ref_COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ref_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)</span> <span class="o">*</span> <span class="n">ref_rho</span>
+
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">],</span>
+                                     <span class="n">truncation_limits</span> <span class="o">=</span> <span class="p">[</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">))],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">sampling_function</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">assert_normal_distribution</span><span class="p">(</span><span class="n">sampling_function</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_COV</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_sampling_truncated_narrow_limits"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_sampling_truncated_narrow_limits">[docs]</a><span class="k">def</span> <span class="nf">test_sampling_truncated_narrow_limits</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the sampling method returns appropriate samples for a truncated</span>
+<span class="sd">    univariate and multivariate normal distribution when the truncation limits</span>
+<span class="sd">    are narrow.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># here we focus on testing if the returned samples are between the</span>
+    <span class="c1"># pre-defined limits in all dimensions</span>
+
+    <span class="c1"># univariate case</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">ref_var</span> <span class="o">=</span> <span class="n">ref_std</span> <span class="o">**</span> <span class="mf">2.</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="mf">0.6</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">],</span>
+                                 <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="n">sample_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+    <span class="n">sample_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">sample_min</span> <span class="o">&gt;</span> <span class="n">lower</span>
+    <span class="k">assert</span> <span class="n">sample_max</span> <span class="o">&lt;</span> <span class="n">upper</span>
+
+    <span class="k">assert</span> <span class="n">sample_min</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">sample_max</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+    <span class="c1"># multi-dimensional case</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.3</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">-</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">2.5</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">+</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">1.5</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">],</span>
+                                     <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">))],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">sample_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">sample_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">sample_min</span> <span class="o">&gt;</span> <span class="n">lower</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">sample_max</span> <span class="o">&lt;</span> <span class="n">upper</span><span class="p">)</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">sample_min</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">sample_max</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_RandomVariable_sample_distribution_mixed_normal"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_RandomVariable_sample_distribution_mixed_normal">[docs]</a><span class="k">def</span> <span class="nf">test_RandomVariable_sample_distribution_mixed_normal</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the distribution is sampled appropriately for a correlated mixture</span>
+<span class="sd">    of normal and lognormal variables. Note that we already tested the sampling</span>
+<span class="sd">    algorithm itself earlier, so we will not do a thorough verification of</span>
+<span class="sd">    the samples, but rather check for errors in the inputs that would</span>
+<span class="sd">    typically lead to significant mistakes in the results.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.00</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c1"># prepare the truncation limits - note that these are wide limits and</span>
+    <span class="c1"># barely affect the distribution</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="p">(</span><span class="n">ref_mean</span> <span class="o">-</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">10.</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">+</span> <span class="n">ref_std</span> <span class="o">*</span> <span class="mf">10.</span>
+
+    <span class="c1"># variable 1 is assumed to have lognormal distribution with no lower</span>
+    <span class="c1"># truncation</span>
+    <span class="n">rv_mean</span> <span class="o">=</span> <span class="n">ref_mean</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">rv_mean</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">rv_mean</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">lower</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">upper</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">upper</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">dist_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="s1">&#39;lognormal&#39;</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">]</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">rv_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">,</span> <span class="n">dist_list</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="n">dist</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">],</span>
+                                     <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                                        <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">))],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># make sure that retrieving samples of an individual RV works as intended</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># convert the lognormal samples to log space for the checks</span>
+    <span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+    <span class="n">ref_COV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">ref_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)</span> <span class="o">*</span> <span class="n">ref_rho</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="n">ref_COV</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.10</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_RandomVariable_sample_distribution_multinomial"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_RandomVariable_sample_distribution_multinomial">[docs]</a><span class="k">def</span> <span class="nf">test_RandomVariable_sample_distribution_multinomial</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the distribution is sampled appropriately for a multinomial</span>
+<span class="sd">    variable. Also test that getting values for an individual RV that is part</span>
+<span class="sd">    of a correlated RV_set works appropriately.&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># first test with an incomplete p_ref</span>
+    <span class="n">p_ref</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="n">RV_reg</span><span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;multinomial&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="n">p_ref</span><span class="p">))</span>
+
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)],</span> <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">p_ref</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p_ref</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">h_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p_ref</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span>
+    <span class="n">p_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">h_bins</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">p_test</span><span class="p">,</span> <span class="n">p_ref</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># also make sure that individual RV&#39;s samples are returned appropriately</span>
+    <span class="n">p_test_RV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">h_bins</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">p_test_RV</span><span class="p">,</span> <span class="n">p_ref</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># and the prescribed correlation is applied</span>
+    <span class="c1"># note that the correlation between the samples is not going to be identical</span>
+    <span class="c1"># to the correlation used to generate the underlying uniform distribution</span>
+    <span class="n">rho_target</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.383</span><span class="p">,</span> <span class="mf">0.383</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.383</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.383</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.383</span><span class="p">,</span> <span class="mf">0.383</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]]</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="n">rho_target</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># finally, check the original sampling with the complete p_ref</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;multinomial&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="n">p_ref</span><span class="p">))</span>
+
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)],</span> <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">p_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">h_bins</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">p_test</span><span class="p">,</span> <span class="n">p_ref</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span></div>
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># FITTING</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<div class="viewcode-block" id="test_fitting_baseline"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_fitting_baseline">[docs]</a><span class="k">def</span> <span class="nf">test_fitting_baseline</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the max. likelihood estimates of a (multivariate) normal</span>
+<span class="sd">    distribution are sufficiently accurate in the baseline case with no</span>
+<span class="sd">    truncation and no censoring.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># univariate case</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+    <span class="c1"># generate samples</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">mu</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">ref_mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ref_std</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># multi-dimensional case</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">test_rho</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">)</span>
+
+    <span class="n">test_mu</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_mu</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_rho</span><span class="p">,</span> <span class="n">ref_rho</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_fitting_censored"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_fitting_censored">[docs]</a><span class="k">def</span> <span class="nf">test_fitting_censored</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the max. likelihood estimates of a multivariate normal distribution</span>
+<span class="sd">    are sufficiently accurate in cases with censored data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># univariate case</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">c_lower</span> <span class="o">=</span> <span class="mf">0.35</span>
+    <span class="n">c_upper</span> <span class="o">=</span> <span class="mf">1.25</span>
+    <span class="n">sample_count</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="c1"># generate censored samples</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_count</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="c1"># censor the samples</span>
+    <span class="n">good_ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">samples</span><span class="o">&gt;</span><span class="n">c_lower</span><span class="p">,</span> <span class="n">samples</span><span class="o">&lt;</span><span class="n">c_upper</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">c_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">good_ones</span><span class="p">]</span>
+    <span class="n">c_count</span> <span class="o">=</span> <span class="n">sample_count</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">good_ones</span><span class="p">)</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">c_samples</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                      <span class="n">censored_count</span><span class="o">=</span><span class="n">c_count</span><span class="p">,</span>
+                                      <span class="n">detection_limits</span><span class="o">=</span><span class="p">[</span><span class="n">c_lower</span><span class="p">,</span> <span class="n">c_upper</span><span class="p">])</span>
+
+    <span class="n">test_mu</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">ref_mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_mu</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ref_std</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_std</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># multi-dimensional case</span>
+
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">c_lower</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">-</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">ref_std</span>
+    <span class="n">c_upper</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">+</span> <span class="mf">8.5</span> <span class="o">*</span> <span class="n">ref_std</span>
+
+    <span class="n">c_lower</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">c_upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="n">sample_count</span> <span class="o">=</span> <span class="mi">1000</span>
+
+    <span class="c1"># generate samples</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="n">sample_count</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># censor the samples</span>
+    <span class="n">good_ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">samples</span> <span class="o">&gt;</span> <span class="n">c_lower</span><span class="p">,</span> <span class="n">samples</span> <span class="o">&lt;</span> <span class="n">c_upper</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">good_ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">good_ones</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">c_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">good_ones</span><span class="p">]</span>
+    <span class="n">c_count</span> <span class="o">=</span> <span class="n">sample_count</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">good_ones</span><span class="p">)</span>
+    <span class="n">det_lims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">c_lower</span><span class="p">,</span> <span class="n">c_upper</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">test_rho</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">c_samples</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                            <span class="n">censored_count</span><span class="o">=</span><span class="n">c_count</span><span class="p">,</span>
+                                            <span class="n">detection_limits</span><span class="o">=</span><span class="n">det_lims</span><span class="p">)</span>
+
+    <span class="n">test_mu</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_mu</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_std</span> <span class="p">,</span> <span class="n">ref_std</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_rho</span><span class="p">,</span> <span class="n">ref_rho</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_fitting_truncated"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_fitting_truncated">[docs]</a><span class="k">def</span> <span class="nf">test_fitting_truncated</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the max. likelihood estimates of a multivariate normal distribution</span>
+<span class="sd">    are sufficiently accurate in cases with truncation and uncensored data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># univariate case</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">tr_lower</span> <span class="o">=</span> <span class="mf">0.35</span>
+    <span class="n">tr_upper</span> <span class="o">=</span> <span class="mf">1.25</span>
+
+    <span class="c1"># generate samples of a TMVN distribution</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">],</span>
+                                 <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">tr_lower</span><span class="p">,</span> <span class="n">tr_upper</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                      <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">tr_lower</span><span class="p">,</span> <span class="n">tr_upper</span><span class="p">])</span>
+
+    <span class="n">test_mu</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">ref_mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_mu</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ref_std</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_std</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># multi-dimensional case</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">tr_lower</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">-</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="n">ref_std</span>
+    <span class="n">tr_upper</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">ref_std</span>
+
+    <span class="n">tr_lower</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">tr_upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="c1"># generate samples</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">],</span>
+                                     <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">tr_lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                                        <span class="n">tr_upper</span><span class="p">[</span><span class="n">i</span><span class="p">]]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">tr_lims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">tr_lower</span><span class="p">,</span> <span class="n">tr_upper</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">test_rho</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                            <span class="n">truncation_limits</span><span class="o">=</span><span class="n">tr_lims</span><span class="p">)</span>
+
+    <span class="n">test_mu</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1">#print(max(abs(test_mu-ref_mean)), max(abs(test_std-ref_std)))</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_mu</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_rho</span><span class="p">,</span> <span class="n">ref_rho</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_fitting_truncated_and_censored"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_fitting_truncated_and_censored">[docs]</a><span class="k">def</span> <span class="nf">test_fitting_truncated_and_censored</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the max. likelihood estimates of a multivariate normal distribution</span>
+<span class="sd">    are sufficiently accurate in cases with truncation and censored data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># univariate case</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+    <span class="n">tr_lower</span> <span class="o">=</span> <span class="mf">0.35</span>
+    <span class="n">tr_upper</span> <span class="o">=</span> <span class="mf">2.5</span>
+    <span class="n">det_upper</span> <span class="o">=</span> <span class="mf">1.25</span>
+    <span class="n">det_lower</span> <span class="o">=</span> <span class="n">tr_lower</span>
+
+    <span class="c1"># generate samples of a TMVN distribution</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">],</span>
+                                 <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">tr_lower</span><span class="p">,</span> <span class="n">tr_upper</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="c1"># censor the samples</span>
+    <span class="n">good_ones</span> <span class="o">=</span> <span class="n">samples</span> <span class="o">&lt;</span> <span class="n">det_upper</span>
+    <span class="n">c_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">good_ones</span><span class="p">]</span>
+    <span class="n">c_count</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">good_ones</span><span class="p">)</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">c_samples</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                      <span class="n">censored_count</span><span class="o">=</span><span class="n">c_count</span><span class="p">,</span>
+                                      <span class="n">detection_limits</span><span class="o">=</span><span class="p">[</span><span class="n">det_lower</span><span class="p">,</span> <span class="n">det_upper</span><span class="p">],</span>
+                                      <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">tr_lower</span><span class="p">,</span> <span class="n">tr_upper</span><span class="p">])</span>
+
+    <span class="n">test_mu</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">ref_mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_mu</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ref_std</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">test_std</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># # multi-dimensional case</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ref_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.25</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">tr_lower</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">-</span> <span class="mf">4.5</span> <span class="o">*</span> <span class="n">ref_std</span>
+    <span class="n">tr_upper</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">+</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">ref_std</span>
+    <span class="n">tr_lower</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">tr_upper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="n">det_lower</span> <span class="o">=</span> <span class="n">ref_mean</span> <span class="o">-</span> <span class="mf">1.</span> <span class="o">*</span> <span class="n">ref_std</span>
+    <span class="n">det_lower</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">det_upper</span> <span class="o">=</span> <span class="n">tr_upper</span>
+
+    <span class="c1"># generate samples</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_mean</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">mu</span><span class="p">,</span> <span class="n">std</span><span class="p">],</span>
+                                     <span class="n">truncation_limits</span><span class="o">=</span><span class="p">[</span><span class="n">tr_lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                                        <span class="n">tr_upper</span><span class="p">[</span><span class="n">i</span><span class="p">]]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># censor the samples</span>
+    <span class="n">good_ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">samples</span> <span class="o">&gt;</span> <span class="n">det_lower</span><span class="p">,</span> <span class="n">samples</span> <span class="o">&lt;</span> <span class="n">det_upper</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">good_ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">good_ones</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">c_samples</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">good_ones</span><span class="p">]</span>
+    <span class="n">c_count</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">good_ones</span><span class="p">)</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">det_lims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">det_lower</span><span class="p">,</span> <span class="n">det_upper</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">tr_lims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">tr_lower</span><span class="p">,</span> <span class="n">tr_upper</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">test_rho</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span>
+        <span class="n">c_samples</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="n">censored_count</span><span class="o">=</span><span class="n">c_count</span><span class="p">,</span>
+        <span class="n">detection_limits</span><span class="o">=</span><span class="n">det_lims</span><span class="p">,</span> <span class="n">truncation_limits</span><span class="o">=</span><span class="n">tr_lims</span><span class="p">)</span>
+
+    <span class="n">test_mu</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_mu</span><span class="p">,</span> <span class="n">ref_mean</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_rho</span><span class="p">,</span> <span class="n">ref_rho</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="test_fitting_lognormal"><a class="viewcode-back" href="../../../common/technical_manual/pelicun/verification/test_uq.html#pelicun.tests.test_uq.test_fitting_lognormal">[docs]</a><span class="k">def</span> <span class="nf">test_fitting_lognormal</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Test if the max. likelihood estimates of a multivariate lognormal</span>
+<span class="sd">    distribution are sufficiently accurate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># univariate case</span>
+    <span class="c1"># generate raw data</span>
+    <span class="n">ref_median</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+    <span class="c1"># generate samples</span>
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;lognormal&#39;</span><span class="p">,</span>
+                                 <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">ref_median</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">median</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">&#39;lognormal&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="n">ref_median</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">median</span><span class="p">,</span> <span class="nb">abs</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ref_std</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># multivariate case</span>
+    <span class="c1"># generate raw data</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">ref_median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+    <span class="n">ref_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">ref_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">dims</span><span class="p">,</span> <span class="n">dims</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">ref_rho</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">RV_reg</span> <span class="o">=</span> <span class="n">RandomVariableRegistry</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">median</span><span class="p">,</span> <span class="n">std</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ref_median</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">)):</span>
+        <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV</span><span class="p">(</span><span class="n">RandomVariable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;lognormal&#39;</span><span class="p">,</span>
+                                     <span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="n">median</span><span class="p">,</span> <span class="n">std</span><span class="p">]))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">add_RV_set</span><span class="p">(</span>
+        <span class="n">RandomVariableSet</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+                          <span class="p">[</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV</span><span class="p">[</span><span class="n">rv</span><span class="p">]</span> <span class="k">for</span> <span class="n">rv</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)],</span>
+                          <span class="n">ref_rho</span><span class="p">))</span>
+
+    <span class="n">RV_reg</span><span class="o">.</span><span class="n">generate_samples</span><span class="p">(</span><span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">RV_reg</span><span class="o">.</span><span class="n">RV_samples</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># estimate the parameters of the distribution</span>
+    <span class="n">test_theta</span><span class="p">,</span> <span class="n">test_rho</span> <span class="o">=</span> <span class="n">fit_distribution</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="s1">&#39;lognormal&#39;</span><span class="p">)</span>
+
+    <span class="n">test_median</span><span class="p">,</span> <span class="n">test_std</span> <span class="o">=</span> <span class="n">test_theta</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">test_median</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ref_median</span><span class="p">),</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_std</span><span class="p">,</span> <span class="n">ref_std</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">assert_allclose</span><span class="p">(</span><span class="n">test_rho</span><span class="p">,</span> <span class="n">ref_rho</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span></div>
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright (c) 2018-2021, Leland Stanford Junior University and The Regents of the University of California.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-158130480-7', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+<script>
+    /*
+    let selectedFilters = [];
+    const images  = document.getElementsByClassName("gallery-item");
+    const filters = [...document.querySelectorAll('.filter select')];
+    const toggles = [...document.querySelectorAll('.filter input')];
+
+    var show = function (elem) {
+        elem.style.display = 'block';
+    };
+    var hide = function (elem) {
+        elem.style.display = 'none';
+    };
+    var toggleFilter =  function(el,elid) {
+        const filter = document.getElementById(elid);
+        filter.disabled = !el.checked;
+       
+        if ("createEvent" in document) {
+            var evt = document.createEvent("HTMLEvents");
+            evt.initEvent("change", false, true);
+            filter.dispatchEvent(evt);
+        }
+        else
+            filter.fireEvent("change");
+    };
+    
+    for (const filter of filters) {
+        filter.addEventListener('change', function(event) {
+            selectedFilters = filters.map(filter => filter.disabled ? '' : filter.value).filter(Boolean);
+            console.log(selectedFilters);
+            for (const image of images) {
+                if (selectedFilters.every(filter => image.classList.contains(filter))) {
+                    show(image);
+                }
+                else {hide(image)};
+            };
+        })
+    };
+    */
+</script>
+
+
+</body>
+</html>
