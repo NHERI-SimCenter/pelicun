@@ -12,7 +12,12 @@
     "SamplingMethod": "LHS_midpoint",
     "NonDirectionalMultipliers": {
       "ALL": 1.2
-    }
+    },
+    "EconomiesOfScale": {
+      "AcrossFloors": true,
+      "AcrossDamageStates": false
+    },
+    "RepairCostAndTimeCorrelation": 1.0
   },
   "DemandAssessment": {
     "Calibration": {
