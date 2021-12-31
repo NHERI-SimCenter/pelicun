@@ -1060,7 +1060,7 @@ class DamageModel(object):
         ----------
         data_paths: list of string
             List of paths to data files with fragility information. Default
-            datasets can be accessed as PelicunDefault/XY.
+            XY datasets can be accessed as PelicunDefault/XY.
         """
 
         log_div()
@@ -1071,7 +1071,8 @@ class DamageModel(object):
 
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace('PelicunDefault/',
-                                                   str(pelicun_path)+'/resources/')
+                                                   str(pelicun_path)+
+                                                    '/resources/')
 
         data_list = []
         # load the data files one by one
@@ -1597,6 +1598,78 @@ class DamageModel(object):
 
         log_msg(f'Damage calculation successfully completed.')
 
+    def prepare_dmg_quantities(self, cmp_list='ALL', dropzero=True,
+                               dropempty=True):
+        """
+        Combine component quantity and damage state information in one DF.
+
+        This method assumes that a component quantity sample is available in
+        the asset model and a damage state sample is available here in the
+        damage model.
+
+        Parameters
+        ----------
+        cmp_list: list of strings, optional, default: "ALL"
+            The method will return damage results for these components. Choosing
+            "ALL" will return damage results for all available components.
+        dropzero: bool, optional, default: True
+            If True, the quantity of non-damaged components is not saved.
+        dropempty: bool, optional, default: True
+
+        """
+
+        dmg = self.sample
+        cmp = self._asmnt.asset.cmp_sample
+
+        cmp_list = np.atleast_1d(cmp_list)
+
+        # load the list of all components, if needed
+        if cmp_list[0] == 'ALL':
+            cmp_list = dmg.columns.get_level_values(0).unique()
+
+        res = []
+        cmp_included = []
+        # perform the combination for each requested component
+        for cmp_id in cmp_list:
+
+            # get the corresponding parts of the quantity and damage matrices
+            cmp_i = cmp.loc[:, cmp_id]
+            dmg_i = dmg.loc[:, cmp_id]
+
+            # get the realized Damage States
+            # Note that these might be much fewer than all possible Damage
+            # States
+            ds_list = np.unique(dmg_i.values)
+            ds_list = np.array(ds_list[~np.isnan(ds_list)], dtype=int)
+
+            # If requested, drop the zero damage case
+            if dropzero:
+                ds_list = ds_list[ds_list != 0]
+
+            # only perform this if there is at least one DS we are interested in
+            if len(ds_list) > 0:
+
+                # initialize the shell for the result DF
+                dmg_q = pd.DataFrame(columns=dmg_i.columns, index=dmg.index)
+
+                # collect damaged quantities in each DS and add it to res
+                res.append(pd.concat(
+                    [dmg_q.mask(dmg_i == ds_i, cmp_i) for ds_i in ds_list],
+                     axis=1, keys=[f'{ds_i:g}' for ds_i in ds_list]))
+
+                # keep track of the components that have damaged quantities
+                cmp_included.append(cmp_id)
+
+        # assemble the final result and make sure the component keys are
+        # included in the column header
+        res = pd.concat(res, axis=1, keys=cmp_included)
+
+        # If requested, the blocks with no damage are dropped
+        if dropempty:
+            res.dropna(how='all', axis=1, inplace=True)
+
+        return res
+
 class LossModel(object):
     """
     Parent object for loss models.
@@ -1613,6 +1686,8 @@ class LossModel(object):
         self._asmnt = assessment
 
         self._sample = None
+
+        self.loss_type = 'Generic'
 
     @property
     def sample(self):
@@ -1643,6 +1718,154 @@ class LossModel(object):
 
         log_msg(f'Loss sample successfully loaded.', prepend_timestamp=False)
 
+    def load_model(self, data_paths, mapping_path):
+        """
+        Load the list of prescribed consequence models and their parameters
+
+        Parameters
+        ----------
+        data_paths: list of string
+            List of paths to data files with consequence model parameters.
+            Default XY datasets can be accessed as PelicunDefault/XY.
+        mapping_path: string
+            Path to a csv file that maps drivers (i.e., damage or edp data) to
+            loss models.
+        """
+
+        log_div()
+        log_msg(f'Loading loss map for {self.loss_type}...')
+
+        loss_map = load_from_csv(mapping_path, orientation=1,
+                             reindex=False, convert=[])
+
+        loss_map['Driver'] = loss_map.index.values
+        loss_map['Consequence'] = loss_map[self.loss_type]
+        loss_map.index = np.arange(loss_map.shape[0])
+        loss_map = loss_map.loc[:, ['Driver', 'Consequence']]
+        loss_map.dropna(inplace=True)
+
+        self.loss_map = loss_map
+
+        log_msg(f"Loss map successfully parsed.", prepend_timestamp=False)
+
+        log_div()
+        log_msg(f'Loading loss parameters for {self.loss_type}...')
+
+        # replace default flag with default data path
+        for d_i, data_path in enumerate(data_paths):
+
+            if 'PelicunDefault/' in data_path:
+                data_paths[d_i] = data_path.replace('PelicunDefault/',
+                                                    str(pelicun_path) +
+                                                    '/resources/')
+
+        data_list = []
+        # load the data files one by one
+        for data_path in data_paths:
+            data = load_from_csv(
+                data_path,
+                orientation=1,
+                reindex=False,
+                convert=[]
+            )
+
+            data_list.append(data)
+
+        loss_params = pd.concat(data_list, axis=0)
+
+        # drop redefinitions of components
+        loss_params = loss_params.groupby(level=[0,1]).first()
+
+        # keep only the relevant data
+        loss_cmp = np.unique(self.loss_map['Consequence'].values)
+        loss_params = loss_params.loc[idx[loss_cmp, :],:]
+
+        # drop unused damage states
+        DS_list = loss_params.columns.get_level_values(0).unique()
+        DS_to_drop = []
+        for DS in DS_list:
+            if np.all(pd.isna(loss_params.loc[:,idx[DS,:]].values)) == True:
+                DS_to_drop.append(DS)
+
+        loss_params.drop(columns=DS_to_drop, level=0, inplace=True)
+
+        # convert values to internal SI units
+        units = loss_params[('Quantity', 'Unit')]
+
+        DS_list = loss_params.columns.get_level_values(0).unique()
+
+        for DS in DS_list:
+            if DS.startswith('DS'):
+
+                # median values
+                thetas = loss_params.loc[:, (DS, 'Theta_0')]
+                loss_params.loc[:, (DS, 'Theta_0')] = [
+                    convert_unit(theta, unit)
+                    for theta, unit in list(zip(thetas, units))]
+
+                # cov and beta for normal and lognormal dists. do not need to
+                # be scaled
+                families = loss_params.loc[:, (DS, 'Family')]
+                for family in families:
+                    if ((pd.isna(family)==True) or
+                        (family in ['normal', 'lognormal'])):
+                        pass
+                    else:
+                        raise ValueError(f"Unexpected distribution family in "
+                                         f"loss model: {family}")
+
+        # check for components with incomplete loss information
+        cmp_incomplete_list = loss_params.loc[
+            loss_params[('Incomplete', '')] == 1].index
+
+        if len(cmp_incomplete_list) > 0:
+            loss_params.drop(cmp_incomplete_list, inplace=True)
+
+            log_msg(f"\nWARNING: Loss information is incomplete for the "
+                    f"following component(s) {cmp_incomplete_list}. They were "
+                    f"removed from the analysis.\n",
+                    prepend_timestamp=False)
+
+        self.loss_params = loss_params
+
+        log_msg(f"Loss parameters successfully parsed.",
+                prepend_timestamp=False)
+
+    def _generate_DV_sample(self, dmg_quantities, sample_size):
+        """
+        This is placeholder method.
+
+        The method of sampling decision variables in Decision Variable-specific
+        and needs to be implemented in every child of the LossModel
+        independently.
+        """
+        pass
+
+    def calculate(self, sample_size):
+        """
+        Calculate the repair cost and time of each component block in the asset.
+
+        """
+
+        log_div()
+        log_msg(f"Calculating losses...")
+
+        # First, get the damaged quantities in each damage state for each block
+        # of each component of interest.
+        # Note that we are using the damages that drive the losses and not the
+        # names of the loss components directly.
+        log_msg(f"Preparing damaged quantities...")
+        cmp_list = np.unique([val for driver_type, val
+                              in self.loss_map['Driver'].values])
+        dmg_q = self._asmnt.damage.prepare_dmg_quantities(cmp_list = cmp_list)
+
+        # Now sample random Decision Variables
+        # Note that this method is DV-specific and needs to be implemented in
+        # every child of the LossModel independently.
+        self._generate_DV_sample(dmg_q, sample_size)
+
+        log_msg(f"Loss calculation successful.")
+
 class BldgRepairModel(LossModel):
     """
     Manages building repair consequence assessments.
@@ -1655,13 +1878,446 @@ class BldgRepairModel(LossModel):
     def __init__(self, assessment):
         super(BldgRepairModel, self).__init__(assessment)
 
+        self.loss_type = 'BldgRepair'
+
     def load_model(self, data_paths, mapping_path):
 
-        pass
+        super(BldgRepairModel, self).load_model(data_paths, mapping_path)
 
     def calculate(self, sample_size):
 
-        pass
+        super(BldgRepairModel, self).calculate(sample_size)
+
+    def _create_DV_RVs(self, case_list):
+        """
+        Prepare the random variables used for repair cost and time simulation.
+
+        Parameters
+        ----------
+        case_list: MultiIndex
+            Index with cmp-ds-loc-dir-block descriptions that identify the RVs
+            we need for the simulation.
+        """
+
+        RV_reg = RandomVariableRegistry()
+        LP = self.loss_params
+
+        case_DF = pd.DataFrame(index=case_list, columns=[0,])
+        driver_cmps = case_list.get_level_values(0).unique()
+
+        rv_count = 0
+
+        for loss_cmp_id in self.loss_map.index.values:
+
+            # load the corresponding parameters
+            driver_type, driver_cmp_id = self.loss_map.loc[loss_cmp_id, 'Driver']
+
+            if driver_type != 'DMG':
+                raise ValueError(f"Loss Driver type not recognized: "
+                                 f"{driver_type}")
+
+            # load the parameters
+            if (driver_cmp_id, 'Cost') in LP.index:
+                cost_params = LP.loc[(driver_cmp_id, 'Cost'), :]
+            else:
+                cost_params = None
+
+            if (driver_cmp_id, 'Time') in LP.index:
+                time_params = LP.loc[(driver_cmp_id, 'Time'), :]
+            else:
+                time_params = None
+
+            if not driver_cmp_id in driver_cmps:
+                continue
+
+            for ds in case_DF.loc[
+                      driver_cmp_id,:].index.get_level_values(0).unique():
+
+                if cost_params is not None:
+                    cost_family, cost_theta_1 = cost_params.loc[
+                        [(f'DS{ds}', 'Family'), (f'DS{ds}','Theta_1')]]
+
+                if time_params is not None:
+                    time_family, time_theta_1 = time_params.loc[
+                        [(f'DS{ds}', 'Family'), (f'DS{ds}', 'Theta_1')]]
+
+                if ((pd.isna(cost_family)==True) and
+                    (pd.isna(time_family)==True)):
+                    continue
+
+                # load the loc-dir-block cases
+                loc_dir_block = case_DF.loc[(driver_cmp_id, ds)].index.values
+
+                for loc, dir, block in loc_dir_block:
+
+                    if pd.isna(cost_family)==False:
+
+                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}'
+
+                        RV_reg.add_RV(RandomVariable(
+                            name=cost_rv_tag,
+                            distribution = cost_family,
+                            theta = [1.0, cost_theta_1]
+                        ))
+                        rv_count += 1
+
+                    if pd.isna(time_family) == False:
+                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}'
+
+                        RV_reg.add_RV(RandomVariable(
+                            name=time_rv_tag,
+                            distribution=time_family,
+                            theta=[1.0, time_theta_1]
+                        ))
+                        rv_count += 1
+
+                    if ((pd.isna(cost_family) == False) and
+                        (pd.isna(time_family) == False) and
+                        (options.rho_cost_time != 0.0)):
+
+                        rho = options.rho_cost_time
+
+                        RV_reg.add_RV_set(RandomVariableSet(
+                            f'DV-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}_set',
+                            list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
+                            np.array([[1.0, rho],[rho, 1.0]])))
+
+        log_msg(f"\n{rv_count} random variables created.",
+                prepend_timestamp=False)
+
+        return RV_reg
+
+    def _calc_median_consequence(self, eco_qnt):
+        """
+        Calculate the median repair consequence for each loss component.
+
+        """
+
+        medians = {}
+
+        for DV_type, DV_type_scase in zip(['COST', 'TIME'], ['Cost', 'Time']):
+
+            cmp_list = []
+            median_list = []
+
+            for loss_cmp_id in self.loss_map.index:
+
+                driver_type, driver_cmp = self.loss_map.loc[
+                    loss_cmp_id, 'Driver']
+                loss_cmp_name = self.loss_map.loc[loss_cmp_id, 'Consequence']
+
+                if driver_type != 'DMG':
+                    raise ValueError(f"Loss Driver type not recognized: "
+                                     f"{driver_type}")
+
+                if not driver_cmp in eco_qnt.columns.get_level_values(
+                        0).unique():
+                    continue
+
+                ds_list = []
+                sub_medians = []
+
+                for ds in self.loss_params.columns.get_level_values(0).unique():
+
+                    if not ds.startswith('DS'):
+                        continue
+
+                    ds_id = ds[2:]
+
+                    theta_0 = self.loss_params.loc[
+                        (loss_cmp_name, DV_type_scase),
+                        (ds, 'Theta_0')]
+
+                    if pd.isna(theta_0):
+                        continue
+
+                    try:
+                        theta_0 = float(theta_0)
+                        f_median = prep_constant_median_DV(theta_0)
+
+                    except:
+                        theta_0 = np.array(
+                            [val.split(',') for val in theta_0.split('|')],
+                            dtype=float)
+                        f_median = prep_bounded_multilinear_median_DV(
+                            theta_0[0], theta_0[1])
+
+                    if 'ds' in eco_qnt.columns.names:
+
+                        avail_ds = eco_qnt.loc[:,
+                                   driver_cmp].columns.get_level_values(
+                            0).unique()
+
+                        if (not ds_id in avail_ds):
+                            continue
+
+                        eco_qnt_i = eco_qnt.loc[:, (driver_cmp, ds_id)].copy()
+
+                    else:
+                        eco_qnt_i = eco_qnt.loc[:, driver_cmp].copy()
+
+                    if isinstance(eco_qnt_i, pd.Series):
+                        eco_qnt_i = eco_qnt_i.to_frame()
+                        eco_qnt_i.columns = ['X']
+                        eco_qnt_i.columns.name = 'del'
+
+                    eco_qnt_i.loc[:, :] = f_median(eco_qnt_i.values)
+
+                    sub_medians.append(eco_qnt_i)
+                    ds_list.append(ds_id)
+
+                if len(ds_list) > 0:
+                    median_list.append(pd.concat(sub_medians, axis=1,
+                                                 keys=ds_list))
+                    cmp_list.append(loss_cmp_id)
+
+            if len(cmp_list) > 0:
+
+                result = pd.concat(median_list, axis=1, keys=cmp_list)
+
+                if 'del' in result.columns.names:
+                    result.columns = result.columns.droplevel('del')
+
+                if options.eco_scale["AcrossFloors"] == True:
+                    result.columns.names = ['cmp', 'ds']
+
+                else:
+                    result.columns.names = ['cmp', 'ds', 'loc']
+
+                medians.update({DV_type: result})
+
+        return medians
+
+    def _generate_DV_sample(self, dmg_quantities, sample_size):
+        """
+        Generate a sample of repair costs and times.
+
+        Parameters
+        ----------
+        dmg_quantitites: DataFrame
+            A table with the quantity of damage experienced in each damage state
+            of each component block at each location and direction. You can use
+            the prepare_dmg_quantities method in the DamageModel to get such a
+            DF.
+        sample_size: integer
+            The number of realizations to generate.
+
+        """
+
+        log_msg(f"Preparing random variables for repair cost and time...")
+        RV_reg = self._create_DV_RVs(dmg_quantities.columns)
+
+        RV_reg.generate_sample(sample_size=sample_size)
+
+        std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
+                                           axis=1).sort_index(axis=1)
+        std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'block']
+
+        log_msg(f"\nSuccessfully generated {sample_size} realizations of "
+                f"deviation from the median consequences.",
+                prepend_timestamp=False)
+
+        # calculate the quantities for economies of scale
+        log_msg(f"\nCalculating the quantity of damage...",
+                prepend_timestamp=False)
+
+        if options.eco_scale["AcrossFloors"]==True:
+
+            if options.eco_scale["AcrossDamageStates"] == True:
+
+                eco_qnt = dmg_quantities.groupby(level=[0,], axis=1).sum()
+                eco_qnt.columns.names = ['cmp',]
+
+            else:
+
+                eco_qnt = dmg_quantities.groupby(level=[0,1], axis=1).sum()
+                eco_qnt.columns.names = ['cmp', 'ds']
+
+        else:
+
+            if options.eco_scale["AcrossDamageStates"] == True:
+
+                eco_qnt = dmg_quantities.groupby(level=[0, 2], axis=1).sum()
+                eco_qnt.columns.names = ['cmp', 'loc']
+
+            else:
+
+                eco_qnt = dmg_quantities.groupby(level=[0, 1, 2], axis=1).sum()
+                eco_qnt.columns.names = ['cmp', 'ds', 'loc']
+
+        log_msg(f"Successfully aggregated damage quantities.",
+                prepend_timestamp=False)
+
+        # apply the median functions, if needed, to get median consequences for
+        # each realization
+        log_msg(f"\nCalculating the median repair consequences...",
+                prepend_timestamp=False)
+
+        medians = self._calc_median_consequence(eco_qnt)
+
+        log_msg(f"Successfully determined median repair consequences.",
+                prepend_timestamp=False)
+
+        # combine the median consequences with the samples of deviation from the
+        # median to get the consequence realizations.
+        log_msg(f"\nConsidering deviations from the median values to obtain "
+                f"random DV sample...",
+                prepend_timestamp=False)
+
+        res_list = []
+        key_list = []
+        prob_cmp_list = std_sample.columns.get_level_values(1).unique()
+
+        for DV_type, DV_type_scase in zip(['COST', 'TIME'],['Cost','Time']):
+
+            cmp_list = []
+
+            for cmp_i in medians[DV_type].columns.get_level_values(0).unique():
+
+                # check if there is damage in the component
+                driver_type, dmg_cmp_i = self.loss_map.loc[cmp_i, 'Driver']
+                loss_cmp_i = self.loss_map.loc[cmp_i, 'Consequence']
+
+                if driver_type != 'DMG':
+                    raise ValueError(f"Loss Driver type not "
+                                     f"recognized: {driver_type}")
+
+                if not (dmg_cmp_i
+                        in dmg_quantities.columns.get_level_values(0).unique()):
+                    continue
+
+                ds_list = []
+
+                for ds in medians[DV_type].loc[:, cmp_i].columns.get_level_values(0).unique():
+
+                    loc_list = []
+
+                    for loc_id, loc in enumerate(
+                            dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.get_level_values(0).unique()):
+
+                        if ((options.eco_scale["AcrossFloors"] == True) and
+                            (loc_id > 0)):
+                            break
+
+                        if options.eco_scale["AcrossFloors"] == True:
+                            median_i = medians[DV_type].loc[:,(cmp_i, ds)]
+                            dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds)]
+
+                            if cmp_i in prob_cmp_list:
+                                std_i = std_sample.loc[:, (DV_type, cmp_i, ds)]
+                            else:
+                                std_i = None
+
+                        else:
+                            median_i = medians[DV_type].loc[:, (cmp_i, ds, loc)]
+                            dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds, loc)]
+
+                            if cmp_i in prob_cmp_list:
+                                std_i = std_sample.loc[:, (DV_type, cmp_i, ds, loc)]
+                            else:
+                                std_i = None
+
+                        if std_i is not None:
+                            res_list.append(dmg_i.mul(median_i, axis=0) * std_i)
+                        else:
+                            res_list.append(dmg_i.mul(median_i, axis=0))
+
+                        loc_list.append(loc)
+
+                    if options.eco_scale["AcrossFloors"] == True:
+                        ds_list += [ds, ]
+                    else:
+                        ds_list+=[(ds, loc) for loc in loc_list]
+
+                if options.eco_scale["AcrossFloors"] == True:
+                    cmp_list += [(loss_cmp_i, dmg_cmp_i, ds) for ds in ds_list]
+                else:
+                    cmp_list+=[(loss_cmp_i, dmg_cmp_i, ds, loc) for ds, loc in ds_list]
+
+            if options.eco_scale["AcrossFloors"] == True:
+                key_list += [(DV_type, loss_cmp_i, dmg_cmp_i, ds)
+                             for loss_cmp_i, dmg_cmp_i, ds in cmp_list]
+            else:
+                key_list+=[(DV_type, loss_cmp_i, dmg_cmp_i, ds, loc)
+                           for loss_cmp_i, dmg_cmp_i, ds, loc in cmp_list]
+
+        lvl_names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'block']
+        DV_sample = pd.concat(res_list, axis=1, keys=key_list,
+                              names = lvl_names)
+
+        DV_sample = DV_sample.fillna(0).convert_dtypes()
+        DV_sample.columns.names = lvl_names
+
+        self.DV_sample = DV_sample
+
+        log_msg(f"Successfully obtained DV sample.",
+                prepend_timestamp=False)
+
+
+
+
+def prep_constant_median_DV(median):
+    """
+    Returns a constant median Decision Variable (DV) function.
+
+    Parameters
+    ----------
+    median: float
+        The median DV for a consequence function with fixed median.
+
+    Returns
+    -------
+    f: callable
+        A function that returns the constant median DV for all component
+        quantities.
+    """
+    def f(quantity):
+        return median
+
+    return f
+
+def prep_bounded_multilinear_median_DV(medians, quantities):
+    """
+    Returns a bounded multilinear median Decision Variable (DV) function.
+
+    The median DV equals the min and max values when the quantity is
+    outside of the prescribed quantity bounds. When the quantity is within the
+    bounds, the returned median is calculated by linear interpolation.
+
+    Parameters
+    ----------
+    medians: ndarray
+        Series of values that define the y coordinates of the multilinear DV
+        function.
+    quantities: ndarray
+        Series of values that define the component quantities corresponding to
+        the series of medians and serving as the x coordinates of the
+        multilinear DV function.
+
+    Returns
+    -------
+    f: callable
+        A function that returns the median DV given the quantity of damaged
+        components.
+    """
+    def f(quantity):
+        if quantity is None:
+            raise ValueError(
+                'A bounded linear median Decision Variable function called '
+                'without specifying the quantity of damaged components')
+
+        q_array = np.asarray(quantity, dtype=np.float64)
+
+        # calculate the median consequence given the quantity of damaged
+        # components
+        output = np.interp(q_array, quantities, medians)
+
+        return output
+
+    return f
+
+
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # LEGACY CODE
@@ -1824,25 +2480,7 @@ class FragilityFunction(object):
 
         return DSG_ID
 
-def prep_constant_median_DV(median):
-    """
-    Returns a constant median Decision Variable (DV) function.
 
-    Parameters
-    ----------
-    median: float
-        The median DV for a consequence function with fixed median.
-
-    Returns
-    -------
-    f: callable
-        A function that returns the constant median DV for all component
-        quantities.
-    """
-    def f(quantity):
-        return median
-
-    return f
 
 def prep_bounded_linear_median_DV(median_max, median_min, quantity_lower,
                                   quantity_upper):
@@ -1884,46 +2522,6 @@ def prep_bounded_linear_median_DV(median_max, median_min, quantity_lower,
         output = np.interp(q_array,
                            [quantity_lower, quantity_upper],
                            [median_max, median_min])
-
-        return output
-
-    return f
-
-def prep_bounded_multilinear_median_DV(medians, quantities):
-    """
-    Returns a bounded multilinear median Decision Variable (DV) function.
-
-    The median DV equals the min and max values when the quantity is
-    outside of the prescribed quantity bounds. When the quantity is within the
-    bounds, the returned median is calculated by linear interpolation.
-
-    Parameters
-    ----------
-    medians: ndarray
-        Series of values that define the y coordinates of the multilinear DV
-        function.
-    quantities: ndarray
-        Series of values that define the component quantities corresponding to
-        the series of medians and serving as the x coordinates of the 
-        multilinear DV function.
-
-    Returns
-    -------
-    f: callable
-        A function that returns the median DV given the quantity of damaged
-        components.
-    """
-    def f(quantity):
-        if quantity is None:
-            raise ValueError(
-                'A bounded linear median Decision Variable function called '
-                'without specifying the quantity of damaged components')
-
-        q_array = np.asarray(quantity, dtype=np.float64)
-
-        # calculate the median consequence given the quantity of damaged
-        # components
-        output = np.interp(q_array, quantities, medians)
 
         return output
 

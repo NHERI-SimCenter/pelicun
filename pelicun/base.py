@@ -239,6 +239,10 @@ def set_options(config_options):
                 options.demand_offset = value
             elif key == "NonDirectionalMultipliers":
                 options.nondir_multi_dict = value
+            elif key == "RepairCostAndTimeCorrelation":
+                options.rho_cost_time = value
+            elif key == "EconomiesOfScale":
+                options.eco_scale = value
 
 def convert_to_SimpleIndex(data, axis=0):
     """
