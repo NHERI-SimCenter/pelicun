@@ -327,6 +327,66 @@ def convert_to_MultiIndex(data, axis=0):
 
     return data
 
+def convert_unit(value, unit):
+    """
+    Convert value(s) provided in one unit to the internal SI unit
+
+    Parameters
+    ----------
+    value: str, float, or int
+        A single number or an array of numbers provided as a string following
+        SimCenter's notation.
+    unit: str
+        Either a unit name, or a quantity and a unit name separated by a space.
+        For example: 'ft' or '100 ft'.
+    """
+
+    # if the value is NaN, just return it
+    if pd.isna(value):
+        return value
+
+    # start by understanding the unit
+    unit = unit.strip().split(' ')
+    if len(unit) > 1:
+        unit_count, unit_name = unit
+        unit_count = float(unit_count)
+    else:
+        unit_count = 1
+        unit_name = unit
+
+    try:
+        unit_factor = unit_count * globals()[unit_name]
+    except:
+        raise ValueError(f"Specified unit not recognized: "
+                         f"{unit_count} {unit_name}")
+
+    # now parse the value
+    try:
+        float(value)
+        is_float = True
+    except:
+        is_float = False
+
+    # if it is a single scalar, conversion is easy
+    if is_float:
+        return float(value) * unit_factor
+
+    # otherwise, we assume it is a string using SimCenter array notation
+    else:
+        values = [val.split(',') for val in value.split('|')]
+
+        # the first set of values are assumed to be outputs and need to
+        # be normalized by the unit_factor
+        values[0] = np.array(values[0], dtype=float) / unit_factor
+
+        # the second set of values are assumed to be inputs and need to
+        # be scaled by the unit factor
+        values[1] = np.array(values[1], dtype=float) * unit_factor
+
+        # now convert the values back to string format
+        return '|'.join([','.join([f'{val:g}' for val in values[i]])
+                         for i in range(2)])
+
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
     if describe:
