@@ -1,0 +1,266 @@
+ID,Incomplete,Demand-Type,Demand-Unit,Demand-Offset,Demand-Directional,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS1-DamageStateWeights,LS2-Family,LS2-Theta_0,LS2-Theta_1,LS2-DamageStateWeights,LS3-Family,LS3-Theta_0,LS3-Theta_1,LS3-DamageStateWeights,LS4-Family,LS4-Theta_0,LS4-Theta_1,LS4-DamageStateWeights
+STR.W1.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.012,0.4,,lognormal,0.04,0.4,,lognormal,0.1,0.4,0.97 | 0.03
+STR.W1.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W1.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W1.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0079,0.4,,lognormal,0.0245,0.4,,lognormal,0.06,0.4,0.97 | 0.03
+STR.W2.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.012,0.4,,lognormal,0.04,0.4,,lognormal,0.1,0.4,0.97 | 0.03
+STR.W2.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W2.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W2.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0079,0.4,,lognormal,0.0245,0.4,,lognormal,0.06,0.4,0.97 | 0.03
+STR.S1L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.006,0.4,,lognormal,0.012,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.92 | 0.08
+STR.S1L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.006,0.4,,lognormal,0.0104,0.4,,lognormal,0.0235,0.4,,lognormal,0.06,0.4,0.92 | 0.08
+STR.S1L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.006,0.4,,lognormal,0.0096,0.4,,lognormal,0.0203,0.4,,lognormal,0.05,0.4,0.92 | 0.08
+STR.S1L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0048,0.4,,lognormal,0.0076,0.4,,lognormal,0.0162,0.4,,lognormal,0.04,0.4,0.92 | 0.08
+STR.S1M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.02,0.4,,lognormal,0.0533,0.4,0.95 | 0.05
+STR.S1M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0157,0.4,,lognormal,0.04,0.4,0.95 | 0.05
+STR.S1M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0135,0.4,,lognormal,0.0333,0.4,0.95 | 0.05
+STR.S1M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0108,0.4,,lognormal,0.0267,0.4,0.95 | 0.05
+STR.S1H.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.006,0.4,,lognormal,0.015,0.4,,lognormal,0.04,0.4,0.97 | 0.03
+STR.S1H.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.0052,0.4,,lognormal,0.0118,0.4,,lognormal,0.03,0.4,0.97 | 0.03
+STR.S1H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.0048,0.4,,lognormal,0.0101,0.4,,lognormal,0.025,0.4,0.97 | 0.03
+STR.S1H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0024,0.4,,lognormal,0.0038,0.4,,lognormal,0.0081,0.4,,lognormal,0.02,0.4,0.97 | 0.03
+STR.S2L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.01,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.92 | 0.08
+STR.S2L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.0087,0.4,,lognormal,0.0233,0.4,,lognormal,0.06,0.4,0.92 | 0.08
+STR.S2L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.008,0.4,,lognormal,0.02,0.4,,lognormal,0.05,0.4,0.92 | 0.08
+STR.S2L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.016,0.4,,lognormal,0.04,0.4,0.92 | 0.08
+STR.S2M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0033,0.4,,lognormal,0.0067,0.4,,lognormal,0.02,0.4,,lognormal,0.0533,0.4,0.95 | 0.05
+STR.S2M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0033,0.4,,lognormal,0.0058,0.4,,lognormal,0.0156,0.4,,lognormal,0.04,0.4,0.95 | 0.05
+STR.S2M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0033,0.4,,lognormal,0.0053,0.4,,lognormal,0.0133,0.4,,lognormal,0.0333,0.4,0.95 | 0.05
+STR.S2M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0043,0.4,,lognormal,0.0107,0.4,,lognormal,0.0267,0.4,0.95 | 0.05
+STR.S2H.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0025,0.4,,lognormal,0.005,0.4,,lognormal,0.015,0.4,,lognormal,0.04,0.4,0.97 | 0.03
+STR.S2H.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0025,0.4,,lognormal,0.0043,0.4,,lognormal,0.0117,0.4,,lognormal,0.03,0.4,0.97 | 0.03
+STR.S2H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0025,0.4,,lognormal,0.004,0.4,,lognormal,0.01,0.4,,lognormal,0.025,0.4,0.97 | 0.03
+STR.S2H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.02,0.4,0.97 | 0.03
+STR.S3.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.S3.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.007,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.97 | 0.03
+STR.S3.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.97 | 0.03
+STR.S3.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.97 | 0.03
+STR.S4L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.92 | 0.08
+STR.S4L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.92 | 0.08
+STR.S4L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.92 | 0.08
+STR.S4L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.92 | 0.08
+STR.S4M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0053,0.4,,lognormal,0.016,0.4,,lognormal,0.0467,0.4,0.95 | 0.05
+STR.S4M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0046,0.4,,lognormal,0.0125,0.4,,lognormal,0.035,0.4,0.95 | 0.05
+STR.S4M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0043,0.4,,lognormal,0.0107,0.4,,lognormal,0.0292,0.4,0.95 | 0.05
+STR.S4M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0021,0.4,,lognormal,0.0034,0.4,,lognormal,0.0086,0.4,,lognormal,0.0233,0.4,0.95 | 0.05
+STR.S4H.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.004,0.4,,lognormal,0.012,0.4,,lognormal,0.035,0.4,0.97 | 0.03
+STR.S4H.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0035,0.4,,lognormal,0.0093,0.4,,lognormal,0.0262,0.4,0.97 | 0.03
+STR.S4H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.0219,0.4,0.97 | 0.03
+STR.S4H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0016,0.4,,lognormal,0.0026,0.4,,lognormal,0.0064,0.4,,lognormal,0.0175,0.4,0.97 | 0.03
+STR.S5L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.006,0.4,,lognormal,0.015,0.4,,lognormal,0.035,0.4,0.92 | 0.08
+STR.S5L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0024,0.4,,lognormal,0.0048,0.4,,lognormal,0.012,0.4,,lognormal,0.028,0.4,0.92 | 0.08
+STR.S5M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.004,0.4,,lognormal,0.01,0.4,,lognormal,0.0233,0.4,0.95 | 0.05
+STR.S5M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0016,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.0187,0.4,0.95 | 0.05
+STR.S5H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0015,0.4,,lognormal,0.003,0.4,,lognormal,0.0075,0.4,,lognormal,0.0175,0.4,0.97 | 0.03
+STR.S5H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0012,0.4,,lognormal,0.0024,0.4,,lognormal,0.006,0.4,,lognormal,0.014,0.4,0.97 | 0.03
+STR.C1L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.01,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.87 | 0.13
+STR.C1L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.0087,0.4,,lognormal,0.0233,0.4,,lognormal,0.06,0.4,0.87 | 0.13
+STR.C1L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.008,0.4,,lognormal,0.02,0.4,,lognormal,0.05,0.4,0.87 | 0.13
+STR.C1L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.016,0.4,,lognormal,0.04,0.4,0.87 | 0.13
+STR.C1M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0033,0.4,,lognormal,0.0067,0.4,,lognormal,0.02,0.4,,lognormal,0.0533,0.4,0.9 | 0.1
+STR.C1M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0033,0.4,,lognormal,0.0058,0.4,,lognormal,0.0156,0.4,,lognormal,0.04,0.4,0.9 | 0.1
+STR.C1M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0033,0.4,,lognormal,0.0053,0.4,,lognormal,0.0133,0.4,,lognormal,0.0333,0.4,0.9 | 0.1
+STR.C1M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0043,0.4,,lognormal,0.0107,0.4,,lognormal,0.0267,0.4,0.9 | 0.1
+STR.C1H.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0025,0.4,,lognormal,0.005,0.4,,lognormal,0.015,0.4,,lognormal,0.04,0.4,0.95 | 0.05
+STR.C1H.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0025,0.4,,lognormal,0.0043,0.4,,lognormal,0.0117,0.4,,lognormal,0.03,0.4,0.95 | 0.05
+STR.C1H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0025,0.4,,lognormal,0.004,0.4,,lognormal,0.01,0.4,,lognormal,0.025,0.4,0.95 | 0.05
+STR.C1H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.02,0.4,0.95 | 0.05
+STR.C2L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.01,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.87 | 0.13
+STR.C2L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0084,0.4,,lognormal,0.0232,0.4,,lognormal,0.06,0.4,0.87 | 0.13
+STR.C2L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0076,0.4,,lognormal,0.0197,0.4,,lognormal,0.05,0.4,0.87 | 0.13
+STR.C2L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0061,0.4,,lognormal,0.0158,0.4,,lognormal,0.04,0.4,0.87 | 0.13
+STR.C2M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0067,0.4,,lognormal,0.02,0.4,,lognormal,0.0533,0.4,0.9 | 0.1
+STR.C2M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0056,0.4,,lognormal,0.0154,0.4,,lognormal,0.04,0.4,0.9 | 0.1
+STR.C2M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0051,0.4,,lognormal,0.0132,0.4,,lognormal,0.0333,0.4,0.9 | 0.1
+STR.C2M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0021,0.4,,lognormal,0.0041,0.4,,lognormal,0.0105,0.4,,lognormal,0.0267,0.4,0.9 | 0.1
+STR.C2H.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.005,0.4,,lognormal,0.015,0.4,,lognormal,0.04,0.4,0.95 | 0.05
+STR.C2H.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0042,0.4,,lognormal,0.0116,0.4,,lognormal,0.03,0.4,0.95 | 0.05
+STR.C2H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0038,0.4,,lognormal,0.0099,0.4,,lognormal,0.025,0.4,0.95 | 0.05
+STR.C2H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0016,0.4,,lognormal,0.0031,0.4,,lognormal,0.0079,0.4,,lognormal,0.02,0.4,0.95 | 0.05
+STR.C3L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.006,0.4,,lognormal,0.015,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.C3L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0024,0.4,,lognormal,0.0048,0.4,,lognormal,0.012,0.4,,lognormal,0.028,0.4,0.85 | 0.15
+STR.C3M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.004,0.4,,lognormal,0.01,0.4,,lognormal,0.0233,0.4,0.87 | 0.13
+STR.C3M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0016,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.0187,0.4,0.87 | 0.13
+STR.C3H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0015,0.4,,lognormal,0.003,0.4,,lognormal,0.0075,0.4,,lognormal,0.0175,0.4,0.9 | 0.1
+STR.C3H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0012,0.4,,lognormal,0.0024,0.4,,lognormal,0.006,0.4,,lognormal,0.014,0.4,0.9 | 0.1
+STR.PC1.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.85 | 0.15
+STR.PC1.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.007,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.85 | 0.15
+STR.PC1.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.85 | 0.15
+STR.PC1.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.PC2L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.85 | 0.15
+STR.PC2L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.85 | 0.15
+STR.PC2L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.85 | 0.15
+STR.PC2L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.PC2M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0053,0.4,,lognormal,0.016,0.4,,lognormal,0.0467,0.4,0.87 | 0.13
+STR.PC2M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0046,0.4,,lognormal,0.0125,0.4,,lognormal,0.035,0.4,0.87 | 0.13
+STR.PC2M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0043,0.4,,lognormal,0.0107,0.4,,lognormal,0.0292,0.4,0.87 | 0.13
+STR.PC2M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0021,0.4,,lognormal,0.0034,0.4,,lognormal,0.0086,0.4,,lognormal,0.0233,0.4,0.87 | 0.13
+STR.PC2H.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.004,0.4,,lognormal,0.012,0.4,,lognormal,0.035,0.4,0.9 | 0.1
+STR.PC2H.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0035,0.4,,lognormal,0.0094,0.4,,lognormal,0.0263,0.4,0.9 | 0.1
+STR.PC2H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.0219,0.4,0.9 | 0.1
+STR.PC2H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0016,0.4,,lognormal,0.0026,0.4,,lognormal,0.0064,0.4,,lognormal,0.0175,0.4,0.9 | 0.1
+STR.RM1L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.87 | 0.13
+STR.RM1L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.87 | 0.13
+STR.RM1L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.87 | 0.13
+STR.RM1L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.87 | 0.13
+STR.RM1M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0053,0.4,,lognormal,0.016,0.4,,lognormal,0.0467,0.4,0.9 | 0.1
+STR.RM1M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0046,0.4,,lognormal,0.0125,0.4,,lognormal,0.035,0.4,0.9 | 0.1
+STR.RM1M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0043,0.4,,lognormal,0.0107,0.4,,lognormal,0.0292,0.4,0.9 | 0.1
+STR.RM1M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0021,0.4,,lognormal,0.0034,0.4,,lognormal,0.0086,0.4,,lognormal,0.0233,0.4,0.9 | 0.1
+STR.RM2L.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.87 | 0.13
+STR.RM2L.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.87 | 0.13
+STR.RM2L.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.87 | 0.13
+STR.RM2L.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.87 | 0.13
+STR.RM2M.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0053,0.4,,lognormal,0.016,0.4,,lognormal,0.0467,0.4,0.9 | 0.1
+STR.RM2M.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0046,0.4,,lognormal,0.0125,0.4,,lognormal,0.035,0.4,0.9 | 0.1
+STR.RM2M.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0027,0.4,,lognormal,0.0043,0.4,,lognormal,0.0107,0.4,,lognormal,0.0292,0.4,0.9 | 0.1
+STR.RM2M.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0021,0.4,,lognormal,0.0034,0.4,,lognormal,0.0086,0.4,,lognormal,0.0233,0.4,0.9 | 0.1
+STR.RM2H.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.004,0.4,,lognormal,0.012,0.4,,lognormal,0.035,0.4,0.95 | 0.05
+STR.RM2H.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0035,0.4,,lognormal,0.0094,0.4,,lognormal,0.0263,0.4,0.95 | 0.05
+STR.RM2H.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.0219,0.4,0.95 | 0.05
+STR.RM2H.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0016,0.4,,lognormal,0.0026,0.4,,lognormal,0.0064,0.4,,lognormal,0.0175,0.4,0.95 | 0.05
+STR.URML.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.006,0.4,,lognormal,0.015,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.URML.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0024,0.4,,lognormal,0.0048,0.4,,lognormal,0.012,0.4,,lognormal,0.028,0.4,0.85 | 0.15
+STR.URMM.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.002,0.4,,lognormal,0.004,0.4,,lognormal,0.01,0.4,,lognormal,0.0233,0.4,0.85 | 0.15
+STR.URMM.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0016,0.4,,lognormal,0.0032,0.4,,lognormal,0.008,0.4,,lognormal,0.0187,0.4,0.85 | 0.15
+STR.MH.HC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.MH.MC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.MH.LC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.MH.PC,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0064,0.4,,lognormal,0.0192,0.4,,lognormal,0.056,0.4,0.97 | 0.03
+NSD,0,Peak Roof Drift Ratio,rad,0,0,lognormal,0.004,0.5,,lognormal,0.008,0.5,,lognormal,0.025,0.5,,lognormal,0.05,0.5,
+NSA.HC,0,Peak Floor Acceleration,g,1,0,lognormal,0.3,0.6,,lognormal,0.6,0.6,,lognormal,1.2,0.6,,lognormal,2.4,0.6,
+NSA.MC,0,Peak Floor Acceleration,g,1,0,lognormal,0.25,0.6,,lognormal,0.5,0.6,,lognormal,1.0,0.6,,lognormal,2.0,0.6,
+NSA.LC,0,Peak Floor Acceleration,g,1,0,lognormal,0.2,0.6,,lognormal,0.4,0.6,,lognormal,0.8,0.6,,lognormal,1.6,0.6,
+NSA.PC,0,Peak Floor Acceleration,g,1,0,lognormal,0.2,0.6,,lognormal,0.4,0.6,,lognormal,0.8,0.6,,lognormal,1.6,0.6,
+LF.W1.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.26,0.65,,lognormal,0.55,0.65,,lognormal,1.28,0.65,,lognormal,2.01,0.65,0.97 | 0.03
+LF.W1.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.24,0.65,,lognormal,0.43,0.65,,lognormal,0.91,0.65,,lognormal,1.34,0.65,0.97 | 0.03
+LF.W1.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.2,0.65,,lognormal,0.34,0.65,,lognormal,0.61,0.65,,lognormal,0.95,0.65,0.97 | 0.03
+LF.W1.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.18,0.65,,lognormal,0.29,0.65,,lognormal,0.51,0.65,,lognormal,0.77,0.65,0.97 | 0.03
+LF.W2.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.26,0.65,,lognormal,0.56,0.65,,lognormal,1.15,0.65,,lognormal,2.08,0.65,0.97 | 0.03
+LF.W2.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.2,0.65,,lognormal,0.35,0.65,,lognormal,0.64,0.65,,lognormal,1.13,0.65,0.97 | 0.03
+LF.W2.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.23,0.65,,lognormal,0.48,0.65,,lognormal,0.75,0.65,0.97 | 0.03
+LF.W2.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.19,0.65,,lognormal,0.37,0.65,,lognormal,0.6,0.65,0.97 | 0.03
+LF.S1L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.19,0.65,,lognormal,0.31,0.65,,lognormal,0.64,0.65,,lognormal,1.49,0.65,0.92 | 0.08
+LF.S1L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.15,0.65,,lognormal,0.22,0.65,,lognormal,0.42,0.65,,lognormal,0.8,0.65,0.92 | 0.08
+LF.S1L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.17,0.65,,lognormal,0.3,0.65,,lognormal,0.48,0.65,0.92 | 0.08
+LF.S1L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.22,0.65,,lognormal,0.38,0.65,0.92 | 0.08
+LF.S1M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.26,0.65,,lognormal,0.62,0.65,,lognormal,1.43,0.65,0.95 | 0.05
+LF.S1M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.21,0.65,,lognormal,0.44,0.65,,lognormal,0.82,0.65,0.95 | 0.05
+LF.S1M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.18,0.65,,lognormal,0.29,0.65,,lognormal,0.49,0.65,0.95 | 0.05
+LF.S1M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.14,0.65,,lognormal,0.23,0.65,,lognormal,0.39,0.65,0.95 | 0.05
+LF.S1H.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.21,0.65,,lognormal,0.52,0.65,,lognormal,1.31,0.65,0.97 | 0.03
+LF.S1H.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.18,0.65,,lognormal,0.39,0.65,,lognormal,0.78,0.65,0.97 | 0.03
+LF.S1H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.15,0.65,,lognormal,0.28,0.65,,lognormal,0.48,0.65,0.97 | 0.03
+LF.S1H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.08,0.65,,lognormal,0.12,0.65,,lognormal,0.22,0.65,,lognormal,0.38,0.65,0.97 | 0.03
+LF.S2L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.24,0.65,,lognormal,0.41,0.65,,lognormal,0.76,0.65,,lognormal,1.46,0.65,0.92 | 0.08
+LF.S2L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.2,0.65,,lognormal,0.26,0.65,,lognormal,0.46,0.65,,lognormal,0.84,0.65,0.92 | 0.08
+LF.S2L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.17,0.65,,lognormal,0.3,0.65,,lognormal,0.5,0.65,0.92 | 0.08
+LF.S2L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.14,0.65,,lognormal,0.23,0.65,,lognormal,0.39,0.65,0.92 | 0.08
+LF.S2M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.27,0.65,,lognormal,0.73,0.65,,lognormal,1.62,0.65,0.95 | 0.05
+LF.S2M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.22,0.65,,lognormal,0.53,0.65,,lognormal,0.97,0.65,0.95 | 0.05
+LF.S2M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.18,0.65,,lognormal,0.35,0.65,,lognormal,0.58,0.65,0.95 | 0.05
+LF.S2M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.14,0.65,,lognormal,0.28,0.65,,lognormal,0.47,0.65,0.95 | 0.05
+LF.S2H.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.22,0.65,,lognormal,0.65,0.65,,lognormal,1.6,0.65,0.97 | 0.03
+LF.S2H.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.19,0.65,,lognormal,0.49,0.65,,lognormal,1.02,0.65,0.97 | 0.03
+LF.S2H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.17,0.65,,lognormal,0.36,0.65,,lognormal,0.63,0.65,0.97 | 0.03
+LF.S2H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.29,0.65,,lognormal,0.5,0.65,0.97 | 0.03
+LF.S3.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.15,0.65,,lognormal,0.26,0.65,,lognormal,0.54,0.65,,lognormal,1.0,0.65,0.97 | 0.03
+LF.S3.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.19,0.65,,lognormal,0.33,0.65,,lognormal,0.6,0.65,0.97 | 0.03
+LF.S3.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.13,0.65,,lognormal,0.2,0.65,,lognormal,0.38,0.65,0.97 | 0.03
+LF.S3.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.08,0.65,,lognormal,0.1,0.65,,lognormal,0.16,0.65,,lognormal,0.3,0.65,0.97 | 0.03
+LF.S4L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.24,0.65,,lognormal,0.39,0.65,,lognormal,0.71,0.65,,lognormal,1.33,0.65,0.92 | 0.08
+LF.S4L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.19,0.65,,lognormal,0.26,0.65,,lognormal,0.41,0.65,,lognormal,0.78,0.65,0.92 | 0.08
+LF.S4L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.16,0.65,,lognormal,0.26,0.65,,lognormal,0.46,0.65,0.92 | 0.08
+LF.S4L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.13,0.65,,lognormal,0.2,0.65,,lognormal,0.36,0.65,0.92 | 0.08
+LF.S4M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.16,0.65,,lognormal,0.28,0.65,,lognormal,0.73,0.65,,lognormal,1.56,0.65,0.95 | 0.05
+LF.S4M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.22,0.65,,lognormal,0.51,0.65,,lognormal,0.92,0.65,0.95 | 0.05
+LF.S4M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.17,0.65,,lognormal,0.31,0.65,,lognormal,0.54,0.65,0.95 | 0.05
+LF.S4M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.25,0.65,,lognormal,0.43,0.65,0.95 | 0.05
+LF.S4H.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.25,0.65,,lognormal,0.69,0.65,,lognormal,1.63,0.65,0.97 | 0.03
+LF.S4H.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.21,0.65,,lognormal,0.51,0.65,,lognormal,0.97,0.65,0.97 | 0.03
+LF.S4H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.17,0.65,,lognormal,0.33,0.65,,lognormal,0.59,0.65,0.97 | 0.03
+LF.S4H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.14,0.65,,lognormal,0.27,0.65,,lognormal,0.47,0.65,0.97 | 0.03
+LF.S5L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.17,0.65,,lognormal,0.28,0.65,,lognormal,0.45,0.65,0.92 | 0.08
+LF.S5L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.14,0.65,,lognormal,0.22,0.65,,lognormal,0.37,0.65,0.92 | 0.08
+LF.S5M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.18,0.65,,lognormal,0.34,0.65,,lognormal,0.53,0.65,0.95 | 0.05
+LF.S5M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.14,0.65,,lognormal,0.28,0.65,,lognormal,0.43,0.65,0.95 | 0.05
+LF.S5H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.18,0.65,,lognormal,0.35,0.65,,lognormal,0.58,0.65,0.97 | 0.03
+LF.S5H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.08,0.65,,lognormal,0.14,0.65,,lognormal,0.29,0.65,,lognormal,0.46,0.65,0.97 | 0.03
+LF.C1L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.21,0.65,,lognormal,0.35,0.65,,lognormal,0.7,0.65,,lognormal,1.37,0.65,0.87 | 0.13
+LF.C1L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.16,0.65,,lognormal,0.23,0.65,,lognormal,0.41,0.65,,lognormal,0.77,0.65,0.87 | 0.13
+LF.C1L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.15,0.65,,lognormal,0.27,0.65,,lognormal,0.45,0.65,0.87 | 0.13
+LF.C1L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.12,0.65,,lognormal,0.21,0.65,,lognormal,0.36,0.65,0.87 | 0.13
+LF.C1M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.15,0.65,,lognormal,0.27,0.65,,lognormal,0.73,0.65,,lognormal,1.61,0.65,0.9 | 0.1
+LF.C1M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.21,0.65,,lognormal,0.49,0.65,,lognormal,0.89,0.65,0.9 | 0.1
+LF.C1M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.17,0.65,,lognormal,0.32,0.65,,lognormal,0.54,0.65,0.9 | 0.1
+LF.C1M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.26,0.65,,lognormal,0.43,0.65,0.9 | 0.1
+LF.C1H.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.22,0.65,,lognormal,0.62,0.65,,lognormal,1.35,0.65,0.95 | 0.05
+LF.C1H.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.18,0.65,,lognormal,0.41,0.65,,lognormal,0.74,0.65,0.95 | 0.05
+LF.C1H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.15,0.65,,lognormal,0.27,0.65,,lognormal,0.44,0.65,0.95 | 0.05
+LF.C1H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.08,0.65,,lognormal,0.12,0.65,,lognormal,0.21,0.65,,lognormal,0.35,0.65,0.95 | 0.05
+LF.C2L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.24,0.65,,lognormal,0.45,0.65,,lognormal,0.9,0.65,,lognormal,1.55,0.65,0.87 | 0.13
+LF.C2L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.18,0.65,,lognormal,0.3,0.65,,lognormal,0.49,0.65,,lognormal,0.87,0.65,0.87 | 0.13
+LF.C2L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.19,0.65,,lognormal,0.3,0.65,,lognormal,0.52,0.65,0.87 | 0.13
+LF.C2L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.15,0.65,,lognormal,0.24,0.65,,lognormal,0.42,0.65,0.87 | 0.13
+LF.C2M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.17,0.65,,lognormal,0.36,0.65,,lognormal,0.87,0.65,,lognormal,1.95,0.65,0.9 | 0.1
+LF.C2M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.15,0.65,,lognormal,0.26,0.65,,lognormal,0.55,0.65,,lognormal,1.02,0.65,0.9 | 0.1
+LF.C2M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.19,0.65,,lognormal,0.38,0.65,,lognormal,0.63,0.65,0.9 | 0.1
+LF.C2M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.15,0.65,,lognormal,0.3,0.65,,lognormal,0.5,0.65,0.9 | 0.1
+LF.C2H.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.29,0.65,,lognormal,0.82,0.65,,lognormal,1.87,0.65,0.95 | 0.05
+LF.C2H.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.23,0.65,,lognormal,0.57,0.65,,lognormal,1.07,0.65,0.95 | 0.05
+LF.C2H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.19,0.65,,lognormal,0.38,0.65,,lognormal,0.65,0.65,0.95 | 0.05
+LF.C2H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.15,0.65,,lognormal,0.31,0.65,,lognormal,0.52,0.65,0.95 | 0.05
+LF.C3L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.17,0.65,,lognormal,0.26,0.65,,lognormal,0.44,0.65,0.85 | 0.15
+LF.C3L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.14,0.65,,lognormal,0.21,0.65,,lognormal,0.35,0.65,0.85 | 0.15
+LF.C3M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.17,0.65,,lognormal,0.32,0.65,,lognormal,0.51,0.65,0.87 | 0.13
+LF.C3M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.14,0.65,,lognormal,0.25,0.65,,lognormal,0.41,0.65,0.87 | 0.13
+LF.C3H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.16,0.65,,lognormal,0.33,0.65,,lognormal,0.53,0.65,0.9 | 0.1
+LF.C3H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.08,0.65,,lognormal,0.13,0.65,,lognormal,0.27,0.65,,lognormal,0.43,0.65,0.9 | 0.1
+LF.PC1.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.2,0.65,,lognormal,0.35,0.65,,lognormal,0.72,0.65,,lognormal,1.25,0.65,0.85 | 0.15
+LF.PC1.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.18,0.65,,lognormal,0.24,0.65,,lognormal,0.44,0.65,,lognormal,0.71,0.65,0.85 | 0.15
+LF.PC1.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.17,0.65,,lognormal,0.25,0.65,,lognormal,0.45,0.65,0.85 | 0.15
+LF.PC1.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.14,0.65,,lognormal,0.21,0.65,,lognormal,0.35,0.65,0.85 | 0.15
+LF.PC2L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.24,0.65,,lognormal,0.36,0.65,,lognormal,0.69,0.65,,lognormal,1.23,0.65,0.85 | 0.15
+LF.PC2L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.18,0.65,,lognormal,0.25,0.65,,lognormal,0.4,0.65,,lognormal,0.74,0.65,0.85 | 0.15
+LF.PC2L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.15,0.65,,lognormal,0.24,0.65,,lognormal,0.44,0.65,0.85 | 0.15
+LF.PC2L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.13,0.65,,lognormal,0.19,0.65,,lognormal,0.35,0.65,0.85 | 0.15
+LF.PC2M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.17,0.65,,lognormal,0.29,0.65,,lognormal,0.67,0.65,,lognormal,1.51,0.65,0.87 | 0.13
+LF.PC2M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.15,0.65,,lognormal,0.21,0.65,,lognormal,0.45,0.65,,lognormal,0.86,0.65,0.87 | 0.13
+LF.PC2M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.16,0.65,,lognormal,0.31,0.65,,lognormal,0.52,0.65,0.87 | 0.13
+LF.PC2M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.24,0.65,,lognormal,0.42,0.65,0.87 | 0.13
+LF.PC2H.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.23,0.65,,lognormal,0.63,0.65,,lognormal,1.49,0.65,0.9 | 0.1
+LF.PC2H.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.19,0.65,,lognormal,0.46,0.65,,lognormal,0.9,0.65,0.9 | 0.1
+LF.PC2H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.16,0.65,,lognormal,0.31,0.65,,lognormal,0.55,0.65,0.9 | 0.1
+LF.PC2H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.25,0.65,,lognormal,0.43,0.65,0.9 | 0.1
+LF.RM1L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.3,0.65,,lognormal,0.46,0.65,,lognormal,0.93,0.65,,lognormal,1.57,0.65,0.87 | 0.13
+LF.RM1L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.22,0.65,,lognormal,0.3,0.65,,lognormal,0.5,0.65,,lognormal,0.85,0.65,0.87 | 0.13
+LF.RM1L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.16,0.65,,lognormal,0.2,0.65,,lognormal,0.29,0.65,,lognormal,0.54,0.65,0.87 | 0.13
+LF.RM1L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.16,0.65,,lognormal,0.24,0.65,,lognormal,0.43,0.65,0.87 | 0.13
+LF.RM1M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.2,0.65,,lognormal,0.37,0.65,,lognormal,0.81,0.65,,lognormal,1.9,0.65,0.9 | 0.1
+LF.RM1M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.18,0.65,,lognormal,0.26,0.65,,lognormal,0.51,0.65,,lognormal,1.03,0.65,0.9 | 0.1
+LF.RM1M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.19,0.65,,lognormal,0.35,0.65,,lognormal,0.63,0.65,0.9 | 0.1
+LF.RM1M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.15,0.65,,lognormal,0.28,0.65,,lognormal,0.5,0.65,0.9 | 0.1
+LF.RM2L.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.26,0.65,,lognormal,0.42,0.65,,lognormal,0.87,0.65,,lognormal,1.49,0.65,0.87 | 0.13
+LF.RM2L.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.2,0.65,,lognormal,0.28,0.65,,lognormal,0.47,0.65,,lognormal,0.81,0.65,0.87 | 0.13
+LF.RM2L.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.18,0.65,,lognormal,0.28,0.65,,lognormal,0.51,0.65,0.87 | 0.13
+LF.RM2L.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.15,0.65,,lognormal,0.22,0.65,,lognormal,0.41,0.65,0.87 | 0.13
+LF.RM2M.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.17,0.65,,lognormal,0.33,0.65,,lognormal,0.75,0.65,,lognormal,1.83,0.65,0.9 | 0.1
+LF.RM2M.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.16,0.65,,lognormal,0.23,0.65,,lognormal,0.48,0.65,,lognormal,0.99,0.65,0.9 | 0.1
+LF.RM2M.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.17,0.65,,lognormal,0.34,0.65,,lognormal,0.6,0.65,0.9 | 0.1
+LF.RM2M.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.14,0.65,,lognormal,0.26,0.65,,lognormal,0.47,0.65,0.9 | 0.1
+LF.RM2H.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.24,0.65,,lognormal,0.67,0.65,,lognormal,1.78,0.65,0.95 | 0.05
+LF.RM2H.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.12,0.65,,lognormal,0.2,0.65,,lognormal,0.48,0.65,,lognormal,1.01,0.65,0.95 | 0.05
+LF.RM2H.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.17,0.65,,lognormal,0.35,0.65,,lognormal,0.62,0.65,0.95 | 0.05
+LF.RM2H.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.27,0.65,,lognormal,0.5,0.65,0.95 | 0.05
+LF.URML.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.14,0.65,,lognormal,0.2,0.65,,lognormal,0.32,0.65,,lognormal,0.46,0.65,0.85 | 0.15
+LF.URML.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.13,0.65,,lognormal,0.17,0.65,,lognormal,0.26,0.65,,lognormal,0.37,0.65,0.85 | 0.15
+LF.URMM.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.1,0.65,,lognormal,0.16,0.65,,lognormal,0.27,0.65,,lognormal,0.46,0.65,0.85 | 0.15
+LF.URMM.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.09,0.65,,lognormal,0.13,0.65,,lognormal,0.21,0.65,,lognormal,0.38,0.65,0.85 | 0.15
+LF.MH.HC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.18,0.65,,lognormal,0.31,0.65,,lognormal,0.6,0.65,0.97 | 0.03
+LF.MH.MC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.18,0.65,,lognormal,0.31,0.65,,lognormal,0.6,0.65,0.97 | 0.03
+LF.MH.LC,0,Peak Ground Acceleration,g,0,0,lognormal,0.11,0.65,,lognormal,0.18,0.65,,lognormal,0.31,0.65,,lognormal,0.6,0.65,0.97 | 0.03
+LF.MH.PC,0,Peak Ground Acceleration,g,0,0,lognormal,0.08,0.65,,lognormal,0.11,0.65,,lognormal,0.18,0.65,,lognormal,0.34,0.65,0.97 | 0.03
+GF.H.S,0,Permanent Ground Deformation,inch,0,0,lognormal,60.0,1.256,0.8 | 0.2,,,,,,,,,,,,
+GF.H.D,0,Permanent Ground Deformation,inch,0,0,lognormal,184.0,1.659,0.8 | 0.2,,,,,,,,,,,,
+GF.V.S,0,Permanent Ground Deformation,inch,0,0,lognormal,10.0,1.256,0.8 | 0.2,,,,,,,,,,,,
+GF.V.D,0,Permanent Ground Deformation,inch,0,0,lognormal,486.0,2.362,0.8 | 0.2,,,,,,,,,,,,
