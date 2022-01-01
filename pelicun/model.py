@@ -1831,6 +1831,16 @@ class LossModel(object):
         log_msg(f"Loss parameters successfully parsed.",
                 prepend_timestamp=False)
 
+    def aggregate_losses(self):
+        """
+        This is placeholder method.
+
+        The method of aggregating the Decision Variable sample is specific to
+        each DV and needs to be implemented in every child of the LossModel
+        independently.
+        """
+        pass
+
     def _generate_DV_sample(self, dmg_quantities, sample_size):
         """
         This is placeholder method.
@@ -2088,6 +2098,43 @@ class BldgRepairModel(LossModel):
 
         return medians
 
+    def aggregate_losses(self):
+        """
+        Aggregates repair consequences across components.
+
+        Repair costs are simply summed up for each realization while repair
+        times are aggregated to provide lower and upper limits of the total
+        repair time using the assumption of parallel and sequential repair of
+        floors, respectively. Repairs within each floor are assumed to occur
+        sequentially.
+        """
+
+        log_div()
+        log_msg(f"Aggregating repair consequences...")
+
+        DV = self.sample
+
+        # group results by DV type and location
+        DVG = DV.groupby(level=[0, 4], axis=1).sum()
+
+        # create the summary DF
+        df_agg = pd.DataFrame(index=DV.index,
+                              columns=['repair_cost',
+                                       'repair_time-parallel',
+                                       'repair_time-sequential'])
+
+        df_agg['repair_cost'] = DVG['COST'].sum(axis=1)
+        df_agg['repair_time-sequential'] = DVG['TIME'].sum(axis=1)
+
+        df_agg['repair_time-parallel'] = DVG['TIME'].max(axis=1)
+
+        df_agg = convert_to_MultiIndex(df_agg, axis=1)
+
+        log_msg(f"Repair consequences successfully aggregated.")
+
+        return df_agg
+
+
     def _generate_DV_sample(self, dmg_quantities, sample_size):
         """
         Generate a sample of repair costs and times.
@@ -2248,7 +2295,21 @@ class BldgRepairModel(LossModel):
         DV_sample = DV_sample.fillna(0).convert_dtypes()
         DV_sample.columns.names = lvl_names
 
-        self.DV_sample = DV_sample
+        # When the 'replacement' consequence is triggered, all local repair
+        # consequences are discarded. Note that global consequences are assigned
+        # to location '0'.
+
+        # Get the flags for replacement consequence trigger
+        id_replacement = DV_sample.groupby(level=[1, ],
+                                           axis=1).sum()['replacement'] > 0
+
+        # get the list of non-zero locations
+        locs = DV_sample.columns.get_level_values(4).unique().values
+        locs = locs[locs != '0']
+
+        DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
+
+        self._sample = DV_sample
 
         log_msg(f"Successfully obtained DV sample.",
                 prepend_timestamp=False)
