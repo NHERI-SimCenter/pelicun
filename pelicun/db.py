@@ -63,9 +63,6 @@ from pathlib import Path
 import re
 import json
 
-import xml.etree.ElementTree as ET
-import shutil
-
 
 def parse_DS_Hierarchy(DSH):
     """
