@@ -1,0 +1,35 @@
+{
+  "Options": {
+    "Verbose": false,
+    "Seed": null,
+    "LogShowMS": false,
+    "LogFile": "pelicun_log.txt",
+    "PrintLog": false,
+    "DemandOffset": {
+      "PFA": -1,
+      "PFV": -1
+    },
+    "SamplingMethod": "LHS_midpoint",
+    "NonDirectionalMultipliers": {
+      "ALL": 1.2
+    },
+    "EconomiesOfScale": {
+      "AcrossFloors": true,
+      "AcrossDamageStates": false
+    },
+    "RepairCostAndTimeCorrelation": 1.0
+  },
+  "DemandAssessment": {
+    "Calibration": {
+      "Marginals": {
+        "ALL": {
+          "DistributionFamily": "lognormal"
+        }
+      }
+    },
+    "Sampling": {
+      "SampleSize": 1000,
+      "PreserveRawOrder": false
+    }
+  }
+}

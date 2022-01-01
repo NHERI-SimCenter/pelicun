@@ -1,0 +1,15 @@
+,units,location,direction,family,theta_0,theta_1,truncate_lower,truncate_upper
+B1031.001,ea,all,"1, 2",,"4, 4, 4, 4, 4",,,
+B1031.011c,ea,1,"1, 2",,"1, 1, 1, 1",,,
+B1031.021c,ea,all,"1, 2",,"1, 1, 1, 1",,,
+B1033.111b,ea,all,"1, 2",,"1, 1, 1, 1",,,
+B2011.201a,ft,all,1,normal,"30, 30",100,10,50
+B2011.201a,ft,all,2,normal,"50, 50, 50, 50",5,0,
+B2011.201b,ft,all,1,normal,"30, 30",3,0,
+B2011.201b,ft,all,2,normal,"50, 50, 50, 50",5,0,
+C1011.011a,ft,all,1,normal,"50, 50, 50",5,0,
+C1011.011a,ft,all,2,normal,"200, 200, 100",20,0,
+C2011.001b,ea,all,1,,1,,,
+C3032.001a,ft2,all,0,normal,"400, 500, 200, 300",20,0,
+collapse,ea,0,1,,1,,,
+irreparable,ea,0,1,,1,,,

@@ -23,7 +23,7 @@ setup(
     author='Adam Zsarnóczay',
     tests_require=['pytest'],
     author_email='adamzs@stanford.edu',
-    description='Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural disasters',
+    description='Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events',
     long_description=long_description,
     long_description_content_type='text/markdown',
     #packages=['pelicun'],
@@ -31,9 +31,9 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=[
-        'numpy>=1.19.0',
-        'scipy>=1.5.0',
-        'pandas>=1.1.0,<=1.1.5',
+        'numpy>=1.21.0',
+        'scipy>=1.7.0',
+        'pandas>=1.3.0',
         'tables',
         'xlrd<=1.2.0'
     ],
@@ -50,9 +50,9 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Unix',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Topic :: Scientific/Engineering',
         ],
     extras_require={

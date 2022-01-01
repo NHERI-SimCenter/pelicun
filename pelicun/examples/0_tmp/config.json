@@ -1,0 +1,93 @@
+{
+    "Options":{
+        "Verbose": true,
+        "Seed": 712,
+        "PrintLog": true,
+        "LogShowMS": false,
+        "EconomiesOfScale": {
+          "AcrossFloors": true,
+          "AcrossDamageStates": false
+        }
+    },
+    "GeneralInformation": {
+        "NumberOfStories": 3
+    },
+    "DemandAssessment": {
+        "Calibration": {
+            "LoadSampleFrom": "demands.csv",
+            "SaveModelTo": "EDP",
+            "Marginals": {
+                "ALL": {
+                    "DistributionFamily": "lognormal"
+                },
+                "PID": {
+                    "DistributionFamily": "lognormal",
+                    "TruncateAt": [
+                        null,
+                        0.03
+                    ],
+                    "AddUncertainty": 0.25
+                },
+                "PFA": {
+                    "DistributionFamily": "normal",
+                    "TruncateAt": [
+                        0.0,
+                        450.0
+                    ],
+                    "AddUncertainty": 40.0,
+                    "Unit": "inchps2"
+                },
+                "RID": {
+                    "DistributionFamily": "empirical"
+                }
+            }
+        },
+        "Sampling": {
+            "LoadModelFrom": "EDP",
+            "SampleSize": 10000,
+            "SaveSampleTo": "EDP_sample.csv"
+        }
+    },
+    "DamageAssessment": {
+        "SampleSize": 10000,
+        "Components": {
+            "LoadModelFrom": "CMP",
+            "SaveSampleTo": "CMP_sample.csv",
+            "LoadSampleFrom": "CMP_sample.csv"
+        },
+        "Demands": {
+            "LoadSampleFrom": "EDP_sample.csv"
+        },
+        "Fragilities": {
+            "LoadModelFrom": [
+                "fragility_Additional.csv",
+                "PelicunDefault/fragility_DB_FEMA_P58_2nd.csv"
+            ]
+        },
+        "Calculation": {
+            "DamageProcessFrom": "DMG_process_P58.json",
+            "SaveDamageSampleTo":"DMG_sample.csv"
+        }
+    },
+    "LossAssessment": {
+        "SampleSize": 10000,
+        "Demands": {
+            "LoadSampleFrom": "EDP_sample.csv"
+        },
+        "Components": {
+            "LoadSampleFrom": "CMP_sample.csv"
+        },
+        "Damage":{
+            "LoadSampleFrom": "DMG_sample.csv"
+        },
+        "CalculateBldgRepair": {
+            "LoadMappingFrom": "LOSS_map.csv",
+            "LoadModelFrom": [
+                "repair_Additional.csv",
+                "PelicunDefault/bldg_repair_DB_FEMA_P58_2nd.csv"
+            ],
+            "SaveLossSampleTo": "LOSS_repair.csv"
+        },
+        "SaveAggregateResultsTo": "Summary.csv"
+    }
+}
