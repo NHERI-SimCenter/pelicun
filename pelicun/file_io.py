@@ -181,13 +181,13 @@ def get_required_resources(input_path, assessment_type):
 
     if path_CMP_data == "":
         # Use the P58 path as default
-        path_CMP_data = pelicun_path + CMP_data_path[AT]
+        path_CMP_data = pelicun_path / CMP_data_path[AT]
 
     resources.update({'component': path_CMP_data})
 
     # HAZUS combination of flood and wind losses
     if ((AT == 'HAZUS_HU') and (DL_input.get('Combinations', None) is not None)):
-        path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
+        path_combination_data = pelicun_path / CMP_data_path['HAZUS_MISC']
         resources.update({'combination': path_combination_data})
 
     # The population data is only needed if we are interested in injuries
@@ -197,10 +197,363 @@ def get_required_resources(input_path, assessment_type):
         path_POP_data = ""
 
     if ((injuries) and (path_POP_data == "")):
-        path_POP_data = pelicun_path + POP_data_path[AT]
+        path_POP_data = pelicun_path / POP_data_path[AT]
         resources.update({'population': path_POP_data})
 
     return resources
+
+def load_default_options():
+    """
+    Load the default_config.json file to set options to default values
+
+    """
+
+    with open(pelicun_path / "settings/default_config.json", 'r') as f:
+        options.defaults = json.load(f)
+
+    set_options(options.defaults.get('Options', None))
+
+def merge_default_config(config):
+
+    defaults = options.defaults
+
+    if config.get('DemandAssessment', False):
+
+        demand_def = defaults['DemandAssessment']
+        demand_config = config['DemandAssessment']
+
+        if 'Calibration' in demand_config.keys():
+
+            calib_config = demand_config['Calibration']
+            calib_def = demand_def['Calibration']
+
+            for key, value in calib_def.items():
+
+                if key in ['Marginals',]:
+                    continue
+
+                if key not in calib_def:
+                    calib_def.update({key: value})
+
+            marginal_config = calib_config['Marginals']
+            marginal_def = calib_def['Marginals']
+
+            for key, value in marginal_def.items():
+
+                if key not in marginal_config:
+                    marginal_config.update({key: value})
+
+        if 'Sampling' in demand_config.keys():
+
+            sample_config = demand_config['Sampling']
+
+            for key, value in demand_def['Sampling'].items():
+
+                if key not in sample_config:
+                    sample_config.update({key: value})
+
+        if 'OutputUnits' in demand_def.keys():
+
+            if 'OutputUnits' not in demand_config.keys():
+                demand_config.update({'OutputUnits': {}})
+
+            for key, value in demand_def['OutputUnits'].items():
+
+                if key not in demand_config['OutputUnits']:
+                    demand_config['OutputUnits'].update({key: value})
+
+    return config
+
+
+def save_to_csv(data, filepath, units=None, orientation=0):
+    """
+    Saves data to a CSV file following standard SimCenter schema.
+
+    The produced CSV files have a single header line and an index column. The
+    second line may start with 'units' in the index or the first column may be
+    'units' to provide the units for the data in the file.
+
+    The following data types in pelicun can be saved with this function:
+
+    Demand Data: Each column in a table corresponds to a demand type; each
+    row corresponds to a simulation/sample. The header identifies each demand
+    type. The user guide section of the documentation provides more
+    information about the header format. Target need to be specified in the
+    second row of the DataFrame.
+
+    Parameters
+    ----------
+    data: DataFrame
+        The data to save
+    filepath: string
+        The location of the destination file
+    units: Series, optional
+        Provides a Series with variables and corresponding units.
+    level: string, optional
+        Identifies the level referenced in the units dictionary when the data
+        has a MultiIndex header.
+    orientation: int, {0, 1}, default: 0
+        If 0, variables are organized along columns; otherwise they are along
+        the rows. This is important when converting values to follow the
+        prescribed units.
+
+    """
+
+    log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+
+    filepath = Path(filepath).resolve()
+
+    if data is not None:
+
+        # make sure we do not modify the original data
+        data = data.copy()
+
+        # convert units and add unit information, if needed
+        if units is not None:
+
+            log_msg(f'Converting units...', prepend_timestamp=False)
+
+            # if the orientation is 1, we might not need to scale all columns
+            if orientation == 1:
+                cols_to_scale = [dt in [float, int] for dt in data.dtypes]
+                cols_to_scale = data.columns[cols_to_scale]
+
+            labels_to_keep = []
+
+            for unit_name in units.unique():
+
+                labels = units.loc[units==unit_name].index.values
+
+                unit_factor = 1./globals()[unit_name]
+
+                active_labels = []
+
+                if orientation == 0:
+                    for label in labels:
+                        if label in data.columns:
+                            active_labels.append(label)
+
+                    if len(active_labels) > 0:
+                        data.loc[:, active_labels] *= unit_factor
+
+                else: #elif orientation == 1:
+                    for label in labels:
+                        if label in data.index:
+                            active_labels.append(label)
+
+                    if len(active_labels) > 0:
+                        data.loc[active_labels, cols_to_scale] *= unit_factor
+
+                labels_to_keep += active_labels
+
+            units = units.loc[labels_to_keep].to_frame()
+
+            if orientation == 0:
+                data = pd.concat([units.T, data], axis=0)
+                data.sort_index(axis=1, inplace=True)
+            else:
+                data = pd.concat([units, data], axis=1)
+                data.sort_index(inplace=True)
+
+            log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+
+        # convert MultiIndex to regular index with '-' separators
+        if isinstance(data.index, pd.MultiIndex):
+            data = convert_to_SimpleIndex(data)
+
+        # same thing for the columns
+        if isinstance(data.columns, pd.MultiIndex):
+            data = convert_to_SimpleIndex(data, axis=1)
+
+        if filepath.suffix == '.csv':
+
+            # save the contents of the DataFrame into a csv
+
+            data.to_csv(filepath)
+
+            log_msg(f'Data successfully saved to file.',
+                    prepend_timestamp=False)
+
+        else:
+            raise ValueError(
+                f'ERROR: Unexpected file type received when trying '
+                f'to save to csv: {filepath}')
+
+    else:
+        log_msg(f'WARNING: Data was empty, no file saved.',
+                prepend_timestamp=False)
+
+def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
+                  convert=None):
+    """
+    Loads data from a CSV file assuming it follows standard SimCenter schema.
+
+    CSV files are assumed to have a single header line and an index column. The
+    second line may start with 'units' in the index and provide the units for
+    each column in the file.
+
+    The following data types can be loaded with this function:
+
+    Demand Data: Each column in a table corresponds to a demand type; each
+    row corresponds to a simulation/sample. The header identifies each demand
+    type. The user guide section of the documentation provides more
+    information about the header format. Units need to be specified in the
+    second row of the file.
+
+    Parameters
+    ----------
+    filepath: string
+        The location of the source file
+    orientation: int, {0, 1}, default: 0
+        If 0, variables are organized along columns; otherwise they are along
+        the rows. This is important when converting values to follow the
+        prescribed units.
+    reindex: bool
+        If True, reindexes the table to ensure a 0-based, continuous index
+    return_units: bool
+        If True, returns the units as well as the data to allow for adjustments
+        in unit conversion.
+
+    Returns
+    -------
+    data: DataFrame
+        Data loaded from the file.
+    units: Series
+        Labels from the data and corresponding units specified in the file. If
+        no units are specified, this return value is "None". units are only
+        returned if return_units is set to True.
+    """
+
+    log_msg(f'Loading data from {filepath}...')
+
+    # check if the filepath is valid
+    filepath = Path(filepath).resolve()
+
+    if not filepath.is_file():
+        raise ValueError(f"The filepath provided does not point to an existing "
+                         f"file: {filepath}")
+
+    if filepath.suffix == '.csv':
+
+        # load the contents of the csv into a DataFrame
+
+        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
+
+        log_msg(f'File successfully opened.', prepend_timestamp=False)
+
+    else:
+        raise ValueError(f'ERROR: Unexpected file type received when trying '
+                         f'to load from csv: {filepath}')
+
+    # if there is information about units, perform the conversion to SI
+    if (data.index[0] == 'units') or (data.columns[0] == 'units'):
+
+        log_msg(f'Converting units...', prepend_timestamp=False)
+
+        if orientation == 0:
+            units = data.loc['units',:].copy().dropna()
+            data.drop('units', inplace=True)
+            data = data.astype(float)
+
+        else:  #elif orientation==1:
+            units = data.loc[:, 'units'].copy().dropna()
+            data.drop('units', axis=1, inplace=True)
+
+            if convert is None:
+                cols_to_scale = []
+                for col in data.columns:
+                    try:
+                        data.loc[:, col] = data.loc[:,col].astype(float)
+                        cols_to_scale.append(col)
+                    except:
+                        pass
+            else:
+                cols_to_scale = convert
+
+        unique_unit_names = units.unique()
+
+        for unit_name in unique_unit_names:
+
+            unit_factor = globals()[unit_name]
+            unit_labels = units.loc[units==unit_name].index
+
+            if orientation == 0:
+                data.loc[:,unit_labels] *= unit_factor
+
+            else:  #elif orientation==1:
+                data.loc[unit_labels, cols_to_scale] *= unit_factor
+
+        log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+
+    else:
+
+        data = data.convert_dtypes()
+        # enforcing float datatype is important even if there is no unit
+        # conversion
+        units = None
+        if orientation == 0:
+            data = data.astype(float)
+
+        else:
+            for col in data.columns:
+                try:
+                    data.loc[:, col] = data.loc[:, col].astype(float)
+                except:
+                    pass
+
+    # convert column to MultiIndex if needed
+    data = convert_to_MultiIndex(data, axis=1)
+
+    data.sort_index(axis=1, inplace=True)
+
+    # reindex the data, if needed
+    if reindex:
+
+        data.index = np.arange(data.shape[0])
+
+    else:
+        # convert index to MultiIndex if needed
+        data = convert_to_MultiIndex(data, axis=0)
+
+        data.sort_index(inplace=True)
+
+    log_msg(f'Data successfully loaded from file.', prepend_timestamp=False)
+
+    if return_units:
+
+        # convert index in units Series to MultiIndex if needed
+        units = convert_to_MultiIndex(units, axis=0)
+
+        units.sort_index(inplace=True)
+
+        return data, units
+
+    else:
+        return data
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# LEGACY CODE
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+def convert_units(self):
+    """
+    Scale the demand values according to the prescribed units
+
+    """
+
+    # get a list of demand types in the model
+    demand_type_list = self.demand_data.columns.get_level_values('type').values
+
+    # for each demand type
+    for demand_type in set(demand_type_list):
+
+        scale_factor = self._get_unit_conversion_scale_factor(demand_type)
+
+        if scale_factor != 1.0:
+
+            # get the columns in the demand DF that correspond to this
+            # demand type and scale the values in those columns
+            self.demand_data.loc[:, idx[demand_type, :, :]] *= scale_factor
 
 def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
     """
@@ -330,7 +683,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     if path_CMP_data == "":
         # Use the P58 path as default
-        path_CMP_data = pelicun_path + CMP_data_path[AT]
+        path_CMP_data = pelicun_path / CMP_data_path[AT]
 
     data['data_sources'].update({'path_CMP_data': path_CMP_data})
 
@@ -342,7 +695,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
         if comb is not None:
             path_combination_data = DL_input.get('CombinationDataFile', None)
             if path_combination_data is None:
-                path_combination_data = pelicun_path + CMP_data_path['HAZUS_MISC']
+                path_combination_data = pelicun_path / CMP_data_path['HAZUS_MISC']
         data['data_sources'].update({'path_combination_data': path_combination_data})
         data['loss_combination'] = comb
 
@@ -354,7 +707,7 @@ def read_SimCenter_DL_input(input_path, assessment_type='P58', verbose=False):
 
     if data['decision_variables']['injuries']:
         if path_POP_data == "":
-            path_POP_data = pelicun_path + POP_data_path[AT]
+            path_POP_data = pelicun_path / POP_data_path[AT]
 
         data['data_sources'].update({'path_POP_data': path_POP_data})
 

@@ -472,11 +472,11 @@ elif app_name == 'pelicun':
 .. _pelicun Github page: https://github.com/NHERI-SimCenter/pelicun
 .. |app| replace:: pelicun library
 .. |messageBoard| replace:: `Message Board`_
-.. _Message Board: https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=7.0
+.. _Message Board: https://simcenter-messageboard.designsafe-ci.org/smf/index.php?board=9.0
 .. |githubLink| replace:: `pelicun Github page`_
-.. |tool version| replace:: 2.0.9
+.. |tool version| replace:: 3.0.0
 .. |contact person| replace:: Adam Zsarnóczay, NHERI SimCenter, Stanford University, adamzs@stanford.edu
-.. |developers| replace:: **Adam Zsarnóczay**
+.. |developers| replace:: **Adam Zsarnóczay**, **Kuanshi Zhong**
 """
 
 	extensions = [

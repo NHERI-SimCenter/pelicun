@@ -30,7 +30,7 @@
 
    .. only:: pelicun
 
-      The |full tool name| is an open-source implementation of the |short tool name| framework in a Python package. It provides tools for assessment of damage and losses due to natural disasters. Its basis is the stochastic damage and loss model described in FEMA P58. While FEMA P58 aims to assess the seismic performance of a building, with the |app| we provide a more versatile, hazard agnostic tool that can estimate losses for several types of assets in the built environment.
+      The |full tool name| is an open-source implementation of the PELICUN framework in a Python package. PELICUN is developed as an integrated multi-hazard framework to assess the performance of buildings and other assets in the built environment under natural disasters. Its foundation is the FEMA P58 performance assessment methodology that is extended beyond the seismic performance assessment of buildings to also handle wind and water hazards, bridges and buried pipelines, and performance assessment using vulnerability functions and less complex damage models (e.g., HAZUS).
 
 
    This document covers the features and capabilities of Version |tool version| of the tool. Users are encouraged to comment on what additional features and capabilities they would like to see in future versions of the application through the |messageBoard|.
@@ -51,16 +51,16 @@
    :quoFEM:common/user_manual/about/quoFEM/aboutQUOFEM
    :pelicun:common/user_manual/about/pelicun/about
 
-   :desktop_app:common/user_manual/installation/desktop/installation
+   :desktop:common/user_manual/installation/desktop/installation
    :pelicun:common/user_manual/installation/pelicun/installation
 
-   :desktop_app:common/user_manual/usage/desktop/usage
+   :desktop:common/user_manual/usage/desktop/usage
    :pelicun:common/user_manual/usage/pelicun/usage
 
-   :desktop_app:common/user_manual/troubleshooting/desktop/troubleshooting
+   :desktop:common/user_manual/troubleshooting/desktop/troubleshooting
    :pelicun:common/user_manual/troubleshooting/pelicun/troubleshooting
 
-   :desktop_app:common/user_manual/examples/desktop/examples
+   :desktop:common/user_manual/examples/desktop/examples
    :pelicun:common/user_manual/examples/pelicun/examples
 
    :EEUQ:common/requirements/EEUQ
@@ -69,7 +69,8 @@
    :pelicun:common/user_manual/requirements/pelicun/requirements
 
    common/user_manual/bugs
-   common/user_manual/license
+   :desktop:common/user_manual/license
+   :pelicun:common/user_manual/license_pelicun
 
    :pelicun:common/user_manual/release_notes/pelicun/release_notes
 
@@ -93,8 +94,10 @@
    :maxdepth: 1
    :numbered: 2
 
-   :desktop_app:common/technical_manual/desktop/technical_manual
-   :pelicun:common/technical_manual/pelicun/technical_manual
+   :desktop:common/technical_manual/desktop/technical_manual
+
+   :pelicun:common/technical_manual/background/pelicun/background
+   :pelicun:common/technical_manual/verification/pelicun/verification
 
 
 .. _lbl-developer-manual:
@@ -104,17 +107,16 @@
    :maxdepth: 1
    :numbered: 4
 
-   :desktop_app:common/developer_manual/how_to_build/desktop/how_to_build
+   :desktop:common/developer_manual/how_to_build/desktop/how_to_build
 
-   :desktop_app:common/developer_manual/architecture/desktop/architecture
+   :desktop:common/developer_manual/architecture/desktop/architecture
    :pelicun:common/developer_manual/architecture/pelicun/architecture
 
-   :desktop_app:common/developer_manual/how_to_extend/desktop/how_to_extend
+   :desktop:common/developer_manual/how_to_extend/desktop/how_to_extend
 
-   :desktop_app:common/developer_manual/verification/desktop/verification
-   :pelicun:common/developer_manual/verification/pelicun/verification
+   :desktop:common/developer_manual/verification/desktop/verification
 
-   :desktop_app:common/developer_manual/coding_style/desktop/coding_style
+   :desktop:common/developer_manual/coding_style/desktop/coding_style
    :pelicun:common/developer_manual/coding_style/pelicun/coding_style
 
    :pelicun:common/developer_manual/API/pelicun/API

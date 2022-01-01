@@ -46,6 +46,8 @@ import os, sys, time
 import warnings
 from datetime import datetime
 from time import strftime
+from pathlib import Path
+import argparse
 
 from copy import deepcopy
 
@@ -53,23 +55,277 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 
+from .__init__ import __version__ as pelicun_version
+
 idx = pd.IndexSlice
 
 # set printing options
 import pprint
-pp = pprint.PrettyPrinter(indent=4, width=300)
+pp = pprint.PrettyPrinter(indent=2, width=80-24)
 
 pd.options.display.max_rows = 20
 pd.options.display.max_columns = None
 pd.options.display.expand_frame_repr = True
 pd.options.display.width = 300
 
+idx = pd.IndexSlice
+
+class Options(object):
+
+    """
+
+    Parameters
+
+    verbose: boolean
+        If True, the pelicun echoes more information throughout the assessment.
+        This can be useful for debugging purposes.
+
+    log_show_ms: boolean
+        If True, the timestamps in the log file are in microsecond precision.
+
+    """
+
+    def __init__(self):
+
+        self._verbose = False
+        self._log_show_ms = False
+        self._print_log = False
+
+        self.defaults = None
+
+        self._seed = None
+        self._rng = np.random.default_rng()
+
+        self.reset_log_strings()
+
+        self.demand_offset = {}
+        self.nondir_multi_dict = {}
+
+    def nondir_multi(self, EDP_type):
+
+        if EDP_type in self.nondir_multi_dict.keys():
+            return self.nondir_multi_dict[EDP_type]
+
+        elif 'ALL' in self.nondir_multi_dict.keys():
+            return self.nondir_multi_dict['ALL']
+
+        else:
+            raise ValueError(f"Scale factor for non-directional demand "
+                             f"calculation of {EDP_type} not specified.")
+
+    @property
+    def verbose(self):
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, value):
+        self._verbose = bool(value)
+
+    @property
+    def log_show_ms(self):
+        return self._log_show_ms
+
+    @log_show_ms.setter
+    def log_show_ms(self, value):
+        self._log_show_ms = bool(value)
+
+        self.reset_log_strings()
+
+    @property
+    def log_pref(self):
+        return self._log_pref
+
+    @property
+    def log_div(self):
+        return self._log_div
+
+    @property
+    def log_time_format(self):
+        return self._log_time_format
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @seed.setter
+    def seed(self, value):
+        self._seed = value
+
+        self._rng = np.random.default_rng(self._seed)
+
+    @property
+    def rng(self):
+        return self._rng
+
+    @property
+    def log_file(self):
+        return globals()['log_file']
+
+    @log_file.setter
+    def log_file(self, value):
+
+        if value is None:
+            globals()['log_file'] = value
+        else:
+
+            filepath = Path(value).resolve()
+
+            if not filepath.is_file():
+                raise ValueError(f"The filepath provided does not point to an "
+                                 f"valid location: {filepath}")
+
+            globals()['log_file'] = str(filepath)
+
+            with open(filepath, 'w') as f:
+                f.write('')
+
+    @property
+    def print_log(self):
+        return self._print_log
+
+    @print_log.setter
+    def print_log(self, value):
+        self._print_log = str2bool(value)
+
+    def reset_log_strings(self):
+
+        if self._log_show_ms:
+            self._log_time_format = '%H:%M:%S:%f'
+            self._log_pref = ' ' * 16 # the length of the time string in the log file
+            self._log_div = '-' * (80 - 17) # to have a total length of 80 with the time added
+        else:
+            self._log_time_format = '%H:%M:%S'
+            self._log_pref = ' ' * 9
+            self._log_div = '-' * (80 - 10)
+
+    def scale_factor(self, unit):
+
+        if unit is not None:
+
+            if unit in globals().keys():
+                scale_factor = globals()[unit]
+
+            else:
+                raise ValueError(f"Unknown unit: {unit}")
+        else:
+            scale_factor = 1.0
+
+        return scale_factor
+
+options = Options()
+
 log_file = None
 
-log_div = '-' * (80-21)  # 21 to have a total length of 80 with the time added
-
 # get the absolute path of the pelicun directory
-pelicun_path = os.path.dirname(os.path.abspath(__file__))
+pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
+
+def set_options(config_options):
+
+    if config_options is not None:
+
+        for key, value in config_options.items():
+
+            if key == "Verbose":
+                options.verbose = value
+            elif key == "Seed":
+                options.seed = value
+            elif key == "LogShowMS":
+                options.log_show_ms = value
+            elif key == "LogFile":
+                options.log_file = value
+            elif key == "PrintLog":
+                options.print_log = value
+            elif key == "DemandOffset":
+                options.demand_offset = value
+            elif key == "NonDirectionalMultipliers":
+                options.nondir_multi_dict = value
+
+def convert_to_SimpleIndex(data, axis=0):
+    """
+    Converts the index of a DataFrame to a simple, one-level index
+
+    The target index uses standard SimCenter convention to identify different
+    levels: a dash character ('-') is used to separate each level of the index.
+
+    Parameters
+    ----------
+    data: DataFrame
+        The DataFrame that will be modified.
+    axis: int
+        Identifies if the index (0) or the columns (1) shall be edited.
+
+    Returns
+    -------
+    data: DataFrame
+        The modified DataFrame
+    """
+
+
+
+    if axis == 0:
+        simple_index = ['-'.join([str(id_i) for id_i in id])
+                        for id in data.index]
+        data.index = simple_index
+
+    elif axis == 1:
+        simple_index = ['-'.join([str(id_i) for id_i in id])
+                        for id in data.columns]
+        data.columns = simple_index
+
+    else:
+        raise ValueError(f"Invalid axis parameter: {axis}")
+
+    return data
+
+def convert_to_MultiIndex(data, axis=0):
+    """
+    Converts the index of a DataFrame to a MultiIndex
+
+    We assume that the index uses standard SimCenter convention to identify
+    different levels: a dash character ('-') is expected to separate each level
+    of the index.
+
+    Parameters
+    ----------
+    data: DataFrame
+        The DataFrame that will be modified.
+    axis: int
+        Identifies if the index (0) or the columns (1) shall be edited.
+
+    Returns
+    -------
+    data: DataFrame
+        The modified DataFrame
+    """
+
+    if axis == 0:
+        index_labels = [label.split('-') for label in data.index]
+
+    elif axis == 1:
+        index_labels = [label.split('-') for label in data.columns]
+
+    else:
+        raise ValueError(f"Invalid axis parameter: {axis}")
+
+    max_lbl_len = np.max([len(labels) for labels in index_labels])
+
+    for l_i, labels in enumerate(index_labels):
+
+        if len(labels) != max_lbl_len:
+            labels += ['', ] * (max_lbl_len - len(labels))
+            index_labels[l_i] = labels
+
+    index_labels = np.array(index_labels)
+
+    if index_labels.shape[1] > 1:
+
+        if axis == 0:
+            data.index = pd.MultiIndex.from_arrays(index_labels.T)
+
+        else:
+            data.columns = pd.MultiIndex.from_arrays(index_labels.T)
+
+    return data
 
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
@@ -80,23 +336,53 @@ def show_matrix(data, describe=False):
 
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
+
     if '\\' in filename:
         file_path = filename.split('\\')
     elif '/' in filename:
         file_path = filename.split('/')
-    python_file = '/'.join(file_path[-3:])
+    else:
+        file_path = None
+
+    if file_path is not None:
+        python_file = '/'.join(file_path[-3:])
+    else:
+        python_file = filename
+
     print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
+
 warnings.showwarning = _warning
 
 def show_warning(warning_msg):
     warnings.warn(UserWarning(warning_msg))
 
-def set_log_file(filepath):
-    globals()['log_file'] = filepath
-    with open(filepath, 'w') as f:
-        f.write('pelicun\n')
+def print_system_info():
 
-def log_msg(msg='', prepend_timestamp=True):
+    log_msg('System Information:',
+            prepend_timestamp=False, prepend_blank_space=False)
+    log_msg(f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+            f'python: {sys.version}\n'
+            f'numpy: {np.__version__}\n'
+            f'pandas: {pd.__version__}\n',
+            prepend_timestamp=False)
+
+def log_div(prepend_timestamp=False):
+    """
+    Print a divider line to the log file
+
+    """
+
+    if prepend_timestamp:
+        msg = options.log_div
+
+    else:
+        msg = '-' * 80
+
+    log_msg(msg, prepend_timestamp = prepend_timestamp)
+
+
+def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
     """
     Print a message to the screen with the current time as prefix
 
@@ -108,16 +394,27 @@ def log_msg(msg='', prepend_timestamp=True):
        Message to print.
 
     """
-    if prepend_timestamp:
-        formatted_msg = '{} {}'.format(datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S:%fZ')[:-4], msg)
-    else:
-        formatted_msg = msg
 
-    #print(formatted_msg)
+    msg_lines = msg.split('\n')
 
-    if globals()['log_file'] is not None:
-        with open(globals()['log_file'], 'a') as f:
-            f.write('\n'+formatted_msg)
+    for msg_i, msg_line in enumerate(msg_lines):
+
+        if (prepend_timestamp and (msg_i==0)):
+            formatted_msg = '{} {}'.format(
+                datetime.now().strftime(options.log_time_format), msg_line)
+        elif prepend_timestamp:
+            formatted_msg = options.log_pref + msg_line
+        elif prepend_blank_space:
+            formatted_msg = options.log_pref + msg_line
+        else:
+            formatted_msg = msg_line
+
+        if options.print_log:
+            print(formatted_msg)
+
+        if globals()['log_file'] is not None:
+            with open(globals()['log_file'], 'a') as f:
+                f.write('\n'+formatted_msg)
 
 def describe(df):
 
@@ -314,22 +611,27 @@ EDP_units = dict(
 
 EDP_to_demand_type = {
     'Story Drift Ratio' :             'PID',
+    'Peak Interstory Drift Ratio':    'PID',
     'Roof Drift Ratio' :              'PRD',
+    'Peak Roof Drift Ratio' :         'PRD',
     'Damageable Wall Drift' :         'DWD',
     'Racking Drift Ratio' :           'RDR',
     'Peak Floor Acceleration' :       'PFA',
     'Peak Floor Velocity' :           'PFV',
     'Peak Gust Wind Speed' :          'PWS',
     'Peak Inundation Height' :        'PIH',
-    'Flood Water Depth' :             'PIH', # temporary workaround
     'Peak Ground Acceleration' :      'PGA',
     'Peak Ground Velocity' :          'PGV',
     'Spectral Acceleration' :         'SA',
     'Spectral Velocity' :             'SV',
     'Spectral Displacement' :         'SD',
+    'Peak Spectral Acceleration' :    'SA',
+    'Peak Spectral Velocity' :        'SV',
+    'Peak Spectral Displacement' :    'SD',
     'Permanent Ground Deformation' :  'PGD',
     'Mega Drift Ratio' :              'PMD',
     'Residual Drift Ratio' :          'RID',
+    'Residual Interstory Drift Ratio':'RID',
 }
 
 # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
