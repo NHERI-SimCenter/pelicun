@@ -59,7 +59,6 @@ This module has classes and methods that handle file input and output.
 
 from .base import *
 from pathlib import Path
-from .db import convert_Series_to_dict
 
 import json, posixpath
 
