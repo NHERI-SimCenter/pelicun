@@ -52,8 +52,6 @@ from .base import *
 from .file_io import *
 from .model import *
 
-load_default_options()
-
 class Assessment(object):
     """
     Assessment objects manage the models, data, and calculations in pelicun.
@@ -72,7 +70,12 @@ class Assessment(object):
         Number of stories.
     """
 
-    def __init__(self):
+    def __init__(self, config_options=None):
+
+        load_default_options()
+
+        if config_options is not None:
+            set_options(config_options)
 
         log_msg(f'pelicun {pelicun_version} | \n',
                 prepend_timestamp=False, prepend_blank_space=False)

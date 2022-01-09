@@ -82,10 +82,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
     config = merge_default_config(config)
 
-    config_opt = config.get("Options", None)
-    set_options(config_opt)
-
-    A = Assessment()
+    A = Assessment(config.get("Options", None))
 
     general_info = config['GeneralInformation']
 
