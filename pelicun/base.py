@@ -40,6 +40,24 @@
 """
 This module defines constants, basic classes and methods for pelicun.
 
+.. rubric:: Contents
+
+.. autosummary::
+
+    set_options
+    convert_to_SimpleIndex
+    convert_to_MultiIndex
+    convert_unit
+    show_matrix
+    show_warning
+    print_system_info
+    log_div
+    log_msg
+    describe
+    str2bool
+
+    Options
+
 """
 
 import os, sys, time

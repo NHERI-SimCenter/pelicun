@@ -47,6 +47,8 @@ quantification in pelicun.
 
     mvn_orthotope_density
     fit_distribution_to_sample
+    fit_distribution_to_percentiles
+
     RandomVariable
     RandomVariableSet
     RandomVariableRegistry

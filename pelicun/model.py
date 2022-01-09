@@ -46,17 +46,13 @@ loss assessment.
 .. autosummary::
 
     prep_constant_median_DV
-    prep_bounded_linear_median_DV
     prep_bounded_multilinear_median_DV
 
-    FragilityFunction
-    ConsequenceFunction
-    DamageState
-    DamageStateGroup
-    PerformanceGroup
-    FragilityGroup
-
     DemandModel
+    AssetModel
+    DamageModel
+    LossModel
+    BldgRepairModel
 
 """
 
