@@ -57,12 +57,13 @@ This module has classes and methods to manage databases used by pelicun.
 
 """
 
-from .base import *
-from .uq import fit_distribution_to_percentiles
+from . import base
+from . import uq
 from pathlib import Path
 import re
 import json
-
+import numpy as np
+import pandas as pd
 
 def parse_DS_Hierarchy(DSH):
     """
@@ -699,7 +700,7 @@ def create_FEMA_P58_bldg_repair_db(source_file,
                                    axis=0)
 
                 # fit a distribution
-                family_hat, theta_hat = fit_distribution_to_percentiles(
+                family_hat, theta_hat = uq.fit_distribution_to_percentiles(
                     cost_vals[:3], [0.1, 0.5, 0.9], ['normal', 'lognormal'])
 
                 cost_theta = theta_hat
@@ -859,7 +860,7 @@ def create_FEMA_P58_bldg_repair_db(source_file,
     # convert to optimal datatypes to reduce file size
     df_db = df_db.convert_dtypes()
 
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"
@@ -1233,7 +1234,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
     # convert to optimal datatypes to reduce file size
     df_db = df_db.convert_dtypes()
 
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"
@@ -1870,11 +1871,11 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     df_db.loc[:, 'Quantity-Unit'] = "1 EA"
 
     # The output units are also indentical among all components
-    df_db.loc[idx[:, 'Cost'], 'DV-Unit'] = "loss_ratio"
-    df_db.loc[idx[:, 'Time'], 'DV-Unit'] = "day"
+    df_db.loc[base.idx[:, 'Cost'], 'DV-Unit'] = "loss_ratio"
+    df_db.loc[base.idx[:, 'Time'], 'DV-Unit'] = "day"
 
     # convert to simple index
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"
@@ -2005,7 +2006,7 @@ def create_Hazus_EQ_bldg_injury_db(source_file,
     df_db.loc[:, 'DV-Unit'] = "injury_rate"
 
     # convert to simple index
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"

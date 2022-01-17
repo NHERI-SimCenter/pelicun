@@ -57,10 +57,13 @@ This module has classes and methods that handle file input and output.
 
 """
 
-from .base import *
+from .base import log_msg
+from . import base
 from pathlib import Path
 
-import json, posixpath
+import numpy as np
+import pandas as pd
+import json
 
 from time import sleep
 
@@ -180,13 +183,13 @@ def get_required_resources(input_path, assessment_type):
 
     if path_CMP_data == "":
         # Use the P58 path as default
-        path_CMP_data = pelicun_path / CMP_data_path[AT]
+        path_CMP_data = base.pelicun_path / base.CMP_data_path[AT]
 
     resources.update({'component': path_CMP_data})
 
     # HAZUS combination of flood and wind losses
     if ((AT == 'HAZUS_HU') and (DL_input.get('Combinations', None) is not None)):
-        path_combination_data = pelicun_path / CMP_data_path['HAZUS_MISC']
+        path_combination_data = base.pelicun_path / base.CMP_data_path['HAZUS_MISC']
         resources.update({'combination': path_combination_data})
 
     # The population data is only needed if we are interested in injuries
@@ -196,7 +199,7 @@ def get_required_resources(input_path, assessment_type):
         path_POP_data = ""
 
     if ((injuries) and (path_POP_data == "")):
-        path_POP_data = pelicun_path / POP_data_path[AT]
+        path_POP_data = base.pelicun_path / base.POP_data_path[AT]
         resources.update({'population': path_POP_data})
 
     return resources
@@ -207,14 +210,14 @@ def load_default_options():
 
     """
 
-    with open(pelicun_path / "settings/default_config.json", 'r') as f:
-        options.defaults = json.load(f)
+    with open(base.pelicun_path / "settings/default_config.json", 'r') as f:
+        base.options.defaults = json.load(f)
 
-    set_options(options.defaults.get('Options', None))
+    base.set_options(base.options.defaults.get('Options', None))
 
 def merge_default_config(config):
 
-    defaults = options.defaults
+    defaults = base.options.defaults
 
     if config.get('DemandAssessment', False):
 
@@ -323,7 +326,7 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
                 labels = units.loc[units==unit_name].index.values
 
-                unit_factor = 1./globals()[unit_name]
+                unit_factor = 1./base.UC[unit_name]
 
                 active_labels = []
 
@@ -358,11 +361,11 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
         # convert MultiIndex to regular index with '-' separators
         if isinstance(data.index, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data)
+            data = base.convert_to_SimpleIndex(data)
 
         # same thing for the columns
         if isinstance(data.columns, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data, axis=1)
+            data = base.convert_to_SimpleIndex(data, axis=1)
 
         if filepath.suffix == '.csv':
 
@@ -473,7 +476,7 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
         for unit_name in unique_unit_names:
 
-            unit_factor = globals()[unit_name]
+            unit_factor = base.UC[unit_name]
             unit_labels = units.loc[units==unit_name].index
 
             if orientation == 0:
@@ -501,7 +504,7 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
                     pass
 
     # convert column to MultiIndex if needed
-    data = convert_to_MultiIndex(data, axis=1)
+    data = base.convert_to_MultiIndex(data, axis=1)
 
     data.sort_index(axis=1, inplace=True)
 
@@ -512,7 +515,7 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
     else:
         # convert index to MultiIndex if needed
-        data = convert_to_MultiIndex(data, axis=0)
+        data = base.convert_to_MultiIndex(data, axis=0)
 
         data.sort_index(inplace=True)
 
@@ -521,7 +524,7 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
     if return_units:
 
         # convert index in units Series to MultiIndex if needed
-        units = convert_to_MultiIndex(units, axis=0)
+        units = base.convert_to_MultiIndex(units, axis=0)
 
         units.sort_index(inplace=True)
 

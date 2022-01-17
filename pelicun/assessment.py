@@ -48,11 +48,12 @@ This module has classes and methods that control the performance assessment.
 
 """
 
-from .base import *
-from .file_io import *
-from .model import *
+from .base import log_msg, log_div
+from . import base
+from . import file_io
+from . import model
 
-load_default_options()
+file_io.load_default_options()
 
 class Assessment(object):
     """
@@ -74,10 +75,10 @@ class Assessment(object):
 
     def __init__(self):
 
-        log_msg(f'pelicun {pelicun_version} | \n',
+        log_msg(f'pelicun {base.pelicun_version} | \n',
                 prepend_timestamp=False, prepend_blank_space=False)
 
-        print_system_info()
+        base.print_system_info()
 
         log_div()
         log_msg('Assessement Started')
@@ -95,7 +96,7 @@ class Assessment(object):
             return self._demand
 
         else:
-            self._demand = DemandModel()
+            self._demand = model.DemandModel()
             return self.demand
 
     @property
@@ -109,7 +110,7 @@ class Assessment(object):
             return self._asset
 
         else:
-            self._asset = AssetModel(self)
+            self._asset = model.AssetModel(self)
             return self.asset
 
     @property
@@ -123,7 +124,7 @@ class Assessment(object):
             return self._damage
 
         else:
-            self._damage = DamageModel(self)
+            self._damage = model.DamageModel(self)
             return self.damage
 
     @property
@@ -137,5 +138,5 @@ class Assessment(object):
             return self._bldg_repair
 
         else:
-            self._bldg_repair = BldgRepairModel(self)
+            self._bldg_repair = model.BldgRepairModel(self)
             return self.bldg_repair

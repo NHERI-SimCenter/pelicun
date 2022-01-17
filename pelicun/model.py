@@ -60,9 +60,14 @@ loss assessment.
 
 """
 
-from .base import *
-from .uq import *
-from .file_io import save_to_csv, load_from_csv
+from .base import log_msg, log_div
+from . import base
+from . import uq
+from . import file_io
+
+from copy import deepcopy
+import numpy as np
+import pandas as pd
 
 class DemandModel(object):
     """
@@ -112,7 +117,7 @@ class DemandModel(object):
 
             sample = pd.DataFrame(self._RVs.RV_sample)
 
-            sample = convert_to_MultiIndex(sample, axis=1)['EDP']
+            sample = base.convert_to_MultiIndex(sample, axis=1)['EDP']
 
             self._sample = sample
 
@@ -130,7 +135,7 @@ class DemandModel(object):
         log_div()
         log_msg(f'Saving demand sample...')
 
-        save_to_csv(self.sample, filepath, units=self.units)
+        file_io.save_to_csv(self.sample, filepath, units=self.units)
 
         log_msg(f'Demand sample successfully saved.', prepend_timestamp=False)
 
@@ -157,7 +162,7 @@ class DemandModel(object):
             # currently not used. We remove it if it was in the raw data.
             if old_MI.nlevels == 4:
 
-                if options.verbose:
+                if base.options.verbose:
                     log_msg(f'Removing event_ID from header...',
                             prepend_timestamp=False)
 
@@ -170,7 +175,7 @@ class DemandModel(object):
 
             # Remove whitespace to avoid ambiguity
 
-            if options.verbose:
+            if base.options.verbose:
                 log_msg(f'Removing whitespace from header...',
                         prepend_timestamp=False)
 
@@ -188,7 +193,7 @@ class DemandModel(object):
         log_div()
         log_msg(f'Loading demand data...')
 
-        demand_data, units = load_from_csv(filepath, return_units=True)
+        demand_data, units = file_io.load_from_csv(filepath, return_units=True)
 
         parsed_data = demand_data.copy()
 
@@ -202,7 +207,7 @@ class DemandModel(object):
             log_msg(f'Removing errors from the raw data...',
                     prepend_timestamp=False)
 
-            error_list = parsed_data.loc[:,idx['ERROR',:,:]].values.astype(bool)
+            error_list = parsed_data.loc[:,base.idx['ERROR',:,:]].values.astype(bool)
 
             parsed_data = parsed_data.loc[~error_list, :].copy()
             parsed_data.drop('ERROR', level=0, axis=1, inplace=True)
@@ -258,26 +263,26 @@ class DemandModel(object):
                 cols = tuple(cols)
 
             # load the distribution family
-            cal_df.loc[idx[cols,:,:], 'family'] = settings['DistributionFamily']
+            cal_df.loc[base.idx[cols,:,:], 'family'] = settings['DistributionFamily']
 
             # load the censor limits
             if 'CensorAt' in settings.keys():
                 censor_lower, censor_upper = settings['CensorAt']
-                cal_df.loc[idx[cols,:,:], 'censor_lower'] = censor_lower
-                cal_df.loc[idx[cols,:,:], 'censor_upper'] = censor_upper
+                cal_df.loc[base.idx[cols,:,:], 'censor_lower'] = censor_lower
+                cal_df.loc[base.idx[cols,:,:], 'censor_upper'] = censor_upper
 
             # load the truncation limits
             if 'TruncateAt' in settings.keys():
                 truncate_lower, truncate_upper = settings['TruncateAt']
-                cal_df.loc[idx[cols,:,:], 'truncate_lower'] = truncate_lower
-                cal_df.loc[idx[cols,:,:], 'truncate_upper'] = truncate_upper
+                cal_df.loc[base.idx[cols,:,:], 'truncate_lower'] = truncate_lower
+                cal_df.loc[base.idx[cols,:,:], 'truncate_upper'] = truncate_upper
 
             # scale the censor and truncation limits, if needed
-            scale_factor = options.scale_factor(settings.get('Unit', None))
+            scale_factor = base.options.scale_factor(settings.get('Unit', None))
 
             rows_to_scale = ['censor_lower', 'censor_upper',
                              'truncate_lower', 'truncate_upper']
-            cal_df.loc[idx[cols,:,:], rows_to_scale] *= scale_factor
+            cal_df.loc[base.idx[cols,:,:], rows_to_scale] *= scale_factor
 
             # load the prescribed additional uncertainty
             if 'AddUncertainty' in settings.keys():
@@ -288,7 +293,7 @@ class DemandModel(object):
                 if settings['DistributionFamily'] == 'normal':
                     sig_increase *= scale_factor
 
-                cal_df.loc[idx[cols,:,:], 'sig_increase'] = sig_increase
+                cal_df.loc[base.idx[cols,:,:], 'sig_increase'] = sig_increase
 
         def get_filter_mask(lower_lims, upper_lims):
 
@@ -329,7 +334,7 @@ class DemandModel(object):
             if demand_type != 'ALL':
                 parse_settings(config[demand_type], demand_type)
 
-        if options.verbose:
+        if base.options.verbose:
             log_msg(f"\nCalibration settings successfully parsed:\n"+str(cal_df),
                     prepend_timestamp=False)
         else:
@@ -398,7 +403,7 @@ class DemandModel(object):
         # and the calibration settings
         cal_df = cal_df.drop(empirical_edps, 0)
 
-        if options.verbose:
+        if base.options.verbose:
             log_msg(f"\nDemand data used for calibration:\n"+str(demand_sample),
                     prepend_timestamp=False)
 
@@ -406,7 +411,7 @@ class DemandModel(object):
         log_msg(f"\nFitting the prescribed joint demand distribution...",
                 prepend_timestamp=False)
 
-        demand_theta, demand_rho = fit_distribution_to_sample(
+        demand_theta, demand_rho = uq.fit_distribution_to_sample(
             raw_samples = demand_sample.values.T,
             distribution = cal_df.loc[:, 'family'].values,
             censored_count = censored_count,
@@ -469,8 +474,8 @@ class DemandModel(object):
         log_msg(f'Saving demand model...')
 
         # save the correlation and empirical data
-        save_to_csv(self.correlation, file_prefix + '_correlation.csv')
-        save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
+        file_io.save_to_csv(self.correlation, file_prefix + '_correlation.csv')
+        file_io.save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
                     units=self.units)
 
         # the log standard deviations in the marginal parameters need to be
@@ -486,11 +491,11 @@ class DemandModel(object):
 
             if label in self.units.index:
 
-                unit_factor = globals()[self.units[label]]
+                unit_factor = base.UC[self.units[label]]
 
                 marginal_params.loc[label, 'theta_1'] *= unit_factor
 
-        save_to_csv(marginal_params, file_prefix+'_marginals.csv',
+        file_io.save_to_csv(marginal_params, file_prefix+'_marginals.csv',
                     units=self.units, orientation=1)
 
         log_msg(f'Demand model successfully saved.', prepend_timestamp=False)
@@ -500,11 +505,11 @@ class DemandModel(object):
         log_div()
         log_msg(f'Loading demand model...')
 
-        self.empirical_data = load_from_csv(file_prefix+'_empirical.csv')
+        self.empirical_data = file_io.load_from_csv(file_prefix+'_empirical.csv')
         self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
                                             inplace=True)
 
-        self.correlation = load_from_csv(file_prefix + '_correlation.csv',
+        self.correlation = file_io.load_from_csv(file_prefix + '_correlation.csv',
                                          reindex=False)
         self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
         self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
@@ -512,7 +517,7 @@ class DemandModel(object):
         # the log standard deviations in the marginal parameters need to be
         # adjusted after getting the data from the loading method where they
         # were scaled according to the units of the corresponding variable
-        marginal_params, units = load_from_csv(file_prefix + '_marginals.csv',
+        marginal_params, units = file_io.load_from_csv(file_prefix + '_marginals.csv',
                                                orientation=1, reindex=False,
                                                return_units=True)
         marginal_params.index.set_names(['type', 'loc', 'dir'],inplace=True)
@@ -524,7 +529,7 @@ class DemandModel(object):
 
             if label in units.index:
 
-                unit_factor = globals()[units[label]]
+                unit_factor = base.UC[units[label]]
 
                 marginal_params.loc[label, 'theta_1'] /= unit_factor
 
@@ -540,7 +545,7 @@ class DemandModel(object):
         """
 
         # initialize the registry
-        RV_reg = RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry()
 
         # add a random variable for each demand variable
         for rv_params in self.marginal_params.itertuples():
@@ -556,7 +561,7 @@ class DemandModel(object):
                     dist_family = 'empirical'
 
                 # empirical RVs need the data points
-                RV_reg.add_RV(RandomVariable(
+                RV_reg.add_RV(uq.RandomVariable(
                     name=rv_tag,
                     distribution=dist_family,
                     raw_samples=self.empirical_data.loc[:, edp].values
@@ -565,7 +570,7 @@ class DemandModel(object):
             else:
 
                 # all other RVs need parameters of their distributions
-                RV_reg.add_RV(RandomVariable(
+                RV_reg.add_RV(uq.RandomVariable(
                     name=rv_tag,
                     distribution=rv_params.family,
                     theta=[rv_params.theta_0, rv_params.theta_1],
@@ -582,7 +587,7 @@ class DemandModel(object):
         rv_set_tags = [f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
                        for edp in self.correlation.index.values]
 
-        RV_reg.add_RV_set(RandomVariableSet(
+        RV_reg.add_RV_set(uq.RandomVariableSet(
             'EDP_set', list(RV_reg.RVs(rv_set_tags).values()),
             self.correlation.values))
 
@@ -640,7 +645,7 @@ class AssetModel(object):
 
             cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
 
-            cmp_sample = convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
+            cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
 
             self._cmp_sample = cmp_sample
 
@@ -666,7 +671,7 @@ class AssetModel(object):
         for cmp_id, unit_name in self.cmp_units.items():
             units.loc[cmp_id, :] = unit_name
 
-        save_to_csv(sample, filepath, units=units)
+        file_io.save_to_csv(sample, filepath, units=units)
 
         log_msg(f'Asset components sample successfully saved.',
                 prepend_timestamp=False)
@@ -680,7 +685,7 @@ class AssetModel(object):
         log_div()
         log_msg(f'Loading asset components sample...')
 
-        sample, units = load_from_csv(filepath, return_units=True)
+        sample, units = file_io.load_from_csv(filepath, return_units=True)
 
         self._cmp_sample = sample
 
@@ -775,7 +780,7 @@ class AssetModel(object):
         # Currently, we assume independent component distributions are defined
         # throughout the building. Correlations may be added afterward or this
         # method can be extended to read correlation matrices too if needed.
-        marginal_params, units = load_from_csv(
+        marginal_params, units = file_io.load_from_csv(
             file_prefix + '_marginals.csv',
             orientation=1,
             reindex=False,
@@ -880,7 +885,7 @@ class AssetModel(object):
         for unit_name in unique_units:
 
             try:
-                unit_factor = globals()[unit_name]
+                unit_factor = base.UC[unit_name]
 
             except:
                 raise ValueError(f"Specified unit name not recognized: "
@@ -912,7 +917,7 @@ class AssetModel(object):
     def _create_cmp_RVs(self):
 
         # initialize the registry
-        RV_reg = RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry()
 
         # add a random variable for each component quantity variable
         for rv_params in self.cmp_marginal_params.itertuples():
@@ -923,7 +928,7 @@ class AssetModel(object):
             if pd.isnull(rv_params.family):
 
                 # we use an empirical RV to generate deterministic values
-                RV_reg.add_RV(RandomVariable(
+                RV_reg.add_RV(uq.RandomVariable(
                     name=rv_tag,
                     distribution='empirical',
                     raw_samples=np.ones(10000) * rv_params.theta_0
@@ -932,7 +937,7 @@ class AssetModel(object):
             else:
 
                 # all other RVs need parameters of their distributions
-                RV_reg.add_RV(RandomVariable(
+                RV_reg.add_RV(uq.RandomVariable(
                     name=rv_tag,
                     distribution=rv_params.family,
                     theta=[rv_params.theta_0, rv_params.theta_1],
@@ -996,7 +1001,7 @@ class DamageModel(object):
 
             frg_sample = pd.DataFrame(self._frg_RVs.RV_sample)
 
-            frg_sample = convert_to_MultiIndex(frg_sample, axis=1)['FRG']
+            frg_sample = base.convert_to_MultiIndex(frg_sample, axis=1)['FRG']
 
             self._frg_sample = frg_sample
 
@@ -1012,7 +1017,7 @@ class DamageModel(object):
 
             lsds_sample = pd.DataFrame(self._lsds_RVs.RV_sample)
 
-            lsds_sample = convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+            lsds_sample = base.convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
 
             lsds_sample = lsds_sample.astype(int)
 
@@ -1036,7 +1041,7 @@ class DamageModel(object):
         log_div()
         log_msg(f'Saving damage sample...')
 
-        save_to_csv(self.sample, filepath)
+        file_io.save_to_csv(self.sample, filepath)
 
         log_msg(f'Damage sample successfully saved.', prepend_timestamp=False)
 
@@ -1048,7 +1053,7 @@ class DamageModel(object):
         log_div()
         log_msg(f'Loading damage sample...')
 
-        self._sample = load_from_csv(filepath)
+        self._sample = file_io.load_from_csv(filepath)
 
         log_msg(f'Damage sample successfully loaded.', prepend_timestamp=False)
 
@@ -1071,14 +1076,14 @@ class DamageModel(object):
 
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace('PelicunDefault/',
-                                                   str(pelicun_path)+
+                                                   str(base.pelicun_path)+
                                                     '/resources/')
 
         data_list = []
         # load the data files one by one
         for data_path in data_paths:
 
-            data = load_from_csv(
+            data = file_io.load_from_csv(
                 data_path,
                 orientation=1,
                 reindex=False,
@@ -1105,7 +1110,7 @@ class DamageModel(object):
         for unit_name in unique_units:
 
             try:
-                unit_factor = globals()[unit_name]
+                unit_factor = base.UC[unit_name]
 
             except:
                 raise ValueError(f"Specified unit name not recognized: "
@@ -1153,8 +1158,8 @@ class DamageModel(object):
     def _create_frg_RVs(self):
 
         # initialize the registry
-        frg_RV_reg = RandomVariableRegistry()
-        lsds_RV_reg = RandomVariableRegistry()
+        frg_RV_reg = uq.RandomVariableRegistry()
+        lsds_RV_reg = uq.RandomVariableRegistry()
 
         rv_count = 0
 
@@ -1196,7 +1201,7 @@ class DamageModel(object):
                         # empirical RV
                         if pd.isnull(family):
 
-                            frg_RV_reg.add_RV(RandomVariable(
+                            frg_RV_reg.add_RV(uq.RandomVariable(
                                 name=frg_rv_tag,
                                 distribution='empirical',
                                 raw_samples=np.ones(10000) * theta_0
@@ -1205,7 +1210,7 @@ class DamageModel(object):
                         else:
 
                             # all other RVs have parameters of their distributions
-                            frg_RV_reg.add_RV(RandomVariable(
+                            frg_RV_reg.add_RV(uq.RandomVariable(
                                 name=frg_rv_tag,
                                 distribution=family,
                                 theta=[theta_0, theta_1],
@@ -1221,7 +1226,7 @@ class DamageModel(object):
 
                             ds_id += 1
 
-                            lsds_RV_reg.add_RV(RandomVariable(
+                            lsds_RV_reg.add_RV(uq.RandomVariable(
                                 name=lsds_rv_tag,
                                 distribution='empirical',
                                 raw_samples=np.ones(10000) * ds_id
@@ -1237,7 +1242,7 @@ class DamageModel(object):
                             def map_ds(values, offset=int(ds_id+1)):
                                 return values+offset
 
-                            lsds_RV_reg.add_RV(RandomVariable(
+                            lsds_RV_reg.add_RV(uq.RandomVariable(
                                 name=lsds_rv_tag,
                                 distribution='multinomial',
                                 theta=ds_weights,
@@ -1256,7 +1261,7 @@ class DamageModel(object):
                 # RVs is possible, if needed. Please let us know through the
                 # SimCenter Message Board if you are interested in such a
                 # feature.
-                frg_RV_reg.add_RV_set(RandomVariableSet(
+                frg_RV_reg.add_RV_set(uq.RandomVariableSet(
                     f'FRG-{label[0]}-{label[1]}-{label[2]}-{label[3]}_set',
                     list(frg_RV_reg.RVs(frg_rv_set_tags).values()),
                     np.ones((len(frg_rv_set_tags),len(frg_rv_set_tags)))))
@@ -1339,16 +1344,16 @@ class DamageModel(object):
             # first check if there is a subtype included
             if '|' in demand_type:
                 demand_type, subtype = demand_type.split('|')
-                demand_type = EDP_to_demand_type[demand_type]
+                demand_type = base.EDP_to_demand_type[demand_type]
                 EDP_type = f'{demand_type}_{subtype}'
             else:
-                demand_type = EDP_to_demand_type[demand_type]
+                demand_type = base.EDP_to_demand_type[demand_type]
                 EDP_type = demand_type
 
             # consider the default offset, if needed
-            if demand_type in options.demand_offset.keys():
+            if demand_type in base.options.demand_offset.keys():
 
-                offset = int(offset + options.demand_offset[demand_type])
+                offset = int(offset + base.options.demand_offset[demand_type])
 
             else:
                 offset = int(offset)
@@ -1366,7 +1371,7 @@ class DamageModel(object):
                 prepend_timestamp=False)
 
         demands = pd.DataFrame(columns=EDP_req, index=self.frg_sample.index)
-        demands = convert_to_MultiIndex(demands, axis=1)
+        demands = base.convert_to_MultiIndex(demands, axis=1)
 
         demand_source = self._asmnt.demand.sample
 
@@ -1385,7 +1390,7 @@ class DamageModel(object):
                     # using the nondirectional multiplier specified in the
                     # options (the default value is 1.2)
                     demands[col] = demand_source.loc[:, (col[0], col[1])].max(
-                        axis=1) * options.nondir_multi(col[0])
+                        axis=1) * base.options.nondir_multi(col[0])
 
             elif col in demand_source.columns:
 
@@ -1456,7 +1461,7 @@ class DamageModel(object):
         # for each consecutive limit state...
         for LS_id in ls_list:
             # get all cmp - loc - dir - block where this limit state occurs
-            dmg_e_ls = dmg_eval.loc[:, idx[:, :, :, :, LS_id]].dropna(axis=1)
+            dmg_e_ls = dmg_eval.loc[:, base.idx[:, :, :, :, LS_id]].dropna(axis=1)
 
             # Get the damage states corresponding to this limit state in each
             # block
@@ -1702,7 +1707,7 @@ class LossModel(object):
         log_div()
         log_msg(f'Saving loss sample...')
 
-        save_to_csv(self.sample, filepath)
+        file_io.save_to_csv(self.sample, filepath)
 
         log_msg(f'Loss sample successfully saved.', prepend_timestamp=False)
 
@@ -1714,7 +1719,7 @@ class LossModel(object):
         log_div()
         log_msg(f'Loading loss sample...')
 
-        self._sample = load_from_csv(filepath)
+        self._sample = file_io.load_from_csv(filepath)
 
         log_msg(f'Loss sample successfully loaded.', prepend_timestamp=False)
 
@@ -1735,7 +1740,7 @@ class LossModel(object):
         log_div()
         log_msg(f'Loading loss map for {self.loss_type}...')
 
-        loss_map = load_from_csv(mapping_path, orientation=1,
+        loss_map = file_io.load_from_csv(mapping_path, orientation=1,
                              reindex=False, convert=[])
 
         loss_map['Driver'] = loss_map.index.values
@@ -1756,13 +1761,13 @@ class LossModel(object):
 
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace('PelicunDefault/',
-                                                    str(pelicun_path) +
+                                                    str(base.pelicun_path) +
                                                     '/resources/')
 
         data_list = []
         # load the data files one by one
         for data_path in data_paths:
-            data = load_from_csv(
+            data = file_io.load_from_csv(
                 data_path,
                 orientation=1,
                 reindex=False,
@@ -1778,13 +1783,13 @@ class LossModel(object):
 
         # keep only the relevant data
         loss_cmp = np.unique(self.loss_map['Consequence'].values)
-        loss_params = loss_params.loc[idx[loss_cmp, :],:]
+        loss_params = loss_params.loc[base.idx[loss_cmp, :],:]
 
         # drop unused damage states
         DS_list = loss_params.columns.get_level_values(0).unique()
         DS_to_drop = []
         for DS in DS_list:
-            if np.all(pd.isna(loss_params.loc[:,idx[DS,:]].values)) == True:
+            if np.all(pd.isna(loss_params.loc[:,base.idx[DS,:]].values)) == True:
                 DS_to_drop.append(DS)
 
         loss_params.drop(columns=DS_to_drop, level=0, inplace=True)
@@ -1800,7 +1805,7 @@ class LossModel(object):
                 # median values
                 thetas = loss_params.loc[:, (DS, 'Theta_0')]
                 loss_params.loc[:, (DS, 'Theta_0')] = [
-                    convert_unit(theta, unit)
+                    base.convert_unit(theta, unit)
                     for theta, unit in list(zip(thetas, units))]
 
                 # cov and beta for normal and lognormal dists. do not need to
@@ -1909,7 +1914,7 @@ class BldgRepairModel(LossModel):
             we need for the simulation.
         """
 
-        RV_reg = RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry()
         LP = self.loss_params
 
         case_DF = pd.DataFrame(index=case_list, columns=[0,])
@@ -1964,7 +1969,7 @@ class BldgRepairModel(LossModel):
 
                         cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}'
 
-                        RV_reg.add_RV(RandomVariable(
+                        RV_reg.add_RV(uq.RandomVariable(
                             name=cost_rv_tag,
                             distribution = cost_family,
                             theta = [1.0, cost_theta_1]
@@ -1974,7 +1979,7 @@ class BldgRepairModel(LossModel):
                     if pd.isna(time_family) == False:
                         time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}'
 
-                        RV_reg.add_RV(RandomVariable(
+                        RV_reg.add_RV(uq.RandomVariable(
                             name=time_rv_tag,
                             distribution=time_family,
                             theta=[1.0, time_theta_1]
@@ -1983,11 +1988,11 @@ class BldgRepairModel(LossModel):
 
                     if ((pd.isna(cost_family) == False) and
                         (pd.isna(time_family) == False) and
-                        (options.rho_cost_time != 0.0)):
+                        (base.options.rho_cost_time != 0.0)):
 
-                        rho = options.rho_cost_time
+                        rho = base.options.rho_cost_time
 
-                        RV_reg.add_RV_set(RandomVariableSet(
+                        RV_reg.add_RV_set(uq.RandomVariableSet(
                             f'DV-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}_set',
                             list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
                             np.array([[1.0, rho],[rho, 1.0]])))
@@ -2088,7 +2093,7 @@ class BldgRepairModel(LossModel):
                 if 'del' in result.columns.names:
                     result.columns = result.columns.droplevel('del')
 
-                if options.eco_scale["AcrossFloors"] == True:
+                if base.options.eco_scale["AcrossFloors"] == True:
                     result.columns.names = ['cmp', 'ds']
 
                 else:
@@ -2128,7 +2133,7 @@ class BldgRepairModel(LossModel):
 
         df_agg['repair_time-parallel'] = DVG['TIME'].max(axis=1)
 
-        df_agg = convert_to_MultiIndex(df_agg, axis=1)
+        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
 
         log_msg(f"Repair consequences successfully aggregated.")
 
@@ -2156,7 +2161,7 @@ class BldgRepairModel(LossModel):
 
         RV_reg.generate_sample(sample_size=sample_size)
 
-        std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
+        std_sample = base.convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
                                            axis=1).sort_index(axis=1)
         std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'block']
 
@@ -2168,9 +2173,9 @@ class BldgRepairModel(LossModel):
         log_msg(f"\nCalculating the quantity of damage...",
                 prepend_timestamp=False)
 
-        if options.eco_scale["AcrossFloors"]==True:
+        if base.options.eco_scale["AcrossFloors"]==True:
 
-            if options.eco_scale["AcrossDamageStates"] == True:
+            if base.options.eco_scale["AcrossDamageStates"] == True:
 
                 eco_qnt = dmg_quantities.groupby(level=[0,], axis=1).sum()
                 eco_qnt.columns.names = ['cmp',]
@@ -2182,7 +2187,7 @@ class BldgRepairModel(LossModel):
 
         else:
 
-            if options.eco_scale["AcrossDamageStates"] == True:
+            if base.options.eco_scale["AcrossDamageStates"] == True:
 
                 eco_qnt = dmg_quantities.groupby(level=[0, 2], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', 'loc']
@@ -2242,11 +2247,11 @@ class BldgRepairModel(LossModel):
                     for loc_id, loc in enumerate(
                             dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.get_level_values(0).unique()):
 
-                        if ((options.eco_scale["AcrossFloors"] == True) and
+                        if ((base.options.eco_scale["AcrossFloors"] == True) and
                             (loc_id > 0)):
                             break
 
-                        if options.eco_scale["AcrossFloors"] == True:
+                        if base.options.eco_scale["AcrossFloors"] == True:
                             median_i = medians[DV_type].loc[:,(cmp_i, ds)]
                             dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds)]
 
@@ -2271,17 +2276,17 @@ class BldgRepairModel(LossModel):
 
                         loc_list.append(loc)
 
-                    if options.eco_scale["AcrossFloors"] == True:
+                    if base.options.eco_scale["AcrossFloors"] == True:
                         ds_list += [ds, ]
                     else:
                         ds_list+=[(ds, loc) for loc in loc_list]
 
-                if options.eco_scale["AcrossFloors"] == True:
+                if base.options.eco_scale["AcrossFloors"] == True:
                     cmp_list += [(loss_cmp_i, dmg_cmp_i, ds) for ds in ds_list]
                 else:
                     cmp_list+=[(loss_cmp_i, dmg_cmp_i, ds, loc) for ds, loc in ds_list]
 
-            if options.eco_scale["AcrossFloors"] == True:
+            if base.options.eco_scale["AcrossFloors"] == True:
                 key_list += [(DV_type, loss_cmp_i, dmg_cmp_i, ds)
                              for loss_cmp_i, dmg_cmp_i, ds in cmp_list]
             else:
@@ -2307,7 +2312,7 @@ class BldgRepairModel(LossModel):
         locs = DV_sample.columns.get_level_values(4).unique().values
         locs = locs[locs != '0']
 
-        DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
+        DV_sample.loc[id_replacement, base.idx[:, :, :, :, locs]] = 0.0
 
         self._sample = DV_sample
 

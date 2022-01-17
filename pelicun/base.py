@@ -204,8 +204,8 @@ class Options(object):
 
         if unit is not None:
 
-            if unit in globals().keys():
-                scale_factor = globals()[unit]
+            if unit in UC.keys():
+                scale_factor = UC[unit]
 
             else:
                 raise ValueError(f"Unknown unit: {unit}")
@@ -363,7 +363,10 @@ def convert_unit(value, unit):
         unit_name = unit
 
     try:
-        unit_factor = unit_count * globals()[unit_name]
+        if unit_name in UC_fema.keys():
+            unit_factor = unit_count * UC_fema[unit_name]
+        else:
+            unit_factor = unit_count * UC[unit_name]
     except:
         raise ValueError(f"Specified unit not recognized: "
                          f"{unit_count} {unit_name}")
@@ -537,110 +540,113 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
-# Constants for unit conversion
+# Constants for Unit Conversion (UC)
+
+UC = {}  # initialize
 
 # time
-sec = 1.
+UC['sec'] = 1.
 
-minute = 60. * sec
-hour = 60. * minute
-day = 24. * hour
+UC['minute'] = 60. * UC['sec']
+UC['hour'] = 60. * UC['minute']
+UC['day'] = 24. * UC['hour']
 
-sec2 = sec**2.
+UC['sec2'] = UC['sec']**2.
 
 # distance, area, volume
-m = 1.
+UC['m'] = 1.
 
-mm = 0.001 * m
-cm = 0.01 * m
-km = 1000. * m
+UC['mm'] = 0.001 * UC['m']
+UC['cm'] = 0.01 * UC['m']
+UC['km'] = 1000. * UC['m']
 
-inch = 0.0254
-ft = 12. * inch
-mile = 5280. * ft
+UC['inch'] = 0.0254
+UC['ft'] = 12. * UC['inch']
+UC['mile'] = 5280. * UC['ft']
 
 # area
-m2 = m**2.
+UC['m2'] = UC['m']**2.
 
-mm2 = mm**2.
-cm2 = cm**2.
-km2 = km**2.
+UC['mm2'] = UC['mm']**2.
+UC['cm2'] = UC['cm']**2.
+UC['km2'] = UC['km']**2.
 
-inch2 = inch**2.
-ft2 = ft**2.
-mile2 = mile**2.
+UC['inch2'] = UC['inch']**2.
+UC['ft2'] = UC['ft']**2.
+UC['mile2'] = UC['mile']**2.
 
 # volume
-m3 = m**3.
+UC['m3'] = UC['m']**3.
 
-inch3 = inch**3.
-ft3 = ft**3.
+UC['inch3'] = UC['inch']**3.
+UC['ft3'] = UC['ft']**3.
 
 
 # speed / velocity
-cmps = cm / sec
-mps = m / sec
-mph = mile / hour
+UC['cmps'] = UC['cm'] / UC['sec']
+UC['mps'] = UC['m'] / UC['sec']
+UC['mph'] = UC['mile'] / UC['hour']
 
-inchps = inch / sec
-ftps = ft / sec
+UC['inchps'] = UC['inch'] / UC['sec']
+UC['ftps'] = UC['ft'] / UC['sec']
 
 # acceleration
-mps2 = m / sec2
+UC['mps2'] = UC['m'] / UC['sec2']
 
-inchps2 = inch / sec2
-ftps2 = ft / sec2
+UC['inchps2'] = UC['inch'] / UC['sec2']
+UC['ftps2'] = UC['ft'] / UC['sec2']
 
-g = 9.80665 * mps2
+UC['g'] = 9.80665 * UC['mps2']
 
 # mass
-kg = 1.
+UC['kg'] = 1.
 
-ton = 1000. * kg
+UC['ton'] = 1000. * UC['kg']
 
-lb = 0.453592 * kg
+UC['lb'] = 0.453592 * UC['kg']
 
 # force
-N = kg * m / sec2
+UC['N'] = UC['kg'] * UC['m'] / UC['sec2']
 
-kN = 1e3 * N
+UC['kN'] = 1e3 * UC['N']
 
-lbf = lb * g
-kip = 1000. * lbf
-kips = kip
+UC['lbf'] = UC['lb'] * UC['g']
+UC['kip'] = 1000. * UC['lbf']
+UC['kips'] = UC['kip']
 
 # pressure / stress
-Pa = N / m2
+UC['Pa'] = UC['N']/ UC['m2']
 
-kPa = 1e3 * Pa
-MPa = 1e6 * Pa
-GPa = 1e9 * Pa
+UC['kPa'] = 1e3 * UC['Pa']
+UC['MPa'] = 1e6 * UC['Pa']
+UC['GPa'] = 1e9 * UC['Pa']
 
-psi = lbf / inch2
-ksi = 1e3 * psi
-Mpsi = 1e6 * psi
+UC['psi'] = UC['lbf'] / UC['inch2']
+UC['ksi'] = 1e3 * UC['psi']
+UC['Mpsi'] = 1e6 * UC['psi']
 
 # misc
-A = 1.
+UC['A'] = 1.
 
-V = 1.
-kV = 1000. * V
+UC['V'] = 1.
+UC['kV'] = 1000. * UC['V']
 
-ea = 1.
+UC['ea'] = 1.
 
-rad = 1.
+UC['rad'] = 1.
 
-C = 1.
+UC['C'] = 1.
 
 # FEMA P58 specific
 #TODO: work around these and make them available only in the parser methods
-EA = ea
-SF = ft2
-LF = ft
-TN = ton
-AP = A
-CF = ft3 / minute
-KV = kV * A
+UC_fema = {}  # initialize
+UC_fema['EA'] = UC['ea']
+UC_fema['SF'] = UC['ft2']
+UC_fema['LF'] = UC['ft']
+UC_fema['TN'] = UC['ton']
+UC_fema['AP'] = UC['A']
+UC_fema['CF'] = UC['ft3'] / UC['minute']
+UC_fema['KV'] = UC['kV'] * UC['A']
 
 # Input specs
 

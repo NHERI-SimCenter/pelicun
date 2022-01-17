@@ -54,7 +54,11 @@ quantification in pelicun.
 
 """
 
-from .base import *
+from .base import log_msg
+from . import base
+
+import numpy as np
+import pandas as pd
 
 from scipy.stats import uniform, norm
 from scipy.stats import multivariate_normal as mvn
@@ -1372,10 +1376,10 @@ class RandomVariableRegistry(object):
             Random seed used for sampling.
         """
         if method is None:
-            method = options.sampling_method
+            method = base.options.sampling_method
 
         # Initialize the random number generator
-        rng = options.rng
+        rng = base.options.rng
 
         # Generate a dictionary with IDs of the free (non-anchored) variables
         # TODO: add efficient determinstic option (for convenience)
