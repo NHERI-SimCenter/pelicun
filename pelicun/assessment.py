@@ -53,7 +53,11 @@ from . import base
 from . import file_io
 from . import model
 
+from .__init__ import __version__ as pelicun_version
+
 file_io.load_default_options()
+
+
 
 class Assessment(object):
     """
@@ -75,7 +79,7 @@ class Assessment(object):
 
     def __init__(self):
 
-        log_msg(f'pelicun {base.pelicun_version} | \n',
+        log_msg(f'pelicun {pelicun_version} | \n',
                 prepend_timestamp=False, prepend_blank_space=False)
 
         base.print_system_info()

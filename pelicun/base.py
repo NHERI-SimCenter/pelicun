@@ -42,25 +42,19 @@ This module defines constants, basic classes and methods for pelicun.
 
 """
 
-import os, sys, time
+import os
+import sys
 import warnings
 from datetime import datetime
-from time import strftime
 from pathlib import Path
 import argparse
-
-from copy import deepcopy
-
-# import libraries for other modules
 import numpy as np
 import pandas as pd
-
-from .__init__ import __version__ as pelicun_version
+import pprint
 
 idx = pd.IndexSlice
 
 # set printing options
-import pprint
 pp = pprint.PrettyPrinter(indent=2, width=80-24)
 
 pd.options.display.max_rows = 20
@@ -69,6 +63,7 @@ pd.options.display.expand_frame_repr = True
 pd.options.display.width = 300
 
 idx = pd.IndexSlice
+
 
 class Options(object):
 
@@ -177,7 +172,7 @@ class Options(object):
                 with open(filepath, 'w') as f:
                     f.write('')
 
-            except:
+            except (FileNotFoundError, PermissionError):
                 raise ValueError(f"The filepath provided does not point to an "
                                  f"valid location: {filepath}")
 
@@ -193,8 +188,10 @@ class Options(object):
 
         if self._log_show_ms:
             self._log_time_format = '%H:%M:%S:%f'
-            self._log_pref = ' ' * 16 # the length of the time string in the log file
-            self._log_div = '-' * (80 - 17) # to have a total length of 80 with the time added
+            # length of the time string in the log file
+            self._log_pref = ' ' * 16
+            # to have a total length of 80 with the time added
+            self._log_div = '-' * (80 - 17)
         else:
             self._log_time_format = '%H:%M:%S'
             self._log_pref = ' ' * 9
@@ -214,12 +211,14 @@ class Options(object):
 
         return scale_factor
 
+
 options = Options()
 
 log_file = None
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
+
 
 def set_options(config_options):
 
@@ -248,6 +247,7 @@ def set_options(config_options):
             elif key == "EconomiesOfScale":
                 options.eco_scale = value
 
+
 def convert_to_SimpleIndex(data, axis=0):
     """
     Converts the index of a DataFrame to a simple, one-level index
@@ -268,8 +268,6 @@ def convert_to_SimpleIndex(data, axis=0):
         The modified DataFrame
     """
 
-
-
     if axis == 0:
         simple_index = ['-'.join([str(id_i) for id_i in id])
                         for id in data.index]
@@ -284,6 +282,7 @@ def convert_to_SimpleIndex(data, axis=0):
         raise ValueError(f"Invalid axis parameter: {axis}")
 
     return data
+
 
 def convert_to_MultiIndex(data, axis=0):
     """
@@ -335,6 +334,7 @@ def convert_to_MultiIndex(data, axis=0):
 
     return data
 
+
 def convert_unit(value, unit):
     """
     Convert value(s) provided in one unit to the internal SI unit
@@ -367,7 +367,7 @@ def convert_unit(value, unit):
             unit_factor = unit_count * UC_fema[unit_name]
         else:
             unit_factor = unit_count * UC[unit_name]
-    except:
+    except KeyError:
         raise ValueError(f"Specified unit not recognized: "
                          f"{unit_count} {unit_name}")
 
@@ -375,7 +375,7 @@ def convert_unit(value, unit):
     try:
         float(value)
         is_float = True
-    except:
+    except ValueError:
         is_float = False
 
     # if it is a single scalar, conversion is easy
@@ -398,12 +398,15 @@ def convert_unit(value, unit):
         return '|'.join([','.join([f'{val:g}' for val in values[i]])
                          for i in range(2)])
 
+
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
     if describe:
-        pp.pprint(pd.DataFrame(data).describe(percentiles=[0.01,0.1,0.5,0.9,0.99]))
+        pp.pprint(pd.DataFrame(data).describe(
+            percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
     else:
         pp.pprint(pd.DataFrame(data))
+
 
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
@@ -420,12 +423,16 @@ def _warning(message, category, filename, lineno, file=None, line=None):
     else:
         python_file = filename
 
-    print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
+    print('WARNING in {} at line {}\n{}\n'.format(
+        python_file, lineno, message))
+
 
 warnings.showwarning = _warning
 
+
 def show_warning(warning_msg):
     warnings.warn(UserWarning(warning_msg))
+
 
 def print_system_info():
 
@@ -437,6 +444,7 @@ def print_system_info():
             f'numpy: {np.__version__}\n'
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
+
 
 def log_div(prepend_timestamp=False):
     """
@@ -450,7 +458,7 @@ def log_div(prepend_timestamp=False):
     else:
         msg = '-' * 80
 
-    log_msg(msg, prepend_timestamp = prepend_timestamp)
+    log_msg(msg, prepend_timestamp=prepend_timestamp)
 
 
 def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
@@ -470,7 +478,7 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
 
     for msg_i, msg_line in enumerate(msg_lines):
 
-        if (prepend_timestamp and (msg_i==0)):
+        if (prepend_timestamp and (msg_i == 0)):
             formatted_msg = '{} {}'.format(
                 datetime.now().strftime(options.log_time_format), msg_line)
         elif prepend_timestamp:
@@ -486,6 +494,7 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
         if globals()['log_file'] is not None:
             with open(globals()['log_file'], 'a') as f:
                 f.write('\n'+formatted_msg)
+
 
 def describe(df):
 
@@ -528,11 +537,12 @@ def describe(df):
 
     return desc
 
+
 def str2bool(v):
     # courtesy of Maxim @ stackoverflow
 
     if isinstance(v, bool):
-       return v
+        return v
     if v.lower() in ('yes', 'true', 'True', 't', 'y', '1'):
         return True
     elif v.lower() in ('no', 'false', 'False', 'f', 'n', '0'):
@@ -541,6 +551,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 # Constants for Unit Conversion (UC)
+
 
 UC = {}  # initialize
 
@@ -615,7 +626,7 @@ UC['kip'] = 1000. * UC['lbf']
 UC['kips'] = UC['kip']
 
 # pressure / stress
-UC['Pa'] = UC['N']/ UC['m2']
+UC['Pa'] = UC['N'] / UC['m2']
 
 UC['kPa'] = 1e3 * UC['Pa']
 UC['MPa'] = 1e6 * UC['Pa']
@@ -638,7 +649,7 @@ UC['rad'] = 1.
 UC['C'] = 1.
 
 # FEMA P58 specific
-#TODO: work around these and make them available only in the parser methods
+# TODO: work around these and make them available only in the parser methods
 UC_fema = {}  # initialize
 UC_fema['EA'] = UC['ea']
 UC_fema['SF'] = UC['ft2']
@@ -651,61 +662,61 @@ UC_fema['KV'] = UC['kV'] * UC['A']
 # Input specs
 
 CMP_data_path = dict(
-    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf',
-    HAZUS_HU = '/resources/HAZUS_MH_2.1.hdf',
-    HAZUS_FL = '/resources/HAZUS_MH_2.1_FL.hdf',
-    HAZUS_MISC = '/resources/HAZUS_MH_2.1_MISC.hdf'
+    P58='/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf',
+    HAZUS_HU='/resources/HAZUS_MH_2.1.hdf',
+    HAZUS_FL='/resources/HAZUS_MH_2.1_FL.hdf',
+    HAZUS_MISC='/resources/HAZUS_MH_2.1_MISC.hdf'
 )
 
 POP_data_path = dict(
-    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf'
+    P58='/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf'
 )
 
 default_units = dict(
-    force =        'N',
-    length =       'm',
-    area =         'm2',
-    volume =       'm3',
-    speed =        'mps',
-    acceleration = 'mps2',
+    force='N',
+    length='m',
+    area='m2',
+    volume='m3',
+    speed='mps',
+    acceleration='mps2',
 )
 
 EDP_units = dict(
     # PID, PRD, RID, and MID are not here because they are unitless
-    PFA = 'acceleration',
-    PWS = 'speed',
-    PGA = 'acceleration',
-    SA = 'acceleration',
-    SV = 'speed',
-    SD = 'length',
-    PIH = 'length'
+    PFA='acceleration',
+    PWS='speed',
+    PGA='acceleration',
+    SA='acceleration',
+    SV='speed',
+    SD='length',
+    PIH='length'
 )
 
 EDP_to_demand_type = {
-    'Story Drift Ratio' :             'PID',
-    'Peak Interstory Drift Ratio':    'PID',
-    'Roof Drift Ratio' :              'PRD',
-    'Peak Roof Drift Ratio' :         'PRD',
-    'Damageable Wall Drift' :         'DWD',
-    'Racking Drift Ratio' :           'RDR',
-    'Peak Floor Acceleration' :       'PFA',
-    'Peak Floor Velocity' :           'PFV',
-    'Peak Gust Wind Speed' :          'PWS',
-    'Peak Inundation Height' :        'PIH',
-    'Peak Ground Acceleration' :      'PGA',
-    'Peak Ground Velocity' :          'PGV',
-    'Spectral Acceleration' :         'SA',
-    'Spectral Velocity' :             'SV',
-    'Spectral Displacement' :         'SD',
-    'Peak Spectral Acceleration' :    'SA',
-    'Peak Spectral Velocity' :        'SV',
-    'Peak Spectral Displacement' :    'SD',
-    'Permanent Ground Deformation' :  'PGD',
-    'Mega Drift Ratio' :              'PMD',
-    'Residual Drift Ratio' :          'RID',
-    'Residual Interstory Drift Ratio':'RID',
+    'Story Drift Ratio': 'PID',
+    'Peak Interstory Drift Ratio': 'PID',
+    'Roof Drift Ratio': 'PRD',
+    'Peak Roof Drift Ratio': 'PRD',
+    'Damageable Wall Drift': 'DWD',
+    'Racking Drift Ratio': 'RDR',
+    'Peak Floor Acceleration': 'PFA',
+    'Peak Floor Velocity': 'PFV',
+    'Peak Gust Wind Speed': 'PWS',
+    'Peak Inundation Height': 'PIH',
+    'Peak Ground Acceleration': 'PGA',
+    'Peak Ground Velocity': 'PGV',
+    'Spectral Acceleration': 'SA',
+    'Spectral Velocity': 'SV',
+    'Spectral Displacement': 'SD',
+    'Peak Spectral Acceleration': 'SA',
+    'Peak Spectral Velocity': 'SV',
+    'Peak Spectral Displacement': 'SD',
+    'Permanent Ground Deformation': 'PGD',
+    'Mega Drift Ratio': 'PMD',
+    'Residual Drift Ratio': 'RID',
+    'Residual Interstory Drift Ratio': 'RID',
 }
 
 # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
@@ -717,6 +728,6 @@ EDP_to_demand_type = {
 # Rather than changing the locations themselves, we assign an offset of -1
 # so that the results still get collected at the appropriate story.
 EDP_offset_adjustment = dict(
-    PFA = -1,
-    PFV = -1
+    PFA=-1,
+    PFV=-1
 )

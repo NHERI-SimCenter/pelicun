@@ -66,8 +66,6 @@ from scipy.stats.mvn import mvndst
 from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
 
-import warnings
-
 
 def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
     """
@@ -166,9 +164,9 @@ def _get_theta(params, inits, dist_list):
     """
     Returns the parameters of the target distributions.
 
-    Uses the parameter values from the optimization algorithm (that are relative
-    to the initial values) and the initial values to transform them to the
-    parameters of the target distributions.
+    Uses the parameter values from the optimization algorithm (that
+    are relative to the initial values) and the initial values to
+    transform them to the parameters of the target distributions.
 
     """
 
@@ -214,12 +212,10 @@ def _get_limit_probs(limits, distribution, theta):
 
 def _get_std_samples(samples, theta, tr_limits, dist_list):
 
-    ndims = samples.shape[0]
-
     std_samples = np.zeros(samples.shape)
 
     for i, (samples_i, theta_i, tr_lim_i, dist_i) in enumerate(
-        zip(samples, theta, tr_limits, dist_list)):
+            zip(samples, theta, tr_limits, dist_list)):
 
         if dist_i in ['normal', 'lognormal']:
 
@@ -290,6 +286,7 @@ def _mvn_scale(x, rho):
 
     return b / a
 
+
 def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
                         dist_list, tr_limits, det_limits, censored_count,
                         enforce_bounds=False):
@@ -297,7 +294,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # First, check if the parameters are within the pre-defined bounds
     # TODO: check if it is more efficient to use a bounded minimization algo
     if enforce_bounds:
-        if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
+        if ((params > bnd_lower) & (params < bnd_upper)).all(0) is False:
             # if they are not, then return a large value to discourage the
             # optimization algorithm from going in that direction
             return 1e10
@@ -347,7 +344,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
         det_upper = np.zeros(n_dims)
 
         for i, (theta_i, tr_lim_i, det_lim_i, dist_i) in enumerate(
-            zip(theta, tr_limits, det_limits, dist_list)):
+                zip(theta, tr_limits, det_limits, dist_list)):
 
             # prepare the standardized truncation and detection limits
             p_a, p_b = _get_limit_probs(tr_lim_i, dist_i, theta_i)
@@ -404,6 +401,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # print(theta[0], NLL)
 
     return NLL
+
 
 def fit_distribution_to_sample(raw_samples, distribution,
                                truncation_limits=[np.nan, np.nan],
@@ -552,7 +550,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
     bnd_lower = bnd_lower.flatten()
     bnd_upper = bnd_upper.flatten()
 
-    #inits_0 = np.copy(inits)
+    # inits_0 = np.copy(inits)
 
     # There is nothing to gain from a time-consuming optimization if..
     #     the number of samples is too small
@@ -597,7 +595,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
                                      bnd_lower[dim:dim + 1],
                                      bnd_upper[dim:dim + 1],
                                      samples[dim:dim + 1],
-                                     [dist_list[dim],],
+                                     [dist_list[dim], ],
                                      [tr_limits_i, ],
                                      [np.nan, np.nan],
                                      0, True,),
@@ -606,7 +604,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
                                )
 
             out = out_m_i.x.reshape(inits_i.shape)
-            theta = _get_theta(out, inits_i, [dist_list[dim],])
+            theta = _get_theta(out, inits_i, [dist_list[dim], ])
             inits[dim] = theta[0]
 
         # Second, if multi_fit is requested or there are censored samples,
@@ -647,14 +645,15 @@ def fit_distribution_to_sample(raw_samples, distribution,
     for d_i, distribution in enumerate(dist_list):
         if distribution == 'lognormal':
             theta[d_i][0] = np.exp(theta[d_i][0])
-            #theta_mod = theta.T.copy()
-            #theta_mod[0] = np.exp(theta_mod[0])
-            #theta = theta_mod.T
+            # theta_mod = theta.T.copy()
+            # theta_mod[0] = np.exp(theta_mod[0])
+            # theta = theta_mod.T
 
     #for val in list(zip(inits_0, theta)):
     #    print(val)
 
     return theta, rho_hat
+
 
 def _OLS_percentiles(params, values, perc, family):
 
@@ -679,6 +678,7 @@ def _OLS_percentiles(params, values, perc, family):
         raise ValueError(f"Distribution family not recognized: {family}")
 
     return np.sum((val_hat - values) ** 2.0)
+
 
 def fit_distribution_to_percentiles(values, percentiles, families):
     """
@@ -712,7 +712,7 @@ def fit_distribution_to_percentiles(values, percentiles, families):
 
     for family in families:
 
-        inits = [values[median_id],]
+        inits = [values[median_id], ]
 
         if family == 'normal':
             inits.append((np.abs(values[extreme_id] - inits[0]) /
@@ -786,7 +786,7 @@ class RandomVariable(object):
         self.name = name
 
         if ((distribution not in ['empirical', 'coupled_empirical']) and
-            (np.all(np.isnan(theta)))):
+           (np.all(np.isnan(theta)))):
             raise ValueError(
                 f"A random variable that follows a {distribution} distribution "
                 f"is characterized by a set of parameters (theta). The "
@@ -813,7 +813,7 @@ class RandomVariable(object):
         self._uni_samples = None
         self._RV_set = None
 
-        if anchor == None:
+        if anchor is None:
             self._anchor = self
         else:
             self._anchor = anchor
@@ -1013,7 +1013,6 @@ class RandomVariable(object):
 
         return result
 
-
     def inverse_transform(self, values):
         """
         Uses inverse probability integral transformation on the provided values.
@@ -1043,7 +1042,7 @@ class RandomVariable(object):
                     )
 
                 result = norm.ppf(values * (p_b - p_a) + p_a,
-                                        loc=mu, scale=sig)
+                                  loc=mu, scale=sig)
 
             else:
                 result = norm.ppf(values, loc=mu, scale=sig)
@@ -1119,6 +1118,7 @@ class RandomVariable(object):
 
         self.sample = self.inverse_transform(self.uni_sample)
 
+
 class RandomVariableSet(object):
     """
     Description
@@ -1149,7 +1149,7 @@ class RandomVariableSet(object):
             # sorted list of RVs
             self._Rho = np.asarray(Rho[(reorder)].T[(reorder)].T)
 
-        else: # if there is only one variable (for testing, probably)
+        else:  # if there is only one variable (for testing, probably)
             self._variables = dict([(rv.name, rv) for rv in RV_list])
             self._Rho = np.asarray(Rho)
 
@@ -1303,6 +1303,7 @@ class RandomVariableSet(object):
 
         return np.asarray(OD)
 
+
 class RandomVariableRegistry(object):
     """
     Description
@@ -1328,7 +1329,7 @@ class RandomVariableRegistry(object):
         """
         Return a subset of the random variables in the registry
         """
-        return {name:self._variables[name] for name in keys}
+        return {name: self._variables[name] for name in keys}
 
     def add_RV(self, RV):
         """
@@ -1355,7 +1356,6 @@ class RandomVariableRegistry(object):
         Return the sample for every random variable in the registry
         """
         return dict([(name, rv.sample) for name, rv in self.RV.items()])
-
 
     def generate_sample(self, sample_size, method=None):
         """
