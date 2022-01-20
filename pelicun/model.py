@@ -2291,7 +2291,7 @@ class BldgRepairModel(LossModel):
                             dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds, loc)]
 
                             if str(cmp_i) in prob_cmp_list:
-                                std_i = std_sample.loc[:, (DV_type, cmp_i, ds, loc)]
+                                std_i = std_sample.loc[:, (DV_type, str(cmp_i), ds, loc)]
                             else:
                                 std_i = None
 
