@@ -405,10 +405,10 @@ class DemandModel(object):
         self.empirical_data = demand_sample.loc[:, empirical_edps].copy()
 
         # remove the empirical demands from the samples used for calibration
-        demand_sample = demand_sample.drop(empirical_edps, 1)
+        demand_sample = demand_sample.drop(labels=empirical_edps, axis=1)
 
         # and the calibration settings
-        cal_df = cal_df.drop(empirical_edps, 0)
+        cal_df = cal_df.drop(labels=empirical_edps, axis=0)
 
         if base.options.verbose:
             log_msg(f"\nDemand data used for calibration:\n{demand_sample}",
@@ -450,7 +450,7 @@ class DemandModel(object):
 
         # remove unneeded fields from model_params
         for col in ['sig_increase', 'censor_lower', 'censor_upper']:
-            model_params = model_params.drop(col, 1)
+            model_params = model_params.drop(labels=col, axis=1)
 
         # reorder the remaining fields for clarity
         model_params = model_params[[
@@ -2281,7 +2281,7 @@ class BldgRepairModel(LossModel):
                             median_i = medians[DV_type].loc[:, (cmp_i, ds)]
                             dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds)]
 
-                            if cmp_i in prob_cmp_list:
+                            if str(cmp_i) in prob_cmp_list:
                                 std_i = std_sample.loc[:, (DV_type, cmp_i, ds)]
                             else:
                                 std_i = None
@@ -2290,7 +2290,7 @@ class BldgRepairModel(LossModel):
                             median_i = medians[DV_type].loc[:, (cmp_i, ds, loc)]
                             dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds, loc)]
 
-                            if cmp_i in prob_cmp_list:
+                            if str(cmp_i) in prob_cmp_list:
                                 std_i = std_sample.loc[:, (DV_type, cmp_i, ds, loc)]
                             else:
                                 std_i = None
