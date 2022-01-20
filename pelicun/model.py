@@ -2326,19 +2326,18 @@ class BldgRepairModel(LossModel):
         DV_sample = DV_sample.fillna(0).convert_dtypes()
         DV_sample.columns.names = lvl_names
 
-        # When the 'replacement' consequence is triggered, all local repair
-        # consequences are discarded. Note that global consequences are assigned
-        # to location '0'.
+        # When the 'replacement' consequence is triggered, all local
+        # repair consequences are discarded. Note that global
+        # consequences are assigned to location '0'.
 
         # Get the flags for replacement consequence trigger
-        id_replacement = DV_sample.groupby(level=[1, ],
-                                           axis=1).sum()['replacement'] > 0
-
-        # get the list of non-zero locations
-        locs = DV_sample.columns.get_level_values(4).unique().values
-        locs = locs[locs != '0']
-
-        DV_sample.loc[id_replacement, base.idx[:, :, :, :, locs]] = 0.0
+        group_sum = DV_sample.groupby(level=[1, ], axis=1).sum()
+        if "replacement" in group_sum.keys():
+            id_replacement = group_sum['replacement'] > 0
+            # get the list of non-zero locations
+            locs = DV_sample.columns.get_level_values(4).unique().values
+            locs = locs[locs != '0']
+            DV_sample.loc[id_replacement, base.idx[:, :, :, :, locs]] = 0.0
 
         self._sample = DV_sample
 
