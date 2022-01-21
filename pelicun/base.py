@@ -185,6 +185,7 @@ class Options(object):
 
         if value is None:
             globals()['log_file'] = value
+
         else:
 
             filepath = Path(value).resolve()
