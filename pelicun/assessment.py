@@ -74,10 +74,7 @@ class Assessment(object):
 
         load_default_options()
 
-        config_options = merge_default_config(config_options)
-
-        if config_options is not None:
-            set_options(config_options)
+        set_options(merge_default_config(config_options))
 
         log_msg(f'pelicun {pelicun_version} | \n',
                 prepend_timestamp=False, prepend_blank_space=False)

@@ -216,50 +216,55 @@ def merge_default_config(config):
 
     defaults = options.defaults
 
-    if config.get('DemandAssessment', False):
+    if config is not None:
 
-        demand_def = defaults['DemandAssessment']
-        demand_config = config['DemandAssessment']
+        if config.get('DemandAssessment', False):
 
-        if 'Calibration' in demand_config.keys():
+            demand_def = defaults['DemandAssessment']
+            demand_config = config['DemandAssessment']
 
-            calib_config = demand_config['Calibration']
-            calib_def = demand_def['Calibration']
+            if 'Calibration' in demand_config.keys():
 
-            for key, value in calib_def.items():
+                calib_config = demand_config['Calibration']
+                calib_def = demand_def['Calibration']
 
-                if key in ['Marginals',]:
-                    continue
+                for key, value in calib_def.items():
 
-                if key not in calib_def:
-                    calib_def.update({key: value})
+                    if key in ['Marginals',]:
+                        continue
 
-            marginal_config = calib_config['Marginals']
-            marginal_def = calib_def['Marginals']
+                    if key not in calib_def:
+                        calib_def.update({key: value})
 
-            for key, value in marginal_def.items():
+                marginal_config = calib_config['Marginals']
+                marginal_def = calib_def['Marginals']
 
-                if key not in marginal_config:
-                    marginal_config.update({key: value})
+                for key, value in marginal_def.items():
 
-        if 'Sampling' in demand_config.keys():
+                    if key not in marginal_config:
+                        marginal_config.update({key: value})
 
-            sample_config = demand_config['Sampling']
+            if 'Sampling' in demand_config.keys():
 
-            for key, value in demand_def['Sampling'].items():
+                sample_config = demand_config['Sampling']
 
-                if key not in sample_config:
-                    sample_config.update({key: value})
+                for key, value in demand_def['Sampling'].items():
 
-        if 'OutputUnits' in demand_def.keys():
+                    if key not in sample_config:
+                        sample_config.update({key: value})
 
-            if 'OutputUnits' not in demand_config.keys():
-                demand_config.update({'OutputUnits': {}})
+            if 'OutputUnits' in demand_def.keys():
 
-            for key, value in demand_def['OutputUnits'].items():
+                if 'OutputUnits' not in demand_config.keys():
+                    demand_config.update({'OutputUnits': {}})
 
-                if key not in demand_config['OutputUnits']:
-                    demand_config['OutputUnits'].update({key: value})
+                for key, value in demand_def['OutputUnits'].items():
+
+                    if key not in demand_config['OutputUnits']:
+                        demand_config['OutputUnits'].update({key: value})
+
+    else:
+        config = defaults
 
     return config
 
