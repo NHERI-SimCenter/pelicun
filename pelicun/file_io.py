@@ -274,8 +274,8 @@ def save_to_csv(data, filepath, units=None, orientation=0):
     Saves data to a CSV file following standard SimCenter schema.
 
     The produced CSV files have a single header line and an index column. The
-    second line may start with 'units' in the index or the first column may be
-    'units' to provide the units for the data in the file.
+    second line may start with 'Units' in the index or the first column may be
+    'Units' to provide the units for the data in the file.
 
     The following data types in pelicun can be saved with this function:
 
@@ -393,7 +393,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
     Loads data assuming it follows standard SimCenter tabular schema.
 
     The data is assumed to have a single header line and an index column. The
-    second line may start with 'units' in the index and provide the units for
+    second line may start with 'Units' in the index and provide the units for
     each column in the file.
 
     Parameters
@@ -434,18 +434,18 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
         data = load_from_file(data_source)
 
     # if there is information about units, perform the conversion to SI
-    if (data.index[0] == 'units') or (data.columns[0] == 'units'):
+    if (data.index[0] == 'Units') or (data.columns[0] == 'Units'):
 
         log_msg(f'Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
-            units = data.loc['units', :].copy().dropna()
-            data.drop('units', inplace=True)
+            units = data.loc['Units', :].copy().dropna()
+            data.drop('Units', inplace=True)
             data = data.astype(float)
 
         else:  # elif orientation==1:
-            units = data.loc[:, 'units'].copy().dropna()
-            data.drop('units', axis=1, inplace=True)
+            units = data.loc[:, 'Units'].copy().dropna()
+            data.drop('Units', axis=1, inplace=True)
 
             if convert is None:
                 cols_to_scale = []

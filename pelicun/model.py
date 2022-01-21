@@ -254,25 +254,25 @@ class DemandModel(object):
                 cols = tuple(cols)
 
             # load the distribution family
-            cal_df.loc[idx[cols,:,:], 'family'] = settings['DistributionFamily']
+            cal_df.loc[idx[cols,:,:], 'Family'] = settings['DistributionFamily']
 
             # load the censor limits
             if 'CensorAt' in settings.keys():
-                censor_lower, censor_upper = settings['CensorAt']
-                cal_df.loc[idx[cols,:,:], 'censor_lower'] = censor_lower
-                cal_df.loc[idx[cols,:,:], 'censor_upper'] = censor_upper
+                CensorLower, CensorUpper = settings['CensorAt']
+                cal_df.loc[idx[cols,:,:], 'CensorLower'] = CensorLower
+                cal_df.loc[idx[cols,:,:], 'CensorUpper'] = CensorUpper
 
             # load the truncation limits
             if 'TruncateAt' in settings.keys():
-                truncate_lower, truncate_upper = settings['TruncateAt']
-                cal_df.loc[idx[cols,:,:], 'truncate_lower'] = truncate_lower
-                cal_df.loc[idx[cols,:,:], 'truncate_upper'] = truncate_upper
+                TruncateLower, TruncateUpper = settings['TruncateAt']
+                cal_df.loc[idx[cols,:,:], 'TruncateLower'] = TruncateLower
+                cal_df.loc[idx[cols,:,:], 'TruncateUpper'] = TruncateUpper
 
             # scale the censor and truncation limits, if needed
             scale_factor = options.scale_factor(settings.get('Unit', None))
 
-            rows_to_scale = ['censor_lower', 'censor_upper',
-                             'truncate_lower', 'truncate_upper']
+            rows_to_scale = ['CensorLower', 'CensorUpper',
+                             'TruncateLower', 'TruncateUpper']
             cal_df.loc[idx[cols,:,:], rows_to_scale] *= scale_factor
 
             # load the prescribed additional uncertainty
@@ -284,7 +284,7 @@ class DemandModel(object):
                 if settings['DistributionFamily'] == 'normal':
                     sig_increase *= scale_factor
 
-                cal_df.loc[idx[cols,:,:], 'sig_increase'] = sig_increase
+                cal_df.loc[idx[cols,:,:], 'SigIncrease'] = sig_increase
 
         def get_filter_mask(lower_lims, upper_lims):
 
@@ -307,15 +307,15 @@ class DemandModel(object):
 
         # initialize a DataFrame that contains calibration information
         cal_df = pd.DataFrame(
-            columns=['family',
-                     'censor_lower', 'censor_upper',
-                     'truncate_lower', 'truncate_upper',
-                     'sig_increase', 'theta_0', 'theta_1'],
+            columns=['Family',
+                     'CensorLower', 'CensorUpper',
+                     'TruncateLower', 'TruncateUpper',
+                     'SigIncrease', 'Theta_0', 'Theta_1'],
             index=demand_sample.columns,
             dtype=float
             )
 
-        cal_df['family'] = cal_df['family'].astype(str)
+        cal_df['Family'] = cal_df['Family'].astype(str)
 
         # start by assigning the default option ('ALL') to every demand column
         parse_settings(config['ALL'], 'ALL')
@@ -340,8 +340,8 @@ class DemandModel(object):
         # Currently, non-empirical demands are assumed to have some level of
         # correlation, hence, a censored value in any demand triggers the
         # removal of the entire sample from the population.
-        upper_lims = cal_df.loc[:, 'censor_upper'].values
-        lower_lims = cal_df.loc[:, 'censor_lower'].values
+        upper_lims = cal_df.loc[:, 'CensorUpper'].values
+        lower_lims = cal_df.loc[:, 'CensorLower'].values
 
         if ~np.all(np.isnan(np.array([upper_lims, lower_lims]))):
 
@@ -360,8 +360,8 @@ class DemandModel(object):
         # If yes, that suggests an error either in the samples or the
         # configuration. We handle such errors gracefully: the analysis is not
         # terminated, but we show an error in the log file.
-        upper_lims = cal_df.loc[:, 'truncate_upper'].values
-        lower_lims = cal_df.loc[:, 'truncate_lower'].values
+        upper_lims = cal_df.loc[:, 'TruncateUpper'].values
+        lower_lims = cal_df.loc[:, 'TruncateLower'].values
 
         if ~np.all(np.isnan(np.array([upper_lims, lower_lims]))):
 
@@ -383,7 +383,7 @@ class DemandModel(object):
         # empirical and other demands is not preserved in the demand model.
         empirical_edps = []
         for edp in cal_df.index:
-            if cal_df.loc[edp, 'family'] == 'empirical':
+            if cal_df.loc[edp, 'Family'] == 'empirical':
                 empirical_edps.append(edp)
 
         self.empirical_data = demand_sample.loc[:, empirical_edps].copy()
@@ -404,12 +404,12 @@ class DemandModel(object):
 
         demand_theta, demand_rho = fit_distribution_to_sample(
             raw_samples = demand_sample.values.T,
-            distribution = cal_df.loc[:, 'family'].values,
+            distribution = cal_df.loc[:, 'Family'].values,
             censored_count = censored_count,
             detection_limits = cal_df.loc[:,
-                               ['censor_lower', 'censor_upper']].values.T,
+                               ['CensorLower', 'CensorUpper']].values.T,
             truncation_limits = cal_df.loc[:,
-                                ['truncate_lower', 'truncate_upper']].values.T,
+                                ['TruncateLower', 'TruncateUpper']].values.T,
             multi_fit=False
         )
 
@@ -418,27 +418,27 @@ class DemandModel(object):
                 prepend_timestamp=False)
 
         # save the calibration results
-        model_params.loc[cal_df.index, ['theta_0','theta_1']] = demand_theta
+        model_params.loc[cal_df.index, ['Theta_0','Theta_1']] = demand_theta
 
         # increase the variance of the marginal distributions, if needed
-        if ~np.all(np.isnan(model_params.loc[:, 'sig_increase'].values)):
+        if ~np.all(np.isnan(model_params.loc[:, 'SigIncrease'].values)):
 
             log_msg(f"\nIncreasing demand variance...",
                     prepend_timestamp=False)
 
-            sig_inc = np.nan_to_num(model_params.loc[:, 'sig_increase'].values)
-            sig_0 = model_params.loc[:, 'theta_1'].values
+            sig_inc = np.nan_to_num(model_params.loc[:, 'SigIncrease'].values)
+            sig_0 = model_params.loc[:, 'Theta_1'].values
 
-            model_params.loc[:, 'theta_1'] = (
+            model_params.loc[:, 'Theta_1'] = (
                 np.sqrt(sig_0 ** 2. + sig_inc ** 2.))
 
         # remove unneeded fields from model_params
-        for col in ['sig_increase', 'censor_lower', 'censor_upper']:
+        for col in ['SigIncrease', 'CensorLower', 'CensorUpper']:
             model_params = model_params.drop(col, 1)
 
         # reorder the remaining fields for clarity
         model_params = model_params[[
-            'family','theta_0','theta_1','truncate_lower','truncate_upper']]
+            'Family','Theta_0','Theta_1','TruncateLower','TruncateUpper']]
 
         self.marginal_params = model_params
 
@@ -475,7 +475,7 @@ class DemandModel(object):
 
         marginal_params = self.marginal_params.copy()
 
-        log_rows = marginal_params['family']=='lognormal'
+        log_rows = marginal_params['Family']=='lognormal'
         log_demands = marginal_params.loc[log_rows,:]
 
         for label in log_demands.index:
@@ -484,7 +484,7 @@ class DemandModel(object):
 
                 unit_factor = globals()[self.units[label]]
 
-                marginal_params.loc[label, 'theta_1'] *= unit_factor
+                marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
         save_to_csv(marginal_params, file_prefix+'_marginals.csv',
                     units=self.units, orientation=1)
@@ -513,7 +513,7 @@ class DemandModel(object):
                                                return_units=True)
         marginal_params.index.set_names(['type', 'loc', 'dir'],inplace=True)
 
-        log_rows = marginal_params.loc[:, 'family'] == 'lognormal'
+        log_rows = marginal_params.loc[:, 'Family'] == 'lognormal'
         log_demands = marginal_params.loc[log_rows,:].index.values
 
         for label in log_demands:
@@ -522,7 +522,7 @@ class DemandModel(object):
 
                 unit_factor = globals()[units[label]]
 
-                marginal_params.loc[label, 'theta_1'] /= unit_factor
+                marginal_params.loc[label, 'Theta_1'] /= unit_factor
 
         self.units = units
         self.marginal_params = marginal_params
@@ -544,7 +544,7 @@ class DemandModel(object):
             edp = rv_params.Index
             rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
 
-            if rv_params.family == 'empirical':
+            if rv_params.Family == 'empirical':
 
                 if preserve_order:
                     dist_family = 'coupled_empirical'
@@ -563,10 +563,10 @@ class DemandModel(object):
                 # all other RVs need parameters of their distributions
                 RV_reg.add_RV(RandomVariable(
                     name=rv_tag,
-                    distribution=rv_params.family,
-                    theta=[rv_params.theta_0, rv_params.theta_1],
-                    truncation_limits=[rv_params.truncate_lower,
-                                       rv_params.truncate_upper],
+                    distribution=rv_params.Family,
+                    theta=[rv_params.Theta_0, rv_params.Theta_1],
+                    truncation_limits=[rv_params.TruncateLower,
+                                       rv_params.TruncateUpper],
 
 
                 ))
@@ -657,7 +657,7 @@ class AssetModel(object):
         # prepare a units array
         sample = self.cmp_sample
 
-        units = pd.Series(name='units', index=sample.columns)
+        units = pd.Series(name='Units', index=sample.columns)
 
         for cmp_id, unit_name in self.cmp_units.items():
             units.loc[cmp_id, :] = unit_name
@@ -791,9 +791,9 @@ class AssetModel(object):
         # Create a multiindex that identifies individual component blocks
         MI_list = []
         for row in marginal_params.itertuples():
-            locs = get_locations(row.location)
-            dirs = get_directions(row.direction)
-            blocks = range(1, len(get_blocks(row.theta_0)) + 1)
+            locs = get_locations(row.Location)
+            dirs = get_directions(row.Direction)
+            blocks = range(1, len(get_blocks(row.Theta_0)) + 1)
 
             MI_list.append(pd.MultiIndex.from_product(
                 [[row.Index, ], locs, dirs, blocks],
@@ -802,26 +802,26 @@ class AssetModel(object):
         MI = MI_list[0].append(MI_list[1:])
 
         # Create a DataFrame that will hold marginal params for component blocks
-        marginal_cols = ['units', 'family', 'theta_0', 'theta_1',
-                         'truncate_lower', 'truncate_upper']
+        marginal_cols = ['Units', 'Family', 'Theta_0', 'Theta_1',
+                         'TruncateLower', 'TruncateUpper']
         cmp_marginal_params = pd.DataFrame(
             columns=marginal_cols,
             index=MI,
             dtype=float
         )
-        cmp_marginal_params[['units', 'family']] = (
-            cmp_marginal_params[['units', 'family']].astype(object))
+        cmp_marginal_params[['Units', 'Family']] = (
+            cmp_marginal_params[['Units', 'Family']].astype(object))
 
         # Fill the DataFrame with information on component quantity variables
 
         for row in marginal_params.itertuples():
 
-            locs = get_locations(row.location)
-            dirs = get_directions(row.direction)
-            theta_0s = get_blocks(row.theta_0)
-            theta_1s = get_blocks(row.theta_1)
-            trnc_ls = get_blocks(row.truncate_lower)
-            trnc_us = get_blocks(row.truncate_upper)
+            locs = get_locations(row.Location)
+            dirs = get_directions(row.Direction)
+            theta_0s = get_blocks(row.Theta_0)
+            theta_1s = get_blocks(row.Theta_1)
+            trnc_ls = get_blocks(row.TruncateLower)
+            trnc_us = get_blocks(row.TruncateUpper)
 
             # parse the distribution characteristics
             if len(theta_1s) != len(theta_0s):
@@ -831,7 +831,7 @@ class AssetModel(object):
 
                 else:
                     raise ValueError(f"Unable to parse theta_1 string: "
-                                     f"{row.theta_1}")
+                                     f"{row.Theta_1}")
 
             if len(trnc_ls) != len(theta_0s):
 
@@ -840,7 +840,7 @@ class AssetModel(object):
 
                 else:
                     raise ValueError(f"Unable to parse theta_1 string: "
-                                     f"{row.truncate_lower}")
+                                     f"{row.TruncateLower}")
 
             if len(trnc_us) != len(theta_0s):
 
@@ -849,7 +849,7 @@ class AssetModel(object):
 
                 else:
                     raise ValueError(f"Unable to parse theta_1 string: "
-                                     f"{row.truncate_upper}")
+                                     f"{row.TruncateUpper}")
 
             blocks = range(1, len(theta_0s) + 1)
 
@@ -859,7 +859,7 @@ class AssetModel(object):
                     names=['cmp', 'loc', 'dir', 'block'])
 
                 cmp_marginal_params.loc[MI, marginal_cols] = [
-                    row.units, row.family, theta_0s[block - 1],
+                    row.Units, row.Family, theta_0s[block - 1],
                     theta_1s[block - 1],
                     trnc_ls[block - 1], trnc_us[block - 1]]
 
@@ -871,7 +871,7 @@ class AssetModel(object):
         log_msg(f"Converting model parameters to internal units...",
                 prepend_timestamp=False)
 
-        unique_units = cmp_marginal_params['units'].unique()
+        unique_units = cmp_marginal_params['Units'].unique()
 
         for unit_name in unique_units:
 
@@ -883,16 +883,16 @@ class AssetModel(object):
                                  f"{unit_name}")
 
             unit_ids = cmp_marginal_params.loc[
-                cmp_marginal_params['units'] == unit_name].index
+                cmp_marginal_params['Units'] == unit_name].index
 
             cmp_marginal_params.loc[
                 unit_ids,
-                ['theta_0', 'truncate_lower', 'truncate_upper']] *= unit_factor
+                ['Theta_0', 'TruncateLower', 'TruncateUpper']] *= unit_factor
 
             sigma_ids = cmp_marginal_params.loc[unit_ids].loc[
-                cmp_marginal_params.loc[unit_ids, 'family'] == 'normal'].index
+                cmp_marginal_params.loc[unit_ids, 'Family'] == 'normal'].index
 
-            cmp_marginal_params.loc[sigma_ids, 'theta_1'] *= unit_factor
+            cmp_marginal_params.loc[sigma_ids, 'Theta_1'] *= unit_factor
 
         self.cmp_marginal_params = cmp_marginal_params
 
@@ -916,13 +916,13 @@ class AssetModel(object):
             cmp = rv_params.Index
             rv_tag = f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}'
 
-            if pd.isnull(rv_params.family):
+            if pd.isnull(rv_params.Family):
 
                 # we use an empirical RV to generate deterministic values
                 RV_reg.add_RV(RandomVariable(
                     name=rv_tag,
                     distribution='empirical',
-                    raw_samples=np.ones(10000) * rv_params.theta_0
+                    raw_samples=np.ones(10000) * rv_params.Theta_0
                 ))
 
             else:
@@ -930,10 +930,10 @@ class AssetModel(object):
                 # all other RVs need parameters of their distributions
                 RV_reg.add_RV(RandomVariable(
                     name=rv_tag,
-                    distribution=rv_params.family,
-                    theta=[rv_params.theta_0, rv_params.theta_1],
-                    truncation_limits=[rv_params.truncate_lower,
-                                       rv_params.truncate_upper],
+                    distribution=rv_params.Family,
+                    theta=[rv_params.Theta_0, rv_params.Theta_1],
+                    truncation_limits=[rv_params.TruncateLower,
+                                       rv_params.TruncateUpper],
 
                 ))
 
