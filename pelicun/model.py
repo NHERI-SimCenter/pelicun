@@ -58,7 +58,7 @@ loss assessment.
 
 from .base import *
 from .uq import *
-from .file_io import save_to_csv, load_from_csv
+from .file_io import save_to_csv, load_data
 
 class DemandModel(object):
     """
@@ -184,7 +184,7 @@ class DemandModel(object):
         log_div()
         log_msg(f'Loading demand data...')
 
-        demand_data, units = load_from_csv(filepath, return_units=True)
+        demand_data, units = load_data(filepath, return_units=True)
 
         parsed_data = demand_data.copy()
 
@@ -496,11 +496,11 @@ class DemandModel(object):
         log_div()
         log_msg(f'Loading demand model...')
 
-        self.empirical_data = load_from_csv(file_prefix+'_empirical.csv')
+        self.empirical_data = load_data(file_prefix+'_empirical.csv')
         self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
                                             inplace=True)
 
-        self.correlation = load_from_csv(file_prefix + '_correlation.csv',
+        self.correlation = load_data(file_prefix + '_correlation.csv',
                                          reindex=False)
         self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
         self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
@@ -508,7 +508,7 @@ class DemandModel(object):
         # the log standard deviations in the marginal parameters need to be
         # adjusted after getting the data from the loading method where they
         # were scaled according to the units of the corresponding variable
-        marginal_params, units = load_from_csv(file_prefix + '_marginals.csv',
+        marginal_params, units = load_data(file_prefix + '_marginals.csv',
                                                orientation=1, reindex=False,
                                                return_units=True)
         marginal_params.index.set_names(['type', 'loc', 'dir'],inplace=True)
@@ -676,7 +676,7 @@ class AssetModel(object):
         log_div()
         log_msg(f'Loading asset components sample...')
 
-        sample, units = load_from_csv(filepath, return_units=True)
+        sample, units = load_data(filepath, return_units=True)
 
         self._cmp_sample = sample
 
@@ -771,7 +771,7 @@ class AssetModel(object):
         # Currently, we assume independent component distributions are defined
         # throughout the building. Correlations may be added afterward or this
         # method can be extended to read correlation matrices too if needed.
-        marginal_params, units = load_from_csv(
+        marginal_params, units = load_data(
             file_prefix + '_marginals.csv',
             orientation=1,
             reindex=False,
@@ -1044,7 +1044,7 @@ class DamageModel(object):
         log_div()
         log_msg(f'Loading damage sample...')
 
-        self._sample = load_from_csv(filepath)
+        self._sample = load_data(filepath)
 
         log_msg(f'Damage sample successfully loaded.', prepend_timestamp=False)
 
@@ -1074,7 +1074,7 @@ class DamageModel(object):
         # load the data files one by one
         for data_path in data_paths:
 
-            data = load_from_csv(
+            data = load_data(
                 data_path,
                 orientation=1,
                 reindex=False,
@@ -1710,7 +1710,7 @@ class LossModel(object):
         log_div()
         log_msg(f'Loading loss sample...')
 
-        self._sample = load_from_csv(filepath)
+        self._sample = load_data(filepath)
 
         log_msg(f'Loss sample successfully loaded.', prepend_timestamp=False)
 
@@ -1731,7 +1731,7 @@ class LossModel(object):
         log_div()
         log_msg(f'Loading loss map for {self.loss_type}...')
 
-        loss_map = load_from_csv(mapping_path, orientation=1,
+        loss_map = load_data(mapping_path, orientation=1,
                              reindex=False, convert=[])
 
         loss_map['Driver'] = loss_map.index.values
@@ -1758,7 +1758,7 @@ class LossModel(object):
         data_list = []
         # load the data files one by one
         for data_path in data_paths:
-            data = load_from_csv(
+            data = load_data(
                 data_path,
                 orientation=1,
                 reindex=False,

@@ -53,7 +53,7 @@ This module has classes and methods that handle file input and output.
     load_default_options
     merge_default_config
     save_to_csv
-    load_from_csv
+    load_data
 
 """
 
@@ -382,27 +382,21 @@ def save_to_csv(data, filepath, units=None, orientation=0):
         log_msg(f'WARNING: Data was empty, no file saved.',
                 prepend_timestamp=False)
 
-def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
-                  convert=None):
+def load_data(data_source, orientation=0, reindex=True, return_units=False,
+              convert=None):
     """
-    Loads data from a CSV file assuming it follows standard SimCenter schema.
+    Loads data assuming it follows standard SimCenter tabular schema.
 
-    CSV files are assumed to have a single header line and an index column. The
+    The data is assumed to have a single header line and an index column. The
     second line may start with 'units' in the index and provide the units for
     each column in the file.
 
-    The following data types can be loaded with this function:
-
-    Demand Data: Each column in a table corresponds to a demand type; each
-    row corresponds to a simulation/sample. The header identifies each demand
-    type. The user guide section of the documentation provides more
-    information about the header format. Units need to be specified in the
-    second row of the file.
-
     Parameters
     ----------
-    filepath: string
-        The location of the source file
+    data_source: string or DataFrame
+        If it is a string, the data_source is assumed to point to the location
+        of the source file. If it is a DataFrame, the data_source is assumed to
+        hold the raw data.
     orientation: int, {0, 1}, default: 0
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
@@ -416,33 +410,23 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
     Returns
     -------
     data: DataFrame
-        Data loaded from the file.
+        Parsed data.
     units: Series
-        Labels from the data and corresponding units specified in the file. If
-        no units are specified, this return value is "None". units are only
-        returned if return_units is set to True.
+        Labels from the data and corresponding units specified. If no units
+        are specified, this return value is "None". units are only returned if
+        return_units is set to True.
     """
 
-    log_msg(f'Loading data from {filepath}...')
+    # if the provided data_source is already a DataFrame...
+    if isinstance(data_source, pd.DataFrame):
 
-    # check if the filepath is valid
-    filepath = Path(filepath).resolve()
-
-    if not filepath.is_file():
-        raise ValueError(f"The filepath provided does not point to an existing "
-                         f"file: {filepath}")
-
-    if filepath.suffix == '.csv':
-
-        # load the contents of the csv into a DataFrame
-
-        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
-
-        log_msg(f'File successfully opened.', prepend_timestamp=False)
+        # we can just store it at proceed
+        # (copying is needed to avoid changing the original)
+        data = data_source.copy()
 
     else:
-        raise ValueError(f'ERROR: Unexpected file type received when trying '
-                         f'to load from csv: {filepath}')
+        # otherwise, load the data from a file
+        data = load_from_file(data_source)
 
     # if there is information about units, perform the conversion to SI
     if (data.index[0] == 'units') or (data.columns[0] == 'units'):
@@ -450,11 +434,11 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
         log_msg(f'Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
-            units = data.loc['units',:].copy().dropna()
+            units = data.loc['units', :].copy().dropna()
             data.drop('units', inplace=True)
             data = data.astype(float)
 
-        else:  #elif orientation==1:
+        else:  # elif orientation==1:
             units = data.loc[:, 'units'].copy().dropna()
             data.drop('units', axis=1, inplace=True)
 
@@ -462,7 +446,7 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
                 cols_to_scale = []
                 for col in data.columns:
                     try:
-                        data.loc[:, col] = data.loc[:,col].astype(float)
+                        data.loc[:, col] = data.loc[:, col].astype(float)
                         cols_to_scale.append(col)
                     except:
                         pass
@@ -474,12 +458,12 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
         for unit_name in unique_unit_names:
 
             unit_factor = globals()[unit_name]
-            unit_labels = units.loc[units==unit_name].index
+            unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
-                data.loc[:,unit_labels] *= unit_factor
+                data.loc[:, unit_labels] *= unit_factor
 
-            else:  #elif orientation==1:
+            else:  # elif orientation==1:
                 data.loc[unit_labels, cols_to_scale] *= unit_factor
 
         log_msg(f'Unit conversion successful.', prepend_timestamp=False)
@@ -529,3 +513,44 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
     else:
         return data
+
+def load_from_file(filepath):
+    """
+    Loads data from a file and stores it in a DataFrame.
+
+    Currently, only CSV files are supported, but the function is easily
+    extensible to support other file formats.
+
+    Parameters
+    ----------
+    filepath: string
+        The location of the source file
+
+    Returns
+    -------
+    data: DataFrame
+        Data loaded from the file.
+    """
+
+    log_msg(f'Loading data from {filepath}...')
+
+    # check if the filepath is valid
+    filepath = Path(filepath).resolve()
+
+    if not filepath.is_file():
+        raise ValueError(f"The filepath provided does not point to an existing "
+                         f"file: {filepath}")
+
+    if filepath.suffix == '.csv':
+
+        # load the contents of the csv into a DataFrame
+
+        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
+
+        log_msg(f'File successfully opened.', prepend_timestamp=False)
+
+    else:
+        raise ValueError(f'ERROR: Unexpected file type received when trying '
+                         f'to load from csv: {filepath}')
+
+    return data
