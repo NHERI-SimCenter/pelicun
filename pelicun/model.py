@@ -491,26 +491,57 @@ class DemandModel(object):
 
         log_msg(f'Demand model successfully saved.', prepend_timestamp=False)
 
-    def load_model(self, file_prefix):
+    def load_model(self, data_source):
+        """
+        Load the model that describes demands on the asset.
+
+        Parameters
+        ----------
+        data_source: string or dict
+            If string, the data_source is a file prefix (<prefix> in the
+            following description) that identifies the following files:
+            <prefix>_marginals.csv,  <prefix>_empirical.csv,
+            <prefix>_correlation.csv. If dict, the data source is a dictionary
+            with the following optional keys: 'marginals', 'empirical', and
+            'correlation'. The value under each key shall be a DataFrame.
+        """
 
         log_div()
         log_msg(f'Loading demand model...')
 
-        self.empirical_data = load_data(file_prefix+'_empirical.csv')
-        self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
-                                            inplace=True)
+        # prepare the marginal data source variable to load the data
+        if isinstance(data_source, dict):
+            marginal_data_source = data_source.get('marginals')
+            empirical_data_source = data_source.get('empirical', None)
+            correlation_data_source = data_source.get('correlation', None)
+        else:
+            marginal_data_source = data_source + '_marginals.csv'
+            empirical_data_source = data_source + '_empirical.csv'
+            correlation_data_source = data_source + '_correlation.csv'
 
-        self.correlation = load_data(file_prefix + '_correlation.csv',
+        if empirical_data_source is not None:
+            self.empirical_data = load_data(data_source + '_empirical.csv')
+            self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
+                                                inplace=True)
+        else:
+            self.empirical_data = None
+
+        if correlation_data_source is not None:
+            self.correlation = load_data(data_source + '_correlation.csv',
                                          reindex=False)
-        self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
-        self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
+            self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
+            self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
+        else:
+            self.correlation = None
 
         # the log standard deviations in the marginal parameters need to be
         # adjusted after getting the data from the loading method where they
         # were scaled according to the units of the corresponding variable
-        marginal_params, units = load_data(file_prefix + '_marginals.csv',
-                                               orientation=1, reindex=False,
-                                               return_units=True)
+
+        # Note that a data source without marginal information is not valid
+        marginal_params, units = load_data(data_source + '_marginals.csv',
+                                           orientation=1, reindex=False,
+                                           return_units=True)
         marginal_params.index.set_names(['type', 'loc', 'dir'],inplace=True)
 
         log_rows = marginal_params.loc[:, 'Family'] == 'lognormal'
@@ -685,10 +716,19 @@ class AssetModel(object):
         log_msg(f'Asset components sample successfully loaded.',
                 prepend_timestamp=False)
 
-    def load_cmp_model(self, file_prefix):
+    def load_cmp_model(self, data_source):
         """
-        Load the model that describes component quantities in the building.
+        Load the model that describes component quantities in the asset.
 
+        Parameters
+        ----------
+        data_source: string or dict
+            If string, the data_source is a file prefix (<prefix> in the
+            following description) that identifies the following files:
+            <prefix>_marginals.csv,  <prefix>_empirical.csv,
+            <prefix>_correlation.csv. If dict, the data source is a dictionary
+            with the following optional keys: 'marginals', 'empirical', and
+            'correlation'. The value under each key shall be a DataFrame.
         """
 
         def get_locations(loc_str):
@@ -768,11 +808,21 @@ class AssetModel(object):
                         raise ValueError(f"Cannot parse theta_0 string: "
                                          f"{block_str}")
 
+        log_div()
+        log_msg(f'Loading component model...')
+
         # Currently, we assume independent component distributions are defined
         # throughout the building. Correlations may be added afterward or this
         # method can be extended to read correlation matrices too if needed.
+
+        # prepare the marginal data source variable to load the data
+        if isinstance(data_source, dict):
+            marginal_data_source = data_source['marginals']
+        else:
+            marginal_data_source = data_source + '_marginals.csv'
+
         marginal_params, units = load_data(
-            file_prefix + '_marginals.csv',
+            marginal_data_source,
             orientation=1,
             reindex=False,
             return_units=True,

@@ -120,7 +120,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
 
             # if requested, load the calibrated model from files
             if sample_config.get('LoadModelFrom', False):
-                A.demand.load_model(file_prefix = sample_config['LoadModelFrom'])
+                A.demand.load_model(data_source= sample_config['LoadModelFrom'])
 
             # generate demand sample
             A.demand.generate_sample(sample_config)
@@ -142,7 +142,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
             # if requested, load a component model and generate a sample
             if cmp_config.get('LoadModelFrom', False):
                 # load component model
-                A.asset.load_cmp_model(file_prefix = cmp_config['LoadModelFrom'])
+                A.asset.load_cmp_model(data_source= cmp_config['LoadModelFrom'])
 
                 # generate component quantity sample
                 A.asset.generate_cmp_sample(damage_config['SampleSize'])
@@ -164,7 +164,7 @@ def run_pelicun(DL_input_path, EDP_input_path,
                 A.demand.load_sample(damage_config['Demands']['LoadSampleFrom'])
 
         # load the fragility information
-        A.damage.load_fragility_model(damage_config['Fragilities']['LoadModelFrom'])
+        A.damage.load_damage_model(damage_config['Fragilities']['LoadModelFrom'])
 
         # calculate damages
         # load the damage process if needed
