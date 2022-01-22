@@ -1957,14 +1957,16 @@ class BldgRepairModel(LossModel):
                 raise ValueError(f"Loss Driver type not recognized: "
                                  f"{driver_type}")
 
+            consequence_cmp_id = self.loss_map.loc[loss_cmp_id, 'Consequence']
+
             # load the parameters
-            if (driver_cmp_id, 'Cost') in LP.index:
-                cost_params = LP.loc[(driver_cmp_id, 'Cost'), :]
+            if (consequence_cmp_id, 'Cost') in LP.index:
+                cost_params = LP.loc[(consequence_cmp_id, 'Cost'), :]
             else:
                 cost_params = None
 
-            if (driver_cmp_id, 'Time') in LP.index:
-                time_params = LP.loc[(driver_cmp_id, 'Time'), :]
+            if (consequence_cmp_id, 'Time') in LP.index:
+                time_params = LP.loc[(consequence_cmp_id, 'Time'), :]
             else:
                 time_params = None
 
