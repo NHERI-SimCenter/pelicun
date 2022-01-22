@@ -326,10 +326,10 @@ def convert_to_MultiIndex(data, axis=0):
     """
 
     if axis == 0:
-        index_labels = [label.split('-') for label in data.index]
+        index_labels = [str(label).split('-') for label in data.index]
 
     elif axis == 1:
-        index_labels = [label.split('-') for label in data.columns]
+        index_labels = [str(label).split('-') for label in data.columns]
 
     else:
         raise ValueError(f"Invalid axis parameter: {axis}")
