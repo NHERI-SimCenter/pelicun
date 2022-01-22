@@ -411,6 +411,9 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
     return_units: bool
         If True, returns the units as well as the data to allow for adjustments
         in unit conversion.
+    convert: list of string
+        Specifies the columns (or rows if orientation==1) where unit conversion
+        needs to be applied.
 
     Returns
     -------
@@ -434,7 +437,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
         data = load_from_file(data_source)
 
     # if there is information about units, perform the conversion to SI
-    if (data.index[0] == 'Units') or (data.columns[0] == 'Units'):
+    if ('Units' in data.index) or ('Units' in data.columns):
 
         log_msg(f'Converting units...', prepend_timestamp=False)
 
