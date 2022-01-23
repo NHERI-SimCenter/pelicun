@@ -1033,7 +1033,8 @@ class DamageModel(object):
         self._lsds_RVs = None
         self._lsds_sample = None
 
-        self._sample = None
+        self._ds_sample = None
+        self._qnt_sample = None
 
     @property
     def frg_sample(self):
@@ -1070,47 +1071,89 @@ class DamageModel(object):
         return lsds_sample
 
     @property
-    def sample(self):
+    def ds_sample(self):
 
-        return self._sample
+        return self._ds_sample
 
-    def save_sample(self, filepath):
+    def save_ds_sample(self, filepath):
         """
-        Save damage sample to a csv file
-
-        """
-        log_div()
-        log_msg(f'Saving damage sample...')
-
-        save_to_csv(self.sample, filepath)
-
-        log_msg(f'Damage sample successfully saved.', prepend_timestamp=False)
-
-    def load_sample(self, filepath):
-        """
-        Load damage sample data.
+        Save damage state sample to a csv file
 
         """
         log_div()
-        log_msg(f'Loading damage sample...')
+        log_msg(f'Saving damage state sample...')
 
-        self._sample = load_data(filepath)
+        save_to_csv(self.ds_sample, filepath)
 
-        log_msg(f'Damage sample successfully loaded.', prepend_timestamp=False)
+        log_msg(f'Damage state sample successfully saved.', prepend_timestamp=False)
 
-    def load_fragility_model(self, data_paths):
+    def load_ds_sample(self, filepath):
         """
-        Load limit state fragility functions and damage state assignments
+        Load damage state sample data.
+
+        """
+        log_div()
+        log_msg(f'Loading damage state sample...')
+
+        self._ds_sample = load_data(filepath)
+
+        log_msg(f'Damage state sample successfully loaded.', prepend_timestamp=False)
+
+    @property
+    def qnt_sample(self):
+        
+        return self._qnt_sample
+
+    def save_qnt_sample(self, filepath):
+        """
+        Save damage quantity to a csv file
+
+        """
+        log_div()
+        log_msg(f'Saving damage quantity sample...')
+
+        sample = self.qnt_sample
+
+        # prepare a units array
+        units = pd.Series(name='Units', index=sample.columns)
+
+        for cmp_id, unit_name in self.qnt_units.items():
+            units.loc[cmp_id, :] = unit_name
+
+        save_to_csv(sample, filepath, units=units)
+
+        log_msg(f'Damage quantity sample successfully saved.',
+                prepend_timestamp=False)
+
+    def load_qnt_sample(self, filepath):
+        """
+        Load damage quantity sample data.
+
+        """
+        log_div()
+        log_msg(f'Loading damage quantity sample...')
+
+        self._qnt_sample = load_data(filepath)
+
+        log_msg(f'Damage quantity sample successfully loaded.',
+                prepend_timestamp=False)
+
+    def load_damage_model(self, data_paths):
+        """
+        Load limit state damage model parameters and damage state assignments
+
+        A damage model can be a single damage function or a set of fragility
+        functions.
 
         Parameters
         ----------
         data_paths: list of string
-            List of paths to data files with fragility information. Default
+            List of paths to data files with damage model information. Default
             XY datasets can be accessed as PelicunDefault/XY.
         """
 
         log_div()
-        log_msg(f'Loading fragility model...')
+        log_msg(f'Loading damage model...')
 
         # replace default flag with default data path
         for d_i, data_path in enumerate(data_paths):
@@ -1449,7 +1492,7 @@ class DamageModel(object):
 
     def _evaluate_damage(self, CMP_to_EDP, demands):
         """
-        Use the provided demands and the LS capacity sample the evaluate damage
+        Use the provided demands and the LS capacity sample to evaluate damage
 
         Parameters
         ----------
@@ -1490,11 +1533,12 @@ class DamageModel(object):
         # drop the columns that do not have valid results
         dmg_eval.dropna(how='all', axis=1, inplace=True)
 
-        # initialize the DataFrame that stores the damage states
-        cmp_sample = self._asmnt.asset.cmp_sample
-        dmg_sample = pd.DataFrame(np.zeros(cmp_sample.shape),
-                                  columns=cmp_sample.columns,
-                                  index=cmp_sample.index, dtype=int)
+        # initialize the DataFrames that store the damage states and quantities
+        qnt_sample = self._asmnt.asset.cmp_sample
+        self.qnt_units = self._asmnt.asset.cmp_units
+        ds_sample = pd.DataFrame(np.zeros(qnt_sample.shape),
+                                  columns=qnt_sample.columns,
+                                  index=qnt_sample.index, dtype=int)
 
         # get a list of limit state ids among all components in the damage model
         ls_list = dmg_eval.columns.get_level_values(4).unique()
@@ -1525,10 +1569,10 @@ class DamageModel(object):
             # entire damage model. If subsequent Limit States are also exceeded,
             # those cells in the result matrix will get overwritten by higher
             # damage states.
-            dmg_sample.loc[:, dmg_e_ls.columns] = (
-                dmg_sample.loc[:, dmg_e_ls.columns].mask(dmg_e_ls, lsds))
+            ds_sample.loc[:, dmg_e_ls.columns] = (
+                ds_sample.loc[:, dmg_e_ls.columns].mask(dmg_e_ls, lsds))
 
-        return dmg_sample
+        return ds_sample, qnt_sample
 
 
     def _perform_dmg_task(self, task):
@@ -1536,7 +1580,7 @@ class DamageModel(object):
         Perform a task from a damage process.
 
         """
-        cmp_list = self.sample.columns.get_level_values(0).unique().tolist()
+        cmp_list = self.ds_sample.columns.get_level_values(0).unique().tolist()
 
         # get the source component
         source_cmp = task[0].split('_')[1]
@@ -1546,7 +1590,7 @@ class DamageModel(object):
             raise ValueError(f"source component not found among components in "
                              f"the damage sample: {source_cmp}")
 
-        source_cmp_df = self.sample.loc[:,source_cmp]
+        source_cmp_df = self.ds_sample.loc[:,source_cmp]
 
         for source_event, target_infos in task[1].items():
 
@@ -1603,10 +1647,10 @@ class DamageModel(object):
 
                 if ds_i is None:
 
-                    self._sample.loc[source_mask, target_cmp] = np.nan
+                    self._ds_sample.loc[source_mask, target_cmp] = np.nan
 
                 else:
-                    self._sample.loc[source_mask, target_cmp] = ds_i
+                    self._ds_sample.loc[source_mask, target_cmp] = ds_i
 
 
     def calculate(self, sample_size, dmg_process=None):
@@ -1631,11 +1675,12 @@ class DamageModel(object):
         demands = self._assemble_required_demand_data(EDP_req.unique())
 
         # Evaluate the Damage State of each Component Block
-        dmg_sample = self._evaluate_damage(EDP_req, demands)
+        dmg_ds_sample, dmg_qnt_sample = self._evaluate_damage(EDP_req, demands)
 
-        self._sample = dmg_sample
+        self._ds_sample = dmg_ds_sample
+        self._qnt_sample = dmg_qnt_sample
 
-        # Finally, apply the damage prescribed damage process, if any
+        # Finally, apply the prescribed damage process, if any
         if dmg_process is not None:
 
             for task in dmg_process.items():
@@ -1664,14 +1709,14 @@ class DamageModel(object):
 
         """
 
-        dmg = self.sample
-        cmp = self._asmnt.asset.cmp_sample
+        dmg_ds = self.ds_sample
+        dmg_qnt = self.qnt_sample #self._asmnt.asset.cmp_sample
 
         cmp_list = np.atleast_1d(cmp_list)
 
         # load the list of all components, if needed
         if cmp_list[0] == 'ALL':
-            cmp_list = dmg.columns.get_level_values(0).unique()
+            cmp_list = dmg_ds.columns.get_level_values(0).unique()
 
         res = []
         cmp_included = []
@@ -1679,13 +1724,13 @@ class DamageModel(object):
         for cmp_id in cmp_list:
 
             # get the corresponding parts of the quantity and damage matrices
-            cmp_i = cmp.loc[:, cmp_id]
-            dmg_i = dmg.loc[:, cmp_id]
+            dmg_qnt_i = dmg_qnt.loc[:, cmp_id]
+            dmg_ds_i = dmg_ds.loc[:, cmp_id]
 
             # get the realized Damage States
             # Note that these might be much fewer than all possible Damage
             # States
-            ds_list = np.unique(dmg_i.values)
+            ds_list = np.unique(dmg_ds_i.values)
             ds_list = np.array(ds_list[~np.isnan(ds_list)], dtype=int)
 
             # If requested, drop the zero damage case
@@ -1696,11 +1741,11 @@ class DamageModel(object):
             if len(ds_list) > 0:
 
                 # initialize the shell for the result DF
-                dmg_q = pd.DataFrame(columns=dmg_i.columns, index=dmg.index)
+                dmg_q = pd.DataFrame(columns=dmg_ds_i.columns, index=dmg_ds.index)
 
                 # collect damaged quantities in each DS and add it to res
                 res.append(pd.concat(
-                    [dmg_q.mask(dmg_i == ds_i, cmp_i) for ds_i in ds_list],
+                    [dmg_q.mask(dmg_ds_i == ds_i, dmg_qnt_i) for ds_i in ds_list],
                      axis=1, keys=[f'{ds_i:g}' for ds_i in ds_list]))
 
                 # keep track of the components that have damaged quantities
@@ -2359,8 +2404,6 @@ class BldgRepairModel(LossModel):
 
         log_msg(f"Successfully obtained DV sample.",
                 prepend_timestamp=False)
-
-
 
 
 def prep_constant_median_DV(median):

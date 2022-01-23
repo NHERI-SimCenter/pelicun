@@ -176,8 +176,13 @@ def run_pelicun(DL_input_path, EDP_input_path,
         A.damage.calculate(damage_config['SampleSize'], dmg_process=dmg_process)
 
         # if requested, save the damage sample to a file
-        if damage_config['Calculation'].get('SaveDamageSampleTo', False):
-            A.damage.save_sample(damage_config['Calculation']['SaveDamageSampleTo'])
+        if damage_config['Calculation'].get('SaveDamageQNTSampleTo', False):
+            A.damage.save_qnt_sample(
+                damage_config['Calculation']['SaveDamageQNTSampleTo'])
+
+        if damage_config['Calculation'].get('SaveDamageDSSampleTo', False):
+            A.damage.save_ds_sample(
+                damage_config['Calculation']['SaveDamageDSSampleTo'])
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -204,9 +209,13 @@ def run_pelicun(DL_input_path, EDP_input_path,
         # (if not, we assume there is a preceding damage assessment with sampling)
         if loss_config.get('Damage', False):
 
-            if loss_config['Damage'].get('LoadSampleFrom', False):
+            if loss_config['Damage'].get('LoadQNTSampleFrom', False):
+                A.damage.load_qnt_sample(
+                    loss_config['Damage']['LoadQNTSampleFrom'])
 
-                A.damage.load_sample(loss_config['Damage']['LoadSampleFrom'])
+            if loss_config['Damage'].get('LoadSampleFrom', False):
+                A.damage.load_ds_sample(
+                    loss_config['Damage']['LoadDSSampleFrom'])
 
         # if requested, calculate repair consequences
         if loss_config.get('CalculateBldgRepair', False):
