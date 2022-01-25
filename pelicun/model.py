@@ -107,6 +107,8 @@ class DemandModel(object):
         if self._sample is None:
 
             sample = pd.DataFrame(self._RVs.RV_sample)
+            sample.sort_index(axis=0, inplace=True)
+            sample.sort_index(axis=1, inplace=True)
 
             sample = convert_to_MultiIndex(sample, axis=1)['EDP']
 
@@ -666,6 +668,8 @@ class AssetModel(object):
         if self._cmp_sample is None:
 
             cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
+            cmp_sample.sort_index(axis=0, inplace=True)
+            cmp_sample.sort_index(axis=1, inplace=True)
 
             cmp_sample = convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
 
@@ -828,7 +832,7 @@ class AssetModel(object):
             return_units=True,
             convert=[])
 
-        self.cmp_units = units.copy()
+        self.cmp_units = units.copy().groupby(level=0).first()
 
         marginal_params = pd.concat([marginal_params, units], axis=1)
 
@@ -1026,10 +1030,10 @@ class DamageModel(object):
 
         self._asmnt = assessment
 
-        self.fragility_params = None
+        self.damage_params = None
 
-        self._frg_RVs = None
-        self._frg_sample = None
+        self._capacity_RVs = None
+        self._capacity_sample = None
         self._lsds_RVs = None
         self._lsds_sample = None
 
@@ -1037,18 +1041,26 @@ class DamageModel(object):
         self._qnt_sample = None
 
     @property
-    def frg_sample(self):
+    def capacity_sample(self):
 
-        if self._frg_sample is None:
+        if self._capacity_sample is None:
 
-            frg_sample = pd.DataFrame(self._frg_RVs.RV_sample)
+            if self._capacity_RVs is None:
 
-            frg_sample = convert_to_MultiIndex(frg_sample, axis=1)['FRG']
+                return None
 
-            self._frg_sample = frg_sample
+            else:
+
+                frg_sample = pd.DataFrame(self._capacity_RVs.RV_sample)
+                frg_sample.sort_index(axis=0, inplace=True)
+                frg_sample.sort_index(axis=1, inplace=True)
+
+                frg_sample = convert_to_MultiIndex(frg_sample, axis=1)['FRG']
+
+                self._capacity_sample = frg_sample
 
         else:
-            frg_sample = self._frg_sample
+            frg_sample = self._capacity_sample
 
         return frg_sample
 
@@ -1057,13 +1069,21 @@ class DamageModel(object):
 
         if self._lsds_sample is None:
 
-            lsds_sample = pd.DataFrame(self._lsds_RVs.RV_sample)
+            if self._lsds_RVs is None:
 
-            lsds_sample = convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+                return None
 
-            lsds_sample = lsds_sample.astype(int)
+            else:
 
-            self._lsds_sample = lsds_sample
+                lsds_sample = pd.DataFrame(self._lsds_RVs.RV_sample)
+                lsds_sample.sort_index(axis=0, inplace=True)
+                lsds_sample.sort_index(axis=1, inplace=True)
+
+                lsds_sample = convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+
+                lsds_sample = lsds_sample.astype(int)
+
+                self._lsds_sample = lsds_sample
 
         else:
             lsds_sample = self._lsds_sample
@@ -1176,20 +1196,25 @@ class DamageModel(object):
 
             data_list.append(data)
 
-        fragility_params = pd.concat(data_list, axis=0)
+        damage_params = pd.concat(data_list, axis=0)
 
         # drop redefinitions of components
-        fragility_params = fragility_params.groupby(fragility_params.index).first()
+        damage_params = damage_params.groupby(damage_params.index).first()
 
         # get the component types defined in the asset model
         cmp_labels = self._asmnt.asset.cmp_sample.columns
 
-        # only keep the fragility parameters for the components in the model
+        # only keep the damage model parameters for the components in the model
         cmp_unique = cmp_labels.unique(level=0)
-        fragility_params = fragility_params.loc[cmp_unique, :]
+        damage_params = damage_params.loc[cmp_unique, :]
+
+        # TODO: load defaults for Demand-Offset and Demand-Directional
 
         # now convert the units - where needed
-        unique_units = fragility_params[('Demand', 'Unit')].unique()
+        unique_units = damage_params[('Demand', 'Unit')].unique()
+
+        # initialize an array to collect scale factors for damage functions
+        dmg_function_scale_factors = []
 
         for unit_name in unique_units:
 
@@ -1200,46 +1225,118 @@ class DamageModel(object):
                 raise ValueError(f"Specified unit name not recognized: "
                                  f"{unit_name}")
 
-            unit_ids = fragility_params.loc[
-                fragility_params[('Demand', 'Unit')] == unit_name].index
+            unit_ids = damage_params.loc[
+                damage_params[('Demand', 'Unit')] == unit_name].index
 
-            for LS_i in fragility_params.columns.unique(level=0):
+            for LS_i in damage_params.columns.unique(level=0):
 
                 if 'LS' in LS_i:
 
-                    # theta_0 needs to be scaled for both all families
-                    fragility_params.loc[
-                        unit_ids, (LS_i, 'Theta_0')] *= unit_factor
+                    # theta_0 needs to be scaled for all fragility functions,
+                    # that is, when Family not in ['normal', 'lognormal',
+                    # 'uniform'],
+                    fragility_ids = damage_params.loc[unit_ids].loc[
+                        damage_params.loc[unit_ids, (LS_i, 'Family')].isin([
+                            'normal', 'lognormal', 'uniform'])].index
 
-                    # theta_1 needs to be scaled for normal
-                    sigma_ids = fragility_params.loc[unit_ids].loc[
-                        fragility_params.loc[unit_ids, (LS_i, 'Family')] == 'normal'].index
+                    damage_params.loc[
+                        fragility_ids, (LS_i, 'Theta_0')] *= unit_factor
 
-                    # theta_1 needs to be scaled for uniform
-                    sigma_ids = fragility_params.loc[unit_ids].loc[
-                        fragility_params.loc[
-                            unit_ids, (LS_i, 'Family')] == 'uniform'].index
+                    # theta_1 needs to be scaled for normal and uniform
+                    if 'Theta_1' in damage_params.loc[unit_ids].columns.unique(
+                            level=1):
+                        sigma_ids = damage_params.loc[unit_ids].loc[
+                            damage_params.loc[unit_ids, (LS_i, 'Family')].isin([
+                                'normal', 'uniform'])].index
 
-                    fragility_params.loc[
-                        sigma_ids, (LS_i, 'Theta_1')] *= unit_factor
+                        damage_params.loc[
+                            sigma_ids, (LS_i, 'Theta_1')] *= unit_factor
 
-        # check for components with incomplete fragility information
-        cmp_incomplete_list = fragility_params.loc[
-            fragility_params[('Incomplete','')]==1].index
+                    # For damage functions, save the scale factor for later use
+                    # Make sure only one scale factor is saved per component
+                    if LS_i == 'LS1':
+                        function_ids = damage_params.loc[unit_ids].loc[
+                            damage_params.loc[
+                                unit_ids, (LS_i, 'Family')] == 'function'].index
 
-        fragility_params.drop(cmp_incomplete_list, inplace=True)
+                        f_df = pd.DataFrame(
+                            columns=['scale_factor',], index=function_ids)
+                        f_df['scale_factor'] = unit_factor
 
-        log_msg(f"\nWARNING: Fragility information is incomplete for the "
-                f"following component(s) {cmp_incomplete_list}. They were "
-                f"removed from the analysis.\n",
+                        dmg_function_scale_factors.append(f_df)
+
+        if len(dmg_function_scale_factors)>0:
+            self._dmg_function_scale_factors = pd.concat(
+                dmg_function_scale_factors, axis=0)
+        else:
+            self._dmg_function_scale_factors = None
+
+        # check for components with incomplete damage model information
+        cmp_incomplete_list = damage_params.loc[
+            damage_params[('Incomplete','')]==1].index
+
+        damage_params.drop(cmp_incomplete_list, inplace=True)
+
+        if len(cmp_incomplete_list) > 0:
+            log_msg(f"\nWARNING: Damage model information is incomplete for "
+                    f"the following component(s) {cmp_incomplete_list}. They "
+                    f"were removed from the analysis.\n",
+                    prepend_timestamp=False)
+
+        self.damage_params = damage_params
+
+        log_msg(f"Damage model parameters successfully parsed.",
                 prepend_timestamp=False)
 
-        self.fragility_params = fragility_params
+    def _create_dmg_RVs(self):
+        """
+        Creates random variables required later for the damage calculation.
 
-        log_msg(f"Fragility parameters successfully parsed.",
+        """
+
+        def assign_lsds(ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag):
+            """
+            Prepare random variables to handle mutually exclusive damage states.
+
+            """
+
+            # If the limit state has a single damage state assigned
+            # to it, we don't need random sampling
+            if pd.isnull(ds_weights):
+
+                ds_id += 1
+
+                lsds_RV_reg.add_RV(RandomVariable(
+                    name=lsds_rv_tag,
+                    distribution='empirical',
+                    raw_samples=np.ones(10000) * ds_id
+                ))
+
+            # Otherwise, we create a multinomial random variable
+            else:
+
+                # parse the DS weights
+                ds_weights = np.array(
+                    ds_weights.replace(" ", "").split('|'),
+                    dtype=float)
+
+                def map_ds(values, offset=int(ds_id + 1)):
+                    return values + offset
+
+                lsds_RV_reg.add_RV(RandomVariable(
+                    name=lsds_rv_tag,
+                    distribution='multinomial',
+                    theta=ds_weights,
+                    f_map=map_ds
+                ))
+
+                ds_id += len(ds_weights)
+
+            return ds_id
+
+
+        log_msg(f'Generating capacity variables...',
                 prepend_timestamp=False)
-
-    def _create_frg_RVs(self):
 
         # initialize the registry
         frg_RV_reg = RandomVariableRegistry()
@@ -1248,19 +1345,34 @@ class DamageModel(object):
         rv_count = 0
 
         # get the component types defined in the asset model
-        cmp_labels = self._asmnt.asset.cmp_sample.columns
+        cmp_sample = self._asmnt.asset.cmp_sample
 
-        for label in cmp_labels:
+        # initialize the damaged quantity sample variable
+        # if there are damage functions used, we need more than a simple pointer
+        if self._dmg_function_scale_factors is not None:
+            qnt_sample = cmp_sample.copy()
+            qnt_list = [qnt_sample, ]
+            self.qnt_units = self._asmnt.asset.cmp_units.copy()
+
+        else:
+            qnt_list = None
+            qnt_sample = cmp_sample
+            self.qnt_units = self._asmnt.asset.cmp_units
+
+        for label in cmp_sample.columns:
 
             cmp_id = label[0]
 
-            if cmp_id in self.fragility_params.index:
+            if cmp_id in self.damage_params.index:
 
-                frg_params = self.fragility_params.loc[cmp_id,:]
+                frg_params = self.damage_params.loc[cmp_id, :]
 
+                # get the list of limit states
                 limit_states = []
                 [limit_states.append(val[2:]) if 'LS' in val else val
-                for val in frg_params.index.get_level_values(0).unique()]
+                 for val in frg_params.index.get_level_values(0).unique()]
+
+                ls_count = len(limit_states)
 
                 ds_id = 0
 
@@ -1270,72 +1382,115 @@ class DamageModel(object):
                     theta_0 = frg_params.loc[(f'LS{ls_id}','Theta_0')]
 
                     # check if the limit state is defined for the component
-                    if ~np.isnan(theta_0):
-
-                        frg_rv_tag = f'FRG-{label[0]}-{label[1]}-{label[2]}-{label[3]}-{ls_id}'
-                        lsds_rv_tag = f'LSDS-{label[0]}-{label[1]}-{label[2]}-{label[3]}-{ls_id}'
+                    if ~pd.isnull(theta_0):
 
                         family, theta_1, ds_weights = frg_params.loc[
                             [(f'LS{ls_id}','Family'),
                              (f'LS{ls_id}','Theta_1'),
                              (f'LS{ls_id}','DamageStateWeights')]]
 
-                        # Start with the limit state capacities...
-                        # if the limit state is deterministic, we use an
-                        # empirical RV
                         if pd.isnull(family):
+                            family = None
 
-                            frg_RV_reg.add_RV(RandomVariable(
-                                name=frg_rv_tag,
-                                distribution='empirical',
-                                raw_samples=np.ones(10000) * theta_0
-                            ))
+                        # Start with the limit state capacities...
 
+                        # If the family is 'function', we are not using a limit
+                        # damage functions to determine the damaged quantities
+                        # in each damage state. Damage is triggered every time
+                        # for every component block in every limit state. This
+                        # has a couple of consequences for the calculation:
+                        # * One component block can yield multiple damage blocks
+                        # This is handled by replacing each component block with
+                        # a LS_count number of blocks.
+                        # * The capacity of each damage block needs to be -inf
+                        # up to a corresponding limit state and infinite in all
+                        # higher ones so that damage can be triggered every time
+                        # in a particular limit state in that block.
+                        # Note that rather than assigning inf to these capacities
+                        # we assign the nearest number that can be represented
+                        # using a float
+
+                        if family == 'function':
+
+                            qnt_columns = []
+
+                            for ls_i in range(ls_count):
+
+                                block_id = (int(label[3])-1)*ls_count + ls_i + 1
+
+                                #                   cmp_id     loc        dir        block
+                                frg_rv_tag = f'FRG-{label[0]}-{label[1]}-{label[2]}-{str(block_id)}-{ls_id}'
+
+                                if int(ls_id) <= ls_i+1:
+                                    sample = np.ones(10000) * np.nextafter(-np.inf,1)
+                                else:
+                                    sample = np.ones(10000) * np.nextafter(np.inf,-1)
+
+                                frg_RV_reg.add_RV(RandomVariable(
+                                    name=frg_rv_tag,
+                                    distribution='empirical',
+                                    raw_samples=sample
+                                ))
+
+                                # Now add the LS->DS assignments
+                                #                     cmp_id     loc        dir        block
+                                lsds_rv_tag = f'LSDS-{label[0]}-{label[1]}-{label[2]}-{str(block_id)}-{ls_id}'
+                                ds_id_post = assign_lsds(
+                                    ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
+
+                                rv_count += 1
+
+                                if ls_id == '1':
+                                    qnt_columns.append(f'{label[0]}-{label[1]}-{label[2]}-{str(block_id)}')
+
+                            ds_id = ds_id_post
+
+                            if ls_id == '1':
+                                qnt_i = pd.DataFrame(columns = qnt_columns,
+                                                     index=qnt_sample.index)
+                                qnt_i = qnt_i.apply(
+                                    lambda x: qnt_sample.loc[:, label].values,
+                                    axis=0, result_type='broadcast')
+                                qnt_list.append(qnt_i)
+                                qnt_sample.drop(label, axis=1, inplace=True)
+
+                        # Otherwise, we are dealing with fragility functions
                         else:
 
-                            # all other RVs have parameters of their distributions
-                            frg_RV_reg.add_RV(RandomVariable(
-                                name=frg_rv_tag,
-                                distribution=family,
-                                theta=[theta_0, theta_1],
-                            ))
+                            #                   cmp_id     loc        dir        block
+                            frg_rv_tag = f'FRG-{label[0]}-{label[1]}-{label[2]}-{label[3]}-{ls_id}'
 
-                        # add the RV to the set of correlated variables
-                        frg_rv_set_tags.append(frg_rv_tag)
+                            # If the limit state is deterministic, we use an
+                            # empirical RV
+                            if family is None:
 
-                        # Now add the LS->DS assignments
-                        # if the limit state has a single damage state assigned
-                        # to it, we don't need random sampling
-                        if pd.isnull(ds_weights):
+                                frg_RV_reg.add_RV(RandomVariable(
+                                    name=frg_rv_tag,
+                                    distribution='empirical',
+                                    raw_samples=np.ones(10000) * theta_0
+                                ))
 
-                            ds_id += 1
+                            # In all other cases, RVs have parameters of their
+                            # distributions defined in the input table
+                            else:
 
-                            lsds_RV_reg.add_RV(RandomVariable(
-                                name=lsds_rv_tag,
-                                distribution='empirical',
-                                raw_samples=np.ones(10000) * ds_id
-                            ))
+                                frg_RV_reg.add_RV(RandomVariable(
+                                    name=frg_rv_tag,
+                                    distribution=family,
+                                    theta=[theta_0, theta_1],
+                                ))
 
-                        else:
+                            # add the RV to the set of correlated variables
+                            frg_rv_set_tags.append(frg_rv_tag)
 
-                            # parse the DS weights
-                            ds_weights = np.array(
-                                ds_weights.replace(" ", "").split('|'),
-                                dtype=float)
+                            # Now add the LS->DS assignments
+                            #                     cmp_id     loc        dir        block
+                            lsds_rv_tag = f'LSDS-{label[0]}-{label[1]}-{label[2]}-{label[3]}-{ls_id}'
 
-                            def map_ds(values, offset=int(ds_id+1)):
-                                return values+offset
+                            ds_id = assign_lsds(
+                                ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
 
-                            lsds_RV_reg.add_RV(RandomVariable(
-                                name=lsds_rv_tag,
-                                distribution='multinomial',
-                                theta=ds_weights,
-                                f_map=map_ds
-                            ))
-
-                            ds_id += len(ds_weights)
-
-                        rv_count += 1
+                            rv_count += 1
 
                 # Assign correlation between limit state random variables
                 # Note that we assume perfectly correlated limit state random
@@ -1345,36 +1500,47 @@ class DamageModel(object):
                 # RVs is possible, if needed. Please let us know through the
                 # SimCenter Message Board if you are interested in such a
                 # feature.
-                frg_RV_reg.add_RV_set(RandomVariableSet(
-                    f'FRG-{label[0]}-{label[1]}-{label[2]}-{label[3]}_set',
-                    list(frg_RV_reg.RVs(frg_rv_set_tags).values()),
-                    np.ones((len(frg_rv_set_tags),len(frg_rv_set_tags)))))
+                if len(frg_rv_set_tags) > 0:
+                    frg_RV_reg.add_RV_set(RandomVariableSet(
+                        f'FRG-{label[0]}-{label[1]}-{label[2]}-{label[3]}_set',
+                        list(frg_RV_reg.RVs(frg_rv_set_tags).values()),
+                        np.ones((len(frg_rv_set_tags),len(frg_rv_set_tags)))))
+
+
+        # Assemble the quantity sample, if needed
+        if qnt_list is not None:
+            qnt_sample = convert_to_SimpleIndex(qnt_sample, axis=1)
+            qnt_sample = pd.concat(qnt_list, axis=1)
+            qnt_sample.sort_index(axis=1, inplace=True)
+            qnt_sample = convert_to_MultiIndex(qnt_sample, axis=1)
 
         log_msg(f"\n2x{rv_count} random variables created.",
                 prepend_timestamp=False)
 
-        self._frg_RVs = frg_RV_reg
+        self._capacity_RVs = frg_RV_reg
         self._lsds_RVs = lsds_RV_reg
+        self._qnt_sample = qnt_sample
 
-    def _generate_frg_sample(self, sample_size):
+    def _generate_dmg_sample(self, sample_size):
 
-        if self.fragility_params is None:
-            raise ValueError('Fragility parameters have not been specified. '
-                             'Load parameters from the default fragility '
-                             'databases or provide your own fragility '
+        if self.damage_params is None:
+            raise ValueError('Damage model parameters have not been specified. '
+                             'Load parameters from the default damage model '
+                             'databases or provide your own damage model '
                              'definitions before generating a sample.')
 
-        log_msg(f'Generating sample from fragility variables...',
+        self._create_dmg_RVs()
+
+        log_msg(f'Sampling capacities...',
                 prepend_timestamp=False)
 
-        self._create_frg_RVs()
-
-        self._frg_RVs.generate_sample(sample_size=sample_size)
+        self._capacity_RVs.generate_sample(sample_size=sample_size)
 
         self._lsds_RVs.generate_sample(sample_size=sample_size)
 
         # replace the potentially existing raw sample with the generated one
-        self._frg_sample = None
+        # Note: Using None here triggers the reloading of the random samples
+        self._capacity_sample = None
         self._lsds_sample = None
 
         log_msg(f"\nSuccessfully generated {sample_size} realizations.",
@@ -1384,24 +1550,26 @@ class DamageModel(object):
         """
         Returns a list of demands needed to calculate damage to components
 
-        Note that we assume that a fragility sample is available.
+        Note that we assume that a damage model sample is available.
 
         """
+        DP = self.damage_params
 
         log_msg(f'Collecting required demand information...',
                 prepend_timestamp=False)
 
-        EDP_req = pd.Series(
-            index=self.frg_sample.groupby(level=[0,1,2], axis=1).first().columns)
+        # Get the list of active components
+        EDP_req = pd.Series(index=self.capacity_sample.groupby(
+            level=[0,1,2], axis=1).first().columns)
 
         # get the list of  active components
         cmp_list = EDP_req.index.get_level_values(0).unique()
 
-        # for each component
+        # for each active component
         for cmp in cmp_list:
 
-            # get the parameters from the fragility db
-            directional, offset, demand_type = self.fragility_params.loc[
+            # get the parameters from the damage model db
+            directional, offset, demand_type = DP.loc[
                 cmp, [('Demand', 'Directional'),
                       ('Demand', 'Offset'),
                       ('Demand', 'Type')]]
@@ -1454,7 +1622,7 @@ class DamageModel(object):
         log_msg(f'Assembling demand data for calculation...',
                 prepend_timestamp=False)
 
-        demands = pd.DataFrame(columns=EDP_req, index=self.frg_sample.index)
+        demands = pd.DataFrame(columns=EDP_req, index=self.capacity_sample.index)
         demands = convert_to_MultiIndex(demands, axis=1)
 
         demand_source = self._asmnt.demand.sample
@@ -1490,9 +1658,9 @@ class DamageModel(object):
 
         return demands
 
-    def _evaluate_damage(self, CMP_to_EDP, demands):
+    def _evaluate_damage_state(self, CMP_to_EDP, demands):
         """
-        Use the provided demands and the LS capacity sample to evaluate damage
+        Use the demand and LS capacity sample to evaluate damage states
 
         Parameters
         ----------
@@ -1507,8 +1675,11 @@ class DamageModel(object):
         dmg_sample: DataFrame
             Assigns a Damage State to each component block in the asset model.
         """
-        dmg_eval = pd.DataFrame(columns=self.frg_sample.columns,
-                                index=self.frg_sample.index)
+
+        log_msg(f'Evaluating damage states...', prepend_timestamp=False)
+
+        dmg_eval = pd.DataFrame(columns=self.capacity_sample.columns,
+                                index=self.capacity_sample.index)
 
         # for each available demand
         for demand in demands.columns:
@@ -1527,18 +1698,16 @@ class DamageModel(object):
 
             # evaluate ls exceedance for each case
             dmg_eval.loc[:, full_cmp_list] = (
-                    self.frg_sample.loc[:, full_cmp_list].sub(
+                    self.capacity_sample.loc[:, full_cmp_list].sub(
                         demands[demand], axis=0) < 0)
 
         # drop the columns that do not have valid results
         dmg_eval.dropna(how='all', axis=1, inplace=True)
 
         # initialize the DataFrames that store the damage states and quantities
-        qnt_sample = self._asmnt.asset.cmp_sample
-        self.qnt_units = self._asmnt.asset.cmp_units
-        ds_sample = pd.DataFrame(np.zeros(qnt_sample.shape),
-                                  columns=qnt_sample.columns,
-                                  index=qnt_sample.index, dtype=int)
+        ds_sample = pd.DataFrame(np.zeros(self._qnt_sample.shape),
+                                  columns=self._qnt_sample.columns,
+                                  index=self._qnt_sample.index, dtype=int)
 
         # get a list of limit state ids among all components in the damage model
         ls_list = dmg_eval.columns.get_level_values(4).unique()
@@ -1572,7 +1741,9 @@ class DamageModel(object):
             ds_sample.loc[:, dmg_e_ls.columns] = (
                 ds_sample.loc[:, dmg_e_ls.columns].mask(dmg_e_ls, lsds))
 
-        return ds_sample, qnt_sample
+        log_msg(f'Damage state evaluation successful.', prepend_timestamp=False)
+
+        return ds_sample
 
 
     def _perform_dmg_task(self, task):
@@ -1580,6 +1751,10 @@ class DamageModel(object):
         Perform a task from a damage process.
 
         """
+
+        log_msg(f'Applying tasks from prescribed damage process...',
+                prepend_timestamp=False)
+
         cmp_list = self.ds_sample.columns.get_level_values(0).unique().tolist()
 
         # get the source component
@@ -1652,6 +1827,100 @@ class DamageModel(object):
                 else:
                     self._ds_sample.loc[source_mask, target_cmp] = ds_i
 
+        log_msg(f'Damage process successfully applied.',
+                prepend_timestamp=False)
+
+
+    def _apply_damage_functions(self, CMP_to_EDP, demands):
+        """
+        Use prescribed damage functions to modify damaged quantities
+
+        """
+
+        def parse_f_elem(elem):
+
+            if elem == 'D':
+                return elem
+            else:
+                return str(float(elem.strip('()')))
+
+        def parse_f_signature(f_signature):
+
+            elems = [
+                [[parse_f_elem(exp_elem)
+                  for exp_elem in multi_elem.split('^')]
+                 for multi_elem in add_elem.split('*')]
+                for add_elem in f_signature.split('+')]
+
+            add_list = []
+            for add_elem in elems:
+
+                multi_list = []
+                for exp_list in add_elem:
+                    multi_list.append("**".join(exp_list))
+
+                add_list.append("*".join(multi_list))
+
+            f_str = "+".join(add_list)
+
+            return f_str
+
+        log_msg(f'Applying damage functions...',
+                prepend_timestamp=False)
+
+        demands = convert_to_SimpleIndex(demands, axis=1)
+
+        # for each component with a damage function
+        for cmp_id in self._dmg_function_scale_factors.index:
+
+            loc_dir_list = self.qnt_sample.groupby(
+                level=[0,1,2],axis=1).first()[cmp_id].columns
+
+            # Load the corresponding EDPs and scale them to match to the inputs
+            # expected by the damage function
+            dem_i = (demands[CMP_to_EDP[cmp_id].loc[loc_dir_list]].values /
+                     self._dmg_function_scale_factors.loc[cmp_id, 'scale_factor'])
+
+            # Get the units and scale factor for quantity conversion
+            cmp_qnt_unit_name = self.damage_params.loc[
+                cmp_id, ('Component', 'Unit')]
+            cmp_qnt_scale_factor = globals()[cmp_qnt_unit_name]
+
+            dmg_qnt_unit_name = self.damage_params.loc[
+                cmp_id, ('Damage', 'Unit')]
+            dmg_qnt_scale_factor = globals()[dmg_qnt_unit_name]
+
+            qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
+
+            # for each limit state
+            for ls_i in self.qnt_sample[
+                cmp_id].columns.get_level_values(2).unique().values:
+
+                # create the damage function
+                f_signature = parse_f_signature(
+                    self.damage_params.loc[cmp_id, (f'LS{ls_i}','Theta_0')])
+
+                f_signature = f_signature.replace("D", "dem_i")
+
+                # apply the damage function to get the damage rate
+                dmg_rate = eval(f_signature)
+
+                # load the damaged quantities
+                qnt_i = self.qnt_sample.loc[:,idx[cmp_id,:,:,ls_i]].values
+
+                # convert the units to match the inputs expected by the damage
+                # function
+                qnt_i = qnt_i * qnt_scale_factor
+
+                # update the damaged quantities
+                self.qnt_sample.loc[:, idx[cmp_id, :, :, ls_i]] = qnt_i * dmg_rate
+
+            # update the damage quantity units
+            self.qnt_units.loc[cmp_id] = dmg_qnt_unit_name
+
+        log_msg(f'Damage functions successfully applied.',
+                prepend_timestamp=False)
+
 
     def calculate(self, sample_size, dmg_process=None):
         """
@@ -1664,9 +1933,9 @@ class DamageModel(object):
 
         # Generate an array with component capacities for each block and
         # generate a second array that assigns a specific damage state to
-        # each component limit state. The latter is primarily needed to handle
-        # limit states with multiple, mutually exclusive DS options
-        self._generate_frg_sample(sample_size)
+        # each component limit state. The latter is primarily needed to
+        # handle limit states with multiple, mutually exclusive DS options
+        self._generate_dmg_sample(sample_size)
 
         # Get the required demand types for the analysis
         EDP_req = self.get_required_demand_types()
@@ -1675,19 +1944,26 @@ class DamageModel(object):
         demands = self._assemble_required_demand_data(EDP_req.unique())
 
         # Evaluate the Damage State of each Component Block
-        dmg_ds_sample, dmg_qnt_sample = self._evaluate_damage(EDP_req, demands)
+        dmg_ds_sample = self._evaluate_damage_state(EDP_req, demands)
 
         self._ds_sample = dmg_ds_sample
-        self._qnt_sample = dmg_qnt_sample
 
-        # Finally, apply the prescribed damage process, if any
+        # Apply the prescribed damage process, if any
         if dmg_process is not None:
 
             for task in dmg_process.items():
 
                 self._perform_dmg_task(task)
 
-        log_msg(f'Damage calculation successfully completed.')
+        # Apply damage functions, if any
+        # The scale factors are a good proxy to show that damage functions are
+        # used in the analysis
+        if self._dmg_function_scale_factors is not None:
+
+            self._apply_damage_functions(EDP_req, demands)
+
+        log_msg(f'Damage calculation successfully completed.',
+                prepend_timestamp=False)
 
     def prepare_dmg_quantities(self, cmp_list='ALL', dropzero=True,
                                dropempty=True):
@@ -1710,7 +1986,7 @@ class DamageModel(object):
         """
 
         dmg_ds = self.ds_sample
-        dmg_qnt = self.qnt_sample #self._asmnt.asset.cmp_sample
+        dmg_qnt = self.qnt_sample
 
         cmp_list = np.atleast_1d(cmp_list)
 
