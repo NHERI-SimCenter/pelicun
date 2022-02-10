@@ -1446,8 +1446,9 @@ class DamageModel(object):
         dmg_sample: DataFrame
             Assigns a Damage State to each component block in the asset model.
         """
-        dmg_eval = pd.DataFrame(columns=self.frg_sample.columns,
-                                index=self.frg_sample.index)
+        dmg_eval = pd.DataFrame(
+            columns=self.frg_sample.columns,
+            index=self.frg_sample.index).sort_index(axis=1)
 
         # for each available demand
         for demand in demands.columns:
@@ -1897,11 +1898,13 @@ class LossModel(object):
         log_msg("Preparing damaged quantities...")
         cmp_list = np.unique([val for driver_type, val
                               in self.loss_map['Driver'].values])
-        dmg_q = self._asmnt.damage.prepare_dmg_quantities(cmp_list=cmp_list)
+        dmg_q = self._asmnt.damage.prepare_dmg_quantities(
+            cmp_list=cmp_list).sort_index(axis=1)
 
         # Now sample random Decision Variables
         # Note that this method is DV-specific and needs to be implemented in
         # every child of the LossModel independently.
+
         self._generate_DV_sample(dmg_q, sample_size)
 
         log_msg("Loss calculation successful.")
@@ -1943,7 +1946,7 @@ class BldgRepairModel(LossModel):
         RV_reg = uq.RandomVariableRegistry()
         LP = self.loss_params
 
-        case_DF = pd.DataFrame(index=case_list, columns=[0, ])
+        case_DF = pd.DataFrame(index=case_list, columns=[0, ]).sort_index()
         driver_cmps = case_list.get_level_values(0).unique()
 
         rv_count = 0
