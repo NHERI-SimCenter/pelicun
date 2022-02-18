@@ -636,6 +636,8 @@ class DemandModel(object):
 
             edp = rv_params.Index
             rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
+            truncate_lower = getattr(rv_params, 'TruncateLower', np.nan)
+            truncate_upper = getattr(rv_params, 'TruncateUpper', np.nan)
 
             if rv_params.Family == 'empirical':
 
@@ -658,8 +660,7 @@ class DemandModel(object):
                     name=rv_tag,
                     distribution=rv_params.Family,
                     theta=[rv_params.Theta_0, rv_params.Theta_1],
-                    truncation_limits=[rv_params.TruncateLower,
-                                       rv_params.TruncateUpper],
+                    truncation_limits=[truncate_lower, truncate_upper],
 
 
                 ))
@@ -921,67 +922,40 @@ class AssetModel(object):
 
         MI = MI_list[0].append(MI_list[1:])
 
-        # Create a DataFrame that will hold marginal params for component blocks
+        # Create a DataFrame that will hold marginal params for performance groups
         marginal_cols = ['Units', 'Family', 'Theta_0', 'Theta_1',
-                         'TruncateLower', 'TruncateUpper']
+                         'TruncateLower', 'TruncateUpper', 'Blocks']
         cmp_marginal_params = pd.DataFrame(
             columns=marginal_cols,
             index=MI,
             dtype=float
         )
-        cmp_marginal_params[['Units', 'Family']] = (
-            cmp_marginal_params[['Units', 'Family']].astype(object))
+        # prescribe dtypes
+        cmp_marginal_params[['Units', 'Family']] = cmp_marginal_params[
+            ['Units', 'Family']].astype(object)
 
         # Fill the DataFrame with information on component quantity variables
-
         for row in marginal_params.itertuples():
 
-            locs = get_locations(row.Location)
-            dirs = get_directions(row.Direction)
-            theta_0s = get_blocks(row.Theta_0)
-            theta_1s = get_blocks(row.Theta_1)
-            trnc_ls = get_blocks(row.TruncateLower)
-            trnc_us = get_blocks(row.TruncateUpper)
+            # create the MI for the component
+            MI = pd.MultiIndex.from_product(
+                [[row.Index, ],
+                 get_locations(row.Location),
+                 get_directions(row.Direction)
+                 ],
+                names=['cmp', 'loc', 'dir'])
 
-            # parse the distribution characteristics
-            if len(theta_1s) != len(theta_0s):
-
-                if len(theta_1s) == 1:
-                    theta_1s = theta_1s[0] * np.ones(theta_0s.shape)
-
-                else:
-                    raise ValueError(f"Unable to parse theta_1 string: "
-                                     f"{row.Theta_1}")
-
-            if len(trnc_ls) != len(theta_0s):
-
-                if len(trnc_ls) == 1:
-                    trnc_ls = trnc_ls[0] * np.ones(theta_0s.shape)
-
-                else:
-                    raise ValueError(f"Unable to parse theta_1 string: "
-                                     f"{row.TruncateLower}")
-
-            if len(trnc_us) != len(theta_0s):
-
-                if len(trnc_us) == 1:
-                    trnc_us = trnc_us[0] * np.ones(theta_0s.shape)
-
-                else:
-                    raise ValueError(f"Unable to parse theta_1 string: "
-                                     f"{row.TruncateUpper}")
-
-            blocks = range(1, len(theta_0s) + 1)
-
-            for block in blocks:
-                MI = pd.MultiIndex.from_product(
-                    [[row.Index, ], locs, dirs, [block, ]],
-                    names=['cmp', 'loc', 'dir', 'block'])
-
-                cmp_marginal_params.loc[MI, marginal_cols] = [
-                    row.Units, row.Family, theta_0s[block - 1],
-                    theta_1s[block - 1],
-                    trnc_ls[block - 1], trnc_us[block - 1]]
+            # update the marginal param DF
+            cmp_marginal_params.loc[MI, marginal_cols] = [
+                row.Units,
+                getattr(row, 'Family', np.nan),
+                float(row.Theta_0),
+                get_attribute(getattr(row, 'Theta_1', np.nan)),
+                get_attribute(getattr(row, 'TruncateLower', np.nan)),
+                get_attribute(getattr(row, 'TruncateUpper', np.nan)),
+                get_attribute(getattr(row, 'Blocks', np.nan), dtype=int,
+                              default=1.0)
+            ]
 
         log_msg(f"Model parameters successfully parsed. "
                 f"{cmp_marginal_params.shape[0]} component blocks identified",
