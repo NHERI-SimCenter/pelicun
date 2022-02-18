@@ -860,25 +860,29 @@ class AssetModel(object):
                         raise ValueError(f"Cannot parse direction string: "
                                          f"{dir_str}")
 
-        def get_blocks(block_str):
+        def get_attribute(attribute_str, dtype=float, default=np.nan):
 
-            if pd.isnull(block_str):
-                return np.ones(1) * np.nan
+            if pd.isnull(attribute_str):
+                return default
 
             else:
 
                 try:
-                    res = float(block_str)
+                    res = dtype(attribute_str)
                     return np.array([res, ])
 
                 except:
 
-                    if "," in block_str:
-                        return np.array(block_str.split(','), dtype=int)
+                    if "," in attribute_str:
+                        # a list of weights
+                        w = np.array(attribute_str.split(','), dtype=float)
+
+                        # return a normalized vector
+                        return w/np.sum(w)
 
                     else:
-                        raise ValueError(f"Cannot parse theta_0 string: "
-                                         f"{block_str}")
+                        raise ValueError(f"Cannot parse Blocks string: "
+                                         f"{attribute_str}")
 
         log_div()
         log_msg(f'Loading component model...')
