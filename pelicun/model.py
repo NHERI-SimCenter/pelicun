@@ -119,18 +119,25 @@ class DemandModel(object):
 
         return sample
 
-    def save_sample(self, filepath):
+    def save_sample(self, filepath=None):
         """
         Save demand sample to a csv file
 
         """
 
         log_div()
-        log_msg(f'Saving demand sample...')
+        if filepath is not None:
+            log_msg(f'Saving demand sample...')
 
-        save_to_csv(self.sample, filepath, units=self.units)
+        res = save_to_csv(self.sample, filepath, units=self.units,
+                          use_simpleindex= filepath is not None)
 
-        log_msg(f'Demand sample successfully saved.', prepend_timestamp=False)
+        if filepath is not None:
+            log_msg(f'Demand sample successfully saved.',
+                    prepend_timestamp=False)
+        else:
+            res.drop("Units", inplace=True)
+            return res.astype(float)
 
     def load_sample(self, filepath):
         """
@@ -142,7 +149,7 @@ class DemandModel(object):
 
         Parameters
         ----------
-        filepath: string
+        filepath: string or DataFrame
             Location of the file with the demand sample.
 
         """
@@ -680,14 +687,15 @@ class AssetModel(object):
 
         return cmp_sample
 
-    def save_cmp_sample(self, filepath):
+    def save_cmp_sample(self, filepath=None):
         """
         Save component quantity sample to a csv file
 
         """
 
         log_div()
-        log_msg(f'Saving asset components sample...')
+        if filepath is not None:
+            log_msg(f'Saving asset components sample...')
 
         # prepare a units array
         sample = self.cmp_sample
@@ -697,10 +705,15 @@ class AssetModel(object):
         for cmp_id, unit_name in self.cmp_units.items():
             units.loc[cmp_id, :] = unit_name
 
-        save_to_csv(sample, filepath, units=units)
+        res = save_to_csv(sample, filepath, units=units,
+                          use_simpleindex= filepath is not None)
 
-        log_msg(f'Asset components sample successfully saved.',
-                prepend_timestamp=False)
+        if filepath is not None:
+            log_msg(f'Asset components sample successfully saved.',
+                    prepend_timestamp=False)
+        else:
+            res.drop("Units", inplace=True)
+            return res.astype(float)
 
     def load_cmp_sample(self, filepath):
         """
@@ -1045,67 +1058,29 @@ class DamageModel(object):
 
         if self._capacity_sample is None:
 
-            if self._capacity_RVs is None:
-
-                return None
-
-            else:
-
-                frg_sample = pd.DataFrame(self._capacity_RVs.RV_sample)
-                frg_sample.sort_index(axis=0, inplace=True)
-                frg_sample.sort_index(axis=1, inplace=True)
-
-                frg_sample = convert_to_MultiIndex(frg_sample, axis=1)['FRG']
-
-                self._capacity_sample = frg_sample
-
-        else:
-            frg_sample = self._capacity_sample
-
-        return frg_sample
-
-    @property
-    def lsds_sample(self):
-
-        if self._lsds_sample is None:
-
-            if self._lsds_RVs is None:
-
-                return None
-
-            else:
-
-                lsds_sample = pd.DataFrame(self._lsds_RVs.RV_sample)
-                lsds_sample.sort_index(axis=0, inplace=True)
-                lsds_sample.sort_index(axis=1, inplace=True)
-
-                lsds_sample = convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
-
-                lsds_sample = lsds_sample.astype(int)
-
-                self._lsds_sample = lsds_sample
-
-        else:
-            lsds_sample = self._lsds_sample
-
-        return lsds_sample
-
-    @property
-    def ds_sample(self):
-
-        return self._ds_sample
-
-    def save_ds_sample(self, filepath):
+    def save_sample(self, filepath=None):
         """
-        Save damage state sample to a csv file
+        Save damage sample to a csv file
 
         """
         log_div()
-        log_msg(f'Saving damage state sample...')
+        log_msg(f'Saving damage sample...')
 
-        save_to_csv(self.ds_sample, filepath)
+        cmp_units = self._asmnt.asset.cmp_units
+        qnt_units = pd.Series(index=self.sample.columns, name='Units')
+        for cmp in cmp_units.index:
+            qnt_units.loc[cmp] = cmp_units.loc[cmp]
 
-        log_msg(f'Damage state sample successfully saved.', prepend_timestamp=False)
+        res = save_to_csv(self.sample, filepath,
+                          units=qnt_units,
+                          use_simpleindex= filepath is not None)
+
+        if filepath is not None:
+            log_msg(f'Damage sample successfully saved.',
+                    prepend_timestamp=False)
+        else:
+            res.drop("Units", inplace=True)
+            return res.astype(float)
 
     def load_ds_sample(self, filepath):
         """
@@ -2061,17 +2036,25 @@ class LossModel(object):
 
         return self._sample
 
-    def save_sample(self, filepath):
+    def save_sample(self, filepath=None):
         """
         Save loss sample to a csv file
 
         """
         log_div()
-        log_msg(f'Saving loss sample...')
+        if filepath is not None:
+            log_msg(f'Saving loss sample...')
 
-        save_to_csv(self.sample, filepath)
+        #TODO: handle units
+        res = save_to_csv(self.sample, filepath, #units=self.units,
+                          use_simpleindex=filepath is not None)
 
-        log_msg(f'Loss sample successfully saved.', prepend_timestamp=False)
+        if filepath is not None:
+            log_msg(f'Loss sample successfully saved.',
+                    prepend_timestamp=False)
+        else:
+            #res.drop("Units", inplace=True)
+            return res.astype(float)
 
     def load_sample(self, filepath):
         """
