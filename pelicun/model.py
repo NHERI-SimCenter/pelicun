@@ -668,17 +668,18 @@ class DemandModel(object):
         log_msg(f"\n{self.marginal_params.shape[0]} random variables created.",
                 prepend_timestamp=False)
 
-        # add an RV set to consider the correlation between demands
-        rv_set_tags = [f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
-                       for edp in self.correlation.index.values]
+        # add an RV set to consider the correlation between demands, if needed
+        if self.correlation is not None:
+            rv_set_tags = [f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
+                           for edp in self.correlation.index.values]
 
-        RV_reg.add_RV_set(RandomVariableSet(
-            'EDP_set', list(RV_reg.RVs(rv_set_tags).values()),
-            self.correlation.values))
+            RV_reg.add_RV_set(RandomVariableSet(
+                'EDP_set', list(RV_reg.RVs(rv_set_tags).values()),
+                self.correlation.values))
 
-        log_msg(f"\nCorrelations between {len(rv_set_tags)} random variables "
-                f"successfully defined.",
-                prepend_timestamp=False)
+            log_msg(f"\nCorrelations between {len(rv_set_tags)} random variables "
+                    f"successfully defined.",
+                    prepend_timestamp=False)
 
         self._RVs = RV_reg
 
