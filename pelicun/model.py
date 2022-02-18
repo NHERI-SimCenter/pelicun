@@ -179,7 +179,7 @@ class DemandModel(object):
                 log_msg(f'Removing whitespace from header...',
                         prepend_timestamp=False)
 
-            wspace_remove = np.vectorize(lambda name: name.replace(' ', ''))
+            wspace_remove = np.vectorize(lambda name: str(name).replace(' ', ''))
 
             new_column_index = wspace_remove(new_column_index)
 
