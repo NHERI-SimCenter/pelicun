@@ -325,6 +325,13 @@ def convert_to_MultiIndex(data, axis=0):
         The modified DataFrame
     """
 
+    # check if the requested axis is already a MultiIndex
+    if (((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or
+        ((axis == 1) and (isinstance(data.columns, pd.MultiIndex)))):
+
+        # if yes, return the data unchanged
+        return data
+
     if axis == 0:
         index_labels = [str(label).split('-') for label in data.index]
 
