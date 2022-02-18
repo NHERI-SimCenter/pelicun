@@ -582,14 +582,14 @@ class DemandModel(object):
             correlation_data_source = data_source + '_correlation.csv'
 
         if empirical_data_source is not None:
-            self.empirical_data = load_data(data_source + '_empirical.csv')
+            self.empirical_data = load_data(empirical_data_source)
             self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
                                                 inplace=True)
         else:
             self.empirical_data = None
 
         if correlation_data_source is not None:
-            self.correlation = load_data(data_source + '_correlation.csv',
+            self.correlation = load_data(correlation_data_source,
                                          reindex=False)
             self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
             self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
@@ -601,7 +601,7 @@ class DemandModel(object):
         # were scaled according to the units of the corresponding variable
 
         # Note that a data source without marginal information is not valid
-        marginal_params, units = load_data(data_source + '_marginals.csv',
+        marginal_params, units = load_data(marginal_data_source,
                                            orientation=1, reindex=False,
                                            return_units=True)
         marginal_params.index.set_names(['type', 'loc', 'dir'],inplace=True)
