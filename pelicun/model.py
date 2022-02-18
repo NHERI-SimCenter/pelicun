@@ -806,29 +806,29 @@ class AssetModel(object):
         def get_locations(loc_str):
 
             try:
-                res = int(loc_str)
+                res = str(int(loc_str))
                 return np.array([res, ])
 
             except:
                 stories = self._asmnt.stories
 
-                if "-" in loc_str:
-                    s_low, s_high = loc_str.split('-')
+                if "--" in loc_str:
+                    s_low, s_high = loc_str.split('--')
                     s_low = get_locations(s_low)
                     s_high = get_locations(s_high)
-                    return np.arange(s_low[0], s_high[0] + 1)
+                    return np.arange(int(s_low[0]), int(s_high[0]) + 1).astype(str)
 
                 elif "," in loc_str:
-                    return np.array(loc_str.split(','), dtype=int)
+                    return np.array(loc_str.split(','), dtype=int).astype(str)
 
                 elif loc_str == "all":
-                    return np.arange(1, stories + 1)
+                    return np.arange(1, stories + 1).astype(str)
 
                 elif loc_str == "top":
-                    return np.array([stories, ])
+                    return np.array([stories, ]).astype(str)
 
                 elif loc_str == "roof":
-                    return np.array([stories, ])
+                    return np.array([stories, ]).astype(str)
 
                 else:
                     raise ValueError(f"Cannot parse location string: "
@@ -837,24 +837,24 @@ class AssetModel(object):
         def get_directions(dir_str):
 
             if pd.isnull(dir_str):
-                return np.ones(1)
+                return np.ones(1).astype(str)
 
             else:
 
                 try:
-                    res = int(dir_str)
+                    res = str(int(dir_str))
                     return np.array([res, ])
 
                 except:
 
                     if "," in dir_str:
-                        return np.array(dir_str.split(','), dtype=int)
+                        return np.array(dir_str.split(','), dtype=int).astype(str)
 
-                    elif "-" in dir_str:
-                        d_low, d_high = dir_str.split('-')
+                    elif "--" in dir_str:
+                        d_low, d_high = dir_str.split('--')
                         d_low = get_directions(d_low)
                         d_high = get_directions(d_high)
-                        return np.arange(d_low[0], d_high[0] + 1)
+                        return np.arange(int(d_low[0]), int(d_high[0]) + 1).astype(str)
 
                     else:
                         raise ValueError(f"Cannot parse direction string: "
