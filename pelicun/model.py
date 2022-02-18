@@ -988,10 +988,11 @@ class AssetModel(object):
                 unit_ids,
                 ['Theta_0', 'TruncateLower', 'TruncateUpper']] *= unit_factor
 
-            sigma_ids = cmp_marginal_params.loc[unit_ids].loc[
-                cmp_marginal_params.loc[unit_ids, 'Family'] == 'normal'].index
-
-            cmp_marginal_params.loc[sigma_ids, 'Theta_1'] *= unit_factor
+            # we use COV for Theta_1 in normal distributions, so there is no
+            # need to scale
+            #sigma_ids = cmp_marginal_params.loc[unit_ids].loc[
+            #    cmp_marginal_params.loc[unit_ids, 'Family'] == 'normal'].index
+            #cmp_marginal_params.loc[sigma_ids, 'Theta_1'] *= unit_factor
 
         self.cmp_marginal_params = cmp_marginal_params
 
