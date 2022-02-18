@@ -2201,14 +2201,12 @@ class LossModel(object):
         log_div()
         log_msg(f"Calculating losses...")
 
-        # First, get the damaged quantities in each damage state for each block
-        # of each component of interest.
+        # First, get the damaged quantities in each damage state for each
+        # component of interest.
         # Note that we are using the damages that drive the losses and not the
         # names of the loss components directly.
         log_msg(f"Preparing damaged quantities...")
-        cmp_list = np.unique([val for driver_type, val
-                              in self.loss_map['Driver'].values])
-        dmg_q = self._asmnt.damage.prepare_dmg_quantities(cmp_list = cmp_list)
+        dmg_q = self._asmnt.damage.sample.copy()
 
         # Now sample random Decision Variables
         # Note that this method is DV-specific and needs to be implemented in
@@ -2246,23 +2244,28 @@ class BldgRepairModel(LossModel):
         Parameters
         ----------
         case_list: MultiIndex
-            Index with cmp-ds-loc-dir-block descriptions that identify the RVs
+            Index with cmp-loc-dir-ds descriptions that identify the RVs
             we need for the simulation.
         """
 
         RV_reg = RandomVariableRegistry()
         LP = self.loss_params
 
-        case_DF = pd.DataFrame(index=case_list, columns=[0,])
+        # make ds the second level in the MultiIndex
+        case_DF = pd.DataFrame(index=case_list.reorder_levels([0,3,2,1]), columns=[0,])
+        case_DF.sort_index(axis=0, inplace=True)
         driver_cmps = case_list.get_level_values(0).unique()
 
         rv_count = 0
 
+        # for each loss component
         for loss_cmp_id in self.loss_map.index.values:
 
             # load the corresponding parameters
             driver_type, driver_cmp_id = self.loss_map.loc[loss_cmp_id, 'Driver']
 
+            # currently, we only support DMG-based loss calculations
+            # but this will be extended in the very near future
             if driver_type != 'DMG':
                 raise ValueError(f"Loss Driver type not recognized: "
                                  f"{driver_type}")
@@ -2284,26 +2287,33 @@ class BldgRepairModel(LossModel):
             for ds in case_DF.loc[
                       driver_cmp_id,:].index.get_level_values(0).unique():
 
+                if ds == '0':
+                    continue
+
                 if cost_params is not None:
                     cost_family, cost_theta_1 = cost_params.loc[
                         [(f'DS{ds}', 'Family'), (f'DS{ds}','Theta_1')]]
+                else:
+                    cost_family = np.nan
 
                 if time_params is not None:
                     time_family, time_theta_1 = time_params.loc[
                         [(f'DS{ds}', 'Family'), (f'DS{ds}', 'Theta_1')]]
+                else:
+                    time_family = np.nan
 
                 if ((pd.isna(cost_family)==True) and
                     (pd.isna(time_family)==True)):
                     continue
 
-                # load the loc-dir-block cases
-                loc_dir_block = case_DF.loc[(driver_cmp_id, ds)].index.values
+                # load the loc-dir cases
+                loc_dir = case_DF.loc[(driver_cmp_id, ds)].index.values
 
-                for loc, dir, block in loc_dir_block:
+                for loc, dir in loc_dir:
 
                     if pd.isna(cost_family)==False:
 
-                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}'
+                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}'
 
                         RV_reg.add_RV(RandomVariable(
                             name=cost_rv_tag,
@@ -2313,7 +2323,7 @@ class BldgRepairModel(LossModel):
                         rv_count += 1
 
                     if pd.isna(time_family) == False:
-                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}'
+                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}'
 
                         RV_reg.add_RV(RandomVariable(
                             name=time_rv_tag,
@@ -2329,14 +2339,17 @@ class BldgRepairModel(LossModel):
                         rho = options.rho_cost_time
 
                         RV_reg.add_RV_set(RandomVariableSet(
-                            f'DV-{loss_cmp_id}-{ds}-{loc}-{dir}-{block}_set',
+                            f'DV-{loss_cmp_id}-{ds}-{loc}-{dir}_set',
                             list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
                             np.array([[1.0, rho],[rho, 1.0]])))
 
         log_msg(f"\n{rv_count} random variables created.",
                 prepend_timestamp=False)
 
-        return RV_reg
+        if rv_count > 0:
+            return RV_reg
+        else:
+            return None
 
     def _calc_median_consequence(self, eco_qnt):
         """
@@ -2374,6 +2387,9 @@ class BldgRepairModel(LossModel):
                         continue
 
                     ds_id = ds[2:]
+
+                    if ds_id == '0':
+                        continue
 
                     theta_0 = self.loss_params.loc[
                         (loss_cmp_name, DV_type_scase),
@@ -2484,7 +2500,7 @@ class BldgRepairModel(LossModel):
         ----------
         dmg_quantitites: DataFrame
             A table with the quantity of damage experienced in each damage state
-            of each component block at each location and direction. You can use
+            of each performance group at each location and direction. You can use
             the prepare_dmg_quantities method in the DamageModel to get such a
             DF.
         sample_size: integer
@@ -2495,11 +2511,14 @@ class BldgRepairModel(LossModel):
         log_msg(f"Preparing random variables for repair cost and time...")
         RV_reg = self._create_DV_RVs(dmg_quantities.columns)
 
-        RV_reg.generate_sample(sample_size=sample_size)
+        if RV_reg is not None:
+            RV_reg.generate_sample(sample_size=sample_size)
 
-        std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
-                                           axis=1).sort_index(axis=1)
-        std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'block']
+            std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
+                                               axis=1).sort_index(axis=1)
+            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir']
+        else:
+            std_sample = None
 
         log_msg(f"\nSuccessfully generated {sample_size} realizations of "
                 f"deviation from the median consequences.",
@@ -2518,20 +2537,20 @@ class BldgRepairModel(LossModel):
 
             else:
 
-                eco_qnt = dmg_quantities.groupby(level=[0,1], axis=1).sum()
+                eco_qnt = dmg_quantities.groupby(level=[0,3], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', 'ds']
 
         else:
 
             if options.eco_scale["AcrossDamageStates"] == True:
 
-                eco_qnt = dmg_quantities.groupby(level=[0, 2], axis=1).sum()
+                eco_qnt = dmg_quantities.groupby(level=[0, 1], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', 'loc']
 
             else:
 
-                eco_qnt = dmg_quantities.groupby(level=[0, 1, 2], axis=1).sum()
-                eco_qnt.columns.names = ['cmp', 'ds', 'loc']
+                eco_qnt = dmg_quantities.groupby(level=[0, 1, 3], axis=1).sum()
+                eco_qnt.columns.names = ['cmp', 'loc', 'ds']
 
         log_msg(f"Successfully aggregated damage quantities.",
                 prepend_timestamp=False)
@@ -2554,7 +2573,13 @@ class BldgRepairModel(LossModel):
 
         res_list = []
         key_list = []
-        prob_cmp_list = std_sample.columns.get_level_values(1).unique()
+        if std_sample is not None:
+            prob_cmp_list = std_sample.columns.get_level_values(1).unique()
+        else:
+            prob_cmp_list = []
+
+        dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0,3,1,2])
+        dmg_quantities.sort_index(axis=1, inplace=True)
 
         for DV_type, DV_type_scase in zip(['COST', 'TIME'],['Cost','Time']):
 
@@ -2629,7 +2654,7 @@ class BldgRepairModel(LossModel):
                 key_list+=[(DV_type, loss_cmp_i, dmg_cmp_i, ds, loc)
                            for loss_cmp_i, dmg_cmp_i, ds, loc in cmp_list]
 
-        lvl_names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'block']
+        lvl_names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
         DV_sample = pd.concat(res_list, axis=1, keys=key_list,
                               names = lvl_names)
 
