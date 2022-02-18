@@ -1225,11 +1225,12 @@ class DamageModel(object):
                             damage_params.loc[
                                 unit_ids, (LS_i, 'Family')] == 'function'].index
 
-                        f_df = pd.DataFrame(
-                            columns=['scale_factor',], index=function_ids)
-                        f_df['scale_factor'] = unit_factor
+                        if len(function_ids) > 0:
+                            f_df = pd.DataFrame(
+                                columns=['scale_factor',], index=function_ids)
+                            f_df['scale_factor'] = unit_factor
 
-                        dmg_function_scale_factors.append(f_df)
+                            dmg_function_scale_factors.append(f_df)
 
         if len(dmg_function_scale_factors)>0:
             self._dmg_function_scale_factors = pd.concat(
