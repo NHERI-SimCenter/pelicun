@@ -735,6 +735,8 @@ class AssetModel(object):
 
             cmp_sample = convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
 
+            cmp_sample.columns.names = ['cmp', 'loc', 'dir']
+
             self._cmp_sample = cmp_sample
 
         else:
@@ -780,6 +782,8 @@ class AssetModel(object):
         log_msg(f'Loading asset components sample...')
 
         sample, units = load_data(filepath, return_units=True)
+
+        sample.columns.names = ['cmp', 'loc', 'dir']
 
         self._cmp_sample = sample
 
@@ -914,16 +918,14 @@ class AssetModel(object):
         log_msg(f"\nParsing model file to characterize each component block",
                 prepend_timestamp=False)
 
-        # Create a multiindex that identifies individual component blocks
+        # Create a multiindex that identifies individual performance groups
         MI_list = []
         for row in marginal_params.itertuples():
             locs = get_locations(row.Location)
             dirs = get_directions(row.Direction)
-            blocks = range(1, len(get_blocks(row.Theta_0)) + 1)
 
             MI_list.append(pd.MultiIndex.from_product(
-                [[row.Index, ], locs, dirs, blocks],
-                names=['cmp', 'loc', 'dir', 'block']))
+                [[row.Index, ], locs, dirs], names=['cmp', 'loc', 'dir']))
 
         MI = MI_list[0].append(MI_list[1:])
 
@@ -1014,7 +1016,7 @@ class AssetModel(object):
         for rv_params in self.cmp_marginal_params.itertuples():
 
             cmp = rv_params.Index
-            rv_tag = f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}'
+            rv_tag = f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}'
 
             if pd.isnull(rv_params.Family):
 
