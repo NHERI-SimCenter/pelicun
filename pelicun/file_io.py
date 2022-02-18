@@ -269,7 +269,8 @@ def merge_default_config(config):
     return config
 
 
-def save_to_csv(data, filepath, units=None, orientation=0):
+def save_to_csv(data, filepath, units=None, orientation=0,
+                use_simpleindex=True):
     """
     Saves data to a CSV file following standard SimCenter schema.
 
@@ -290,7 +291,8 @@ def save_to_csv(data, filepath, units=None, orientation=0):
     data: DataFrame
         The data to save
     filepath: string
-        The location of the destination file
+        The location of the destination file. If None, the data is not saved,
+        but returned in the end.
     units: Series, optional
         Provides a Series with variables and corresponding units.
     level: string, optional
@@ -300,12 +302,16 @@ def save_to_csv(data, filepath, units=None, orientation=0):
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
         prescribed units.
-
+    use_simpleindex: bool, default: True
+        If True, MultiIndex columns and indexes are converted to SimpleIndex
+        before saving
     """
 
-    log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+    if filepath is None:
+        log_msg(f'Preparing data ...', prepend_timestamp=False)
 
-    filepath = Path(filepath).resolve()
+    else:
+        log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
 
@@ -361,27 +367,33 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
             log_msg(f'Unit conversion successful.', prepend_timestamp=False)
 
-        # convert MultiIndex to regular index with '-' separators
-        if isinstance(data.index, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data)
+        if use_simpleindex:
+            # convert MultiIndex to regular index with '-' separators
+            if isinstance(data.index, pd.MultiIndex):
+                data = convert_to_SimpleIndex(data)
 
-        # same thing for the columns
-        if isinstance(data.columns, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data, axis=1)
+            # same thing for the columns
+            if isinstance(data.columns, pd.MultiIndex):
+                data = convert_to_SimpleIndex(data, axis=1)
 
-        if filepath.suffix == '.csv':
+        if filepath is not None:
 
-            # save the contents of the DataFrame into a csv
+            filepath = Path(filepath).resolve()
+            if filepath.suffix == '.csv':
 
-            data.to_csv(filepath)
+                # save the contents of the DataFrame into a csv
+                data.to_csv(filepath)
 
-            log_msg(f'Data successfully saved to file.',
-                    prepend_timestamp=False)
+                log_msg(f'Data successfully saved to file.',
+                        prepend_timestamp=False)
+
+            else:
+                raise ValueError(
+                    f'ERROR: Unexpected file type received when trying '
+                    f'to save to csv: {filepath}')
 
         else:
-            raise ValueError(
-                f'ERROR: Unexpected file type received when trying '
-                f'to save to csv: {filepath}')
+            return data
 
     else:
         log_msg(f'WARNING: Data was empty, no file saved.',
