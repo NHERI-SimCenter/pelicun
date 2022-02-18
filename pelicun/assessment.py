@@ -141,3 +141,18 @@ class Assessment(object):
         else:
             self._bldg_repair = BldgRepairModel(self)
             return self.bldg_repair
+
+    def get_default_data(self, data_name):
+        """
+        Load a default data file and pass it to the user.
+
+        Parameters
+        ----------
+        data_name: string
+            Name of the csv file to be loaded
+
+        """
+
+        data_path = str(pelicun_path)+'/resources/'+data_name+'.csv'
+
+        return load_data(data_path, orientation=1, reindex=False, convert=[])
