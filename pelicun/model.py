@@ -227,6 +227,59 @@ class DemandModel(object):
 
         log_msg(f'Demand units successfully parsed.', prepend_timestamp=False)
 
+    def estimate_RID(self, demands, params, method = 'FEMA P58'):
+        """
+        Estimate residual drift realizations based on other demands
+
+        Parameters
+        ----------
+        demands: DataFrame
+            Sample of demands required for the method to estimate the RID values
+        params: dict
+            Parameters required for the method to estimate the RID values
+        method: {'FEMA P58'}, default: 'FEMA P58'
+            Method to use for the estimation - currently, only one is available.
+        """
+
+        if method == 'FEMA P58':
+
+            # method is described in FEMA P-58 Volume 1 Section 5.4 & Appendix C
+
+            # the provided demands shall be PID values at various loc-dir pairs
+            PID = demands
+
+            # there's only one parameter needed: the yield drift
+            yield_drift = params['yield_drift']
+
+            # three subdomains of demands are identified
+            small = PID < yield_drift
+            medium = PID < 4 * yield_drift
+            large = PID >= 4 * yield_drift
+
+            # convert PID to RID in each subdomain
+            RID = PID.copy()
+            RID[large] = PID[large] - 3*yield_drift
+            RID[medium] = 0.3 * (PID[medium] - yield_drift)
+            RID[small] = 0.
+
+            # add extra uncertainty to nonzero values
+            eps = np.random.normal(scale=0.2, size=RID.shape)
+            RID[RID>0] = np.exp(np.log(RID[RID>0]) +  eps)
+
+            # finally, make sure the RID values are never larger than the PIDs
+            RID = pd.DataFrame(
+                np.minimum(PID.values, RID.values),
+                columns = pd.DataFrame(
+                    1, index=['RID',],
+                    columns=PID.columns).stack(level=[0,1]).index,
+                index = PID.index)
+
+        else:
+            RID = None
+
+        # return the generated drift realizations
+        return RID
+
     def calibrate_model(self, config):
         """
         Calibrate a demand model to describe the raw demand data
