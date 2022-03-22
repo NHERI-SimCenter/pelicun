@@ -1771,10 +1771,19 @@ class DamageModel(object):
                 # if we are only looking for a single DS
                 if len(ds_list) == 1:
 
+                    ds_target = ds_list[0]
+
                     # get the realizations with non-zero quantity of the target DS
                     source_ds_vals = source_cmp_df.groupby(
-                        level=[2],axis=1).max()[ds_list[0]]
-                    source_mask = source_cmp_df.loc[source_ds_vals > 0.0].index
+                        level=[2],axis=1).max()
+
+                    if ds_target in source_ds_vals.index:
+                        source_ds_vals = source_ds_vals[ds_target]
+                        source_mask = source_cmp_df.loc[source_ds_vals > 0.0].index
+                    else:
+                        # if tge source_cmp is not in ds_target in any of the
+                        # realizations, the prescribed event is not triggered
+                        continue
 
                 else:
                     pass  # TODO: implement multiple DS support
@@ -2666,14 +2675,18 @@ class BldgRepairModel(LossModel):
         # to location '0'.
 
         # Get the flags for replacement consequence trigger
-        id_replacement = DV_sample.groupby(level=[1, ],
-                                           axis=1).sum()['replacement'] > 0
+        DV_sum = DV_sample.groupby(level=[1, ], axis=1).sum()
+        if 'replacement' in DV_sum.columns:
+            id_replacement = DV_sum['replacement'] > 0
+        else:
+            id_replacement = None
 
         # get the list of non-zero locations
         locs = DV_sample.columns.get_level_values(4).unique().values
         locs = locs[locs != '0']
 
-        DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
+        if id_replacement is not None:
+            DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
 
         self._sample = DV_sample
 
