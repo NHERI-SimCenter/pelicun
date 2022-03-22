@@ -178,10 +178,15 @@ def create_FEMA_P58_fragility_db(source_file,
 
     df_meta = df.loc[:, cols_to_meta]
     df_meta.columns = [s.translate(str_map) for s in cols_to_meta]
+    # replace missing values with an empty string
+    df_meta.fillna('', inplace=True)
+    # the metadata shall be stored in strings
+    df_meta = df_meta.astype(str)
 
     # initialize the output fragility table
     df_db = pd.DataFrame(
         columns=[
+            "Index",
             "Incomplete",
             "Demand-Type",
             "Demand-Unit",
@@ -234,6 +239,13 @@ def create_FEMA_P58_fragility_db(source_file,
     # (this approach is not efficient, but easy to follow which was considered
     # more important than efficiency.)
     for cmp in df_db_source.itertuples():
+
+        # create a dotted component index
+        ID = cmp.Index.split('.')
+        cmpID = f'{ID[0][0]}.{ID[0][1:3]}.{ID[0][3:5]}.{ID[1]}'
+
+        # store the new index
+        df_db.loc[cmp.Index, 'Index'] = cmpID
 
         # assume the component information is complete
         incomplete = False
@@ -433,7 +445,10 @@ def create_FEMA_P58_fragility_db(source_file,
         df_db.loc[cmp.Index, 'Incomplete'] = int(incomplete)
 
         # store the metadata for this component
-        meta_dict.update({cmp.Index: meta_data})
+        meta_dict.update({cmpID: meta_data})
+
+    # assign the Index column as the new ID
+    df_db.set_index('Index', inplace=True)
 
     # rename the index
     df_db.index.name = "ID"
@@ -563,6 +578,7 @@ def create_FEMA_P58_bldg_repair_db(source_file,
     # initialize the output loss table
     # define the columns
     out_cols = [
+        "Index",
         "Incomplete",
         "Quantity-Unit",
         "DV-Unit",
@@ -598,6 +614,12 @@ def create_FEMA_P58_bldg_repair_db(source_file,
     # (this approach is not efficient, but easy to follow which was considered
     # more important than efficiency.)
     for cmp in df_db_source.itertuples():
+
+        ID = cmp.Index.split('.')
+        cmpID = f'{ID[0][0]}.{ID[0][1:3]}.{ID[0][3:5]}.{ID[1]}'
+
+        # store the new index
+        df_db.loc[cmp.Index, 'Index'] = cmpID
 
         # assume the component information is complete
         incomplete_cost = False
@@ -833,7 +855,13 @@ def create_FEMA_P58_bldg_repair_db(source_file,
         df_db.loc[(cmp.Index, 'Time'), 'Incomplete'] = int(incomplete_time)
 
         # store the metadata for this component
-        meta_dict.update({cmp.Index: meta_data})
+        meta_dict.update({cmpID: meta_data})
+
+    # assign the Index column as the new ID
+    df_db.index = pd.MultiIndex.from_arrays(
+        [df_db['Index'].values, df_db.index.get_level_values(1)])
+
+    df_db.drop('Index', axis=1, inplace=True)
 
     # review the database and drop rows with no information
     cmp_to_drop = []
@@ -962,6 +990,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
     # initialize the output loss table
     # define the columns
     out_cols = [
+        "Index",
         "Incomplete",
         "Quantity-Unit",
         "DV-Unit",
@@ -992,6 +1021,12 @@ def create_FEMA_P58_bldg_injury_db(source_file,
     # (this approach is not efficient, but easy to follow which was considered
     # more important than efficiency.)
     for cmp in df_db_source.itertuples():
+
+        ID = cmp.Index.split('.')
+        cmpID = f'{ID[0][0]}.{ID[0][1:3]}.{ID[0][3:5]}.{ID[1]}'
+
+        # store the new index
+        df_db.loc[cmp.Index, 'Index'] = cmpID
 
         # assume the component information is complete
         incomplete_S1 = False
@@ -1201,7 +1236,13 @@ def create_FEMA_P58_bldg_injury_db(source_file,
         df_db.loc[(cmp.Index, 'S2'), 'Incomplete'] = int(incomplete_S2)
 
         # store the metadata for this component
-        meta_dict.update({cmp.Index: meta_data})
+        meta_dict.update({cmpID: meta_data})
+
+    # assign the Index column as the new ID
+    df_db.index = pd.MultiIndex.from_arrays(
+        [df_db['Index'].values, df_db.index.get_level_values(1)])
+
+    df_db.drop('Index', axis=1, inplace=True)
 
     # review the database and drop rows with no information
     cmp_to_drop = []
@@ -1338,6 +1379,7 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
     # initialize the output loss table
     # define the columns
     out_cols = [
+        "Index",
         "Incomplete",
     ]
     for DS_i in range(1, 6):
@@ -1363,6 +1405,12 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
     # (this approach is not efficient, but easy to follow which was considered
     # more important than efficiency.)
     for cmp in df_db_source.itertuples():
+
+        ID = cmp.Index.split('.')
+        cmpID = f'{ID[0][0]}.{ID[0][1:3]}.{ID[0][3:5]}.{ID[1]}'
+
+        # store the new index
+        df_db.loc[cmp.Index, 'Index'] = cmpID
 
         # assume the component information is complete
         incomplete = False
@@ -1450,7 +1498,10 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
         df_db.loc[cmp.Index, 'Incomplete'] = int(incomplete)
 
         # store the metadata for this component
-        meta_dict.update({cmp.Index: meta_data})
+        meta_dict.update({cmpID: meta_data})
+
+    # assign the Index column as the new ID
+    df_db.set_index('Index', inplace=True)
 
     # review the database and drop rows with no information
     cmp_to_drop = []
