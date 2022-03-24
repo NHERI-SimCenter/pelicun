@@ -1811,6 +1811,10 @@ class DamageModel(object):
                     if source_cmp in target_cmp:
                         target_cmp.remove(source_cmp)
 
+                # otherwise we target a specific component
+                elif target_cmp in cmp_list:
+                    target_cmp = [target_cmp,]
+
                 # trigger a limit state
                 if target_event.startswith('LS'):
 
@@ -1827,16 +1831,20 @@ class DamageModel(object):
                     # move all quantities of the target component(s) into the
                     # target damage state in the pre-selected realizations
                     qnt_sample.loc[source_mask, target_cmp] = 0.0
-                    # because we cannot be certain that ds_i had been triggered
-                    # earlier, we have to add this damage state manually for
-                    # each PG of the component
-                    locs = cmp_qnt[target_cmp].columns.get_level_values(0)
-                    dirs = cmp_qnt[target_cmp].columns.get_level_values(1)
-                    for loc, dir in zip(locs, dirs):
-                        qnt_sample[(target_cmp,loc,dir,ds_i)] = 0.0
-                        qnt_sample.loc[
-                            source_mask, idx[target_cmp, loc, dir, ds_i]] = (
-                            cmp_qnt.loc[source_mask, target_cmp].values)
+
+                    for target_cmp_i in target_cmp:
+                        locs = cmp_qnt[target_cmp_i].columns.get_level_values(0)
+                        dirs = cmp_qnt[target_cmp_i].columns.get_level_values(1)
+                        for loc, dir in zip(locs, dirs):
+                            # because we cannot be certain that ds_i had been
+                            # triggered earlier, we have to add this damage
+                            # state manually for each PG of each component, if needed
+                            if ds_i not in qnt_sample[(target_cmp_i,loc,dir)].columns:
+                                qnt_sample[(target_cmp_i,loc,dir,ds_i)] = 0.0
+
+                            qnt_sample.loc[
+                                source_mask, (target_cmp_i, loc, dir, ds_i)] = (
+                                cmp_qnt.loc[source_mask, (target_cmp_i, loc, dir)].values)
 
                 # clear all damage information
                 elif target_event == 'NA':
