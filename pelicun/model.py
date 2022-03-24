@@ -2153,16 +2153,18 @@ class LossModel(object):
                     convert_unit(theta, unit)
                     for theta, unit in list(zip(thetas, units))]
 
-                # cov and beta for normal and lognormal dists. do not need to
-                # be scaled
-                families = loss_params.loc[:, (DS, 'Family')]
-                for family in families:
-                    if ((pd.isna(family)==True) or
-                        (family in ['normal', 'lognormal'])):
-                        pass
-                    else:
-                        raise ValueError(f"Unexpected distribution family in "
-                                         f"loss model: {family}")
+                # if the consequences are probabilistic
+                if (DS, 'Family') in loss_params.columns:
+                    # cov and beta for normal and lognormal dists. do not need
+                    # to be scaled
+                    families = loss_params.loc[:, (DS, 'Family')]
+                    for family in families:
+                        if ((pd.isna(family)==True) or
+                            (family in ['normal', 'lognormal'])):
+                            pass
+                        else:
+                            raise ValueError(f"Unexpected distribution family in "
+                                             f"loss model: {family}")
 
         # check for components with incomplete loss information
         cmp_incomplete_list = loss_params.loc[
