@@ -451,10 +451,10 @@ class DemandModel(object):
         self.empirical_data = demand_sample.loc[:, empirical_edps].copy()
 
         # remove the empirical demands from the samples used for calibration
-        demand_sample = demand_sample.drop(empirical_edps, 1)
+        demand_sample = demand_sample.drop(empirical_edps, axis=1)
 
         # and the calibration settings
-        cal_df = cal_df.drop(empirical_edps, 0)
+        cal_df = cal_df.drop(empirical_edps, axis=0)
 
         if options.verbose:
             log_msg(f"\nDemand data used for calibration:\n"+str(demand_sample),
@@ -496,7 +496,7 @@ class DemandModel(object):
 
         # remove unneeded fields from model_params
         for col in ['SigIncrease', 'CensorLower', 'CensorUpper']:
-            model_params = model_params.drop(col, 1)
+            model_params = model_params.drop(col, axis=1)
 
         # reorder the remaining fields for clarity
         model_params = model_params[[
