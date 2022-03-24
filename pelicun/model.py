@@ -1777,7 +1777,7 @@ class DamageModel(object):
                     source_ds_vals = source_cmp_df.groupby(
                         level=[2],axis=1).max()
 
-                    if ds_target in source_ds_vals.index:
+                    if ds_target in source_ds_vals.columns:
                         source_ds_vals = source_ds_vals[ds_target]
                         source_mask = source_cmp_df.loc[source_ds_vals > 0.0].index
                     else:
