@@ -1096,7 +1096,8 @@ class DamageModel(object):
         log_msg(f'Saving damage sample...')
 
         cmp_units = self._asmnt.asset.cmp_units
-        qnt_units = pd.Series(index=self.sample.columns, name='Units')
+        qnt_units = pd.Series(index=self.sample.columns, name='Units',
+                              dtype='object')
         for cmp in cmp_units.index:
             qnt_units.loc[cmp] = cmp_units.loc[cmp]
 
@@ -2388,6 +2389,11 @@ class BldgRepairModel(LossModel):
                 driver_type, driver_cmp = self.loss_map.loc[
                     loss_cmp_id, 'Driver']
                 loss_cmp_name = self.loss_map.loc[loss_cmp_id, 'Consequence']
+
+                # check if the given DV type is available as an output for the
+                # selected component
+                if (loss_cmp_name, DV_type_scase) not in self.loss_params.index:
+                    continue
 
                 if driver_type != 'DMG':
                     raise ValueError(f"Loss Driver type not recognized: "
