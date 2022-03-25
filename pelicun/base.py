@@ -267,7 +267,7 @@ def set_options(config_options):
             elif key == "EconomiesOfScale":
                 options.eco_scale = value
 
-def convert_to_SimpleIndex(data, axis=0):
+def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a simple, one-level index
 
@@ -278,8 +278,11 @@ def convert_to_SimpleIndex(data, axis=0):
     ----------
     data: DataFrame
         The DataFrame that will be modified.
-    axis: int
+    axis: int, optional, default:0
         Identifies if the index (0) or the columns (1) shall be edited.
+    inplace: bool, optional, default:False
+        If yes, the operation is performed directly on the input DataFrame
+        and not on a copy of it.
 
     Returns
     -------
@@ -287,24 +290,35 @@ def convert_to_SimpleIndex(data, axis=0):
         The modified DataFrame
     """
 
+    if axis in [0, 1]:
 
+        if inplace:
+            data_mod = data
+        else:
+            data_mod = data.copy()
 
-    if axis == 0:
-        simple_index = ['-'.join([str(id_i) for id_i in id])
-                        for id in data.index]
-        data.index = simple_index
+        if axis == 0:
+            simple_name = '-'.join([n if n is not None else "" for n in data.index.names])
+            simple_index = ['-'.join([str(id_i) for id_i in id])
+                            for id in data.index]
 
-    elif axis == 1:
-        simple_index = ['-'.join([str(id_i) for id_i in id])
-                        for id in data.columns]
-        data.columns = simple_index
+            data_mod.index = simple_index
+            data_mod.index.name = simple_name
+
+        elif axis == 1:
+            simple_name = '-'.join([n if n is not None else "" for n in data.columns.names])
+            simple_index = ['-'.join([str(id_i) for id_i in id])
+                            for id in data.columns]
+
+            data_mod.columns = simple_index
+            data_mod.columns.name = simple_name
 
     else:
         raise ValueError(f"Invalid axis parameter: {axis}")
 
-    return data
+    return data_mod
 
-def convert_to_MultiIndex(data, axis=0):
+def convert_to_MultiIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a MultiIndex
 
@@ -316,8 +330,11 @@ def convert_to_MultiIndex(data, axis=0):
     ----------
     data: DataFrame
         The DataFrame that will be modified.
-    axis: int
+    axis: int, optional, default:0
         Identifies if the index (0) or the columns (1) shall be edited.
+    inplace: bool, optional, default:False
+        If yes, the operation is performed directly on the input DataFrame
+        and not on a copy of it.
 
     Returns
     -------
@@ -353,13 +370,21 @@ def convert_to_MultiIndex(data, axis=0):
 
     if index_labels.shape[1] > 1:
 
+        if inplace:
+            data_mod = data
+        else:
+            data_mod = data.copy()
+
         if axis == 0:
-            data.index = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.index = pd.MultiIndex.from_arrays(index_labels.T)
 
         else:
-            data.columns = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.columns = pd.MultiIndex.from_arrays(index_labels.T)
 
-    return data
+        return data_mod
+
+    else:
+        return data
 
 def convert_unit(value, unit):
     """
