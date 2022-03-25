@@ -535,44 +535,27 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
             with open(globals()['log_file'], 'a') as f:
                 f.write('\n'+formatted_msg)
 
-def describe(df):
+def describe(df, percentiles=[0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
+                              0.977, 0.999]):
 
-    if isinstance(df, (pd.Series, pd.DataFrame)):
-        vals = df.values
-        if isinstance(df, pd.DataFrame):
-            cols = df.columns
-        elif df.name is not None:
-            cols = df.name
-        else:
-            cols = 0
-    else:
+    if not isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df
         cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
 
-    if vals.ndim == 1:
-        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90])
-        desc = pd.Series({
-            'count': np.sum(~np.isnan(vals)),
-            'mean': np.nanmean(vals),
-            'std': np.nanstd(vals),
-            'min': np.nanmin(vals),
-            '10%': df_10,
-            '50%': df_50,
-            '90%': df_90,
-            'max': np.nanmax(vals),
-        }, name=cols)
-    else:
-        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90], axis=0)
-        desc = pd.DataFrame({
-            'count': np.sum(~np.isnan(vals), axis=0),
-            'mean': np.nanmean(vals, axis=0),
-            'std': np.nanstd(vals, axis=0),
-            'min': np.nanmin(vals, axis=0),
-            '10%': df_10,
-            '50%': df_50,
-            '90%': df_90,
-            'max': np.nanmax(vals, axis=0),
-        }, index=cols).T
+        if vals.ndim == 1:
+            df = pd.Series(vals, name=cols)
+        else:
+            df = pd.DataFrame(vals, columns = cols)
+
+    desc = df.describe(percentiles).T
+
+    # add log standard deviation to the stats
+    desc.insert(3, "log_std", np.nan)
+    desc = desc.T
+
+    for col in desc.columns:
+        if np.min(df[col])>0.0:
+            desc.loc['log_std', col] = np.std(np.log(df[col]))
 
     return desc
 
