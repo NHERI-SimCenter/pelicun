@@ -757,7 +757,7 @@ class AssetModel(object):
         # prepare a units array
         sample = self.cmp_sample
 
-        units = pd.Series(name='Units', index=sample.columns)
+        units = pd.Series(name='Units', index=sample.columns, dtype=object)
 
         for cmp_id, unit_name in self.cmp_units.items():
             units.loc[cmp_id, :] = unit_name
@@ -953,7 +953,7 @@ class AssetModel(object):
                 names=['cmp', 'loc', 'dir'])
 
             # update the marginal param DF
-            cmp_marginal_params.loc[MI, marginal_cols] = [
+            cmp_marginal_params.loc[MI, marginal_cols] = np.array([
                 row.Units,
                 getattr(row, 'Family', np.nan),
                 float(row.Theta_0),
@@ -962,7 +962,7 @@ class AssetModel(object):
                 get_attribute(getattr(row, 'TruncateUpper', np.nan)),
                 get_attribute(getattr(row, 'Blocks', np.nan), dtype=int,
                               default=1.0)
-            ]
+            ], dtype=object)
 
         log_msg(f"Model parameters successfully parsed. "
                 f"{cmp_marginal_params.shape[0]} component blocks identified",
