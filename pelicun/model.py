@@ -112,6 +112,8 @@ class DemandModel(object):
 
             sample = convert_to_MultiIndex(sample, axis=1)['EDP']
 
+            sample.columns.names = ['type','loc','dir']
+
             self._sample = sample
 
         else:
@@ -1084,6 +1086,11 @@ class DamageModel(object):
 
     @property
     def sample(self):
+
+        smpl = self._sample
+
+        if smpl is not None:
+            smpl.columns.names = ['cmp', 'loc', 'dir', 'ds']
 
         return self._sample
 
