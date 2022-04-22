@@ -2296,6 +2296,7 @@ class BldgRepairModel(LossModel):
 
             # load the corresponding parameters
             driver_type, driver_cmp_id = self.loss_map.loc[loss_cmp_id, 'Driver']
+            conseq_cmp_id = self.loss_map.loc[loss_cmp_id, 'Consequence']
 
             # currently, we only support DMG-based loss calculations
             # but this will be extended in the very near future
@@ -2304,13 +2305,13 @@ class BldgRepairModel(LossModel):
                                  f"{driver_type}")
 
             # load the parameters
-            if (driver_cmp_id, 'Cost') in LP.index:
-                cost_params = LP.loc[(driver_cmp_id, 'Cost'), :]
+            if (conseq_cmp_id, 'Cost') in LP.index:
+                cost_params = LP.loc[(conseq_cmp_id, 'Cost'), :]
             else:
                 cost_params = None
 
-            if (driver_cmp_id, 'Time') in LP.index:
-                time_params = LP.loc[(driver_cmp_id, 'Time'), :]
+            if (conseq_cmp_id, 'Time') in LP.index:
+                time_params = LP.loc[(conseq_cmp_id, 'Time'), :]
             else:
                 time_params = None
 
@@ -2324,17 +2325,39 @@ class BldgRepairModel(LossModel):
                     continue
 
                 if cost_params is not None:
-                    cost_family, cost_theta_1 = cost_params.loc[
-                        [(f'DS{ds}', 'Family'), (f'DS{ds}','Theta_1')]]
+
+                    if (f'DS{ds}', 'Family') in cost_params.index:
+                        cost_family = cost_params.loc[(f'DS{ds}', 'Family')]
+                    else:
+                        cost_family = np.nan
+
+                    if (f'DS{ds}', 'Theta_1') in cost_params.index:
+                        cost_theta_1 = cost_params.loc[(f'DS{ds}', 'Theta_1')]
+                    else:
+                        cost_theta_1 = np.nan
+
                 else:
                     cost_family = np.nan
+                    cost_theta_1 = np.nan
 
                 if time_params is not None:
-                    time_family, time_theta_1 = time_params.loc[
-                        [(f'DS{ds}', 'Family'), (f'DS{ds}', 'Theta_1')]]
+
+                    if (f'DS{ds}', 'Family') in time_params.index:
+                        time_family = time_params.loc[(f'DS{ds}', 'Family')]
+                    else:
+                        time_family = np.nan
+
+                    if (f'DS{ds}', 'Theta_1') in time_params.index:
+                        time_theta_1 = time_params.loc[(f'DS{ds}', 'Theta_1')]
+                    else:
+                        time_theta_1 = np.nan
+
                 else:
                     time_family = np.nan
+                    time_theta_1 = np.nan
 
+                # If neither cost nor time has a stochastic model assigned,
+                # we do not need random variables for this DS
                 if ((pd.isna(cost_family)==True) and
                     (pd.isna(time_family)==True)):
                     continue
