@@ -2541,10 +2541,19 @@ class BldgRepairModel(LossModel):
                                        'repair_time-parallel',
                                        'repair_time-sequential'])
 
-        df_agg['repair_cost'] = DVG['COST'].sum(axis=1)
-        df_agg['repair_time-sequential'] = DVG['TIME'].sum(axis=1)
+        if 'COST' in DVG.columns:
+            df_agg['repair_cost'] = DVG['COST'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_cost', axis=1)
 
-        df_agg['repair_time-parallel'] = DVG['TIME'].max(axis=1)
+        if 'TIME' in DVG.columns:
+            df_agg['repair_time-sequential'] = DVG['TIME'].sum(axis=1)
+
+            df_agg['repair_time-parallel'] = DVG['TIME'].max(axis=1)
+        else:
+            df_agg = df_agg.drop(['repair_time-parallel',
+                                  'repair_time-sequential'],
+                                 axis=1)
 
         df_agg = convert_to_MultiIndex(df_agg, axis=1)
 
@@ -2645,6 +2654,9 @@ class BldgRepairModel(LossModel):
         for DV_type, DV_type_scase in zip(['COST', 'TIME'],['Cost','Time']):
 
             cmp_list = []
+
+            if DV_type not in medians.keys():
+                continue
 
             for cmp_i in medians[DV_type].columns.get_level_values(0).unique():
 
