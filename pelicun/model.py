@@ -1322,7 +1322,10 @@ class DamageModel(object):
         # get the component sample and blocks from the asset model
         cmp_id = PG[0]
         cmp_sample = self._asmnt.asset.cmp_sample.loc[:,PG]
-        blocks = self._asmnt.asset.cmp_marginal_params.loc[PG,'Blocks']
+        try:
+            blocks = self._asmnt.asset.cmp_marginal_params.loc[PG,'Blocks']
+        except:
+            blocks = 1
 
         # if the number of blocks is provided, calculate the weights
         if np.atleast_1d(blocks).shape[0] == 1:
@@ -1699,7 +1702,10 @@ class DamageModel(object):
         cmp_qnt = self._asmnt.asset.cmp_sample.loc[:, PG].values
         dmg_qnt = (dmg_ds*0.0).copy()
 
-        blocks = self._asmnt.asset.cmp_marginal_params.loc[PG, 'Blocks']
+        try:
+            blocks = self._asmnt.asset.cmp_marginal_params.loc[PG, 'Blocks']
+        except:
+            blocks = 1
 
         # if the number of blocks is provided, calculate the weights
         if np.atleast_1d(blocks).shape[0] == 1:
