@@ -641,13 +641,17 @@ def fit_distribution_to_sample(raw_samples, distribution,
                 "the correlation matrix. Assuming uncorrelated demands.",
                 prepend_timestamp=False, prepend_blank_space=False)
 
-    # Convert mean back to linear space if the distribution is lognormal
+
     for d_i, distribution in enumerate(dist_list):
+        # Convert mean back to linear space if the distribution is lognormal
         if distribution == 'lognormal':
             theta[d_i][0] = np.exp(theta[d_i][0])
             #theta_mod = theta.T.copy()
             #theta_mod[0] = np.exp(theta_mod[0])
             #theta = theta_mod.T
+        # Convert the std to cov if the distribution is normal
+        elif distribution == 'normal':
+            theta[d_i][1] = theta[d_i][1] / np.abs(theta[d_i][0])
 
     #for val in list(zip(inits_0, theta)):
     #    print(val)
@@ -944,7 +948,8 @@ class RandomVariable(object):
         result = None
 
         if self.distribution == 'normal':
-            mu, sig = self.theta
+            mu, cov = self.theta
+            sig = np.abs(mu)*cov
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -1019,7 +1024,8 @@ class RandomVariable(object):
         result = None
 
         if self.distribution == 'normal':
-            mu, sig = self.theta
+            mu, cov = self.theta
+            sig = np.abs(mu) * cov
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
