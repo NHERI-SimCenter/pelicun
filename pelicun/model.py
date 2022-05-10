@@ -834,7 +834,7 @@ class AssetModel(object):
                     return np.array([stories, ]).astype(str)
 
                 elif loc_str == "roof":
-                    return np.array([stories, ]).astype(str)
+                    return np.array([stories+1, ]).astype(str)
 
                 else:
                     raise ValueError(f"Cannot parse location string: "
