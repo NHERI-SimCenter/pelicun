@@ -1512,7 +1512,7 @@ class DamageModel(object):
 
         return capacity_RV_reg, lsds_RV_reg
 
-    def _generate_dmg_sample(self, sample_size, PG):
+    def _generate_dmg_sample(self, sample_size, PGB):
 
         if self.damage_params is None:
             raise ValueError('Damage model parameters have not been specified. '
@@ -1520,11 +1520,11 @@ class DamageModel(object):
                              'databases or provide your own damage model '
                              'definitions before generating a sample.')
 
-        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PG)
+        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB)
 
         if options.verbose:
             log_msg(f'Sampling capacities...',
-                    prepend_timestamp=False)
+                    prepend_timestamp=True)
 
         capacity_RVs.generate_sample(sample_size=sample_size)
 
@@ -1549,7 +1549,7 @@ class DamageModel(object):
 
         return capacity_sample, lsds_sample
 
-    def get_required_demand_type(self, PG):
+    def get_required_demand_type(self, PGB):
         """
         Returns the id of the demand needed to calculate damage to a component
 
@@ -1560,40 +1560,49 @@ class DamageModel(object):
 
         if options.verbose:
             log_msg(f'Collecting required demand information...',
-                    prepend_timestamp=False)
+                    prepend_timestamp=True)
 
-        cmp = PG[0]
+        EDP_req = {}
 
-        # get the parameters from the damage model db
-        directional, offset, demand_type = DP.loc[
-            cmp, [('Demand', 'Directional'),
-                  ('Demand', 'Offset'),
-                  ('Demand', 'Type')]]
+        for PG in PGB.index:
+            cmp = PG[0]
 
-        # parse the demand type
+            # get the parameters from the damage model db
+            directional, offset, demand_type = DP.loc[
+                cmp, [('Demand', 'Directional'),
+                      ('Demand', 'Offset'),
+                      ('Demand', 'Type')]]
 
-        # first check if there is a subtype included
-        if '|' in demand_type:
-            demand_type, subtype = demand_type.split('|')
-            demand_type = EDP_to_demand_type[demand_type]
-            EDP_type = f'{demand_type}_{subtype}'
-        else:
-            demand_type = EDP_to_demand_type[demand_type]
-            EDP_type = demand_type
+            # parse the demand type
 
-        # consider the default offset, if needed
-        if demand_type in options.demand_offset.keys():
+            # first check if there is a subtype included
+            if '|' in demand_type:
+                demand_type, subtype = demand_type.split('|')
+                demand_type = EDP_to_demand_type[demand_type]
+                EDP_type = f'{demand_type}_{subtype}'
+            else:
+                demand_type = EDP_to_demand_type[demand_type]
+                EDP_type = demand_type
 
-            offset = int(offset + options.demand_offset[demand_type])
+            # consider the default offset, if needed
+            if demand_type in options.demand_offset.keys():
 
-        else:
-            offset = int(offset)
+                offset = int(offset + options.demand_offset[demand_type])
 
-        if directional:
-            dir = PG[2]
-        else:
-            dir = '0'
-        EDP_req = [EDP_type, str(int(PG[1]) + offset), dir]
+            else:
+                offset = int(offset)
+
+            if directional:
+                dir = PG[2]
+            else:
+                dir = '0'
+
+            EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{dir}"
+
+            if EDP not in EDP_req.keys():
+                EDP_req.update({EDP:[]})
+
+            EDP_req[EDP].append(PG)
 
         # return the unique EDP requirements
         return EDP_req
@@ -1602,34 +1611,42 @@ class DamageModel(object):
 
         if options.verbose:
             log_msg(f'Assembling demand data for calculation...',
-                    prepend_timestamp=False)
+                    prepend_timestamp=True)
 
         demand_source = self._asmnt.demand.sample
 
-        # if non-directional demand is requested...
-        if EDP_req[2] == '0':
+        demand_dict = {}
 
-            # assume that the demand at the given location is available
-            try:
-                # take the maximum of all available directions and scale it
-                # using the nondirectional multiplier specified in the
-                # options (the default value is 1.2)
-                demand = demand_source.loc[:, (EDP_req[0], EDP_req[1])].max(axis=1).values
-                demand = demand * options.nondir_multi(EDP_req[0])
+        for EDP in EDP_req.keys():
 
-            except:
-                demand = None
+            EDP = EDP.split('-')
 
-        else:
-            demand = demand_source[(EDP_req[0], EDP_req[1], EDP_req[2])].values
+            # if non-directional demand is requested...
+            if EDP[2] == '0':
 
-        if demand is None:
+                # assume that the demand at the given location is available
+                try:
+                    # take the maximum of all available directions and scale it
+                    # using the nondirectional multiplier specified in the
+                    # options (the default value is 1.2)
+                    demand = demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
+                    demand = demand * options.nondir_multi(EDP[0])
 
-            log_msg(f'\nWARNING: Cannot find demand data for {EDP_req}. The '
-                    f'corresponding damages cannot be calculated.',
-                    prepend_timestamp=False)
+                except:
+                    demand = None
 
-        return demand
+            else:
+                demand = demand_source[(EDP[0], EDP[1], EDP[2])].values
+
+            if demand is None:
+
+                log_msg(f'\nWARNING: Cannot find demand data for {EDP}. The '
+                        f'corresponding damages cannot be calculated.',
+                        prepend_timestamp=False)
+            else:
+                demand_dict.update({f'{EDP[0]}-{EDP[1]}-{EDP[2]}': demand})
+
+        return demand_dict
 
     def _evaluate_damage_state(self, demand, capacity_sample, lsds_sample):
         """
