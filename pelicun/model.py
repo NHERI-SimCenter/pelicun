@@ -1048,7 +1048,7 @@ class AssetModel(object):
 
         self._cmp_RVs = RV_reg
 
-    def generate_cmp_sample(self, sample_size):
+    def generate_cmp_sample(self, sample_size=None):
 
         if self.cmp_marginal_params is None:
             raise ValueError('Model parameters have not been specified. Load'
@@ -1057,6 +1057,9 @@ class AssetModel(object):
 
         log_div()
         log_msg(f'Generating sample from component quantity variables...')
+
+        if sample_size is None:
+            sample_size = self._asmnt.demand.sample.shape[0]
 
         self._create_cmp_RVs()
 
@@ -1971,7 +1974,7 @@ class DamageModel(object):
         return qnt_sample
 
 
-    def calculate(self, sample_size, dmg_process=None):
+    def calculate(self, dmg_process=None, block_batch_size=1000):
         """
         Calculate the damage state of each component block in the asset.
 
@@ -1979,6 +1982,8 @@ class DamageModel(object):
 
         log_div()
         log_msg(f'Calculating damages...')
+
+        sample_size = self._asmnt.demand.sample.shape[0]
 
         # Break up damage calculation and perform it by performance group.
         # Compared to the simultaneous calculation of all PGs, this approach
@@ -2226,7 +2231,7 @@ class LossModel(object):
         """
         pass
 
-    def calculate(self, sample_size):
+    def calculate(self):
         """
         Calculate the repair cost and time of each component block in the asset.
 
@@ -2235,11 +2240,15 @@ class LossModel(object):
         log_div()
         log_msg(f"Calculating losses...")
 
+        drivers = [d for d,c in self.loss_map['Driver']]
+
+        if 'DMG' in drivers:
+            sample_size = self._asmnt.damage.sample.shape[0]
+        elif 'DEM' in drivers:
+            sample_size = self._asmnt.demand.sample.shape[0]
+
         # First, get the damaged quantities in each damage state for each
         # component of interest.
-        # Note that we are using the damages that drive the losses and not the
-        # names of the loss components directly.
-        log_msg(f"Preparing damaged quantities...")
         dmg_q = self._asmnt.damage.sample.copy()
 
         # Now sample random Decision Variables
@@ -2267,9 +2276,9 @@ class BldgRepairModel(LossModel):
 
         super(BldgRepairModel, self).load_model(data_paths, mapping_path)
 
-    def calculate(self, sample_size):
+    def calculate(self):
 
-        super(BldgRepairModel, self).calculate(sample_size)
+        super(BldgRepairModel, self).calculate()
 
     def _create_DV_RVs(self, case_list):
         """
@@ -2579,24 +2588,8 @@ class BldgRepairModel(LossModel):
 
         """
 
-        log_msg(f"Preparing random variables for repair cost and time...")
-        RV_reg = self._create_DV_RVs(dmg_quantities.columns)
-
-        if RV_reg is not None:
-            RV_reg.generate_sample(sample_size=sample_size)
-
-            std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
-                                               axis=1).sort_index(axis=1)
-            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir']
-        else:
-            std_sample = None
-
-        log_msg(f"\nSuccessfully generated {sample_size} realizations of "
-                f"deviation from the median consequences.",
-                prepend_timestamp=False)
-
         # calculate the quantities for economies of scale
-        log_msg(f"\nCalculating the quantity of damage...",
+        log_msg(f"\nAggregating damage quantities...",
                 prepend_timestamp=False)
 
         if options.eco_scale["AcrossFloors"]==True:
@@ -2639,7 +2632,23 @@ class BldgRepairModel(LossModel):
         # combine the median consequences with the samples of deviation from the
         # median to get the consequence realizations.
         log_msg(f"\nConsidering deviations from the median values to obtain "
-                f"random DV sample...",
+                f"random DV sample...")
+
+        log_msg(f"Preparing random variables for repair cost and time...",
+                prepend_timestamp=False)
+        RV_reg = self._create_DV_RVs(dmg_quantities.columns)
+
+        if RV_reg is not None:
+            RV_reg.generate_sample(sample_size=sample_size)
+
+            std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
+                                               axis=1).sort_index(axis=1)
+            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir']
+        else:
+            std_sample = None
+
+        log_msg(f"\nSuccessfully generated {sample_size} realizations of "
+                f"deviation from the median consequences.",
                 prepend_timestamp=False)
 
         res_list = []
