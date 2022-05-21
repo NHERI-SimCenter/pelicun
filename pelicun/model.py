@@ -1267,7 +1267,7 @@ class DamageModel(object):
         log_msg(f"Damage model parameters successfully parsed.",
                 prepend_timestamp=False)
 
-    def _create_dmg_RVs(self, PG):
+    def _create_dmg_RVs(self, PGB):
         """
         Creates random variables required later for the damage calculation.
 
@@ -1324,48 +1324,50 @@ class DamageModel(object):
         rv_count = 0
 
         # get the component sample and blocks from the asset model
-        cmp_id = PG[0]
-        cmp_sample = self._asmnt.asset.cmp_sample.loc[:,PG]
-        try:
-            blocks = self._asmnt.asset.cmp_marginal_params.loc[PG,'Blocks']
-        except:
-            blocks = 1
+        for PG in PGB.index:
 
-        # if the number of blocks is provided, calculate the weights
-        if np.atleast_1d(blocks).shape[0] == 1:
-            blocks = np.full(int(blocks), 1./blocks)
-        # otherwise, assume that the list contains the weights
+            cmp_id = PG[0]
+            cmp_sample = self._asmnt.asset.cmp_sample.loc[:,PG]
+            blocks = PGB.loc[PG, 'Blocks']
+            #try:
+            #    blocks = self._asmnt.asset.cmp_marginal_params.loc[PG.index,'Blocks']
+            #except:
+            #    blocks = 1
 
-        # initialize the damaged quantity sample variable
-        # if there are damage functions used, we need more than a simple pointer
-        if self._dmg_function_scale_factors is not None:
-            qnt_sample = cmp_sample.copy()
-            qnt_list = [qnt_sample, ]
-            self.qnt_units = self._asmnt.asset.cmp_units.copy()
+            # if the number of blocks is provided, calculate the weights
+            if np.atleast_1d(blocks).shape[0] == 1:
+                blocks = np.full(int(blocks), 1./blocks)
+            # otherwise, assume that the list contains the weights
 
-        if cmp_id in self.damage_params.index:
+            # initialize the damaged quantity sample variable
+            # if there are damage functions used, we need more than a simple pointer
+            if self._dmg_function_scale_factors is not None:
+                qnt_sample = cmp_sample.copy()
+                qnt_list = [qnt_sample, ]
+                self.qnt_units = self._asmnt.asset.cmp_units.copy()
 
-            frg_params = self.damage_params.loc[cmp_id, :]
+            if cmp_id in self.damage_params.index:
 
-            # get the list of limit states
-            limit_states = []
-            [limit_states.append(val[2:]) if 'LS' in val else val
-             for val in frg_params.index.get_level_values(0).unique()]
+                frg_params = self.damage_params.loc[cmp_id, :]
 
-            ls_count = len(limit_states)
+                # get the list of limit states
+                limit_states = []
+                [limit_states.append(val[2:]) if 'LS' in val else val
+                 for val in frg_params.index.get_level_values(0).unique()]
 
-            for block_i, __ in enumerate(blocks):
+                ls_count = len(limit_states)
 
                 ds_id = 0
 
-                frg_rv_set_tags = []
+                frg_rv_set_tags = [[] for b in blocks]
+                anchor_RVs = []
 
                 for ls_id in limit_states:
 
                     theta_0 = frg_params.loc[(f'LS{ls_id}','Theta_0')]
 
                     # check if the limit state is defined for the component
-                    if ~pd.isnull(theta_0):
+                    if not pd.isnull(theta_0):
 
                         family, theta_1, ds_weights = frg_params.loc[
                             [(f'LS{ls_id}','Family'),
@@ -1395,20 +1397,22 @@ class DamageModel(object):
 
                         if family == 'function':
 
-                            qnt_columns = []
+                            for block_i, __ in enumerate(blocks):
 
-                            for ls_i in range(ls_count):
+                                qnt_columns = []
 
-                                block_id = int(block_i)*ls_count + ls_i + 1
+                                for ls_i in range(ls_count):
 
-                                #                   cmp_id  loc     dir     block
-                                frg_rv_tag = f'FRG-{PG[0]}-{PG[1]}-{PG[2]}-{str(block_id)}-{ls_id}'
+                                    block_id = int(block_i)*ls_count + ls_i + 1
 
-                                # generate samples of almost surely yes/no damage
-                                if int(ls_id) <= ls_i+1:
-                                    sample = np.ones(10000) * np.nextafter(-np.inf,1)
-                                else:
-                                    sample = np.ones(10000) * np.nextafter(np.inf,-1)
+                                    #                   cmp_id  loc     dir     block
+                                    frg_rv_tag = f'FRG-{PG[0]}-{PG[1]}-{PG[2]}-{str(block_id)}-{ls_id}'
+
+                                    # generate samples of almost surely yes/no damage
+                                    if int(ls_id) <= ls_i+1:
+                                        target_value = np.nextafter(-np.inf,1)
+                                    else:
+                                        target_value = np.nextafter(np.inf,-1)
 
                                     capacity_RV_reg.add_RV(RandomVariable(
                                         name=frg_rv_tag,
@@ -1416,27 +1420,27 @@ class DamageModel(object):
                                         theta = target_value
                                     ))
 
-                                # Now add the LS->DS assignments
-                                #                     cmp_id  loc     dir     block
-                                lsds_rv_tag = f'LSDS-{PG[0]}-{PG[1]}-{PG[2]}-{str(block_id)}-{ls_id}'
-                                ds_id_post = assign_lsds(
-                                    ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
+                                    # Now add the LS->DS assignments
+                                    #                     cmp_id  loc     dir     block
+                                    lsds_rv_tag = f'LSDS-{PG[0]}-{PG[1]}-{PG[2]}-{str(block_id)}-{ls_id}'
+                                    ds_id_post = assign_lsds(
+                                        ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
 
-                                rv_count += 1
+                                    rv_count += 1
+
+                                    if ls_id == '1':
+                                        qnt_columns.append(f'{PG[0]}-{PG[1]}-{PG[2]}-{str(block_id)}')
+
+                                ds_id = ds_id_post
 
                                 if ls_id == '1':
-                                    qnt_columns.append(f'{PG[0]}-{PG[1]}-{PG[2]}-{str(block_id)}')
-
-                            ds_id = ds_id_post
-
-                            if ls_id == '1':
-                                qnt_i = pd.DataFrame(columns = qnt_columns,
-                                                     index=qnt_sample.index)
-                                qnt_i = qnt_i.apply(
-                                    lambda x: qnt_sample.loc[:, PG].values,
-                                    axis=0, result_type='broadcast')
-                                qnt_list.append(qnt_i)
-                                qnt_sample.drop(PG, axis=1, inplace=True)
+                                    qnt_i = pd.DataFrame(columns = qnt_columns,
+                                                         index=qnt_sample.index)
+                                    qnt_i = qnt_i.apply(
+                                        lambda x: qnt_sample.loc[:, PG].values,
+                                        axis=0, result_type='broadcast')
+                                    qnt_list.append(qnt_i)
+                                    qnt_sample.drop(PG, axis=1, inplace=True)
 
                         # Otherwise, we are dealing with fragility functions
                         else:
@@ -1501,19 +1505,6 @@ class DamageModel(object):
                                 rv_count += 1
 
                             ds_id = ds_id_next
-                # Note that we assume perfectly correlated limit state random
-                # variables here. This approach is in line with how mainstream
-                # PBE calculations are performed.
-                # Assigning more sophisticated correlations between limit state
-                # RVs is possible, if needed. Please let us know through the
-                # SimCenter Message Board if you are interested in such a
-                # feature.
-                if len(frg_rv_set_tags) > 0:
-                    capacity_RV_reg.add_RV_set(RandomVariableSet(
-                        f'FRG-{PG[0]}-{PG[1]}-{PG[2]}-{block_i+1}_set',
-                        list(capacity_RV_reg.RVs(frg_rv_set_tags).values()),
-                        np.ones((len(frg_rv_set_tags),
-                                 len(frg_rv_set_tags)))))
 
         if options.verbose:
             log_msg(f"2x{rv_count} random variables created.",
