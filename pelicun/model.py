@@ -265,7 +265,8 @@ class DemandModel(object):
             RID[small] = 0.
 
             # add extra uncertainty to nonzero values
-            eps = np.random.normal(scale=0.2, size=RID.shape)
+            rng = options.rng
+            eps = rng.normal(scale=0.2, size=RID.shape)
             RID[RID>0] = np.exp(np.log(RID[RID>0]) +  eps)
 
             # finally, make sure the RID values are never larger than the PIDs
