@@ -1648,7 +1648,7 @@ class DamageModel(object):
 
         return demand_dict
 
-    def _evaluate_damage_state(self, demand, capacity_sample, lsds_sample):
+    def _evaluate_damage_state(self, demand_dict, EDP_req, capacity_sample, lsds_sample):
         """
         Use the demand and LS capacity sample to evaluate damage states
 
@@ -1672,7 +1672,24 @@ class DamageModel(object):
         dmg_eval = pd.DataFrame(columns=capacity_sample.columns,
                                 index=capacity_sample.index)
 
-        dmg_eval = (capacity_sample.sub(demand, axis=0) < 0)
+        demand_df = []
+
+        for demand_name, demand_vals in demand_dict.items():
+
+            PG_list = EDP_req[demand_name]
+
+            PG_cols = pd.concat([dmg_eval.loc[:1, PG_i] for PG_i in PG_list],
+                                axis=1, keys=PG_list).columns
+
+            demand_df.append(pd.concat([pd.Series(demand_vals)]*len(PG_cols),
+                                       axis=1, keys=PG_cols))
+
+        demand_df = pd.concat(demand_df, axis=1)
+        demand_df.sort_index(axis=1, inplace=True)
+
+        dmg_eval = (capacity_sample - demand_df) < 0
+
+        dmg_eval.dropna(axis=1, inplace=True)
 
         # initialize the DataFrames that store the damage states and quantities
         ds_sample = capacity_sample.groupby(level=[0,1,2,3], axis=1).first()
