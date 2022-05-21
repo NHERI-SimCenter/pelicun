@@ -746,7 +746,7 @@ class RandomVariable(object):
     name: string
         A unique string that identifies the random variable.
     distribution: {'normal', 'lognormal', 'multinomial', 'custom', 'empirical',
-        'coupled_empirical', 'uniform'}, optional
+        'coupled_empirical', 'uniform', 'deterministic'}, optional
         Defines the type of probability distribution for the random variable.
     theta: float scalar or ndarray, optional
         Set of parameters that define the cumulative distribution function of
@@ -759,7 +759,8 @@ class RandomVariable(object):
         likelihood is adjusted automatically to ensure the likelihoods sum up
         to one);
         custom - according to the custom expression provided;
-        empirical and coupled_empirical - N/A.
+        empirical and coupled_empirical - N/A;
+        deterministic - the deterministic value assigned to the variable.
     truncation_limits: float ndarray, optional
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
@@ -789,6 +790,7 @@ class RandomVariable(object):
 
         if ((distribution not in ['empirical', 'coupled_empirical']) and
             (np.all(np.isnan(theta)))):
+
             raise ValueError(
                 f"A random variable that follows a {distribution} distribution "
                 f"is characterized by a set of parameters (theta). The "
@@ -837,7 +839,7 @@ class RandomVariable(object):
     @theta.setter
     def theta(self, value):
         """
-        Assign an anchor to the random variable
+        Define the parameters of the distribution of the random variable
         """
         self._theta = value
 
@@ -1101,6 +1103,14 @@ class RandomVariable(object):
             new_samples = np.tile(self._raw_samples,
                                   int(new_sample_count/raw_sample_count)+1)
             result = new_samples[:new_sample_count]
+        elif self.distribution == 'deterministic':
+
+            if sample_size is None:
+                raise ValueError(
+                    "Missing sample size information for sampling a "
+                    "deterministic random variable.")
+            else:
+                result = np.full(sample_size, self.theta)
 
         elif self.distribution == 'multinomial':
 
@@ -1385,10 +1395,12 @@ class RandomVariableRegistry(object):
         # Initialize the random number generator
         rng = options.rng
 
-        # Generate a dictionary with IDs of the free (non-anchored) variables
-        # TODO: add efficient determinstic option (for convenience)
+        # Generate a dictionary with IDs of the free (non-anchored and
+        # non-deterministic) variables
         RV_list = [RV_name for RV_name, RV in self.RV.items() if
-                   RV.anchor == RV]
+                   ((RV.anchor == RV) or
+                    (RV.distribution in ['deterministic',
+                                         'coupled_empirical']))]
         RV_ID = dict([(RV_name, ID) for ID, RV_name in enumerate(RV_list)])
         RV_count = len(RV_ID)
 
