@@ -1729,7 +1729,7 @@ class DamageModel(object):
 
         return ds_sample
 
-    def prepare_dmg_quantities(self, PG, ds_sample,
+    def prepare_dmg_quantities(self, PGB, ds_sample,
                                dropzero=True, dropempty=True):
         """
         Combine component quantity and damage state information in one DF.
@@ -1749,28 +1749,44 @@ class DamageModel(object):
 
         """
 
+        if options.verbose:
+            log_msg(f'Calculating damage quantities...',
+                    prepend_timestamp=True)
+
         # get the corresponding parts of the quantity and damage matrices
-        dmg_ds = ds_sample.loc[:, PG]
+        dmg_ds = ds_sample
 
-        cmp_qnt = self._asmnt.asset.cmp_sample.loc[:, PG].values
-        dmg_qnt = (dmg_ds*0.0).copy()
+        cmp_qnt = self._asmnt.asset.cmp_sample #.values
+        cmp_params = self._asmnt.asset.cmp_marginal_params
 
-        try:
-            blocks = self._asmnt.asset.cmp_marginal_params.loc[PG, 'Blocks']
-        except:
+        dmg_qnt = pd.concat(
+            [cmp_qnt[PG[:3]] for PG in dmg_ds.columns],
+            axis=1, keys=dmg_ds.columns)
+
+        block_weights = []
+
+        for PG in PGB.index:
+
             blocks = 1
+            if cmp_params is not None:
+                if 'Blocks' in cmp_params.columns:
 
-        # if the number of blocks is provided, calculate the weights
-        if np.atleast_1d(blocks).shape[0] == 1:
-            blocks = np.full(int(blocks), 1. / blocks)
-        # otherwise, assume that the list contains the weights
+                    blocks = cmp_params.loc[PG, 'Blocks']
 
-        for block_i, w_block in enumerate(blocks):
-            dmg_qnt.loc[:, str(block_i+1)] = cmp_qnt * w_block
+            # if the number of blocks is provided, calculate the weights
+            if np.atleast_1d(blocks).shape[0] == 1:
+                blocks = np.full(int(blocks), 1. / blocks)
+            # otherwise, assume that the list contains the weights
+
+            block_weights += blocks.tolist()
+
+        block_weights = np.broadcast_to(block_weights, (dmg_qnt.shape[0],
+                                                        len(block_weights)))
+
+        dmg_qnt *= block_weights
 
         # get the realized Damage States
-        # Note that these might be much fewer than all possible Damage
-        # States
+        # Note that these might be fewer than all possible Damage States
         ds_list = np.unique(dmg_ds.values)
         ds_list = np.array(ds_list[~np.isnan(ds_list)], dtype=int)
 
@@ -1780,19 +1796,27 @@ class DamageModel(object):
 
         # only perform this if there is at least one DS we are interested in
         if len(ds_list) > 0:
-            # initialize the shell for the result DF
-            dmg_q = pd.DataFrame(columns=dmg_ds.columns, index=dmg_ds.index)
 
             # collect damaged quantities in each DS and add it to res
-            res = pd.concat(
-                [dmg_q.mask(dmg_ds == ds_i, dmg_qnt, axis=0).sum(axis=1) for ds_i in ds_list],
-                axis=1, keys=[f'{ds_i:g}' for ds_i in ds_list])
+            res_list = [pd.DataFrame(
+                np.where(dmg_ds == ds_i, dmg_qnt, 0),
+                columns=dmg_ds.columns,
+                index=dmg_ds.index
+            ) for ds_i in ds_list]
 
-            # If requested, the blocks with no damage are dropped
+            res_df = pd.concat(res_list, axis=1,
+                            keys=[f'{ds_i:g}' for ds_i in ds_list])
+
+            # remove the DS level from the columns
+            res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 0, 4])
+            res_df = res_df.groupby(level=[0, 1, 2, 3], axis=1).sum()
+
+            dropempty = True
+            # If requested, the blocks with no damaged quantities are dropped
             if dropempty:
-                res.dropna(how='all', axis=1, inplace=True)
+                res_df = res_df.iloc[:, np.where(res_df.sum(axis=0) != 0)[0]]
 
-        return res
+        return res_df
 
     def _perform_dmg_task(self, task, qnt_sample):
         """
