@@ -1441,42 +1441,66 @@ class DamageModel(object):
                         # Otherwise, we are dealing with fragility functions
                         else:
 
-                            #                   cmp_id  loc     dir     block
-                            frg_rv_tag = f'FRG-{PG[0]}-{PG[1]}-{PG[2]}-{block_i+1}-{ls_id}'
+                            for block_i, __ in enumerate(blocks):
 
-                            # If the limit state is deterministic, we use an
-                            # empirical RV - this is rare
-                            if family is None:
+                                #                   cmp_id  loc     dir     block
+                                frg_rv_tag = f'FRG-{PG[0]}-{PG[1]}-{PG[2]}-{block_i+1}-{ls_id}'
+
+                                # Assign correlation between limit state random
+                                # variables
+                                # Note that we assume perfectly correlated limit
+                                # state random variables here. This approach is in
+                                # line with how mainstream PBE calculations are
+                                # performed. Assigning more sophisticated
+                                # correlations between limit state RVs is possible,
+                                # if needed. Please let us know through the
+                                # SimCenter Message Board if you are interested in
+                                # such a feature.
+                                # Anchor all other limit state random variables to
+                                # the first one to consider the perfect correlation
+                                # between capacities in each LS
+                                if ls_id == limit_states[0]:
+                                    anchor = None
+                                else:
+                                    anchor = anchor_RVs[block_i]
+
+                                # If the limit state is deterministic, we use an
+                                # empirical RV - this is rare
+                                if family is None:
 
                                     RV = RandomVariable(
                                         name=frg_rv_tag,
                                         distribution='deterministic',
                                         theta = theta_0)
-                                ))
 
-                            # In all other cases, RVs have parameters of their
-                            # distributions defined in the input table
-                            else:
+                                # In all other cases, RVs have parameters of their
+                                # distributions defined in the input table
+                                else:
 
-                                capacity_RV_reg.add_RV(RandomVariable(
-                                    name=frg_rv_tag,
-                                    distribution=family,
-                                    theta=[theta_0, theta_1],
-                                ))
+                                    RV = RandomVariable(
+                                        name=frg_rv_tag,
+                                        distribution=family,
+                                        theta=[theta_0, theta_1],
+                                        anchor = anchor)
 
-                            # add the RV to the set of correlated variables
-                            frg_rv_set_tags.append(frg_rv_tag)
+                                capacity_RV_reg.add_RV(RV)
 
-                            # Now add the LS->DS assignments
-                            #                     cmp_id  loc     dir     block
-                            lsds_rv_tag = f'LSDS-{PG[0]}-{PG[1]}-{PG[2]}-{block_i+1}-{ls_id}'
+                                # add the RV to the set of correlated variables
+                                frg_rv_set_tags[block_i].append(frg_rv_tag)
 
-                            ds_id = assign_lsds(
-                                ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
+                                if ls_id == limit_states[0]:
+                                    anchor_RVs.append(RV)
 
-                            rv_count += 1
+                                # Now add the LS->DS assignments
+                                #                     cmp_id  loc     dir     block
+                                lsds_rv_tag = f'LSDS-{PG[0]}-{PG[1]}-{PG[2]}-{block_i+1}-{ls_id}'
 
-                # Assign correlation between limit state random variables
+                                ds_id_next = assign_lsds(
+                                    ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
+
+                                rv_count += 1
+
+                            ds_id = ds_id_next
                 # Note that we assume perfectly correlated limit state random
                 # variables here. This approach is in line with how mainstream
                 # PBE calculations are performed.
