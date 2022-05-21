@@ -1973,6 +1973,66 @@ class DamageModel(object):
 
         return qnt_sample
 
+    def _get_pg_batches(self, block_batch_size):
+        """
+        Group performance groups into batches for efficient damage assessment.
+
+        """
+
+        cmp_marginals = self._asmnt.asset.cmp_marginal_params
+        pg_batch = None
+        if cmp_marginals is not None:
+
+            if 'Blocks' in cmp_marginals.columns:
+                pg_batch = cmp_marginals['Blocks'].to_frame()
+
+        if pg_batch is None:
+            cmp_sample = self._asmnt.asset.cmp_sample
+            pg_batch = pd.DataFrame(np.ones(cmp_sample.shape[1]),
+                                    index=cmp_sample.columns,
+                                    columns=['Blocks'])
+
+        for pg_i in pg_batch.index:
+
+            blocks_i = pg_batch.loc[pg_i, 'Blocks']
+
+            # if a list of block weights is provided get the number of blocks
+            if np.atleast_1d(blocks_i).shape[0] != 1:
+                blocks_i = np.atleast_1d(blocks_i).shape[0]
+
+            pg_batch.loc[pg_i, 'Blocks'] = blocks_i
+
+        pg_batch = pg_batch.convert_dtypes()
+
+        pg_batch = pg_batch.groupby(['loc', 'dir', 'cmp']).sum()
+        pg_batch.sort_index(axis=0, inplace=True)
+
+        pg_batch['CBlocks'] = np.cumsum(pg_batch['Blocks'].values.astype(int))
+        pg_batch['Batch'] = 0
+
+        for batch_i in range(1, pg_batch.shape[0] + 1):
+
+            batch_mask = np.all(
+                np.array([pg_batch['CBlocks'] < block_batch_size,
+                          pg_batch['CBlocks'] > 0]),
+                axis=0)
+
+            if np.sum(batch_mask) < 1:
+                batch_mask = np.full(batch_mask.shape, False)
+                batch_mask[np.where(pg_batch['CBlocks'] > 0)[0][0]] = True
+
+            pg_batch.loc[batch_mask, 'Batch'] = batch_i
+
+            pg_batch['CBlocks'] -= pg_batch.loc[
+                pg_batch['Batch'] == batch_i, 'CBlocks'].max()
+
+            if pg_batch['CBlocks'].max() == 0:
+                break
+
+        pg_batch = pg_batch.groupby(
+            ['Batch', 'cmp', 'loc', 'dir']).sum().loc[:, 'Blocks'].to_frame()
+
+        return pg_batch
 
     def calculate(self, dmg_process=None, block_batch_size=1000):
         """
