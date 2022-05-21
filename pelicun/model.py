@@ -1824,8 +1824,9 @@ class DamageModel(object):
 
         """
 
-        log_msg(f'Applying task from prescribed damage process...',
-                prepend_timestamp=False)
+        if options.verbose:
+            log_msg(f'Applying task...',
+                    prepend_timestamp=True)
 
         # get the list of available components
         cmp_list = qnt_sample.columns.get_level_values(0).unique().tolist()
@@ -1948,8 +1949,9 @@ class DamageModel(object):
                     raise ValueError(f"Unable to parse target event in damage "
                                      f"process: {target_event}")
 
-        log_msg(f'Damage process task successfully applied.',
-                prepend_timestamp=False)
+        if options.verbose:
+            log_msg(f'Damage process task successfully applied.',
+                    prepend_timestamp=False)
 
         return qnt_sample
 
@@ -2128,7 +2130,12 @@ class DamageModel(object):
         # get the list of performance groups
         qnt_samples = []
 
-        for PG_i in self._asmnt.asset.cmp_sample.columns:
+        log_msg(f'Number of Performance Groups:'
+                f' {self._asmnt.asset.cmp_sample.shape[1]}',
+                prepend_timestamp=False)
+
+        pg_batch = self._get_pg_batches(block_batch_size)
+        batches = pg_batch.index.get_level_values(0).unique()
 
         log_msg(f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
                 prepend_timestamp=False)
@@ -2137,6 +2144,11 @@ class DamageModel(object):
                 f"for damage assessment",
                 prepend_timestamp=False)
 
+        #for PG_i in self._asmnt.asset.cmp_sample.columns:
+        for PGB_i in batches:
+
+            PGB = pg_batch.loc[PGB_i]
+
             log_msg(f"Calculating damage for PG batch {PGB_i} with "
                     f"{int(PGB['Blocks'].sum())} blocks")
 
@@ -2144,24 +2156,26 @@ class DamageModel(object):
             # generate a second array that assigns a specific damage state to
             # each component limit state. The latter is primarily needed to
             # handle limit states with multiple, mutually exclusive DS options
-            capacity_sample, lsds_sample = self._generate_dmg_sample(sample_size, PG_i)
+            capacity_sample, lsds_sample = self._generate_dmg_sample(sample_size, PGB)
 
             # Get the required demand types for the analysis
-            EDP_req = self.get_required_demand_type(PG_i)
+            EDP_req = self.get_required_demand_type(PGB)
 
             # Create the demand vector
-            demand = self._assemble_required_demand_data(EDP_req)
+            demand_dict = self._assemble_required_demand_data(EDP_req)
 
             # Evaluate the Damage State of each Component Block
-            ds_sample = self._evaluate_damage_state(demand, capacity_sample, lsds_sample)
+            ds_sample = self._evaluate_damage_state(demand_dict, EDP_req,
+                                                    capacity_sample, lsds_sample)
 
-            qnt_sample = self.prepare_dmg_quantities(PG_i, ds_sample,
-                                                     dropzero=False, dropempty=False)
+            qnt_sample = self.prepare_dmg_quantities(PGB, ds_sample,
+                                                     dropzero=False,
+                                                     dropempty=False)
 
             qnt_samples.append(qnt_sample)
 
-        qnt_sample = pd.concat(qnt_samples, axis=1,
-                                    keys=self._asmnt.asset.cmp_sample.columns)
+        qnt_sample = pd.concat(qnt_samples, axis=1)
+        qnt_sample.sort_index(axis=1, inplace=True)
 
         log_msg(f"Raw damage calculation successful.",
                 prepend_timestamp=False)
