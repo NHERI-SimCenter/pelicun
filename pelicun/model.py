@@ -968,7 +968,7 @@ class AssetModel(object):
             ], dtype=object)
 
         log_msg(f"Model parameters successfully parsed. "
-                f"{cmp_marginal_params.shape[0]} component blocks identified",
+                f"{cmp_marginal_params.shape[0]} performance groups identified",
                 prepend_timestamp=False)
 
         # Now we can take care of converting the values to SI units
@@ -1314,8 +1314,8 @@ class DamageModel(object):
             return ds_id
 
         if options.verbose:
-            log_msg(f'Generating capacity variables for {PG}...',
-                    prepend_timestamp=False)
+            log_msg(f'Generating capacity variables ...',
+                    prepend_timestamp=True)
 
         # initialize the registry
         capacity_RV_reg = RandomVariableRegistry()
@@ -1515,6 +1515,10 @@ class DamageModel(object):
 
         lsds_RVs.generate_sample(sample_size=sample_size)
 
+        if options.verbose:
+            log_msg(f"Raw samples are available",
+                    prepend_timestamp=True)
+
         # get the capacity and lsds samples
         capacity_sample = pd.DataFrame(
             capacity_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1)
@@ -1525,8 +1529,8 @@ class DamageModel(object):
         lsds_sample = convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
 
         if options.verbose:
-            log_msg(f"\nSuccessfully generated {sample_size} realizations.",
-                    prepend_timestamp=False)
+            log_msg(f"Successfully generated {sample_size} realizations.",
+                    prepend_timestamp=True)
 
         return capacity_sample, lsds_sample
 
@@ -1631,7 +1635,7 @@ class DamageModel(object):
         """
 
         if options.verbose:
-            log_msg(f'Evaluating damage states...', prepend_timestamp=False)
+            log_msg(f'Evaluating damage states...', prepend_timestamp=True)
 
         dmg_eval = pd.DataFrame(columns=capacity_sample.columns,
                                 index=capacity_sample.index)
@@ -1673,10 +1677,6 @@ class DamageModel(object):
             # damage states.
             ds_sample.loc[:, dmg_e_ls.columns] = (
                 ds_sample.loc[:, dmg_e_ls.columns].mask(dmg_e_ls, lsds))
-
-        if options.verbose:
-            log_msg(f'Damage state evaluation successful.',
-                    prepend_timestamp=False)
 
         return ds_sample
 
@@ -1997,6 +1997,16 @@ class DamageModel(object):
 
         for PG_i in self._asmnt.asset.cmp_sample.columns:
 
+        log_msg(f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
+                prepend_timestamp=False)
+
+        log_msg(f"{len(batches)} batches of Performance Groups prepared "
+                f"for damage assessment",
+                prepend_timestamp=False)
+
+            log_msg(f"Calculating damage for PG batch {PGB_i} with "
+                    f"{int(PGB['Blocks'].sum())} blocks")
+
             # Generate an array with component capacities for each block and
             # generate a second array that assigns a specific damage state to
             # each component limit state. The latter is primarily needed to
@@ -2020,24 +2030,35 @@ class DamageModel(object):
         qnt_sample = pd.concat(qnt_samples, axis=1,
                                     keys=self._asmnt.asset.cmp_sample.columns)
 
+        log_msg(f"Raw damage calculation successful.",
+                prepend_timestamp=False)
+
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
+            log_msg(f"Applying damage processes...")
 
             for task in dmg_process.items():
 
                 qnt_sample = self._perform_dmg_task(task, qnt_sample)
+
+            log_msg(f"Damage processes successfully applied.",
+                    prepend_timestamp=False)
 
         # Apply damage functions, if any
         # The scale factors are a good proxy to show that damage functions are
         # used in the analysis
         if self._dmg_function_scale_factors is not None:
 
+            log_msg(f"Applying damage functions...")
+
             qnt_sample = self._apply_damage_functions(EDP_req, demand, qnt_sample)
+
+            log_msg(f"Damage functions successfully applied.",
+                    prepend_timestamp=False)
 
         self._sample = qnt_sample
 
-        log_msg(f'Damage calculation successfully completed.',
-                prepend_timestamp=False)
+        log_msg(f'Damage calculation successfully completed.')
 
 
 class LossModel(object):
