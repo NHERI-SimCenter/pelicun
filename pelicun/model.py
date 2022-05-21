@@ -1026,8 +1026,8 @@ class AssetModel(object):
                 # we use an empirical RV to generate deterministic values
                 RV_reg.add_RV(RandomVariable(
                     name=rv_tag,
-                    distribution='empirical',
-                    raw_samples=np.ones(10000) * rv_params.Theta_0
+                    distribution='deterministic',
+                    theta = rv_params.Theta_0
                 ))
 
             else:
@@ -1284,8 +1284,8 @@ class DamageModel(object):
 
                 lsds_RV_reg.add_RV(RandomVariable(
                     name=lsds_rv_tag,
-                    distribution='empirical',
-                    raw_samples=np.ones(10000) * ds_id
+                    distribution='deterministic',
+                    theta=ds_id,
                 ))
 
             # Otherwise, we create a multinomial random variable
@@ -1407,11 +1407,11 @@ class DamageModel(object):
                                 else:
                                     sample = np.ones(10000) * np.nextafter(np.inf,-1)
 
-                                capacity_RV_reg.add_RV(RandomVariable(
-                                    name=frg_rv_tag,
-                                    distribution='empirical',
-                                    raw_samples=sample
-                                ))
+                                    capacity_RV_reg.add_RV(RandomVariable(
+                                        name=frg_rv_tag,
+                                        distribution='deterministic',
+                                        theta = target_value
+                                    ))
 
                                 # Now add the LS->DS assignments
                                 #                     cmp_id  loc     dir     block
@@ -1445,10 +1445,10 @@ class DamageModel(object):
                             # empirical RV - this is rare
                             if family is None:
 
-                                capacity_RV_reg.add_RV(RandomVariable(
-                                    name=frg_rv_tag,
-                                    distribution='empirical',
-                                    raw_samples=np.ones(10000) * theta_0
+                                    RV = RandomVariable(
+                                        name=frg_rv_tag,
+                                        distribution='deterministic',
+                                        theta = theta_0)
                                 ))
 
                             # In all other cases, RVs have parameters of their
