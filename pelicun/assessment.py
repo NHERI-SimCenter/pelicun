@@ -52,8 +52,6 @@ from .base import *
 from .file_io import *
 from .model import *
 
-load_default_options()
-
 class Assessment(object):
     """
     Assessment objects manage the models, data, and calculations in pelicun.
@@ -72,7 +70,11 @@ class Assessment(object):
         Number of stories.
     """
 
-    def __init__(self):
+    def __init__(self, config_options=None):
+
+        load_default_options()
+
+        set_options(merge_default_config(config_options))
 
         log_msg(f'pelicun {pelicun_version} | \n',
                 prepend_timestamp=False, prepend_blank_space=False)
@@ -139,3 +141,37 @@ class Assessment(object):
         else:
             self._bldg_repair = BldgRepairModel(self)
             return self.bldg_repair
+
+    def get_default_data(self, data_name):
+        """
+        Load a default data file and pass it to the user.
+
+        Parameters
+        ----------
+        data_name: string
+            Name of the csv file to be loaded
+
+        """
+
+        data_path = str(pelicun_path)+'/resources/'+data_name+'.csv'
+
+        return load_data(data_path, orientation=1, reindex=False, convert=[])
+
+
+    def get_default_metadata(self, data_name):
+        """
+        Load a default metadata file and pass it to the user.
+
+        Parameters
+        ----------
+        data_name: string
+            Name of the json file to be loaded
+
+        """
+
+        data_path = str(pelicun_path) + '/resources/' + data_name + '.json'
+
+        with open(data_path, 'r') as f:
+            data = json.load(f)
+
+        return data

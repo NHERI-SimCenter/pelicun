@@ -17,7 +17,7 @@
       "AcrossFloors": true,
       "AcrossDamageStates": false
     },
-    "RepairCostAndTimeCorrelation": 1.0
+    "RepairCostAndTimeCorrelation": 0.0
   },
   "DemandAssessment": {
     "Calibration": {

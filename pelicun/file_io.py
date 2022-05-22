@@ -46,14 +46,14 @@ This module has classes and methods that handle file input and output.
 
 .. autosummary::
 
-    read_SimCenter_DL_input
-    read_SimCenter_EDP_input
-    read_population_distribution
-    read_component_DL_data
-    write_SimCenter_DL_output
-    write_SimCenter_EDP_output
-    write_SimCenter_DM_output
-    write_SimCenter_DV_output
+    float_or_None
+    int_or_None
+    process_loc
+    get_required_resources
+    load_default_options
+    merge_default_config
+    save_to_csv
+    load_data
 
 """
 
@@ -216,61 +216,67 @@ def merge_default_config(config):
 
     defaults = options.defaults
 
-    if config.get('DemandAssessment', False):
+    if config is not None:
 
-        demand_def = defaults['DemandAssessment']
-        demand_config = config['DemandAssessment']
+        if config.get('DemandAssessment', False):
 
-        if 'Calibration' in demand_config.keys():
+            demand_def = defaults['DemandAssessment']
+            demand_config = config['DemandAssessment']
 
-            calib_config = demand_config['Calibration']
-            calib_def = demand_def['Calibration']
+            if 'Calibration' in demand_config.keys():
 
-            for key, value in calib_def.items():
+                calib_config = demand_config['Calibration']
+                calib_def = demand_def['Calibration']
 
-                if key in ['Marginals',]:
-                    continue
+                for key, value in calib_def.items():
 
-                if key not in calib_def:
-                    calib_def.update({key: value})
+                    if key in ['Marginals',]:
+                        continue
 
-            marginal_config = calib_config['Marginals']
-            marginal_def = calib_def['Marginals']
+                    if key not in calib_def:
+                        calib_def.update({key: value})
 
-            for key, value in marginal_def.items():
+                marginal_config = calib_config['Marginals']
+                marginal_def = calib_def['Marginals']
 
-                if key not in marginal_config:
-                    marginal_config.update({key: value})
+                for key, value in marginal_def.items():
 
-        if 'Sampling' in demand_config.keys():
+                    if key not in marginal_config:
+                        marginal_config.update({key: value})
 
-            sample_config = demand_config['Sampling']
+            if 'Sampling' in demand_config.keys():
 
-            for key, value in demand_def['Sampling'].items():
+                sample_config = demand_config['Sampling']
 
-                if key not in sample_config:
-                    sample_config.update({key: value})
+                for key, value in demand_def['Sampling'].items():
 
-        if 'OutputUnits' in demand_def.keys():
+                    if key not in sample_config:
+                        sample_config.update({key: value})
 
-            if 'OutputUnits' not in demand_config.keys():
-                demand_config.update({'OutputUnits': {}})
+            if 'OutputUnits' in demand_def.keys():
 
-            for key, value in demand_def['OutputUnits'].items():
+                if 'OutputUnits' not in demand_config.keys():
+                    demand_config.update({'OutputUnits': {}})
 
-                if key not in demand_config['OutputUnits']:
-                    demand_config['OutputUnits'].update({key: value})
+                for key, value in demand_def['OutputUnits'].items():
+
+                    if key not in demand_config['OutputUnits']:
+                        demand_config['OutputUnits'].update({key: value})
+
+    else:
+        config = defaults
 
     return config
 
 
-def save_to_csv(data, filepath, units=None, orientation=0):
+def save_to_csv(data, filepath, units=None, orientation=0,
+                use_simpleindex=True):
     """
     Saves data to a CSV file following standard SimCenter schema.
 
     The produced CSV files have a single header line and an index column. The
-    second line may start with 'units' in the index or the first column may be
-    'units' to provide the units for the data in the file.
+    second line may start with 'Units' in the index or the first column may be
+    'Units' to provide the units for the data in the file.
 
     The following data types in pelicun can be saved with this function:
 
@@ -285,7 +291,8 @@ def save_to_csv(data, filepath, units=None, orientation=0):
     data: DataFrame
         The data to save
     filepath: string
-        The location of the destination file
+        The location of the destination file. If None, the data is not saved,
+        but returned in the end.
     units: Series, optional
         Provides a Series with variables and corresponding units.
     level: string, optional
@@ -295,12 +302,16 @@ def save_to_csv(data, filepath, units=None, orientation=0):
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
         prescribed units.
-
+    use_simpleindex: bool, default: True
+        If True, MultiIndex columns and indexes are converted to SimpleIndex
+        before saving
     """
 
-    log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+    if filepath is None:
+        log_msg(f'Preparing data ...', prepend_timestamp=False)
 
-    filepath = Path(filepath).resolve()
+    else:
+        log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
 
@@ -356,53 +367,53 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
             log_msg(f'Unit conversion successful.', prepend_timestamp=False)
 
-        # convert MultiIndex to regular index with '-' separators
-        if isinstance(data.index, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data)
+        if use_simpleindex:
+            # convert MultiIndex to regular index with '-' separators
+            if isinstance(data.index, pd.MultiIndex):
+                data = convert_to_SimpleIndex(data)
 
-        # same thing for the columns
-        if isinstance(data.columns, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data, axis=1)
+            # same thing for the columns
+            if isinstance(data.columns, pd.MultiIndex):
+                data = convert_to_SimpleIndex(data, axis=1)
 
-        if filepath.suffix == '.csv':
+        if filepath is not None:
 
-            # save the contents of the DataFrame into a csv
+            filepath = Path(filepath).resolve()
+            if filepath.suffix == '.csv':
 
-            data.to_csv(filepath)
+                # save the contents of the DataFrame into a csv
+                data.to_csv(filepath)
 
-            log_msg(f'Data successfully saved to file.',
-                    prepend_timestamp=False)
+                log_msg(f'Data successfully saved to file.',
+                        prepend_timestamp=False)
+
+            else:
+                raise ValueError(
+                    f'ERROR: Unexpected file type received when trying '
+                    f'to save to csv: {filepath}')
 
         else:
-            raise ValueError(
-                f'ERROR: Unexpected file type received when trying '
-                f'to save to csv: {filepath}')
+            return data
 
     else:
         log_msg(f'WARNING: Data was empty, no file saved.',
                 prepend_timestamp=False)
 
-def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
-                  convert=None):
+def load_data(data_source, orientation=0, reindex=True, return_units=False,
+              convert=None):
     """
-    Loads data from a CSV file assuming it follows standard SimCenter schema.
+    Loads data assuming it follows standard SimCenter tabular schema.
 
-    CSV files are assumed to have a single header line and an index column. The
-    second line may start with 'units' in the index and provide the units for
+    The data is assumed to have a single header line and an index column. The
+    second line may start with 'Units' in the index and provide the units for
     each column in the file.
-
-    The following data types can be loaded with this function:
-
-    Demand Data: Each column in a table corresponds to a demand type; each
-    row corresponds to a simulation/sample. The header identifies each demand
-    type. The user guide section of the documentation provides more
-    information about the header format. Units need to be specified in the
-    second row of the file.
 
     Parameters
     ----------
-    filepath: string
-        The location of the source file
+    data_source: string or DataFrame
+        If it is a string, the data_source is assumed to point to the location
+        of the source file. If it is a DataFrame, the data_source is assumed to
+        hold the raw data.
     orientation: int, {0, 1}, default: 0
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
@@ -412,57 +423,50 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
     return_units: bool
         If True, returns the units as well as the data to allow for adjustments
         in unit conversion.
+    convert: list of string
+        Specifies the columns (or rows if orientation==1) where unit conversion
+        needs to be applied.
 
     Returns
     -------
     data: DataFrame
-        Data loaded from the file.
+        Parsed data.
     units: Series
-        Labels from the data and corresponding units specified in the file. If
-        no units are specified, this return value is "None". units are only
-        returned if return_units is set to True.
+        Labels from the data and corresponding units specified. If no units
+        are specified, this return value is "None". units are only returned if
+        return_units is set to True.
     """
 
-    log_msg(f'Loading data from {filepath}...')
+    # if the provided data_source is already a DataFrame...
+    if isinstance(data_source, pd.DataFrame):
 
-    # check if the filepath is valid
-    filepath = Path(filepath).resolve()
-
-    if not filepath.is_file():
-        raise ValueError(f"The filepath provided does not point to an existing "
-                         f"file: {filepath}")
-
-    if filepath.suffix == '.csv':
-
-        # load the contents of the csv into a DataFrame
-
-        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
-
-        log_msg(f'File successfully opened.', prepend_timestamp=False)
+        # we can just store it at proceed
+        # (copying is needed to avoid changing the original)
+        data = data_source.copy()
 
     else:
-        raise ValueError(f'ERROR: Unexpected file type received when trying '
-                         f'to load from csv: {filepath}')
+        # otherwise, load the data from a file
+        data = load_from_file(data_source)
 
     # if there is information about units, perform the conversion to SI
-    if (data.index[0] == 'units') or (data.columns[0] == 'units'):
+    if ('Units' in data.index) or ('Units' in data.columns):
 
         log_msg(f'Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
-            units = data.loc['units',:].copy().dropna()
-            data.drop('units', inplace=True)
+            units = data.loc['Units', :].copy().dropna()
+            data.drop('Units', inplace=True)
             data = data.astype(float)
 
-        else:  #elif orientation==1:
-            units = data.loc[:, 'units'].copy().dropna()
-            data.drop('units', axis=1, inplace=True)
+        else:  # elif orientation==1:
+            units = data.loc[:, 'Units'].copy().dropna()
+            data.drop('Units', axis=1, inplace=True)
 
             if convert is None:
                 cols_to_scale = []
                 for col in data.columns:
                     try:
-                        data.loc[:, col] = data.loc[:,col].astype(float)
+                        data.loc[:, col] = data.loc[:, col].astype(float)
                         cols_to_scale.append(col)
                     except:
                         pass
@@ -474,12 +478,12 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
         for unit_name in unique_unit_names:
 
             unit_factor = globals()[unit_name]
-            unit_labels = units.loc[units==unit_name].index
+            unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
-                data.loc[:,unit_labels] *= unit_factor
+                data.loc[:, unit_labels] *= unit_factor
 
-            else:  #elif orientation==1:
+            else:  # elif orientation==1:
                 data.loc[unit_labels, cols_to_scale] *= unit_factor
 
         log_msg(f'Unit conversion successful.', prepend_timestamp=False)
@@ -529,3 +533,44 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
     else:
         return data
+
+def load_from_file(filepath):
+    """
+    Loads data from a file and stores it in a DataFrame.
+
+    Currently, only CSV files are supported, but the function is easily
+    extensible to support other file formats.
+
+    Parameters
+    ----------
+    filepath: string
+        The location of the source file
+
+    Returns
+    -------
+    data: DataFrame
+        Data loaded from the file.
+    """
+
+    log_msg(f'Loading data from {filepath}...')
+
+    # check if the filepath is valid
+    filepath = Path(filepath).resolve()
+
+    if not filepath.is_file():
+        raise ValueError(f"The filepath provided does not point to an existing "
+                         f"file: {filepath}")
+
+    if filepath.suffix == '.csv':
+
+        # load the contents of the csv into a DataFrame
+
+        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
+
+        log_msg(f'File successfully opened.', prepend_timestamp=False)
+
+    else:
+        raise ValueError(f'ERROR: Unexpected file type received when trying '
+                         f'to load from csv: {filepath}')
+
+    return data

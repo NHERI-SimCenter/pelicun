@@ -40,6 +40,24 @@
 """
 This module defines constants, basic classes and methods for pelicun.
 
+.. rubric:: Contents
+
+.. autosummary::
+
+    set_options
+    convert_to_SimpleIndex
+    convert_to_MultiIndex
+    convert_unit
+    show_matrix
+    show_warning
+    print_system_info
+    log_div
+    log_msg
+    describe
+    str2bool
+
+    Options
+
 """
 
 import os, sys, time
@@ -167,6 +185,7 @@ class Options(object):
 
         if value is None:
             globals()['log_file'] = value
+
         else:
 
             filepath = Path(value).resolve()
@@ -248,7 +267,7 @@ def set_options(config_options):
             elif key == "EconomiesOfScale":
                 options.eco_scale = value
 
-def convert_to_SimpleIndex(data, axis=0):
+def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a simple, one-level index
 
@@ -259,8 +278,11 @@ def convert_to_SimpleIndex(data, axis=0):
     ----------
     data: DataFrame
         The DataFrame that will be modified.
-    axis: int
+    axis: int, optional, default:0
         Identifies if the index (0) or the columns (1) shall be edited.
+    inplace: bool, optional, default:False
+        If yes, the operation is performed directly on the input DataFrame
+        and not on a copy of it.
 
     Returns
     -------
@@ -268,24 +290,35 @@ def convert_to_SimpleIndex(data, axis=0):
         The modified DataFrame
     """
 
+    if axis in [0, 1]:
 
+        if inplace:
+            data_mod = data
+        else:
+            data_mod = data.copy()
 
-    if axis == 0:
-        simple_index = ['-'.join([str(id_i) for id_i in id])
-                        for id in data.index]
-        data.index = simple_index
+        if axis == 0:
+            simple_name = '-'.join([n if n is not None else "" for n in data.index.names])
+            simple_index = ['-'.join([str(id_i) for id_i in id])
+                            for id in data.index]
 
-    elif axis == 1:
-        simple_index = ['-'.join([str(id_i) for id_i in id])
-                        for id in data.columns]
-        data.columns = simple_index
+            data_mod.index = simple_index
+            data_mod.index.name = simple_name
+
+        elif axis == 1:
+            simple_name = '-'.join([n if n is not None else "" for n in data.columns.names])
+            simple_index = ['-'.join([str(id_i) for id_i in id])
+                            for id in data.columns]
+
+            data_mod.columns = simple_index
+            data_mod.columns.name = simple_name
 
     else:
         raise ValueError(f"Invalid axis parameter: {axis}")
 
-    return data
+    return data_mod
 
-def convert_to_MultiIndex(data, axis=0):
+def convert_to_MultiIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a MultiIndex
 
@@ -297,8 +330,11 @@ def convert_to_MultiIndex(data, axis=0):
     ----------
     data: DataFrame
         The DataFrame that will be modified.
-    axis: int
+    axis: int, optional, default:0
         Identifies if the index (0) or the columns (1) shall be edited.
+    inplace: bool, optional, default:False
+        If yes, the operation is performed directly on the input DataFrame
+        and not on a copy of it.
 
     Returns
     -------
@@ -306,11 +342,18 @@ def convert_to_MultiIndex(data, axis=0):
         The modified DataFrame
     """
 
+    # check if the requested axis is already a MultiIndex
+    if (((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or
+        ((axis == 1) and (isinstance(data.columns, pd.MultiIndex)))):
+
+        # if yes, return the data unchanged
+        return data
+
     if axis == 0:
-        index_labels = [label.split('-') for label in data.index]
+        index_labels = [str(label).split('-') for label in data.index]
 
     elif axis == 1:
-        index_labels = [label.split('-') for label in data.columns]
+        index_labels = [str(label).split('-') for label in data.columns]
 
     else:
         raise ValueError(f"Invalid axis parameter: {axis}")
@@ -327,13 +370,21 @@ def convert_to_MultiIndex(data, axis=0):
 
     if index_labels.shape[1] > 1:
 
+        if inplace:
+            data_mod = data
+        else:
+            data_mod = data.copy()
+
         if axis == 0:
-            data.index = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.index = pd.MultiIndex.from_arrays(index_labels.T)
 
         else:
-            data.columns = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.columns = pd.MultiIndex.from_arrays(index_labels.T)
 
-    return data
+        return data_mod
+
+    else:
+        return data
 
 def convert_unit(value, unit):
     """
@@ -484,44 +535,27 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
             with open(globals()['log_file'], 'a') as f:
                 f.write('\n'+formatted_msg)
 
-def describe(df):
+def describe(df, percentiles=[0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
+                              0.977, 0.999]):
 
-    if isinstance(df, (pd.Series, pd.DataFrame)):
-        vals = df.values
-        if isinstance(df, pd.DataFrame):
-            cols = df.columns
-        elif df.name is not None:
-            cols = df.name
-        else:
-            cols = 0
-    else:
+    if not isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df
         cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
 
-    if vals.ndim == 1:
-        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90])
-        desc = pd.Series({
-            'count': np.sum(~np.isnan(vals)),
-            'mean': np.nanmean(vals),
-            'std': np.nanstd(vals),
-            'min': np.nanmin(vals),
-            '10%': df_10,
-            '50%': df_50,
-            '90%': df_90,
-            'max': np.nanmax(vals),
-        }, name=cols)
-    else:
-        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90], axis=0)
-        desc = pd.DataFrame({
-            'count': np.sum(~np.isnan(vals), axis=0),
-            'mean': np.nanmean(vals, axis=0),
-            'std': np.nanstd(vals, axis=0),
-            'min': np.nanmin(vals, axis=0),
-            '10%': df_10,
-            '50%': df_50,
-            '90%': df_90,
-            'max': np.nanmax(vals, axis=0),
-        }, index=cols).T
+        if vals.ndim == 1:
+            df = pd.Series(vals, name=cols)
+        else:
+            df = pd.DataFrame(vals, columns = cols)
+
+    desc = df.describe(percentiles).T
+
+    # add log standard deviation to the stats
+    desc.insert(3, "log_std", np.nan)
+    desc = desc.T
+
+    for col in desc.columns:
+        if np.min(df[col])>0.0:
+            desc.loc['log_std', col] = np.std(np.log(df[col]))
 
     return desc
 

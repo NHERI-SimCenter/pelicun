@@ -47,6 +47,8 @@ quantification in pelicun.
 
     mvn_orthotope_density
     fit_distribution_to_sample
+    fit_distribution_to_percentiles
+
     RandomVariable
     RandomVariableSet
     RandomVariableRegistry
@@ -639,13 +641,17 @@ def fit_distribution_to_sample(raw_samples, distribution,
                 "the correlation matrix. Assuming uncorrelated demands.",
                 prepend_timestamp=False, prepend_blank_space=False)
 
-    # Convert mean back to linear space if the distribution is lognormal
+
     for d_i, distribution in enumerate(dist_list):
+        # Convert mean back to linear space if the distribution is lognormal
         if distribution == 'lognormal':
             theta[d_i][0] = np.exp(theta[d_i][0])
             #theta_mod = theta.T.copy()
             #theta_mod[0] = np.exp(theta_mod[0])
             #theta = theta_mod.T
+        # Convert the std to cov if the distribution is normal
+        elif distribution == 'normal':
+            theta[d_i][1] = theta[d_i][1] / np.abs(theta[d_i][0])
 
     #for val in list(zip(inits_0, theta)):
     #    print(val)
@@ -740,7 +746,7 @@ class RandomVariable(object):
     name: string
         A unique string that identifies the random variable.
     distribution: {'normal', 'lognormal', 'multinomial', 'custom', 'empirical',
-        'coupled_empirical', 'uniform'}, optional
+        'coupled_empirical', 'uniform', 'deterministic'}, optional
         Defines the type of probability distribution for the random variable.
     theta: float scalar or ndarray, optional
         Set of parameters that define the cumulative distribution function of
@@ -753,7 +759,8 @@ class RandomVariable(object):
         likelihood is adjusted automatically to ensure the likelihoods sum up
         to one);
         custom - according to the custom expression provided;
-        empirical and coupled_empirical - N/A.
+        empirical and coupled_empirical - N/A;
+        deterministic - the deterministic value assigned to the variable.
     truncation_limits: float ndarray, optional
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
@@ -783,6 +790,7 @@ class RandomVariable(object):
 
         if ((distribution not in ['empirical', 'coupled_empirical']) and
             (np.all(np.isnan(theta)))):
+
             raise ValueError(
                 f"A random variable that follows a {distribution} distribution "
                 f"is characterized by a set of parameters (theta). The "
@@ -831,7 +839,7 @@ class RandomVariable(object):
     @theta.setter
     def theta(self, value):
         """
-        Assign an anchor to the random variable
+        Define the parameters of the distribution of the random variable
         """
         self._theta = value
 
@@ -942,7 +950,8 @@ class RandomVariable(object):
         result = None
 
         if self.distribution == 'normal':
-            mu, sig = self.theta
+            mu, cov = self.theta
+            sig = np.abs(mu)*cov
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -1010,110 +1019,162 @@ class RandomVariable(object):
         return result
 
 
-    def inverse_transform(self, values):
+    def inverse_transform(self, values=None, sample_size=None):
         """
         Uses inverse probability integral transformation on the provided values.
         """
         result = None
 
         if self.distribution == 'normal':
-            mu, sig = self.theta
 
-            if np.any(~np.isnan(self.truncation_limits)):
-                a, b = self.truncation_limits
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling a "
+                    "normal random variable.")
+
+            else:
+
+                mu, cov = self.theta
+                sig = np.abs(mu) * cov
+
+                if np.any(~np.isnan(self.truncation_limits)):
+                    a, b = self.truncation_limits
+
+                    if np.isnan(a):
+                        a = -np.inf
+                    if np.isnan(b):
+                        b = np.inf
+
+                    p_a, p_b = [norm.cdf((lim-mu)/sig) for lim in [a, b]]
+
+                    if p_b - p_a == 0:
+                        raise ValueError(
+                            "The probability mass within the truncation limits is "
+                            "too small and the truncated distribution cannot be "
+                            "sampled with sufficiently high accuracy. This is most "
+                            "probably due to incorrect truncation limits set for "
+                            "the distribution."
+                        )
+
+                    result = norm.ppf(values * (p_b - p_a) + p_a,
+                                            loc=mu, scale=sig)
+
+                else:
+                    result = norm.ppf(values, loc=mu, scale=sig)
+
+        elif self.distribution == 'lognormal':
+
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling a "
+                    "lognormal random variable.")
+
+            else:
+
+                theta, beta = self.theta
+
+                if np.any(~np.isnan(self.truncation_limits)):
+                    a, b = self.truncation_limits
+
+                    if np.isnan(a):
+                        a = np.nextafter(0, 1)
+                    else:
+                        a = np.maximum(np.nextafter(0, 1), a)
+
+                    if np.isnan(b):
+                        b = np.inf
+
+                    p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
+                                for lim in [a, b]]
+
+                    result = np.exp(
+                        norm.ppf(values * (p_b - p_a) + p_a,
+                                 loc=np.log(theta), scale=beta))
+
+                else:
+                    result = np.exp(norm.ppf(values, loc=np.log(theta), scale=beta))
+
+        elif self.distribution == 'uniform':
+
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling a "
+                    "uniform random variable.")
+
+            else:
+
+                a, b = self.theta
 
                 if np.isnan(a):
                     a = -np.inf
                 if np.isnan(b):
                     b = np.inf
 
-                p_a, p_b = [norm.cdf((lim-mu)/sig) for lim in [a, b]]
+                if np.any(~np.isnan(self.truncation_limits)):
+                    a, b = self.truncation_limits
 
-                if p_b - p_a == 0:
-                    raise ValueError(
-                        "The probability mass within the truncation limits is "
-                        "too small and the truncated distribution cannot be "
-                        "sampled with sufficiently high accuracy. This is most "
-                        "probably due to incorrect truncation limits set for "
-                        "the distribution."
-                    )
-
-                result = norm.ppf(values * (p_b - p_a) + p_a,
-                                        loc=mu, scale=sig)
-
-            else:
-                result = norm.ppf(values, loc=mu, scale=sig)
-
-        elif self.distribution == 'lognormal':
-            theta, beta = self.theta
-
-            if np.any(~np.isnan(self.truncation_limits)):
-                a, b = self.truncation_limits
-
-                if np.isnan(a):
-                    a = np.nextafter(0, 1)
-                else:
-                    a = np.maximum(np.nextafter(0, 1), a)
-
-                if np.isnan(b):
-                    b = np.inf
-
-                p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
-                            for lim in [a, b]]
-
-                result = np.exp(
-                    norm.ppf(values * (p_b - p_a) + p_a,
-                             loc=np.log(theta), scale=beta))
-
-            else:
-                result = np.exp(norm.ppf(values, loc=np.log(theta), scale=beta))
-
-        elif self.distribution == 'uniform':
-            a, b = self.theta
-
-            if np.isnan(a):
-                a = -np.inf
-            if np.isnan(b):
-                b = np.inf
-
-            if np.any(~np.isnan(self.truncation_limits)):
-                a, b = self.truncation_limits
-
-            result = uniform.ppf(values, loc=a, scale=b-a)
+                result = uniform.ppf(values, loc=a, scale=b-a)
 
         elif self.distribution == 'empirical':
 
-            s_ids = (values * len(self._raw_samples)).astype(int)
-            result = self._raw_samples[s_ids]
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling an "
+                    "empirical random variable.")
+
+            else:
+
+                s_ids = (values * len(self._raw_samples)).astype(int)
+                result = self._raw_samples[s_ids]
 
         elif self.distribution == 'coupled_empirical':
 
-            raw_sample_count = len(self._raw_samples)
-            new_sample_count = len(values)
-            new_samples = np.tile(self._raw_samples,
-                                  int(new_sample_count/raw_sample_count)+1)
-            result = new_samples[:new_sample_count]
+            if sample_size is None:
+                raise ValueError(
+                    "Missing sample size information for sampling a coupled "
+                    "empirical random variable.")
+            else:
+                raw_sample_count = len(self._raw_samples)
+                new_sample = np.tile(self._raw_samples,
+                                      int(sample_size/raw_sample_count)+1)
+                result = new_sample[:sample_size]
+
+        elif self.distribution == 'deterministic':
+
+            if sample_size is None:
+                raise ValueError(
+                    "Missing sample size information for sampling a "
+                    "deterministic random variable.")
+            else:
+                result = np.full(sample_size, self.theta)
 
         elif self.distribution == 'multinomial':
 
-            p_cum = np.cumsum(self.theta)[:-1]
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for sampling a multinomial random "
+                    "variable.")
 
-            samples = values
+            else:
 
-            for i, p_i in enumerate(p_cum):
-                samples[samples < p_i] = 10 + i
-            samples[samples <= 1.0] = 10 + len(p_cum)
+                p_cum = np.cumsum(self.theta)[:-1]
 
-            result = samples - 10
+                samples = values
+
+                for i, p_i in enumerate(p_cum):
+                    samples[samples < p_i] = 10 + i
+                samples[samples <= 1.0] = 10 + len(p_cum)
+
+                result = samples - 10
 
         return result
 
-    def inverse_transform_sampling(self):
+    def inverse_transform_sampling(self, sample_size=None):
         """
-        Creates samples using inverse probability integral transformation.
+        Creates a sample using inverse probability integral transformation.
         """
 
-        self.sample = self.inverse_transform(self.uni_sample)
+        self.sample = self.inverse_transform(self.uni_sample, sample_size)
 
 class RandomVariableSet(object):
     """
@@ -1377,10 +1438,12 @@ class RandomVariableRegistry(object):
         # Initialize the random number generator
         rng = options.rng
 
-        # Generate a dictionary with IDs of the free (non-anchored) variables
-        # TODO: add efficient determinstic option (for convenience)
+        # Generate a dictionary with IDs of the free (non-anchored and
+        # non-deterministic) variables
         RV_list = [RV_name for RV_name, RV in self.RV.items() if
-                   RV.anchor == RV]
+                   ((RV.anchor == RV) or
+                    (RV.distribution in ['deterministic',
+                                         'coupled_empirical']))]
         RV_ID = dict([(RV_name, ID) for ID, RV_name in enumerate(RV_list)])
         RV_count = len(RV_ID)
 
@@ -1411,4 +1474,4 @@ class RandomVariableRegistry(object):
 
         # Convert from uniform to the target distribution for every RV
         for RV_name, RV in self.RV.items():
-            RV.inverse_transform_sampling()
+            RV.inverse_transform_sampling(sample_size)
