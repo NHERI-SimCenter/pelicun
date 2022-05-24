@@ -60,7 +60,154 @@ from .base import *
 from .uq import *
 from .file_io import save_to_csv, load_data
 
-class DemandModel(object):
+
+class PelicunModel(object):
+    """
+    Generic model class to manage methods shared between all models in Pelicun.
+
+    """
+
+    def __init__(self):
+
+        pass
+
+    def convert_marginal_params(self, marginal_params, units, arg_units=None):
+        """
+        Converts the paremeters of marginal distributions in a model
+
+        Parameters
+        ----------
+        marginal_params: DataFrame
+            Each row corresponds to a marginal distribution with Theta
+            parameters and TruncateLower, TruncateUpper truncation limits
+            identified in separate columns.
+        units: Series
+            Identifies the input units of each marginal. The index shall be
+            identical to the index of the marginal_params argument. The values
+            are strings that correspond to the units listed in base.py.
+        arg_units: Series
+            Only used if one or more marginal parameters are defined as a
+            function of an independent variable (e.g., median repair cost as a
+            function of aggregate quantity of damage). This Series provides the
+            units of the argument(s) of the function(s).
+
+        Returns
+        -------
+        marginal_params: DataFrame
+            Same structure as the input DataFrame but with values scaled to
+            represent internal Standard International units.
+        """
+
+        # preserve the columns in the input marginal_params
+        original_cols = marginal_params.columns
+
+        # add extra columns if they are not available in the marginals
+        for col_name in ['Family',
+                         'Theta_0', 'Theta_1', 'Theta_2',
+                         'TruncateLower', 'TruncateUpper']:
+            if col_name not in marginal_params.columns:
+
+                marginal_params[col_name] = np.nan
+
+        # get a list of unique units
+        unique_units = units.unique()
+
+        # for each unit
+        for unit_name in unique_units:
+
+            # get the scale factor for converting from the source unit
+            unit_factor = calc_unit_scale_factor(unit_name)
+
+            # get the variables that use the given unit
+            unit_ids = marginal_params.loc[units == unit_name].index
+
+            # for each variable
+            for row_id in unit_ids:
+
+                # pull the parameters of the marginal distribution
+                family = marginal_params.loc[row_id, 'Family']
+
+                # load the theta values
+                theta = marginal_params.loc[
+                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']]
+
+                # if theta_0 is N/A then we have no entry for this row
+                if pd.isna(theta[0]):
+                    continue
+
+                # for each theta
+                args = []
+                for t_i in range(len(theta)):
+
+                    theta_i = theta[t_i]
+
+                    try:
+                        # if theta is a scalar, just store it
+                        theta[t_i] = float(theta_i)
+                        args.append([])
+
+                    except:
+
+                        if pd.isna(theta_i):
+                            args.append([])
+                            continue
+
+                        # otherwise, we assume it is a string using SimCenter
+                        # array notation to identify coordinates of a
+                        # multilinear function
+                        values = [val.split(',') for val in theta_i.split('|')]
+
+                        # the first set of values defines the ordinates that
+                        # need to be passed to the distribution scaling method
+                        theta[t_i] = np.array(values[0], dtype=float)
+
+                        # the second set of values defines the abscissae that
+                        # we will use after the distribution scaling
+                        args.append(np.array(values[1], dtype=float))
+
+                # load the truncation limits
+                tr_limits = marginal_params.loc[
+                    row_id, ['TruncateLower', 'TruncateUpper']]
+
+                # convert the parameters
+                theta, tr_limits = scale_distribution(
+                    unit_factor, family, theta, tr_limits)
+
+                # for each theta, check if there is a need to scale arguments
+                for a_i, arg in enumerate(args):
+
+                    if len(arg) > 0:
+
+                        # we need to scale both ordinates and abscissae for the
+                        # given parameter
+
+                        # get the scale factor
+                        arg_unit = arg_units.get(row_id)
+                        arg_unit_factor = calc_unit_scale_factor(arg_unit)
+
+                        # perform the scaling
+                        theta[a_i] = theta[a_i] / arg_unit_factor
+                        args[a_i] = arg * arg_unit_factor
+
+                        # and convert the data back to a string
+                        theta[a_i] = '|'.join(
+                            [','.join([f'{val:g}' for val in vals])
+                             for vals in [theta[a_i], args[a_i]]])
+
+                # and update the values in the DF
+                marginal_params.loc[
+                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']] = theta
+
+                marginal_params.loc[
+                    row_id, ['TruncateLower', 'TruncateUpper']] = tr_limits
+
+        # remove the added columns
+        marginal_params = marginal_params[original_cols]
+
+        return marginal_params
+
+
+class DemandModel(PelicunModel):
     """
     Manages demand information used in assessments.
 
@@ -547,7 +694,7 @@ class DemandModel(object):
 
             if label in self.units.index:
 
-                unit_factor = globals()[self.units[label]]
+                unit_factor = calc_unit_scale_factor(self.units[label])
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
@@ -606,22 +753,15 @@ class DemandModel(object):
         # Note that a data source without marginal information is not valid
         marginal_params, units = load_data(marginal_data_source,
                                            orientation=1, reindex=False,
-                                           return_units=True)
+                                           return_units=True,
+                                           convert=[])
         marginal_params.index.set_names(['type', 'loc', 'dir'],inplace=True)
 
-        log_rows = marginal_params.loc[:, 'Family'] == 'lognormal'
-        log_demands = marginal_params.loc[log_rows,:].index.values
+        marginal_params = self.convert_marginal_params(marginal_params.copy(),
+                                                       units)
 
-        for label in log_demands:
-
-            if label in units.index:
-
-                unit_factor = globals()[units[label]]
-
-                marginal_params.loc[label, 'Theta_1'] /= unit_factor
-
-        self.units = units
         self.marginal_params = marginal_params
+        self.units = units
 
         log_msg(f'Demand model successfully loaded.', prepend_timestamp=False)
 
@@ -639,10 +779,9 @@ class DemandModel(object):
 
             edp = rv_params.Index
             rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
-            truncate_lower = getattr(rv_params, 'TruncateLower', np.nan)
-            truncate_upper = getattr(rv_params, 'TruncateUpper', np.nan)
+            family = getattr(rv_params, "Family", np.nan)
 
-            if rv_params.Family == 'empirical':
+            if family == 'empirical':
 
                 if preserve_order:
                     dist_family = 'coupled_empirical'
@@ -661,9 +800,12 @@ class DemandModel(object):
                 # all other RVs need parameters of their distributions
                 RV_reg.add_RV(RandomVariable(
                     name=rv_tag,
-                    distribution=rv_params.Family,
-                    theta=[rv_params.Theta_0, rv_params.Theta_1],
-                    truncation_limits=[truncate_lower, truncate_upper],
+                    distribution=family,
+                    theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
+                           for t_i in range(3)],
+                    truncation_limits=[
+                        getattr(rv_params, f"Truncate{side}", np.nan)
+                        for side in ["Lower", "Upper"]],
 
 
                 ))
@@ -708,7 +850,7 @@ class DemandModel(object):
         log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
 
-class AssetModel(object):
+class AssetModel(PelicunModel):
     """
     Manages asset information used in assessments.
 
@@ -911,6 +1053,7 @@ class AssetModel(object):
             return_units=True,
             convert=[])
 
+        # group units by cmp id to avoid redundant entries
         self.cmp_units = units.copy().groupby(level=0).first()
 
         marginal_params = pd.concat([marginal_params, units], axis=1)
@@ -933,7 +1076,7 @@ class AssetModel(object):
         MI = MI_list[0].append(MI_list[1:])
 
         # Create a DataFrame that will hold marginal params for performance groups
-        marginal_cols = ['Units', 'Family', 'Theta_0', 'Theta_1',
+        marginal_cols = ['Units', 'Family', 'Theta_0', 'Theta_1', 'Theta_2',
                          'TruncateLower', 'TruncateUpper', 'Blocks']
         cmp_marginal_params = pd.DataFrame(
             columns=marginal_cols,
@@ -961,11 +1104,14 @@ class AssetModel(object):
                 getattr(row, 'Family', np.nan),
                 float(row.Theta_0),
                 get_attribute(getattr(row, 'Theta_1', np.nan)),
+                get_attribute(getattr(row, 'Theta_2', np.nan)),
                 get_attribute(getattr(row, 'TruncateLower', np.nan)),
                 get_attribute(getattr(row, 'TruncateUpper', np.nan)),
                 get_attribute(getattr(row, 'Blocks', np.nan), dtype=int,
                               default=1.0)
             ], dtype=object)
+
+        cmp_marginal_params.dropna(axis=1, how='all', inplace=True)
 
         log_msg(f"Model parameters successfully parsed. "
                 f"{cmp_marginal_params.shape[0]} performance groups identified",
@@ -975,31 +1121,11 @@ class AssetModel(object):
         log_msg(f"Converting model parameters to internal units...",
                 prepend_timestamp=False)
 
-        unique_units = cmp_marginal_params['Units'].unique()
+        cmp_marginal_params = self.convert_marginal_params(
+            cmp_marginal_params.copy(), cmp_marginal_params['Units']
+        ).sort_index(axis=0)
 
-        for unit_name in unique_units:
-
-            try:
-                unit_factor = globals()[unit_name]
-
-            except:
-                raise ValueError(f"Specified unit name not recognized: "
-                                 f"{unit_name}")
-
-            unit_ids = cmp_marginal_params.loc[
-                cmp_marginal_params['Units'] == unit_name].index
-
-            cmp_marginal_params.loc[
-                unit_ids,
-                ['Theta_0', 'TruncateLower', 'TruncateUpper']] *= unit_factor
-
-            # we use COV for Theta_1 in normal distributions, so there is no
-            # need to scale
-            #sigma_ids = cmp_marginal_params.loc[unit_ids].loc[
-            #    cmp_marginal_params.loc[unit_ids, 'Family'] == 'normal'].index
-            #cmp_marginal_params.loc[sigma_ids, 'Theta_1'] *= unit_factor
-
-        self.cmp_marginal_params = cmp_marginal_params
+        self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
 
         log_msg(f"Model parameters successfully loaded.",
                 prepend_timestamp=False)
@@ -1019,28 +1145,16 @@ class AssetModel(object):
         for rv_params in self.cmp_marginal_params.itertuples():
 
             cmp = rv_params.Index
-            rv_tag = f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}'
 
-            if pd.isnull(rv_params.Family):
-
-                # we use an empirical RV to generate deterministic values
-                RV_reg.add_RV(RandomVariable(
-                    name=rv_tag,
-                    distribution='deterministic',
-                    theta = rv_params.Theta_0
-                ))
-
-            else:
-
-                # all other RVs need parameters of their distributions
-                RV_reg.add_RV(RandomVariable(
-                    name=rv_tag,
-                    distribution=rv_params.Family,
-                    theta=[rv_params.Theta_0, rv_params.Theta_1],
-                    truncation_limits=[rv_params.TruncateLower,
-                                       rv_params.TruncateUpper],
-
-                ))
+            # create a random variable and add it to the registry
+            RV_reg.add_RV(RandomVariable(
+                name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}',
+                distribution=getattr(rv_params, "Family", np.nan),
+                theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
+                       for t_i in range(3)],
+                truncation_limits=[getattr(rv_params, f"Truncate{side}", np.nan)
+                                   for side in ["Lower", "Upper"]],
+            ))
 
         log_msg(f"\n{self.cmp_marginal_params.shape[0]} "
                 f"random variables created.",
@@ -1071,7 +1185,7 @@ class AssetModel(object):
         log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
 
-class DamageModel(object):
+class DamageModel(PelicunModel):
     """
     Manages damage information used in assessments.
 
@@ -1188,67 +1302,36 @@ class DamageModel(object):
 
         # TODO: load defaults for Demand-Offset and Demand-Directional
 
-        # now convert the units - where needed
-        unique_units = damage_params[('Demand', 'Unit')].unique()
+        # Now convert model parameters to SI units
+        for LS_i in damage_params.columns.unique(level=0):
+            if LS_i.startswith('LS'):
 
-        # initialize an array to collect scale factors for damage functions
-        dmg_function_scale_factors = []
+                damage_params.loc[:, LS_i] = self.convert_marginal_params(
+                    damage_params.loc[:, LS_i].copy(),
+                    damage_params[('Demand', 'Unit')]
+                ).values
 
-        for unit_name in unique_units:
+                # For damage functions, save the scale factor for later use
+                # Make sure only one scale factor is saved per component
+                if LS_i == 'LS1':
 
-            try:
-                unit_factor = globals()[unit_name]
+                    function_ids = damage_params.loc[
+                        damage_params[(LS_i, 'Family')] == 'function'].index
 
-            except:
-                raise ValueError(f"Specified unit name not recognized: "
-                                 f"{unit_name}")
+                    if len(function_ids) > 0:
+                        f_df = pd.DataFrame(
+                            columns=['scale_factor', ],
+                            index=function_ids
+                        )
+                        f_df['scale_factor'] = [
+                            calc_unit_scale_factor(unit_name) for unit_name
+                            in damage_params.loc[function_ids,
+                                                 ('Demand', 'Unit')]]
 
-            unit_ids = damage_params.loc[
-                damage_params[('Demand', 'Unit')] == unit_name].index
+                        self._dmg_function_scale_factors = f_df
 
-            for LS_i in damage_params.columns.unique(level=0):
-
-                if 'LS' in LS_i:
-
-                    # theta_0 needs to be scaled for all fragility functions,
-                    # that is, when Family not in ['normal', 'lognormal',
-                    # 'uniform'],
-                    fragility_ids = damage_params.loc[unit_ids].loc[
-                        damage_params.loc[unit_ids, (LS_i, 'Family')].isin([
-                            'normal', 'lognormal', 'uniform'])].index
-
-                    damage_params.loc[
-                        fragility_ids, (LS_i, 'Theta_0')] *= unit_factor
-
-                    # theta_1 needs to be scaled for normal and uniform
-                    if 'Theta_1' in damage_params.loc[unit_ids].columns.unique(
-                            level=1):
-                        sigma_ids = damage_params.loc[unit_ids].loc[
-                            damage_params.loc[unit_ids, (LS_i, 'Family')].isin([
-                                'normal', 'uniform'])].index
-
-                        damage_params.loc[
-                            sigma_ids, (LS_i, 'Theta_1')] *= unit_factor
-
-                    # For damage functions, save the scale factor for later use
-                    # Make sure only one scale factor is saved per component
-                    if LS_i == 'LS1':
-                        function_ids = damage_params.loc[unit_ids].loc[
-                            damage_params.loc[
-                                unit_ids, (LS_i, 'Family')] == 'function'].index
-
-                        if len(function_ids) > 0:
-                            f_df = pd.DataFrame(
-                                columns=['scale_factor',], index=function_ids)
-                            f_df['scale_factor'] = unit_factor
-
-                            dmg_function_scale_factors.append(f_df)
-
-        if len(dmg_function_scale_factors)>0:
-            self._dmg_function_scale_factors = pd.concat(
-                dmg_function_scale_factors, axis=0)
-        else:
-            self._dmg_function_scale_factors = None
+                    else:
+                        self._dmg_function_scale_factors = None
 
         # check for components with incomplete damage model information
         cmp_incomplete_list = damage_params.loc[
@@ -1364,18 +1447,14 @@ class DamageModel(object):
 
                 for ls_id in limit_states:
 
-                    theta_0 = frg_params.loc[(f'LS{ls_id}','Theta_0')]
+                    frg_params_LS = frg_params[f'LS{ls_id}']
+
+                    theta_0 = frg_params_LS.get('Theta_0', np.nan)
+                    family = frg_params_LS.get('Family', np.nan)
+                    ds_weights = frg_params_LS.get('DamageStateWeights', np.nan)
 
                     # check if the limit state is defined for the component
-                    if not pd.isnull(theta_0):
-
-                        family, theta_1, ds_weights = frg_params.loc[
-                            [(f'LS{ls_id}','Family'),
-                             (f'LS{ls_id}','Theta_1'),
-                             (f'LS{ls_id}','DamageStateWeights')]]
-
-                        if pd.isnull(family):
-                            family = None
+                    if not pd.isna(theta_0):
 
                         # Start with the limit state capacities...
 
@@ -1445,6 +1524,12 @@ class DamageModel(object):
                         # Otherwise, we are dealing with fragility functions
                         else:
 
+                            theta = [frg_params_LS.get(f"Theta_{t_i}", np.nan)
+                                     for t_i in range(3)]
+                            tr_lims = [
+                                frg_params_LS.get(f"Truncate{side}", np.nan)
+                                for side in ["Lower", "Upper"]]
+
                             for block_i, __ in enumerate(blocks):
 
                                 #                   cmp_id  loc     dir     block
@@ -1468,24 +1553,12 @@ class DamageModel(object):
                                 else:
                                     anchor = anchor_RVs[block_i]
 
-                                # If the limit state is deterministic, we use an
-                                # empirical RV - this is rare
-                                if family is None:
-
-                                    RV = RandomVariable(
-                                        name=frg_rv_tag,
-                                        distribution='deterministic',
-                                        theta = theta_0)
-
-                                # In all other cases, RVs have parameters of their
-                                # distributions defined in the input table
-                                else:
-
-                                    RV = RandomVariable(
-                                        name=frg_rv_tag,
-                                        distribution=family,
-                                        theta=[theta_0, theta_1],
-                                        anchor = anchor)
+                                RV = RandomVariable(
+                                    name=frg_rv_tag,
+                                    distribution=family,
+                                    theta=theta,
+                                    truncation_limits=tr_lims,
+                                    anchor=anchor)
 
                                 capacity_RV_reg.add_RV(RV)
 
@@ -2009,11 +2082,11 @@ class DamageModel(object):
             # Get the units and scale factor for quantity conversion
             cmp_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Component', 'Unit')]
-            cmp_qnt_scale_factor = globals()[cmp_qnt_unit_name]
+            cmp_qnt_scale_factor = calc_unit_scale_factor(cmp_qnt_unit_name)
 
             dmg_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Damage', 'Unit')]
-            dmg_qnt_scale_factor = globals()[dmg_qnt_unit_name]
+            dmg_qnt_scale_factor = calc_unit_scale_factor(dmg_qnt_unit_name)
 
             qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
 
@@ -2208,7 +2281,7 @@ class DamageModel(object):
         log_msg(f'Damage calculation successfully completed.')
 
 
-class LossModel(object):
+class LossModel(PelicunModel):
     """
     Parent object for loss models.
 
@@ -2336,31 +2409,14 @@ class LossModel(object):
         loss_params.drop(columns=DS_to_drop, level=0, inplace=True)
 
         # convert values to internal SI units
-        units = loss_params[('Quantity', 'Unit')]
-
-        DS_list = loss_params.columns.get_level_values(0).unique()
-
-        for DS in DS_list:
+        for DS in loss_params.columns.unique(level=0):
             if DS.startswith('DS'):
 
-                # median values
-                thetas = loss_params.loc[:, (DS, 'Theta_0')]
-                loss_params.loc[:, (DS, 'Theta_0')] = [
-                    convert_unit(theta, unit)
-                    for theta, unit in list(zip(thetas, units))]
-
-                # if the consequences are probabilistic
-                if (DS, 'Family') in loss_params.columns:
-                    # cov and beta for normal and lognormal dists. do not need
-                    # to be scaled
-                    families = loss_params.loc[:, (DS, 'Family')]
-                    for family in families:
-                        if ((pd.isna(family)==True) or
-                            (family in ['normal', 'lognormal'])):
-                            pass
-                        else:
-                            raise ValueError(f"Unexpected distribution family in "
-                                             f"loss model: {family}")
+                loss_params.loc[:, DS] = self.convert_marginal_params(
+                    loss_params.loc[:, DS].copy(),
+                    loss_params[('DV', 'Unit')],
+                    loss_params[('Quantity', 'Unit')]
+                ).values
 
         # check for components with incomplete loss information
         cmp_incomplete_list = loss_params.loc[
@@ -2374,7 +2430,7 @@ class LossModel(object):
                     f"removed from the analysis.\n",
                     prepend_timestamp=False)
 
-        self.loss_params = loss_params
+        self.loss_params = loss_params.sort_index(axis=1)
 
         log_msg(f"Loss parameters successfully parsed.",
                 prepend_timestamp=False)
@@ -2504,35 +2560,37 @@ class BldgRepairModel(LossModel):
 
                 if cost_params is not None:
 
-                    if (f'DS{ds}', 'Family') in cost_params.index:
-                        cost_family = cost_params.loc[(f'DS{ds}', 'Family')]
-                    else:
-                        cost_family = np.nan
+                    cost_params_DS = cost_params[f'DS{ds}']
 
-                    if (f'DS{ds}', 'Theta_1') in cost_params.index:
-                        cost_theta_1 = cost_params.loc[(f'DS{ds}', 'Theta_1')]
-                    else:
-                        cost_theta_1 = np.nan
+                    cost_family = cost_params_DS.get('Family', np.nan)
+                    cost_theta = [cost_params_DS.get(f"Theta_{t_i}", np.nan)
+                                  for t_i in range(3)]
+
+                    # If the first parameter is controlled by a function, we use
+                    # 1.0 in its place and will scale the results in a later
+                    # step
+                    if isinstance(cost_theta[0], str):
+                        cost_theta[0] = 1.0
 
                 else:
                     cost_family = np.nan
-                    cost_theta_1 = np.nan
 
                 if time_params is not None:
 
-                    if (f'DS{ds}', 'Family') in time_params.index:
-                        time_family = time_params.loc[(f'DS{ds}', 'Family')]
-                    else:
-                        time_family = np.nan
+                    time_params_DS = time_params[f'DS{ds}']
 
-                    if (f'DS{ds}', 'Theta_1') in time_params.index:
-                        time_theta_1 = time_params.loc[(f'DS{ds}', 'Theta_1')]
-                    else:
-                        time_theta_1 = np.nan
+                    time_family = time_params_DS.get('Family', np.nan)
+                    time_theta = [time_params_DS.get(f"Theta_{t_i}", np.nan)
+                                  for t_i in range(3)]
+
+                    # If the first parameter is controlled by a function, we use
+                    # 1.0 in its place and will scale the results in a later
+                    # step
+                    if isinstance(time_theta[0], str):
+                        time_theta[0] = 1.0
 
                 else:
                     time_family = np.nan
-                    time_theta_1 = np.nan
 
                 # If neither cost nor time has a stochastic model assigned,
                 # we do not need random variables for this DS
@@ -2540,11 +2598,12 @@ class BldgRepairModel(LossModel):
                     (pd.isna(time_family)==True)):
                     continue
 
-                # load the loc-dir cases
+                # Otherwise, load the loc-dir cases
                 loc_dir = case_DF.loc[(driver_cmp_id, ds)].index.values
 
                 for loc, dir in loc_dir:
 
+                    # assign cost RV
                     if pd.isna(cost_family)==False:
 
                         cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}'
@@ -2552,20 +2611,22 @@ class BldgRepairModel(LossModel):
                         RV_reg.add_RV(RandomVariable(
                             name=cost_rv_tag,
                             distribution = cost_family,
-                            theta = [1.0, cost_theta_1]
+                            theta = cost_theta
                         ))
                         rv_count += 1
 
+                    # assign time RV
                     if pd.isna(time_family) == False:
                         time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}'
 
                         RV_reg.add_RV(RandomVariable(
                             name=time_rv_tag,
                             distribution=time_family,
-                            theta=[1.0, time_theta_1]
+                            theta=time_theta
                         ))
                         rv_count += 1
 
+                    # assign correlation between cost and time RVs
                     if ((pd.isna(cost_family) == False) and
                         (pd.isna(time_family) == False) and
                         (options.rho_cost_time != 0.0)):
@@ -2630,29 +2691,46 @@ class BldgRepairModel(LossModel):
                     if ds_id == '0':
                         continue
 
-                    theta_0 = self.loss_params.loc[
+                    loss_params_DS = self.loss_params.loc[
                         (loss_cmp_name, DV_type_scase),
-                        (ds, 'Theta_0')]
+                        ds]
+
+                    # check if theta_0 is defined
+                    theta_0 = loss_params_DS.get('Theta_0', np.nan)
 
                     if pd.isna(theta_0):
                         continue
 
+                    # check if the distribution type is supported
+                    family = loss_params_DS.get('Family', np.nan)
+
+                    if ((not pd.isna(family)) and
+                        (family not in
+                         ['normal', 'lognormal', 'deterministic'])):
+                        raise ValueError(f"Loss Distribution of type {family} "
+                                         f"not supported.")
+
+                    # If theta_0 is a scalar
                     try:
+                        # use a constant median function
                         theta_0 = float(theta_0)
                         f_median = prep_constant_median_DV(theta_0)
 
                     except:
+
+                        # otherwise, use the multilinear function
                         theta_0 = np.array(
                             [val.split(',') for val in theta_0.split('|')],
                             dtype=float)
                         f_median = prep_bounded_multilinear_median_DV(
                             theta_0[0], theta_0[1])
 
+                    # get the corresponding aggregate damage quantities
+                    # to consider economies of scale
                     if 'ds' in eco_qnt.columns.names:
 
-                        avail_ds = eco_qnt.loc[:,
-                                   driver_cmp].columns.get_level_values(
-                            0).unique()
+                        avail_ds = (
+                            eco_qnt.loc[:,driver_cmp].columns.unique(level=0))
 
                         if (not ds_id in avail_ds):
                             continue
@@ -2667,29 +2745,36 @@ class BldgRepairModel(LossModel):
                         eco_qnt_i.columns = ['X']
                         eco_qnt_i.columns.name = 'del'
 
+                    # generate the median values for each realization
                     eco_qnt_i.loc[:, :] = f_median(eco_qnt_i.values)
 
                     sub_medians.append(eco_qnt_i)
                     ds_list.append(ds_id)
 
                 if len(ds_list) > 0:
+
+                    # combine medians across damage states into one DF
                     median_list.append(pd.concat(sub_medians, axis=1,
                                                  keys=ds_list))
                     cmp_list.append(loss_cmp_id)
 
             if len(cmp_list) > 0:
 
+                # combine medians across components into one DF
                 result = pd.concat(median_list, axis=1, keys=cmp_list)
 
+                # remove the extra column header level
                 if 'del' in result.columns.names:
                     result.columns = result.columns.droplevel('del')
 
+                # name the remaining column header levels
                 if options.eco_scale["AcrossFloors"] == True:
                     result.columns.names = ['cmp', 'ds']
 
                 else:
                     result.columns.names = ['cmp', 'ds', 'loc']
 
+                # save the results to the returned dictionary
                 medians.update({DV_type: result})
 
         return medians

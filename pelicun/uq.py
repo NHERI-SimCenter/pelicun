@@ -67,6 +67,51 @@ from scipy.optimize import minimize
 import warnings
 
 
+def scale_distribution(scale_factor, family, theta, truncation_limits=None):
+    """
+    Scale parameters of a random distribution.
+
+    Parameters
+    ----------
+    family: {'normal', 'lognormal', 'uniform'}
+        Defines the type of probability distribution for the random variable.
+    theta: float ndarray
+        Set of parameters that define the cumulative distribution function of
+        the variable given its distribution type. See the expected parameters
+        explained in the RandomVariable class. Each parameter can be defined by
+        one or more values. If a set of values are provided for one parameter,
+        they define ordinates of a multilinear function that is used to get
+        the parameter values given an independent variable.
+    truncation_limits: float ndarray, default: None
+        Defines the [a,b] truncation limits for the distribution. Use None to
+        assign no limit in one direction.
+    """
+
+    if truncation_limits is not None:
+        truncation_limits = truncation_limits * scale_factor
+
+    # undefined family is considered deterministic
+    if pd.isna(family):
+        family = 'deterministic'
+
+    theta_new = np.full_like(theta, np.nan)
+    if family == 'normal':
+        theta_new[0] = theta[0] * scale_factor
+        theta_new[1] = theta[1] # because we use cov instead of std
+
+    elif family == 'lognormal':
+        theta_new[0] = theta[0] * scale_factor
+        theta_new[1] = theta[1]  # because it is log std
+
+    elif family == 'uniform':
+        theta_new[0] = theta[0] * scale_factor
+        theta_new[1] = theta[1] * scale_factor
+
+    elif family == 'deterministic':
+        theta_new[0] = theta[0] * scale_factor
+
+    return theta_new, truncation_limits
+
 def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
     """
     Estimate the probability density within a hyperrectangle for an MVN distr.
@@ -788,6 +833,9 @@ class RandomVariable(object):
 
         self.name = name
 
+        if pd.isna(distribution):
+            distribution = 'deterministic'
+
         if ((distribution not in ['empirical', 'coupled_empirical']) and
             (np.all(np.isnan(theta)))):
 
@@ -808,7 +856,7 @@ class RandomVariable(object):
 
         # save the other parameters internally
         self._distribution = distribution
-        self._theta = theta
+        self._theta = np.atleast_1d(theta)
         self._truncation_limits = truncation_limits
         self._bounds = bounds
         self._custom_expr = custom_expr
@@ -950,7 +998,7 @@ class RandomVariable(object):
         result = None
 
         if self.distribution == 'normal':
-            mu, cov = self.theta
+            mu, cov = self.theta[:2]
             sig = np.abs(mu)*cov
 
             if np.any(~np.isnan(self.truncation_limits)):
@@ -976,7 +1024,7 @@ class RandomVariable(object):
                 result = norm.cdf(values, loc=mu, scale=sig)
 
         elif self.distribution == 'lognormal':
-            theta, beta = self.theta
+            theta, beta = self.theta[:2]
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -1004,7 +1052,7 @@ class RandomVariable(object):
                 result = norm.cdf(np.log(values), loc=np.log(theta), scale=beta)
 
         elif self.distribution == 'uniform':
-            a, b = self.theta
+            a, b = self.theta[:2]
 
             if np.isnan(a):
                 a = -np.inf
@@ -1034,7 +1082,7 @@ class RandomVariable(object):
 
             else:
 
-                mu, cov = self.theta
+                mu, cov = self.theta[:2]
                 sig = np.abs(mu) * cov
 
                 if np.any(~np.isnan(self.truncation_limits)):
@@ -1071,7 +1119,7 @@ class RandomVariable(object):
 
             else:
 
-                theta, beta = self.theta
+                theta, beta = self.theta[:2]
 
                 if np.any(~np.isnan(self.truncation_limits)):
                     a, b = self.truncation_limits
@@ -1103,7 +1151,7 @@ class RandomVariable(object):
 
             else:
 
-                a, b = self.theta
+                a, b = self.theta[:2]
 
                 if np.isnan(a):
                     a = -np.inf
@@ -1146,7 +1194,7 @@ class RandomVariable(object):
                     "Missing sample size information for sampling a "
                     "deterministic random variable.")
             else:
-                result = np.full(sample_size, self.theta)
+                result = np.full(sample_size, self.theta[0])
 
         elif self.distribution == 'multinomial':
 
