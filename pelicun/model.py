@@ -779,10 +779,9 @@ class DemandModel(PelicunModel):
 
             edp = rv_params.Index
             rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
-            truncate_lower = getattr(rv_params, 'TruncateLower', np.nan)
-            truncate_upper = getattr(rv_params, 'TruncateUpper', np.nan)
+            family = getattr(rv_params, "Family", np.nan)
 
-            if rv_params.Family == 'empirical':
+            if family == 'empirical':
 
                 if preserve_order:
                     dist_family = 'coupled_empirical'
@@ -801,9 +800,12 @@ class DemandModel(PelicunModel):
                 # all other RVs need parameters of their distributions
                 RV_reg.add_RV(RandomVariable(
                     name=rv_tag,
-                    distribution=rv_params.Family,
-                    theta=[rv_params.Theta_0, rv_params.Theta_1],
-                    truncation_limits=[truncate_lower, truncate_upper],
+                    distribution=family,
+                    theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
+                           for t_i in range(3)],
+                    truncation_limits=[
+                        getattr(rv_params, f"Truncate{side}", np.nan)
+                        for side in ["Lower", "Upper"]],
 
 
                 ))
@@ -1142,28 +1144,16 @@ class AssetModel(PelicunModel):
         for rv_params in self.cmp_marginal_params.itertuples():
 
             cmp = rv_params.Index
-            rv_tag = f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}'
 
-            if pd.isnull(rv_params.Family):
-
-                # we use an empirical RV to generate deterministic values
-                RV_reg.add_RV(RandomVariable(
-                    name=rv_tag,
-                    distribution='deterministic',
-                    theta = rv_params.Theta_0
-                ))
-
-            else:
-
-                # all other RVs need parameters of their distributions
-                RV_reg.add_RV(RandomVariable(
-                    name=rv_tag,
-                    distribution=rv_params.Family,
-                    theta=[rv_params.Theta_0, rv_params.Theta_1],
-                    truncation_limits=[rv_params.TruncateLower,
-                                       rv_params.TruncateUpper],
-
-                ))
+            # create a random variable and add it to the registry
+            RV_reg.add_RV(RandomVariable(
+                name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}',
+                distribution=getattr(rv_params, "Family", np.nan),
+                theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
+                       for t_i in range(3)],
+                truncation_limits=[getattr(rv_params, f"Truncate{side}", np.nan)
+                                   for side in ["Lower", "Upper"]],
+            ))
 
         log_msg(f"\n{self.cmp_marginal_params.shape[0]} "
                 f"random variables created.",
@@ -1456,18 +1446,14 @@ class DamageModel(PelicunModel):
 
                 for ls_id in limit_states:
 
-                    theta_0 = frg_params.loc[(f'LS{ls_id}','Theta_0')]
+                    frg_params_LS = frg_params[f'LS{ls_id}']
+
+                    theta_0 = frg_params_LS.get('Theta_0', np.nan)
+                    family = frg_params_LS.get('Family', np.nan)
+                    ds_weights = frg_params_LS.get('DamageStateWeights', np.nan)
 
                     # check if the limit state is defined for the component
-                    if not pd.isnull(theta_0):
-
-                        family, theta_1, ds_weights = frg_params.loc[
-                            [(f'LS{ls_id}','Family'),
-                             (f'LS{ls_id}','Theta_1'),
-                             (f'LS{ls_id}','DamageStateWeights')]]
-
-                        if pd.isnull(family):
-                            family = None
+                    if not pd.isna(theta_0):
 
                         # Start with the limit state capacities...
 
@@ -1537,6 +1523,12 @@ class DamageModel(PelicunModel):
                         # Otherwise, we are dealing with fragility functions
                         else:
 
+                            theta = [frg_params_LS.get(f"Theta_{t_i}", np.nan)
+                                     for t_i in range(3)]
+                            tr_lims = [
+                                frg_params_LS.get(f"Truncate{side}", np.nan)
+                                for side in ["Lower", "Upper"]]
+
                             for block_i, __ in enumerate(blocks):
 
                                 #                   cmp_id  loc     dir     block
@@ -1560,24 +1552,12 @@ class DamageModel(PelicunModel):
                                 else:
                                     anchor = anchor_RVs[block_i]
 
-                                # If the limit state is deterministic, we use an
-                                # empirical RV - this is rare
-                                if family is None:
-
-                                    RV = RandomVariable(
-                                        name=frg_rv_tag,
-                                        distribution='deterministic',
-                                        theta = theta_0)
-
-                                # In all other cases, RVs have parameters of their
-                                # distributions defined in the input table
-                                else:
-
-                                    RV = RandomVariable(
-                                        name=frg_rv_tag,
-                                        distribution=family,
-                                        theta=[theta_0, theta_1],
-                                        anchor = anchor)
+                                RV = RandomVariable(
+                                    name=frg_rv_tag,
+                                    distribution=family,
+                                    theta=theta,
+                                    truncation_limits=tr_lims,
+                                    anchor=anchor)
 
                                 capacity_RV_reg.add_RV(RV)
 
@@ -2579,35 +2559,37 @@ class BldgRepairModel(LossModel):
 
                 if cost_params is not None:
 
-                    if (f'DS{ds}', 'Family') in cost_params.index:
-                        cost_family = cost_params.loc[(f'DS{ds}', 'Family')]
-                    else:
-                        cost_family = np.nan
+                    cost_params_DS = cost_params[f'DS{ds}']
 
-                    if (f'DS{ds}', 'Theta_1') in cost_params.index:
-                        cost_theta_1 = cost_params.loc[(f'DS{ds}', 'Theta_1')]
-                    else:
-                        cost_theta_1 = np.nan
+                    cost_family = cost_params_DS.get('Family', np.nan)
+                    cost_theta = [cost_params_DS.get(f"Theta_{t_i}", np.nan)
+                                  for t_i in range(3)]
+
+                    # If the first parameter is controlled by a function, we use
+                    # 1.0 in its place and will scale the results in a later
+                    # step
+                    if isinstance(cost_theta[0], str):
+                        cost_theta[0] = 1.0
 
                 else:
                     cost_family = np.nan
-                    cost_theta_1 = np.nan
 
                 if time_params is not None:
 
-                    if (f'DS{ds}', 'Family') in time_params.index:
-                        time_family = time_params.loc[(f'DS{ds}', 'Family')]
-                    else:
-                        time_family = np.nan
+                    time_params_DS = time_params[f'DS{ds}']
 
-                    if (f'DS{ds}', 'Theta_1') in time_params.index:
-                        time_theta_1 = time_params.loc[(f'DS{ds}', 'Theta_1')]
-                    else:
-                        time_theta_1 = np.nan
+                    time_family = time_params_DS.get('Family', np.nan)
+                    time_theta = [time_params_DS.get(f"Theta_{t_i}", np.nan)
+                                  for t_i in range(3)]
+
+                    # If the first parameter is controlled by a function, we use
+                    # 1.0 in its place and will scale the results in a later
+                    # step
+                    if isinstance(time_theta[0], str):
+                        time_theta[0] = 1.0
 
                 else:
                     time_family = np.nan
-                    time_theta_1 = np.nan
 
                 # If neither cost nor time has a stochastic model assigned,
                 # we do not need random variables for this DS
@@ -2627,20 +2609,22 @@ class BldgRepairModel(LossModel):
                         RV_reg.add_RV(RandomVariable(
                             name=cost_rv_tag,
                             distribution = cost_family,
-                            theta = [1.0, cost_theta_1]
+                            theta = cost_theta
                         ))
                         rv_count += 1
 
+                    # assign time RV
                     if pd.isna(time_family) == False:
                         time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}'
 
                         RV_reg.add_RV(RandomVariable(
                             name=time_rv_tag,
                             distribution=time_family,
-                            theta=[1.0, time_theta_1]
+                            theta=time_theta
                         ))
                         rv_count += 1
 
+                    # assign correlation between cost and time RVs
                     if ((pd.isna(cost_family) == False) and
                         (pd.isna(time_family) == False) and
                         (options.rho_cost_time != 0.0)):
@@ -2705,29 +2689,46 @@ class BldgRepairModel(LossModel):
                     if ds_id == '0':
                         continue
 
-                    theta_0 = self.loss_params.loc[
+                    loss_params_DS = self.loss_params.loc[
                         (loss_cmp_name, DV_type_scase),
-                        (ds, 'Theta_0')]
+                        ds]
+
+                    # check if theta_0 is defined
+                    theta_0 = loss_params_DS.get('Theta_0', np.nan)
 
                     if pd.isna(theta_0):
                         continue
 
+                    # check if the distribution type is supported
+                    family = loss_params_DS.get('Family', np.nan)
+
+                    if ((not pd.isna(family)) and
+                        (family not in
+                         ['normal', 'lognormal', 'deterministic'])):
+                        raise ValueError(f"Loss Distribution of type {family} "
+                                         f"not supported.")
+
+                    # If theta_0 is a scalar
                     try:
+                        # use a constant median function
                         theta_0 = float(theta_0)
                         f_median = prep_constant_median_DV(theta_0)
 
                     except:
+
+                        # otherwise, use the multilinear function
                         theta_0 = np.array(
                             [val.split(',') for val in theta_0.split('|')],
                             dtype=float)
                         f_median = prep_bounded_multilinear_median_DV(
                             theta_0[0], theta_0[1])
 
+                    # get the corresponding aggregate damage quantities
+                    # to consider economies of scale
                     if 'ds' in eco_qnt.columns.names:
 
-                        avail_ds = eco_qnt.loc[:,
-                                   driver_cmp].columns.get_level_values(
-                            0).unique()
+                        avail_ds = (
+                            eco_qnt.loc[:,driver_cmp].columns.unique(level=0))
 
                         if (not ds_id in avail_ds):
                             continue
