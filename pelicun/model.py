@@ -1053,6 +1053,7 @@ class AssetModel(PelicunModel):
             return_units=True,
             convert=[])
 
+        # group units by cmp id to avoid redundant entries
         self.cmp_units = units.copy().groupby(level=0).first()
 
         marginal_params = pd.concat([marginal_params, units], axis=1)
@@ -2597,11 +2598,12 @@ class BldgRepairModel(LossModel):
                     (pd.isna(time_family)==True)):
                     continue
 
-                # load the loc-dir cases
+                # Otherwise, load the loc-dir cases
                 loc_dir = case_DF.loc[(driver_cmp_id, ds)].index.values
 
                 for loc, dir in loc_dir:
 
+                    # assign cost RV
                     if pd.isna(cost_family)==False:
 
                         cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}'
@@ -2743,29 +2745,36 @@ class BldgRepairModel(LossModel):
                         eco_qnt_i.columns = ['X']
                         eco_qnt_i.columns.name = 'del'
 
+                    # generate the median values for each realization
                     eco_qnt_i.loc[:, :] = f_median(eco_qnt_i.values)
 
                     sub_medians.append(eco_qnt_i)
                     ds_list.append(ds_id)
 
                 if len(ds_list) > 0:
+
+                    # combine medians across damage states into one DF
                     median_list.append(pd.concat(sub_medians, axis=1,
                                                  keys=ds_list))
                     cmp_list.append(loss_cmp_id)
 
             if len(cmp_list) > 0:
 
+                # combine medians across components into one DF
                 result = pd.concat(median_list, axis=1, keys=cmp_list)
 
+                # remove the extra column header level
                 if 'del' in result.columns.names:
                     result.columns = result.columns.droplevel('del')
 
+                # name the remaining column header levels
                 if options.eco_scale["AcrossFloors"] == True:
                     result.columns.names = ['cmp', 'ds']
 
                 else:
                     result.columns.names = ['cmp', 'ds', 'loc']
 
+                # save the results to the returned dictionary
                 medians.update({DV_type: result})
 
         return medians
