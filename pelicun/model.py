@@ -694,7 +694,7 @@ class DemandModel(PelicunModel):
 
             if label in self.units.index:
 
-                unit_factor = globals()[self.units[label]]
+                unit_factor = calc_unit_scale_factor(self.units[label])
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
@@ -2101,11 +2101,11 @@ class DamageModel(PelicunModel):
             # Get the units and scale factor for quantity conversion
             cmp_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Component', 'Unit')]
-            cmp_qnt_scale_factor = globals()[cmp_qnt_unit_name]
+            cmp_qnt_scale_factor = calc_unit_scale_factor(cmp_qnt_unit_name)
 
             dmg_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Damage', 'Unit')]
-            dmg_qnt_scale_factor = globals()[dmg_qnt_unit_name]
+            dmg_qnt_scale_factor = calc_unit_scale_factor(dmg_qnt_unit_name)
 
             qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
 
