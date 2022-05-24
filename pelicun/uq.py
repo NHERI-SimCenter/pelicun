@@ -833,6 +833,9 @@ class RandomVariable(object):
 
         self.name = name
 
+        if pd.isna(distribution):
+            distribution = 'deterministic'
+
         if ((distribution not in ['empirical', 'coupled_empirical']) and
             (np.all(np.isnan(theta)))):
 
