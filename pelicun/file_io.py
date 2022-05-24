@@ -490,7 +490,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
     else:
 
-        data = data.convert_dtypes()
+        #data = data.convert_dtypes()
         # enforcing float datatype is important even if there is no unit
         # conversion
         units = None
