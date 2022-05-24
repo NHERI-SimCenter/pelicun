@@ -856,7 +856,7 @@ class RandomVariable(object):
 
         # save the other parameters internally
         self._distribution = distribution
-        self._theta = theta
+        self._theta = np.atleast_1d(theta)
         self._truncation_limits = truncation_limits
         self._bounds = bounds
         self._custom_expr = custom_expr
@@ -998,7 +998,7 @@ class RandomVariable(object):
         result = None
 
         if self.distribution == 'normal':
-            mu, cov = self.theta
+            mu, cov = self.theta[:2]
             sig = np.abs(mu)*cov
 
             if np.any(~np.isnan(self.truncation_limits)):
@@ -1024,7 +1024,7 @@ class RandomVariable(object):
                 result = norm.cdf(values, loc=mu, scale=sig)
 
         elif self.distribution == 'lognormal':
-            theta, beta = self.theta
+            theta, beta = self.theta[:2]
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -1052,7 +1052,7 @@ class RandomVariable(object):
                 result = norm.cdf(np.log(values), loc=np.log(theta), scale=beta)
 
         elif self.distribution == 'uniform':
-            a, b = self.theta
+            a, b = self.theta[:2]
 
             if np.isnan(a):
                 a = -np.inf
@@ -1082,7 +1082,7 @@ class RandomVariable(object):
 
             else:
 
-                mu, cov = self.theta
+                mu, cov = self.theta[:2]
                 sig = np.abs(mu) * cov
 
                 if np.any(~np.isnan(self.truncation_limits)):
@@ -1119,7 +1119,7 @@ class RandomVariable(object):
 
             else:
 
-                theta, beta = self.theta
+                theta, beta = self.theta[:2]
 
                 if np.any(~np.isnan(self.truncation_limits)):
                     a, b = self.truncation_limits
@@ -1151,7 +1151,7 @@ class RandomVariable(object):
 
             else:
 
-                a, b = self.theta
+                a, b = self.theta[:2]
 
                 if np.isnan(a):
                     a = -np.inf
@@ -1194,7 +1194,7 @@ class RandomVariable(object):
                     "Missing sample size information for sampling a "
                     "deterministic random variable.")
             else:
-                result = np.full(sample_size, self.theta)
+                result = np.full(sample_size, self.theta[0])
 
         elif self.distribution == 'multinomial':
 
