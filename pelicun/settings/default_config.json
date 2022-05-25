@@ -3,7 +3,7 @@
     "Verbose": false,
     "Seed": null,
     "LogShowMS": false,
-    "LogFile": "pelicun_log.txt",
+    "LogFile": null,
     "PrintLog": false,
     "DemandOffset": {
       "PFA": -1,
