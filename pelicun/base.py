@@ -188,17 +188,20 @@ class Options(object):
 
         else:
 
-            filepath = Path(value).resolve()
-
             try:
+
+                filepath = Path(value).resolve()
+
                 globals()['log_file'] = str(filepath)
 
                 with open(filepath, 'w') as f:
                     f.write('')
 
             except:
-                raise ValueError(f"The filepath provided does not point to an "
-                                 f"valid location: {filepath}")
+                log_msg(f"WARNING: The filepath provided for the log file does "
+                        f"not point to a valid location: {value}. \nPelicun "
+                        f"cannot print the log to a file.")
+                self.log_file = None
 
     @property
     def print_log(self):
