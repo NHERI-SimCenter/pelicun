@@ -683,27 +683,57 @@ default_units = dict(
 )
 
 EDP_units = dict(
-    # PID, PRD, RID, and MID are not here because they are unitless
+    # drifts and rotations are not listed here because they are unitless
+
+    # Floor response
     PFA = 'acceleration',
+    PFV = 'speed',
+    PFD = 'length',
+
+    # Wind intensity
     PWS = 'speed',
+
+    # Inundation intensity
+    PIH = 'length',
+
+    # Shaking intensity
     PGA = 'acceleration',
+    PGV = 'speed',
     SA = 'acceleration',
     SV = 'speed',
     SD = 'length',
-    PIH = 'length'
+    PGD = 'length',
 )
 
 EDP_to_demand_type = {
+    # Drifts
     'Story Drift Ratio' :             'PID',
     'Peak Interstory Drift Ratio':    'PID',
     'Roof Drift Ratio' :              'PRD',
     'Peak Roof Drift Ratio' :         'PRD',
     'Damageable Wall Drift' :         'DWD',
     'Racking Drift Ratio' :           'RDR',
+    'Mega Drift Ratio' :              'PMD',
+    'Residual Drift Ratio' :          'RID',
+    'Residual Interstory Drift Ratio':'RID',
+    'Peak Effective Drift Ratio':     'EDR',
+
+    # Floor response
     'Peak Floor Acceleration' :       'PFA',
     'Peak Floor Velocity' :           'PFV',
+    'Peak Floor Displacement':        'PFD',
+
+    # Component response
+    'Peak Link Rotation Angle':       'LR',
+    'Peak Link Beam Chord Rotation':  'LBR',
+
+    # Wind Intensity
     'Peak Gust Wind Speed' :          'PWS',
+
+    # Inundation Intensity
     'Peak Inundation Height' :        'PIH',
+
+    # Shaking Intensity
     'Peak Ground Acceleration' :      'PGA',
     'Peak Ground Velocity' :          'PGV',
     'Spectral Acceleration' :         'SA',
@@ -713,9 +743,6 @@ EDP_to_demand_type = {
     'Peak Spectral Velocity' :        'SV',
     'Peak Spectral Displacement' :    'SD',
     'Permanent Ground Deformation' :  'PGD',
-    'Mega Drift Ratio' :              'PMD',
-    'Residual Drift Ratio' :          'RID',
-    'Residual Interstory Drift Ratio':'RID',
 }
 
 # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
@@ -728,5 +755,6 @@ EDP_to_demand_type = {
 # so that the results still get collected at the appropriate story.
 EDP_offset_adjustment = dict(
     PFA = -1,
-    PFV = -1
+    PFV = -1,
+    PFD = -1
 )
