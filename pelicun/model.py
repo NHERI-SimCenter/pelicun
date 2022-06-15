@@ -2148,15 +2148,31 @@ class DamageModel(PelicunModel):
                                     index=cmp_sample.columns,
                                     columns=['Blocks'])
 
+        first_time = True
         for pg_i in pg_batch.index:
 
-            blocks_i = pg_batch.loc[pg_i, 'Blocks']
+            if np.any(np.isin(pg_i,self.damage_params.index)):
 
-            # if a list of block weights is provided get the number of blocks
-            if np.atleast_1d(blocks_i).shape[0] != 1:
-                blocks_i = np.atleast_1d(blocks_i).shape[0]
+                blocks_i = pg_batch.loc[pg_i, 'Blocks']
 
-            pg_batch.loc[pg_i, 'Blocks'] = blocks_i
+                # if a list of block weights is provided get the number of blocks
+                if np.atleast_1d(blocks_i).shape[0] != 1:
+                    blocks_i = np.atleast_1d(blocks_i).shape[0]
+
+                pg_batch.loc[pg_i, 'Blocks'] = blocks_i
+
+            else:
+                pg_batch.drop(pg_i, inplace=True)
+
+                if first_time:
+                    log_msg(f"\nWARNING: Damage model information is "
+                            f"incomplete for some of the performance groups "
+                            f"and they had to be removed from the analysis:",
+                            prepend_timestamp=False)
+
+                    first_time = False
+
+                log_msg(f"{pg_i}", prepend_timestamp=False)
 
         pg_batch = pg_batch.convert_dtypes()
 
@@ -2211,7 +2227,7 @@ class DamageModel(PelicunModel):
         # get the list of performance groups
         qnt_samples = []
 
-        log_msg(f'Number of Performance Groups:'
+        log_msg(f'Number of Performance Groups in Asset Model:'
                 f' {self._asmnt.asset.cmp_sample.shape[1]}',
                 prepend_timestamp=False)
 
