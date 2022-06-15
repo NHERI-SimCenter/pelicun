@@ -1912,8 +1912,16 @@ class DamageModel(PelicunModel):
 
         # check if it exists among the available ones
         if source_cmp not in cmp_list:
-            raise ValueError(f"source component not found among components in "
-                             f"the damage sample: {source_cmp}")
+
+            log_msg(f"WARNING: Source component {source_cmp} in the prescribed "
+                    f"damage process not found among components in the damage "
+                    f"sample. The corresponding part of the damage process is "
+                    f"skipped.", prepend_timestamp=False)
+
+            #raise ValueError(f"source component not found among components in "
+            #                 f"the damage sample: {source_cmp}")
+
+            return qnt_sample
 
         # get the damage quantities for the source component
         source_cmp_df = qnt_sample.loc[:,source_cmp]
