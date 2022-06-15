@@ -2543,7 +2543,7 @@ class BldgRepairModel(LossModel):
         LP = self.loss_params
 
         # make ds the second level in the MultiIndex
-        case_DF = pd.DataFrame(index=case_list.reorder_levels([0,3,2,1]), columns=[0,])
+        case_DF = pd.DataFrame(index=case_list.reorder_levels([0,3,1,2]), columns=[0,])
         case_DF.sort_index(axis=0, inplace=True)
         driver_cmps = case_list.get_level_values(0).unique()
 
