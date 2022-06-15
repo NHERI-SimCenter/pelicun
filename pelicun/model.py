@@ -2576,8 +2576,7 @@ class BldgRepairModel(LossModel):
             if not driver_cmp_id in driver_cmps:
                 continue
 
-            for ds in case_DF.loc[
-                      driver_cmp_id,:].index.get_level_values(0).unique():
+            for ds in case_DF.loc[driver_cmp_id,:].index.unique(level=0):
 
                 if ds == '0':
                     continue
@@ -2931,7 +2930,7 @@ class BldgRepairModel(LossModel):
         res_list = []
         key_list = []
         if std_sample is not None:
-            prob_cmp_list = std_sample.columns.get_level_values(1).unique()
+            prob_cmp_list = std_sample.columns.unique(level=1)
         else:
             prob_cmp_list = []
 
@@ -2945,7 +2944,7 @@ class BldgRepairModel(LossModel):
             if DV_type not in medians.keys():
                 continue
 
-            for cmp_i in medians[DV_type].columns.get_level_values(0).unique():
+            for cmp_i in medians[DV_type].columns.unique(level=0):
 
                 # check if there is damage in the component
                 driver_type, dmg_cmp_i = self.loss_map.loc[cmp_i, 'Driver']
@@ -2956,17 +2955,17 @@ class BldgRepairModel(LossModel):
                                      f"recognized: {driver_type}")
 
                 if not (dmg_cmp_i
-                        in dmg_quantities.columns.get_level_values(0).unique()):
+                        in dmg_quantities.columns.unique(level=0)):
                     continue
 
                 ds_list = []
 
-                for ds in medians[DV_type].loc[:, cmp_i].columns.get_level_values(0).unique():
+                for ds in medians[DV_type].loc[:, cmp_i].columns.unique(level=0):
 
                     loc_list = []
 
                     for loc_id, loc in enumerate(
-                            dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.get_level_values(0).unique()):
+                            dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.unique(level=0)):
 
                         if ((options.eco_scale["AcrossFloors"] == True) and
                             (loc_id > 0)):
