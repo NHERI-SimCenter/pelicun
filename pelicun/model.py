@@ -490,7 +490,7 @@ class DemandModel(PelicunModel):
             # load the prescribed additional uncertainty
             if 'AddUncertainty' in settings.keys():
 
-                sig_increase = settings['AddUncertainty']
+                sig_increase = float(settings['AddUncertainty'])
 
                 # scale the sig value if the target distribution family is normal
                 if settings['DistributionFamily'] == 'normal':
