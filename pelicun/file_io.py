@@ -565,7 +565,8 @@ def load_from_file(filepath):
 
         # load the contents of the csv into a DataFrame
 
-        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
+        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False,
+                           encoding_errors='replace')
 
         log_msg(f'File successfully opened.', prepend_timestamp=False)
 
