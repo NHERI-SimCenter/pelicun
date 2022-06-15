@@ -2737,9 +2737,12 @@ class BldgRepairModel(LossModel):
 
                     # If theta_0 is a scalar
                     try:
-                        # use a constant median function
                         theta_0 = float(theta_0)
-                        f_median = prep_constant_median_DV(theta_0)
+
+                        # use a constant 1.0 as the median function
+                        # The random variable will be generated as a variation
+                        # from this 1.0 and added in a later step.
+                        f_median = prep_constant_median_DV(1.0)
 
                     except:
 
