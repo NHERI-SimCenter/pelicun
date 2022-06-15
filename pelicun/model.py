@@ -2634,7 +2634,8 @@ class BldgRepairModel(LossModel):
                         RV_reg.add_RV(RandomVariable(
                             name=cost_rv_tag,
                             distribution = cost_family,
-                            theta = cost_theta
+                            theta = cost_theta,
+                            truncation_limits=[0., np.nan]
                         ))
                         rv_count += 1
 
@@ -2645,7 +2646,8 @@ class BldgRepairModel(LossModel):
                         RV_reg.add_RV(RandomVariable(
                             name=time_rv_tag,
                             distribution=time_family,
-                            theta=time_theta
+                            theta=time_theta,
+                            truncation_limits=[0., np.nan]
                         ))
                         rv_count += 1
 
