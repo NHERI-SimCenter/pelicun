@@ -646,6 +646,9 @@ rad = 1.
 C = 1.
 
 USD_2011 = 1.
+USD = 1.
+loss_ratio = 1.
+
 worker_day = 1.
 
 # FEMA P58 specific
