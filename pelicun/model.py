@@ -2925,6 +2925,19 @@ class BldgRepairModel(LossModel):
             std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
                                                axis=1).sort_index(axis=1)
             std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir']
+
+            # convert column names to int
+            std_idx = std_sample.columns.levels
+
+            std_sample.columns = std_sample.columns.set_levels([
+                std_idx[0],
+                std_idx[1].astype(int),
+                std_idx[2],
+                std_idx[3],
+                std_idx[4]])
+
+            std_sample.sort_index(axis=1, inplace=True)
+
         else:
             std_sample = None
 
