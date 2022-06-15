@@ -48,93 +48,109 @@ def log_msg(msg):
 
 log_msg('First line of DL_calculation')
 
-import sys, os, json, ntpath, posixpath, argparse
+import sys, os, json, argparse
 import numpy as np
 import pandas as pd
 import shutil
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
-from pelicun.base import set_options, convert_to_MultiIndex, convert_to_SimpleIndex, describe
+from pelicun.base import set_options, convert_to_MultiIndex, \
+    convert_to_SimpleIndex, describe, EDP_to_demand_type
+from pelicun.file_io import load_data
 from pelicun.assessment import Assessment
-from pelicun.file_io import save_to_csv
 
-def add_units(raw_demands, config):
+damage_processes = {
+    'FEMA P-58': {
+        "1_collapse": {
+            "DS1": "ALL_NA"
+        },
+        "2_excessiveRID": {
+            "DS1": "irreparable_DS1"
+        }
+    }
+}
+
+default_DBs = {
+    'fragility': {
+        'FEMA P-58': 'fragility_DB_FEMA_P58_2nd.csv',
+        'Hazus Earthquake': 'fragility_DB_HAZUS_EQ.csv'
+    },
+    'repair': {
+        'FEMA P-58': 'bldg_repair_DB_FEMA_P58_2nd.csv',
+        'Hazus Earthquake': 'bldg_repair_DB_HAZUS_EQ.csv'
+    }
+
+}
+
+def add_units(raw_demands, length_unit):
 
     demands = raw_demands.T
 
-    if "Units" not in demands.index:
-        demands.insert(0, "Units", np.nan)
-    else:
-        return raw_demands
-
-    try:
-        length_unit = config['GeneralInformation']['units']['length']
-    except:
-        log_msg("No units assigned to the raw demand input and default unit "
-                "definition missing from the input file. Raw demands cannot "
-                "be parsed. Terminating analysis. ")
-
-        return None
+    demands.insert(0, "Units", np.nan)
 
     if length_unit == 'in':
         length_unit = 'inch'
 
     demands = convert_to_MultiIndex(demands, axis=0).sort_index(axis=0).T
 
-    demands.drop(demands.columns[demands.columns.get_level_values(1)== ''], axis=1, inplace=True)
+    if demands.columns.nlevels == 4:
+        DEM_level = 1
+    else:
+        DEM_level = 0
 
-    demands[('1','PRD','1','1')] = demands[('1','PRD','1','1')]
-    demands[('1','PFA','3','1')] = demands[('1','PFA','3','1')]
+    # drop demands with no EDP type identified
+    demands.drop(demands.columns[demands.columns.get_level_values(DEM_level)== ''],
+                 axis=1, inplace=True)
 
-    for EDP_type in ['PFA', 'PGA', 'SA']:
-        demands.iloc[0, demands.columns.get_level_values(1) == EDP_type] = length_unit+'ps2'
+    # assign units
+    demand_cols = demands.columns.get_level_values(DEM_level)
 
-    for EDP_type in ['PFV', 'PWS', 'PGV', 'SV']:
-        demands.iloc[0, demands.columns.get_level_values(1) == EDP_type] = length_unit+'ps'
+    # remove additional info from demand names
+    demand_cols = [d.split('_')[0] for d in demand_cols]
 
-    for EDP_type in ['PFD', 'PIH', 'SD', 'PGD']:
-        demands.iloc[0, demands.columns.get_level_values(1) == EDP_type] = length_unit
+    # acceleration
+    acc_EDPs = ['PFA', 'PGA', 'SA']
+    EDP_mask = np.isin(demand_cols, acc_EDPs)
 
-    for EDP_type in ['PID', 'PRD', 'DWD', 'RDR', 'PMD', 'RID']:
-        demands.iloc[0, demands.columns.get_level_values(1) == EDP_type] = 'rad'
+    if np.any(EDP_mask):
+        demands.iloc[0, EDP_mask] = length_unit+'ps2'
 
+    # speed
+    speed_EDPs = ['PFV', 'PWS', 'PGV', 'SV']
+    EDP_mask = np.isin(demand_cols, speed_EDPs)
+
+    if np.any(EDP_mask):
+        demands.iloc[0, EDP_mask] = length_unit+'ps'
+
+    # displacement
+    disp_EDPs = ['PFD', 'PIH', 'SD', 'PGD']
+    EDP_mask = np.isin(demand_cols, disp_EDPs)
+
+    if np.any(EDP_mask):
+        demands.iloc[0, EDP_mask] = length_unit
+
+    # rotation
+    rot_EDPs = ['PID', 'PRD', 'DWD', 'RDR', 'PMD', 'RID']
+    EDP_mask = np.isin(demand_cols, rot_EDPs)
+
+    if np.any(EDP_mask):
+        demands.iloc[0, EDP_mask] = 'rad'
+
+    # convert back to simple header and return the DF
     return convert_to_SimpleIndex(demands, axis=1)
 
-def run_pelicun(config_path, demand_path=None, sample_size=None,
-    #DL_method, BIM_file, EDP_file, DM_file, DV_file,
-    #output_path=None, detailed_results=True, coupled_EDP=False,
-    #log_file=True, event_time=None, ground_failure=False,
-    #auto_script_path=None, resource_dir=None
-    ):
-
-    config_path = os.path.abspath(config_path)
-
-    with open(config_path, 'r') as f:
-        config = json.load(f)
-
-    if demand_path is not None:
-        demand_path = os.path.abspath(demand_path) # response.csv
-
-        # check if the raw demands have units identified
-        raw_demands = pd.read_csv(demand_path, index_col=0)
-
-        demands = add_units(raw_demands, config)
-
-        if demands is None:
-            return -1
-
-        demand_path = demand_path[:-4]+'_ext.csv'
-
-        demands.to_csv(demand_path)
+def run_pelicun(config_path):
 
     # Initial setup -----------------------------------------------------------
-    general_info = config.get('GeneralInformation', None)
-    if general_info is None:
-        log_msg("General Information is missing from the input file. "
-                "Terminating analysis.")
 
-        return -1
+    # get the absolute path to the config file
+    config_path = Path(config_path).resolve()
+
+    # open the file and load the contents
+    with open(config_path, 'r') as f:
+        config = json.load(f)
 
     DL_config = config.get('DamageAndLoss', None)
     if DL_config is None:
@@ -144,20 +160,38 @@ def run_pelicun(config_path, demand_path=None, sample_size=None,
 
         return -1
 
-    PAL = Assessment(DL_config.get("Options", None))
-
-    if general_info.get('NumberOfStories', False):
-        PAL.stories = general_info['NumberOfStories']
-
-    if sample_size is None:
-        if DL_config.get("SampleSize", False):
-            sample_size = DL_config["SampleSize"]
-
     asset_config = DL_config.get('Asset', None)
-    demand_config = DL_config.get('Demand', None)
+    demand_config = DL_config.get('Demands', None)
     damage_config = DL_config.get('Damage', None)
-    loss_config = DL_config.get('Loss', None)
-    out_config = DL_config.get('Outputs', None)
+    loss_config = DL_config.get('Losses', None)
+    #out_config = DL_config.get('Outputs', None)
+
+    out_config = {
+        'Demand': {
+            'Sample': True,
+            'Statistics': True
+        },
+        'Asset': {
+            'Sample': True,
+            'Statistics': True
+        },
+        'Damage': {
+            'Sample': True,
+            'Statistics': True,
+            'GroupedSample': True,
+            'GroupedStatistics': True
+        },
+        'Loss': {
+            'BldgRepair': {
+                'Sample': True,
+                'Statistics': True,
+                'GroupedSample': True,
+                'GroupedStatistics': True,
+                'AggregateSample': True,
+                'AggregateStatistics': True
+            }
+        }
+    }
 
     if asset_config is None:
         log_msg("Asset configuration missing. Terminating analysis.")
@@ -167,29 +201,123 @@ def run_pelicun(config_path, demand_path=None, sample_size=None,
         log_msg("Demand configuration missing. Terminating analysis.")
         return -1
 
-    if out_config is None:
-        log_msg("Output configuration missing. Terminating analysis.")
+    # get the length unit from the config file
+    try:
+        length_unit = config['GeneralInformation']['units']['length']
+    except:
+        log_msg(
+            "No default length unit provided in the input file. "
+            "Terminating analysis. ")
+
         return -1
+
+    #if out_config is None:
+    #    log_msg("Output configuration missing. Terminating analysis.")
+    #    return -1
+
+    # initialize the Pelicun Assessement
+    options = DL_config.get("Options", {})
+    options.update({
+        "LogFile": "pelicun_log.txt",
+        "Verbose": True
+        })
+
+    PAL = Assessment(options)
+
+    # Demand Assessment -----------------------------------------------------------
+
+    # check if there is a demand file location specified in the config file
+    if config['DamageAndLoss']['Demands'].get('DemandFilePath', False):
+
+        demand_path = Path(
+            config['DamageAndLoss']['Demands']['DemandFilePath']).resolve()
+
+    else:
+
+        # otherwise assume that there is a response.csv file next to the config file
+        demand_path = config_path.parent/'response.csv'
+
+    # try to load the demands
+    raw_demands = pd.read_csv(demand_path, index_col=0)
+
+    # add units to the demand data if needed
+    if "Units" not in raw_demands.index:
+
+        demands = add_units(raw_demands, length_unit)
+
+        #demand_path = demand_path[:-4]+'_ext.csv'
+        #demands.to_csv(demand_path)
+
+    else:
+        demands = raw_demands
+
+    # get the calibration information
+    if demand_config.get('Calibration', False):
+
+        cal_config = demand_config['Calibration']
+
+        # load the available demand sample
+        PAL.demand.load_sample(demands)
+
+        # then use it to calibrate the demand model
+        PAL.demand.calibrate_model(demand_config['Calibration'])
+
+        # and generate a new demand sample
+        sample_size = int(demand_config['SampleSize'])
+
+        PAL.demand.generate_sample({"SampleSize": sample_size})
+
+    # save results
+    if out_config.get('Demand', False):
+
+        out_reqs = [out if val else "" for out, val in out_config['Demand'].items()]
+
+        if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
+            demand_sample = PAL.demand.save_sample()
+
+            if 'Sample' in out_reqs:
+                demand_sample_s = convert_to_SimpleIndex(demand_sample, axis=1)
+                demand_sample_s.to_csv("DEM_sample.zip",
+                                       index_label=demand_sample_s.columns.name,
+                                       compression=dict(method='zip',
+                                                        archive_name='DEM_sample.csv'))
+
+            if 'Statistics' in out_reqs:
+                demand_stats = convert_to_SimpleIndex(describe(demand_sample), axis=1)
+                demand_stats.to_csv("DEM_stats.csv",
+                                    index_label=demand_stats.columns.name)
 
     # Asset Definition ------------------------------------------------------------
 
-    # if requested, load a component model and generate a sample
-    if asset_config.get('LoadModelFrom', False):
+    # set the number of stories
+    if asset_config.get('NumberOfStories', False):
+        PAL.stories = int(asset_config['NumberOfStories'])
 
-        if sample_size is None:
-            log_msg("Sample size not specified. Terminating analysis.")
-            return -1
+    # load a component model and generate a sample
+    if asset_config.get('ComponentAssignmentFile', False):
+
+        cmp_marginals = pd.read_csv(asset_config['ComponentAssignmentFile'],
+                                    index_col=0, encoding_errors='replace')
+
+        # prepare additional component data, if needed
+        if (('CollapseFragility' in damage_config.keys()) or
+            ('IrreparableDamage' in damage_config.keys())):
+
+            if 'CollapseFragility' in damage_config.keys():
+                cmp_marginals.loc['collapse', 'Units'] = 'ea'
+                cmp_marginals.loc['collapse', 'Location'] = 0
+                cmp_marginals.loc['collapse', 'Direction'] = 1
+                cmp_marginals.loc['collapse', 'Theta_0'] = 1.0
 
         # load component model
-        PAL.asset.load_cmp_model(
-            data_source= asset_config['LoadModelFrom'])
+        PAL.asset.load_cmp_model({'marginals': cmp_marginals})
 
         # generate component quantity sample
-        PAL.asset.generate_cmp_sample(sample_size)
+        PAL.asset.generate_cmp_sample()
 
     # if requested, load the quantity sample from a file
-    if asset_config.get('LoadSampleFrom', False):
-        PAL.asset.load_cmp_sample(asset_config['LoadSampleFrom'])
+    elif asset_config.get('ComponentSampleFile', False):
+        PAL.asset.load_cmp_sample(asset_config['ComponentSampleFile'])
 
     # if requested, save results
     if out_config.get('Asset', False):
@@ -211,92 +339,103 @@ def run_pelicun(config_path, demand_path=None, sample_size=None,
                 cmp_stats.to_csv("CMP_stats.csv",
                                     index_label=cmp_stats.columns.name)
 
-    # Demand Assessment -----------------------------------------------------------
-
-    # if demand calibration is requested
-    if demand_config.get('Calibration', False):
-
-        cal_config = demand_config['Calibration']
-
-        # load demand samples to serve as reference data
-        if cal_config.get('LoadSampleFrom', False):
-            demand_path = cal_config['LoadSampleFrom']
-
-        if demand_path is None:
-            log_msg("Demand sample not specified for demand calibration."
-                    "Terminating analysis.")
-            return -1
-
-        PAL.demand.load_sample(demand_path)
-
-        # then use it to calibrate the demand model
-        PAL.demand.calibrate_model(cal_config['Marginals'])
-
-        # if requested, save the model to files
-        if cal_config.get('SaveModelTo', False):
-            PAL.demand.save_model(file_prefix=cal_config['SaveModelTo'])
-
-    # if requested, load a pre-calibrated model from files
-    if demand_config.get('LoadModelFrom', False):
-        PAL.demand.load_model(data_source= demand_config['LoadModelFrom'])
-
-    # if demand samples are provided in a file
-    if demand_config.get('LoadSampleFrom', False):
-        PAL.demand.load_sample(demand_config['LoadSampleFrom'])
-
-    else:
-        # otherwise, generate demand sample
-        if sample_size is None:
-            log_msg("Sample size not specified. Terminating analysis.")
-            return -1
-
-        PAL.demand.generate_sample({"SampleSize": sample_size})
-
-    # if requested, save results
-    if out_config.get('Demand', False):
-
-        out_reqs = [out if val else "" for out, val in out_config['Demand'].items()]
-
-        if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-            demand_sample = PAL.demand.save_sample()
-
-            if 'Sample' in out_reqs:
-                demand_sample_s = convert_to_SimpleIndex(demand_sample, axis=1)
-                demand_sample_s.to_csv("DEM_sample.zip",
-                                       index_label=demand_sample_s.columns.name,
-                                       compression=dict(method='zip',
-                                                        archive_name='DEM_sample.csv'))
-
-            if 'Statistics' in out_reqs:
-                demand_stats = convert_to_SimpleIndex(describe(demand_sample), axis=1)
-                demand_stats.to_csv("DEM_stats.csv",
-                                    index_label=demand_stats.columns.name)
-
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
     if damage_config is not None:
 
-        if sample_size is None:
-            log_msg("Sample size not specified. Terminating analysis.")
-            return -1
-
         # load the fragility information
-        PAL.damage.load_damage_model(damage_config['LoadModelFrom'])
+        if asset_config['ComponentDatabase'] != "User Defined":
+            fragility_db = ('PelicunDefault/' +
+                            default_DBs['fragility'][asset_config['ComponentDatabase']])
+
+        else:
+            fragility_db = asset_config['ComponentDatabasePath']
+
+        # prepare additional fragility data, if needed
+        if (('CollapseFragility' in damage_config.keys()) or
+            ('IrreparableDamage' in damage_config.keys())):
+
+            # get the database header from the default db
+            P58_data = PAL.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+            adf = pd.DataFrame(columns=P58_data.columns)
+
+            if 'CollapseFragility' in damage_config.keys():
+
+                coll_config = damage_config['CollapseFragility']
+
+                adf.loc['collapse', ('Demand', 'Directional')] = 1
+                adf.loc['collapse', ('Demand', 'Offset')] = 0
+
+                coll_DEM = coll_config["DemandType"]
+
+                if '_' in coll_DEM:
+                    coll_DEM, coll_DEM_spec = coll_DEM.split('_')
+                else:
+                    coll_DEM_spec = None
+
+                coll_DEM_name = None
+                for demand_name, demand_short in EDP_to_demand_type.items():
+
+                    if demand_short == coll_DEM:
+                        coll_DEM_name = demand_name
+                        break
+
+                if coll_DEM_name is None:
+                    return -1
+
+                if coll_DEM_spec is None:
+                    adf.loc['collapse', ('Demand', 'Type')] = coll_DEM_name
+
+                else:
+                    adf.loc['collapse', ('Demand', 'Type')] = f'{coll_DEM_name}|{coll_DEM_spec}'
+
+                coll_DEM_unit = add_units(
+                    pd.DataFrame(columns=[f'{coll_DEM}-1-1',]),
+                    length_unit).iloc[0,0]
+
+                adf.loc['collapse', ('Demand', 'Unit')] = coll_DEM_unit
+
+                adf.loc['collapse', ('LS1','Family')] = (
+                    coll_config.get('CapacityDistribution', ""))
+
+                adf.loc['collapse', ('LS1','Theta_0')] = (
+                    coll_config.get('CapacityMedian', ""))
+
+
+                adf.loc['collapse', ('LS1','Theta_1')] = (
+                    coll_config.get('Theta_1', ""))
+
+                adf.loc['collapse', 'Incomplete'] = 0
+
+            PAL.damage.load_damage_model([adf, fragility_db])
+
+        else:
+            PAL.damage.load_damage_model([fragility_db])
+
+        # load the damage process if needed
+        dmg_process = None
+        if damage_config.get('DamageProcess', False):
+
+            dp_approach = damage_config['DamageProcess']
+
+            if dp_approach in damage_processes.keys():
+                dmg_process = damage_processes[dp_approach]
+
+            elif dp_approach == "User Defined":
+
+                # load the damage process from a file
+                with open(damage_config['DamageProcessFilePath'], 'r') as f:
+                    dmg_process = json.load(f)
+
+            else:
+                log_msg(f"Prescribed Damage Process not recognized: "
+                        f"{dp_approach}")
+
 
         # calculate damages
-        # load the damage process if needed
-        if damage_config.get('DamageProcess', False):
-            with open(damage_config['DamageProcess'], 'r') as f:
-                dmg_process = json.load(f)
-        else:
-            dmg_process = None
-
-        PAL.damage.calculate(sample_size, dmg_process=dmg_process)
-
-        # if damage samples are provided in a file
-        if damage_config.get('LoadSampleFrom', False):
-            PAL.damage.load_sample(damage_config['LoadSampleFrom'])
+        PAL.damage.calculate(dmg_process=dmg_process)
 
         # if requested, save results
         if out_config.get('Damage', False):
@@ -347,17 +486,128 @@ def run_pelicun(config_path, demand_path=None, sample_size=None,
 
         out_config_loss = out_config.get('Loss', {})
 
-        loss_map_path = loss_config['LoadMappingFrom']
-
         # if requested, calculate repair consequences
-        if loss_config.get('CalculateBldgRepair', False):
+        if loss_config.get('BldgRepair', False):
 
-            bldg_repair_config = loss_config['CalculateBldgRepair']
+            bldg_repair_config = loss_config['BldgRepair']
 
-            PAL.bldg_repair.load_model(bldg_repair_config['LoadModelFrom'],
-                                       loss_map_path)
+            # load the consequence information
+            if bldg_repair_config['ConsequenceDatabase'] != "User Defined":
+                consequence_db = (
+                        'PelicunDefault/' +
+                        default_DBs['repair'][bldg_repair_config['ConsequenceDatabase']])
 
-            PAL.bldg_repair.calculate(sample_size)
+                conseq_df = PAL.get_default_data(
+                    default_DBs['repair'][
+                        bldg_repair_config['ConsequenceDatabase']][:-4])
+
+            else:
+                consequence_db = bldg_repair_config['ConsequenceDatabasePath']
+                conseq_df = load_data(
+                    bldg_repair_config['ConsequenceDatabasePath'],
+                    orientation=1, reindex=False, convert=[])
+
+            # prepare the loss map
+            loss_map = None
+            if bldg_repair_config['MapApproach'] == "Automatic":
+
+                DL_method = bldg_repair_config['ConsequenceDatabase']
+
+                if DL_method == 'FEMA P-58':
+
+                    # with FEMA P-58 we assume fragility and consequence data
+                    # have the same IDs
+
+                    # get the damage sample
+                    dmg_sample = PAL.damage.save_sample()
+
+                    # create a mapping for all components that are also in
+                    # the prescribed consequence database
+                    dmg_cmps = dmg_sample.columns.unique(level='cmp')
+                    loss_cmps = conseq_df.index.unique(level=0)
+
+                    drivers = []
+                    loss_models = []
+                    for dmg_cmp in dmg_cmps:
+
+                        if dmg_cmp in loss_cmps:
+                            drivers.append(f'DMG-{dmg_cmp}')
+                            loss_models.append(dmg_cmp)
+
+                    loss_map = pd.DataFrame(loss_models,
+                                            columns=['BldgRepair'],
+                                            index=drivers)
+
+            elif bldg_repair_config['MapApproach'] == "User Defined":
+
+                loss_map = bldg_repair_config['MapFilePath']
+
+            # prepare additional consequence data and loss mapping, if needed
+            if ((('CollapseFragility' in damage_config.keys()) or
+                 ('IrreparableDamage' in damage_config.keys()))
+                    and
+                (('ReplacementCost' in bldg_repair_config.keys()) or
+                 ('ReplacementTime' in bldg_repair_config.keys()))):
+
+                # get the database header from the default db
+                adf = pd.DataFrame(
+                    columns=conseq_df.columns,
+                    index=pd.MultiIndex.from_tuples(
+                        [('replacement', 'Cost'),
+                         ('replacement', 'Time')]))
+
+                if 'ReplacementCost' in bldg_repair_config.keys():
+                    rCost_config = bldg_repair_config['ReplacementCost']
+                    rc = ('replacement', 'Cost')
+
+                    adf.loc[rc, ('Quantity', 'Unit')] = "1 EA"
+
+                    adf.loc[rc, ('DV', 'Unit')] = rCost_config["Unit"]
+
+                    adf.loc[rc, ('DS1', 'Theta_0')] = rCost_config["Median"]
+
+                    if rCost_config.get('Distribution', 'N/A') != 'N/A':
+                        adf.loc[rc, ('DS1', 'Family')] = rCost_config["Distribution"]
+                        adf.loc[rc, ('DS1', 'Theta_1')] = rCost_config["Theta_1"]
+
+                else:
+                    adf.drop(('replacement', 'Cost'), inplace=True)
+
+                if 'ReplacementTime' in bldg_repair_config.keys():
+                    rTime_config = bldg_repair_config['ReplacementTime']
+                    rt = ('replacement', 'Time')
+
+                    adf.loc[rt, ('Quantity', 'Unit')] = "1 EA"
+
+                    adf.loc[rt, ('DV', 'Unit')] = rTime_config["Unit"]
+
+                    adf.loc[rt, ('DS1', 'Theta_0')] = rTime_config["Median"]
+
+                    if rTime_config.get('Distribution', 'N/A') != 'N/A':
+                        adf.loc[rt, ('DS1', 'Family')] = rTime_config["Distribution"]
+                        adf.loc[rt, ('DS1', 'Theta_1')] = rTime_config["Theta_1"]
+                else:
+                    adf.drop(('replacement', 'Time'), inplace=True)
+
+                # Add replacement to the loss map if it is not custom.
+                # Custom loss maps are assumed to have the additional mapping
+                # included
+                if isinstance(loss_map, pd.DataFrame):
+
+                    # for collapse...
+                    if 'CollapseFragility' in damage_config.keys():
+                        loss_map.loc['DMG-collapse', 'BldgRepair'] = 'replacement'
+
+                    # and for irreparable damage
+
+                PAL.bldg_repair.load_model([adf, conseq_df], loss_map)
+
+            else:
+
+                PAL.bldg_repair.load_model([conseq_df], loss_map)
+
+
+            PAL.bldg_repair.calculate()
 
             agg_repair = PAL.bldg_repair.aggregate_losses()
 
@@ -417,19 +667,48 @@ def run_pelicun(config_path, demand_path=None, sample_size=None,
                             agg_stats.to_csv("DV_bldg_repair_agg_stats.csv",
                                              index_label=agg_stats.columns.name)
 
+    # Result Summary -----------------------------------------------------------
+
+    if 'damage_sample' not in locals():
+        damage_sample = PAL.damage.save_sample()
+
+    if 'agg_repair' not in locals():
+        agg_repair = PAL.bldg_repair.aggregate_losses()
+
+    damage_sample = damage_sample.groupby(level=[0,3], axis=1).sum()
+    damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
+
+    if 'collapse-1' in damage_sample_s.columns:
+        damage_sample_s['collapse'] = damage_sample_s['collapse-1']
+    else:
+        damage_sample_s['collapse'] = np.zeros(damage_sample_s.shape[0])
+
+    agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+
+    summary = pd.concat([agg_repair_s, damage_sample_s['collapse'].to_frame()],
+                        axis=1)
+
+    summary_stats = describe(summary)
+
+    # save summary sample
+    summary.to_csv("DL_summary.csv")
+
+    # save summary statistics
+    summary_stats.to_csv("DL_summary_stats.csv")
+
     return 0
 
 def main(args):
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--configFile')
+    parser.add_argument('-c', '--filenameDL')
     parser.add_argument('-d', '--demandFile', default = None)
-    parser.add_argument('-s', '--sampleSize', default = None)
+    #parser.add_argument('-s', '--sampleSize', default = None)
     #parser.add_argument('--DL_Method', default = None)
     #parser.add_argument('--outputBIM', default='BIM.csv')
-    #parser.add_argument('--outputEDP', default='EDP.csv')
-    #parser.add_argument('--outputDM', default = 'DM.csv')
-    #parser.add_argument('--outputDV', default = 'DV.csv')
+    parser.add_argument('--outputEDP', default='EDP.csv')
+    parser.add_argument('--outputDM', default = 'DM.csv')
+    parser.add_argument('--outputDV', default = 'DV.csv')
     #parser.add_argument('--dirnameOutput', default = None)
     #parser.add_argument('--event_time', default=None)
     #parser.add_argument('--detailed_results', default = True,
@@ -448,8 +727,9 @@ def main(args):
 
     #print(args)
     out = run_pelicun(
-        args.configFile, args.demandFile,
-        args.sampleSize,
+        args.filenameDL,
+        #args.demandFile,
+        #args.sampleSize,
         #args.DL_Method,
         #args.outputBIM, args.outputEDP,
         #args.outputDM, args.outputDV,
