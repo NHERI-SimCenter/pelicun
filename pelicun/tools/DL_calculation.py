@@ -691,7 +691,7 @@ def run_pelicun(config_path):
     summary_stats = describe(summary)
 
     # save summary sample
-    summary.to_csv("DL_summary.csv")
+    summary.to_csv("DL_summary.csv", index_label='#')
 
     # save summary statistics
     summary_stats.to_csv("DL_summary_stats.csv")
