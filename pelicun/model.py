@@ -500,13 +500,13 @@ class DemandModel(PelicunModel):
 
         def get_filter_mask(lower_lims, upper_lims):
 
-            demands_of_interest = demand_sample.iloc[:, ~np.isnan(upper_lims)]
-            limits_of_interest = upper_lims[~np.isnan(upper_lims)]
+            demands_of_interest = demand_sample.iloc[:, ~pd.isna(upper_lims)]
+            limits_of_interest = upper_lims[~pd.isna(upper_lims)]
             upper_mask = np.all(demands_of_interest < limits_of_interest,
                                 axis=1)
 
-            demands_of_interest = demand_sample.iloc[:, ~np.isnan(lower_lims)]
-            limits_of_interest = lower_lims[~np.isnan(lower_lims)]
+            demands_of_interest = demand_sample.iloc[:, ~pd.isna(lower_lims)]
+            limits_of_interest = lower_lims[~pd.isna(lower_lims)]
             lower_mask = np.all(demands_of_interest > limits_of_interest,
                                 axis=1)
 
@@ -555,7 +555,7 @@ class DemandModel(PelicunModel):
         upper_lims = cal_df.loc[:, 'CensorUpper'].values
         lower_lims = cal_df.loc[:, 'CensorLower'].values
 
-        if ~np.all(np.isnan(np.array([upper_lims, lower_lims]))):
+        if ~np.all(pd.isna(np.array([upper_lims, lower_lims]))):
 
             censor_mask = get_filter_mask(lower_lims, upper_lims)
             censored_count = np.sum(~censor_mask)
@@ -575,7 +575,7 @@ class DemandModel(PelicunModel):
         upper_lims = cal_df.loc[:, 'TruncateUpper'].values
         lower_lims = cal_df.loc[:, 'TruncateLower'].values
 
-        if ~np.all(np.isnan(np.array([upper_lims, lower_lims]))):
+        if ~np.all(pd.isna(np.array([upper_lims, lower_lims]))):
 
             truncate_mask = get_filter_mask(lower_lims, upper_lims)
             truncated_count = np.sum(~truncate_mask)
@@ -633,7 +633,7 @@ class DemandModel(PelicunModel):
         model_params.loc[cal_df.index, ['Theta_0','Theta_1']] = demand_theta
 
         # increase the variance of the marginal distributions, if needed
-        if ~np.all(np.isnan(model_params.loc[:, 'SigIncrease'].values)):
+        if ~np.all(pd.isna(model_params.loc[:, 'SigIncrease'].values)):
 
             log_msg(f"\nIncreasing demand variance...",
                     prepend_timestamp=False)
@@ -1861,7 +1861,7 @@ class DamageModel(PelicunModel):
         # get the realized Damage States
         # Note that these might be fewer than all possible Damage States
         ds_list = np.unique(dmg_ds.values)
-        ds_list = np.array(ds_list[~np.isnan(ds_list)], dtype=int)
+        ds_list = np.array(ds_list[~pd.isna(ds_list)], dtype=int)
 
         # If requested, drop the zero damage case
         if dropzero:
