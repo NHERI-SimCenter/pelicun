@@ -2373,15 +2373,23 @@ class LossModel(PelicunModel):
         if filepath is not None:
             log_msg(f'Saving loss sample...')
 
-        #TODO: handle units
-        res = save_to_csv(self.sample, filepath, #units=self.units,
+        cmp_units = self.loss_params[('DV', 'Unit')]
+        dv_units = pd.Series(index=self.sample.columns, name='Units',
+                             dtype='object')
+
+        for cmp_id, dv_type in cmp_units.index:
+
+            if (dv_type.upper(), cmp_id) in dv_units.index:
+                dv_units.loc[(dv_type.upper(), cmp_id)] = cmp_units.loc[(cmp_id, dv_type)]
+
+        res = save_to_csv(self.sample, filepath, units=dv_units,
                           use_simpleindex=filepath is not None)
 
         if filepath is not None:
             log_msg(f'Loss sample successfully saved.',
                     prepend_timestamp=False)
         else:
-            #res.drop("Units", inplace=True)
+            res.drop("Units", inplace=True)
             return res.astype(float)
 
     def load_sample(self, filepath):
