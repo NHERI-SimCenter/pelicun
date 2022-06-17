@@ -1317,7 +1317,20 @@ class DamageModel(PelicunModel):
 
         # only keep the damage model parameters for the components in the model
         cmp_unique = cmp_labels.unique(level=0)
-        damage_params = damage_params.loc[cmp_unique, :]
+        cmp_mask = damage_params.index.isin(cmp_unique, level=0)
+
+        damage_params = damage_params.loc[cmp_mask, :]
+
+        if np.sum(cmp_mask) != len(cmp_unique):
+
+            cmp_list = cmp_unique[
+                np.isin(cmp_unique, damage_params.index.values,
+                        invert=True)].to_list()
+
+            log_msg(f"\nWARNING: The damage model does not provide "
+                    f"vulnerability information for the following component(s) "
+                    f"in the asset model: {cmp_list}.\n",
+                    prepend_timestamp=False)
 
         # TODO: load defaults for Demand-Offset and Demand-Directional
 
