@@ -1680,7 +1680,7 @@ def create_Hazus_EQ_fragility_db(source_file,
         # store demand specifications
         df_db.loc[counter, 'Demand-Type'] = "Peak Floor Acceleration"
         df_db.loc[counter, 'Demand-Unit'] = "g"
-        df_db.loc[counter, 'Demand-Offset'] = 1
+        df_db.loc[counter, 'Demand-Offset'] = 0
 
         # store the Limit State parameters
         for LS_i in range(1, 5):
