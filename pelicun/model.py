@@ -2896,11 +2896,29 @@ class BldgRepairModel(LossModel):
                                   'repair_time-sequential'],
                                  axis=1)
 
+        # convert units
+
+        cmp_units = self.loss_params[('DV', 'Unit')].groupby(level=[1,]).agg(
+            lambda x:x.value_counts().index[0])
+
+        dv_units = pd.Series(index=df_agg.columns, name='Units', dtype='object')
+
+        dv_units['repair_cost'] = cmp_units['Cost']
+        dv_units['repair_time-parallel'] = cmp_units['Time']
+        dv_units['repair_time-sequential'] = cmp_units['Time']
+
+        df_agg = save_to_csv(df_agg, None, units=dv_units,
+                             use_simpleindex=False)
+
+        df_agg.drop("Units", inplace=True)
+
+        # convert header
+
         df_agg = convert_to_MultiIndex(df_agg, axis=1)
 
         log_msg(f"Repair consequences successfully aggregated.")
 
-        return df_agg
+        return df_agg.astype(float)
 
 
     def _generate_DV_sample(self, dmg_quantities, sample_size):
