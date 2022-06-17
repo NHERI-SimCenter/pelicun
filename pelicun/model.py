@@ -456,6 +456,21 @@ class DemandModel(PelicunModel):
 
         def parse_settings(settings, demand_type):
 
+            def parse_str_to_float(in_str, context_string):
+
+                try:
+                    out_float = float(in_str)
+
+                except:
+
+                    log_msg(f"WARNING: Could not parse {in_str} provided as "
+                            f"{context_string}. Using NaN instead.",
+                            prepend_timestamp=False)
+
+                    out_float = np.nan
+
+                return out_float
+
             active_d_types = (
                 demand_sample.columns.get_level_values('type').unique())
 
@@ -474,17 +489,14 @@ class DemandModel(PelicunModel):
             # load the distribution family
             cal_df.loc[idx[cols,:,:], 'Family'] = settings['DistributionFamily']
 
-            # load the censor limits
-            if 'CensorAt' in settings.keys():
-                CensorLower, CensorUpper = settings['CensorAt']
-                cal_df.loc[idx[cols,:,:], 'CensorLower'] = CensorLower
-                cal_df.loc[idx[cols,:,:], 'CensorUpper'] = CensorUpper
+            # load limits
+            for lim in ['CensorLower', 'CensorUpper',
+                        'TruncateLower', 'TruncateUpper']:
 
-            # load the truncation limits
-            if 'TruncateAt' in settings.keys():
-                TruncateLower, TruncateUpper = settings['TruncateAt']
-                cal_df.loc[idx[cols,:,:], 'TruncateLower'] = TruncateLower
-                cal_df.loc[idx[cols,:,:], 'TruncateUpper'] = TruncateUpper
+                if lim in settings.keys():
+                    val = parse_str_to_float(settings[lim], lim)
+                    if not pd.isna(val):
+                        cal_df.loc[idx[cols, :, :], lim] = val
 
             # scale the censor and truncation limits, if needed
             scale_factor = options.scale_factor(settings.get('Unit', None))
@@ -496,7 +508,8 @@ class DemandModel(PelicunModel):
             # load the prescribed additional uncertainty
             if 'AddUncertainty' in settings.keys():
 
-                sig_increase = float(settings['AddUncertainty'])
+                sig_increase = parse_str_to_float(settings['AddUncertainty'],
+                                                  'AddUncertainty')
 
                 # scale the sig value if the target distribution family is normal
                 if settings['DistributionFamily'] == 'normal':
