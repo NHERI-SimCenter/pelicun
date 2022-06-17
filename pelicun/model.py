@@ -2782,10 +2782,17 @@ class BldgRepairModel(LossModel):
                     try:
                         theta_0 = float(theta_0)
 
-                        # use a constant 1.0 as the median function
-                        # The random variable will be generated as a variation
-                        # from this 1.0 and added in a later step.
-                        f_median = prep_constant_median_DV(1.0)
+                        if pd.isna(loss_params_DS.get('Family', np.nan)):
+
+                            # if theta_0 is constant, then use it directly
+                            f_median = prep_constant_median_DV(theta_0)
+
+                        else:
+
+                            # otherwise use a constant 1.0 as the median
+                            # The random variable will be generated as a
+                            # variation from this 1.0 and added in a later step.
+                            f_median = prep_constant_median_DV(1.0)
 
                     except:
 
