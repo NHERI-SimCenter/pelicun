@@ -268,9 +268,9 @@ class DemandModel(PelicunModel):
 
         return sample
 
-    def save_sample(self, filepath=None):
+    def save_sample(self, filepath=None, save_units=False):
         """
-        Save demand sample to a csv file
+        Save demand sample to a csv file or return it in a DataFrame
 
         """
 
@@ -285,8 +285,14 @@ class DemandModel(PelicunModel):
             log_msg(f'Demand sample successfully saved.',
                     prepend_timestamp=False)
         else:
+            units = res.loc["Units"]
             res.drop("Units", inplace=True)
-            return res.astype(float)
+
+            if save_units:
+                return res.astype(float), units
+
+            else:
+                return res.astype(float)
 
     def load_sample(self, filepath):
         """
