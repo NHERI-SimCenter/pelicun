@@ -746,6 +746,9 @@ EDP_to_demand_type = {
     'Peak Spectral Velocity' :        'SV',
     'Peak Spectral Displacement' :    'SD',
     'Permanent Ground Deformation' :  'PGD',
+
+    # Placeholder for advanced calculations
+    'One':                            'ONE'
 }
 
 # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
