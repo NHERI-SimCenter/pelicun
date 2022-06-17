@@ -2313,6 +2313,9 @@ class DamageModel(PelicunModel):
         if dmg_process is not None:
             log_msg(f"Applying damage processes...")
 
+            # sort the processes
+            dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
+
             for task in dmg_process.items():
 
                 qnt_sample = self._perform_dmg_task(task, qnt_sample)
