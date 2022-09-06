@@ -312,8 +312,15 @@ def _get_std_corr_matrix(std_samples):
         np.fill_diagonal(rho_hat, 1.0)
 
         # check if we introduced any unreasonable values
-        if ((np.max(rho_hat) > 1.0) or (np.min(rho_hat) < -1.0)):
+        if ((np.max(rho_hat) > 1.01) or (np.min(rho_hat) < -1.01)):
             return None
+
+        # round values to 1.0 and -1.0, if needed
+        if np.max(rho_hat) > 1.0:
+            rho_hat /= np.max(rho_hat)
+
+        if np.min(rho_hat) < -1.0:
+            rho_hat /= np.abs(np.min(rho_hat))
 
     return rho_hat
 
