@@ -2464,6 +2464,24 @@ class LossModel(PelicunModel):
 
         # keep only the relevant data
         loss_cmp = np.unique(self.loss_map['Consequence'].values)
+
+        available_cmp = loss_params.index.unique(level=0)
+        missing_cmp = []
+        for cmp in loss_cmp:
+            if cmp not in available_cmp:
+                missing_cmp.append(cmp)
+
+        if len(missing_cmp) > 0:
+            log_msg(f"\nWARNING: The loss model does not provide "
+                f"consequence information for the following component(s) "
+                f"in the loss map: {missing_cmp}. They are removed from "
+                f"further analysis\n",
+                prepend_timestamp=False)
+
+        self.loss_map = self.loss_map.loc[
+            ~loss_map['Consequence'].isin(missing_cmp)]
+        loss_cmp = np.unique(self.loss_map['Consequence'].values)
+
         loss_params = loss_params.loc[idx[loss_cmp, :],:]
 
         # drop unused damage states
