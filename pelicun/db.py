@@ -629,7 +629,7 @@ def create_FEMA_P58_bldg_repair_db(source_file,
 
         df_db.loc[cmp.Index, 'Quantity-Unit'] = (
             ' '.join(cmp.Fragility_Unit_of_Measure.split(' ')[::-1]).strip())
-        df_db.loc[(cmp.Index, 'Cost'), 'DV-Unit'] = "US$_2011"
+        df_db.loc[(cmp.Index, 'Cost'), 'DV-Unit'] = "USD_2011"
         df_db.loc[(cmp.Index, 'Time'), 'DV-Unit'] = "worker_day"
 
         # get the raw metadata for the component
