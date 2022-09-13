@@ -28,3 +28,6 @@
 
 __pycache__
 *.bak
+
+# Emacs automated backup files
+*~/
