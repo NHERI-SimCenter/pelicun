@@ -55,12 +55,15 @@ This module has classes and methods to manage databases used by pelicun.
 
 """
 
-from .base import *
+from . import base
 from .uq import fit_distribution_to_percentiles
 from pathlib import Path
+import numpy as np
+import pandas as pd
 import re
 import json
 
+idx = base.idx
 
 def parse_DS_Hierarchy(DSH):
     """
@@ -885,7 +888,7 @@ def create_FEMA_P58_bldg_repair_db(source_file,
     # convert to optimal datatypes to reduce file size
     df_db = df_db.convert_dtypes()
 
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"
@@ -1272,7 +1275,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
     # convert to optimal datatypes to reduce file size
     df_db = df_db.convert_dtypes()
 
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"
@@ -1923,7 +1926,7 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     df_db.loc[idx[:, 'Time'], 'DV-Unit'] = "day"
 
     # convert to simple index
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"
@@ -2054,7 +2057,7 @@ def create_Hazus_EQ_bldg_injury_db(source_file,
     df_db.loc[:, 'DV-Unit'] = "injury_rate"
 
     # convert to simple index
-    df_db = convert_to_SimpleIndex(df_db, 0)
+    df_db = base.convert_to_SimpleIndex(df_db, 0)
 
     # rename the index
     df_db.index.name = "ID"

@@ -56,8 +56,10 @@ quantification in pelicun.
 
 """
 
-from .base import *
+from . import base
 
+import numpy as np
+import pandas as pd
 from scipy.stats import uniform, norm
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats.mvn import mvndst
@@ -689,7 +691,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
         rho_hat = np.zeros((n_dims, n_dims))
         np.fill_diagonal(rho_hat, 1.0)
 
-        log_msg("\nWARNING: Demand sample size too small to reliably estimate "
+        base.log_msg("\nWARNING: Demand sample size too small to reliably estimate "
                 "the correlation matrix. Assuming uncorrelated demands.",
                 prepend_timestamp=False, prepend_blank_space=False)
 
@@ -1488,10 +1490,10 @@ class RandomVariableRegistry(object):
             Random seed used for sampling.
         """
         if method is None:
-            method = options.sampling_method
+            method = base.options.sampling_method
 
         # Initialize the random number generator
-        rng = options.rng
+        rng = base.options.rng
 
         # Generate a dictionary with IDs of the free (non-anchored and
         # non-deterministic) variables

@@ -48,10 +48,13 @@ This module has classes and methods that auto-populate DL models.
 
 """
 
-from .base import *
+from . import base
 import importlib
 import json
+import sys
 from pathlib import Path
+import pandas as pd
+
 
 ap_DesignLevel = {
     1940: 'Pre-Code',
@@ -302,7 +305,7 @@ def auto_populate(DL_input_path, EDP_input_path,
 
             if is_IM_based:
                 loss_dict.update({
-                    "ComponentDataFolder": pelicun_path+"/resources/HAZUS_MH_2.1_EQ_eqv_PGA.hdf"
+                    "ComponentDataFolder": base.pelicun_path+"/resources/HAZUS_MH_2.1_EQ_eqv_PGA.hdf"
                     })
             else:
                 loss_dict['ResponseModel'].update({
@@ -311,7 +314,7 @@ def auto_populate(DL_input_path, EDP_input_path,
                         "PRD": "0.20"
                     }})
                 loss_dict.update({
-                    "ComponentDataFolder": pelicun_path+"/resources/HAZUS_MH_2.1_EQ_story.hdf"
+                    "ComponentDataFolder": base.pelicun_path+"/resources/HAZUS_MH_2.1_EQ_story.hdf"
                     })
 
             if 'W1' in bt:
@@ -450,7 +453,7 @@ def auto_populate(DL_input_path, EDP_input_path,
 
                 segment_count = BIM['SegmentCount']
                 segment_length = BIM['Segments'][0]['length']
-                cg_count = int(segment_length / (100 * ft))
+                cg_count = int(segment_length / (100 * base.ft))
                 quantities = '1'
                 for s in range(1, cg_count):
                     quantities += ', 1'

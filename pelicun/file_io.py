@@ -57,11 +57,11 @@ This module has classes and methods that handle file input and output.
 
 """
 
-from .base import *
+from . import base
 from pathlib import Path
-
+import numpy as np
+import pandas as pd
 import json, posixpath
-
 from time import sleep
 
 
@@ -180,13 +180,13 @@ def get_required_resources(input_path, assessment_type):
 
     if path_CMP_data == "":
         # Use the P58 path as default
-        path_CMP_data = pelicun_path / CMP_data_path[AT]
+        path_CMP_data = base.pelicun_path / base.CMP_data_path[AT]
 
     resources.update({'component': path_CMP_data})
 
     # HAZUS combination of flood and wind losses
     if ((AT == 'HAZUS_HU') and (DL_input.get('Combinations', None) is not None)):
-        path_combination_data = pelicun_path / CMP_data_path['HAZUS_MISC']
+        path_combination_data = base.pelicun_path / base.CMP_data_path['HAZUS_MISC']
         resources.update({'combination': path_combination_data})
 
     # The population data is only needed if we are interested in injuries
@@ -196,7 +196,7 @@ def get_required_resources(input_path, assessment_type):
         path_POP_data = ""
 
     if ((injuries) and (path_POP_data == "")):
-        path_POP_data = pelicun_path / POP_data_path[AT]
+        path_POP_data = base.pelicun_path / base.POP_data_path[AT]
         resources.update({'population': path_POP_data})
 
     return resources
@@ -207,14 +207,14 @@ def load_default_options():
 
     """
 
-    with open(pelicun_path / "settings/default_config.json", 'r') as f:
-        options.defaults = json.load(f)
+    with open(base.pelicun_path / "settings/default_config.json", 'r') as f:
+        base.options.defaults = json.load(f)
 
-    set_options(options.defaults.get('Options', None))
+    base.set_options(base.options.defaults.get('Options', None))
 
 def merge_default_config(config):
 
-    defaults = options.defaults
+    defaults = base.options.defaults
 
     if config is not None:
 
@@ -308,10 +308,10 @@ def save_to_csv(data, filepath, units=None, orientation=0,
     """
 
     if filepath is None:
-        log_msg(f'Preparing data ...', prepend_timestamp=False)
+        base.log_msg(f'Preparing data ...', prepend_timestamp=False)
 
     else:
-        log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+        base.log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
 
@@ -321,7 +321,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
         # convert units and add unit information, if needed
         if units is not None:
 
-            log_msg(f'Converting units...', prepend_timestamp=False)
+            base.log_msg(f'Converting units...', prepend_timestamp=False)
 
             # if the orientation is 1, we might not need to scale all columns
             if orientation == 1:
@@ -334,7 +334,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
 
                 labels = units.loc[units==unit_name].index.values
 
-                unit_factor = 1./globals()[unit_name]
+                unit_factor = 1./base.UCF[unit_name]
 
                 active_labels = []
 
@@ -365,16 +365,16 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                 data = pd.concat([units, data], axis=1)
                 data.sort_index(inplace=True)
 
-            log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+            base.log_msg(f'Unit conversion successful.', prepend_timestamp=False)
 
         if use_simpleindex:
             # convert MultiIndex to regular index with '-' separators
             if isinstance(data.index, pd.MultiIndex):
-                data = convert_to_SimpleIndex(data)
+                data = base.convert_to_SimpleIndex(data)
 
             # same thing for the columns
             if isinstance(data.columns, pd.MultiIndex):
-                data = convert_to_SimpleIndex(data, axis=1)
+                data = base.convert_to_SimpleIndex(data, axis=1)
 
         if filepath is not None:
 
@@ -384,7 +384,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                 # save the contents of the DataFrame into a csv
                 data.to_csv(filepath)
 
-                log_msg(f'Data successfully saved to file.',
+                base.log_msg(f'Data successfully saved to file.',
                         prepend_timestamp=False)
 
             else:
@@ -396,7 +396,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
             return data
 
     else:
-        log_msg(f'WARNING: Data was empty, no file saved.',
+        base.log_msg(f'WARNING: Data was empty, no file saved.',
                 prepend_timestamp=False)
 
 def load_data(data_source, orientation=0, reindex=True, return_units=False,
@@ -451,7 +451,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
     # if there is information about units, perform the conversion to SI
     if ('Units' in data.index) or ('Units' in data.columns):
 
-        log_msg(f'Converting units...', prepend_timestamp=False)
+        base.log_msg(f'Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
             units = data.loc['Units', :].copy().dropna()
@@ -477,7 +477,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
         for unit_name in unique_unit_names:
 
-            unit_factor = globals()[unit_name]
+            unit_factor = base.UCF[unit_name]
             unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
@@ -486,7 +486,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
             else:  # elif orientation==1:
                 data.loc[unit_labels, cols_to_scale] *= unit_factor
 
-        log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+        base.log_msg(f'Unit conversion successful.', prepend_timestamp=False)
 
     else:
 
@@ -505,7 +505,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
                     pass
 
     # convert column to MultiIndex if needed
-    data = convert_to_MultiIndex(data, axis=1)
+    data = base.convert_to_MultiIndex(data, axis=1)
 
     data.sort_index(axis=1, inplace=True)
 
@@ -516,16 +516,16 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
     else:
         # convert index to MultiIndex if needed
-        data = convert_to_MultiIndex(data, axis=0)
+        data = base.convert_to_MultiIndex(data, axis=0)
 
         data.sort_index(inplace=True)
 
-    log_msg(f'Data successfully loaded from file.', prepend_timestamp=False)
+    base.log_msg(f'Data successfully loaded from file.', prepend_timestamp=False)
 
     if return_units:
 
         # convert index in units Series to MultiIndex if needed
-        units = convert_to_MultiIndex(units, axis=0)
+        units = base.convert_to_MultiIndex(units, axis=0)
 
         units.sort_index(inplace=True)
 
@@ -552,7 +552,7 @@ def load_from_file(filepath):
         Data loaded from the file.
     """
 
-    log_msg(f'Loading data from {filepath}...')
+    base.log_msg(f'Loading data from {filepath}...')
 
     # check if the filepath is valid
     filepath = Path(filepath).resolve()
@@ -568,7 +568,7 @@ def load_from_file(filepath):
         data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False,
                            encoding_errors='replace')
 
-        log_msg(f'File successfully opened.', prepend_timestamp=False)
+        base.log_msg(f'File successfully opened.', prepend_timestamp=False)
 
     else:
         raise ValueError(f'ERROR: Unexpected file type received when trying '

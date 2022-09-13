@@ -226,8 +226,8 @@ class Options(object):
 
         if unit is not None:
 
-            if unit in globals().keys():
-                scale_factor = globals()[unit]
+            if unit in UCF.keys():
+                scale_factor = UCF[unit]
 
             else:
                 raise ValueError(f"Unknown unit: {unit}")
@@ -417,7 +417,7 @@ def calc_unit_scale_factor(unit):
         unit_name = unit[0]
 
     try:
-        scale_factor = unit_count * globals()[unit_name]
+        scale_factor = unit_count * UCF[unit_name]
 
     except:
         raise ValueError(f"Specified unit not recognized: "
@@ -550,116 +550,108 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
-# Constants for unit conversion
+
+# Unit Conversion Factors (UCF)
+UCF = {}
+
+
+# we dont' want to accidentally redefine a key, as that would mask a
+# previously defined unit, leading to the worst kind of bug: a hidden one.
+def add_uniq_only(key, val, dct):
+    """
+    Only add a new key-value pair to a dictionary if the key does not
+    exist, throw an error otherwise.
+    """
+    if key in dct.keys():
+        raise KeyError(f'"{key}" already exists. '
+                       'Only unique keys are allowed.')
+    dct[key] = val
+
 
 # time
-sec = 1.
-
-minute = 60. * sec
-hour = 60. * minute
-day = 24. * hour
-
-sec2 = sec**2.
+add_uniq_only('sec', 1., UCF)
+add_uniq_only('minute', 60. * UCF['sec'], UCF)
+add_uniq_only('hour', 60. * UCF['minute'], UCF)
+add_uniq_only('day', 24. * UCF['hour'], UCF)
+add_uniq_only('sec2', UCF['sec']**2., UCF)
 
 # distance, area, volume
-m = 1.
-
-mm = 0.001 * m
-cm = 0.01 * m
-km = 1000. * m
-
-inch = 0.0254
-ft = 12. * inch
-mile = 5280. * ft
+add_uniq_only('m', 1., UCF)
+add_uniq_only('mm', 0.001 * UCF['m'], UCF)
+add_uniq_only('cm', 0.01 * UCF['m'], UCF)
+add_uniq_only('km', 1000. * UCF['m'], UCF)
+add_uniq_only('inch', 0.0254, UCF)
+add_uniq_only('ft', 12. * UCF['inch'], UCF)
+add_uniq_only('mile', 5280. * UCF['ft'], UCF)
 
 # area
-m2 = m**2.
-
-mm2 = mm**2.
-cm2 = cm**2.
-km2 = km**2.
-
-inch2 = inch**2.
-ft2 = ft**2.
-mile2 = mile**2.
+add_uniq_only('m2', UCF['m']**2., UCF)
+add_uniq_only('mm2', UCF['mm']**2., UCF)
+add_uniq_only('cm2', UCF['cm']**2., UCF)
+add_uniq_only('km2', UCF['km']**2., UCF)
+add_uniq_only('inch2', UCF['inch']**2., UCF)
+add_uniq_only('ft2', UCF['ft']**2., UCF)
+add_uniq_only('mile2', UCF['mile']**2., UCF)
 
 # volume
-m3 = m**3.
-
-inch3 = inch**3.
-ft3 = ft**3.
-
+add_uniq_only('m3', UCF['m']**3., UCF)
+add_uniq_only('inch3', UCF['inch']**3., UCF)
+add_uniq_only('ft3', UCF['ft']**3., UCF)
 
 # speed / velocity
-cmps = cm / sec
-mps = m / sec
-mph = mile / hour
-
-inchps = inch / sec
-ftps = ft / sec
+add_uniq_only('cmps', UCF['cm'] / UCF['sec'], UCF)
+add_uniq_only('mps', UCF['m'] / UCF['sec'], UCF)
+add_uniq_only('mph', UCF['mile'] / UCF['hour'], UCF)
+add_uniq_only('inchps', UCF['inch'] / UCF['sec'], UCF)
+add_uniq_only('ftps', UCF['ft'] / UCF['sec'], UCF)
 
 # acceleration
-mps2 = m / sec2
-
-inchps2 = inch / sec2
-ftps2 = ft / sec2
-
-g = 9.80665 * mps2
+add_uniq_only('mps2', UCF['m'] / UCF['sec2'], UCF)
+add_uniq_only('inchps2', UCF['inch'] / UCF['sec2'], UCF)
+add_uniq_only('ftps2', UCF['ft'] / UCF['sec2'], UCF)
+add_uniq_only('g', 9.80665 * UCF['mps2'], UCF)
 
 # mass
-kg = 1.
-
-ton = 1000. * kg
-
-lb = 0.453592 * kg
+add_uniq_only('kg', 1., UCF)
+add_uniq_only('ton', 1000. * UCF['kg'], UCF)
+add_uniq_only('lb', 0.453592 * UCF['kg'], UCF)
 
 # force
-N = kg * m / sec2
-
-kN = 1e3 * N
-
-lbf = lb * g
-kip = 1000. * lbf
-kips = kip
+add_uniq_only('N', UCF['kg'] * UCF['m'] / UCF['sec2'], UCF)
+add_uniq_only('kN', 1e3 * UCF['N'], UCF)
+add_uniq_only('lbf', UCF['lb'] * UCF['g'], UCF)
+add_uniq_only('kip', 1000. * UCF['lbf'], UCF)
+add_uniq_only('kips', UCF['kip'], UCF)
 
 # pressure / stress
-Pa = N / m2
-
-kPa = 1e3 * Pa
-MPa = 1e6 * Pa
-GPa = 1e9 * Pa
-
-psi = lbf / inch2
-ksi = 1e3 * psi
-Mpsi = 1e6 * psi
+add_uniq_only('Pa', UCF['N'] / UCF['m2'], UCF)
+add_uniq_only('kPa', 1e3 * UCF['Pa'], UCF)
+add_uniq_only('MPa', 1e6 * UCF['Pa'], UCF)
+add_uniq_only('GPa', 1e9 * UCF['Pa'], UCF)
+add_uniq_only('psi', UCF['lbf'] / UCF['inch2'], UCF)
+add_uniq_only('ksi', 1e3 * UCF['psi'], UCF)
+add_uniq_only('Mpsi', 1e6 * UCF['psi'], UCF)
 
 # misc
-A = 1.
-
-V = 1.
-kV = 1000. * V
-
-ea = 1.
-
-rad = 1.
-
-C = 1.
-
-USD_2011 = 1.
-USD = 1.
-loss_ratio = 1.
-
-worker_day = 1.
+add_uniq_only('A', 1., UCF)
+add_uniq_only('V', 1., UCF)
+add_uniq_only('kV', 1000. * UCF['V'], UCF)
+add_uniq_only('ea', 1., UCF)
+add_uniq_only('rad', 1., UCF)
+add_uniq_only('C', 1., UCF)
+add_uniq_only('USD_2011', 1., UCF)
+add_uniq_only('USD', 1., UCF)
+add_uniq_only('loss_ratio', 1., UCF)
+add_uniq_only('worker_day', 1., UCF)
 
 # FEMA P58 specific
-#TODO: work around these and make them available only in the parser methods
-EA = ea
-SF = ft2
-LF = ft
-TN = ton
-AP = A
-CF = ft3 / minute
-KV = kV * A
+add_uniq_only('EA', UCF['ea'], UCF)
+add_uniq_only('SF', UCF['ft2'], UCF)
+add_uniq_only('LF', UCF['ft'], UCF)
+add_uniq_only('TN', UCF['ton'], UCF)
+add_uniq_only('AP', UCF['A'], UCF)
+add_uniq_only('CF', UCF['ft3'] / UCF['minute'], UCF)
+add_uniq_only('KV', UCF['kV'] * UCF['A'], UCF)
 
 # Input specs
 

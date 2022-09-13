@@ -56,9 +56,15 @@ loss assessment.
 
 """
 
-from .base import *
-from .uq import *
+from . import base
+from . import uq
 from .file_io import save_to_csv, load_data
+import numpy as np
+import pandas as pd
+from copy import deepcopy
+
+
+idx = base.idx
 
 
 class PelicunModel(object):
@@ -116,7 +122,7 @@ class PelicunModel(object):
         for unit_name in unique_units:
 
             # get the scale factor for converting from the source unit
-            unit_factor = calc_unit_scale_factor(unit_name)
+            unit_factor = base.calc_unit_scale_factor(unit_name)
 
             # get the variables that use the given unit
             unit_ids = marginal_params.loc[units == unit_name].index
@@ -170,7 +176,7 @@ class PelicunModel(object):
                     row_id, ['TruncateLower', 'TruncateUpper']]
 
                 # convert the parameters
-                theta, tr_limits = scale_distribution(
+                theta, tr_limits = uq.scale_distribution(
                     unit_factor, family, theta, tr_limits)
 
                 # for each theta, check if there is a need to scale arguments
@@ -183,7 +189,7 @@ class PelicunModel(object):
 
                         # get the scale factor
                         arg_unit = arg_units.get(row_id)
-                        arg_unit_factor = calc_unit_scale_factor(arg_unit)
+                        arg_unit_factor = base.calc_unit_scale_factor(arg_unit)
 
                         # perform the scaling
                         theta[a_i] = theta[a_i] / arg_unit_factor
@@ -257,7 +263,7 @@ class DemandModel(PelicunModel):
             sample.sort_index(axis=0, inplace=True)
             sample.sort_index(axis=1, inplace=True)
 
-            sample = convert_to_MultiIndex(sample, axis=1)['EDP']
+            sample = base.convert_to_MultiIndex(sample, axis=1)['EDP']
 
             sample.columns.names = ['type','loc','dir']
 
@@ -274,15 +280,15 @@ class DemandModel(PelicunModel):
 
         """
 
-        log_div()
+        base.log_div()
         if filepath is not None:
-            log_msg(f'Saving demand sample...')
+            base.log_msg(f'Saving demand sample...')
 
         res = save_to_csv(self.sample, filepath, units=self.units,
                           use_simpleindex= filepath is not None)
 
         if filepath is not None:
-            log_msg(f'Demand sample successfully saved.',
+            base.log_msg(f'Demand sample successfully saved.',
                     prepend_timestamp=False)
         else:
             units = res.loc["Units"]
@@ -317,8 +323,8 @@ class DemandModel(PelicunModel):
             # currently not used. We remove it if it was in the raw data.
             if old_MI.nlevels == 4:
 
-                if options.verbose:
-                    log_msg(f'Removing event_ID from header...',
+                if base.options.verbose:
+                    base.log_msg(f'Removing event_ID from header...',
                             prepend_timestamp=False)
 
                 new_column_index = np.array(
@@ -330,8 +336,8 @@ class DemandModel(PelicunModel):
 
             # Remove whitespace to avoid ambiguity
 
-            if options.verbose:
-                log_msg(f'Removing whitespace from header...',
+            if base.options.verbose:
+                base.log_msg(f'Removing whitespace from header...',
                         prepend_timestamp=False)
 
             wspace_remove = np.vectorize(lambda name: str(name).replace(' ', ''))
@@ -345,8 +351,8 @@ class DemandModel(PelicunModel):
 
             return new_MI
 
-        log_div()
-        log_msg(f'Loading demand data...')
+        base.log_div()
+        base.log_msg(f'Loading demand data...')
 
         demand_data, units = load_data(filepath, return_units=True)
 
@@ -359,7 +365,7 @@ class DemandModel(PelicunModel):
         # Remove errors, if needed
         if 'ERROR' in parsed_data.columns.get_level_values(0):
 
-            log_msg(f'Removing errors from the raw data...',
+            base.log_msg(f'Removing errors from the raw data...',
                     prepend_timestamp=False)
 
             error_list = parsed_data.loc[:,idx['ERROR',:,:]].values.astype(bool)
@@ -367,20 +373,20 @@ class DemandModel(PelicunModel):
             parsed_data = parsed_data.loc[~error_list, :].copy()
             parsed_data.drop('ERROR', level=0, axis=1, inplace=True)
 
-            log_msg(f"\nBased on the values in the ERROR column, "
+            base.log_msg(f"\nBased on the values in the ERROR column, "
                     f"{np.sum(error_list)} demand samples were removed.\n",
                     prepend_timestamp=False)
 
         self._sample = parsed_data
 
-        log_msg(f'Demand data successfully parsed.', prepend_timestamp=False)
+        base.log_msg(f'Demand data successfully parsed.', prepend_timestamp=False)
 
         # parse the index for the units
         units.index = parse_header(units.index)
 
         self.units = units
 
-        log_msg(f'Demand units successfully parsed.', prepend_timestamp=False)
+        base.log_msg(f'Demand units successfully parsed.', prepend_timestamp=False)
 
     def estimate_RID(self, demands, params, method = 'FEMA P58'):
         """
@@ -418,7 +424,7 @@ class DemandModel(PelicunModel):
             RID[small] = 0.
 
             # add extra uncertainty to nonzero values
-            rng = options.rng
+            rng = base.options.rng
             eps = rng.normal(scale=0.2, size=RID.shape)
             RID[RID>0] = np.exp(np.log(RID[RID>0]) +  eps)
 
@@ -463,7 +469,7 @@ class DemandModel(PelicunModel):
 
                 except:
 
-                    log_msg(f"WARNING: Could not parse {in_str} provided as "
+                    base.log_msg(f"WARNING: Could not parse {in_str} provided as "
                             f"{context_string}. Using NaN instead.",
                             prepend_timestamp=False)
 
@@ -499,7 +505,7 @@ class DemandModel(PelicunModel):
                         cal_df.loc[idx[cols, :, :], lim] = val
 
             # scale the censor and truncation limits, if needed
-            scale_factor = options.scale_factor(settings.get('Unit', None))
+            scale_factor = base.options.scale_factor(settings.get('Unit', None))
 
             rows_to_scale = ['CensorLower', 'CensorUpper',
                              'TruncateLower', 'TruncateUpper']
@@ -531,8 +537,8 @@ class DemandModel(PelicunModel):
 
             return np.all([lower_mask, upper_mask], axis=0)
 
-        log_div()
-        log_msg('Calibrating demand model...')
+        base.log_div()
+        base.log_msg('Calibrating demand model...')
 
         demand_sample = self.sample
 
@@ -556,11 +562,11 @@ class DemandModel(PelicunModel):
             if demand_type != 'ALL':
                 parse_settings(config[demand_type], demand_type)
 
-        if options.verbose:
-            log_msg(f"\nCalibration settings successfully parsed:\n"+str(cal_df),
+        if base.options.verbose:
+            base.log_msg(f"\nCalibration settings successfully parsed:\n"+str(cal_df),
                     prepend_timestamp=False)
         else:
-            log_msg(
+            base.log_msg(
                 f"\nCalibration settings successfully parsed:\n",
                 prepend_timestamp=False)
 
@@ -581,7 +587,7 @@ class DemandModel(PelicunModel):
 
             demand_sample = demand_sample.loc[censor_mask, :]
 
-            log_msg(f"\nBased on the provided censoring limits, "
+            base.log_msg(f"\nBased on the provided censoring limits, "
                     f"{censored_count} samples were censored.",
                     prepend_timestamp=False)
         else:
@@ -603,7 +609,7 @@ class DemandModel(PelicunModel):
 
                 demand_sample = demand_sample.loc[truncate_mask, :]
 
-                log_msg(f"\nBased on the provided truncation limits, "
+                base.log_msg(f"\nBased on the provided truncation limits, "
                         f"{truncated_count} samples were removed before demand "
                         f"calibration.",
                         prepend_timestamp=False)
@@ -625,15 +631,15 @@ class DemandModel(PelicunModel):
         # and the calibration settings
         cal_df = cal_df.drop(empirical_edps, axis=0)
 
-        if options.verbose:
-            log_msg(f"\nDemand data used for calibration:\n"+str(demand_sample),
+        if base.options.verbose:
+            base.log_msg(f"\nDemand data used for calibration:\n"+str(demand_sample),
                     prepend_timestamp=False)
 
         # fit the joint distribution
-        log_msg(f"\nFitting the prescribed joint demand distribution...",
+        base.log_msg(f"\nFitting the prescribed joint demand distribution...",
                 prepend_timestamp=False)
 
-        demand_theta, demand_rho = fit_distribution_to_sample(
+        demand_theta, demand_rho = uq.fit_distribution_to_sample(
             raw_samples = demand_sample.values.T,
             distribution = cal_df.loc[:, 'Family'].values,
             censored_count = censored_count,
@@ -645,7 +651,7 @@ class DemandModel(PelicunModel):
         )
 
         # fit the joint distribution
-        log_msg(f"\nCalibration successful, processing results...",
+        base.log_msg(f"\nCalibration successful, processing results...",
                 prepend_timestamp=False)
 
         # save the calibration results
@@ -654,7 +660,7 @@ class DemandModel(PelicunModel):
         # increase the variance of the marginal distributions, if needed
         if ~np.all(pd.isna(model_params.loc[:, 'SigIncrease'].values)):
 
-            log_msg(f"\nIncreasing demand variance...",
+            base.log_msg(f"\nIncreasing demand variance...",
                     prepend_timestamp=False)
 
             sig_inc = np.nan_to_num(model_params.loc[:, 'SigIncrease'].values)
@@ -673,7 +679,7 @@ class DemandModel(PelicunModel):
 
         self.marginal_params = model_params
 
-        log_msg(f"\nCalibrated demand model marginal distributions:\n" +
+        base.log_msg(f"\nCalibrated demand model marginal distributions:\n" +
                 str(model_params),
                 prepend_timestamp=False)
 
@@ -682,7 +688,7 @@ class DemandModel(PelicunModel):
                                       columns = cal_df.index,
                                       index = cal_df.index)
 
-        log_msg(f"\nCalibrated demand model correlation matrix:\n" +
+        base.log_msg(f"\nCalibrated demand model correlation matrix:\n" +
                 str(self.correlation),
                 prepend_timestamp=False)
 
@@ -692,8 +698,8 @@ class DemandModel(PelicunModel):
 
         """
 
-        log_div()
-        log_msg(f'Saving demand model...')
+        base.log_div()
+        base.log_msg(f'Saving demand model...')
 
         # save the correlation and empirical data
         save_to_csv(self.correlation, file_prefix + '_correlation.csv')
@@ -713,14 +719,14 @@ class DemandModel(PelicunModel):
 
             if label in self.units.index:
 
-                unit_factor = calc_unit_scale_factor(self.units[label])
+                unit_factor = base.calc_unit_scale_factor(self.units[label])
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
         save_to_csv(marginal_params, file_prefix+'_marginals.csv',
                     units=self.units, orientation=1)
 
-        log_msg(f'Demand model successfully saved.', prepend_timestamp=False)
+        base.log_msg(f'Demand model successfully saved.', prepend_timestamp=False)
 
     def load_model(self, data_source):
         """
@@ -737,8 +743,8 @@ class DemandModel(PelicunModel):
             'correlation'. The value under each key shall be a DataFrame.
         """
 
-        log_div()
-        log_msg(f'Loading demand model...')
+        base.log_div()
+        base.log_msg(f'Loading demand model...')
 
         # prepare the marginal data source variable to load the data
         if isinstance(data_source, dict):
@@ -782,7 +788,7 @@ class DemandModel(PelicunModel):
         self.marginal_params = marginal_params
         self.units = units
 
-        log_msg(f'Demand model successfully loaded.', prepend_timestamp=False)
+        base.log_msg(f'Demand model successfully loaded.', prepend_timestamp=False)
 
     def _create_RVs(self, preserve_order=False):
         """
@@ -791,7 +797,7 @@ class DemandModel(PelicunModel):
         """
 
         # initialize the registry
-        RV_reg = RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry()
 
         # add a random variable for each demand variable
         for rv_params in self.marginal_params.itertuples():
@@ -808,7 +814,7 @@ class DemandModel(PelicunModel):
                     dist_family = 'empirical'
 
                 # empirical RVs need the data points
-                RV_reg.add_RV(RandomVariable(
+                RV_reg.add_RV(uq.RandomVariable(
                     name=rv_tag,
                     distribution=dist_family,
                     raw_samples=self.empirical_data.loc[:, edp].values
@@ -817,7 +823,7 @@ class DemandModel(PelicunModel):
             else:
 
                 # all other RVs need parameters of their distributions
-                RV_reg.add_RV(RandomVariable(
+                RV_reg.add_RV(uq.RandomVariable(
                     name=rv_tag,
                     distribution=family,
                     theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
@@ -829,7 +835,7 @@ class DemandModel(PelicunModel):
 
                 ))
 
-        log_msg(f"\n{self.marginal_params.shape[0]} random variables created.",
+        base.log_msg(f"\n{self.marginal_params.shape[0]} random variables created.",
                 prepend_timestamp=False)
 
         # add an RV set to consider the correlation between demands, if needed
@@ -837,11 +843,11 @@ class DemandModel(PelicunModel):
             rv_set_tags = [f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
                            for edp in self.correlation.index.values]
 
-            RV_reg.add_RV_set(RandomVariableSet(
+            RV_reg.add_RV_set(uq.RandomVariableSet(
                 'EDP_set', list(RV_reg.RVs(rv_set_tags).values()),
                 self.correlation.values))
 
-            log_msg(f"\nCorrelations between {len(rv_set_tags)} random variables "
+            base.log_msg(f"\nCorrelations between {len(rv_set_tags)} random variables "
                     f"successfully defined.",
                     prepend_timestamp=False)
 
@@ -854,8 +860,8 @@ class DemandModel(PelicunModel):
                              'load parameters from a file or calibrate the '
                              'model using raw demand data.')
 
-        log_div()
-        log_msg(f'Generating sample from demand variables...')
+        base.log_div()
+        base.log_msg(f'Generating sample from demand variables...')
 
         self._create_RVs(
             preserve_order=config.get('PreserveRawOrder', False))
@@ -866,7 +872,7 @@ class DemandModel(PelicunModel):
         # replace the potentially existing raw sample with the generated one
         self._sample = None
 
-        log_msg(f"\nSuccessfully generated {sample_size} realizations.",
+        base.log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
 
 class AssetModel(PelicunModel):
@@ -897,7 +903,7 @@ class AssetModel(PelicunModel):
             cmp_sample.sort_index(axis=0, inplace=True)
             cmp_sample.sort_index(axis=1, inplace=True)
 
-            cmp_sample = convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
+            cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
 
             cmp_sample.columns.names = ['cmp', 'loc', 'dir']
 
@@ -914,9 +920,9 @@ class AssetModel(PelicunModel):
 
         """
 
-        log_div()
+        base.log_div()
         if filepath is not None:
-            log_msg(f'Saving asset components sample...')
+            base.log_msg(f'Saving asset components sample...')
 
         # prepare a units array
         sample = self.cmp_sample
@@ -930,7 +936,7 @@ class AssetModel(PelicunModel):
                           use_simpleindex= filepath is not None)
 
         if filepath is not None:
-            log_msg(f'Asset components sample successfully saved.',
+            base.log_msg(f'Asset components sample successfully saved.',
                     prepend_timestamp=False)
         else:
             res.drop("Units", inplace=True)
@@ -942,8 +948,8 @@ class AssetModel(PelicunModel):
 
         """
 
-        log_div()
-        log_msg(f'Loading asset components sample...')
+        base.log_div()
+        base.log_msg(f'Loading asset components sample...')
 
         sample, units = load_data(filepath, return_units=True)
 
@@ -953,7 +959,7 @@ class AssetModel(PelicunModel):
 
         self.cmp_units = units.groupby(level=0).first()
 
-        log_msg(f'Asset components sample successfully loaded.',
+        base.log_msg(f'Asset components sample successfully loaded.',
                 prepend_timestamp=False)
 
     def load_cmp_model(self, data_source):
@@ -1052,8 +1058,8 @@ class AssetModel(PelicunModel):
                         raise ValueError(f"Cannot parse Blocks string: "
                                          f"{attribute_str}")
 
-        log_div()
-        log_msg(f'Loading component model...')
+        base.log_div()
+        base.log_msg(f'Loading component model...')
 
         # Currently, we assume independent component distributions are defined
         # throughout the building. Correlations may be added afterward or this
@@ -1080,7 +1086,7 @@ class AssetModel(PelicunModel):
         # First, we need to expand the table to have unique component blocks in
         # each row
 
-        log_msg(f"\nParsing model file to characterize each component block",
+        base.log_msg(f"\nParsing model file to characterize each component block",
                 prepend_timestamp=False)
 
         # Create a multiindex that identifies individual performance groups
@@ -1132,12 +1138,12 @@ class AssetModel(PelicunModel):
 
         cmp_marginal_params.dropna(axis=1, how='all', inplace=True)
 
-        log_msg(f"Model parameters successfully parsed. "
+        base.log_msg(f"Model parameters successfully parsed. "
                 f"{cmp_marginal_params.shape[0]} performance groups identified",
                 prepend_timestamp=False)
 
         # Now we can take care of converting the values to SI units
-        log_msg(f"Converting model parameters to internal units...",
+        base.log_msg(f"Converting model parameters to internal units...",
                 prepend_timestamp=False)
 
         cmp_marginal_params = self.convert_marginal_params(
@@ -1146,10 +1152,10 @@ class AssetModel(PelicunModel):
 
         self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
 
-        log_msg(f"Model parameters successfully loaded.",
+        base.log_msg(f"Model parameters successfully loaded.",
                 prepend_timestamp=False)
 
-        log_msg(f"\nComponent model marginal distributions:\n" +
+        base.log_msg(f"\nComponent model marginal distributions:\n" +
                 str(cmp_marginal_params),
                 prepend_timestamp=False)
 
@@ -1158,7 +1164,7 @@ class AssetModel(PelicunModel):
     def _create_cmp_RVs(self):
 
         # initialize the registry
-        RV_reg = RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry()
 
         # add a random variable for each component quantity variable
         for rv_params in self.cmp_marginal_params.itertuples():
@@ -1166,7 +1172,7 @@ class AssetModel(PelicunModel):
             cmp = rv_params.Index
 
             # create a random variable and add it to the registry
-            RV_reg.add_RV(RandomVariable(
+            RV_reg.add_RV(uq.RandomVariable(
                 name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}',
                 distribution=getattr(rv_params, "Family", np.nan),
                 theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
@@ -1175,7 +1181,7 @@ class AssetModel(PelicunModel):
                                    for side in ["Lower", "Upper"]],
             ))
 
-        log_msg(f"\n{self.cmp_marginal_params.shape[0]} "
+        base.log_msg(f"\n{self.cmp_marginal_params.shape[0]} "
                 f"random variables created.",
                 prepend_timestamp=False)
 
@@ -1188,8 +1194,8 @@ class AssetModel(PelicunModel):
                              'parameters from a file before generating a '
                              'sample.')
 
-        log_div()
-        log_msg(f'Generating sample from component quantity variables...')
+        base.log_div()
+        base.log_msg(f'Generating sample from component quantity variables...')
 
         if sample_size is None:
             sample_size = self._asmnt.demand.sample.shape[0]
@@ -1201,7 +1207,7 @@ class AssetModel(PelicunModel):
         # replace the potentially existing sample with the generated one
         self._cmp_sample = None
 
-        log_msg(f"\nSuccessfully generated {sample_size} realizations.",
+        base.log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                 prepend_timestamp=False)
 
 class DamageModel(PelicunModel):
@@ -1236,8 +1242,8 @@ class DamageModel(PelicunModel):
         Save damage sample to a csv file
 
         """
-        log_div()
-        log_msg(f'Saving damage sample...')
+        base.log_div()
+        base.log_msg(f'Saving damage sample...')
 
         cmp_units = self._asmnt.asset.cmp_units
         qnt_units = pd.Series(index=self.sample.columns, name='Units',
@@ -1250,7 +1256,7 @@ class DamageModel(PelicunModel):
                           use_simpleindex= filepath is not None)
 
         if filepath is not None:
-            log_msg(f'Damage sample successfully saved.',
+            base.log_msg(f'Damage sample successfully saved.',
                     prepend_timestamp=False)
         else:
             res.drop("Units", inplace=True)
@@ -1261,12 +1267,12 @@ class DamageModel(PelicunModel):
         Load damage state sample data.
 
         """
-        log_div()
-        log_msg(f'Loading damage sample...')
+        base.log_div()
+        base.log_msg(f'Loading damage sample...')
 
         self._sample = load_data(filepath)
 
-        log_msg(f'Damage sample successfully loaded.',
+        base.log_msg(f'Damage sample successfully loaded.',
                 prepend_timestamp=False)
 
     def load_damage_model(self, data_paths):
@@ -1283,15 +1289,15 @@ class DamageModel(PelicunModel):
             XY datasets can be accessed as PelicunDefault/XY.
         """
 
-        log_div()
-        log_msg(f'Loading damage model...')
+        base.log_div()
+        base.log_msg(f'Loading damage model...')
 
         # replace default flag with default data path
         for d_i, data_path in enumerate(data_paths):
 
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace('PelicunDefault/',
-                                                   str(pelicun_path)+
+                                                   str(base.pelicun_path)+
                                                     '/resources/')
 
         data_list = []
@@ -1327,7 +1333,7 @@ class DamageModel(PelicunModel):
                 np.isin(cmp_unique, damage_params.index.values,
                         invert=True)].to_list()
 
-            log_msg(f"\nWARNING: The damage model does not provide "
+            base.log_msg(f"\nWARNING: The damage model does not provide "
                     f"vulnerability information for the following component(s) "
                     f"in the asset model: {cmp_list}.\n",
                     prepend_timestamp=False)
@@ -1356,7 +1362,7 @@ class DamageModel(PelicunModel):
                             index=function_ids
                         )
                         f_df['scale_factor'] = [
-                            calc_unit_scale_factor(unit_name) for unit_name
+                            base.calc_unit_scale_factor(unit_name) for unit_name
                             in damage_params.loc[function_ids,
                                                  ('Demand', 'Unit')]]
 
@@ -1372,14 +1378,14 @@ class DamageModel(PelicunModel):
         damage_params.drop(cmp_incomplete_list, inplace=True)
 
         if len(cmp_incomplete_list) > 0:
-            log_msg(f"\nWARNING: Damage model information is incomplete for "
+            base.log_msg(f"\nWARNING: Damage model information is incomplete for "
                     f"the following component(s) {cmp_incomplete_list}. They "
                     f"were removed from the analysis.\n",
                     prepend_timestamp=False)
 
         self.damage_params = damage_params
 
-        log_msg(f"Damage model parameters successfully parsed.",
+        base.log_msg(f"Damage model parameters successfully parsed.",
                 prepend_timestamp=False)
 
     def _create_dmg_RVs(self, PGB):
@@ -1400,7 +1406,7 @@ class DamageModel(PelicunModel):
 
                 ds_id += 1
 
-                lsds_RV_reg.add_RV(RandomVariable(
+                lsds_RV_reg.add_RV(uq.RandomVariable(
                     name=lsds_rv_tag,
                     distribution='deterministic',
                     theta=ds_id,
@@ -1417,7 +1423,7 @@ class DamageModel(PelicunModel):
                 def map_ds(values, offset=int(ds_id + 1)):
                     return values + offset
 
-                lsds_RV_reg.add_RV(RandomVariable(
+                lsds_RV_reg.add_RV(uq.RandomVariable(
                     name=lsds_rv_tag,
                     distribution='multinomial',
                     theta=ds_weights,
@@ -1428,13 +1434,13 @@ class DamageModel(PelicunModel):
 
             return ds_id
 
-        if options.verbose:
-            log_msg(f'Generating capacity variables ...',
+        if base.options.verbose:
+            base.log_msg(f'Generating capacity variables ...',
                     prepend_timestamp=True)
 
         # initialize the registry
-        capacity_RV_reg = RandomVariableRegistry()
-        lsds_RV_reg = RandomVariableRegistry()
+        capacity_RV_reg = uq.RandomVariableRegistry()
+        lsds_RV_reg = uq.RandomVariableRegistry()
 
         rv_count = 0
 
@@ -1525,7 +1531,7 @@ class DamageModel(PelicunModel):
                                     else:
                                         target_value = np.nextafter(np.inf,-1)
 
-                                    capacity_RV_reg.add_RV(RandomVariable(
+                                    capacity_RV_reg.add_RV(uq.RandomVariable(
                                         name=frg_rv_tag,
                                         distribution='deterministic',
                                         theta = target_value
@@ -1585,7 +1591,7 @@ class DamageModel(PelicunModel):
                                 else:
                                     anchor = anchor_RVs[block_i]
 
-                                RV = RandomVariable(
+                                RV = uq.RandomVariable(
                                     name=frg_rv_tag,
                                     distribution=family,
                                     theta=theta,
@@ -1611,8 +1617,8 @@ class DamageModel(PelicunModel):
 
                             ds_id = ds_id_next
 
-        if options.verbose:
-            log_msg(f"2x{rv_count} random variables created.",
+        if base.options.verbose:
+            base.log_msg(f"2x{rv_count} random variables created.",
                     prepend_timestamp=False)
 
         return capacity_RV_reg, lsds_RV_reg
@@ -1627,29 +1633,29 @@ class DamageModel(PelicunModel):
 
         capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB)
 
-        if options.verbose:
-            log_msg(f'Sampling capacities...',
+        if base.options.verbose:
+            base.log_msg(f'Sampling capacities...',
                     prepend_timestamp=True)
 
         capacity_RVs.generate_sample(sample_size=sample_size)
 
         lsds_RVs.generate_sample(sample_size=sample_size)
 
-        if options.verbose:
-            log_msg(f"Raw samples are available",
+        if base.options.verbose:
+            base.log_msg(f"Raw samples are available",
                     prepend_timestamp=True)
 
         # get the capacity and lsds samples
         capacity_sample = pd.DataFrame(
             capacity_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1)
-        capacity_sample = convert_to_MultiIndex(capacity_sample, axis=1)['FRG']
+        capacity_sample = base.convert_to_MultiIndex(capacity_sample, axis=1)['FRG']
 
         lsds_sample = pd.DataFrame(
             lsds_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1).astype(int)
-        lsds_sample = convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+        lsds_sample = base.convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
 
-        if options.verbose:
-            log_msg(f"Successfully generated {sample_size} realizations.",
+        if base.options.verbose:
+            base.log_msg(f"Successfully generated {sample_size} realizations.",
                     prepend_timestamp=True)
 
         return capacity_sample, lsds_sample
@@ -1663,8 +1669,8 @@ class DamageModel(PelicunModel):
         """
         DP = self.damage_params
 
-        if options.verbose:
-            log_msg(f'Collecting required demand information...',
+        if base.options.verbose:
+            base.log_msg(f'Collecting required demand information...',
                     prepend_timestamp=True)
 
         EDP_req = {}
@@ -1683,16 +1689,16 @@ class DamageModel(PelicunModel):
             # first check if there is a subtype included
             if '|' in demand_type:
                 demand_type, subtype = demand_type.split('|')
-                demand_type = EDP_to_demand_type[demand_type]
+                demand_type = base.EDP_to_demand_type[demand_type]
                 EDP_type = f'{demand_type}_{subtype}'
             else:
-                demand_type = EDP_to_demand_type[demand_type]
+                demand_type = base.EDP_to_demand_type[demand_type]
                 EDP_type = demand_type
 
             # consider the default offset, if needed
-            if demand_type in options.demand_offset.keys():
+            if demand_type in base.options.demand_offset.keys():
 
-                offset = int(offset + options.demand_offset[demand_type])
+                offset = int(offset + base.options.demand_offset[demand_type])
 
             else:
                 offset = int(offset)
@@ -1714,8 +1720,8 @@ class DamageModel(PelicunModel):
 
     def _assemble_required_demand_data(self, EDP_req):
 
-        if options.verbose:
-            log_msg(f'Assembling demand data for calculation...',
+        if base.options.verbose:
+            base.log_msg(f'Assembling demand data for calculation...',
                     prepend_timestamp=True)
 
         demand_source = self._asmnt.demand.sample
@@ -1733,9 +1739,9 @@ class DamageModel(PelicunModel):
                 try:
                     # take the maximum of all available directions and scale it
                     # using the nondirectional multiplier specified in the
-                    # options (the default value is 1.2)
+                    # base.options (the default value is 1.2)
                     demand = demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
-                    demand = demand * options.nondir_multi(EDP[0])
+                    demand = demand * base.options.nondir_multi(EDP[0])
 
                 except:
                     demand = None
@@ -1745,7 +1751,7 @@ class DamageModel(PelicunModel):
 
             if demand is None:
 
-                log_msg(f'\nWARNING: Cannot find demand data for {EDP}. The '
+                base.log_msg(f'\nWARNING: Cannot find demand data for {EDP}. The '
                         f'corresponding damages cannot be calculated.',
                         prepend_timestamp=False)
             else:
@@ -1771,8 +1777,8 @@ class DamageModel(PelicunModel):
             Assigns a Damage State to each component block in the asset model.
         """
 
-        if options.verbose:
-            log_msg(f'Evaluating damage states...', prepend_timestamp=True)
+        if base.options.verbose:
+            base.log_msg(f'Evaluating damage states...', prepend_timestamp=True)
 
         dmg_eval = pd.DataFrame(columns=capacity_sample.columns,
                                 index=capacity_sample.index)
@@ -1854,8 +1860,8 @@ class DamageModel(PelicunModel):
 
         """
 
-        if options.verbose:
-            log_msg(f'Calculating damage quantities...',
+        if base.options.verbose:
+            base.log_msg(f'Calculating damage quantities...',
                     prepend_timestamp=True)
 
         # get the corresponding parts of the quantity and damage matrices
@@ -1929,8 +1935,8 @@ class DamageModel(PelicunModel):
 
         """
 
-        if options.verbose:
-            log_msg(f'Applying task...',
+        if base.options.verbose:
+            base.log_msg(f'Applying task...',
                     prepend_timestamp=True)
 
         # get the list of available components
@@ -1945,7 +1951,7 @@ class DamageModel(PelicunModel):
         # check if it exists among the available ones
         if source_cmp not in cmp_list:
 
-            log_msg(f"WARNING: Source component {source_cmp} in the prescribed "
+            base.log_msg(f"WARNING: Source component {source_cmp} in the prescribed "
                     f"damage process not found among components in the damage "
                     f"sample. The corresponding part of the damage process is "
                     f"skipped.", prepend_timestamp=False)
@@ -2062,8 +2068,8 @@ class DamageModel(PelicunModel):
                     raise ValueError(f"Unable to parse target event in damage "
                                      f"process: {target_event}")
 
-        if options.verbose:
-            log_msg(f'Damage process task successfully applied.',
+        if base.options.verbose:
+            base.log_msg(f'Damage process task successfully applied.',
                     prepend_timestamp=False)
 
         return qnt_sample
@@ -2103,10 +2109,10 @@ class DamageModel(PelicunModel):
 
             return f_str
 
-        log_msg(f'Applying damage functions...',
+        base.log_msg(f'Applying damage functions...',
                 prepend_timestamp=False)
 
-        demands = convert_to_SimpleIndex(demands, axis=1)
+        demands = base.convert_to_SimpleIndex(demands, axis=1)
 
         # for each component with a damage function
         for cmp_id in self._dmg_function_scale_factors.index:
@@ -2122,11 +2128,11 @@ class DamageModel(PelicunModel):
             # Get the units and scale factor for quantity conversion
             cmp_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Component', 'Unit')]
-            cmp_qnt_scale_factor = calc_unit_scale_factor(cmp_qnt_unit_name)
+            cmp_qnt_scale_factor = base.calc_unit_scale_factor(cmp_qnt_unit_name)
 
             dmg_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Damage', 'Unit')]
-            dmg_qnt_scale_factor = calc_unit_scale_factor(dmg_qnt_unit_name)
+            dmg_qnt_scale_factor = base.calc_unit_scale_factor(dmg_qnt_unit_name)
 
             qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
 
@@ -2156,7 +2162,7 @@ class DamageModel(PelicunModel):
             # update the damage quantity units
             self.qnt_units.loc[cmp_id] = dmg_qnt_unit_name
 
-        log_msg(f'Damage functions successfully applied.',
+        base.log_msg(f'Damage functions successfully applied.',
                 prepend_timestamp=False)
 
         return qnt_sample
@@ -2197,14 +2203,14 @@ class DamageModel(PelicunModel):
                 pg_batch.drop(pg_i, inplace=True)
 
                 if first_time:
-                    log_msg(f"\nWARNING: Damage model information is "
+                    base.log_msg(f"\nWARNING: Damage model information is "
                             f"incomplete for some of the performance groups "
                             f"and they had to be removed from the analysis:",
                             prepend_timestamp=False)
 
                     first_time = False
 
-                log_msg(f"{pg_i}", prepend_timestamp=False)
+                base.log_msg(f"{pg_i}", prepend_timestamp=False)
 
         pg_batch = pg_batch.convert_dtypes()
 
@@ -2244,8 +2250,8 @@ class DamageModel(PelicunModel):
 
         """
 
-        log_div()
-        log_msg(f'Calculating damages...')
+        base.log_div()
+        base.log_msg(f'Calculating damages...')
 
         sample_size = self._asmnt.demand.sample.shape[0]
 
@@ -2259,17 +2265,17 @@ class DamageModel(PelicunModel):
         # get the list of performance groups
         qnt_samples = []
 
-        log_msg(f'Number of Performance Groups in Asset Model:'
+        base.log_msg(f'Number of Performance Groups in Asset Model:'
                 f' {self._asmnt.asset.cmp_sample.shape[1]}',
                 prepend_timestamp=False)
 
         pg_batch = self._get_pg_batches(block_batch_size)
         batches = pg_batch.index.get_level_values(0).unique()
 
-        log_msg(f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
+        base.log_msg(f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
                 prepend_timestamp=False)
 
-        log_msg(f"{len(batches)} batches of Performance Groups prepared "
+        base.log_msg(f"{len(batches)} batches of Performance Groups prepared "
                 f"for damage assessment",
                 prepend_timestamp=False)
 
@@ -2278,7 +2284,7 @@ class DamageModel(PelicunModel):
 
             PGB = pg_batch.loc[PGB_i]
 
-            log_msg(f"Calculating damage for PG batch {PGB_i} with "
+            base.log_msg(f"Calculating damage for PG batch {PGB_i} with "
                     f"{int(PGB['Blocks'].sum())} blocks")
 
             # Generate an array with component capacities for each block and
@@ -2306,12 +2312,12 @@ class DamageModel(PelicunModel):
         qnt_sample = pd.concat(qnt_samples, axis=1)
         qnt_sample.sort_index(axis=1, inplace=True)
 
-        log_msg(f"Raw damage calculation successful.",
+        base.log_msg(f"Raw damage calculation successful.",
                 prepend_timestamp=False)
 
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
-            log_msg(f"Applying damage processes...")
+            base.log_msg(f"Applying damage processes...")
 
             # sort the processes
             dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
@@ -2320,7 +2326,7 @@ class DamageModel(PelicunModel):
 
                 qnt_sample = self._perform_dmg_task(task, qnt_sample)
 
-            log_msg(f"Damage processes successfully applied.",
+            base.log_msg(f"Damage processes successfully applied.",
                     prepend_timestamp=False)
 
         # Apply damage functions, if any
@@ -2328,16 +2334,16 @@ class DamageModel(PelicunModel):
         # used in the analysis
         if self._dmg_function_scale_factors is not None:
 
-            log_msg(f"Applying damage functions...")
+            base.log_msg(f"Applying damage functions...")
 
             qnt_sample = self._apply_damage_functions(EDP_req, demand, qnt_sample)
 
-            log_msg(f"Damage functions successfully applied.",
+            base.log_msg(f"Damage functions successfully applied.",
                     prepend_timestamp=False)
 
         self._sample = qnt_sample
 
-        log_msg(f'Damage calculation successfully completed.')
+        base.log_msg(f'Damage calculation successfully completed.')
 
 
 class LossModel(PelicunModel):
@@ -2369,9 +2375,9 @@ class LossModel(PelicunModel):
         Save loss sample to a csv file
 
         """
-        log_div()
+        base.log_div()
         if filepath is not None:
-            log_msg(f'Saving loss sample...')
+            base.log_msg(f'Saving loss sample...')
 
         cmp_units = self.loss_params[('DV', 'Unit')]
         dv_units = pd.Series(index=self.sample.columns, name='Units',
@@ -2386,7 +2392,7 @@ class LossModel(PelicunModel):
                           use_simpleindex=filepath is not None)
 
         if filepath is not None:
-            log_msg(f'Loss sample successfully saved.',
+            base.log_msg(f'Loss sample successfully saved.',
                     prepend_timestamp=False)
         else:
             res.drop("Units", inplace=True)
@@ -2397,12 +2403,12 @@ class LossModel(PelicunModel):
         Load damage sample data.
 
         """
-        log_div()
-        log_msg(f'Loading loss sample...')
+        base.log_div()
+        base.log_msg(f'Loading loss sample...')
 
         self._sample = load_data(filepath)
 
-        log_msg(f'Loss sample successfully loaded.', prepend_timestamp=False)
+        base.log_msg(f'Loss sample successfully loaded.', prepend_timestamp=False)
 
     def load_model(self, data_paths, mapping_path):
         """
@@ -2418,8 +2424,8 @@ class LossModel(PelicunModel):
             loss models.
         """
 
-        log_div()
-        log_msg(f'Loading loss map for {self.loss_type}...')
+        base.log_div()
+        base.log_msg(f'Loading loss map for {self.loss_type}...')
 
         loss_map = load_data(mapping_path, orientation=1,
                              reindex=False, convert=[])
@@ -2432,17 +2438,17 @@ class LossModel(PelicunModel):
 
         self.loss_map = loss_map
 
-        log_msg(f"Loss map successfully parsed.", prepend_timestamp=False)
+        base.log_msg(f"Loss map successfully parsed.", prepend_timestamp=False)
 
-        log_div()
-        log_msg(f'Loading loss parameters for {self.loss_type}...')
+        base.log_div()
+        base.log_msg(f'Loading loss parameters for {self.loss_type}...')
 
         # replace default flag with default data path
         for d_i, data_path in enumerate(data_paths):
 
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace('PelicunDefault/',
-                                                    str(pelicun_path) +
+                                                    str(base.pelicun_path) +
                                                     '/resources/')
 
         data_list = []
@@ -2472,7 +2478,7 @@ class LossModel(PelicunModel):
                 missing_cmp.append(cmp)
 
         if len(missing_cmp) > 0:
-            log_msg(f"\nWARNING: The loss model does not provide "
+            base.log_msg(f"\nWARNING: The loss model does not provide "
                 f"consequence information for the following component(s) "
                 f"in the loss map: {missing_cmp}. They are removed from "
                 f"further analysis\n",
@@ -2510,14 +2516,14 @@ class LossModel(PelicunModel):
         if len(cmp_incomplete_list) > 0:
             loss_params.drop(cmp_incomplete_list, inplace=True)
 
-            log_msg(f"\nWARNING: Loss information is incomplete for the "
+            base.log_msg(f"\nWARNING: Loss information is incomplete for the "
                     f"following component(s) {cmp_incomplete_list}. They were "
                     f"removed from the analysis.\n",
                     prepend_timestamp=False)
 
         self.loss_params = loss_params.sort_index(axis=1)
 
-        log_msg(f"Loss parameters successfully parsed.",
+        base.log_msg(f"Loss parameters successfully parsed.",
                 prepend_timestamp=False)
 
     def aggregate_losses(self):
@@ -2546,8 +2552,8 @@ class LossModel(PelicunModel):
 
         """
 
-        log_div()
-        log_msg(f"Calculating losses...")
+        base.log_div()
+        base.log_msg(f"Calculating losses...")
 
         drivers = [d for d,c in self.loss_map['Driver']]
 
@@ -2565,7 +2571,7 @@ class LossModel(PelicunModel):
         # every child of the LossModel independently.
         self._generate_DV_sample(dmg_q, sample_size)
 
-        log_msg(f"Loss calculation successful.")
+        base.log_msg(f"Loss calculation successful.")
 
 class BldgRepairModel(LossModel):
     """
@@ -2600,7 +2606,7 @@ class BldgRepairModel(LossModel):
             we need for the simulation.
         """
 
-        RV_reg = RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry()
         LP = self.loss_params
 
         # make ds the second level in the MultiIndex
@@ -2692,7 +2698,7 @@ class BldgRepairModel(LossModel):
 
                         cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}'
 
-                        RV_reg.add_RV(RandomVariable(
+                        RV_reg.add_RV(uq.RandomVariable(
                             name=cost_rv_tag,
                             distribution = cost_family,
                             theta = cost_theta,
@@ -2704,7 +2710,7 @@ class BldgRepairModel(LossModel):
                     if pd.isna(time_family) == False:
                         time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}'
 
-                        RV_reg.add_RV(RandomVariable(
+                        RV_reg.add_RV(uq.RandomVariable(
                             name=time_rv_tag,
                             distribution=time_family,
                             theta=time_theta,
@@ -2715,16 +2721,16 @@ class BldgRepairModel(LossModel):
                     # assign correlation between cost and time RVs
                     if ((pd.isna(cost_family) == False) and
                         (pd.isna(time_family) == False) and
-                        (options.rho_cost_time != 0.0)):
+                        (base.options.rho_cost_time != 0.0)):
 
-                        rho = options.rho_cost_time
+                        rho = base.options.rho_cost_time
 
-                        RV_reg.add_RV_set(RandomVariableSet(
+                        RV_reg.add_RV_set(uq.RandomVariableSet(
                             f'DV-{loss_cmp_id}-{ds}-{loc}-{dir}_set',
                             list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
                             np.array([[1.0, rho],[rho, 1.0]])))
 
-        log_msg(f"\n{rv_count} random variables created.",
+        base.log_msg(f"\n{rv_count} random variables created.",
                 prepend_timestamp=False)
 
         if rv_count > 0:
@@ -2864,7 +2870,7 @@ class BldgRepairModel(LossModel):
                     result.columns = result.columns.droplevel('del')
 
                 # name the remaining column header levels
-                if options.eco_scale["AcrossFloors"] == True:
+                if base.options.eco_scale["AcrossFloors"] == True:
                     result.columns.names = ['cmp', 'ds']
 
                 else:
@@ -2886,8 +2892,8 @@ class BldgRepairModel(LossModel):
         sequentially.
         """
 
-        log_div()
-        log_msg(f"Aggregating repair consequences...")
+        base.log_div()
+        base.log_msg(f"Aggregating repair consequences...")
 
         DV = self.sample
 
@@ -2932,9 +2938,9 @@ class BldgRepairModel(LossModel):
 
         # convert header
 
-        df_agg = convert_to_MultiIndex(df_agg, axis=1)
+        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
 
-        log_msg(f"Repair consequences successfully aggregated.")
+        base.log_msg(f"Repair consequences successfully aggregated.")
 
         return df_agg.astype(float)
 
@@ -2956,12 +2962,12 @@ class BldgRepairModel(LossModel):
         """
 
         # calculate the quantities for economies of scale
-        log_msg(f"\nAggregating damage quantities...",
+        base.log_msg(f"\nAggregating damage quantities...",
                 prepend_timestamp=False)
 
-        if options.eco_scale["AcrossFloors"]==True:
+        if base.options.eco_scale["AcrossFloors"]==True:
 
-            if options.eco_scale["AcrossDamageStates"] == True:
+            if base.options.eco_scale["AcrossDamageStates"] == True:
 
                 eco_qnt = dmg_quantities.groupby(level=[0,], axis=1).sum()
                 eco_qnt.columns.names = ['cmp',]
@@ -2973,7 +2979,7 @@ class BldgRepairModel(LossModel):
 
         else:
 
-            if options.eco_scale["AcrossDamageStates"] == True:
+            if base.options.eco_scale["AcrossDamageStates"] == True:
 
                 eco_qnt = dmg_quantities.groupby(level=[0, 1], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', 'loc']
@@ -2983,32 +2989,32 @@ class BldgRepairModel(LossModel):
                 eco_qnt = dmg_quantities.groupby(level=[0, 1, 3], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', 'loc', 'ds']
 
-        log_msg(f"Successfully aggregated damage quantities.",
+        base.log_msg(f"Successfully aggregated damage quantities.",
                 prepend_timestamp=False)
 
         # apply the median functions, if needed, to get median consequences for
         # each realization
-        log_msg(f"\nCalculating the median repair consequences...",
+        base.log_msg(f"\nCalculating the median repair consequences...",
                 prepend_timestamp=False)
 
         medians = self._calc_median_consequence(eco_qnt)
 
-        log_msg(f"Successfully determined median repair consequences.",
+        base.log_msg(f"Successfully determined median repair consequences.",
                 prepend_timestamp=False)
 
         # combine the median consequences with the samples of deviation from the
         # median to get the consequence realizations.
-        log_msg(f"\nConsidering deviations from the median values to obtain "
+        base.log_msg(f"\nConsidering deviations from the median values to obtain "
                 f"random DV sample...")
 
-        log_msg(f"Preparing random variables for repair cost and time...",
+        base.log_msg(f"Preparing random variables for repair cost and time...",
                 prepend_timestamp=False)
         RV_reg = self._create_DV_RVs(dmg_quantities.columns)
 
         if RV_reg is not None:
             RV_reg.generate_sample(sample_size=sample_size)
 
-            std_sample = convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
+            std_sample = base.convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
                                                axis=1).sort_index(axis=1)
             std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir']
 
@@ -3027,7 +3033,7 @@ class BldgRepairModel(LossModel):
         else:
             std_sample = None
 
-        log_msg(f"\nSuccessfully generated {sample_size} realizations of "
+        base.log_msg(f"\nSuccessfully generated {sample_size} realizations of "
                 f"deviation from the median consequences.",
                 prepend_timestamp=False)
 
@@ -3071,11 +3077,11 @@ class BldgRepairModel(LossModel):
                     for loc_id, loc in enumerate(
                             dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.unique(level=0)):
 
-                        if ((options.eco_scale["AcrossFloors"] == True) and
+                        if ((base.options.eco_scale["AcrossFloors"] == True) and
                             (loc_id > 0)):
                             break
 
-                        if options.eco_scale["AcrossFloors"] == True:
+                        if base.options.eco_scale["AcrossFloors"] == True:
                             median_i = medians[DV_type].loc[:,(cmp_i, ds)]
                             dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds)]
 
@@ -3100,17 +3106,17 @@ class BldgRepairModel(LossModel):
 
                         loc_list.append(loc)
 
-                    if options.eco_scale["AcrossFloors"] == True:
+                    if base.options.eco_scale["AcrossFloors"] == True:
                         ds_list += [ds, ]
                     else:
                         ds_list+=[(ds, loc) for loc in loc_list]
 
-                if options.eco_scale["AcrossFloors"] == True:
+                if base.options.eco_scale["AcrossFloors"] == True:
                     cmp_list += [(loss_cmp_i, dmg_cmp_i, ds) for ds in ds_list]
                 else:
                     cmp_list+=[(loss_cmp_i, dmg_cmp_i, ds, loc) for ds, loc in ds_list]
 
-            if options.eco_scale["AcrossFloors"] == True:
+            if base.options.eco_scale["AcrossFloors"] == True:
                 key_list += [(DV_type, loss_cmp_i, dmg_cmp_i, ds)
                              for loss_cmp_i, dmg_cmp_i, ds in cmp_list]
             else:
@@ -3144,7 +3150,7 @@ class BldgRepairModel(LossModel):
 
         self._sample = DV_sample
 
-        log_msg(f"Successfully obtained DV sample.",
+        base.log_msg(f"Successfully obtained DV sample.",
                 prepend_timestamp=False)
 
 
