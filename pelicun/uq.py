@@ -1432,8 +1432,13 @@ class RandomVariableRegistry(object):
 
     """
 
-    def __init__(self):
-
+    def __init__(self, rng):
+        """
+        rng: numpy.random._generator.Generator
+            Random variable generator object.
+            e.g.: np.random.default_rng(seed)
+        """
+        self._rng = rng
         self._variables = {}
         self._sets = {}
 
@@ -1476,7 +1481,7 @@ class RandomVariableRegistry(object):
         """
         return dict([(name, rv.sample) for name, rv in self.RV.items()])
 
-    def generate_sample(self, sample_size, method=None):
+    def generate_sample(self, sample_size, method):
         """
         Generates samples for all variables in the registry.
 
@@ -1485,20 +1490,14 @@ class RandomVariableRegistry(object):
 
         sample_size: int
             The number of samples requested per variable.
-        method: {'MonteCarlo', 'LHS', 'LHS_midpoint'}, optional
+        method: str
+            Can be any of: 'MonteCarlo', 'LHS', 'LHS_midpoint'
             The sample generation method to use. 'MonteCarlo' stands for
             conventional random sampling; 'LHS' is Latin HyperCube Sampling
             with random sample location within each bin of the hypercube;
             'LHS_midpoint' is like LHS, but the samples are assigned to the
             midpoints of the hypercube bins.
-        seed: int, optional
-            Random seed used for sampling.
         """
-        if method is None:
-            method = base.options.sampling_method
-
-        # Initialize the random number generator
-        rng = base.options.rng
 
         # Generate a dictionary with IDs of the free (non-anchored and
         # non-deterministic) variables
@@ -1511,7 +1510,7 @@ class RandomVariableRegistry(object):
 
         # Generate controlling samples from a uniform distribution for free RVs
         if 'LHS' in method:
-            bin_low = np.array([rng.permutation(sample_size)
+            bin_low = np.array([self._rng.permutation(sample_size)
                                 for i in range(RV_count)])
 
             if method == 'LHS_midpoint':
@@ -1519,11 +1518,11 @@ class RandomVariableRegistry(object):
                 U_RV = (bin_low + U_RV) / sample_size
 
             elif method == 'LHS':
-                U_RV = rng.random(size=[RV_count, sample_size])
+                U_RV = self._rng.random(size=[RV_count, sample_size])
                 U_RV = (bin_low + U_RV) / sample_size
 
         elif method == 'MonteCarlo':
-            U_RV = rng.random(size=[RV_count, sample_size])
+            U_RV = self._rng.random(size=[RV_count, sample_size])
 
         # Assign the controlling samples to the RVs
         for RV_name, RV_id in RV_ID.items():

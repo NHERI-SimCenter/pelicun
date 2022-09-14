@@ -798,7 +798,7 @@ class DemandModel(PelicunModel):
         """
 
         # initialize the registry
-        RV_reg = uq.RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry(base.options.rng)
 
         # add a random variable for each demand variable
         for rv_params in self.marginal_params.itertuples():
@@ -869,7 +869,9 @@ class DemandModel(PelicunModel):
             preserve_order=config.get('PreserveRawOrder', False))
 
         sample_size = config['SampleSize']
-        self._RVs.generate_sample(sample_size=sample_size)
+        self._RVs.generate_sample(
+            sample_size=sample_size,
+            method=base.options.sampling_method)
 
         # replace the potentially existing raw sample with the generated one
         self._sample = None
@@ -1170,7 +1172,7 @@ class AssetModel(PelicunModel):
     def _create_cmp_RVs(self):
 
         # initialize the registry
-        RV_reg = uq.RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry(base.options.rng)
 
         # add a random variable for each component quantity variable
         for rv_params in self.cmp_marginal_params.itertuples():
@@ -1208,7 +1210,9 @@ class AssetModel(PelicunModel):
 
         self._create_cmp_RVs()
 
-        self._cmp_RVs.generate_sample(sample_size=sample_size)
+        self._cmp_RVs.generate_sample(
+            sample_size=sample_size,
+            method=base.options.sampling_method)
 
         # replace the potentially existing sample with the generated one
         self._cmp_sample = None
@@ -1445,8 +1449,8 @@ class DamageModel(PelicunModel):
                          prepend_timestamp=True)
 
         # initialize the registry
-        capacity_RV_reg = uq.RandomVariableRegistry()
-        lsds_RV_reg = uq.RandomVariableRegistry()
+        capacity_RV_reg = uq.RandomVariableRegistry(base.options.rng)
+        lsds_RV_reg = uq.RandomVariableRegistry(base.options.rng)
 
         rv_count = 0
 
@@ -1667,9 +1671,11 @@ class DamageModel(PelicunModel):
             base.log_msg('Sampling capacities...',
                          prepend_timestamp=True)
 
-        capacity_RVs.generate_sample(sample_size=sample_size)
+        capacity_RVs.generate_sample(
+            sample_size=sample_size, method=base.options.sampling_method)
 
-        lsds_RVs.generate_sample(sample_size=sample_size)
+        lsds_RVs.generate_sample(
+            sample_size=sample_size, method=base.options.sampling_method)
 
         if base.options.verbose:
             base.log_msg("Raw samples are available",
@@ -2647,7 +2653,7 @@ class BldgRepairModel(LossModel):
             we need for the simulation.
         """
 
-        RV_reg = uq.RandomVariableRegistry()
+        RV_reg = uq.RandomVariableRegistry(base.options.rng)
         LP = self.loss_params
 
         # make ds the second level in the MultiIndex
@@ -3053,7 +3059,8 @@ class BldgRepairModel(LossModel):
         RV_reg = self._create_DV_RVs(dmg_quantities.columns)
 
         if RV_reg is not None:
-            RV_reg.generate_sample(sample_size=sample_size)
+            RV_reg.generate_sample(
+                sample_size=sample_size, method=base.options.sampling_method)
 
             std_sample = base.convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
                                                     axis=1).sort_index(axis=1)
