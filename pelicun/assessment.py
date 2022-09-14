@@ -48,10 +48,12 @@ This module has classes and methods that control the performance assessment.
 
 """
 
+import json
 from . import base
 from . import file_io
 from . import model
-import json
+from .__init__ import __version__ as pelicun_version
+
 
 class Assessment(object):
     """
@@ -77,8 +79,8 @@ class Assessment(object):
 
         base.set_options(file_io.merge_default_config(config_options))
 
-        base.log_msg(f'pelicun {base.pelicun_version} | \n',
-                prepend_timestamp=False, prepend_blank_space=False)
+        base.log_msg(f'pelicun {pelicun_version} | \n',
+                     prepend_timestamp=False, prepend_blank_space=False)
 
         base.print_system_info()
 
@@ -158,7 +160,6 @@ class Assessment(object):
 
         return file_io.load_data(data_path, orientation=1, reindex=False, convert=[])
 
-
     def get_default_metadata(self, data_name):
         """
         Load a default metadata file and pass it to the user.
@@ -172,7 +173,7 @@ class Assessment(object):
 
         data_path = str(base.pelicun_path) + '/resources/' + data_name + '.json'
 
-        with open(data_path, 'r') as f:
+        with open(data_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         return data

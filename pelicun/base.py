@@ -60,25 +60,18 @@ This module defines constants, basic classes and methods for pelicun.
 
 """
 
-import os, sys, time
+import os
+import sys
 import warnings
 from datetime import datetime
-from time import strftime
 from pathlib import Path
 import argparse
-
-from copy import deepcopy
-
-# import libraries for other modules
+import pprint
 import numpy as np
 import pandas as pd
 
-from .__init__ import __version__ as pelicun_version
-
-idx = pd.IndexSlice
 
 # set printing options
-import pprint
 pp = pprint.PrettyPrinter(indent=2, width=80-24)
 
 pd.options.display.max_rows = 20
@@ -87,6 +80,7 @@ pd.options.display.expand_frame_repr = True
 pd.options.display.width = 300
 
 idx = pd.IndexSlice
+
 
 class Options(object):
 
@@ -184,7 +178,7 @@ class Options(object):
     def log_file(self, value):
 
         if value is None:
-            globals()['log_file'] = value
+            globals()['log_file'] = None
 
         else:
 
@@ -194,14 +188,15 @@ class Options(object):
 
                 globals()['log_file'] = str(filepath)
 
-                with open(filepath, 'w') as f:
+                with open(filepath, 'w', encoding='utf-8') as f:
                     f.write('')
 
-            except:
-                log_msg(f"WARNING: The filepath provided for the log file does "
-                        f"not point to a valid location: {value}. \nPelicun "
-                        f"cannot print the log to a file.")
-                self.log_file = None
+            except BaseException as err:
+                print(f"WARNING: The filepath provided for the log file does "
+                      f"not point to a valid location: {value}. \nPelicun "
+                      f"cannot print the log to a file.\n"
+                      f"The error was: '{err}'")
+                raise
 
     @property
     def print_log(self):
@@ -215,8 +210,10 @@ class Options(object):
 
         if self._log_show_ms:
             self._log_time_format = '%H:%M:%S:%f'
-            self._log_pref = ' ' * 16 # the length of the time string in the log file
-            self._log_div = '-' * (80 - 17) # to have a total length of 80 with the time added
+            # the length of the time string in the log file
+            self._log_pref = ' ' * 16
+            # to have a total length of 80 with the time added
+            self._log_div = '-' * (80 - 17)
         else:
             self._log_time_format = '%H:%M:%S'
             self._log_pref = ' ' * 9
@@ -226,7 +223,7 @@ class Options(object):
 
         if unit is not None:
 
-            if unit in UCF.keys():
+            if unit in UCF:
                 scale_factor = UCF[unit]
 
             else:
@@ -236,12 +233,14 @@ class Options(object):
 
         return scale_factor
 
+
 options = Options()
 
 log_file = None
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
+
 
 def set_options(config_options):
 
@@ -270,6 +269,7 @@ def set_options(config_options):
             elif key == "EconomiesOfScale":
                 options.eco_scale = value
 
+
 def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a simple, one-level index
@@ -291,9 +291,14 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
     -------
     data: DataFrame
         The modified DataFrame
+
+    Raises
+    ------
+    ValueError:
+        When an invalid axis parameter is specified
     """
 
-    if axis in [0, 1]:
+    if axis in {0, 1}:
 
         if inplace:
             data_mod = data
@@ -301,7 +306,8 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
             data_mod = data.copy()
 
         if axis == 0:
-            simple_name = '-'.join([n if n is not None else "" for n in data.index.names])
+            simple_name = '-'.join(
+                [n if n is not None else "" for n in data.index.names])
             simple_index = ['-'.join([str(id_i) for id_i in id])
                             for id in data.index]
 
@@ -309,7 +315,8 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
             data_mod.index.name = simple_name
 
         elif axis == 1:
-            simple_name = '-'.join([n if n is not None else "" for n in data.columns.names])
+            simple_name = '-'.join(
+                [n if n is not None else "" for n in data.columns.names])
             simple_index = ['-'.join([str(id_i) for id_i in id])
                             for id in data.columns]
 
@@ -320,6 +327,7 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
         raise ValueError(f"Invalid axis parameter: {axis}")
 
     return data_mod
+
 
 def convert_to_MultiIndex(data, axis=0, inplace=False):
     """
@@ -346,8 +354,8 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     """
 
     # check if the requested axis is already a MultiIndex
-    if (((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or
-        ((axis == 1) and (isinstance(data.columns, pd.MultiIndex)))):
+    if (((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or (
+            (axis == 1) and (isinstance(data.columns, pd.MultiIndex)))):
 
         # if yes, return the data unchanged
         return data
@@ -389,6 +397,7 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     else:
         return data
 
+
 def calc_unit_scale_factor(unit):
     """
     Determines the scale factor from input unit to the corresponding SI unit
@@ -403,6 +412,11 @@ def calc_unit_scale_factor(unit):
     -------
     scale_factor: float
         Scale factor that convert values from unit to SI unit
+
+    Raises
+    ------
+    KeyError:
+        When an invalid unit is specified
     """
 
     unit = unit.strip().split(' ')
@@ -419,18 +433,21 @@ def calc_unit_scale_factor(unit):
     try:
         scale_factor = unit_count * UCF[unit_name]
 
-    except:
-        raise ValueError(f"Specified unit not recognized: "
-                         f"{unit_count} {unit_name}")
+    except KeyError as exc:
+        raise KeyError(f"Specified unit not recognized: "
+                       f"{unit_count} {unit_name}") from exc
 
     return scale_factor
+
 
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, describe=False):
     if describe:
-        pp.pprint(pd.DataFrame(data).describe(percentiles=[0.01,0.1,0.5,0.9,0.99]))
+        pp.pprint(pd.DataFrame(data).describe(
+            percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
     else:
         pp.pprint(pd.DataFrame(data))
+
 
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
@@ -449,10 +466,13 @@ def _warning(message, category, filename, lineno, file=None, line=None):
 
     print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
 
+
 warnings.showwarning = _warning
+
 
 def show_warning(warning_msg):
     warnings.warn(UserWarning(warning_msg))
+
 
 def print_system_info():
 
@@ -464,6 +484,7 @@ def print_system_info():
             f'numpy: {np.__version__}\n'
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
+
 
 def log_div(prepend_timestamp=False):
     """
@@ -477,7 +498,7 @@ def log_div(prepend_timestamp=False):
     else:
         msg = '-' * 80
 
-    log_msg(msg, prepend_timestamp = prepend_timestamp)
+    log_msg(msg, prepend_timestamp=prepend_timestamp)
 
 
 def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
@@ -497,7 +518,7 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
 
     for msg_i, msg_line in enumerate(msg_lines):
 
-        if (prepend_timestamp and (msg_i==0)):
+        if (prepend_timestamp and (msg_i == 0)):
             formatted_msg = '{} {}'.format(
                 datetime.now().strftime(options.log_time_format), msg_line)
         elif prepend_timestamp:
@@ -514,6 +535,7 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
             with open(globals()['log_file'], 'a') as f:
                 f.write('\n'+formatted_msg)
 
+
 def describe(df, percentiles=[0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
                               0.977, 0.999]):
 
@@ -524,7 +546,7 @@ def describe(df, percentiles=[0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
         if vals.ndim == 1:
             df = pd.Series(vals, name=cols)
         else:
-            df = pd.DataFrame(vals, columns = cols)
+            df = pd.DataFrame(vals, columns=cols)
 
     desc = df.describe(percentiles).T
 
@@ -533,19 +555,20 @@ def describe(df, percentiles=[0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
     desc = desc.T
 
     for col in desc.columns:
-        if np.min(df[col])>0.0:
+        if np.min(df[col]) > 0.0:
             desc.loc['log_std', col] = np.std(np.log(df[col]))
 
     return desc
+
 
 def str2bool(v):
     # courtesy of Maxim @ stackoverflow
 
     if isinstance(v, bool):
-       return v
-    if v.lower() in ('yes', 'true', 'True', 't', 'y', '1'):
+        return v
+    if v.lower() in {'yes', 'true', 'True', 't', 'y', '1'}:
         return True
-    elif v.lower() in ('no', 'false', 'False', 'f', 'n', '0'):
+    elif v.lower() in {'no', 'false', 'False', 'f', 'n', '0'}:
         return False
     else:
         raise argparse.ArgumentTypeError('Boolean value expected.')
@@ -656,66 +679,66 @@ add_uniq_only('KV', UCF['kV'] * UCF['A'], UCF)
 # Input specs
 
 CMP_data_path = dict(
-    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf',
-    HAZUS_HU = '/resources/HAZUS_MH_2.1.hdf',
-    HAZUS_FL = '/resources/HAZUS_MH_2.1_FL.hdf',
-    HAZUS_MISC = '/resources/HAZUS_MH_2.1_MISC.hdf'
+    P58='/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf',
+    HAZUS_HU='/resources/HAZUS_MH_2.1.hdf',
+    HAZUS_FL='/resources/HAZUS_MH_2.1_FL.hdf',
+    HAZUS_MISC='/resources/HAZUS_MH_2.1_MISC.hdf'
 )
 
 POP_data_path = dict(
-    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf'
+    P58='/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf'
 )
 
 default_units = dict(
-    force =        'N',
-    length =       'm',
-    area =         'm2',
-    volume =       'm3',
-    speed =        'mps',
-    acceleration = 'mps2',
+    force='N',
+    length='m',
+    area='m2',
+    volume='m3',
+    speed='mps',
+    acceleration='mps2',
 )
 
 EDP_units = dict(
     # drifts and rotations are not listed here because they are unitless
 
     # Floor response
-    PFA = 'acceleration',
-    PFV = 'speed',
-    PFD = 'length',
+    PFA='acceleration',
+    PFV='speed',
+    PFD='length',
 
     # Wind intensity
-    PWS = 'speed',
+    PWS='speed',
 
     # Inundation intensity
-    PIH = 'length',
+    PIH='length',
 
     # Shaking intensity
-    PGA = 'acceleration',
-    PGV = 'speed',
-    SA = 'acceleration',
-    SV = 'speed',
-    SD = 'length',
-    PGD = 'length',
+    PGA='acceleration',
+    PGV='speed',
+    SA='acceleration',
+    SV='speed',
+    SD='length',
+    PGD='length',
 )
 
 EDP_to_demand_type = {
     # Drifts
-    'Story Drift Ratio' :             'PID',
-    'Peak Interstory Drift Ratio':    'PID',
-    'Roof Drift Ratio' :              'PRD',
-    'Peak Roof Drift Ratio' :         'PRD',
-    'Damageable Wall Drift' :         'DWD',
-    'Racking Drift Ratio' :           'RDR',
-    'Mega Drift Ratio' :              'PMD',
-    'Residual Drift Ratio' :          'RID',
-    'Residual Interstory Drift Ratio':'RID',
-    'Peak Effective Drift Ratio':     'EDR',
+    'Story Drift Ratio':               'PID',
+    'Peak Interstory Drift Ratio':     'PID',
+    'Roof Drift Ratio':                'PRD',
+    'Peak Roof Drift Ratio':           'PRD',
+    'Damageable Wall Drift':           'DWD',
+    'Racking Drift Ratio':             'RDR',
+    'Mega Drift Ratio':                'PMD',
+    'Residual Drift Ratio':            'RID',
+    'Residual Interstory Drift Ratio': 'RID',
+    'Peak Effective Drift Ratio':      'EDR',
 
     # Floor response
-    'Peak Floor Acceleration' :       'PFA',
-    'Peak Floor Velocity' :           'PFV',
+    'Peak Floor Acceleration':        'PFA',
+    'Peak Floor Velocity':            'PFV',
     'Peak Floor Displacement':        'PFD',
 
     # Component response
@@ -723,21 +746,21 @@ EDP_to_demand_type = {
     'Peak Link Beam Chord Rotation':  'LBR',
 
     # Wind Intensity
-    'Peak Gust Wind Speed' :          'PWS',
+    'Peak Gust Wind Speed':           'PWS',
 
     # Inundation Intensity
-    'Peak Inundation Height' :        'PIH',
+    'Peak Inundation Height':         'PIH',
 
     # Shaking Intensity
-    'Peak Ground Acceleration' :      'PGA',
-    'Peak Ground Velocity' :          'PGV',
-    'Spectral Acceleration' :         'SA',
-    'Spectral Velocity' :             'SV',
-    'Spectral Displacement' :         'SD',
-    'Peak Spectral Acceleration' :    'SA',
-    'Peak Spectral Velocity' :        'SV',
-    'Peak Spectral Displacement' :    'SD',
-    'Permanent Ground Deformation' :  'PGD',
+    'Peak Ground Acceleration':       'PGA',
+    'Peak Ground Velocity':           'PGV',
+    'Spectral Acceleration':          'SA',
+    'Spectral Velocity':              'SV',
+    'Spectral Displacement':          'SD',
+    'Peak Spectral Acceleration':     'SA',
+    'Peak Spectral Velocity':         'SV',
+    'Peak Spectral Displacement':     'SD',
+    'Permanent Ground Deformation':   'PGD',
 
     # Placeholder for advanced calculations
     'One':                            'ONE'
@@ -752,7 +775,7 @@ EDP_to_demand_type = {
 # Rather than changing the locations themselves, we assign an offset of -1
 # so that the results still get collected at the appropriate story.
 EDP_offset_adjustment = dict(
-    PFA = -1,
-    PFV = -1,
-    PFD = -1
+    PFA=-1,
+    PFV=-1,
+    PFD=-1
 )

@@ -61,11 +61,8 @@ from . import base
 from pathlib import Path
 import numpy as np
 import pandas as pd
-import json, posixpath
-from time import sleep
+import json
 
-
-import warnings
 
 convert_dv_name = {
     'DV_rec_cost': 'Reconstruction Cost',
@@ -78,39 +75,42 @@ convert_dv_name = {
 }
 
 dependency_to_acronym = {
-        'btw. Fragility Groups'  : 'FG',
+        'btw. Fragility Groups':   'FG',
         'btw. Performance Groups': 'PG',
-        'btw. Floors'            : 'LOC',
-        'btw. Directions'        : 'DIR',
-        'btw. Component Groups'  : 'CSG',
-        'btw. Damage States'     : 'DS',
-        'Independent'            : 'IND',
-        'per ATC recommendation' : 'ATC',
+        'btw. Floors':             'LOC',
+        'btw. Directions':         'DIR',
+        'btw. Component Groups':   'CSG',
+        'btw. Damage States':      'DS',
+        'Independent':             'IND',
+        'per ATC recommendation':  'ATC',
     }
 
 HAZUS_occ_converter = {
-        'RES' : 'Residential',
-        'COM' : 'Commercial',
-        'REL' : 'Commercial',
-        'EDU' : 'Educational',
-        'IND' : 'Industrial',
-        'AGR' : 'Industrial'
+        'RES':  'Residential',
+        'COM':  'Commercial',
+        'REL':  'Commercial',
+        'EDU':  'Educational',
+        'IND':  'Industrial',
+        'AGR':  'Industrial'
     }
+
 
 # this is a convenience function for converting strings to float or None
 def float_or_None(string):
     try:
         res = float(string)
         return res
-    except:
+    except ValueError:
         return None
+
 
 def int_or_None(string):
     try:
         res = int(string)
         return res
-    except:
+    except ValueError:
         return None
+
 
 def process_loc(string, stories):
     try:
@@ -125,11 +125,12 @@ def process_loc(string, stories):
         elif string == "all":
             return list(range(1, stories+1))
         elif string == "top":
-            return [stories,]
+            return [stories, ]
         elif string == "roof":
-            return [stories,]
+            return [stories, ]
         else:
             return None
+
 
 def get_required_resources(input_path, assessment_type):
     """
@@ -166,7 +167,7 @@ def get_required_resources(input_path, assessment_type):
     loss = DL_input.get('LossModel', None)
     if loss is not None:
         inhabitants = loss.get('Inhabitants', None)
-        dec_vars    = loss.get('DecisionVariables', None)
+        dec_vars = loss.get('DecisionVariables', None)
 
         if dec_vars is not None:
             injuries = bool(dec_vars.get('Injuries', False))
@@ -201,6 +202,7 @@ def get_required_resources(input_path, assessment_type):
 
     return resources
 
+
 def load_default_options():
     """
     Load the default_config.json file to set options to default values
@@ -211,6 +213,7 @@ def load_default_options():
         base.options.defaults = json.load(f)
 
     base.set_options(base.options.defaults.get('Options', None))
+
 
 def merge_default_config(config):
 
@@ -230,7 +233,7 @@ def merge_default_config(config):
 
                 for key, value in calib_def.items():
 
-                    if key in ['Marginals',]:
+                    if key in ['Marginals', ]:
                         continue
 
                     if key not in calib_def:
@@ -308,7 +311,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
     """
 
     if filepath is None:
-        base.log_msg(f'Preparing data ...', prepend_timestamp=False)
+        base.log_msg('Preparing data ...', prepend_timestamp=False)
 
     else:
         base.log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
@@ -321,7 +324,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
         # convert units and add unit information, if needed
         if units is not None:
 
-            base.log_msg(f'Converting units...', prepend_timestamp=False)
+            base.log_msg('Converting units...', prepend_timestamp=False)
 
             # if the orientation is 1, we might not need to scale all columns
             if orientation == 1:
@@ -332,7 +335,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
 
             for unit_name in units.unique():
 
-                labels = units.loc[units==unit_name].index.values
+                labels = units.loc[units == unit_name].index.values
 
                 unit_factor = 1./base.UCF[unit_name]
 
@@ -346,7 +349,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                     if len(active_labels) > 0:
                         data.loc[:, active_labels] *= unit_factor
 
-                else: #elif orientation == 1:
+                else:  # elif orientation == 1:
                     for label in labels:
                         if label in data.index:
                             active_labels.append(label)
@@ -365,7 +368,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                 data = pd.concat([units, data], axis=1)
                 data.sort_index(inplace=True)
 
-            base.log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+            base.log_msg('Unit conversion successful.', prepend_timestamp=False)
 
         if use_simpleindex:
             # convert MultiIndex to regular index with '-' separators
@@ -384,8 +387,8 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                 # save the contents of the DataFrame into a csv
                 data.to_csv(filepath)
 
-                base.log_msg(f'Data successfully saved to file.',
-                        prepend_timestamp=False)
+                base.log_msg('Data successfully saved to file.',
+                             prepend_timestamp=False)
 
             else:
                 raise ValueError(
@@ -396,8 +399,9 @@ def save_to_csv(data, filepath, units=None, orientation=0,
             return data
 
     else:
-        base.log_msg(f'WARNING: Data was empty, no file saved.',
-                prepend_timestamp=False)
+        base.log_msg('WARNING: Data was empty, no file saved.',
+                     prepend_timestamp=False)
+
 
 def load_data(data_source, orientation=0, reindex=True, return_units=False,
               convert=None):
@@ -451,7 +455,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
     # if there is information about units, perform the conversion to SI
     if ('Units' in data.index) or ('Units' in data.columns):
 
-        base.log_msg(f'Converting units...', prepend_timestamp=False)
+        base.log_msg('Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
             units = data.loc['Units', :].copy().dropna()
@@ -486,11 +490,11 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
             else:  # elif orientation==1:
                 data.loc[unit_labels, cols_to_scale] *= unit_factor
 
-        base.log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+        base.log_msg('Unit conversion successful.', prepend_timestamp=False)
 
     else:
 
-        #data = data.convert_dtypes()
+        # data = data.convert_dtypes()
         # enforcing float datatype is important even if there is no unit
         # conversion
         units = None
@@ -520,7 +524,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
         data.sort_index(inplace=True)
 
-    base.log_msg(f'Data successfully loaded from file.', prepend_timestamp=False)
+    base.log_msg('Data successfully loaded from file.', prepend_timestamp=False)
 
     if return_units:
 
@@ -533,6 +537,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
     else:
         return data
+
 
 def load_from_file(filepath):
     """
@@ -568,7 +573,7 @@ def load_from_file(filepath):
         data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False,
                            encoding_errors='replace')
 
-        base.log_msg(f'File successfully opened.', prepend_timestamp=False)
+        base.log_msg('File successfully opened.', prepend_timestamp=False)
 
     else:
         raise ValueError(f'ERROR: Unexpected file type received when trying '

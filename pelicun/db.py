@@ -57,13 +57,13 @@ This module has classes and methods to manage databases used by pelicun.
 
 from . import base
 from .uq import fit_distribution_to_percentiles
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import re
 import json
 
 idx = base.idx
+
 
 def parse_DS_Hierarchy(DSH):
     """
@@ -86,6 +86,7 @@ def parse_DS_Hierarchy(DSH):
             DS_setup.append([subDSH[:5]] + subDSH[6:-1].split(','))
 
     return DS_setup
+
 
 def create_FEMA_P58_fragility_db(source_file,
                                  target_data_file='fragility_DB_FEMA_P58_2nd.csv',
@@ -237,7 +238,6 @@ def create_FEMA_P58_fragility_db(source_file,
         'meter/sec': 'mps'
     }
 
-
     # for each component...
     # (this approach is not efficient, but easy to follow which was considered
     # more important than efficiency.)
@@ -281,7 +281,7 @@ def create_FEMA_P58_fragility_db(source_file,
                         f'{cmp_meta["Construction_Quality"]}'
 
         if cmp_meta['Seismic_Installation_Conditions'] not in [
-            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+                'Not Specified', 'Not applicable', 'Unknown', 'Any']:
             comments += f'\nSeismic Installation Conditions: ' \
                         f'{cmp_meta["Seismic_Installation_Conditions"]}'
 
@@ -327,8 +327,8 @@ def create_FEMA_P58_fragility_db(source_file,
                     weights.append(getattr(cmp, f"DS_{ds[2]}_Probability"))
 
                 # make sure the specified distribution parameters are appropriate
-                if ((np.unique(median_demands).size != 1) or
-                    (np.unique(dispersions).size != 1)):
+                if ((np.unique(median_demands).size != 1) or (
+                        np.unique(dispersions).size != 1)):
                     raise ValueError(f"Incorrect mutually exclusive DS "
                                      f"definition in component {cmp.Index} at "
                                      f"Limit State {LS_i}")
@@ -381,8 +381,9 @@ def create_FEMA_P58_fragility_db(source_file,
 
                             ls_meta.update({f"DS{ds_id}": {
                                 "Description": f"Pure DS{ds_pure_id}. " +
-                                               cmp_meta[f"DS_{ds_pure_id}_Description"],
-                                "RepairAction": cmp_meta[f"DS_{ds_pure_id}_Repair_Description"]
+                                cmp_meta[f"DS_{ds_pure_id}_Description"],
+                                "RepairAction": cmp_meta[
+                                    f"DS_{ds_pure_id}_Repair_Description"]
                             }})
 
                         else:
@@ -468,9 +469,11 @@ def create_FEMA_P58_fragility_db(source_file,
 
     print("Successfully parsed and saved the fragility data from FEMA P58")
 
-def create_FEMA_P58_bldg_repair_db(source_file,
-                                   target_data_file='bldg_repair_DB_FEMA_P58_2nd.csv',
-                                   target_meta_file='bldg_repair_DB_FEMA_P58_2nd.json'):
+
+def create_FEMA_P58_bldg_repair_db(
+        source_file,
+        target_data_file='bldg_repair_DB_FEMA_P58_2nd.csv',
+        target_meta_file='bldg_repair_DB_FEMA_P58_2nd.json'):
     """
     Create a repair consequence parameter database based on the FEMA P58 data
 
@@ -649,7 +652,7 @@ def create_FEMA_P58_bldg_repair_db(source_file,
                         f'{cmp_meta["Construction_Quality"]}'
 
         if cmp_meta['Seismic_Installation_Conditions'] not in [
-            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+                'Not Specified', 'Not applicable', 'Unknown', 'Any']:
             comments += f'\nSeismic Installation Conditions: ' \
                         f'{cmp_meta["Seismic_Installation_Conditions"]}'
 
@@ -736,28 +739,28 @@ def create_FEMA_P58_bldg_repair_db(source_file,
                 # identical across damage states.
                 # This assumption holds for the second edition of FEMA P58, but
                 # it might need to be revisited in future editions.
-                cost_qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS1')
-                cost_qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS1')
-                time_qnt_low = getattr(cmp, f'Lower_Qty_Cutoff_DS1_1')
-                time_qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS1_1')
+                cost_qnt_low = getattr(cmp, 'Lower_Qty_Cutoff_DS1')
+                cost_qnt_up = getattr(cmp, 'Upper_Qty_Cutoff_DS1')
+                time_qnt_low = getattr(cmp, 'Lower_Qty_Cutoff_DS1_1')
+                time_qnt_up = getattr(cmp, 'Upper_Qty_Cutoff_DS1_1')
 
                 # store the results
                 df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = family_hat
 
-                df_db.loc[(cmp.Index,'Cost'), f'DS{DS_i}-Theta_0'] = (
+                df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_0'] = (
                     f"{cost_vals[3]:g},{cost_vals[4]:g}|"
                     f"{cost_qnt_low:g},{cost_qnt_up:g}")
 
-                df_db.loc[(cmp.Index,'Cost'),
+                df_db.loc[(cmp.Index, 'Cost'),
                           f'DS{DS_i}-Theta_1'] = f"{cost_theta[1]:g}"
 
                 df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = family_hat
 
-                df_db.loc[(cmp.Index,'Time'), f'DS{DS_i}-Theta_0'] = (
+                df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_0'] = (
                     f"{time_vals[3]:g},{time_vals[4]:g}|"
                     f"{time_qnt_low:g},{time_qnt_up:g}")
 
-                df_db.loc[(cmp.Index,'Time'),
+                df_db.loc[(cmp.Index, 'Time'),
                           f'DS{DS_i}-Theta_1'] = f"{time_theta[1]:g}"
 
                 df_db.loc[(cmp.Index, 'Time'),
@@ -821,7 +824,8 @@ def create_FEMA_P58_bldg_repair_db(source_file,
                     meta_data['DamageStates'].update({
                         f"DS{DS_i}": {
                             "Description": cmp_meta[f"DS_{DS_i}_Description"],
-                            "RepairAction": cmp_meta[f"DS_{DS_i}_Repair_Description"]}})
+                            "RepairAction": cmp_meta[
+                                f"DS_{DS_i}_Repair_Description"]}})
 
                 # time
                 if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}_1')):
@@ -903,9 +907,11 @@ def create_FEMA_P58_bldg_repair_db(source_file,
     print("Successfully parsed and saved the repair consequence data from FEMA "
           "P58")
 
-def create_FEMA_P58_bldg_injury_db(source_file,
-                                   target_data_file='bldg_injury_DB_FEMA_P58_2nd.csv',
-                                   target_meta_file='bldg_injury_DB_FEMA_P58_2nd.json'):
+
+def create_FEMA_P58_bldg_injury_db(
+        source_file,
+        target_data_file='bldg_injury_DB_FEMA_P58_2nd.csv',
+        target_meta_file='bldg_injury_DB_FEMA_P58_2nd.json'):
     """
     Create an injury consequence parameter database based on the FEMA P58 data
 
@@ -1056,7 +1062,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
                         f'{cmp_meta["Construction_Quality"]}'
 
         if cmp_meta['Seismic_Installation_Conditions'] not in [
-            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+                'Not Specified', 'Not applicable', 'Unknown', 'Any']:
             comments += f'\nSeismic Installation Conditions: ' \
                         f'{cmp_meta["Seismic_Installation_Conditions"]}'
 
@@ -1095,7 +1101,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
                 casualty_model = getattr(
                     cmp, f'DS_{DS_i}_Potential_non_collapse_casualty')
 
-                if casualty_model  == True:
+                if casualty_model is True:
 
                     inj_data.update({f'DS{DS_i}': np.array([
                         getattr(cmp, f'DS_{DS_i}___Casualty_Affected_Area'),
@@ -1106,7 +1112,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
                     ])})
                     ds_tot += 1
 
-                elif casualty_model == False:
+                elif casualty_model is False:
                     ds_tot += 1
 
             # only continue if there is injury data
@@ -1143,8 +1149,6 @@ def create_FEMA_P58_bldg_injury_db(source_file,
                         elif severity == 'S2':
                             theta_0 = inj_data[3]
                             theta_1 = inj_data[4]
-
-
 
                         if theta_0 != 0.0:
 
@@ -1189,7 +1193,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
                 casualty_flag = getattr(
                     cmp, f'DS_{DS_i}_Potential_non_collapse_casualty')
 
-                if casualty_flag==True:
+                if casualty_flag is True:
 
                     A_affected = getattr(cmp,
                                          f'DS_{DS_i}___Casualty_Affected_Area')
@@ -1221,8 +1225,8 @@ def create_FEMA_P58_bldg_injury_db(source_file,
                             df_db.loc[(cmp.Index, severity),
                                       f'DS{DS_i}-AffectedArea'] = A_affected
 
-                            if (pd.isna(theta_0) or pd.isna(theta_1) or
-                                pd.isna(A_affected)):
+                            if (pd.isna(theta_0) or pd.isna(
+                                    theta_1) or pd.isna(A_affected)):
 
                                 if severity == 'S1':
                                     incomplete_S1 = True
@@ -1233,7 +1237,7 @@ def create_FEMA_P58_bldg_injury_db(source_file,
 
                     meta_data['DamageStates'].update({
                         f"DS{DS_i}": {"Description":
-                                          cmp_meta[f"DS_{DS_i}_Description"]}})
+                                      cmp_meta[f"DS_{DS_i}_Description"]}})
 
         df_db.loc[(cmp.Index, 'S1'), 'Incomplete'] = int(incomplete_S1)
         df_db.loc[(cmp.Index, 'S2'), 'Incomplete'] = int(incomplete_S2)
@@ -1290,9 +1294,11 @@ def create_FEMA_P58_bldg_injury_db(source_file,
     print("Successfully parsed and saved the injury consequence data from FEMA "
           "P58")
 
-def create_FEMA_P58_bldg_redtag_db(source_file,
-                                   target_data_file='bldg_redtag_DB_FEMA_P58_2nd.csv',
-                                   target_meta_file='bldg_redtag_DB_FEMA_P58_2nd.json'):
+
+def create_FEMA_P58_bldg_redtag_db(
+        source_file,
+        target_data_file='bldg_redtag_DB_FEMA_P58_2nd.csv',
+        target_meta_file='bldg_redtag_DB_FEMA_P58_2nd.json'):
     """
     Create an red tag consequence parameter database based on the FEMA P58 data
 
@@ -1432,7 +1438,7 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
                         f'{cmp_meta["Construction_Quality"]}'
 
         if cmp_meta['Seismic_Installation_Conditions'] not in [
-            'Not Specified', 'Not applicable', 'Unknown', 'Any']:
+                'Not Specified', 'Not applicable', 'Unknown', 'Any']:
             comments += f'\nSeismic Installation Conditions: ' \
                         f'{cmp_meta["Seismic_Installation_Conditions"]}'
 
@@ -1454,8 +1460,6 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
             "DamageStates": {}
         }
 
-
-
         # Handle components with simultaneous damage states separately
         if 'Simul' in cmp.DS_Hierarchy:
 
@@ -1473,7 +1477,7 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
                 redtag_flag = getattr(
                     cmp, f'DS_{DS_i}_Unsafe_Placard_Trigger_Flag')
 
-                if redtag_flag==True:
+                if redtag_flag is True:
 
                     theta_0 = getattr(cmp, f'DS_{DS_i}_Unsafe_Placard_Damage_'
                                            f'Median')
@@ -1496,7 +1500,7 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
 
                     meta_data['DamageStates'].update({
                         f"DS{DS_i}": {"Description":
-                                          cmp_meta[f"DS_{DS_i}_Description"]}})
+                                      cmp_meta[f"DS_{DS_i}_Description"]}})
 
         df_db.loc[cmp.Index, 'Incomplete'] = int(incomplete)
 
@@ -1546,6 +1550,7 @@ def create_FEMA_P58_bldg_redtag_db(source_file,
 
     print("Successfully parsed and saved the red tag consequence data from FEMA "
           "P58")
+
 
 def create_Hazus_EQ_fragility_db(source_file,
                                  target_data_file='fragility_DB_Hazus_EQ.csv',
@@ -1640,9 +1645,9 @@ def create_Hazus_EQ_fragility_db(source_file,
 
                     df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
                     df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
-                    S_data['EDP_limits'][dl][bt][LS_i - 1]
+                        S_data['EDP_limits'][dl][bt][LS_i - 1]
                     df_db.loc[counter, f'LS{LS_i}-Theta_1'] = \
-                    S_data['Fragility_beta'][dl]
+                        S_data['Fragility_beta'][dl]
 
                     if LS_i == 4:
                         p_coll = S_data['P_collapse'][bt]
@@ -1655,7 +1660,7 @@ def create_Hazus_EQ_fragility_db(source_file,
     NSD_data = raw_data['NonStructural_Drift_Sensitive_Fragility_Groups']
 
     # create the component id
-    df_db.loc[counter, 'ID'] = f'NSD'
+    df_db.loc[counter, 'ID'] = 'NSD'
 
     # store demand specifications
     df_db.loc[counter, 'Demand-Type'] = "Peak Roof Drift Ratio"
@@ -1689,7 +1694,7 @@ def create_Hazus_EQ_fragility_db(source_file,
         for LS_i in range(1, 5):
             df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
             df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
-            NSA_data['EDP_limits'][dl][LS_i - 1]
+                NSA_data['EDP_limits'][dl][LS_i - 1]
             df_db.loc[counter, f'LS{LS_i}-Theta_1'] = NSA_data['Fragility_beta']
 
         counter += 1
@@ -1715,9 +1720,9 @@ def create_Hazus_EQ_fragility_db(source_file,
 
                     df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
                     df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
-                    LF_data['EDP_limits'][dl][bt][LS_i - 1]
+                        LF_data['EDP_limits'][dl][bt][LS_i - 1]
                     df_db.loc[counter, f'LS{LS_i}-Theta_1'] = \
-                    LF_data['Fragility_beta'][dl]
+                        LF_data['Fragility_beta'][dl]
 
                     if LS_i == 4:
                         p_coll = LF_data['P_collapse'][bt]
@@ -1741,13 +1746,13 @@ def create_Hazus_EQ_fragility_db(source_file,
             df_db.loc[counter, 'Demand-Offset'] = 0
 
             # store the Limit State parameters
-            df_db.loc[counter, f'LS1-Family'] = 'lognormal'
-            df_db.loc[counter, f'LS1-Theta_0'] = \
-            GF_data['EDP_limits'][direction][f_depth]
-            df_db.loc[counter, f'LS1-Theta_1'] = \
-            GF_data['Fragility_beta'][direction][f_depth]
+            df_db.loc[counter, 'LS1-Family'] = 'lognormal'
+            df_db.loc[counter, 'LS1-Theta_0'] = \
+                GF_data['EDP_limits'][direction][f_depth]
+            df_db.loc[counter, 'LS1-Theta_1'] = \
+                GF_data['Fragility_beta'][direction][f_depth]
             p_complete = GF_data['P_Complete']
-            df_db.loc[counter, f'LS1-DamageStateWeights'] = (
+            df_db.loc[counter, 'LS1-DamageStateWeights'] = (
                 f'{1.0 - p_complete} | {p_complete}')
 
             counter += 1
@@ -1771,10 +1776,11 @@ def create_Hazus_EQ_fragility_db(source_file,
     df_db.to_csv(target_data_file)
 
     # save the metadata - later
-    #with open(target_meta_file, 'w+') as f:
+    # with open(target_meta_file, 'w+') as f:
     #    json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the fragility data from Hazus EQ")
+
 
 def create_Hazus_EQ_bldg_repair_db(source_file,
                                    target_data_file='bldg_repair_DB_Hazus_EQ.csv',
@@ -1938,11 +1944,12 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     df_db.to_csv(target_data_file)
 
     # save the metadata - later
-    #with open(target_meta_file, 'w+') as f:
+    # with open(target_meta_file, 'w+') as f:
     #    json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the repair consequence data from Hazus "
           "EQ")
+
 
 def create_Hazus_EQ_bldg_injury_db(source_file,
                                    target_data_file='bldg_injury_DB_Hazus_EQ.csv',
@@ -2017,7 +2024,7 @@ def create_Hazus_EQ_bldg_injury_db(source_file,
             else:
                 ds_i = f'DS{DS_i}'
 
-            for S_i in range(1,5):
+            for S_i in range(1, 5):
                 s_label = f'S{S_i}'
                 df_db.loc[(cmp_id, s_label), f'DS{DS_i}-Theta_0'] = (
                     S_data['Injury_rates'][ds_i][bt][S_i-1])
@@ -2069,7 +2076,7 @@ def create_Hazus_EQ_bldg_injury_db(source_file,
     df_db.to_csv(target_data_file)
 
     # save the metadata - later
-    #with open(target_meta_file, 'w+') as f:
+    # with open(target_meta_file, 'w+') as f:
     #    json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the injury consequence data from Hazus "

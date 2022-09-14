@@ -37,57 +37,63 @@
 # Contributors:
 # Adam Zsarnóczay
 
-import pandas as pd
-import sys, json, argparse
+import sys
+import json
+import argparse
 from pathlib import Path
+import pandas as pd
 
 from pelicun.db import convert_Series_to_dict
 
+
 def export_DB(data_path, target_dir):
-	data_path = Path(data_path).resolve()
-	target_dir = Path(target_dir).resolve()
-	target_dir.mkdir(exist_ok=True)
+    data_path = Path(data_path).resolve()
+    target_dir = Path(target_dir).resolve()
+    target_dir.mkdir(exist_ok=True)
 
-	# start with the data
+    # start with the data
 
-	target_dir_data = target_dir / 'data'
-	target_dir_data.mkdir(exist_ok=True)
+    target_dir_data = target_dir / 'data'
+    target_dir_data.mkdir(exist_ok=True)
 
-	DB_df = pd.read_hdf(data_path, 'data')
+    DB_df = pd.read_hdf(data_path, 'data')
 
-	for row_id, row in DB_df.iterrows():
-	    
-	    row_dict = convert_Series_to_dict(row)
-	    
-	    with open(target_dir_data / f'{row_id}.json', 'w') as f:
-	        json.dump(row_dict, f, indent=2)
+    for row_id, row in DB_df.iterrows():
 
-	# add population if it exists
+        row_dict = convert_Series_to_dict(row)
 
-	try:
+        with open(target_dir_data / f'{row_id}.json', 'w',
+                  encoding='utf-8') as f:
+            json.dump(row_dict, f, indent=2)
 
-		DB_df = pd.read_hdf(data_path, 'pop')
+    # add population if it exists
 
-		pop_dict = {}
+    try:
 
-		for row_id, row in DB_df.iterrows():
-		    
-		    pop_dict.update({row_id: convert_Series_to_dict(row)})
-		    
-		with open(target_dir / 'population.json', 'w') as f:
-			json.dump(pop_dict, f, indent=2)
+        DB_df = pd.read_hdf(data_path, 'pop')
 
-	except:
-		pass
+        pop_dict = {}
+
+        for row_id, row in DB_df.iterrows():
+
+            pop_dict.update({row_id: convert_Series_to_dict(row)})
+
+        with open(target_dir / 'population.json', 'w',
+                  encoding='utf-8') as f:
+            json.dump(pop_dict, f, indent=2)
+
+    except:
+        pass
+
 
 if __name__ == '__main__':
 
-	args = sys.argv[1:]
+    args = sys.argv[1:]
 
-	parser = argparse.ArgumentParser()
-	parser.add_argument('--DL_DB_path')
-	parser.add_argument('--target_dir')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--DL_DB_path')
+    parser.add_argument('--target_dir')
 
-	args = parser.parse_args(args)
+    args_namespace = parser.parse_args(args)
 
-	export_DB(args.DL_DB_path, args.target_dir)
+    export_DB(args_namespace.DL_DB_path, args_namespace.target_dir)
