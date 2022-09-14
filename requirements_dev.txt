@@ -1,0 +1,6 @@
+autopep8
+black
+flake8
+pylint
+yapf
+pytest
