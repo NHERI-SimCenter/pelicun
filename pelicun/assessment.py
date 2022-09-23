@@ -280,3 +280,17 @@ class Assessment:
 
         return scale_factor
 
+    def scale_factor(self, unit):
+
+        if unit is not None:
+
+            if unit in self.unit_conversion_factors:
+                scale_factor = self.unit_conversion_factors[unit]
+
+            else:
+                raise ValueError(f"Unknown unit: {unit}")
+        else:
+            scale_factor = 1.0
+
+        return scale_factor
+

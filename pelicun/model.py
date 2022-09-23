@@ -516,7 +516,7 @@ class DemandModel(PelicunModel):
                         cal_df.loc[idx[cols, :, :], lim] = val
 
             # scale the censor and truncation limits, if needed
-            scale_factor = self._asmnt.options.scale_factor(settings.get('Unit', None))
+            scale_factor = self._asmnt.scale_factor(settings.get('Unit', None))
 
             rows_to_scale = ['CensorLower', 'CensorUpper',
                              'TruncateLower', 'TruncateUpper']
