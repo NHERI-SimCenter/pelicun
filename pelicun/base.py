@@ -44,7 +44,6 @@ This module defines constants, basic classes and methods for pelicun.
 
 .. autosummary::
 
-    set_options
     convert_to_SimpleIndex
     convert_to_MultiIndex
     convert_unit
@@ -62,8 +61,8 @@ This module defines constants, basic classes and methods for pelicun.
 
 import os
 import sys
-import warnings
 from datetime import datetime
+import warnings
 from pathlib import Path
 import argparse
 import pprint
@@ -85,19 +84,22 @@ idx = pd.IndexSlice
 class Options:
 
     """
-
+    Options objects store analysis options and the logging configuration.
+    They are assessment-specific.
+    
     Parameters
+    ----------
 
     verbose: boolean
         If True, the pelicun echoes more information throughout the assessment.
         This can be useful for debugging purposes.
-
     log_show_ms: boolean
         If True, the timestamps in the log file are in microsecond precision.
-
     """
 
-    def __init__(self):
+    def __init__(self, assessment):
+
+        self._asmnt = assessment
 
         self._verbose = False
         self._log_show_ms = False
@@ -116,10 +118,10 @@ class Options:
 
     def nondir_multi(self, EDP_type):
 
-        if EDP_type in self.nondir_multi_dict.keys():
+        if EDP_type in self.nondir_multi_dict:
             return self.nondir_multi_dict[EDP_type]
 
-        if 'ALL' in self.nondir_multi_dict.keys():
+        if 'ALL' in self.nondir_multi_dict:
             return self.nondir_multi_dict['ALL']
 
         raise ValueError(f"Scale factor for non-directional demand "
@@ -232,41 +234,35 @@ class Options:
 
         return scale_factor
 
+    def set_options(self, config_options):
 
-options = Options()
+        if config_options is not None:
 
-log_file = None
+            for key, value in config_options.items():
+
+                if key == "Verbose":
+                    self.verbose = value
+                elif key == "Seed":
+                    self.seed = value
+                elif key == "LogShowMS":
+                    self.log_show_ms = value
+                elif key == "LogFile":
+                    self.log_file = value
+                elif key == "PrintLog":
+                    self.print_log = value
+                elif key == "SamplingMethod":
+                    self.sampling_method = value
+                elif key == "DemandOffset":
+                    self.demand_offset = value
+                elif key == "NonDirectionalMultipliers":
+                    self.nondir_multi_dict = value
+                elif key == "RepairCostAndTimeCorrelation":
+                    self.rho_cost_time = value
+                elif key == "EconomiesOfScale":
+                    self.eco_scale = value
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
-
-
-def set_options(config_options):
-
-    if config_options is not None:
-
-        for key, value in config_options.items():
-
-            if key == "Verbose":
-                options.verbose = value
-            elif key == "Seed":
-                options.seed = value
-            elif key == "LogShowMS":
-                options.log_show_ms = value
-            elif key == "LogFile":
-                options.log_file = value
-            elif key == "PrintLog":
-                options.print_log = value
-            elif key == "SamplingMethod":
-                options.sampling_method = value
-            elif key == "DemandOffset":
-                options.demand_offset = value
-            elif key == "NonDirectionalMultipliers":
-                options.nondir_multi_dict = value
-            elif key == "RepairCostAndTimeCorrelation":
-                options.rho_cost_time = value
-            elif key == "EconomiesOfScale":
-                options.eco_scale = value
 
 
 def convert_to_SimpleIndex(data, axis=0, inplace=False):
@@ -472,67 +468,20 @@ def show_warning(warning_msg):
     warnings.warn(UserWarning(warning_msg))
 
 
-def print_system_info():
+def print_system_info(assessment):
 
-    log_msg('System Information:',
-            prepend_timestamp=False, prepend_blank_space=False)
-    log_msg(f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
-            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
-            f'python: {sys.version}\n'
-            f'numpy: {np.__version__}\n'
-            f'pandas: {pd.__version__}\n',
-            prepend_timestamp=False)
-
-
-def log_div(prepend_timestamp=False):
-    """
-    Print a divider line to the log file
-
-    """
-
-    if prepend_timestamp:
-        msg = options.log_div
-
-    else:
-        msg = '-' * 80
-
-    log_msg(msg, prepend_timestamp=prepend_timestamp)
+    assessment.log_msg(
+        'System Information:',
+        prepend_timestamp=False, prepend_blank_space=False)
+    assessment.log_msg(
+        f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+        f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+        f'python: {sys.version}\n'
+        f'numpy: {np.__version__}\n'
+        f'pandas: {pd.__version__}\n',
+        prepend_timestamp=False)
 
 
-def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
-    """
-    Print a message to the screen with the current time as prefix
-
-    The time is in ISO-8601 format, e.g. 2018-06-16T20:24:04Z
-
-    Parameters
-    ----------
-    msg: string
-       Message to print.
-
-    """
-
-    # pylint: disable = consider-using-f-string
-    msg_lines = msg.split('\n')
-
-    for msg_i, msg_line in enumerate(msg_lines):
-
-        if (prepend_timestamp and (msg_i == 0)):
-            formatted_msg = '{} {}'.format(
-                datetime.now().strftime(options.log_time_format), msg_line)
-        elif prepend_timestamp:
-            formatted_msg = options.log_pref + msg_line
-        elif prepend_blank_space:
-            formatted_msg = options.log_pref + msg_line
-        else:
-            formatted_msg = msg_line
-
-        if options.print_log:
-            print(formatted_msg)
-
-        if globals()['log_file'] is not None:
-            with open(globals()['log_file'], 'a', encoding='utf-8') as f:
-                f.write('\n'+formatted_msg)
 
 
 def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,

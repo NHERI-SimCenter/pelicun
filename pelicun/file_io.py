@@ -202,22 +202,34 @@ def get_required_resources(input_path, assessment_type):
     return resources
 
 
-def load_default_options():
+def load_default_options(options_object):
     """
     Load the default_config.json file to set options to default values
 
+    Parameters
+    ----------
+    options_object: Options
+        Options object to be modified.
     """
 
     with open(base.pelicun_path / "settings/default_config.json",
               'r', encoding='utf-8') as f:
-        base.options.defaults = json.load(f)
+        options_object.defaults = json.load(f)
 
-    base.set_options(base.options.defaults.get('Options', None))
+    options_object.set_options(options_object.defaults.get('Options', None))
 
 
-def merge_default_config(config):
+def merge_default_config(config, options_object):
+    """
+    Merge the default_config.json file with the user specified config
+    file.
+    Parameters
+    ----------
+    options_object: Options
+        Options object to be modified.
+    """
 
-    defaults = base.options.defaults
+    defaults = options_object.defaults
 
     if config is not None:
 
@@ -273,7 +285,7 @@ def merge_default_config(config):
 
 
 def save_to_csv(data, filepath, units=None, orientation=0,
-                use_simpleindex=True):
+                use_simpleindex=True, log_msg_method=None):
     """
     Saves data to a CSV file following standard SimCenter schema.
 
@@ -308,13 +320,24 @@ def save_to_csv(data, filepath, units=None, orientation=0,
     use_simpleindex: bool, default: True
         If True, MultiIndex columns and indexes are converted to SimpleIndex
         before saving
+    log_msg_method:
+        Logging method to be used. Arguments: msg (str),
+        prepend_timestamp (bool), prepend_blank_space (bool). If no method
+        is specified, no logging is performed.
     """
 
+    def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Use the logging method if it has been specified
+        """
+        if log_msg_method:
+            log_msg_method(msg, prepend_timestamp, prepend_blank_space)
+
     if filepath is None:
-        base.log_msg('Preparing data ...', prepend_timestamp=False)
+        log_msg('Preparing data ...', prepend_timestamp=False)
 
     else:
-        base.log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+        log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
 
@@ -324,7 +347,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
         # convert units and add unit information, if needed
         if units is not None:
 
-            base.log_msg('Converting units...', prepend_timestamp=False)
+            log_msg('Converting units...', prepend_timestamp=False)
 
             # if the orientation is 1, we might not need to scale all columns
             if orientation == 1:
@@ -368,7 +391,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                 data = pd.concat([units, data], axis=1)
                 data.sort_index(inplace=True)
 
-            base.log_msg('Unit conversion successful.', prepend_timestamp=False)
+            log_msg('Unit conversion successful.', prepend_timestamp=False)
 
         if use_simpleindex:
             # convert MultiIndex to regular index with '-' separators
@@ -387,7 +410,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                 # save the contents of the DataFrame into a csv
                 data.to_csv(filepath)
 
-                base.log_msg('Data successfully saved to file.',
+                log_msg('Data successfully saved to file.',
                              prepend_timestamp=False)
 
             else:
@@ -401,13 +424,13 @@ def save_to_csv(data, filepath, units=None, orientation=0,
         return data
 
     # at this line, data is None
-    base.log_msg('WARNING: Data was empty, no file saved.',
-                 prepend_timestamp=False)
+    log_msg('WARNING: Data was empty, no file saved.',
+            prepend_timestamp=False)
     return None
 
 
 def load_data(data_source, orientation=0, reindex=True, return_units=False,
-              convert=None):
+              convert=None, log_msg_method=None):
     """
     Loads data assuming it follows standard SimCenter tabular schema.
 
@@ -433,6 +456,10 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
     convert: list of string
         Specifies the columns (or rows if orientation==1) where unit conversion
         needs to be applied.
+    log_msg_method:
+        Logging method to be used. Arguments: msg (str),
+        prepend_timestamp (bool), prepend_blank_space (bool). If no method
+        is specified, no logging is performed.
 
     Returns
     -------
@@ -443,6 +470,13 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
         are specified, this return value is "None". units are only returned if
         return_units is set to True.
     """
+
+    def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Use the logging method if it has been specified
+        """
+        if log_msg_method:
+            log_msg_method(msg, prepend_timestamp, prepend_blank_space)
 
     # if the provided data_source is already a DataFrame...
     if isinstance(data_source, pd.DataFrame):
@@ -458,7 +492,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
     # if there is information about units, perform the conversion to SI
     if ('Units' in data.index) or ('Units' in data.columns):
 
-        base.log_msg('Converting units...', prepend_timestamp=False)
+        log_msg('Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
             units = data.loc['Units', :].copy().dropna()
@@ -493,7 +527,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
             else:  # elif orientation==1:
                 data.loc[unit_labels, cols_to_scale] *= unit_factor
 
-        base.log_msg('Unit conversion successful.', prepend_timestamp=False)
+        log_msg('Unit conversion successful.', prepend_timestamp=False)
 
     else:
 
@@ -527,7 +561,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
         data.sort_index(inplace=True)
 
-    base.log_msg('Data successfully loaded from file.', prepend_timestamp=False)
+    log_msg('Data successfully loaded from file.', prepend_timestamp=False)
 
     if return_units:
 
@@ -542,7 +576,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
     return data
 
 
-def load_from_file(filepath):
+def load_from_file(filepath, log_msg_method=None):
     """
     Loads data from a file and stores it in a DataFrame.
 
@@ -558,9 +592,20 @@ def load_from_file(filepath):
     -------
     data: DataFrame
         Data loaded from the file.
+    log_msg_method:
+        Logging method to be used. Arguments: msg (str),
+        prepend_timestamp (bool), prepend_blank_space (bool). If no method
+        is specified, no logging is performed.
     """
 
-    base.log_msg(f'Loading data from {filepath}...')
+    def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Use the logging method if it has been specified
+        """
+        if log_msg_method:
+            log_msg_method(msg, prepend_timestamp, prepend_blank_space)
+
+    log_msg(f'Loading data from {filepath}...')
 
     # check if the filepath is valid
     filepath = Path(filepath).resolve()
@@ -576,7 +621,7 @@ def load_from_file(filepath):
         data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False,
                            encoding_errors='replace')
 
-        base.log_msg('File successfully opened.', prepend_timestamp=False)
+        log_msg('File successfully opened.', prepend_timestamp=False)
 
     else:
         raise ValueError(f'ERROR: Unexpected file type received when trying '
