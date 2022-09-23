@@ -6,7 +6,7 @@
 
 # Files or directories to be skipped. They should be base names, not
 # paths.
-ignore=CVS
+ignore=auto.py
 
 # Add files or directories matching the regex patterns to the ignore-list. The
 # regex matches against paths and can be in Posix or Windows format.
@@ -24,7 +24,6 @@ persistent=yes
 load-plugins=
     pylint.extensions.check_elif,
     pylint.extensions.bad_builtin,
-    pylint.extensions.docparams,
     pylint.extensions.for_any_all,
     pylint.extensions.set_membership,
     pylint.extensions.code_style,
@@ -32,10 +31,11 @@ load-plugins=
     pylint.extensions.typing,
     pylint.extensions.redefined_variable_type,
     pylint.extensions.comparison_placement,
+    # pylint.extensions.docparams,
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
-jobs=1
+jobs=0
 
 # When enabled, pylint would attempt to guess common misconfiguration and emit
 # user-friendly hints instead of false-positive error messages.
