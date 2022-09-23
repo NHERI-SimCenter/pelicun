@@ -57,11 +57,11 @@ This module has classes and methods that handle file input and output.
 
 """
 
-from . import base
+import json
 from pathlib import Path
 import numpy as np
 import pandas as pd
-import json
+from . import base
 
 
 convert_dv_name = {
@@ -116,20 +116,19 @@ def process_loc(string, stories):
     try:
         res = int(string)
         return [res, ]
-    except:
+    except ValueError:
         if "-" in string:
             s_low, s_high = string.split('-')
             s_low = process_loc(s_low, stories)
             s_high = process_loc(s_high, stories)
             return list(range(s_low[0], s_high[0]+1))
-        elif string == "all":
+        if string == "all":
             return list(range(1, stories+1))
-        elif string == "top":
+        if string == "top":
             return [stories, ]
-        elif string == "roof":
+        if string == "roof":
             return [stories, ]
-        else:
-            return None
+        return None
 
 
 def get_required_resources(input_path, assessment_type):
@@ -159,7 +158,7 @@ def get_required_resources(input_path, assessment_type):
 
     AT = assessment_type
 
-    with open(input_path, 'r') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         jd = json.load(f)
 
     DL_input = jd['DamageAndLoss']
@@ -209,7 +208,8 @@ def load_default_options():
 
     """
 
-    with open(base.pelicun_path / "settings/default_config.json", 'r') as f:
+    with open(base.pelicun_path / "settings/default_config.json",
+              'r', encoding='utf-8') as f:
         base.options.defaults = json.load(f)
 
     base.set_options(base.options.defaults.get('Options', None))
@@ -233,7 +233,7 @@ def merge_default_config(config):
 
                 for key, value in calib_def.items():
 
-                    if key in ['Marginals', ]:
+                    if key in {'Marginals', }:
                         continue
 
                     if key not in calib_def:
@@ -395,12 +395,15 @@ def save_to_csv(data, filepath, units=None, orientation=0,
                     f'ERROR: Unexpected file type received when trying '
                     f'to save to csv: {filepath}')
 
-        else:
-            return data
+            return None
 
-    else:
-        base.log_msg('WARNING: Data was empty, no file saved.',
-                     prepend_timestamp=False)
+        # at this line, filepath is None
+        return data
+
+    # at this line, data is None
+    base.log_msg('WARNING: Data was empty, no file saved.',
+                 prepend_timestamp=False)
+    return None
 
 
 def load_data(data_source, orientation=0, reindex=True, return_units=False,
@@ -535,8 +538,8 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
         return data, units
 
-    else:
-        return data
+    # return_units=False
+    return data
 
 
 def load_from_file(filepath):

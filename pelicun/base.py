@@ -82,7 +82,7 @@ pd.options.display.width = 300
 idx = pd.IndexSlice
 
 
-class Options(object):
+class Options:
 
     """
 
@@ -119,12 +119,11 @@ class Options(object):
         if EDP_type in self.nondir_multi_dict.keys():
             return self.nondir_multi_dict[EDP_type]
 
-        elif 'ALL' in self.nondir_multi_dict.keys():
+        if 'ALL' in self.nondir_multi_dict.keys():
             return self.nondir_multi_dict['ALL']
 
-        else:
-            raise ValueError(f"Scale factor for non-directional demand "
-                             f"calculation of {EDP_type} not specified.")
+        raise ValueError(f"Scale factor for non-directional demand "
+                         f"calculation of {EDP_type} not specified.")
 
     @property
     def verbose(self):
@@ -394,8 +393,7 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
 
         return data_mod
 
-    else:
-        return data
+    return data
 
 
 def calc_unit_scale_factor(unit):
@@ -441,8 +439,8 @@ def calc_unit_scale_factor(unit):
 
 
 # print a matrix in a nice way using a DataFrame
-def show_matrix(data, describe=False):
-    if describe:
+def show_matrix(data, use_describe=False):
+    if use_describe:
         pp.pprint(pd.DataFrame(data).describe(
             percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
     else:
@@ -451,7 +449,7 @@ def show_matrix(data, describe=False):
 
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
-
+    # pylint:disable = unused-argument
     if '\\' in filename:
         file_path = filename.split('\\')
     elif '/' in filename:
@@ -464,7 +462,7 @@ def _warning(message, category, filename, lineno, file=None, line=None):
     else:
         python_file = filename
 
-    print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
+    print(f'WARNING in {python_file} at line {lineno}\n{message}\n')
 
 
 warnings.showwarning = _warning
@@ -514,6 +512,7 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
 
     """
 
+    # pylint: disable = consider-using-f-string
     msg_lines = msg.split('\n')
 
     for msg_i, msg_line in enumerate(msg_lines):
@@ -532,12 +531,12 @@ def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
             print(formatted_msg)
 
         if globals()['log_file'] is not None:
-            with open(globals()['log_file'], 'a') as f:
+            with open(globals()['log_file'], 'a', encoding='utf-8') as f:
                 f.write('\n'+formatted_msg)
 
 
-def describe(df, percentiles=[0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
-                              0.977, 0.999]):
+def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
+                              0.977, 0.999)):
 
     if not isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df
@@ -568,10 +567,9 @@ def str2bool(v):
         return v
     if v.lower() in {'yes', 'true', 'True', 't', 'y', '1'}:
         return True
-    elif v.lower() in {'no', 'false', 'False', 'f', 'n', '0'}:
+    if v.lower() in {'no', 'false', 'False', 'f', 'n', '0'}:
         return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+    raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
 # Unit Conversion Factors (UCF)

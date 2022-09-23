@@ -55,7 +55,7 @@ from . import model
 from .__init__ import __version__ as pelicun_version
 
 
-class Assessment(object):
+class Assessment:
     """
     Assessment objects manage the models, data, and calculations in pelicun.
 
@@ -95,13 +95,13 @@ class Assessment(object):
         Return a DemandModel object that manages the demand information.
 
         """
+        # pylint: disable = access-member-before-definition
 
         if hasattr(self, '_demand'):
             return self._demand
 
-        else:
-            self._demand = model.DemandModel()
-            return self.demand
+        self._demand = model.DemandModel()
+        return self.demand
 
     @property
     def asset(self):
@@ -109,13 +109,13 @@ class Assessment(object):
         Return an AssetModel object that manages the asset information.
 
         """
+        # pylint: disable = access-member-before-definition
 
         if hasattr(self, '_asset'):
             return self._asset
 
-        else:
-            self._asset = model.AssetModel(self)
-            return self.asset
+        self._asset = model.AssetModel(self)
+        return self.asset
 
     @property
     def damage(self):
@@ -123,13 +123,13 @@ class Assessment(object):
         Return an DamageModel object that manages the damage information.
 
         """
+        # pylint: disable = access-member-before-definition
 
         if hasattr(self, '_damage'):
             return self._damage
 
-        else:
-            self._damage = model.DamageModel(self)
-            return self.damage
+        self._damage = model.DamageModel(self)
+        return self.damage
 
     @property
     def bldg_repair(self):
@@ -137,13 +137,13 @@ class Assessment(object):
         Return an BldgRepairModel object that manages the repair information.
 
         """
+        # pylint: disable = access-member-before-definition
 
         if hasattr(self, '_bldg_repair'):
             return self._bldg_repair
 
-        else:
-            self._bldg_repair = model.BldgRepairModel(self)
-            return self.bldg_repair
+        self._bldg_repair = model.BldgRepairModel(self)
+        return self.bldg_repair
 
     def get_default_data(self, data_name):
         """

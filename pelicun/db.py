@@ -55,12 +55,12 @@ This module has classes and methods to manage databases used by pelicun.
 
 """
 
-from . import base
-from .uq import fit_distribution_to_percentiles
-import numpy as np
-import pandas as pd
 import re
 import json
+import numpy as np
+import pandas as pd
+from . import base
+from .uq import fit_distribution_to_percentiles
 
 idx = base.idx
 
@@ -69,7 +69,7 @@ def parse_DS_Hierarchy(DSH):
     """
     Parses the FEMA P58 DS hierarchy into a set of arrays.
     """
-    if 'Seq' == DSH[:3]:
+    if DSH[:3] == 'Seq':
         DSH = DSH[4:-1]
 
     DS_setup = []
@@ -78,7 +78,7 @@ def parse_DS_Hierarchy(DSH):
         if DSH[:2] == 'DS':
             DS_setup.append(DSH[:3])
             DSH = DSH[4:]
-        elif DSH[:5] in ['MutEx', 'Simul']:
+        elif DSH[:5] in {'MutEx', 'Simul'}:
             closing_pos = DSH.find(')')
             subDSH = DSH[:closing_pos + 1]
             DSH = DSH[closing_pos + 2:]
@@ -311,7 +311,7 @@ def create_FEMA_P58_fragility_db(source_file,
             ls_meta = {}
 
             # start with the special cases with multiple DSs in an LS
-            if LS_contents[0] in ['MutEx', 'Simul']:
+            if LS_contents[0] in {'MutEx', 'Simul'}:
 
                 # collect the fragility data for the member DSs
                 median_demands = []
@@ -401,15 +401,15 @@ def create_FEMA_P58_fragility_db(source_file,
                     # adjust weights to respect the assumption that at least
                     # one DS will occur (i.e., the case with all DSs returning
                     # False is not part of the event space)
-                    sim_weights = np.array(sim_weights) / np.sum(sim_weights)
+                    sim_weights_array = np.array(sim_weights) / np.sum(sim_weights)
 
-                    weights = sim_weights
+                    weights = sim_weights_array
 
                 theta_0 = median_demands[0]
                 theta_1 = dispersions[0]
-                weights = ' | '.join([f"{w:.6f}" for w in weights])
+                weights_str = ' | '.join([f"{w:.6f}" for w in weights])
 
-                df_db.loc[cmp.Index, f'LS{LS_i}-DamageStateWeights'] = weights
+                df_db.loc[cmp.Index, f'LS{LS_i}-DamageStateWeights'] = weights_str
 
             # then look at the sequential DS cases
             elif LS_contents[0].startswith('DS'):
@@ -464,7 +464,7 @@ def create_FEMA_P58_fragility_db(source_file,
     df_db.to_csv(target_data_file)
 
     # save the metadata
-    with open(target_meta_file, 'w+') as f:
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the fragility data from FEMA P58")
@@ -496,7 +496,7 @@ def create_FEMA_P58_bldg_repair_db(
     # parse the source file
     df = pd.concat(
         [pd.read_excel(source_file, sheet_name=sheet, header=2, index_col=1)
-         for sheet in ['Summary', 'Cost Summary']], axis=1)
+         for sheet in ('Summary', 'Cost Summary')], axis=1)
 
     # remove duplicate columns
     # (there are such because we joined two tables that were read separately)
@@ -886,7 +886,7 @@ def create_FEMA_P58_bldg_repair_db(
 
     df_db.drop(cmp_to_drop, axis=0, inplace=True)
     for cmp in cmp_to_drop:
-        if cmp[0] in meta_dict.keys():
+        if cmp[0] in meta_dict:
             del meta_dict[cmp[0]]
 
     # convert to optimal datatypes to reduce file size
@@ -901,7 +901,7 @@ def create_FEMA_P58_bldg_repair_db(
     df_db.to_csv(target_data_file)
 
     # save the metadata
-    with open(target_meta_file, 'w+') as f:
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the repair consequence data from FEMA "
@@ -1139,7 +1139,7 @@ def create_FEMA_P58_bldg_injury_db(
                 if ds_map[-ds_trig] == '1':
 
                     # store the consequence data
-                    for severity in ['S1', 'S2']:
+                    for severity in ('S1', 'S2'):
 
                         A_affected = inj_data[0]
 
@@ -1198,7 +1198,7 @@ def create_FEMA_P58_bldg_injury_db(
                     A_affected = getattr(cmp,
                                          f'DS_{DS_i}___Casualty_Affected_Area')
 
-                    for severity in ['S1', 'S2']:
+                    for severity in ('S1', 'S2'):
 
                         if severity == 'S1':
                             theta_0 = getattr(cmp, f'DS_{DS_i}_Serious_Injury_'
@@ -1269,7 +1269,7 @@ def create_FEMA_P58_bldg_injury_db(
     cmp_kept = df_db.index.get_level_values(0).unique()
 
     cmp_to_drop = []
-    for cmp in meta_dict.keys():
+    for cmp in meta_dict:
         if cmp not in cmp_kept:
             cmp_to_drop.append(cmp)
 
@@ -1288,7 +1288,7 @@ def create_FEMA_P58_bldg_injury_db(
     df_db.to_csv(target_data_file)
 
     # save the metadata
-    with open(target_meta_file, 'w+') as f:
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the injury consequence data from FEMA "
@@ -1324,10 +1324,10 @@ def create_FEMA_P58_bldg_redtag_db(
                        false_values=["NO", "No", "no"])
 
     # take another pass with booleans because the first does not always work
-    for true_str in ["YES", "Yes", "yes"]:
+    for true_str in ("YES", "Yes", "yes"):
         df.replace(true_str, True, inplace=True)
 
-    for false_str in ["NO", "No", "no"]:
+    for false_str in ("NO", "No", "no"):
         df.replace(false_str, False, inplace=True)
 
     # remove empty rows and columns
@@ -1528,7 +1528,7 @@ def create_FEMA_P58_bldg_redtag_db(
     cmp_kept = df_db.index.get_level_values(0).unique()
 
     cmp_to_drop = []
-    for cmp in meta_dict.keys():
+    for cmp in meta_dict:
         if cmp not in cmp_kept:
             cmp_to_drop.append(cmp)
 
@@ -1545,7 +1545,7 @@ def create_FEMA_P58_bldg_redtag_db(
     df_db.to_csv(target_data_file)
 
     # save the metadata
-    with open(target_meta_file, 'w+') as f:
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the red tag consequence data from FEMA "
@@ -1576,7 +1576,7 @@ def create_Hazus_EQ_fragility_db(source_file,
     """
 
     # parse the source file
-    with open(source_file, 'r') as f:
+    with open(source_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
 
     # prepare lists of labels for various building features
@@ -1734,8 +1734,8 @@ def create_Hazus_EQ_fragility_db(source_file,
     # Fifth, the ground failure fragilities
     GF_data = raw_data['Ground_Failure']
 
-    for direction in ['Horizontal', 'Vertical']:
-        for f_depth in ['Shallow', 'Deep']:
+    for direction in ('Horizontal', 'Vertical'):
+        for f_depth in ('Shallow', 'Deep'):
             # create the component id
             cmp_id = f'GF.{direction[0]}.{f_depth[0]}'
             df_db.loc[counter, 'ID'] = cmp_id
@@ -1806,7 +1806,7 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     """
 
     # parse the source file
-    with open(source_file, 'r') as f:
+    with open(source_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
 
     # prepare lists of labels for various building features
@@ -1975,7 +1975,7 @@ def create_Hazus_EQ_bldg_injury_db(source_file,
     """
 
     # parse the source file
-    with open(source_file, 'r') as f:
+    with open(source_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
 
     # prepare lists of labels for various building features

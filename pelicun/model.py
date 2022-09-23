@@ -66,8 +66,7 @@ from .file_io import save_to_csv, load_data
 
 idx = base.idx
 
-
-class PelicunModel(object):
+class PelicunModel:
     """
     Generic model class to manage methods shared between all models in Pelicun.
 
@@ -143,9 +142,7 @@ class PelicunModel(object):
 
                 # for each theta
                 args = []
-                for t_i in range(len(theta)):
-
-                    theta_i = theta[t_i]
+                for t_i, theta_i in enumerate(theta):
 
                     try:
                         # if theta is a scalar, just store it
@@ -290,15 +287,17 @@ class DemandModel(PelicunModel):
         if filepath is not None:
             base.log_msg('Demand sample successfully saved.',
                          prepend_timestamp=False)
-        else:
-            units = res.loc["Units"]
-            res.drop("Units", inplace=True)
+            return None
 
-            if save_units:
-                return res.astype(float), units
+        # else:
+        units = res.loc["Units"]
+        res.drop("Units", inplace=True)
 
-            else:
-                return res.astype(float)
+        if save_units:
+            return res.astype(float), units
+
+        # else:
+        return res.astype(float)
 
     def load_sample(self, filepath):
         """
@@ -327,11 +326,11 @@ class DemandModel(PelicunModel):
                     base.log_msg('Removing event_ID from header...',
                                  prepend_timestamp=False)
 
-                new_column_index = np.array(
+                new_column_index_array = np.array(
                     [old_MI.get_level_values(i) for i in range(1, 4)])
 
             else:
-                new_column_index = np.array(
+                new_column_index_array = np.array(
                     [old_MI.get_level_values(i) for i in range(3)])
 
             # Remove whitespace to avoid ambiguity
@@ -342,7 +341,7 @@ class DemandModel(PelicunModel):
 
             wspace_remove = np.vectorize(lambda name: str(name).replace(' ', ''))
 
-            new_column_index = wspace_remove(new_column_index)
+            new_column_index = wspace_remove(new_column_index_array)
 
             # Creating new, cleaned-up header
 
@@ -484,13 +483,13 @@ class DemandModel(PelicunModel):
                 cols = tuple(active_d_types)
 
             else:
-                cols = []
+                cols_lst = []
 
                 for d_type in active_d_types:
                     if d_type.split('_')[0] == demand_type:
-                        cols.append(d_type)
+                        cols_lst.append(d_type)
 
-                cols = tuple(cols)
+                cols = tuple(cols_lst)
 
             # load the distribution family
             cal_df.loc[idx[cols, :, :], 'Family'] = settings['DistributionFamily']
@@ -525,13 +524,13 @@ class DemandModel(PelicunModel):
 
         def get_filter_mask(lower_lims, upper_lims):
 
-            demands_of_interest = demand_sample.iloc[:, ~pd.isna(upper_lims)]
-            limits_of_interest = upper_lims[~pd.isna(upper_lims)]
+            demands_of_interest = demand_sample.iloc[:, pd.notna(upper_lims)]
+            limits_of_interest = upper_lims[pd.notna(upper_lims)]
             upper_mask = np.all(demands_of_interest < limits_of_interest,
                                 axis=1)
 
-            demands_of_interest = demand_sample.iloc[:, ~pd.isna(lower_lims)]
-            limits_of_interest = lower_lims[~pd.isna(lower_lims)]
+            demands_of_interest = demand_sample.iloc[:, pd.notna(lower_lims)]
+            limits_of_interest = lower_lims[pd.notna(lower_lims)]
             lower_mask = np.all(demands_of_interest > limits_of_interest,
                                 axis=1)
 
@@ -943,9 +942,10 @@ class AssetModel(PelicunModel):
         if filepath is not None:
             base.log_msg('Asset components sample successfully saved.',
                          prepend_timestamp=False)
-        else:
-            res.drop("Units", inplace=True)
-            return res.astype(float)
+            return None
+        # else:
+        res.drop("Units", inplace=True)
+        return res.astype(float)
 
     def load_cmp_sample(self, filepath):
         """
@@ -998,73 +998,71 @@ class AssetModel(PelicunModel):
                     s_high = get_locations(s_high)
                     return np.arange(int(s_low[0]), int(s_high[0]) + 1).astype(str)
 
-                elif "," in loc_str:
+                if "," in loc_str:
                     return np.array(loc_str.split(','), dtype=int).astype(str)
 
-                elif loc_str == "all":
+                if loc_str == "all":
                     return np.arange(1, stories + 1).astype(str)
 
-                elif loc_str == "top":
+                if loc_str == "top":
                     return np.array([stories, ]).astype(str)
 
-                elif loc_str == "roof":
+                if loc_str == "roof":
                     return np.array([stories+1, ]).astype(str)
 
-                else:
-                    raise ValueError(f"Cannot parse location string: "
-                                     f"{loc_str}") from exc
+                raise ValueError(f"Cannot parse location string: "
+                                 f"{loc_str}") from exc
 
         def get_directions(dir_str):
 
             if pd.isnull(dir_str):
                 return np.ones(1).astype(str)
 
-            else:
+            # else:
+            try:
+                res = str(int(dir_str))
+                return np.array([res, ])
 
-                try:
-                    res = str(int(dir_str))
-                    return np.array([res, ])
+            except ValueError as exc:
 
-                except ValueError:
+                if "," in dir_str:
+                    return np.array(dir_str.split(','), dtype=int).astype(str)
 
-                    if "," in dir_str:
-                        return np.array(dir_str.split(','), dtype=int).astype(str)
+                if "--" in dir_str:
+                    d_low, d_high = dir_str.split('--')
+                    d_low = get_directions(d_low)
+                    d_high = get_directions(d_high)
+                    return np.arange(
+                        int(d_low[0]), int(d_high[0]) + 1).astype(str)
 
-                    elif "--" in dir_str:
-                        d_low, d_high = dir_str.split('--')
-                        d_low = get_directions(d_low)
-                        d_high = get_directions(d_high)
-                        return np.arange(
-                            int(d_low[0]), int(d_high[0]) + 1).astype(str)
-
-                    else:
-                        raise ValueError(f"Cannot parse direction string: "
-                                         f"{dir_str}")
+                # else:
+                raise ValueError(f"Cannot parse direction string: "
+                                 f"{dir_str}") from exc
 
         def get_attribute(attribute_str, dtype=float, default=np.nan):
 
             if pd.isnull(attribute_str):
                 return default
 
-            else:
+            # else:
 
-                try:
+            try:
 
-                    res = dtype(attribute_str)
-                    return np.array([res, ])
+                res = dtype(attribute_str)
+                return np.array([res, ])
 
-                except ValueError:
+            except ValueError as exc:
 
-                    if "," in attribute_str:
-                        # a list of weights
-                        w = np.array(attribute_str.split(','), dtype=float)
+                if "," in attribute_str:
+                    # a list of weights
+                    w = np.array(attribute_str.split(','), dtype=float)
 
-                        # return a normalized vector
-                        return w/np.sum(w)
+                    # return a normalized vector
+                    return w/np.sum(w)
 
-                    else:
-                        raise ValueError(f"Cannot parse Blocks string: "
-                                         f"{attribute_str}")
+                # else:
+                raise ValueError(f"Cannot parse Blocks string: "
+                                 f"{attribute_str}") from exc
 
         base.log_div()
         base.log_msg('Loading component model...')
@@ -1269,9 +1267,11 @@ class DamageModel(PelicunModel):
         if filepath is not None:
             base.log_msg('Damage sample successfully saved.',
                          prepend_timestamp=False)
-        else:
-            res.drop("Units", inplace=True)
-            return res.astype(float)
+            return None
+
+        # else:
+        res.drop("Units", inplace=True)
+        return res.astype(float)
 
     def load_sample(self, filepath):
         """
@@ -1485,8 +1485,9 @@ class DamageModel(PelicunModel):
                 # get the list of limit states
                 limit_states = []
 
-                [limit_states.append(val[2:]) if 'LS' in val else val
-                 for val in frg_params.index.get_level_values(0).unique()]
+                for val in frg_params.index.get_level_values(0).unique():
+                    if 'LS' in val:
+                        limit_states.append(val[2:])
 
                 ls_count = len(limit_states)
 
@@ -1925,10 +1926,10 @@ class DamageModel(PelicunModel):
 
             # if the number of blocks is provided, calculate the weights
             if np.atleast_1d(blocks).shape[0] == 1:
-                blocks = np.full(int(blocks), 1. / blocks)
+                blocks_array = np.full(int(blocks), 1. / blocks)
             # otherwise, assume that the list contains the weights
 
-            block_weights += blocks.tolist()
+            block_weights += blocks_array.tolist()
 
         block_weights = np.broadcast_to(block_weights, (dmg_qnt.shape[0],
                                                         len(block_weights)))
@@ -1938,7 +1939,7 @@ class DamageModel(PelicunModel):
         # get the realized Damage States
         # Note that these might be fewer than all possible Damage States
         ds_list = np.unique(dmg_ds.values)
-        ds_list = np.array(ds_list[~pd.isna(ds_list)], dtype=int)
+        ds_list = ds_list[pd.notna(ds_list)].astype(int)
 
         # If requested, drop the zero damage case
         if dropzero:
@@ -2015,7 +2016,7 @@ class DamageModel(PelicunModel):
                 raise ValueError('LS not supported yet.')
 
             # events triggered by damage state occurrence
-            elif source_event.startswith('DS'):
+            if source_event.startswith('DS'):
 
                 # get the ID of the damage state that triggers the event
                 ds_list = [source_event[2:], ]
@@ -2075,7 +2076,7 @@ class DamageModel(PelicunModel):
                     raise ValueError('LS not supported yet.')
 
                 # trigger a damage state
-                elif target_event.startswith('DS'):
+                if target_event.startswith('DS'):
 
                     # get the target damage state ID
                     ds_i = target_event[2:]
@@ -2130,8 +2131,8 @@ class DamageModel(PelicunModel):
 
             if elem == 'D':
                 return elem
-            else:
-                return str(float(elem.strip('()')))
+            # else:
+            return str(float(elem.strip('()')))
 
         def parse_f_signature(f_signature):
 
@@ -2440,9 +2441,11 @@ class LossModel(PelicunModel):
         if filepath is not None:
             base.log_msg('Loss sample successfully saved.',
                          prepend_timestamp=False)
-        else:
-            res.drop("Units", inplace=True)
-            return res.astype(float)
+            return None
+
+        # else:
+        res.drop("Units", inplace=True)
+        return res.astype(float)
 
     def load_sample(self, filepath):
         """
@@ -2580,7 +2583,7 @@ class LossModel(PelicunModel):
         each DV and needs to be implemented in every child of the LossModel
         independently.
         """
-        pass
+        raise NotImplementedError
 
     def _generate_DV_sample(self, dmg_quantities, sample_size):
         """
@@ -2590,7 +2593,7 @@ class LossModel(PelicunModel):
         and needs to be implemented in every child of the LossModel
         independently.
         """
-        pass
+        raise NotImplementedError
 
     def calculate(self):
         """
@@ -2630,17 +2633,17 @@ class BldgRepairModel(LossModel):
     """
 
     def __init__(self, assessment):
-        super(BldgRepairModel, self).__init__(assessment)
+        super().__init__(assessment)
 
         self.loss_type = 'BldgRepair'
 
-    def load_model(self, data_paths, mapping_path):
+    # def load_model(self, data_paths, mapping_path):
 
-        super(BldgRepairModel, self).load_model(data_paths, mapping_path)
+    #     super().load_model(data_paths, mapping_path)
 
-    def calculate(self):
+    # def calculate(self):
 
-        super(BldgRepairModel, self).calculate()
+    #     super().calculate()
 
     def _create_DV_RVs(self, case_list):
         """
@@ -2739,12 +2742,12 @@ class BldgRepairModel(LossModel):
                 # Otherwise, load the loc-dir cases
                 loc_dir = case_DF.loc[(driver_cmp_id, ds)].index.values
 
-                for loc, dir in loc_dir:
+                for loc, direction in loc_dir:
 
                     # assign cost RV
                     if pd.isna(cost_family) is False:
 
-                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{dir}'
+                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{direction}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=cost_rv_tag,
@@ -2756,7 +2759,7 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(time_family) is False:
-                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{dir}'
+                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{direction}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=time_rv_tag,
@@ -2774,7 +2777,7 @@ class BldgRepairModel(LossModel):
                         rho = base.options.rho_cost_time
 
                         RV_reg.add_RV_set(uq.RandomVariableSet(
-                            f'DV-{loss_cmp_id}-{ds}-{loc}-{dir}_set',
+                            f'DV-{loss_cmp_id}-{ds}-{loc}-{direction}_set',
                             list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
                             np.array([[1.0, rho], [rho, 1.0]])))
 
@@ -2783,8 +2786,8 @@ class BldgRepairModel(LossModel):
 
         if rv_count > 0:
             return RV_reg
-        else:
-            return None
+        # else:
+        return None
 
     def _calc_median_consequence(self, eco_qnt):
         """
@@ -2869,11 +2872,13 @@ class BldgRepairModel(LossModel):
                     except ValueError:
 
                         # otherwise, use the multilinear function
-                        theta_0 = np.array(
+                        all_vals = np.array(
                             [val.split(',') for val in theta_0.split('|')],
                             dtype=float)
+                        medns = all_vals[0]
+                        qnts = all_vals[1]
                         f_median = prep_bounded_multilinear_median_DV(
-                            theta_0[0], theta_0[1])
+                            medns, qnts)
 
                     # get the corresponding aggregate damage quantities
                     # to consider economies of scale
@@ -3024,17 +3029,15 @@ class BldgRepairModel(LossModel):
                 eco_qnt = dmg_quantities.groupby(level=[0, 3], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', 'ds']
 
+        elif base.options.eco_scale["AcrossDamageStates"] is True:
+
+            eco_qnt = dmg_quantities.groupby(level=[0, 1], axis=1).sum()
+            eco_qnt.columns.names = ['cmp', 'loc']
+
         else:
 
-            if base.options.eco_scale["AcrossDamageStates"] is True:
-
-                eco_qnt = dmg_quantities.groupby(level=[0, 1], axis=1).sum()
-                eco_qnt.columns.names = ['cmp', 'loc']
-
-            else:
-
-                eco_qnt = dmg_quantities.groupby(level=[0, 1, 3], axis=1).sum()
-                eco_qnt.columns.names = ['cmp', 'loc', 'ds']
+            eco_qnt = dmg_quantities.groupby(level=[0, 1, 3], axis=1).sum()
+            eco_qnt.columns.names = ['cmp', 'loc', 'ds']
 
         base.log_msg("Successfully aggregated damage quantities.",
                      prepend_timestamp=False)
@@ -3095,7 +3098,7 @@ class BldgRepairModel(LossModel):
         dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0, 3, 1, 2])
         dmg_quantities.sort_index(axis=1, inplace=True)
 
-        for DV_type, DV_type_scase in zip(['COST', 'TIME'], ['Cost', 'Time']):
+        for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
 
             cmp_list = []
 
@@ -3219,7 +3222,8 @@ def prep_constant_median_DV(median):
         A function that returns the constant median DV for all component
         quantities.
     """
-    def f(quantity):
+    def f(*args):
+        # pylint: disable=unused-argument
         return median
 
     return f
