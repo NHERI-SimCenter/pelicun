@@ -86,6 +86,8 @@ class Assessment:
 
         self.options.set_options(file_io.merge_default_config(
             config_options, self.options))
+        self.unit_conversion_factors = file_io.parse_units(
+            self.options.units_file)
 
         self.log_msg(f'pelicun {pelicun_version} | \n',
                      prepend_timestamp=False, prepend_blank_space=False)
@@ -164,7 +166,9 @@ class Assessment:
 
         data_path = str(base.pelicun_path)+'/resources/'+data_name+'.csv'
 
-        return file_io.load_data(data_path, orientation=1, reindex=False, convert=[])
+        return file_io.load_data(
+            data_path, self.unit_conversion_factors,
+            orientation=1, reindex=False, convert=[])
 
     def get_default_metadata(self, data_name):
         """
@@ -233,3 +237,46 @@ class Assessment:
             if self.options.log_file is not None:
                 with open(self.options.log_file, 'a', encoding='utf-8') as f:
                     f.write('\n'+formatted_msg)
+
+
+    def calc_unit_scale_factor(self, unit):
+        """
+        Determines the scale factor from input unit to the corresponding SI unit
+
+        Parameters
+        ----------
+        unit: str
+            Either a unit name, or a quantity and a unit name separated by a space.
+            For example: 'ft' or '100 ft'.
+
+        Returns
+        -------
+        scale_factor: float
+            Scale factor that convert values from unit to SI unit
+
+        Raises
+        ------
+        KeyError:
+            When an invalid unit is specified
+        """
+
+        unit_lst = unit.strip().split(' ')
+
+        # check if there is a quantity specified; if yes, parse it
+        if len(unit_lst) > 1:
+            unit_count, unit_name = unit_lst
+            unit_count = float(unit_count)
+
+        else:
+            unit_count = 1
+            unit_name = unit_lst[0]
+
+        try:
+            scale_factor = unit_count * self.unit_conversion_factors[unit_name]
+
+        except KeyError as exc:
+            raise KeyError(f"Specified unit not recognized: "
+                           f"{unit_count} {unit_name}") from exc
+
+        return scale_factor
+

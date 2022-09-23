@@ -121,7 +121,7 @@ class PelicunModel:
         for unit_name in unique_units:
 
             # get the scale factor for converting from the source unit
-            unit_factor = base.calc_unit_scale_factor(unit_name)
+            unit_factor = self._asmnt.calc_unit_scale_factor(unit_name)
 
             # get the variables that use the given unit
             unit_ids = marginal_params.loc[units == unit_name].index
@@ -186,7 +186,7 @@ class PelicunModel:
 
                         # get the scale factor
                         arg_unit = arg_units.get(row_id)
-                        arg_unit_factor = base.calc_unit_scale_factor(arg_unit)
+                        arg_unit_factor = self._asmnt.calc_unit_scale_factor(arg_unit)
 
                         # perform the scaling
                         theta[a_i] = theta[a_i] / arg_unit_factor
@@ -289,8 +289,10 @@ class DemandModel(PelicunModel):
         if filepath is not None:
             self.log_msg('Saving demand sample...')
 
-        res = save_to_csv(self.sample, filepath, units=self.units,
-                          use_simpleindex=filepath is not None)
+        res = save_to_csv(
+            self.sample, filepath, units=self.units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=filepath is not None)
 
         if filepath is not None:
             self.log_msg('Demand sample successfully saved.',
@@ -361,7 +363,9 @@ class DemandModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading demand data...')
 
-        demand_data, units = load_data(filepath, return_units=True)
+        demand_data, units = load_data(
+            filepath, self._asmnt.unit_conversion_factors,
+            return_units=True)
 
         parsed_data = demand_data.copy()
 
@@ -712,7 +716,8 @@ class DemandModel(PelicunModel):
         # save the correlation and empirical data
         save_to_csv(self.correlation, file_prefix + '_correlation.csv')
         save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
-                    units=self.units)
+                    units=self.units,
+                    unit_conversion_factors=self._asmnt.unit_conversion_factors)
 
         # the log standard deviations in the marginal parameters need to be
         # scaled up before feeding to the saving method where they will be
@@ -727,12 +732,14 @@ class DemandModel(PelicunModel):
 
             if label in self.units.index:
 
-                unit_factor = base.calc_unit_scale_factor(self.units[label])
+                unit_factor = self._asmnt.calc_unit_scale_factor(self.units[label])
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
         save_to_csv(marginal_params, file_prefix+'_marginals.csv',
-                    units=self.units, orientation=1)
+                    units=self.units,
+                    unit_conversion_factors=self._asmnt.unit_conversion_factors,
+                    orientation=1)
 
         self.log_msg('Demand model successfully saved.', prepend_timestamp=False)
 
@@ -765,15 +772,18 @@ class DemandModel(PelicunModel):
             correlation_data_source = data_source + '_correlation.csv'
 
         if empirical_data_source is not None:
-            self.empirical_data = load_data(empirical_data_source)
+            self.empirical_data = load_data(
+                empirical_data_source, self._asmnt.unit_conversion_factors)
             self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
                                                   inplace=True)
         else:
             self.empirical_data = None
 
         if correlation_data_source is not None:
-            self.correlation = load_data(correlation_data_source,
-                                         reindex=False)
+            self.correlation = load_data(
+                correlation_data_source,
+                self._asmnt.unit_conversion_factors,
+                reindex=False)
             self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
             self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
         else:
@@ -784,10 +794,12 @@ class DemandModel(PelicunModel):
         # were scaled according to the units of the corresponding variable
 
         # Note that a data source without marginal information is not valid
-        marginal_params, units = load_data(marginal_data_source,
-                                           orientation=1, reindex=False,
-                                           return_units=True,
-                                           convert=[])
+        marginal_params, units = load_data(
+            marginal_data_source,
+            self._asmnt.unit_conversion_factors,
+            orientation=1, reindex=False,
+            return_units=True,
+            convert=[])
         marginal_params.index.set_names(['type', 'loc', 'dir'], inplace=True)
 
         marginal_params = self.convert_marginal_params(marginal_params.copy(),
@@ -944,8 +956,10 @@ class AssetModel(PelicunModel):
         for cmp_id, unit_name in self.cmp_units.items():
             units.loc[cmp_id, :] = unit_name
 
-        res = save_to_csv(sample, filepath, units=units,
-                          use_simpleindex=filepath is not None)
+        res = save_to_csv(
+            sample, filepath, units=units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=filepath is not None)
 
         if filepath is not None:
             self.log_msg('Asset components sample successfully saved.',
@@ -964,7 +978,9 @@ class AssetModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading asset components sample...')
 
-        sample, units = load_data(filepath, return_units=True)
+        sample, units = load_data(
+            filepath, self._asmnt.unit_conversion_factors,
+            return_units=True)
 
         sample.columns.names = ['cmp', 'loc', 'dir']
 
@@ -1087,6 +1103,7 @@ class AssetModel(PelicunModel):
 
         marginal_params, units = load_data(
             marginal_data_source,
+            self._asmnt.unit_conversion_factors,
             orientation=1,
             reindex=False,
             return_units=True,
@@ -1268,9 +1285,11 @@ class DamageModel(PelicunModel):
         for cmp in cmp_units.index:
             qnt_units.loc[cmp] = cmp_units.loc[cmp]
 
-        res = save_to_csv(self.sample, filepath,
-                          units=qnt_units,
-                          use_simpleindex=filepath is not None)
+        res = save_to_csv(
+            self.sample, filepath,
+            units=qnt_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=filepath is not None)
 
         if filepath is not None:
             self.log_msg('Damage sample successfully saved.',
@@ -1289,7 +1308,8 @@ class DamageModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading damage sample...')
 
-        self._sample = load_data(filepath)
+        self._sample = load_data(
+            filepath, self._asmnt.unit_conversion_factors)
 
         self.log_msg('Damage sample successfully loaded.',
                      prepend_timestamp=False)
@@ -1324,9 +1344,8 @@ class DamageModel(PelicunModel):
 
             data = load_data(
                 data_path,
-                orientation=1,
-                reindex=False,
-                convert=[]
+                self._asmnt.unit_conversion_factors,
+                orientation=1, reindex=False, convert=[]
             )
 
             data_list.append(data)
@@ -1380,7 +1399,7 @@ class DamageModel(PelicunModel):
                             index=function_ids
                         )
                         f_df['scale_factor'] = [
-                            base.calc_unit_scale_factor(unit_name) for unit_name
+                            self._asmnt.calc_unit_scale_factor(unit_name) for unit_name
                             in damage_params.loc[function_ids,
                                                  ('Demand', 'Unit')]]
 
@@ -2182,11 +2201,11 @@ class DamageModel(PelicunModel):
             # Get the units and scale factor for quantity conversion
             cmp_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Component', 'Unit')]
-            cmp_qnt_scale_factor = base.calc_unit_scale_factor(cmp_qnt_unit_name)
+            cmp_qnt_scale_factor = self._asmnt.calc_unit_scale_factor(cmp_qnt_unit_name)
 
             dmg_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Damage', 'Unit')]
-            dmg_qnt_scale_factor = base.calc_unit_scale_factor(dmg_qnt_unit_name)
+            dmg_qnt_scale_factor = self._asmnt.calc_unit_scale_factor(dmg_qnt_unit_name)
 
             qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
 
@@ -2463,7 +2482,8 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading loss sample...')
 
-        self._sample = load_data(filepath)
+        self._sample = load_data(
+            filepath, self._asmnt.unit_conversion_factors)
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
@@ -2484,8 +2504,9 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg(f'Loading loss map for {self.loss_type}...')
 
-        loss_map = load_data(mapping_path, orientation=1,
-                             reindex=False, convert=[])
+        loss_map = load_data(
+            mapping_path, self._asmnt.unit_conversion_factors,
+            orientation=1, reindex=False, convert=[])
 
         loss_map['Driver'] = loss_map.index.values
         loss_map['Consequence'] = loss_map[self.loss_type]
@@ -2513,6 +2534,7 @@ class LossModel(PelicunModel):
         for data_path in data_paths:
             data = load_data(
                 data_path,
+                self._asmnt.unit_conversion_factors,
                 orientation=1,
                 reindex=False,
                 convert=[]
@@ -2993,8 +3015,10 @@ class BldgRepairModel(LossModel):
         dv_units['repair_time-parallel'] = cmp_units['Time']
         dv_units['repair_time-sequential'] = cmp_units['Time']
 
-        df_agg = save_to_csv(df_agg, None, units=dv_units,
-                             use_simpleindex=False)
+        df_agg = save_to_csv(
+            df_agg, None, units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=False)
 
         df_agg.drop("Units", inplace=True)
 

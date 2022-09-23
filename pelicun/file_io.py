@@ -284,8 +284,8 @@ def merge_default_config(config, options_object):
     return config
 
 
-def save_to_csv(data, filepath, units=None, orientation=0,
-                use_simpleindex=True, log_msg_method=None):
+def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
+                orientation=0, use_simpleindex=True, log_msg_method=None):
     """
     Saves data to a CSV file following standard SimCenter schema.
 
@@ -310,6 +310,10 @@ def save_to_csv(data, filepath, units=None, orientation=0,
         but returned in the end.
     units: Series, optional
         Provides a Series with variables and corresponding units.
+    unit_conversion_factors: dict
+        Dictionary containing key-value pairs of unit names and their
+        corresponding factors. Conversion factors are defined as the number of
+        times a base unit fits in the alternative unit.
     level: string, optional
         Identifies the level referenced in the units dictionary when the data
         has a MultiIndex header.
@@ -324,6 +328,14 @@ def save_to_csv(data, filepath, units=None, orientation=0,
         Logging method to be used. Arguments: msg (str),
         prepend_timestamp (bool), prepend_blank_space (bool). If no method
         is specified, no logging is performed.
+
+    Raises
+    ------
+    ValueError:
+        If units is not None but unit_conversion_factors is None
+    ValueError:
+        If writing to a file fails.
+    
     """
 
     def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
@@ -347,6 +359,10 @@ def save_to_csv(data, filepath, units=None, orientation=0,
         # convert units and add unit information, if needed
         if units is not None:
 
+            if unit_conversion_factors is None:
+                raise ValueError(
+                    'When units is not None, unit_conversion_factors must be provided')
+
             log_msg('Converting units...', prepend_timestamp=False)
 
             # if the orientation is 1, we might not need to scale all columns
@@ -360,7 +376,7 @@ def save_to_csv(data, filepath, units=None, orientation=0,
 
                 labels = units.loc[units == unit_name].index.values
 
-                unit_factor = 1./base.UCF[unit_name]
+                unit_factor = 1./unit_conversion_factors[unit_name]
 
                 active_labels = []
 
@@ -429,7 +445,8 @@ def save_to_csv(data, filepath, units=None, orientation=0,
     return None
 
 
-def load_data(data_source, orientation=0, reindex=True, return_units=False,
+def load_data(data_source, unit_conversion_factors,
+              orientation=0, reindex=True, return_units=False,
               convert=None, log_msg_method=None):
     """
     Loads data assuming it follows standard SimCenter tabular schema.
@@ -444,6 +461,10 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
         If it is a string, the data_source is assumed to point to the location
         of the source file. If it is a DataFrame, the data_source is assumed to
         hold the raw data.
+    unit_conversion_factors: dict
+        Dictionary containing key-value pairs of unit names and their
+        corresponding factors. Conversion factors are defined as the number of
+        times a base unit fits in the alternative unit.
     orientation: int, {0, 1}, default: 0
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
@@ -518,7 +539,7 @@ def load_data(data_source, orientation=0, reindex=True, return_units=False,
 
         for unit_name in unique_unit_names:
 
-            unit_factor = base.UCF[unit_name]
+            unit_factor = unit_conversion_factors[unit_name]
             unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
@@ -628,3 +649,74 @@ def load_from_file(filepath, log_msg_method=None):
                          f'to load from csv: {filepath}')
 
     return data
+
+def parse_units(additional_file=None):
+    """
+    Parse the unit conversion factor json file and return a dictionary.
+    
+    Parameters
+    ----------
+    additional_file: str, optional
+        If an additional file is provided, the function loads the
+        default unit conversion factors and then overrides definitions
+        using the additional user-specified json file.
+
+    Raises
+    ------
+    KeyError:
+        If a key is defined twice in any parsed json file.
+    ValueError:
+        If a unit conversion factor is not a float.
+    FileNotFoundError:
+        If a file does not exist.
+    Exception:
+        If a file does not have the json format.
+    """
+
+    def add_unique_keys_only(key, value, dictionary, file_path):
+        if key not in dictionary:
+            dictionary[key] = value
+        else:
+            raise KeyError(f'Unit {key} is defined twice in {file_path}\n'
+               'Please check the file and make sure '
+               'that unit conversion factors are only defined once.')
+
+    def get_contents(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                dictionary = json.load(f)
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(
+                'settings/default_units.json was not found.') from exc
+        except json.decoder.JSONDecodeError as exc:
+            raise Exception(
+                'settings/default_units.json is not a valid json file.') from exc
+        for key, val in dictionary.items():
+            try:
+                dictionary[key] = float(val)
+            except ValueError as exc:
+                raise ValueError(
+                    f'Unit {key} has a value of {val} '
+                    'which cannot be interpreted as a float') from exc
+            
+            
+        return dictionary
+
+    ucf_init = get_contents(base.pelicun_path / "settings/default_units.json")
+
+    ucf = {}
+    for key, value in ucf_init.items():
+        add_unique_keys_only(key, value, ucf, 'settings/default_units.json')
+
+    if additional_file:
+        ucf_init = get_contents(additional_file)
+        ucf_additional = {}
+        for key, value in ucf_init.items():
+            add_unique_keys_only(
+                key, value, ucf_additional, additional_file)
+        # combine the two: additional file takes precedent.
+        # i.e., redefining default units with the additional ones is allowed
+        for key, value in ucf_additional.items():
+            ucf[key] = value
+
+    return ucf

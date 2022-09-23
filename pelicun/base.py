@@ -104,6 +104,7 @@ class Options:
         self._verbose = False
         self._log_show_ms = False
         self._print_log = False
+        self._log_file = None
 
         self.defaults = None
         self.sampling_method = None
@@ -173,13 +174,13 @@ class Options:
 
     @property
     def log_file(self):
-        return globals()['log_file']
+        return self._log_file
 
     @log_file.setter
     def log_file(self, value):
 
         if value is None:
-            globals()['log_file'] = None
+            self._log_file = None
 
         else:
 
@@ -187,7 +188,7 @@ class Options:
 
                 filepath = Path(value).resolve()
 
-                globals()['log_file'] = str(filepath)
+                self._log_file = str(filepath)
 
                 with open(filepath, 'w', encoding='utf-8') as f:
                     f.write('')
@@ -198,6 +199,14 @@ class Options:
                       f"cannot print the log to a file.\n"
                       f"The error was: '{err}'")
                 raise
+
+    @property
+    def units_file(self):
+        return self._units_file
+
+    @units_file.setter
+    def units_file(self, value):
+        self._units_file = value
 
     @property
     def print_log(self):
@@ -220,20 +229,6 @@ class Options:
             self._log_pref = ' ' * 9
             self._log_div = '-' * (80 - 10)
 
-    def scale_factor(self, unit):
-
-        if unit is not None:
-
-            if unit in UCF:
-                scale_factor = UCF[unit]
-
-            else:
-                raise ValueError(f"Unknown unit: {unit}")
-        else:
-            scale_factor = 1.0
-
-        return scale_factor
-
     def set_options(self, config_options):
 
         if config_options is not None:
@@ -248,6 +243,8 @@ class Options:
                     self.log_show_ms = value
                 elif key == "LogFile":
                     self.log_file = value
+                elif key == "UnitsFile":
+                    self.units_file = value
                 elif key == "PrintLog":
                     self.print_log = value
                 elif key == "SamplingMethod":
@@ -392,47 +389,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     return data
 
 
-def calc_unit_scale_factor(unit):
-    """
-    Determines the scale factor from input unit to the corresponding SI unit
-
-    Parameters
-    ----------
-    unit: str
-        Either a unit name, or a quantity and a unit name separated by a space.
-        For example: 'ft' or '100 ft'.
-
-    Returns
-    -------
-    scale_factor: float
-        Scale factor that convert values from unit to SI unit
-
-    Raises
-    ------
-    KeyError:
-        When an invalid unit is specified
-    """
-
-    unit = unit.strip().split(' ')
-
-    # check if there is a quantity specified; if yes, parse it
-    if len(unit) > 1:
-        unit_count, unit_name = unit
-        unit_count = float(unit_count)
-
-    else:
-        unit_count = 1
-        unit_name = unit[0]
-
-    try:
-        scale_factor = unit_count * UCF[unit_name]
-
-    except KeyError as exc:
-        raise KeyError(f"Specified unit not recognized: "
-                       f"{unit_count} {unit_name}") from exc
-
-    return scale_factor
-
 
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, use_describe=False):
@@ -482,8 +438,6 @@ def print_system_info(assessment):
         prepend_timestamp=False)
 
 
-
-
 def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
                               0.977, 0.999)):
 
@@ -521,108 +475,6 @@ def str2bool(v):
     raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-# Unit Conversion Factors (UCF)
-UCF = {}
-
-
-# we dont' want to accidentally redefine a key, as that would mask a
-# previously defined unit, leading to the worst kind of bug: a hidden one.
-def add_uniq_only(key, val, dct):
-    """
-    Only add a new key-value pair to a dictionary if the key does not
-    exist, throw an error otherwise.
-    """
-    if key in dct.keys():
-        raise KeyError(f'"{key}" already exists. '
-                       'Only unique keys are allowed.')
-    dct[key] = val
-
-
-# time
-add_uniq_only('sec', 1., UCF)
-add_uniq_only('minute', 60. * UCF['sec'], UCF)
-add_uniq_only('hour', 60. * UCF['minute'], UCF)
-add_uniq_only('day', 24. * UCF['hour'], UCF)
-add_uniq_only('sec2', UCF['sec']**2., UCF)
-
-# distance, area, volume
-add_uniq_only('m', 1., UCF)
-add_uniq_only('mm', 0.001 * UCF['m'], UCF)
-add_uniq_only('cm', 0.01 * UCF['m'], UCF)
-add_uniq_only('km', 1000. * UCF['m'], UCF)
-add_uniq_only('inch', 0.0254, UCF)
-add_uniq_only('ft', 12. * UCF['inch'], UCF)
-add_uniq_only('mile', 5280. * UCF['ft'], UCF)
-
-# area
-add_uniq_only('m2', UCF['m']**2., UCF)
-add_uniq_only('mm2', UCF['mm']**2., UCF)
-add_uniq_only('cm2', UCF['cm']**2., UCF)
-add_uniq_only('km2', UCF['km']**2., UCF)
-add_uniq_only('inch2', UCF['inch']**2., UCF)
-add_uniq_only('ft2', UCF['ft']**2., UCF)
-add_uniq_only('mile2', UCF['mile']**2., UCF)
-
-# volume
-add_uniq_only('m3', UCF['m']**3., UCF)
-add_uniq_only('inch3', UCF['inch']**3., UCF)
-add_uniq_only('ft3', UCF['ft']**3., UCF)
-
-# speed / velocity
-add_uniq_only('cmps', UCF['cm'] / UCF['sec'], UCF)
-add_uniq_only('mps', UCF['m'] / UCF['sec'], UCF)
-add_uniq_only('mph', UCF['mile'] / UCF['hour'], UCF)
-add_uniq_only('inchps', UCF['inch'] / UCF['sec'], UCF)
-add_uniq_only('ftps', UCF['ft'] / UCF['sec'], UCF)
-
-# acceleration
-add_uniq_only('mps2', UCF['m'] / UCF['sec2'], UCF)
-add_uniq_only('inchps2', UCF['inch'] / UCF['sec2'], UCF)
-add_uniq_only('ftps2', UCF['ft'] / UCF['sec2'], UCF)
-add_uniq_only('g', 9.80665 * UCF['mps2'], UCF)
-
-# mass
-add_uniq_only('kg', 1., UCF)
-add_uniq_only('ton', 1000. * UCF['kg'], UCF)
-add_uniq_only('lb', 0.453592 * UCF['kg'], UCF)
-
-# force
-add_uniq_only('N', UCF['kg'] * UCF['m'] / UCF['sec2'], UCF)
-add_uniq_only('kN', 1e3 * UCF['N'], UCF)
-add_uniq_only('lbf', UCF['lb'] * UCF['g'], UCF)
-add_uniq_only('kip', 1000. * UCF['lbf'], UCF)
-add_uniq_only('kips', UCF['kip'], UCF)
-
-# pressure / stress
-add_uniq_only('Pa', UCF['N'] / UCF['m2'], UCF)
-add_uniq_only('kPa', 1e3 * UCF['Pa'], UCF)
-add_uniq_only('MPa', 1e6 * UCF['Pa'], UCF)
-add_uniq_only('GPa', 1e9 * UCF['Pa'], UCF)
-add_uniq_only('psi', UCF['lbf'] / UCF['inch2'], UCF)
-add_uniq_only('ksi', 1e3 * UCF['psi'], UCF)
-add_uniq_only('Mpsi', 1e6 * UCF['psi'], UCF)
-
-# misc
-add_uniq_only('A', 1., UCF)
-add_uniq_only('V', 1., UCF)
-add_uniq_only('kV', 1000. * UCF['V'], UCF)
-add_uniq_only('ea', 1., UCF)
-add_uniq_only('rad', 1., UCF)
-add_uniq_only('C', 1., UCF)
-add_uniq_only('USD_2011', 1., UCF)
-add_uniq_only('USD', 1., UCF)
-add_uniq_only('loss_ratio', 1., UCF)
-add_uniq_only('worker_day', 1., UCF)
-
-# FEMA P58 specific
-add_uniq_only('EA', UCF['ea'], UCF)
-add_uniq_only('SF', UCF['ft2'], UCF)
-add_uniq_only('LF', UCF['ft'], UCF)
-add_uniq_only('TN', UCF['ton'], UCF)
-add_uniq_only('AP', UCF['A'], UCF)
-add_uniq_only('CF', UCF['ft3'] / UCF['minute'], UCF)
-add_uniq_only('KV', UCF['kV'] * UCF['A'], UCF)
-
 # Input specs
 
 CMP_data_path = dict(
@@ -636,38 +488,6 @@ CMP_data_path = dict(
 POP_data_path = dict(
     P58='/resources/FEMA_P58_2nd_ed.hdf',
     HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf'
-)
-
-default_units = dict(
-    force='N',
-    length='m',
-    area='m2',
-    volume='m3',
-    speed='mps',
-    acceleration='mps2',
-)
-
-EDP_units = dict(
-    # drifts and rotations are not listed here because they are unitless
-
-    # Floor response
-    PFA='acceleration',
-    PFV='speed',
-    PFD='length',
-
-    # Wind intensity
-    PWS='speed',
-
-    # Inundation intensity
-    PIH='length',
-
-    # Shaking intensity
-    PGA='acceleration',
-    PGV='speed',
-    SA='acceleration',
-    SV='speed',
-    SD='length',
-    PGD='length',
 )
 
 EDP_to_demand_type = {
@@ -713,16 +533,52 @@ EDP_to_demand_type = {
     'One':                            'ONE'
 }
 
-# PFA in FEMA P58 corresponds to the top of the given story. The ground floor
-# has an index of 0. When damage of acceleration-sensitive components
-# is controlled by the acceleration of the bottom of the story, the
-# corresponding PFA location needs to be reduced by 1. The SimCenter framework
-# assumes that PFA corresponds to the bottom of the given story
-# by default, hence, we would need to subtract 1 from the location values.
-# Rather than changing the locations themselves, we assign an offset of -1
-# so that the results still get collected at the appropriate story.
-EDP_offset_adjustment = dict(
-    PFA=-1,
-    PFV=-1,
-    PFD=-1
-)
+# ~~~~~~~~~~~~~~~~~~ #
+# currently not used #
+# ~~~~~~~~~~~~~~~~~~ #
+
+# default_units = dict(
+#     force='N',
+#     length='m',
+#     area='m2',
+#     volume='m3',
+#     speed='mps',
+#     acceleration='mps2',
+# )
+
+# EDP_units = dict(
+#     # drifts and rotations are not listed here because they are unitless
+
+#     # Floor response
+#     PFA='acceleration',
+#     PFV='speed',
+#     PFD='length',
+
+#     # Wind intensity
+#     PWS='speed',
+
+#     # Inundation intensity
+#     PIH='length',
+
+#     # Shaking intensity
+#     PGA='acceleration',
+#     PGV='speed',
+#     SA='acceleration',
+#     SV='speed',
+#     SD='length',
+#     PGD='length',
+# )
+
+# # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
+# # has an index of 0. When damage of acceleration-sensitive components
+# # is controlled by the acceleration of the bottom of the story, the
+# # corresponding PFA location needs to be reduced by 1. The SimCenter framework
+# # assumes that PFA corresponds to the bottom of the given story
+# # by default, hence, we would need to subtract 1 from the location values.
+# # Rather than changing the locations themselves, we assign an offset of -1
+# # so that the results still get collected at the appropriate story.
+# EDP_offset_adjustment = dict(
+#     PFA=-1,
+#     PFV=-1,
+#     PFD=-1
+# )
