@@ -38,28 +38,41 @@
 # Adam Zsarnóczay
 # Joanna J. Zou
 
-from time import gmtime, strftime
+from time import gmtime
+from time import strftime
+import sys
+import os
+import json
+import argparse
+from pathlib import Path
+import numpy as np
+import pandas as pd
+from pelicun.base import convert_to_MultiIndex
+from pelicun.base import convert_to_SimpleIndex
+from pelicun.base import describe
+from pelicun.base import EDP_to_demand_type
+from pelicun.file_io import load_data
+from pelicun.assessment import Assessment
+
+
+# this is exceptional code
+# pylint: disable=consider-using-namedtuple-or-dataclass
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-nested-blocks
+# pylint: disable=too-many-branches
+
 
 def log_msg(msg):
 
-    formatted_msg = '{} {}'.format(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime()), msg)
+    formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
 
     print(formatted_msg)
 
+
 log_msg('First line of DL_calculation')
 
-import sys, os, json, argparse
-import numpy as np
-import pandas as pd
-import shutil
-from pathlib import Path
-
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
-
-from pelicun.base import set_options, convert_to_MultiIndex, \
-    convert_to_SimpleIndex, describe, EDP_to_demand_type
-from pelicun.file_io import load_data
-from pelicun.assessment import Assessment
 
 idx = pd.IndexSlice
 
@@ -101,6 +114,7 @@ default_DBs = {
 
 }
 
+
 def add_units(raw_demands, length_unit):
 
     demands = raw_demands.T
@@ -118,7 +132,8 @@ def add_units(raw_demands, length_unit):
         DEM_level = 0
 
     # drop demands with no EDP type identified
-    demands.drop(demands.columns[demands.columns.get_level_values(DEM_level)== ''],
+    demands.drop(demands.columns[
+        demands.columns.get_level_values(DEM_level) == ''],
                  axis=1, inplace=True)
 
     # assign units
@@ -158,6 +173,7 @@ def add_units(raw_demands, length_unit):
     # convert back to simple header and return the DF
     return convert_to_SimpleIndex(demands, axis=1)
 
+
 def run_pelicun(config_path):
 
     # Initial setup -----------------------------------------------------------
@@ -166,7 +182,7 @@ def run_pelicun(config_path):
     config_path = Path(config_path).resolve()
 
     # open the file and load the contents
-    with open(config_path, 'r') as f:
+    with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
     DL_config = config.get('DamageAndLoss', None)
@@ -181,7 +197,7 @@ def run_pelicun(config_path):
     demand_config = DL_config.get('Demands', None)
     damage_config = DL_config.get('Damage', None)
     loss_config = DL_config.get('Losses', None)
-    #out_config = DL_config.get('Outputs', None)
+    # out_config = DL_config.get('Outputs', None)
 
     out_config = {
         'Demand': {
@@ -221,14 +237,14 @@ def run_pelicun(config_path):
     # get the length unit from the config file
     try:
         length_unit = config['GeneralInformation']['units']['length']
-    except:
+    except KeyError:
         log_msg(
             "No default length unit provided in the input file. "
             "Terminating analysis. ")
 
         return -1
 
-    #if out_config is None:
+    # if out_config is None:
     #    log_msg("Output configuration missing. Terminating analysis.")
     #    return -1
 
@@ -266,11 +282,11 @@ def run_pelicun(config_path):
 
             if raw_demands.columns.nlevels == 4:
                 DEM_to_drop += raw_demands.loc[
-                               :, idx[:,DEM_type,:,:]].max(axis=1)>float(limit)
+                               :, idx[:, DEM_type, :, :]].max(axis=1) > float(limit)
 
             else:
                 DEM_to_drop += raw_demands.loc[
-                               :, idx[DEM_type, :, :]].max(axis=1)>float(limit)
+                               :, idx[DEM_type, :, :]].max(axis=1) > float(limit)
 
         raw_demands = raw_demands.loc[~DEM_to_drop, :]
 
@@ -317,18 +333,19 @@ def run_pelicun(config_path):
             PID.drop('Units', inplace=True)
             PID = PID.astype(float)
 
-            for dir, delta_yield in RID_config.items():
+            for direction, delta_yield in RID_config.items():
 
-                if dir == 'method':
+                if direction == 'method':
                     continue
 
                 RID = PAL.demand.estimate_RID(
-                    PID.loc[:,idx[:,dir]],{'yield_drift': float(delta_yield)})
+                    PID.loc[:, idx[:, direction]],
+                    {'yield_drift': float(delta_yield)})
 
                 RID_list.append(RID)
 
             RID = pd.concat(RID_list, axis=1)
-            RID_units = pd.Series(['rad',]*RID.shape[1], index=RID.columns,
+            RID_units = pd.Series(['rad', ]*RID.shape[1], index=RID.columns,
                                   name='Units')
         RID_sample = pd.concat([RID, RID_units.to_frame().T])
 
@@ -352,11 +369,13 @@ def run_pelicun(config_path):
                 demand_sample_s = convert_to_SimpleIndex(demand_sample, axis=1)
                 demand_sample_s.to_csv("DEM_sample.zip",
                                        index_label=demand_sample_s.columns.name,
-                                       compression=dict(method='zip',
-                                                        archive_name='DEM_sample.csv'))
+                                       compression=dict(
+                                           method='zip',
+                                           archive_name='DEM_sample.csv'))
 
             if 'Statistics' in out_reqs:
-                demand_stats = convert_to_SimpleIndex(describe(demand_sample), axis=1)
+                demand_stats = convert_to_SimpleIndex(
+                    describe(demand_sample), axis=1)
                 demand_stats.to_csv("DEM_stats.csv",
                                     index_label=demand_stats.columns.name)
 
@@ -435,8 +454,9 @@ def run_pelicun(config_path):
 
             if 'Statistics' in out_reqs:
                 cmp_stats = convert_to_SimpleIndex(describe(cmp_sample), axis=1)
-                cmp_stats.to_csv("CMP_stats.csv",
-                                    index_label=cmp_stats.columns.name)
+                cmp_stats.to_csv(
+                    "CMP_stats.csv",
+                    index_label=cmp_stats.columns.name)
 
     # Damage Assessment -----------------------------------------------------------
 
@@ -445,8 +465,9 @@ def run_pelicun(config_path):
 
         # load the fragility information
         if asset_config['ComponentDatabase'] != "User Defined":
-            fragility_db = ('PelicunDefault/' +
-                            default_DBs['fragility'][asset_config['ComponentDatabase']])
+            fragility_db = (
+                'PelicunDefault/' +
+                default_DBs['fragility'][asset_config['ComponentDatabase']])
 
         else:
             fragility_db = asset_config['ComponentDatabasePath']
@@ -486,22 +507,22 @@ def run_pelicun(config_path):
                 adf.loc['collapse', ('Demand', 'Type')] = coll_DEM_name
 
             else:
-                adf.loc['collapse', ('Demand', 'Type')] = f'{coll_DEM_name}|{coll_DEM_spec}'
+                adf.loc['collapse', ('Demand', 'Type')] = \
+                    f'{coll_DEM_name}|{coll_DEM_spec}'
 
             coll_DEM_unit = add_units(
-                pd.DataFrame(columns=[f'{coll_DEM}-1-1',]),
-                length_unit).iloc[0,0]
+                pd.DataFrame(columns=[f'{coll_DEM}-1-1', ]),
+                length_unit).iloc[0, 0]
 
             adf.loc['collapse', ('Demand', 'Unit')] = coll_DEM_unit
 
-            adf.loc['collapse', ('LS1','Family')] = (
+            adf.loc['collapse', ('LS1', 'Family')] = (
                 coll_config.get('CapacityDistribution', ""))
 
-            adf.loc['collapse', ('LS1','Theta_0')] = (
+            adf.loc['collapse', ('LS1', 'Theta_0')] = (
                 coll_config.get('CapacityMedian', ""))
 
-
-            adf.loc['collapse', ('LS1','Theta_1')] = (
+            adf.loc['collapse', ('LS1', 'Theta_1')] = (
                 coll_config.get('Theta_1', ""))
 
             adf.loc['collapse', 'Incomplete'] = 0
@@ -515,7 +536,7 @@ def run_pelicun(config_path):
             adf.loc['collapse', ('Demand', 'Offset')] = 0
             adf.loc['collapse', ('Demand', 'Type')] = 'One'
             adf.loc['collapse', ('Demand', 'Unit')] = 'ea'
-            adf.loc['collapse', ('LS1','Theta_0')] = 2.0
+            adf.loc['collapse', ('LS1', 'Theta_0')] = 2.0
             adf.loc['collapse', 'Incomplete'] = 0
 
         if 'IrreparableDamage' in damage_config.keys():
@@ -541,7 +562,6 @@ def run_pelicun(config_path):
 
             adf.loc['excessiveRID', 'Incomplete'] = 0
 
-
             # add a placeholder irreparable fragility that will never trigger
             # damage, but allow damage processes to aggregate excessiveRID here
             adf.loc['irreparable', ('Demand', 'Directional')] = 1
@@ -559,7 +579,7 @@ def run_pelicun(config_path):
 
             dp_approach = damage_config['DamageProcess']
 
-            if dp_approach in damage_processes.keys():
+            if dp_approach in damage_processes:
                 dmg_process = damage_processes[dp_approach]
 
                 # For Hazus Earthquake, we need to specify the component ids
@@ -579,7 +599,6 @@ def run_pelicun(config_path):
                             if cmp_type + '.' in cmp:
                                 cmp_map[cmp_type] = cmp
 
-
                     new_dmg_process = dmg_process.copy()
                     for source_cmp, action in dmg_process.items():
 
@@ -587,7 +606,7 @@ def run_pelicun(config_path):
                         new_source = None
                         for cmp_type, cmp_id in cmp_map.items():
 
-                            if ((cmp_type in source_cmp) and (cmp_id!='')):
+                            if ((cmp_type in source_cmp) and (cmp_id != '')):
                                 new_source = source_cmp.replace(cmp_type, cmp_id)
                                 break
 
@@ -603,8 +622,8 @@ def run_pelicun(config_path):
                             if isinstance(target_vals, str):
 
                                 for cmp_type, cmp_id in cmp_map.items():
-                                    if ((cmp_type in target_vals) and
-                                        (cmp_id != '')):
+                                    if ((cmp_type in target_vals) and (
+                                            cmp_id != '')):
 
                                         target_vals = target_vals.replace(
                                             cmp_type, cmp_id)
@@ -617,8 +636,8 @@ def run_pelicun(config_path):
 
                                 for target_val in target_vals:
                                     for cmp_type, cmp_id in cmp_map.items():
-                                        if ((cmp_type in target_val) and
-                                            (cmp_id != '')):
+                                        if ((cmp_type in target_val) and (
+                                                cmp_id != '')):
 
                                             target_val = target_val.replace(
                                                 cmp_type, cmp_id)
@@ -632,13 +651,13 @@ def run_pelicun(config_path):
             elif dp_approach == "User Defined":
 
                 # load the damage process from a file
-                with open(damage_config['DamageProcessFilePath'], 'r') as f:
+                with open(damage_config['DamageProcessFilePath'], 'r',
+                          encoding='utf-8') as f:
                     dmg_process = json.load(f)
 
             else:
                 log_msg(f"Prescribed Damage Process not recognized: "
                         f"{dp_approach}")
-
 
         # calculate damages
         PAL.damage.calculate(dmg_process=dmg_process)
@@ -669,7 +688,7 @@ def run_pelicun(config_path):
                                         index_label=damage_stats.columns.name)
 
                 if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
-                    grp_damage = damage_sample.groupby(level=[0,3], axis=1).sum()
+                    grp_damage = damage_sample.groupby(level=[0, 3], axis=1).sum()
 
                     if 'GroupedSample' in out_reqs:
                         grp_damage_s = convert_to_SimpleIndex(grp_damage, axis=1)
@@ -701,7 +720,8 @@ def run_pelicun(config_path):
             if bldg_repair_config['ConsequenceDatabase'] != "User Defined":
                 consequence_db = (
                         'PelicunDefault/' +
-                        default_DBs['repair'][bldg_repair_config['ConsequenceDatabase']])
+                        default_DBs['repair'][
+                            bldg_repair_config['ConsequenceDatabase']])
 
                 conseq_df = PAL.get_default_data(
                     default_DBs['repair'][
@@ -717,7 +737,7 @@ def run_pelicun(config_path):
             adf = pd.DataFrame(
                 columns=conseq_df.columns,
                 index=pd.MultiIndex.from_tuples(
-                    [('replacement', 'Cost'),('replacement', 'Time')]))
+                    [('replacement', 'Cost'), ('replacement', 'Time')]))
 
             DL_method = bldg_repair_config['ConsequenceDatabase']
             rc = ('replacement', 'Cost')
@@ -824,7 +844,7 @@ def run_pelicun(config_path):
 
                     for dmg_cmp in dmg_cmps:
 
-                        if dmg_cmp in ['collapse',]:
+                        if dmg_cmp == 'collapse':
                             continue
 
                         if dmg_cmp in loss_cmps:
@@ -839,7 +859,7 @@ def run_pelicun(config_path):
 
                     for dmg_cmp in dmg_cmps:
 
-                        if dmg_cmp in ['collapse',]:
+                        if dmg_cmp == 'collapse':
                             continue
 
                         cmp_class = dmg_cmp.split('.')[0]
@@ -881,47 +901,57 @@ def run_pelicun(config_path):
                     repair_sample = PAL.bldg_repair.save_sample()
 
                     if 'Sample' in out_reqs:
-                        repair_sample_s = convert_to_SimpleIndex(repair_sample, axis=1)
+                        repair_sample_s = convert_to_SimpleIndex(
+                            repair_sample, axis=1)
                         repair_sample_s.to_csv(
                             "DV_bldg_repair_sample.zip",
                             index_label=repair_sample_s.columns.name,
-                            compression=dict(method='zip',
-                                             archive_name='DV_bldg_repair_sample.csv'))
+                            compression=dict(
+                                method='zip',
+                                archive_name='DV_bldg_repair_sample.csv'))
 
                     if 'Statistics' in out_reqs:
-                        repair_stats = convert_to_SimpleIndex(describe(repair_sample),
-                                                              axis=1)
+                        repair_stats = convert_to_SimpleIndex(
+                            describe(repair_sample),
+                            axis=1)
                         repair_stats.to_csv("DV_bldg_repair_stats.csv",
                                             index_label=repair_stats.columns.name)
 
-                    if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
-                        grp_repair = repair_sample.groupby(level=[0,1,2], axis=1).sum()
+                    if np.any(np.isin(
+                            ['GroupedSample', 'GroupedStatistics'], out_reqs)):
+                        grp_repair = repair_sample.groupby(
+                            level=[0, 1, 2], axis=1).sum()
 
                         if 'GroupedSample' in out_reqs:
                             grp_repair_s = convert_to_SimpleIndex(grp_repair, axis=1)
-                            grp_repair_s.to_csv("DV_bldg_repair_grp.zip",
-                                              index_label=grp_repair_s.columns.name,
-                                              compression=dict(
-                                                method='zip',
-                                                archive_name='DV_bldg_repair_grp.csv'))
+                            grp_repair_s.to_csv(
+                                "DV_bldg_repair_grp.zip",
+                                index_label=grp_repair_s.columns.name,
+                                compression=dict(
+                                    method='zip',
+                                    archive_name='DV_bldg_repair_grp.csv'))
 
                         if 'GroupedStatistics' in out_reqs:
-                            grp_stats = convert_to_SimpleIndex(describe(grp_repair), axis=1)
+                            grp_stats = convert_to_SimpleIndex(
+                                describe(grp_repair), axis=1)
                             grp_stats.to_csv("DV_bldg_repair_grp_stats.csv",
                                              index_label=grp_stats.columns.name)
 
-                    if np.any(np.isin(['AggregateSample', 'AggregateStatistics'], out_reqs)):
+                    if np.any(np.isin(['AggregateSample',
+                                       'AggregateStatistics'], out_reqs)):
 
                         if 'AggregateSample' in out_reqs:
                             agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
-                            agg_repair_s.to_csv("DV_bldg_repair_agg.zip",
-                                              index_label=agg_repair_s.columns.name,
-                                              compression=dict(
-                                                method='zip',
-                                                archive_name='DV_bldg_repair_agg.csv'))
+                            agg_repair_s.to_csv(
+                                "DV_bldg_repair_agg.zip",
+                                index_label=agg_repair_s.columns.name,
+                                compression=dict(
+                                    method='zip',
+                                    archive_name='DV_bldg_repair_agg.csv'))
 
                         if 'AggregateStatistics' in out_reqs:
-                            agg_stats = convert_to_SimpleIndex(describe(agg_repair), axis=1)
+                            agg_stats = convert_to_SimpleIndex(
+                                describe(agg_repair), axis=1)
                             agg_stats.to_csv("DV_bldg_repair_agg_stats.csv",
                                              index_label=agg_stats.columns.name)
 
@@ -933,7 +963,7 @@ def run_pelicun(config_path):
     if 'agg_repair' not in locals():
         agg_repair = PAL.bldg_repair.aggregate_losses()
 
-    damage_sample = damage_sample.groupby(level=[0,3], axis=1).sum()
+    damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
     if 'collapse-1' in damage_sample_s.columns:
@@ -962,55 +992,57 @@ def run_pelicun(config_path):
 
     return 0
 
+
 def main(args):
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--filenameDL')
-    parser.add_argument('-d', '--demandFile', default = None)
-    #parser.add_argument('-s', '--sampleSize', default = None)
-    #parser.add_argument('--DL_Method', default = None)
-    #parser.add_argument('--outputBIM', default='BIM.csv')
+    parser.add_argument('-d', '--demandFile', default=None)
+    # parser.add_argument('-s', '--sampleSize', default = None)
+    # parser.add_argument('--DL_Method', default = None)
+    # parser.add_argument('--outputBIM', default='BIM.csv')
     parser.add_argument('--outputEDP', default='EDP.csv')
-    parser.add_argument('--outputDM', default = 'DM.csv')
-    parser.add_argument('--outputDV', default = 'DV.csv')
-    #parser.add_argument('--dirnameOutput', default = None)
-    #parser.add_argument('--event_time', default=None)
-    #parser.add_argument('--detailed_results', default = True,
+    parser.add_argument('--outputDM', default='DM.csv')
+    parser.add_argument('--outputDV', default='DV.csv')
+    # parser.add_argument('--dirnameOutput', default = None)
+    # parser.add_argument('--event_time', default=None)
+    # parser.add_argument('--detailed_results', default = True,
     #    type = str2bool, nargs='?', const=True)
-    #parser.add_argument('--coupled_EDP', default = False,
+    # parser.add_argument('--coupled_EDP', default = False,
     #    type = str2bool, nargs='?', const=False)
-    #parser.add_argument('--log_file', default = True,
+    # parser.add_argument('--log_file', default = True,
     #    type = str2bool, nargs='?', const=True)
-    #parser.add_argument('--ground_failure', default = False,
+    # parser.add_argument('--ground_failure', default = False,
     #    type = str2bool, nargs='?', const=False)
-    #parser.add_argument('--auto_script', default=None)
-    #parser.add_argument('--resource_dir', default=None)
+    # parser.add_argument('--auto_script', default=None)
+    # parser.add_argument('--resource_dir', default=None)
     args = parser.parse_args(args)
 
     log_msg('Initializing pelicun calculation...')
 
-    #print(args)
+    # print(args)
     out = run_pelicun(
         args.filenameDL,
-        #args.demandFile,
-        #args.sampleSize,
-        #args.DL_Method,
-        #args.outputBIM, args.outputEDP,
-        #args.outputDM, args.outputDV,
-        #output_path = args.dirnameOutput,
-        #detailed_results = args.detailed_results,
-        #coupled_EDP = args.coupled_EDP,
-        #log_file = args.log_file,
-        #event_time = args.event_time,
-        #ground_failure = args.ground_failure,
-        #auto_script_path = args.auto_script,
-        #resource_dir = args.resource_dir
+        # args.demandFile,
+        # args.sampleSize,
+        # args.DL_Method,
+        # args.outputBIM, args.outputEDP,
+        # args.outputDM, args.outputDV,
+        # output_path = args.dirnameOutput,
+        # detailed_results = args.detailed_results,
+        # coupled_EDP = args.coupled_EDP,
+        # log_file = args.log_file,
+        # event_time = args.event_time,
+        # ground_failure = args.ground_failure,
+        # auto_script_path = args.auto_script,
+        # resource_dir = args.resource_dir
     )
 
     if out == -1:
         log_msg("pelicun calculation failed.")
     else:
         log_msg('pelicun calculation completed.')
+
 
 if __name__ == '__main__':
 
