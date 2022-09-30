@@ -47,6 +47,8 @@ quantification in pelicun.
 
     mvn_orthotope_density
     fit_distribution_to_sample
+    fit_distribution_to_percentiles
+
     RandomVariable
     RandomVariableSet
     RandomVariableRegistry
@@ -54,15 +56,60 @@ quantification in pelicun.
 
 """
 
-from .base import *
-
 from scipy.stats import uniform, norm
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats.mvn import mvndst
 from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
+import numpy as np
+import pandas as pd
+from . import base
 
-import warnings
+
+def scale_distribution(scale_factor, family, theta, truncation_limits=None):
+    """
+    Scale parameters of a random distribution.
+
+    Parameters
+    ----------
+    family: {'normal', 'lognormal', 'uniform'}
+        Defines the type of probability distribution for the random variable.
+    theta: float ndarray
+        Set of parameters that define the cumulative distribution function of
+        the variable given its distribution type. See the expected parameters
+        explained in the RandomVariable class. Each parameter can be defined by
+        one or more values. If a set of values are provided for one parameter,
+        they define ordinates of a multilinear function that is used to get
+        the parameter values given an independent variable.
+    truncation_limits: float ndarray, default: None
+        Defines the [a,b] truncation limits for the distribution. Use None to
+        assign no limit in one direction.
+    """
+
+    if truncation_limits is not None:
+        truncation_limits = truncation_limits * scale_factor
+
+    # undefined family is considered deterministic
+    if pd.isna(family):
+        family = 'deterministic'
+
+    theta_new = np.full_like(theta, np.nan)
+    if family == 'normal':
+        theta_new[0] = theta[0] * scale_factor
+        theta_new[1] = theta[1]  # because we use cov instead of std
+
+    elif family == 'lognormal':
+        theta_new[0] = theta[0] * scale_factor
+        theta_new[1] = theta[1]  # because it is log std
+
+    elif family == 'uniform':
+        theta_new[0] = theta[0] * scale_factor
+        theta_new[1] = theta[1] * scale_factor
+
+    elif family == 'deterministic':
+        theta_new[0] = theta[0] * scale_factor
+
+    return theta_new, truncation_limits
 
 
 def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
@@ -153,7 +200,7 @@ def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
         correl = corr[np.tril_indices(ndim, -1)]
 
     # estimate the density
-    eps_alpha, alpha, __ = mvndst(lower, upper, infin, correl)
+    eps_alpha, alpha, _ = mvndst(lower, upper, infin, correl)
 
     return alpha, eps_alpha
 
@@ -172,7 +219,7 @@ def _get_theta(params, inits, dist_list):
 
     for i, (params_i, inits_i, dist_i) in enumerate(zip(params, inits, dist_list)):
 
-        if dist_i in ['normal', 'lognormal']:
+        if dist_i in {'normal', 'lognormal'}:
 
             # Note that the standard deviation is fit in log space, hence the
             # unusual-looking transformation here
@@ -189,7 +236,7 @@ def _get_theta(params, inits, dist_list):
 
 def _get_limit_probs(limits, distribution, theta):
 
-    if distribution in ['normal', 'lognormal']:
+    if distribution in {'normal', 'lognormal'}:
 
         a, b = limits
         mu = theta[0]
@@ -210,14 +257,12 @@ def _get_limit_probs(limits, distribution, theta):
 
 def _get_std_samples(samples, theta, tr_limits, dist_list):
 
-    ndims = samples.shape[0]
-
     std_samples = np.zeros(samples.shape)
 
     for i, (samples_i, theta_i, tr_lim_i, dist_i) in enumerate(
-        zip(samples, theta, tr_limits, dist_list)):
+            zip(samples, theta, tr_limits, dist_list)):
 
-        if dist_i in ['normal', 'lognormal']:
+        if dist_i in {'normal', 'lognormal'}:
 
             # first transform from normal to uniform
             uni_samples = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
@@ -249,13 +294,18 @@ def _get_std_corr_matrix(std_samples):
 
     # make sure rho_hat is positive semidefinite
     try:
-        L = cholesky(rho_hat, lower=True)  # if this works, we're good
 
-    except:  # otherwise, we can try to fix the matrix using SVD
+        cholesky(rho_hat, lower=True)  # if this works, we're good
+
+    # otherwise, we can try to fix the matrix using SVD
+    except np.linalg.LinAlgError:
 
         try:
-            U, s, V = svd(rho_hat, )
-        except:
+
+            U, s, _ = svd(rho_hat, )
+
+        except np.linalg.LinAlgError:
+
             # if this also fails, we give up
             return None
 
@@ -265,8 +315,15 @@ def _get_std_corr_matrix(std_samples):
         np.fill_diagonal(rho_hat, 1.0)
 
         # check if we introduced any unreasonable values
-        if ((np.max(rho_hat) > 1.0) or (np.min(rho_hat) < -1.0)):
+        if ((np.max(rho_hat) > 1.01) or (np.min(rho_hat) < -1.01)):
             return None
+
+        # round values to 1.0 and -1.0, if needed
+        if np.max(rho_hat) > 1.0:
+            rho_hat /= np.max(rho_hat)
+
+        if np.min(rho_hat) < -1.0:
+            rho_hat /= np.abs(np.min(rho_hat))
 
     return rho_hat
 
@@ -286,6 +343,7 @@ def _mvn_scale(x, rho):
 
     return b / a
 
+
 def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
                         dist_list, tr_limits, det_limits, censored_count,
                         enforce_bounds=False):
@@ -293,7 +351,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # First, check if the parameters are within the pre-defined bounds
     # TODO: check if it is more efficient to use a bounded minimization algo
     if enforce_bounds:
-        if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
+        if ((params > bnd_lower) & (params < bnd_upper)).all(0) is False:
             # if they are not, then return a large value to discourage the
             # optimization algorithm from going in that direction
             return 1e10
@@ -303,7 +361,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
         return 1e10
 
     params = np.reshape(params, inits.shape)
-    n_dims, n_samples = samples.shape
+    n_dims, _ = samples.shape
 
     theta = _get_theta(params, inits, dist_list)
 
@@ -315,13 +373,14 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
 
         # consider truncation if needed
         p_a, p_b = _get_limit_probs(tr_lim_i, dist_i, theta_i)
-        tr_alpha = p_b - p_a  # this is the probability mass within the
-                              # truncation limits
+        # this is the probability mass within the
+        # truncation limits
+        tr_alpha = p_b - p_a
 
         # Calculate the likelihood for each available sample
         # Note that we are performing this without any transformation to be able
         # to respect truncation limits
-        if dist_i in ['normal', 'lognormal']:
+        if dist_i in {'normal', 'lognormal'}:
             likelihoods[i] = norm.pdf(
                 samples_i, loc=theta_i[0], scale=theta_i[1]) / tr_alpha
 
@@ -343,15 +402,15 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
         det_upper = np.zeros(n_dims)
 
         for i, (theta_i, tr_lim_i, det_lim_i, dist_i) in enumerate(
-            zip(theta, tr_limits, det_limits, dist_list)):
+                zip(theta, tr_limits, det_limits, dist_list)):
 
             # prepare the standardized truncation and detection limits
             p_a, p_b = _get_limit_probs(tr_lim_i, dist_i, theta_i)
             p_l, p_u = _get_limit_probs(det_lim_i, dist_i, theta_i)
 
             # rescale detection limits to consider truncation
-            p_l, p_u = [np.min([np.max([lim, p_a]), p_b]) for lim in [p_l, p_u]]
-            p_l, p_u = [(lim - p_a) / (p_b - p_a) for lim in [p_l, p_u]]
+            p_l, p_u = [np.min([np.max([lim, p_a]), p_b]) for lim in (p_l, p_u)]
+            p_l, p_u = [(lim - p_a) / (p_b - p_a) for lim in (p_l, p_u)]
 
             # transform limits to standard normal space
             det_lower[i], det_upper[i] = norm.ppf([p_l, p_u], loc=0., scale=1.)
@@ -401,10 +460,12 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
 
     return NLL
 
+
 def fit_distribution_to_sample(raw_samples, distribution,
-                               truncation_limits=[np.nan, np.nan],
-                               censored_count=0, detection_limits=[np.nan, np.nan],
-                               multi_fit=False, alpha_lim=1e-4):
+                               truncation_limits=(np.nan, np.nan),
+                               censored_count=0, detection_limits=(np.nan, np.nan),
+                               multi_fit=False, alpha_lim=1e-4,
+                               log_msg_method=None):
     """
     Fit a distribution to sample using maximum likelihood estimation.
 
@@ -462,6 +523,10 @@ def fit_distribution_to_sample(raw_samples, distribution,
         estimates, those solutions only offer negligible reduction in the
         negative log likelihood, while making subsequent sampling of the
         truncated normal distribution very challenging.
+    log_msg_method:
+        Logging method to be used. Arguments: msg (str),
+        prepend_timestamp (bool), prepend_blank_space (bool). If no method
+        is specified, no logging is performed.
 
     Returns
     -------
@@ -496,9 +561,9 @@ def fit_distribution_to_sample(raw_samples, distribution,
     det_limits = det_limits.T
 
     # Convert samples and limits to log space if the distribution is lognormal
-    for d_i, distribution in enumerate(dist_list):
+    for d_i, distr in enumerate(dist_list):
 
-        if distribution == 'lognormal':
+        if distr == 'lognormal':
 
             samples[d_i] = np.log(samples[d_i])
 
@@ -515,9 +580,9 @@ def fit_distribution_to_sample(raw_samples, distribution,
     mu_init = np.ones(n_dims)*np.nan
     sig_init = np.ones_like(mu_init)*np.nan
 
-    for d_i, distribution in enumerate(dist_list):
+    for d_i, distr in enumerate(dist_list):
 
-        if distribution in ['normal', 'lognormal']:
+        if distr in {'normal', 'lognormal'}:
             # use the first two moments
             mu_init[d_i] = np.mean(samples[d_i])
 
@@ -548,13 +613,13 @@ def fit_distribution_to_sample(raw_samples, distribution,
     bnd_lower = bnd_lower.flatten()
     bnd_upper = bnd_upper.flatten()
 
-    #inits_0 = np.copy(inits)
+    # inits_0 = np.copy(inits)
 
     # There is nothing to gain from a time-consuming optimization if..
     #     the number of samples is too small
-    if ((n_samples < 3) or
-        # there are no truncation or detection limits involved
-        (np.all(np.isnan(tr_limits)) and np.all(np.isnan(det_limits)))):
+    if ((n_samples < 3) or (
+            # there are no truncation or detection limits involved
+            np.all(np.isnan(tr_limits)) and np.all(np.isnan(det_limits)))):
 
         # In this case, it is typically hard to improve on the method of
         # moments estimates for the parameters of the marginal distributions
@@ -574,8 +639,8 @@ def fit_distribution_to_sample(raw_samples, distribution,
             # make it easier to fit the censored distribution later.
             tr_limits_i = [np.nan, np.nan]
             for lim in range(2):
-                if ((np.isnan(tr_limits[dim][lim])) and
-                    (not np.isnan(det_limits[dim][lim]))):
+                if ((np.isnan(tr_limits[dim][lim])) and (
+                        not np.isnan(det_limits[dim][lim]))):
                     tr_limits_i[lim] = det_limits[dim][lim]
                 elif not np.isnan(det_limits[dim][lim]):
                     if lim == 0:
@@ -593,7 +658,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
                                      bnd_lower[dim:dim + 1],
                                      bnd_upper[dim:dim + 1],
                                      samples[dim:dim + 1],
-                                     [dist_list[dim],],
+                                     [dist_list[dim], ],
                                      [tr_limits_i, ],
                                      [np.nan, np.nan],
                                      0, True,),
@@ -602,7 +667,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
                                )
 
             out = out_m_i.x.reshape(inits_i.shape)
-            theta = _get_theta(out, inits_i, [dist_list[dim],])
+            theta = _get_theta(out, inits_i, [dist_list[dim], ])
             inits[dim] = theta[0]
 
         # Second, if multi_fit is requested or there are censored samples,
@@ -635,22 +700,32 @@ def fit_distribution_to_sample(raw_samples, distribution,
         rho_hat = np.zeros((n_dims, n_dims))
         np.fill_diagonal(rho_hat, 1.0)
 
-        log_msg("\nWARNING: Demand sample size too small to reliably estimate "
+        if log_msg_method:
+            log_msg_method(
+                "\nWARNING: Demand sample size too small to reliably estimate "
                 "the correlation matrix. Assuming uncorrelated demands.",
                 prepend_timestamp=False, prepend_blank_space=False)
+        else:
+            print(
+                "\nWARNING: Demand sample size too small to reliably estimate "
+                "the correlation matrix. Assuming uncorrelated demands.")
 
-    # Convert mean back to linear space if the distribution is lognormal
-    for d_i, distribution in enumerate(dist_list):
-        if distribution == 'lognormal':
+    for d_i, distr in enumerate(dist_list):
+        # Convert mean back to linear space if the distribution is lognormal
+        if distr == 'lognormal':
             theta[d_i][0] = np.exp(theta[d_i][0])
-            #theta_mod = theta.T.copy()
-            #theta_mod[0] = np.exp(theta_mod[0])
-            #theta = theta_mod.T
+            # theta_mod = theta.T.copy()
+            # theta_mod[0] = np.exp(theta_mod[0])
+            # theta = theta_mod.T
+        # Convert the std to cov if the distribution is normal
+        elif distr == 'normal':
+            theta[d_i][1] = theta[d_i][1] / np.abs(theta[d_i][0])
 
-    #for val in list(zip(inits_0, theta)):
+    # for val in list(zip(inits_0, theta)):
     #    print(val)
 
     return theta, rho_hat
+
 
 def _OLS_percentiles(params, values, perc, family):
 
@@ -675,6 +750,7 @@ def _OLS_percentiles(params, values, perc, family):
         raise ValueError(f"Distribution family not recognized: {family}")
 
     return np.sum((val_hat - values) ** 2.0)
+
 
 def fit_distribution_to_percentiles(values, percentiles, families):
     """
@@ -708,7 +784,7 @@ def fit_distribution_to_percentiles(values, percentiles, families):
 
     for family in families:
 
-        inits = [values[median_id],]
+        inits = [values[median_id], ]
 
         if family == 'normal':
             inits.append((np.abs(values[extreme_id] - inits[0]) /
@@ -731,7 +807,7 @@ def fit_distribution_to_percentiles(values, percentiles, families):
     return families[best_out_id], out_list[best_out_id].x
 
 
-class RandomVariable(object):
+class RandomVariable:
     """
     Description
 
@@ -740,7 +816,7 @@ class RandomVariable(object):
     name: string
         A unique string that identifies the random variable.
     distribution: {'normal', 'lognormal', 'multinomial', 'custom', 'empirical',
-        'coupled_empirical', 'uniform'}, optional
+        'coupled_empirical', 'uniform', 'deterministic'}, optional
         Defines the type of probability distribution for the random variable.
     theta: float scalar or ndarray, optional
         Set of parameters that define the cumulative distribution function of
@@ -753,7 +829,8 @@ class RandomVariable(object):
         likelihood is adjusted automatically to ensure the likelihoods sum up
         to one);
         custom - according to the custom expression provided;
-        empirical and coupled_empirical - N/A.
+        empirical and coupled_empirical - N/A;
+        deterministic - the deterministic value assigned to the variable.
     truncation_limits: float ndarray, optional
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
@@ -781,8 +858,12 @@ class RandomVariable(object):
 
         self.name = name
 
-        if ((distribution not in ['empirical', 'coupled_empirical']) and
-            (np.all(np.isnan(theta)))):
+        if pd.isna(distribution):
+            distribution = 'deterministic'
+
+        if ((distribution not in ['empirical', 'coupled_empirical']) and (
+                np.all(np.isnan(theta)))):
+
             raise ValueError(
                 f"A random variable that follows a {distribution} distribution "
                 f"is characterized by a set of parameters (theta). The "
@@ -800,7 +881,7 @@ class RandomVariable(object):
 
         # save the other parameters internally
         self._distribution = distribution
-        self._theta = theta
+        self._theta = np.atleast_1d(theta)
         self._truncation_limits = truncation_limits
         self._bounds = bounds
         self._custom_expr = custom_expr
@@ -809,7 +890,7 @@ class RandomVariable(object):
         self._uni_samples = None
         self._RV_set = None
 
-        if anchor == None:
+        if anchor is None:
             self._anchor = self
         else:
             self._anchor = anchor
@@ -831,7 +912,7 @@ class RandomVariable(object):
     @theta.setter
     def theta(self, value):
         """
-        Assign an anchor to the random variable
+        Define the parameters of the distribution of the random variable
         """
         self._theta = value
 
@@ -879,8 +960,8 @@ class RandomVariable(object):
 
             return self._f_map(self._sample)
 
-        else:
-            return self._sample
+        # else:
+        return self._sample
 
     @property
     def sample_DF(self):
@@ -891,8 +972,8 @@ class RandomVariable(object):
 
             return self._sample_DF.apply(self._f_map)
 
-        else:
-            return self._sample_DF
+        # else:
+        return self._sample_DF
 
     @sample.setter
     def sample(self, value):
@@ -942,7 +1023,8 @@ class RandomVariable(object):
         result = None
 
         if self.distribution == 'normal':
-            mu, sig = self.theta
+            mu, cov = self.theta[:2]
+            sig = np.abs(mu)*cov
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -952,7 +1034,7 @@ class RandomVariable(object):
                 if np.isnan(b):
                     b = np.inf
 
-                p_a, p_b = [norm.cdf((lim - mu) / sig) for lim in [a, b]]
+                p_a, p_b = [norm.cdf((lim - mu) / sig) for lim in (a, b)]
 
                 # cap the values at the truncation limits
                 values = np.minimum(np.maximum(values, a), b)
@@ -967,7 +1049,7 @@ class RandomVariable(object):
                 result = norm.cdf(values, loc=mu, scale=sig)
 
         elif self.distribution == 'lognormal':
-            theta, beta = self.theta
+            theta, beta = self.theta[:2]
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -978,7 +1060,7 @@ class RandomVariable(object):
                     b = np.inf
 
                 p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
-                            for lim in [a, b]]
+                            for lim in (a, b)]
 
                 # cap the values at the truncation limits
                 values = np.minimum(np.maximum(values, a), b)
@@ -995,7 +1077,7 @@ class RandomVariable(object):
                 result = norm.cdf(np.log(values), loc=np.log(theta), scale=beta)
 
         elif self.distribution == 'uniform':
-            a, b = self.theta
+            a, b = self.theta[:2]
 
             if np.isnan(a):
                 a = -np.inf
@@ -1009,15 +1091,23 @@ class RandomVariable(object):
 
         return result
 
-
-    def inverse_transform(self, values):
+    def inverse_transform(self, values=None, sample_size=None):
         """
         Uses inverse probability integral transformation on the provided values.
         """
         result = None
 
         if self.distribution == 'normal':
-            mu, sig = self.theta
+
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling a "
+                    "normal random variable.")
+
+            # else:
+
+            mu, cov = self.theta[:2]
+            sig = np.abs(mu) * cov
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -1027,7 +1117,7 @@ class RandomVariable(object):
                 if np.isnan(b):
                     b = np.inf
 
-                p_a, p_b = [norm.cdf((lim-mu)/sig) for lim in [a, b]]
+                p_a, p_b = [norm.cdf((lim-mu)/sig) for lim in (a, b)]
 
                 if p_b - p_a == 0:
                     raise ValueError(
@@ -1039,13 +1129,21 @@ class RandomVariable(object):
                     )
 
                 result = norm.ppf(values * (p_b - p_a) + p_a,
-                                        loc=mu, scale=sig)
+                                  loc=mu, scale=sig)
 
             else:
                 result = norm.ppf(values, loc=mu, scale=sig)
 
         elif self.distribution == 'lognormal':
-            theta, beta = self.theta
+
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling a "
+                    "lognormal random variable.")
+
+            # else:
+
+            theta, beta = self.theta[:2]
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -1059,7 +1157,7 @@ class RandomVariable(object):
                     b = np.inf
 
                 p_a, p_b = [norm.cdf((np.log(lim) - np.log(theta)) / beta)
-                            for lim in [a, b]]
+                            for lim in (a, b)]
 
                 result = np.exp(
                     norm.ppf(values * (p_b - p_a) + p_a,
@@ -1069,7 +1167,15 @@ class RandomVariable(object):
                 result = np.exp(norm.ppf(values, loc=np.log(theta), scale=beta))
 
         elif self.distribution == 'uniform':
-            a, b = self.theta
+
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling a "
+                    "uniform random variable.")
+
+            # else:
+
+            a, b = self.theta[:2]
 
             if np.isnan(a):
                 a = -np.inf
@@ -1083,18 +1189,45 @@ class RandomVariable(object):
 
         elif self.distribution == 'empirical':
 
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for inverse transform sampling an "
+                    "empirical random variable.")
+
+            # else:
+
             s_ids = (values * len(self._raw_samples)).astype(int)
             result = self._raw_samples[s_ids]
 
         elif self.distribution == 'coupled_empirical':
 
+            if sample_size is None:
+                raise ValueError(
+                    "Missing sample size information for sampling a coupled "
+                    "empirical random variable.")
+            # else:
             raw_sample_count = len(self._raw_samples)
-            new_sample_count = len(values)
-            new_samples = np.tile(self._raw_samples,
-                                  int(new_sample_count/raw_sample_count)+1)
-            result = new_samples[:new_sample_count]
+            new_sample = np.tile(self._raw_samples,
+                                 int(sample_size/raw_sample_count)+1)
+            result = new_sample[:sample_size]
+
+        elif self.distribution == 'deterministic':
+
+            if sample_size is None:
+                raise ValueError(
+                    "Missing sample size information for sampling a "
+                    "deterministic random variable.")
+            # else:
+            result = np.full(sample_size, self.theta[0])
 
         elif self.distribution == 'multinomial':
+
+            if values is None:
+                raise ValueError(
+                    "Missing uniform sample for sampling a multinomial random "
+                    "variable.")
+
+            # else:
 
             p_cum = np.cumsum(self.theta)[:-1]
 
@@ -1108,14 +1241,15 @@ class RandomVariable(object):
 
         return result
 
-    def inverse_transform_sampling(self):
+    def inverse_transform_sampling(self, sample_size=None):
         """
-        Creates samples using inverse probability integral transformation.
+        Creates a sample using inverse probability integral transformation.
         """
 
-        self.sample = self.inverse_transform(self.uni_sample)
+        self.sample = self.inverse_transform(self.uni_sample, sample_size)
 
-class RandomVariableSet(object):
+
+class RandomVariableSet:
     """
     Description
 
@@ -1139,18 +1273,18 @@ class RandomVariableSet(object):
 
             # put the RVs in a dictionary for more efficient access
             reorder = np.argsort([RV.name for RV in RV_list])
-            self._variables = dict([(RV_list[i].name, RV_list[i]) for i in reorder])
+            self._variables = {RV_list[i].name: RV_list[i] for i in reorder}
 
             # reorder the entries in the correlation matrix to correspond to the
             # sorted list of RVs
             self._Rho = np.asarray(Rho[(reorder)].T[(reorder)].T)
 
-        else: # if there is only one variable (for testing, probably)
-            self._variables = dict([(rv.name, rv) for rv in RV_list])
+        else:  # if there is only one variable (for testing, probably)
+            self._variables = {rv.name: rv for rv in RV_list}
             self._Rho = np.asarray(Rho)
 
         # assign this RV_set to the variables
-        for __, var in self._variables.items():
+        for _, var in self._variables.items():
             var.RV_set = self
 
     @property
@@ -1172,8 +1306,7 @@ class RandomVariableSet(object):
         """
         Return the sample of the variables in the set
         """
-        return dict([(name, rv.sample) for name, rv
-                     in self._variables.items()])
+        return {name: rv.sample for name, rv in self._variables.items()}
 
     def Rho(self, var_subset=None):
         """
@@ -1181,10 +1314,10 @@ class RandomVariableSet(object):
         """
         if var_subset is None:
             return self._Rho
-        else:
-            var_ids = [list(self._variables.keys()).index(var_i)
-                       for var_i in var_subset]
-            return (self._Rho[var_ids]).T[var_ids]
+        # else:
+        var_ids = [list(self._variables.keys()).index(var_i)
+                   for var_i in var_subset]
+        return (self._Rho[var_ids]).T[var_ids]
 
     def apply_correlation(self):
         """
@@ -1209,13 +1342,13 @@ class RandomVariableSet(object):
 
             UC_RV = norm.cdf(NC_RV)
 
-        except:
+        except np.linalg.LinAlgError:
 
             # if the Cholesky doesn't work, we need to use the more
             # time-consuming but more robust approach based on SVD
             N_RV = norm.ppf(U_RV)
 
-            U, s, __ = svd(self._Rho, )
+            U, s, _ = svd(self._Rho, )
             S = np.diagflat(np.sqrt(s))
 
             NC_RV = (N_RV.T @ S @ U.T).T
@@ -1273,12 +1406,12 @@ class RandomVariableSet(object):
 
         # collect the variables involved
         if var_subset is None:
-            vars = list(self._variables.keys())
+            variables = list(self._variables.keys())
         else:
-            vars = var_subset
+            variables = var_subset
 
         # first, convert limits to standard normal values
-        for var_i, var_name in enumerate(vars):
+        for var_i, var_name in enumerate(variables):
 
             var = self._variables[var_name]
 
@@ -1292,14 +1425,15 @@ class RandomVariableSet(object):
         lower_std = lower_std.T
         upper_std = upper_std.T
 
-        OD = [mvn_orthotope_density(mu=np.zeros(len(vars)),
+        OD = [mvn_orthotope_density(mu=np.zeros(len(variables)),
                                     COV=self.Rho(var_subset),
                                     lower=l_i, upper=u_i)[0]
               for l_i, u_i in zip(lower_std, upper_std)]
 
         return np.asarray(OD)
 
-class RandomVariableRegistry(object):
+
+class RandomVariableRegistry:
     """
     Description
 
@@ -1308,8 +1442,13 @@ class RandomVariableRegistry(object):
 
     """
 
-    def __init__(self):
-
+    def __init__(self, rng):
+        """
+        rng: numpy.random._generator.Generator
+            Random variable generator object.
+            e.g.: np.random.default_rng(seed)
+        """
+        self._rng = rng
         self._variables = {}
         self._sets = {}
 
@@ -1324,7 +1463,7 @@ class RandomVariableRegistry(object):
         """
         Return a subset of the random variables in the registry
         """
-        return {name:self._variables[name] for name in keys}
+        return {name: self._variables[name] for name in keys}
 
     def add_RV(self, RV):
         """
@@ -1350,10 +1489,9 @@ class RandomVariableRegistry(object):
         """
         Return the sample for every random variable in the registry
         """
-        return dict([(name, rv.sample) for name, rv in self.RV.items()])
+        return {name: rv.sample for name, rv in self.RV.items()}
 
-
-    def generate_sample(self, sample_size, method=None):
+    def generate_sample(self, sample_size, method):
         """
         Generates samples for all variables in the registry.
 
@@ -1362,31 +1500,27 @@ class RandomVariableRegistry(object):
 
         sample_size: int
             The number of samples requested per variable.
-        method: {'MonteCarlo', 'LHS', 'LHS_midpoint'}, optional
+        method: str
+            Can be any of: 'MonteCarlo', 'LHS', 'LHS_midpoint'
             The sample generation method to use. 'MonteCarlo' stands for
             conventional random sampling; 'LHS' is Latin HyperCube Sampling
             with random sample location within each bin of the hypercube;
             'LHS_midpoint' is like LHS, but the samples are assigned to the
             midpoints of the hypercube bins.
-        seed: int, optional
-            Random seed used for sampling.
         """
-        if method is None:
-            method = options.sampling_method
 
-        # Initialize the random number generator
-        rng = options.rng
-
-        # Generate a dictionary with IDs of the free (non-anchored) variables
-        # TODO: add efficient determinstic option (for convenience)
+        # Generate a dictionary with IDs of the free (non-anchored and
+        # non-deterministic) variables
         RV_list = [RV_name for RV_name, RV in self.RV.items() if
-                   RV.anchor == RV]
-        RV_ID = dict([(RV_name, ID) for ID, RV_name in enumerate(RV_list)])
+                   ((RV.anchor == RV) or
+                    (RV.distribution in {'deterministic',
+                                         'coupled_empirical'}))]
+        RV_ID = {RV_name: ID for ID, RV_name in enumerate(RV_list)}
         RV_count = len(RV_ID)
 
         # Generate controlling samples from a uniform distribution for free RVs
         if 'LHS' in method:
-            bin_low = np.array([rng.permutation(sample_size)
+            bin_low = np.array([self._rng.permutation(sample_size)
                                 for i in range(RV_count)])
 
             if method == 'LHS_midpoint':
@@ -1394,21 +1528,21 @@ class RandomVariableRegistry(object):
                 U_RV = (bin_low + U_RV) / sample_size
 
             elif method == 'LHS':
-                U_RV = rng.random(size=[RV_count, sample_size])
+                U_RV = self._rng.random(size=[RV_count, sample_size])
                 U_RV = (bin_low + U_RV) / sample_size
 
         elif method == 'MonteCarlo':
-            U_RV = rng.random(size=[RV_count, sample_size])
+            U_RV = self._rng.random(size=[RV_count, sample_size])
 
         # Assign the controlling samples to the RVs
         for RV_name, RV_id in RV_ID.items():
             self.RV[RV_name].uni_sample = U_RV[RV_id]
 
         # Apply correlations for the pre-defined RV sets
-        for RV_set_name, RV_set in self.RV_set.items():
+        for RV_set in self.RV_set.values():
             # prepare the correlated uniform distribution for the set
             RV_set.apply_correlation()
 
         # Convert from uniform to the target distribution for every RV
-        for RV_name, RV in self.RV.items():
-            RV.inverse_transform_sampling()
+        for RV in self.RV.values():
+            RV.inverse_transform_sampling(sample_size)

@@ -46,26 +46,23 @@ This module has classes and methods that handle file input and output.
 
 .. autosummary::
 
-    read_SimCenter_DL_input
-    read_SimCenter_EDP_input
-    read_population_distribution
-    read_component_DL_data
-    write_SimCenter_DL_output
-    write_SimCenter_EDP_output
-    write_SimCenter_DM_output
-    write_SimCenter_DV_output
+    float_or_None
+    int_or_None
+    process_loc
+    get_required_resources
+    load_default_options
+    merge_default_config
+    save_to_csv
+    load_data
 
 """
 
-from .base import *
+import json
 from pathlib import Path
+import numpy as np
+import pandas as pd
+from . import base
 
-import json, posixpath
-
-from time import sleep
-
-
-import warnings
 
 convert_dv_name = {
     'DV_rec_cost': 'Reconstruction Cost',
@@ -78,58 +75,61 @@ convert_dv_name = {
 }
 
 dependency_to_acronym = {
-        'btw. Fragility Groups'  : 'FG',
+        'btw. Fragility Groups':   'FG',
         'btw. Performance Groups': 'PG',
-        'btw. Floors'            : 'LOC',
-        'btw. Directions'        : 'DIR',
-        'btw. Component Groups'  : 'CSG',
-        'btw. Damage States'     : 'DS',
-        'Independent'            : 'IND',
-        'per ATC recommendation' : 'ATC',
+        'btw. Floors':             'LOC',
+        'btw. Directions':         'DIR',
+        'btw. Component Groups':   'CSG',
+        'btw. Damage States':      'DS',
+        'Independent':             'IND',
+        'per ATC recommendation':  'ATC',
     }
 
 HAZUS_occ_converter = {
-        'RES' : 'Residential',
-        'COM' : 'Commercial',
-        'REL' : 'Commercial',
-        'EDU' : 'Educational',
-        'IND' : 'Industrial',
-        'AGR' : 'Industrial'
+        'RES':  'Residential',
+        'COM':  'Commercial',
+        'REL':  'Commercial',
+        'EDU':  'Educational',
+        'IND':  'Industrial',
+        'AGR':  'Industrial'
     }
+
 
 # this is a convenience function for converting strings to float or None
 def float_or_None(string):
     try:
         res = float(string)
         return res
-    except:
+    except ValueError:
         return None
+
 
 def int_or_None(string):
     try:
         res = int(string)
         return res
-    except:
+    except ValueError:
         return None
+
 
 def process_loc(string, stories):
     try:
         res = int(string)
         return [res, ]
-    except:
+    except ValueError:
         if "-" in string:
             s_low, s_high = string.split('-')
             s_low = process_loc(s_low, stories)
             s_high = process_loc(s_high, stories)
             return list(range(s_low[0], s_high[0]+1))
-        elif string == "all":
+        if string == "all":
             return list(range(1, stories+1))
-        elif string == "top":
-            return [stories,]
-        elif string == "roof":
-            return [stories,]
-        else:
-            return None
+        if string == "top":
+            return [stories, ]
+        if string == "roof":
+            return [stories, ]
+        return None
+
 
 def get_required_resources(input_path, assessment_type):
     """
@@ -158,7 +158,7 @@ def get_required_resources(input_path, assessment_type):
 
     AT = assessment_type
 
-    with open(input_path, 'r') as f:
+    with open(input_path, 'r', encoding='utf-8') as f:
         jd = json.load(f)
 
     DL_input = jd['DamageAndLoss']
@@ -166,7 +166,7 @@ def get_required_resources(input_path, assessment_type):
     loss = DL_input.get('LossModel', None)
     if loss is not None:
         inhabitants = loss.get('Inhabitants', None)
-        dec_vars    = loss.get('DecisionVariables', None)
+        dec_vars = loss.get('DecisionVariables', None)
 
         if dec_vars is not None:
             injuries = bool(dec_vars.get('Injuries', False))
@@ -180,13 +180,13 @@ def get_required_resources(input_path, assessment_type):
 
     if path_CMP_data == "":
         # Use the P58 path as default
-        path_CMP_data = pelicun_path / CMP_data_path[AT]
+        path_CMP_data = base.pelicun_path / base.CMP_data_path[AT]
 
     resources.update({'component': path_CMP_data})
 
     # HAZUS combination of flood and wind losses
     if ((AT == 'HAZUS_HU') and (DL_input.get('Combinations', None) is not None)):
-        path_combination_data = pelicun_path / CMP_data_path['HAZUS_MISC']
+        path_combination_data = base.pelicun_path / base.CMP_data_path['HAZUS_MISC']
         resources.update({'combination': path_combination_data})
 
     # The population data is only needed if we are interested in injuries
@@ -196,81 +196,102 @@ def get_required_resources(input_path, assessment_type):
         path_POP_data = ""
 
     if ((injuries) and (path_POP_data == "")):
-        path_POP_data = pelicun_path / POP_data_path[AT]
+        path_POP_data = base.pelicun_path / base.POP_data_path[AT]
         resources.update({'population': path_POP_data})
 
     return resources
 
-def load_default_options():
+
+def load_default_options(options_object):
     """
     Load the default_config.json file to set options to default values
 
+    Parameters
+    ----------
+    options_object: Options
+        Options object to be modified.
     """
 
-    with open(pelicun_path / "settings/default_config.json", 'r') as f:
-        options.defaults = json.load(f)
+    with open(base.pelicun_path / "settings/default_config.json",
+              'r', encoding='utf-8') as f:
+        options_object.defaults = json.load(f)
 
-    set_options(options.defaults.get('Options', None))
+    options_object.set_options(options_object.defaults.get('Options', None))
 
-def merge_default_config(config):
 
-    defaults = options.defaults
+def merge_default_config(config, options_object):
+    """
+    Merge the default_config.json file with the user specified config
+    file.
+    Parameters
+    ----------
+    options_object: Options
+        Options object to be modified.
+    """
 
-    if config.get('DemandAssessment', False):
+    defaults = options_object.defaults
 
-        demand_def = defaults['DemandAssessment']
-        demand_config = config['DemandAssessment']
+    if config is not None:
 
-        if 'Calibration' in demand_config.keys():
+        if config.get('DemandAssessment', False):
 
-            calib_config = demand_config['Calibration']
-            calib_def = demand_def['Calibration']
+            demand_def = defaults['DemandAssessment']
+            demand_config = config['DemandAssessment']
 
-            for key, value in calib_def.items():
+            if 'Calibration' in demand_config.keys():
 
-                if key in ['Marginals',]:
-                    continue
+                calib_config = demand_config['Calibration']
+                calib_def = demand_def['Calibration']
 
-                if key not in calib_def:
-                    calib_def.update({key: value})
+                for key, value in calib_def.items():
 
-            marginal_config = calib_config['Marginals']
-            marginal_def = calib_def['Marginals']
+                    if key in {'Marginals', }:
+                        continue
 
-            for key, value in marginal_def.items():
+                    if key not in calib_def:
+                        calib_def.update({key: value})
 
-                if key not in marginal_config:
-                    marginal_config.update({key: value})
+                marginal_config = calib_config['Marginals']
+                marginal_def = calib_def['Marginals']
 
-        if 'Sampling' in demand_config.keys():
+                for key, value in marginal_def.items():
 
-            sample_config = demand_config['Sampling']
+                    if key not in marginal_config:
+                        marginal_config.update({key: value})
 
-            for key, value in demand_def['Sampling'].items():
+            if 'Sampling' in demand_config.keys():
 
-                if key not in sample_config:
-                    sample_config.update({key: value})
+                sample_config = demand_config['Sampling']
 
-        if 'OutputUnits' in demand_def.keys():
+                for key, value in demand_def['Sampling'].items():
 
-            if 'OutputUnits' not in demand_config.keys():
-                demand_config.update({'OutputUnits': {}})
+                    if key not in sample_config:
+                        sample_config.update({key: value})
 
-            for key, value in demand_def['OutputUnits'].items():
+            if 'OutputUnits' in demand_def.keys():
 
-                if key not in demand_config['OutputUnits']:
-                    demand_config['OutputUnits'].update({key: value})
+                if 'OutputUnits' not in demand_config.keys():
+                    demand_config.update({'OutputUnits': {}})
+
+                for key, value in demand_def['OutputUnits'].items():
+
+                    if key not in demand_config['OutputUnits']:
+                        demand_config['OutputUnits'].update({key: value})
+
+    else:
+        config = defaults
 
     return config
 
 
-def save_to_csv(data, filepath, units=None, orientation=0):
+def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
+                orientation=0, use_simpleindex=True, log_msg_method=None):
     """
     Saves data to a CSV file following standard SimCenter schema.
 
     The produced CSV files have a single header line and an index column. The
-    second line may start with 'units' in the index or the first column may be
-    'units' to provide the units for the data in the file.
+    second line may start with 'Units' in the index or the first column may be
+    'Units' to provide the units for the data in the file.
 
     The following data types in pelicun can be saved with this function:
 
@@ -285,9 +306,14 @@ def save_to_csv(data, filepath, units=None, orientation=0):
     data: DataFrame
         The data to save
     filepath: string
-        The location of the destination file
+        The location of the destination file. If None, the data is not saved,
+        but returned in the end.
     units: Series, optional
         Provides a Series with variables and corresponding units.
+    unit_conversion_factors: dict
+        Dictionary containing key-value pairs of unit names and their
+        corresponding factors. Conversion factors are defined as the number of
+        times a base unit fits in the alternative unit.
     level: string, optional
         Identifies the level referenced in the units dictionary when the data
         has a MultiIndex header.
@@ -295,12 +321,35 @@ def save_to_csv(data, filepath, units=None, orientation=0):
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
         prescribed units.
+    use_simpleindex: bool, default: True
+        If True, MultiIndex columns and indexes are converted to SimpleIndex
+        before saving
+    log_msg_method:
+        Logging method to be used. Arguments: msg (str),
+        prepend_timestamp (bool), prepend_blank_space (bool). If no method
+        is specified, no logging is performed.
 
+    Raises
+    ------
+    ValueError:
+        If units is not None but unit_conversion_factors is None
+    ValueError:
+        If writing to a file fails.
+    
     """
 
-    log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+    def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Use the logging method if it has been specified
+        """
+        if log_msg_method:
+            log_msg_method(msg, prepend_timestamp, prepend_blank_space)
 
-    filepath = Path(filepath).resolve()
+    if filepath is None:
+        log_msg('Preparing data ...', prepend_timestamp=False)
+
+    else:
+        log_msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
 
@@ -310,7 +359,11 @@ def save_to_csv(data, filepath, units=None, orientation=0):
         # convert units and add unit information, if needed
         if units is not None:
 
-            log_msg(f'Converting units...', prepend_timestamp=False)
+            if unit_conversion_factors is None:
+                raise ValueError(
+                    'When units is not None, unit_conversion_factors must be provided')
+
+            log_msg('Converting units...', prepend_timestamp=False)
 
             # if the orientation is 1, we might not need to scale all columns
             if orientation == 1:
@@ -321,9 +374,9 @@ def save_to_csv(data, filepath, units=None, orientation=0):
 
             for unit_name in units.unique():
 
-                labels = units.loc[units==unit_name].index.values
+                labels = units.loc[units == unit_name].index.values
 
-                unit_factor = 1./globals()[unit_name]
+                unit_factor = 1./unit_conversion_factors[unit_name]
 
                 active_labels = []
 
@@ -335,7 +388,7 @@ def save_to_csv(data, filepath, units=None, orientation=0):
                     if len(active_labels) > 0:
                         data.loc[:, active_labels] *= unit_factor
 
-                else: #elif orientation == 1:
+                else:  # elif orientation == 1:
                     for label in labels:
                         if label in data.index:
                             active_labels.append(label)
@@ -354,55 +407,64 @@ def save_to_csv(data, filepath, units=None, orientation=0):
                 data = pd.concat([units, data], axis=1)
                 data.sort_index(inplace=True)
 
-            log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+            log_msg('Unit conversion successful.', prepend_timestamp=False)
 
-        # convert MultiIndex to regular index with '-' separators
-        if isinstance(data.index, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data)
+        if use_simpleindex:
+            # convert MultiIndex to regular index with '-' separators
+            if isinstance(data.index, pd.MultiIndex):
+                data = base.convert_to_SimpleIndex(data)
 
-        # same thing for the columns
-        if isinstance(data.columns, pd.MultiIndex):
-            data = convert_to_SimpleIndex(data, axis=1)
+            # same thing for the columns
+            if isinstance(data.columns, pd.MultiIndex):
+                data = base.convert_to_SimpleIndex(data, axis=1)
 
-        if filepath.suffix == '.csv':
+        if filepath is not None:
 
-            # save the contents of the DataFrame into a csv
+            filepath = Path(filepath).resolve()
+            if filepath.suffix == '.csv':
 
-            data.to_csv(filepath)
+                # save the contents of the DataFrame into a csv
+                data.to_csv(filepath)
 
-            log_msg(f'Data successfully saved to file.',
-                    prepend_timestamp=False)
+                log_msg('Data successfully saved to file.',
+                             prepend_timestamp=False)
 
-        else:
-            raise ValueError(
-                f'ERROR: Unexpected file type received when trying '
-                f'to save to csv: {filepath}')
+            else:
+                raise ValueError(
+                    f'ERROR: Unexpected file type received when trying '
+                    f'to save to csv: {filepath}')
 
-    else:
-        log_msg(f'WARNING: Data was empty, no file saved.',
-                prepend_timestamp=False)
+            return None
 
-def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
-                  convert=None):
+        # at this line, filepath is None
+        return data
+
+    # at this line, data is None
+    log_msg('WARNING: Data was empty, no file saved.',
+            prepend_timestamp=False)
+    return None
+
+
+def load_data(data_source, unit_conversion_factors,
+              orientation=0, reindex=True, return_units=False,
+              convert=None, log_msg_method=None):
     """
-    Loads data from a CSV file assuming it follows standard SimCenter schema.
+    Loads data assuming it follows standard SimCenter tabular schema.
 
-    CSV files are assumed to have a single header line and an index column. The
-    second line may start with 'units' in the index and provide the units for
+    The data is assumed to have a single header line and an index column. The
+    second line may start with 'Units' in the index and provide the units for
     each column in the file.
-
-    The following data types can be loaded with this function:
-
-    Demand Data: Each column in a table corresponds to a demand type; each
-    row corresponds to a simulation/sample. The header identifies each demand
-    type. The user guide section of the documentation provides more
-    information about the header format. Units need to be specified in the
-    second row of the file.
 
     Parameters
     ----------
-    filepath: string
-        The location of the source file
+    data_source: string or DataFrame
+        If it is a string, the data_source is assumed to point to the location
+        of the source file. If it is a DataFrame, the data_source is assumed to
+        hold the raw data.
+    unit_conversion_factors: dict
+        Dictionary containing key-value pairs of unit names and their
+        corresponding factors. Conversion factors are defined as the number of
+        times a base unit fits in the alternative unit.
     orientation: int, {0, 1}, default: 0
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
@@ -412,57 +474,61 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
     return_units: bool
         If True, returns the units as well as the data to allow for adjustments
         in unit conversion.
+    convert: list of string
+        Specifies the columns (or rows if orientation==1) where unit conversion
+        needs to be applied.
+    log_msg_method:
+        Logging method to be used. Arguments: msg (str),
+        prepend_timestamp (bool), prepend_blank_space (bool). If no method
+        is specified, no logging is performed.
 
     Returns
     -------
     data: DataFrame
-        Data loaded from the file.
+        Parsed data.
     units: Series
-        Labels from the data and corresponding units specified in the file. If
-        no units are specified, this return value is "None". units are only
-        returned if return_units is set to True.
+        Labels from the data and corresponding units specified. If no units
+        are specified, this return value is "None". units are only returned if
+        return_units is set to True.
     """
 
-    log_msg(f'Loading data from {filepath}...')
+    def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Use the logging method if it has been specified
+        """
+        if log_msg_method:
+            log_msg_method(msg, prepend_timestamp, prepend_blank_space)
 
-    # check if the filepath is valid
-    filepath = Path(filepath).resolve()
+    # if the provided data_source is already a DataFrame...
+    if isinstance(data_source, pd.DataFrame):
 
-    if not filepath.is_file():
-        raise ValueError(f"The filepath provided does not point to an existing "
-                         f"file: {filepath}")
-
-    if filepath.suffix == '.csv':
-
-        # load the contents of the csv into a DataFrame
-
-        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False)
-
-        log_msg(f'File successfully opened.', prepend_timestamp=False)
+        # we can just store it at proceed
+        # (copying is needed to avoid changing the original)
+        data = data_source.copy()
 
     else:
-        raise ValueError(f'ERROR: Unexpected file type received when trying '
-                         f'to load from csv: {filepath}')
+        # otherwise, load the data from a file
+        data = load_from_file(data_source)
 
     # if there is information about units, perform the conversion to SI
-    if (data.index[0] == 'units') or (data.columns[0] == 'units'):
+    if ('Units' in data.index) or ('Units' in data.columns):
 
-        log_msg(f'Converting units...', prepend_timestamp=False)
+        log_msg('Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
-            units = data.loc['units',:].copy().dropna()
-            data.drop('units', inplace=True)
+            units = data.loc['Units', :].copy().dropna()
+            data.drop('Units', inplace=True)
             data = data.astype(float)
 
-        else:  #elif orientation==1:
-            units = data.loc[:, 'units'].copy().dropna()
-            data.drop('units', axis=1, inplace=True)
+        else:  # elif orientation==1:
+            units = data.loc[:, 'Units'].copy().dropna()
+            data.drop('Units', axis=1, inplace=True)
 
             if convert is None:
                 cols_to_scale = []
                 for col in data.columns:
                     try:
-                        data.loc[:, col] = data.loc[:,col].astype(float)
+                        data.loc[:, col] = data.loc[:, col].astype(float)
                         cols_to_scale.append(col)
                     except:
                         pass
@@ -473,20 +539,20 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
         for unit_name in unique_unit_names:
 
-            unit_factor = globals()[unit_name]
-            unit_labels = units.loc[units==unit_name].index
+            unit_factor = unit_conversion_factors[unit_name]
+            unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
-                data.loc[:,unit_labels] *= unit_factor
+                data.loc[:, unit_labels] *= unit_factor
 
-            else:  #elif orientation==1:
+            else:  # elif orientation==1:
                 data.loc[unit_labels, cols_to_scale] *= unit_factor
 
-        log_msg(f'Unit conversion successful.', prepend_timestamp=False)
+        log_msg('Unit conversion successful.', prepend_timestamp=False)
 
     else:
 
-        data = data.convert_dtypes()
+        # data = data.convert_dtypes()
         # enforcing float datatype is important even if there is no unit
         # conversion
         units = None
@@ -501,7 +567,7 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
                     pass
 
     # convert column to MultiIndex if needed
-    data = convert_to_MultiIndex(data, axis=1)
+    data = base.convert_to_MultiIndex(data, axis=1)
 
     data.sort_index(axis=1, inplace=True)
 
@@ -512,20 +578,145 @@ def load_from_csv(filepath, orientation=0, reindex=True, return_units=False,
 
     else:
         # convert index to MultiIndex if needed
-        data = convert_to_MultiIndex(data, axis=0)
+        data = base.convert_to_MultiIndex(data, axis=0)
 
         data.sort_index(inplace=True)
 
-    log_msg(f'Data successfully loaded from file.', prepend_timestamp=False)
+    log_msg('Data successfully loaded from file.', prepend_timestamp=False)
 
     if return_units:
 
         # convert index in units Series to MultiIndex if needed
-        units = convert_to_MultiIndex(units, axis=0)
+        units = base.convert_to_MultiIndex(units, axis=0)
 
         units.sort_index(inplace=True)
 
         return data, units
 
+    # return_units=False
+    return data
+
+
+def load_from_file(filepath, log_msg_method=None):
+    """
+    Loads data from a file and stores it in a DataFrame.
+
+    Currently, only CSV files are supported, but the function is easily
+    extensible to support other file formats.
+
+    Parameters
+    ----------
+    filepath: string
+        The location of the source file
+
+    Returns
+    -------
+    data: DataFrame
+        Data loaded from the file.
+    log_msg_method:
+        Logging method to be used. Arguments: msg (str),
+        prepend_timestamp (bool), prepend_blank_space (bool). If no method
+        is specified, no logging is performed.
+    """
+
+    def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Use the logging method if it has been specified
+        """
+        if log_msg_method:
+            log_msg_method(msg, prepend_timestamp, prepend_blank_space)
+
+    log_msg(f'Loading data from {filepath}...')
+
+    # check if the filepath is valid
+    filepath = Path(filepath).resolve()
+
+    if not filepath.is_file():
+        raise ValueError(f"The filepath provided does not point to an existing "
+                         f"file: {filepath}")
+
+    if filepath.suffix == '.csv':
+
+        # load the contents of the csv into a DataFrame
+
+        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False,
+                           encoding_errors='replace')
+
+        log_msg('File successfully opened.', prepend_timestamp=False)
+
     else:
-        return data
+        raise ValueError(f'ERROR: Unexpected file type received when trying '
+                         f'to load from csv: {filepath}')
+
+    return data
+
+def parse_units(additional_file=None):
+    """
+    Parse the unit conversion factor json file and return a dictionary.
+    
+    Parameters
+    ----------
+    additional_file: str, optional
+        If an additional file is provided, the function loads the
+        default unit conversion factors and then overrides definitions
+        using the additional user-specified json file.
+
+    Raises
+    ------
+    KeyError:
+        If a key is defined twice in any parsed json file.
+    ValueError:
+        If a unit conversion factor is not a float.
+    FileNotFoundError:
+        If a file does not exist.
+    Exception:
+        If a file does not have the json format.
+    """
+
+    def add_unique_keys_only(key, value, dictionary, file_path):
+        if key not in dictionary:
+            dictionary[key] = value
+        else:
+            raise KeyError(f'Unit {key} is defined twice in {file_path}\n'
+               'Please check the file and make sure '
+               'that unit conversion factors are only defined once.')
+
+    def get_contents(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                dictionary = json.load(f)
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(
+                'settings/default_units.json was not found.') from exc
+        except json.decoder.JSONDecodeError as exc:
+            raise Exception(
+                'settings/default_units.json is not a valid json file.') from exc
+        for key, val in dictionary.items():
+            try:
+                dictionary[key] = float(val)
+            except ValueError as exc:
+                raise ValueError(
+                    f'Unit {key} has a value of {val} '
+                    'which cannot be interpreted as a float') from exc
+            
+            
+        return dictionary
+
+    ucf_init = get_contents(base.pelicun_path / "settings/default_units.json")
+
+    ucf = {}
+    for key, value in ucf_init.items():
+        add_unique_keys_only(key, value, ucf, 'settings/default_units.json')
+
+    if additional_file:
+        ucf_init = get_contents(additional_file)
+        ucf_additional = {}
+        for key, value in ucf_init.items():
+            add_unique_keys_only(
+                key, value, ucf_additional, additional_file)
+        # combine the two: additional file takes precedent.
+        # i.e., redefining default units with the additional ones is allowed
+        for key, value in ucf_additional.items():
+            ucf[key] = value
+
+    return ucf

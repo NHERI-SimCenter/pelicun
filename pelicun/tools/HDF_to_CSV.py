@@ -38,8 +38,10 @@
 # Adam Zsarnóczay
 
 import pandas as pd
-import sys, argparse
+import sys
+import argparse
 from pathlib import Path
+
 
 def convert_HDF(HDF_path):
 
@@ -55,6 +57,7 @@ def convert_HDF(HDF_path):
         store[key].to_csv(f'{CSV_base}_{key[1:].replace("/","_")}.csv')
 
     store.close()
+
 
 if __name__ == '__main__':
 

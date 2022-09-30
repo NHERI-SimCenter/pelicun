@@ -40,27 +40,37 @@
 """
 This module defines constants, basic classes and methods for pelicun.
 
+.. rubric:: Contents
+
+.. autosummary::
+
+    convert_to_SimpleIndex
+    convert_to_MultiIndex
+    convert_unit
+    show_matrix
+    show_warning
+    print_system_info
+    log_div
+    log_msg
+    describe
+    str2bool
+
+    Options
+
 """
 
-import os, sys, time
-import warnings
+import os
+import sys
 from datetime import datetime
-from time import strftime
+import warnings
 from pathlib import Path
 import argparse
-
-from copy import deepcopy
-
-# import libraries for other modules
+import pprint
 import numpy as np
 import pandas as pd
 
-from .__init__ import __version__ as pelicun_version
-
-idx = pd.IndexSlice
 
 # set printing options
-import pprint
 pp = pprint.PrettyPrinter(indent=2, width=80-24)
 
 pd.options.display.max_rows = 20
@@ -70,26 +80,31 @@ pd.options.display.width = 300
 
 idx = pd.IndexSlice
 
-class Options(object):
+
+class Options:
 
     """
-
+    Options objects store analysis options and the logging configuration.
+    They are assessment-specific.
+    
     Parameters
+    ----------
 
     verbose: boolean
         If True, the pelicun echoes more information throughout the assessment.
         This can be useful for debugging purposes.
-
     log_show_ms: boolean
         If True, the timestamps in the log file are in microsecond precision.
-
     """
 
-    def __init__(self):
+    def __init__(self, assessment):
+
+        self._asmnt = assessment
 
         self._verbose = False
         self._log_show_ms = False
         self._print_log = False
+        self._log_file = None
 
         self.defaults = None
         self.sampling_method = None
@@ -104,15 +119,14 @@ class Options(object):
 
     def nondir_multi(self, EDP_type):
 
-        if EDP_type in self.nondir_multi_dict.keys():
+        if EDP_type in self.nondir_multi_dict:
             return self.nondir_multi_dict[EDP_type]
 
-        elif 'ALL' in self.nondir_multi_dict.keys():
+        if 'ALL' in self.nondir_multi_dict:
             return self.nondir_multi_dict['ALL']
 
-        else:
-            raise ValueError(f"Scale factor for non-directional demand "
-                             f"calculation of {EDP_type} not specified.")
+        raise ValueError(f"Scale factor for non-directional demand "
+                         f"calculation of {EDP_type} not specified.")
 
     @property
     def verbose(self):
@@ -160,26 +174,39 @@ class Options(object):
 
     @property
     def log_file(self):
-        return globals()['log_file']
+        return self._log_file
 
     @log_file.setter
     def log_file(self, value):
 
         if value is None:
-            globals()['log_file'] = value
+            self._log_file = None
+
         else:
 
-            filepath = Path(value).resolve()
-
             try:
-                globals()['log_file'] = str(filepath)
 
-                with open(filepath, 'w') as f:
+                filepath = Path(value).resolve()
+
+                self._log_file = str(filepath)
+
+                with open(filepath, 'w', encoding='utf-8') as f:
                     f.write('')
 
-            except:
-                raise ValueError(f"The filepath provided does not point to an "
-                                 f"valid location: {filepath}")
+            except BaseException as err:
+                print(f"WARNING: The filepath provided for the log file does "
+                      f"not point to a valid location: {value}. \nPelicun "
+                      f"cannot print the log to a file.\n"
+                      f"The error was: '{err}'")
+                raise
+
+    @property
+    def units_file(self):
+        return self._units_file
+
+    @units_file.setter
+    def units_file(self, value):
+        self._units_file = value
 
     @property
     def print_log(self):
@@ -193,62 +220,49 @@ class Options(object):
 
         if self._log_show_ms:
             self._log_time_format = '%H:%M:%S:%f'
-            self._log_pref = ' ' * 16 # the length of the time string in the log file
-            self._log_div = '-' * (80 - 17) # to have a total length of 80 with the time added
+            # the length of the time string in the log file
+            self._log_pref = ' ' * 16
+            # to have a total length of 80 with the time added
+            self._log_div = '-' * (80 - 17)
         else:
             self._log_time_format = '%H:%M:%S'
             self._log_pref = ' ' * 9
             self._log_div = '-' * (80 - 10)
 
-    def scale_factor(self, unit):
+    def set_options(self, config_options):
 
-        if unit is not None:
+        if config_options is not None:
 
-            if unit in globals().keys():
-                scale_factor = globals()[unit]
+            for key, value in config_options.items():
 
-            else:
-                raise ValueError(f"Unknown unit: {unit}")
-        else:
-            scale_factor = 1.0
-
-        return scale_factor
-
-options = Options()
-
-log_file = None
+                if key == "Verbose":
+                    self.verbose = value
+                elif key == "Seed":
+                    self.seed = value
+                elif key == "LogShowMS":
+                    self.log_show_ms = value
+                elif key == "LogFile":
+                    self.log_file = value
+                elif key == "UnitsFile":
+                    self.units_file = value
+                elif key == "PrintLog":
+                    self.print_log = value
+                elif key == "SamplingMethod":
+                    self.sampling_method = value
+                elif key == "DemandOffset":
+                    self.demand_offset = value
+                elif key == "NonDirectionalMultipliers":
+                    self.nondir_multi_dict = value
+                elif key == "RepairCostAndTimeCorrelation":
+                    self.rho_cost_time = value
+                elif key == "EconomiesOfScale":
+                    self.eco_scale = value
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
-def set_options(config_options):
 
-    if config_options is not None:
-
-        for key, value in config_options.items():
-
-            if key == "Verbose":
-                options.verbose = value
-            elif key == "Seed":
-                options.seed = value
-            elif key == "LogShowMS":
-                options.log_show_ms = value
-            elif key == "LogFile":
-                options.log_file = value
-            elif key == "PrintLog":
-                options.print_log = value
-            elif key == "SamplingMethod":
-                options.sampling_method = value
-            elif key == "DemandOffset":
-                options.demand_offset = value
-            elif key == "NonDirectionalMultipliers":
-                options.nondir_multi_dict = value
-            elif key == "RepairCostAndTimeCorrelation":
-                options.rho_cost_time = value
-            elif key == "EconomiesOfScale":
-                options.eco_scale = value
-
-def convert_to_SimpleIndex(data, axis=0):
+def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a simple, one-level index
 
@@ -259,33 +273,55 @@ def convert_to_SimpleIndex(data, axis=0):
     ----------
     data: DataFrame
         The DataFrame that will be modified.
-    axis: int
+    axis: int, optional, default:0
         Identifies if the index (0) or the columns (1) shall be edited.
+    inplace: bool, optional, default:False
+        If yes, the operation is performed directly on the input DataFrame
+        and not on a copy of it.
 
     Returns
     -------
     data: DataFrame
         The modified DataFrame
+
+    Raises
+    ------
+    ValueError:
+        When an invalid axis parameter is specified
     """
 
+    if axis in {0, 1}:
 
+        if inplace:
+            data_mod = data
+        else:
+            data_mod = data.copy()
 
-    if axis == 0:
-        simple_index = ['-'.join([str(id_i) for id_i in id])
-                        for id in data.index]
-        data.index = simple_index
+        if axis == 0:
+            simple_name = '-'.join(
+                [n if n is not None else "" for n in data.index.names])
+            simple_index = ['-'.join([str(id_i) for id_i in id])
+                            for id in data.index]
 
-    elif axis == 1:
-        simple_index = ['-'.join([str(id_i) for id_i in id])
-                        for id in data.columns]
-        data.columns = simple_index
+            data_mod.index = simple_index
+            data_mod.index.name = simple_name
+
+        elif axis == 1:
+            simple_name = '-'.join(
+                [n if n is not None else "" for n in data.columns.names])
+            simple_index = ['-'.join([str(id_i) for id_i in id])
+                            for id in data.columns]
+
+            data_mod.columns = simple_index
+            data_mod.columns.name = simple_name
 
     else:
         raise ValueError(f"Invalid axis parameter: {axis}")
 
-    return data
+    return data_mod
 
-def convert_to_MultiIndex(data, axis=0):
+
+def convert_to_MultiIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a MultiIndex
 
@@ -297,8 +333,11 @@ def convert_to_MultiIndex(data, axis=0):
     ----------
     data: DataFrame
         The DataFrame that will be modified.
-    axis: int
+    axis: int, optional, default:0
         Identifies if the index (0) or the columns (1) shall be edited.
+    inplace: bool, optional, default:False
+        If yes, the operation is performed directly on the input DataFrame
+        and not on a copy of it.
 
     Returns
     -------
@@ -306,11 +345,18 @@ def convert_to_MultiIndex(data, axis=0):
         The modified DataFrame
     """
 
+    # check if the requested axis is already a MultiIndex
+    if (((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or (
+            (axis == 1) and (isinstance(data.columns, pd.MultiIndex)))):
+
+        # if yes, return the data unchanged
+        return data
+
     if axis == 0:
-        index_labels = [label.split('-') for label in data.index]
+        index_labels = [str(label).split('-') for label in data.index]
 
     elif axis == 1:
-        index_labels = [label.split('-') for label in data.columns]
+        index_labels = [str(label).split('-') for label in data.columns]
 
     else:
         raise ValueError(f"Invalid axis parameter: {axis}")
@@ -327,84 +373,35 @@ def convert_to_MultiIndex(data, axis=0):
 
     if index_labels.shape[1] > 1:
 
+        if inplace:
+            data_mod = data
+        else:
+            data_mod = data.copy()
+
         if axis == 0:
-            data.index = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.index = pd.MultiIndex.from_arrays(index_labels.T)
 
         else:
-            data.columns = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.columns = pd.MultiIndex.from_arrays(index_labels.T)
+
+        return data_mod
 
     return data
 
-def convert_unit(value, unit):
-    """
-    Convert value(s) provided in one unit to the internal SI unit
 
-    Parameters
-    ----------
-    value: str, float, or int
-        A single number or an array of numbers provided as a string following
-        SimCenter's notation.
-    unit: str
-        Either a unit name, or a quantity and a unit name separated by a space.
-        For example: 'ft' or '100 ft'.
-    """
-
-    # if the value is NaN, just return it
-    if pd.isna(value):
-        return value
-
-    # start by understanding the unit
-    unit = unit.strip().split(' ')
-    if len(unit) > 1:
-        unit_count, unit_name = unit
-        unit_count = float(unit_count)
-    else:
-        unit_count = 1
-        unit_name = unit
-
-    try:
-        unit_factor = unit_count * globals()[unit_name]
-    except:
-        raise ValueError(f"Specified unit not recognized: "
-                         f"{unit_count} {unit_name}")
-
-    # now parse the value
-    try:
-        float(value)
-        is_float = True
-    except:
-        is_float = False
-
-    # if it is a single scalar, conversion is easy
-    if is_float:
-        return float(value) * unit_factor
-
-    # otherwise, we assume it is a string using SimCenter array notation
-    else:
-        values = [val.split(',') for val in value.split('|')]
-
-        # the first set of values are assumed to be outputs and need to
-        # be normalized by the unit_factor
-        values[0] = np.array(values[0], dtype=float) / unit_factor
-
-        # the second set of values are assumed to be inputs and need to
-        # be scaled by the unit factor
-        values[1] = np.array(values[1], dtype=float) * unit_factor
-
-        # now convert the values back to string format
-        return '|'.join([','.join([f'{val:g}' for val in values[i]])
-                         for i in range(2)])
 
 # print a matrix in a nice way using a DataFrame
-def show_matrix(data, describe=False):
-    if describe:
-        pp.pprint(pd.DataFrame(data).describe(percentiles=[0.01,0.1,0.5,0.9,0.99]))
+def show_matrix(data, use_describe=False):
+    if use_describe:
+        pp.pprint(pd.DataFrame(data).describe(
+            percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
     else:
         pp.pprint(pd.DataFrame(data))
 
+
 # Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
-
+    # pylint:disable = unused-argument
     if '\\' in filename:
         file_path = filename.split('\\')
     elif '/' in filename:
@@ -417,300 +414,171 @@ def _warning(message, category, filename, lineno, file=None, line=None):
     else:
         python_file = filename
 
-    print('WARNING in {} at line {}\n{}\n'.format(python_file, lineno, message))
+    print(f'WARNING in {python_file} at line {lineno}\n{message}\n')
+
 
 warnings.showwarning = _warning
+
 
 def show_warning(warning_msg):
     warnings.warn(UserWarning(warning_msg))
 
-def print_system_info():
 
-    log_msg('System Information:',
-            prepend_timestamp=False, prepend_blank_space=False)
-    log_msg(f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
-            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
-            f'python: {sys.version}\n'
-            f'numpy: {np.__version__}\n'
-            f'pandas: {pd.__version__}\n',
-            prepend_timestamp=False)
+def print_system_info(assessment):
 
-def log_div(prepend_timestamp=False):
-    """
-    Print a divider line to the log file
-
-    """
-
-    if prepend_timestamp:
-        msg = options.log_div
-
-    else:
-        msg = '-' * 80
-
-    log_msg(msg, prepend_timestamp = prepend_timestamp)
+    assessment.log_msg(
+        'System Information:',
+        prepend_timestamp=False, prepend_blank_space=False)
+    assessment.log_msg(
+        f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+        f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+        f'python: {sys.version}\n'
+        f'numpy: {np.__version__}\n'
+        f'pandas: {pd.__version__}\n',
+        prepend_timestamp=False)
 
 
-def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
-    """
-    Print a message to the screen with the current time as prefix
+def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
+                              0.977, 0.999)):
 
-    The time is in ISO-8601 format, e.g. 2018-06-16T20:24:04Z
-
-    Parameters
-    ----------
-    msg: string
-       Message to print.
-
-    """
-
-    msg_lines = msg.split('\n')
-
-    for msg_i, msg_line in enumerate(msg_lines):
-
-        if (prepend_timestamp and (msg_i==0)):
-            formatted_msg = '{} {}'.format(
-                datetime.now().strftime(options.log_time_format), msg_line)
-        elif prepend_timestamp:
-            formatted_msg = options.log_pref + msg_line
-        elif prepend_blank_space:
-            formatted_msg = options.log_pref + msg_line
-        else:
-            formatted_msg = msg_line
-
-        if options.print_log:
-            print(formatted_msg)
-
-        if globals()['log_file'] is not None:
-            with open(globals()['log_file'], 'a') as f:
-                f.write('\n'+formatted_msg)
-
-def describe(df):
-
-    if isinstance(df, (pd.Series, pd.DataFrame)):
-        vals = df.values
-        if isinstance(df, pd.DataFrame):
-            cols = df.columns
-        elif df.name is not None:
-            cols = df.name
-        else:
-            cols = 0
-    else:
+    if not isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df
         cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
 
-    if vals.ndim == 1:
-        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90])
-        desc = pd.Series({
-            'count': np.sum(~np.isnan(vals)),
-            'mean': np.nanmean(vals),
-            'std': np.nanstd(vals),
-            'min': np.nanmin(vals),
-            '10%': df_10,
-            '50%': df_50,
-            '90%': df_90,
-            'max': np.nanmax(vals),
-        }, name=cols)
-    else:
-        df_10, df_50, df_90 = np.nanpercentile(vals, [10, 50, 90], axis=0)
-        desc = pd.DataFrame({
-            'count': np.sum(~np.isnan(vals), axis=0),
-            'mean': np.nanmean(vals, axis=0),
-            'std': np.nanstd(vals, axis=0),
-            'min': np.nanmin(vals, axis=0),
-            '10%': df_10,
-            '50%': df_50,
-            '90%': df_90,
-            'max': np.nanmax(vals, axis=0),
-        }, index=cols).T
+        if vals.ndim == 1:
+            df = pd.Series(vals, name=cols)
+        else:
+            df = pd.DataFrame(vals, columns=cols)
+
+    desc = df.describe(percentiles).T
+
+    # add log standard deviation to the stats
+    desc.insert(3, "log_std", np.nan)
+    desc = desc.T
+
+    for col in desc.columns:
+        if np.min(df[col]) > 0.0:
+            desc.loc['log_std', col] = np.std(np.log(df[col]))
 
     return desc
+
 
 def str2bool(v):
     # courtesy of Maxim @ stackoverflow
 
     if isinstance(v, bool):
-       return v
-    if v.lower() in ('yes', 'true', 'True', 't', 'y', '1'):
+        return v
+    if v.lower() in {'yes', 'true', 'True', 't', 'y', '1'}:
         return True
-    elif v.lower() in ('no', 'false', 'False', 'f', 'n', '0'):
+    if v.lower() in {'no', 'false', 'False', 'f', 'n', '0'}:
         return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+    raise argparse.ArgumentTypeError('Boolean value expected.')
 
-# Constants for unit conversion
-
-# time
-sec = 1.
-
-minute = 60. * sec
-hour = 60. * minute
-day = 24. * hour
-
-sec2 = sec**2.
-
-# distance, area, volume
-m = 1.
-
-mm = 0.001 * m
-cm = 0.01 * m
-km = 1000. * m
-
-inch = 0.0254
-ft = 12. * inch
-mile = 5280. * ft
-
-# area
-m2 = m**2.
-
-mm2 = mm**2.
-cm2 = cm**2.
-km2 = km**2.
-
-inch2 = inch**2.
-ft2 = ft**2.
-mile2 = mile**2.
-
-# volume
-m3 = m**3.
-
-inch3 = inch**3.
-ft3 = ft**3.
-
-
-# speed / velocity
-cmps = cm / sec
-mps = m / sec
-mph = mile / hour
-
-inchps = inch / sec
-ftps = ft / sec
-
-# acceleration
-mps2 = m / sec2
-
-inchps2 = inch / sec2
-ftps2 = ft / sec2
-
-g = 9.80665 * mps2
-
-# mass
-kg = 1.
-
-ton = 1000. * kg
-
-lb = 0.453592 * kg
-
-# force
-N = kg * m / sec2
-
-kN = 1e3 * N
-
-lbf = lb * g
-kip = 1000. * lbf
-kips = kip
-
-# pressure / stress
-Pa = N / m2
-
-kPa = 1e3 * Pa
-MPa = 1e6 * Pa
-GPa = 1e9 * Pa
-
-psi = lbf / inch2
-ksi = 1e3 * psi
-Mpsi = 1e6 * psi
-
-# misc
-A = 1.
-
-V = 1.
-kV = 1000. * V
-
-ea = 1.
-
-rad = 1.
-
-C = 1.
-
-# FEMA P58 specific
-#TODO: work around these and make them available only in the parser methods
-EA = ea
-SF = ft2
-LF = ft
-TN = ton
-AP = A
-CF = ft3 / minute
-KV = kV * A
 
 # Input specs
 
 CMP_data_path = dict(
-    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf',
-    HAZUS_HU = '/resources/HAZUS_MH_2.1.hdf',
-    HAZUS_FL = '/resources/HAZUS_MH_2.1_FL.hdf',
-    HAZUS_MISC = '/resources/HAZUS_MH_2.1_MISC.hdf'
+    P58='/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf',
+    HAZUS_HU='/resources/HAZUS_MH_2.1.hdf',
+    HAZUS_FL='/resources/HAZUS_MH_2.1_FL.hdf',
+    HAZUS_MISC='/resources/HAZUS_MH_2.1_MISC.hdf'
 )
 
 POP_data_path = dict(
-    P58      = '/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ = '/resources/HAZUS_MH_2.1_EQ.hdf'
-)
-
-default_units = dict(
-    force =        'N',
-    length =       'm',
-    area =         'm2',
-    volume =       'm3',
-    speed =        'mps',
-    acceleration = 'mps2',
-)
-
-EDP_units = dict(
-    # PID, PRD, RID, and MID are not here because they are unitless
-    PFA = 'acceleration',
-    PWS = 'speed',
-    PGA = 'acceleration',
-    SA = 'acceleration',
-    SV = 'speed',
-    SD = 'length',
-    PIH = 'length'
+    P58='/resources/FEMA_P58_2nd_ed.hdf',
+    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf'
 )
 
 EDP_to_demand_type = {
-    'Story Drift Ratio' :             'PID',
-    'Peak Interstory Drift Ratio':    'PID',
-    'Roof Drift Ratio' :              'PRD',
-    'Peak Roof Drift Ratio' :         'PRD',
-    'Damageable Wall Drift' :         'DWD',
-    'Racking Drift Ratio' :           'RDR',
-    'Peak Floor Acceleration' :       'PFA',
-    'Peak Floor Velocity' :           'PFV',
-    'Peak Gust Wind Speed' :          'PWS',
-    'Peak Inundation Height' :        'PIH',
-    'Peak Ground Acceleration' :      'PGA',
-    'Peak Ground Velocity' :          'PGV',
-    'Spectral Acceleration' :         'SA',
-    'Spectral Velocity' :             'SV',
-    'Spectral Displacement' :         'SD',
-    'Peak Spectral Acceleration' :    'SA',
-    'Peak Spectral Velocity' :        'SV',
-    'Peak Spectral Displacement' :    'SD',
-    'Permanent Ground Deformation' :  'PGD',
-    'Mega Drift Ratio' :              'PMD',
-    'Residual Drift Ratio' :          'RID',
-    'Residual Interstory Drift Ratio':'RID',
+    # Drifts
+    'Story Drift Ratio':               'PID',
+    'Peak Interstory Drift Ratio':     'PID',
+    'Roof Drift Ratio':                'PRD',
+    'Peak Roof Drift Ratio':           'PRD',
+    'Damageable Wall Drift':           'DWD',
+    'Racking Drift Ratio':             'RDR',
+    'Mega Drift Ratio':                'PMD',
+    'Residual Drift Ratio':            'RID',
+    'Residual Interstory Drift Ratio': 'RID',
+    'Peak Effective Drift Ratio':      'EDR',
+
+    # Floor response
+    'Peak Floor Acceleration':        'PFA',
+    'Peak Floor Velocity':            'PFV',
+    'Peak Floor Displacement':        'PFD',
+
+    # Component response
+    'Peak Link Rotation Angle':       'LR',
+    'Peak Link Beam Chord Rotation':  'LBR',
+
+    # Wind Intensity
+    'Peak Gust Wind Speed':           'PWS',
+
+    # Inundation Intensity
+    'Peak Inundation Height':         'PIH',
+
+    # Shaking Intensity
+    'Peak Ground Acceleration':       'PGA',
+    'Peak Ground Velocity':           'PGV',
+    'Spectral Acceleration':          'SA',
+    'Spectral Velocity':              'SV',
+    'Spectral Displacement':          'SD',
+    'Peak Spectral Acceleration':     'SA',
+    'Peak Spectral Velocity':         'SV',
+    'Peak Spectral Displacement':     'SD',
+    'Permanent Ground Deformation':   'PGD',
+
+    # Placeholder for advanced calculations
+    'One':                            'ONE'
 }
 
-# PFA in FEMA P58 corresponds to the top of the given story. The ground floor
-# has an index of 0. When damage of acceleration-sensitive components
-# is controlled by the acceleration of the bottom of the story, the
-# corresponding PFA location needs to be reduced by 1. The SimCenter framework
-# assumes that PFA corresponds to the bottom of the given story
-# by default, hence, we would need to subtract 1 from the location values.
-# Rather than changing the locations themselves, we assign an offset of -1
-# so that the results still get collected at the appropriate story.
-EDP_offset_adjustment = dict(
-    PFA = -1,
-    PFV = -1
-)
+# ~~~~~~~~~~~~~~~~~~ #
+# currently not used #
+# ~~~~~~~~~~~~~~~~~~ #
+
+# default_units = dict(
+#     force='N',
+#     length='m',
+#     area='m2',
+#     volume='m3',
+#     speed='mps',
+#     acceleration='mps2',
+# )
+
+# EDP_units = dict(
+#     # drifts and rotations are not listed here because they are unitless
+
+#     # Floor response
+#     PFA='acceleration',
+#     PFV='speed',
+#     PFD='length',
+
+#     # Wind intensity
+#     PWS='speed',
+
+#     # Inundation intensity
+#     PIH='length',
+
+#     # Shaking intensity
+#     PGA='acceleration',
+#     PGV='speed',
+#     SA='acceleration',
+#     SV='speed',
+#     SD='length',
+#     PGD='length',
+# )
+
+# # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
+# # has an index of 0. When damage of acceleration-sensitive components
+# # is controlled by the acceleration of the bottom of the story, the
+# # corresponding PFA location needs to be reduced by 1. The SimCenter framework
+# # assumes that PFA corresponds to the bottom of the given story
+# # by default, hence, we would need to subtract 1 from the location values.
+# # Rather than changing the locations themselves, we assign an offset of -1
+# # so that the results still get collected at the appropriate story.
+# EDP_offset_adjustment = dict(
+#     PFA=-1,
+#     PFV=-1,
+#     PFD=-1
+# )
