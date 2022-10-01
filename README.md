@@ -1,5 +1,5 @@
 <p align="center">
-	<img src="https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/master/doc_src/common/figures/pelicun-Logo-white.png"
+	<img src="https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/gh-pages/doc_src/common/figures/pelicun-Logo-white.png"
 		alt="pelicun" align="middle" height="200"/>
 </p>
 
@@ -40,13 +40,15 @@ Detailed documentation of the available methods and their use is available at ht
 
 ## Requirements
 
-`pelicun` runs under Python 3.6+ . The following packages are required for it to work properly:
+`pelicun` runs under Python 3.8+ . The following packages are required for it to work properly:
 
-- `numpy` >= 1.21.0
+- `numpy` >= 1.22.0
 
 - `scipy` >= 1.7.0
 
-- `pandas` >= 1.3.0
+- `pandas` >= 1.4.0
+
+- 'tables' >= 3.7.0
 
 We recommend installing each of these using `pip`. For convenience, we also published a nheri_simcenter python package that gets all of these and a few additional dependencies installed to initialize the Python environment for SimCenter tools.
 
@@ -58,9 +60,37 @@ We recommend installing each of these using `pip`. For convenience, we also publ
 pip install pelicun
 ```
 
-Although v3.0 of pelicun is released here on Github, it is currently meant for testing by advanced, power-users. With v3.0, pelicun received a major architectural update and we want to wait a few weeks to collect feedback from users and prepare a set of rigorous tests before releasing a build on PyPI for the general researcher community. Until then, pip will keep installing the previous version (v2.6). If you are interested in using v3.0, you can download the source files from GitHub and install it using setup.py.
+If you are interested in using an earlier version, you can install it with the following command: 
+
+```
+pip install pelicun==2.6.0
+```
+
+Note that 2.6.0 is the last minor version before the v3.0 release.
 
 ## Changelog
+
+### Changes in v3.1
+
+* Calculation settings are now assessment-specific. This allows you to use more than one assessments in an interactive calculation and each will have its own set of options, including log files.
+
+* The uq module was decoupled from the others to enable standalone uq calculations that work without having an active assessment.
+
+* A completely redesigned DL_calculation.py script that provides decoupled demand, damage, and loss assessment and more flexibility when setting up each of those when pelicun is used with a configuration file in a larger workflow.
+
+* Two new examples that use the DL_calculation.py script and a json configuration file were added to the example folder.
+
+* A new example that demonstrates a detailed interactive calculation in a Jupyter notebook was added to the following DesignSafe project: https://www.designsafe-ci.org/data/browser/public/designsafe.storage.published/PRJ-3411v5 This project will be extended with additional examples in the future.
+
+* Unit conversion factors moved to an external file (settings/default_units) to make it easier to add new units to the list. This also allows redefining the internal units through a complete replacement of the factors. The internal units continue to follow the SI system.
+
+* Substantial improvements in coding style using flake8 and pylint to monitor and help enforce PEP8.
+
+* Several performance improvements made calculations more efficient, especially for large problems, such as regional assessements or tall buildings investigated using the FEMA P-58 methodology.
+
+* Several bugfixes and a large number of minor changes that make the engine more robust and easier to use.
+
+* Update recommended Python version to 3.10 and other dependencies to more recent versions. 
 
 ### Changes in v3.0
 
