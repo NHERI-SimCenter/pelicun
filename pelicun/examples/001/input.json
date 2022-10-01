@@ -1,0 +1,72 @@
+{
+    "DL": {
+        "Asset": {
+            "ComponentAssignmentFile": "CMP_QNT.csv",
+            "ComponentDatabase": "FEMA P-58",
+            "NumberOfStories": "4",
+            "OccupancyType": "COM1",
+            "PlanArea": "15000"
+        },
+        "Damage": {
+            "CollapseFragility": {
+                "CapacityDistribution": "lognormal",
+                "CapacityMedian": "521.219",
+                "DemandType": "SA_1.13",
+                "Theta_1": "0.5"
+            },
+            "DamageProcess": "FEMA P-58",
+            "IrreparableDamage": {
+                "DriftCapacityLogStd": "0.3",
+                "DriftCapacityMedian": "0.015"
+            }
+        },
+        "Demands": {
+            "Calibration": {
+                "ALL": {
+                    "DistributionFamily": "lognormal"
+                },
+                "PID": {
+                    "DistributionFamily": "lognormal",
+                    "TruncateLower": "",
+                    "TruncateUpper": "0.06"
+                }
+            },
+            "CollapseLimits": {
+                "PID": "0.06"
+            },
+            "DemandFilePath": "demands_s4.csv",
+            "InferResidualDrift": {
+                "1": "0.0075",
+                "2": "0.0075",
+                "method": "FEMA P-58"
+            },
+            "SampleSize": "500"
+        },
+        "Losses": {
+            "BldgRepair": {
+                "ConsequenceDatabase": "FEMA P-58",
+                "MapApproach": "Automatic",
+                "ReplacementCost": {
+                    "Distribution": "normal",
+                    "Median": "12500000",
+                    "Theta_1": "0.3",
+                    "Unit": "USD_2011"
+                },
+                "ReplacementTime": {
+                    "Distribution": "lognormal",
+                    "Median": "15000",
+                    "Theta_1": "0.4",
+                    "Unit": "worker_day"
+                }
+            }
+        }
+    },
+    "GeneralInformation": {
+        "units": {
+            "force": "kips",
+            "length": "in",
+            "temperature": "C",
+            "time": "sec"
+        }
+    }
+}

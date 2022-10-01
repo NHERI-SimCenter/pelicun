@@ -1,4 +1,4 @@
-,units,location,direction,family,theta_0,theta_1,truncate_lower,truncate_upper
+,Units,Location,Direction,Family,Theta_0,Theta_1,TruncateLower,TruncateUpper
 B1031.001,ea,all,"1, 2",,"4, 4, 4, 4, 4",,,
 B1031.011c,ea,1,"1, 2",,"1, 1, 1, 1",,,
 B1031.021c,ea,all,"1, 2",,"1, 1, 1, 1",,,

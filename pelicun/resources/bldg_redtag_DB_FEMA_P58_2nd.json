@@ -1,5 +1,5 @@
 {
-  "B1031.001": {
+  "B.10.31.001": {
     "Description": "Bolted shear tab gravity connections",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -20,7 +20,7 @@
       }
     }
   },
-  "B1031.011a": {
+  "B.10.31.011a": {
     "Description": "Steel Column Base Plates, Column W < 150 plf",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -41,7 +41,7 @@
       }
     }
   },
-  "B1031.011b": {
+  "B.10.31.011b": {
     "Description": "Steel Column Base Plates, Column 150 plf < W < 300 plf",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -62,7 +62,7 @@
       }
     }
   },
-  "B1031.011c": {
+  "B.10.31.011c": {
     "Description": "Steel Column Base Plates, Column W > 300 plf",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -83,7 +83,7 @@
       }
     }
   },
-  "B1031.021a": {
+  "B.10.31.021a": {
     "Description": "Welded column splices, Column W < 150 plf",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Fracture is not expected where weld has adequate toughness and the maximum weld root stress is below 1.5Fu from column P/A+M/S under story drift using A and S from weld root area.  \nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -101,7 +101,7 @@
       }
     }
   },
-  "B1031.021b": {
+  "B.10.31.021b": {
     "Description": "Welded column splices, Column 150 plf < W < 300 plf",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Fracture is not expected where weld has adequate toughness and the maximum weld root stress is below 1.5Fu from column P/A+M/S under story drift using A and S from weld root area.  \nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -119,7 +119,7 @@
       }
     }
   },
-  "B1031.021c": {
+  "B.10.31.021c": {
     "Description": "Welded column splices, Column W > 300 plf",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Fracture is not expected where weld has adequate toughness and the maximum weld root stress is below 1.5Fu from column P/A+M/S under story drift using A and S from weld root area.  \nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -137,7 +137,7 @@
       }
     }
   },
-  "B1033.001a": {
+  "B.10.33.001a": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -158,7 +158,7 @@
       }
     }
   },
-  "B1033.001b": {
+  "B.10.33.001b": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, Chevron Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -179,7 +179,7 @@
       }
     }
   },
-  "B1033.001c": {
+  "B.10.33.001c": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -200,7 +200,7 @@
       }
     }
   },
-  "B1033.002a": {
+  "B.10.33.002a": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -221,7 +221,7 @@
       }
     }
   },
-  "B1033.002b": {
+  "B.10.33.002b": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, Single Diagonal Brace, 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -242,7 +242,7 @@
       }
     }
   },
-  "B1033.002c": {
+  "B.10.33.002c": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -263,7 +263,7 @@
       }
     }
   },
-  "B1033.003a": {
+  "B.10.33.003a": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, X Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -284,7 +284,7 @@
       }
     }
   },
-  "B1033.003b": {
+  "B.10.33.003b": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, X Brace, 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -305,7 +305,7 @@
       }
     }
   },
-  "B1033.003c": {
+  "B.10.33.003c": {
     "Description": "Special Concentric Braced Frame w WF braces, balanced design criteria, X Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -326,7 +326,7 @@
       }
     }
   },
-  "B1033.011a": {
+  "B.10.33.011a": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -347,7 +347,7 @@
       }
     }
   },
-  "B1033.011b": {
+  "B.10.33.011b": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, Chevron Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -368,7 +368,7 @@
       }
     }
   },
-  "B1033.011c": {
+  "B.10.33.011c": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -389,7 +389,7 @@
       }
     }
   },
-  "B1033.012a": {
+  "B.10.33.012a": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -410,7 +410,7 @@
       }
     }
   },
-  "B1033.012b": {
+  "B.10.33.012b": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, Single Diagonal Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -431,7 +431,7 @@
       }
     }
   },
-  "B1033.012c": {
+  "B.10.33.012c": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -452,7 +452,7 @@
       }
     }
   },
-  "B1033.013a": {
+  "B.10.33.013a": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, X Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -473,7 +473,7 @@
       }
     }
   },
-  "B1033.013b": {
+  "B.10.33.013b": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, X Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -494,7 +494,7 @@
       }
     }
   },
-  "B1033.013c": {
+  "B.10.33.013c": {
     "Description": "Special Concentric Braced Frame w HSS braces, balanced design criteria, X Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -515,7 +515,7 @@
       }
     }
   },
-  "B1033.021a": {
+  "B.10.33.021a": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -536,7 +536,7 @@
       }
     }
   },
-  "B1033.021b": {
+  "B.10.33.021b": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, Chevron Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -557,7 +557,7 @@
       }
     }
   },
-  "B1033.021c": {
+  "B.10.33.021c": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -578,7 +578,7 @@
       }
     }
   },
-  "B1033.022a": {
+  "B.10.33.022a": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -599,7 +599,7 @@
       }
     }
   },
-  "B1033.022b": {
+  "B.10.33.022b": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, Single Diagonal Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -620,7 +620,7 @@
       }
     }
   },
-  "B1033.022c": {
+  "B.10.33.022c": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -641,7 +641,7 @@
       }
     }
   },
-  "B1033.023a": {
+  "B.10.33.023a": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, X Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -662,7 +662,7 @@
       }
     }
   },
-  "B1033.023b": {
+  "B.10.33.023b": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, X Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -683,7 +683,7 @@
       }
     }
   },
-  "B1033.023c": {
+  "B.10.33.023c": {
     "Description": "Special Concentric Braced Frame w HSS braces, tapered gusset plates & design to AISC minimum standard, X Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -704,7 +704,7 @@
       }
     }
   },
-  "B1033.031a": {
+  "B.10.33.031a": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -722,7 +722,7 @@
       }
     }
   },
-  "B1033.031b": {
+  "B.10.33.031b": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, Chevron Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -740,7 +740,7 @@
       }
     }
   },
-  "B1033.031c": {
+  "B.10.33.031c": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -758,7 +758,7 @@
       }
     }
   },
-  "B1033.032a": {
+  "B.10.33.032a": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -776,7 +776,7 @@
       }
     }
   },
-  "B1033.032b": {
+  "B.10.33.032b": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, Single Diagonal Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -794,7 +794,7 @@
       }
     }
   },
-  "B1033.032c": {
+  "B.10.33.032c": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -812,7 +812,7 @@
       }
     }
   },
-  "B1033.033a": {
+  "B.10.33.033a": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, X Brace, Brace w < 40 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -833,7 +833,7 @@
       }
     }
   },
-  "B1033.033b": {
+  "B.10.33.033b": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, X Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -854,7 +854,7 @@
       }
     }
   },
-  "B1033.033c": {
+  "B.10.33.033c": {
     "Description": "Special Concentric Braced Frame, design to AISC minimum standards, X Brace, Brace w > 100 PLF",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -875,7 +875,7 @@
       }
     }
   },
-  "B1033.041a": {
+  "B.10.33.041a": {
     "Description": "Special Concentric Braced Frame w double angle braces, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -893,7 +893,7 @@
       }
     }
   },
-  "B1033.041b": {
+  "B.10.33.041b": {
     "Description": "Special Concentric Braced Frame w double angle braces, Chevron Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -911,7 +911,7 @@
       }
     }
   },
-  "B1033.041c": {
+  "B.10.33.041c": {
     "Description": "Special Concentric Braced Frame w double angle braces, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -929,7 +929,7 @@
       }
     }
   },
-  "B1033.042a": {
+  "B.10.33.042a": {
     "Description": "Special Concentric Braced Frame w double angle braces, Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -947,7 +947,7 @@
       }
     }
   },
-  "B1033.042b": {
+  "B.10.33.042b": {
     "Description": "Special Concentric Braced Frame w double angle braces, Single Diagonal Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -965,7 +965,7 @@
       }
     }
   },
-  "B1033.042c": {
+  "B.10.33.042c": {
     "Description": "Special Concentric Braced Frame w double angle braces, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -983,7 +983,7 @@
       }
     }
   },
-  "B1033.043a": {
+  "B.10.33.043a": {
     "Description": "Special Concentric Braced Frame w double angle braces, X Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1001,7 +1001,7 @@
       }
     }
   },
-  "B1033.043b": {
+  "B.10.33.043b": {
     "Description": "Special Concentric Braced Frame w double angle braces, X Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1019,7 +1019,7 @@
       }
     }
   },
-  "B1033.043c": {
+  "B.10.33.043c": {
     "Description": "Special Concentric Braced Frame w double angle braces, X Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC minimum SCBF criteria.   Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1037,7 +1037,7 @@
       }
     }
   },
-  "B1033.051a": {
+  "B.10.33.051a": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1055,7 +1055,7 @@
       }
     }
   },
-  "B1033.051b": {
+  "B.10.33.051b": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, Chevron Brace, Brace w, 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1073,7 +1073,7 @@
       }
     }
   },
-  "B1033.051c": {
+  "B.10.33.051c": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1091,7 +1091,7 @@
       }
     }
   },
-  "B1033.052a": {
+  "B.10.33.052a": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1109,7 +1109,7 @@
       }
     }
   },
-  "B1033.052b": {
+  "B.10.33.052b": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, Single Diagonal Brace, Brace w, 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1127,7 +1127,7 @@
       }
     }
   },
-  "B1033.052c": {
+  "B.10.33.052c": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1145,7 +1145,7 @@
       }
     }
   },
-  "B1033.053a": {
+  "B.10.33.053a": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, X Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1163,7 +1163,7 @@
       }
     }
   },
-  "B1033.053b": {
+  "B.10.33.053b": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, X Brace, Brace w, 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1181,7 +1181,7 @@
       }
     }
   },
-  "B1033.053c": {
+  "B.10.33.053c": {
     "Description": "Ordinary Concentric Braced Frame w compact braces, X Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1199,7 +1199,7 @@
       }
     }
   },
-  "B1033.061a": {
+  "B.10.33.061a": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1217,7 +1217,7 @@
       }
     }
   },
-  "B1033.061b": {
+  "B.10.33.061b": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, Chevron Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1235,7 +1235,7 @@
       }
     }
   },
-  "B1033.061c": {
+  "B.10.33.061c": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1253,7 +1253,7 @@
       }
     }
   },
-  "B1033.062a": {
+  "B.10.33.062a": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1271,7 +1271,7 @@
       }
     }
   },
-  "B1033.062b": {
+  "B.10.33.062b": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, Single Diagonal Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1289,7 +1289,7 @@
       }
     }
   },
-  "B1033.062c": {
+  "B.10.33.062c": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1307,7 +1307,7 @@
       }
     }
   },
-  "B1033.063a": {
+  "B.10.33.063a": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, X Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1325,7 +1325,7 @@
       }
     }
   },
-  "B1033.063b": {
+  "B.10.33.063b": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, X Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1343,7 +1343,7 @@
       }
     }
   },
-  "B1033.063c": {
+  "B.10.33.063c": {
     "Description": "Ordinary Concentric Braced Frame, braces design to ductile slenderness limits, X Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to AISC OCBF criteria.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1361,7 +1361,7 @@
       }
     }
   },
-  "B1033.071a": {
+  "B.10.33.071a": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, Chevron Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1373,7 +1373,7 @@
       }
     }
   },
-  "B1033.071b": {
+  "B.10.33.071b": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, Chevron Brace, 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1385,7 +1385,7 @@
       }
     }
   },
-  "B1033.071c": {
+  "B.10.33.071c": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, Chevron Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1397,7 +1397,7 @@
       }
     }
   },
-  "B1033.072a": {
+  "B.10.33.072a": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, Single Diagonal Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1409,7 +1409,7 @@
       }
     }
   },
-  "B1033.072b": {
+  "B.10.33.072b": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, Single Diagonal Brace,  41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1421,7 +1421,7 @@
       }
     }
   },
-  "B1033.072c": {
+  "B.10.33.072c": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, Single Diagonal Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1433,7 +1433,7 @@
       }
     }
   },
-  "B1033.073a": {
+  "B.10.33.073a": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, X Brace, Brace w < 40 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1445,7 +1445,7 @@
       }
     }
   },
-  "B1033.073b": {
+  "B.10.33.073b": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, X Brace, Brace 41 PLF < w < 99 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1457,7 +1457,7 @@
       }
     }
   },
-  "B1033.073c": {
+  "B.10.33.073c": {
     "Description": "Braced frame, design for factored loads, no additional seismic detailing, X Brace, Brace w > 100 PLF",
     "Comments": "Costing on a per bay basis, equivalent to current AISC R=3.  Braces may be HSS, WF, or Angle.  Costing does not include fireproofing removal or reapplication cost.\nNotes: Performance data has 1 damage state where as the cost data has 3 damage states.  The performance data listed in DS1 appears to correspond to the cost data currently shown in DS3\u2026  Please confirm if two additional damage state performances should be added or if only one cost damage state should be included.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1469,7 +1469,7 @@
       }
     }
   },
-  "B1035.001": {
+  "B.10.35.001": {
     "Description": "Post-Northridge RBS connection with welded web, beam one side of column only, beam depth <= W27",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1487,7 +1487,7 @@
       }
     }
   },
-  "B1035.002": {
+  "B.10.35.002": {
     "Description": "Post-Northridge RBS connection with welded web, beam one side of column only, beam depth >= W30",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1505,7 +1505,7 @@
       }
     }
   },
-  "B1035.011": {
+  "B.10.35.011": {
     "Description": "Post-Northridge RBS connection with welded web, beams both sides of column, beam depth <= W27",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1523,7 +1523,7 @@
       }
     }
   },
-  "B1035.012": {
+  "B.10.35.012": {
     "Description": "Post-Northridge RBS connection with welded web, beams both sides of column, beam depth >= W30",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1541,7 +1541,7 @@
       }
     }
   },
-  "B1035.021": {
+  "B.10.35.021": {
     "Description": "Post-Northridge welded steel moment connection other than RBS, beam one side, beam depth <= W27",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1559,7 +1559,7 @@
       }
     }
   },
-  "B1035.022": {
+  "B.10.35.022": {
     "Description": "Post-Northridge welded steel moment connection other than RBS, beam one side, beam depth >= W30",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1577,7 +1577,7 @@
       }
     }
   },
-  "B1035.031": {
+  "B.10.35.031": {
     "Description": "Post-Northridge welded steel moment connection other than RBS, beams both sides, beam depth <= W27",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1595,7 +1595,7 @@
       }
     }
   },
-  "B1035.032": {
+  "B.10.35.032": {
     "Description": "Post-Northridge welded steel moment connection other than RBS, beams both sides, beam depth >= W30",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1613,7 +1613,7 @@
       }
     }
   },
-  "B1035.041": {
+  "B.10.35.041": {
     "Description": "Pre-Northridge WUF-B beam-column joint, beam one side of column, beam depth <= W27",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1637,7 +1637,7 @@
       }
     }
   },
-  "B1035.042": {
+  "B.10.35.042": {
     "Description": "Pre-Northridge WUF-B beam-column joint, beam one side of column, beam depth >= W30",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1661,7 +1661,7 @@
       }
     }
   },
-  "B1035.051": {
+  "B.10.35.051": {
     "Description": "Pre-Northridge WUF-B beam-column joint, beam both sides of column, beam depth <= W27",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1685,7 +1685,7 @@
       }
     }
   },
-  "B1035.052": {
+  "B.10.35.052": {
     "Description": "Pre-Northridge WUF-B beam-column joint, beam both sides of column, beam depth >= W30",
     "Comments": "Costing is on a per bay basis.  Costing does not include fireproofing removal or reapplication cost.\nAuthor: Greg Deierlein",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1709,7 +1709,7 @@
       }
     }
   },
-  "B1035.061a": {
+  "B.10.35.061a": {
     "Description": "EBF Shear Link, no floor beams, link w < 100 PLF",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1727,7 +1727,7 @@
       }
     }
   },
-  "B1035.061b": {
+  "B.10.35.061b": {
     "Description": "EBF Shear Link, no floor beams, link w < 200 PLF",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1745,7 +1745,7 @@
       }
     }
   },
-  "B1035.062a": {
+  "B.10.35.062a": {
     "Description": "EBF Shear Link, with floor beams, link w < 100 PLF",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1763,7 +1763,7 @@
       }
     }
   },
-  "B1035.062b": {
+  "B.10.35.062b": {
     "Description": "EBF Shear Link, with floor beams, link w < 200 PLF",
     "Comments": "Costing is on a per connection basis.  Costing does not include fireproofing removal or reapplication cost.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1781,7 +1781,7 @@
       }
     }
   },
-  "B1041.001a": {
+  "B.10.41.001a": {
     "Description": "ACI 318 SMF , Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "ACI318 Concrete SMF, ductile response.  Meets the requirements of ACI318 SMF.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1802,7 +1802,7 @@
       }
     }
   },
-  "B1041.001b": {
+  "B.10.41.001b": {
     "Description": "ACI 318 SMF , Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "ACI318 Concrete SMF, ductile response.  Meets the requirements of ACI318 SMF.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1823,7 +1823,7 @@
       }
     }
   },
-  "B1041.002a": {
+  "B.10.41.002a": {
     "Description": "ACI 318 SMF , Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "ACI318 Concrete SMF, ductile response.  Meets the requirements of ACI318 SMF.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1844,7 +1844,7 @@
       }
     }
   },
-  "B1041.002b": {
+  "B.10.41.002b": {
     "Description": "ACI 318 SMF , Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "ACI318 Concrete SMF, ductile response.  Meets the requirements of ACI318 SMF.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1865,7 +1865,7 @@
       }
     }
   },
-  "B1041.003a": {
+  "B.10.41.003a": {
     "Description": "ACI 318 SMF , Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "ACI318 Concrete SMF, ductile response.  Meets the requirements of ACI318 SMF.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1886,7 +1886,7 @@
       }
     }
   },
-  "B1041.003b": {
+  "B.10.41.003b": {
     "Description": "ACI 318 SMF , Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "ACI318 Concrete SMF, ductile response.  Meets the requirements of ACI318 SMF.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1907,7 +1907,7 @@
       }
     }
   },
-  "B1041.011a": {
+  "B.10.41.011a": {
     "Description": "MF with SMF-conforming beam and column flexural and confinement reinforcement but weak joints , Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "Non-conforming SMF, joint shear damage, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) Column Pu < 0.6f'cAg, (3) Column flexural response with HIGH ductility, (4) Beam compliant transverse reinforcing with low beam V/bwd(f'c)^0.5, (5) Joints with compliant transverse reinforcing details with spacing < d(column)/2 and Joint V/Vn < 1.2.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1928,7 +1928,7 @@
       }
     }
   },
-  "B1041.011b": {
+  "B.10.41.011b": {
     "Description": "MF with SMF-conforming beam and column flexural and confinement reinforcement but weak joints , Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "Non-conforming SMF, joint shear damage, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) Column Pu < 0.6f'cAg, (3) Column flexural response with HIGH ductility, (4) Beam compliant transverse reinforcing with low beam V/bwd(f'c)^0.5, (5) Joints with compliant transverse reinforcing details with spacing < d(column)/2 and Joint V/Vn < 1.2.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1949,7 +1949,7 @@
       }
     }
   },
-  "B1041.012a": {
+  "B.10.41.012a": {
     "Description": "MF with SMF-conforming beam and column flexural and confinement reinforcement but weak joints , Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "Non-conforming SMF, joint shear damage, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) Column Pu < 0.6f'cAg, (3) Column flexural response with HIGH ductility, (4) Beam compliant transverse reinforcing with low beam V/bwd(f'c)^0.5, (5) Joints with compliant transverse reinforcing details with spacing < d(column)/2 and Joint V/Vn < 1.2.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1970,7 +1970,7 @@
       }
     }
   },
-  "B1041.012b": {
+  "B.10.41.012b": {
     "Description": "MF with SMF-conforming beam and column flexural and confinement reinforcement but weak joints , Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "Non-conforming SMF, joint shear damage, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) Column Pu < 0.6f'cAg, (3) Column flexural response with HIGH ductility, (4) Beam compliant transverse reinforcing with low beam V/bwd(f'c)^0.5, (5) Joints with compliant transverse reinforcing details with spacing < d(column)/2 and Joint V/Vn < 1.2.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -1991,7 +1991,7 @@
       }
     }
   },
-  "B1041.013a": {
+  "B.10.41.013a": {
     "Description": "MF with SMF-conforming beam and column flexural and confinement reinforcement but weak joints , Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "Non-conforming SMF, joint shear damage, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) Column Pu < 0.6f'cAg, (3) Column flexural response with HIGH ductility, (4) Beam compliant transverse reinforcing with low beam V/bwd(f'c)^0.5, (5) Joints with compliant transverse reinforcing details with spacing < d(column)/2 and Joint V/Vn < 1.2.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2012,7 +2012,7 @@
       }
     }
   },
-  "B1041.013b": {
+  "B.10.41.013b": {
     "Description": "MF with SMF-conforming beam and column flexural and confinement reinforcement but weak joints , Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "Non-conforming SMF, joint shear damage, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) Column Pu < 0.6f'cAg, (3) Column flexural response with HIGH ductility, (4) Beam compliant transverse reinforcing with low beam V/bwd(f'c)^0.5, (5) Joints with compliant transverse reinforcing details with spacing < d(column)/2 and Joint V/Vn < 1.2.  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2033,7 +2033,7 @@
       }
     }
   },
-  "B1041.021a": {
+  "B.10.41.021a": {
     "Description": "ACI 318 IMF, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "ACI318 IMF, joint shear damage or failure, beam or column flexure-shear response.  Meets the following requirements: (1) Column Pu < 0.3Agf'c  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2054,7 +2054,7 @@
       }
     }
   },
-  "B1041.021b": {
+  "B.10.41.021b": {
     "Description": "ACI 318 IMF, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "ACI318 IMF, joint shear damage or failure, beam or column flexure-shear response.  Meets the following requirements: (1) Column Pu < 0.3Agf'c  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2075,7 +2075,7 @@
       }
     }
   },
-  "B1041.022a": {
+  "B.10.41.022a": {
     "Description": "ACI 318 IMF, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "ACI318 IMF, joint shear damage or failure, beam or column flexure-shear response.  Meets the following requirements: (1) Column Pu < 0.3Agf'c  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2096,7 +2096,7 @@
       }
     }
   },
-  "B1041.022b": {
+  "B.10.41.022b": {
     "Description": "ACI 318 IMF, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "ACI318 IMF, joint shear damage or failure, beam or column flexure-shear response.  Meets the following requirements: (1) Column Pu < 0.3Agf'c  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2117,7 +2117,7 @@
       }
     }
   },
-  "B1041.023a": {
+  "B.10.41.023a": {
     "Description": "ACI 318 IMF, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "ACI318 IMF, joint shear damage or failure, beam or column flexure-shear response.  Meets the following requirements: (1) Column Pu < 0.3Agf'c  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2138,7 +2138,7 @@
       }
     }
   },
-  "B1041.023b": {
+  "B.10.41.023b": {
     "Description": "ACI 318 IMF, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "ACI318 IMF, joint shear damage or failure, beam or column flexure-shear response.  Meets the following requirements: (1) Column Pu < 0.3Agf'c  Costing is on a per joint basis.\nNotes: Note: DS4 is a copy of DS2 to create a mutually exclusive compliment to DS3.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2159,7 +2159,7 @@
       }
     }
   },
-  "B1041.031a": {
+  "B.10.41.031a": {
     "Description": "ACI 318 OMF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2177,7 +2177,7 @@
       }
     }
   },
-  "B1041.031b": {
+  "B.10.41.031b": {
     "Description": "ACI 318 OMF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2195,7 +2195,7 @@
       }
     }
   },
-  "B1041.032a": {
+  "B.10.41.032a": {
     "Description": "ACI 318 OMF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2213,7 +2213,7 @@
       }
     }
   },
-  "B1041.032b": {
+  "B.10.41.032b": {
     "Description": "ACI 318 OMF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2231,7 +2231,7 @@
       }
     }
   },
-  "B1041.033a": {
+  "B.10.41.033a": {
     "Description": "ACI 318 OMF with weak joints and beam flexural response, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2249,7 +2249,7 @@
       }
     }
   },
-  "B1041.033b": {
+  "B.10.41.033b": {
     "Description": "ACI 318 OMF with weak joints and beam flexural response, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2267,7 +2267,7 @@
       }
     }
   },
-  "B1041.041a": {
+  "B.10.41.041a": {
     "Description": "ACI 318 OMF with weak joints and column flexural response, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2285,7 +2285,7 @@
       }
     }
   },
-  "B1041.041b": {
+  "B.10.41.041b": {
     "Description": "ACI 318 OMF with weak joints and column flexural response, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2303,7 +2303,7 @@
       }
     }
   },
-  "B1041.042a": {
+  "B.10.41.042a": {
     "Description": "ACI 318 OMF with weak joints and column flexural response, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2321,7 +2321,7 @@
       }
     }
   },
-  "B1041.042b": {
+  "B.10.41.042b": {
     "Description": "ACI 318 OMF with weak joints and column flexural response, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2339,7 +2339,7 @@
       }
     }
   },
-  "B1041.043a": {
+  "B.10.41.043a": {
     "Description": "ACI 318 OMF with weak joints and column flexural response, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2357,7 +2357,7 @@
       }
     }
   },
-  "B1041.043b": {
+  "B.10.41.043b": {
     "Description": "ACI 318 OMF with weak joints and column flexural response, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, joint shear failure, beam flexural response.  Meets the following requirements: (1) Sum Mcol / Sum Mbeam > 1.2, (2) Beam Vn > Veq, (3) Column Vn > Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2375,7 +2375,7 @@
       }
     }
   },
-  "B1041.051a": {
+  "B.10.41.051a": {
     "Description": "ACI 318 OMF with weak beams and weak joints, beam flexural or shear response, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "ACI318 OMF, beam flexure-shear or shear failure, beam flexural response.  Meets the following requirements:  (1) Beam Vn < Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2393,7 +2393,7 @@
       }
     }
   },
-  "B1041.051b": {
+  "B.10.41.051b": {
     "Description": "ACI 318 OMF with weak beams and weak joints, beam flexural or shear response, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "ACI318 OMF, beam flexure-shear or shear failure, beam flexural response.  Meets the following requirements:  (1) Beam Vn < Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2411,7 +2411,7 @@
       }
     }
   },
-  "B1041.052a": {
+  "B.10.41.052a": {
     "Description": "ACI 318 OMF with weak beams and weak joints, beam flexural or shear response, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, beam flexure-shear or shear failure, beam flexural response.  Meets the following requirements:  (1) Beam Vn < Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2429,7 +2429,7 @@
       }
     }
   },
-  "B1041.052b": {
+  "B.10.41.052b": {
     "Description": "ACI 318 OMF with weak beams and weak joints, beam flexural or shear response, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, beam flexure-shear or shear failure, beam flexural response.  Meets the following requirements:  (1) Beam Vn < Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2447,7 +2447,7 @@
       }
     }
   },
-  "B1041.053a": {
+  "B.10.41.053a": {
     "Description": "ACI 318 OMF with weak beams and weak joints, beam flexural or shear response, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, beam flexure-shear or shear failure, beam flexural response.  Meets the following requirements:  (1) Beam Vn < Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2465,7 +2465,7 @@
       }
     }
   },
-  "B1041.053b": {
+  "B.10.41.053b": {
     "Description": "ACI 318 OMF with weak beams and weak joints, beam flexural or shear response, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, beam flexure-shear or shear failure, beam flexural response.  Meets the following requirements:  (1) Beam Vn < Veq.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2483,7 +2483,7 @@
       }
     }
   },
-  "B1041.061a": {
+  "B.10.41.061a": {
     "Description": "ACI 318 OMF with weak columns, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "ACI318 OMF, column shear or flexural-shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu < 0.6Agf'c,  (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2501,7 +2501,7 @@
       }
     }
   },
-  "B1041.061b": {
+  "B.10.41.061b": {
     "Description": "ACI 318 OMF with weak columns, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "ACI318 OMF, column shear or flexural-shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu < 0.6Agf'c,  (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2519,7 +2519,7 @@
       }
     }
   },
-  "B1041.062a": {
+  "B.10.41.062a": {
     "Description": "ACI 318 OMF with weak columns, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, column shear or flexural-shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu < 0.6Agf'c,  (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2537,7 +2537,7 @@
       }
     }
   },
-  "B1041.062b": {
+  "B.10.41.062b": {
     "Description": "ACI 318 OMF with weak columns, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, column shear or flexural-shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu < 0.6Agf'c,  (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2555,7 +2555,7 @@
       }
     }
   },
-  "B1041.063a": {
+  "B.10.41.063a": {
     "Description": "ACI 318 OMF with weak columns, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, column shear or flexural-shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu < 0.6Agf'c,  (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2573,7 +2573,7 @@
       }
     }
   },
-  "B1041.063b": {
+  "B.10.41.063b": {
     "Description": "ACI 318 OMF with weak columns, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, column shear or flexural-shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu < 0.6Agf'c,  (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2591,7 +2591,7 @@
       }
     }
   },
-  "B1041.071a": {
+  "B.10.41.071a": {
     "Description": "ACI 318 OMF weak columns w/ high axial load, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "ACI318 OMF, column flexure, flexural-shear, or shear failure at high axial load.  Column flexural-shear response.  Meets the following requirements:  (1) Column Pu > 0.6Agf'c, (2) Column Vn < Veq  Costing is on a per joint basis.\nNotes: This fragility has been changed to match B1041.121. ASCE6 is closest to column  high axial OMF.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2606,7 +2606,7 @@
       }
     }
   },
-  "B1041.071b": {
+  "B.10.41.071b": {
     "Description": "ACI 318 OMF weak columns w/ high axial load, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "ACI318 OMF, column flexure, flexural-shear, or shear failure at high axial load.  Column flexural-shear response.  Meets the following requirements:  (1) Column Pu > 0.6Agf'c, (2) Column Vn < Veq  Costing is on a per joint basis.\nNotes: This fragility has been changed to match B1041.121. ASCE6 is closest to column  high axial OMF.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2621,7 +2621,7 @@
       }
     }
   },
-  "B1041.072a": {
+  "B.10.41.072a": {
     "Description": "ACI 318 OMF weak columns w/ high axial load, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, column flexure, flexural-shear, or shear failure at high axial load.  Column flexural-shear response.  Meets the following requirements:  (1) Column Pu > 0.6Agf'c, (2) Column Vn < Veq  Costing is on a per joint basis.\nNotes: This fragility has been changed to match B1041.121. ASCE6 is closest to column  high axial OMF.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2636,7 +2636,7 @@
       }
     }
   },
-  "B1041.072b": {
+  "B.10.41.072b": {
     "Description": "ACI 318 OMF weak columns w/ high axial load, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, column flexure, flexural-shear, or shear failure at high axial load.  Column flexural-shear response.  Meets the following requirements:  (1) Column Pu > 0.6Agf'c, (2) Column Vn < Veq  Costing is on a per joint basis.\nNotes: This fragility has been changed to match B1041.121. ASCE6 is closest to column  high axial OMF.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2651,7 +2651,7 @@
       }
     }
   },
-  "B1041.073a": {
+  "B.10.41.073a": {
     "Description": "ACI 318 OMF weak columns w/ high axial load, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "ACI318 OMF, column flexure, flexural-shear, or shear failure at high axial load.  Column flexural-shear response.  Meets the following requirements:  (1) Column Pu > 0.6Agf'c, (2) Column Vn < Veq  Costing is on a per joint basis.\nNotes: This fragility has been changed to match B1041.121. ASCE6 is closest to column  high axial OMF.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2666,7 +2666,7 @@
       }
     }
   },
-  "B1041.073b": {
+  "B.10.41.073b": {
     "Description": "ACI 318 OMF weak columns w/ high axial load, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "ACI318 OMF, column flexure, flexural-shear, or shear failure at high axial load.  Column flexural-shear response.  Meets the following requirements:  (1) Column Pu > 0.6Agf'c, (2) Column Vn < Veq  Costing is on a per joint basis.\nNotes: This fragility has been changed to match B1041.121. ASCE6 is closest to column  high axial OMF.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2681,7 +2681,7 @@
       }
     }
   },
-  "B1041.081a": {
+  "B.10.41.081a": {
     "Description": "Non-conforming MF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "Non-Conforming MF, joint shear failure, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) ASCE41 non-compliant joint transverse reinforcing and or joint V/Vn > 1.2, (3) IGH beam ductility per ASCE41-06 Table 6-7i, (4) Compliant beam transverse reinforcing with LOW beam V / bwd(f'c)^0.5.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2699,7 +2699,7 @@
       }
     }
   },
-  "B1041.081b": {
+  "B.10.41.081b": {
     "Description": "Non-conforming MF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "Non-Conforming MF, joint shear failure, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) ASCE41 non-compliant joint transverse reinforcing and or joint V/Vn > 1.2, (3) IGH beam ductility per ASCE41-06 Table 6-7i, (4) Compliant beam transverse reinforcing with LOW beam V / bwd(f'c)^0.5.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2717,7 +2717,7 @@
       }
     }
   },
-  "B1041.082a": {
+  "B.10.41.082a": {
     "Description": "Non-conforming MF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, joint shear failure, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) ASCE41 non-compliant joint transverse reinforcing and or joint V/Vn > 1.2, (3) IGH beam ductility per ASCE41-06 Table 6-7i, (4) Compliant beam transverse reinforcing with LOW beam V / bwd(f'c)^0.5.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2735,7 +2735,7 @@
       }
     }
   },
-  "B1041.082b": {
+  "B.10.41.082b": {
     "Description": "Non-conforming MF with weak joints and beam flexural response, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, joint shear failure, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) ASCE41 non-compliant joint transverse reinforcing and or joint V/Vn > 1.2, (3) IGH beam ductility per ASCE41-06 Table 6-7i, (4) Compliant beam transverse reinforcing with LOW beam V / bwd(f'c)^0.5.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2753,7 +2753,7 @@
       }
     }
   },
-  "B1041.083a": {
+  "B.10.41.083a": {
     "Description": "Non-conforming MF with weak joints and beam flexural response, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, joint shear failure, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) ASCE41 non-compliant joint transverse reinforcing and or joint V/Vn > 1.2, (3) IGH beam ductility per ASCE41-06 Table 6-7i, (4) Compliant beam transverse reinforcing with LOW beam V / bwd(f'c)^0.5.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2771,7 +2771,7 @@
       }
     }
   },
-  "B1041.083b": {
+  "B.10.41.083b": {
     "Description": "Non-conforming MF with weak joints and beam flexural response, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, joint shear failure, beam flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam > 1.2, (2) ASCE41 non-compliant joint transverse reinforcing and or joint V/Vn > 1.2, (3) IGH beam ductility per ASCE41-06 Table 6-7i, (4) Compliant beam transverse reinforcing with LOW beam V / bwd(f'c)^0.5.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2789,7 +2789,7 @@
       }
     }
   },
-  "B1041.091a": {
+  "B.10.41.091a": {
     "Description": "Non-conforming MF with weak joints and column flexural response, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "Non-Conforming MF, joint shear failure, column flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam < 0.8, (2) [...TBD\u2026], (3) Non-compliant column transverse reinforcement and or joint V/Vn > 1.2  Costing is on a per joint basis.\nNotes: This fragility is same as B1041.061. Closest match available.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2807,7 +2807,7 @@
       }
     }
   },
-  "B1041.091b": {
+  "B.10.41.091b": {
     "Description": "Non-conforming MF with weak joints and column flexural response, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "Non-Conforming MF, joint shear failure, column flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam < 0.8, (2) [...TBD\u2026], (3) Non-compliant column transverse reinforcement and or joint V/Vn > 1.2  Costing is on a per joint basis.\nNotes: This fragility is same as B1041.061. Closest match available.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2825,7 +2825,7 @@
       }
     }
   },
-  "B1041.092a": {
+  "B.10.41.092a": {
     "Description": "Non-conforming MF with weak joints and column flexural response, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, joint shear failure, column flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam < 0.8, (2) [...TBD\u2026], (3) Non-compliant column transverse reinforcement and or joint V/Vn > 1.2  Costing is on a per joint basis.\nNotes: This fragility is same as B1041.061. Closest match available.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2843,7 +2843,7 @@
       }
     }
   },
-  "B1041.092b": {
+  "B.10.41.092b": {
     "Description": "Non-conforming MF with weak joints and column flexural response, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, joint shear failure, column flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam < 0.8, (2) [...TBD\u2026], (3) Non-compliant column transverse reinforcement and or joint V/Vn > 1.2  Costing is on a per joint basis.\nNotes: This fragility is same as B1041.061. Closest match available.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2861,7 +2861,7 @@
       }
     }
   },
-  "B1041.093a": {
+  "B.10.41.093a": {
     "Description": "Non-conforming MF with weak joints and column flexural response, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, joint shear failure, column flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam < 0.8, (2) [...TBD\u2026], (3) Non-compliant column transverse reinforcement and or joint V/Vn > 1.2  Costing is on a per joint basis.\nNotes: This fragility is same as B1041.061. Closest match available.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2879,7 +2879,7 @@
       }
     }
   },
-  "B1041.093b": {
+  "B.10.41.093b": {
     "Description": "Non-conforming MF with weak joints and column flexural response, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, joint shear failure, column flexural response.  Meets the following requirements:  (1) Sum Mcol / Sum Mbeam < 0.8, (2) [...TBD\u2026], (3) Non-compliant column transverse reinforcement and or joint V/Vn > 1.2  Costing is on a per joint basis.\nNotes: This fragility is same as B1041.061. Closest match available.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2897,7 +2897,7 @@
       }
     }
   },
-  "B1041.101a": {
+  "B.10.41.101a": {
     "Description": "Non-conforming MF, weak beams and strong joints, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "Non-Conforming MF, beam shear failure, beam flexural response.  Meets the following requirements:  (1) Beam with HIGH V/bwd(f'c)^0.5 or non-compliant transverse beam reinforcing.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2915,7 +2915,7 @@
       }
     }
   },
-  "B1041.101b": {
+  "B.10.41.101b": {
     "Description": "Non-conforming MF, weak beams and strong joints, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "Non-Conforming MF, beam shear failure, beam flexural response.  Meets the following requirements:  (1) Beam with HIGH V/bwd(f'c)^0.5 or non-compliant transverse beam reinforcing.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2933,7 +2933,7 @@
       }
     }
   },
-  "B1041.102a": {
+  "B.10.41.102a": {
     "Description": "Non-conforming MF, weak beams and strong joints, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, beam shear failure, beam flexural response.  Meets the following requirements:  (1) Beam with HIGH V/bwd(f'c)^0.5 or non-compliant transverse beam reinforcing.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2951,7 +2951,7 @@
       }
     }
   },
-  "B1041.102b": {
+  "B.10.41.102b": {
     "Description": "Non-conforming MF, weak beams and strong joints, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, beam shear failure, beam flexural response.  Meets the following requirements:  (1) Beam with HIGH V/bwd(f'c)^0.5 or non-compliant transverse beam reinforcing.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2969,7 +2969,7 @@
       }
     }
   },
-  "B1041.103a": {
+  "B.10.41.103a": {
     "Description": "Non-conforming MF, weak beams and strong joints, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, beam shear failure, beam flexural response.  Meets the following requirements:  (1) Beam with HIGH V/bwd(f'c)^0.5 or non-compliant transverse beam reinforcing.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -2987,7 +2987,7 @@
       }
     }
   },
-  "B1041.103b": {
+  "B.10.41.103b": {
     "Description": "Non-conforming MF, weak beams and strong joints, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, beam shear failure, beam flexural response.  Meets the following requirements:  (1) Beam with HIGH V/bwd(f'c)^0.5 or non-compliant transverse beam reinforcing.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3005,7 +3005,7 @@
       }
     }
   },
-  "B1041.111a": {
+  "B.10.41.111a": {
     "Description": "Non-conforming MF, weak columns, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "Non-Conforming MF, column flexure-shear or shear failure, column flexural response.  Meets the following requirements:  (1) [\u2026TBD\u2026]   Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3023,7 +3023,7 @@
       }
     }
   },
-  "B1041.111b": {
+  "B.10.41.111b": {
     "Description": "Non-conforming MF, weak columns, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "Non-Conforming MF, column flexure-shear or shear failure, column flexural response.  Meets the following requirements:  (1) [\u2026TBD\u2026]   Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3041,7 +3041,7 @@
       }
     }
   },
-  "B1041.112a": {
+  "B.10.41.112a": {
     "Description": "Non-conforming MF, weak columns, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, column flexure-shear or shear failure, column flexural response.  Meets the following requirements:  (1) [\u2026TBD\u2026]   Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3059,7 +3059,7 @@
       }
     }
   },
-  "B1041.112b": {
+  "B.10.41.112b": {
     "Description": "Non-conforming MF, weak columns, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, column flexure-shear or shear failure, column flexural response.  Meets the following requirements:  (1) [\u2026TBD\u2026]   Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3077,7 +3077,7 @@
       }
     }
   },
-  "B1041.113a": {
+  "B.10.41.113a": {
     "Description": "Non-conforming MF, weak columns, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, column flexure-shear or shear failure, column flexural response.  Meets the following requirements:  (1) [\u2026TBD\u2026]   Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3095,7 +3095,7 @@
       }
     }
   },
-  "B1041.113b": {
+  "B.10.41.113b": {
     "Description": "Non-conforming MF, weak columns, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, column flexure-shear or shear failure, column flexural response.  Meets the following requirements:  (1) [\u2026TBD\u2026]   Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3113,7 +3113,7 @@
       }
     }
   },
-  "B1041.121a": {
+  "B.10.41.121a": {
     "Description": "Non-conforming MF, weak columns and strong joints, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "Non-Conforming MF, column flexure, flexure-shear, or shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu > 0.6f'cAg, (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3128,7 +3128,7 @@
       }
     }
   },
-  "B1041.121b": {
+  "B.10.41.121b": {
     "Description": "Non-conforming MF, weak columns and strong joints, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "Non-Conforming MF, column flexure, flexure-shear, or shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu > 0.6f'cAg, (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3143,7 +3143,7 @@
       }
     }
   },
-  "B1041.122a": {
+  "B.10.41.122a": {
     "Description": "Non-conforming MF, weak columns and strong joints, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, column flexure, flexure-shear, or shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu > 0.6f'cAg, (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3158,7 +3158,7 @@
       }
     }
   },
-  "B1041.122b": {
+  "B.10.41.122b": {
     "Description": "Non-conforming MF, weak columns and strong joints, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, column flexure, flexure-shear, or shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu > 0.6f'cAg, (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3173,7 +3173,7 @@
       }
     }
   },
-  "B1041.123a": {
+  "B.10.41.123a": {
     "Description": "Non-conforming MF, weak columns and strong joints, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, column flexure, flexure-shear, or shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu > 0.6f'cAg, (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3188,7 +3188,7 @@
       }
     }
   },
-  "B1041.123b": {
+  "B.10.41.123b": {
     "Description": "Non-conforming MF, weak columns and strong joints, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, column flexure, flexure-shear, or shear failure, column flexural response.  Meets the following requirements:  (1) Column Pu > 0.6f'cAg, (2) Column Vn < Veq  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3203,7 +3203,7 @@
       }
     }
   },
-  "B1041.131a": {
+  "B.10.41.131a": {
     "Description": "Non-conforming MF with inadequate development of reinforcing, Conc Col & Bm = 24\" x 24\", Beam one side",
     "Comments": "Non-Conforming MF, non-ductile failure, non-ductile response.  May exhibit the following:  (1) Splice detailing or length inadequate per ASCE 41-06 Table 6-7iii, (2) Beam or column reinforcing spliced at the face of joint, (3) Beam longitudinal steel discontinuous through joint per ASCE41-06 Table 6-7iii.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3218,7 +3218,7 @@
       }
     }
   },
-  "B1041.131b": {
+  "B.10.41.131b": {
     "Description": "Non-conforming MF with inadequate development of reinforcing, Conc Col & Bm = 24\" x 24\", Beam both sides",
     "Comments": "Non-Conforming MF, non-ductile failure, non-ductile response.  May exhibit the following:  (1) Splice detailing or length inadequate per ASCE 41-06 Table 6-7iii, (2) Beam or column reinforcing spliced at the face of joint, (3) Beam longitudinal steel discontinuous through joint per ASCE41-06 Table 6-7iii.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3233,7 +3233,7 @@
       }
     }
   },
-  "B1041.132a": {
+  "B.10.41.132a": {
     "Description": "Non-conforming MF with inadequate development of reinforcing, Conc Col & Bm = 24\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, non-ductile failure, non-ductile response.  May exhibit the following:  (1) Splice detailing or length inadequate per ASCE 41-06 Table 6-7iii, (2) Beam or column reinforcing spliced at the face of joint, (3) Beam longitudinal steel discontinuous through joint per ASCE41-06 Table 6-7iii.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3248,7 +3248,7 @@
       }
     }
   },
-  "B1041.132b": {
+  "B.10.41.132b": {
     "Description": "Non-conforming MF with inadequate development of reinforcing, Conc Col & Bm = 24\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, non-ductile failure, non-ductile response.  May exhibit the following:  (1) Splice detailing or length inadequate per ASCE 41-06 Table 6-7iii, (2) Beam or column reinforcing spliced at the face of joint, (3) Beam longitudinal steel discontinuous through joint per ASCE41-06 Table 6-7iii.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3263,7 +3263,7 @@
       }
     }
   },
-  "B1041.133a": {
+  "B.10.41.133a": {
     "Description": "Non-conforming MF with inadequate development of reinforcing, Conc Col & Bm = 36\" x 36\", Beam one side",
     "Comments": "Non-Conforming MF, non-ductile failure, non-ductile response.  May exhibit the following:  (1) Splice detailing or length inadequate per ASCE 41-06 Table 6-7iii, (2) Beam or column reinforcing spliced at the face of joint, (3) Beam longitudinal steel discontinuous through joint per ASCE41-06 Table 6-7iii.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3278,7 +3278,7 @@
       }
     }
   },
-  "B1041.133b": {
+  "B.10.41.133b": {
     "Description": "Non-conforming MF with inadequate development of reinforcing, Conc Col & Bm = 36\" x 36\", Beam both sides",
     "Comments": "Non-Conforming MF, non-ductile failure, non-ductile response.  May exhibit the following:  (1) Splice detailing or length inadequate per ASCE 41-06 Table 6-7iii, (2) Beam or column reinforcing spliced at the face of joint, (3) Beam longitudinal steel discontinuous through joint per ASCE41-06 Table 6-7iii.  Costing is on a per joint basis.\nAuthor: Laura Lowes",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3293,7 +3293,7 @@
       }
     }
   },
-  "B1042.001a": {
+  "B.10.42.001a": {
     "Description": "Concrete link beam, diagonally reinforced, aspect ratio between 1.0 and 2.0, beam < 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3311,7 +3311,7 @@
       }
     }
   },
-  "B1042.001b": {
+  "B.10.42.001b": {
     "Description": "Concrete link beam, diagonally reinforced, aspect ratio between 2.0 and 4.0, beam < 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3329,7 +3329,7 @@
       }
     }
   },
-  "B1042.002a": {
+  "B.10.42.002a": {
     "Description": "Concrete link beam, conventionally reinforced, aspect ratio between 1.0 and 2.0, beam < 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3347,7 +3347,7 @@
       }
     }
   },
-  "B1042.002b": {
+  "B.10.42.002b": {
     "Description": "Concrete link beam, conventionally reinforced, aspect ratio between 2.0 and 4.0, beam < 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3365,7 +3365,7 @@
       }
     }
   },
-  "B1042.011a": {
+  "B.10.42.011a": {
     "Description": "Concrete link beam, diagonally reinforced, aspect ratio between 1.0 and 2.0, beam > 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3383,7 +3383,7 @@
       }
     }
   },
-  "B1042.011b": {
+  "B.10.42.011b": {
     "Description": "Concrete link beam, diagonally reinforced, aspect ratio between 2.0 and 4.0, beam > 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3401,7 +3401,7 @@
       }
     }
   },
-  "B1042.012a": {
+  "B.10.42.012a": {
     "Description": "Concrete link beam, conventionally reinforced, aspect ratio between 1.0 and 2.0, beam > 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3419,7 +3419,7 @@
       }
     }
   },
-  "B1042.012b": {
+  "B.10.42.012b": {
     "Description": "Concrete link beam, conventionally reinforced, aspect ratio between 2.0 and 4.0, beam > 16\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3437,7 +3437,7 @@
       }
     }
   },
-  "B1042.021a": {
+  "B.10.42.021a": {
     "Description": "Concrete link beam, diagonally reinforced, aspect ratio between 1.0 and 2.0, beam > 24\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3455,7 +3455,7 @@
       }
     }
   },
-  "B1042.021b": {
+  "B.10.42.021b": {
     "Description": "Concrete link beam, diagonally reinforced, aspect ratio between 2.0 and 4.0, beam > 24\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3473,7 +3473,7 @@
       }
     }
   },
-  "B1042.022a": {
+  "B.10.42.022a": {
     "Description": "Concrete link beam, conventionally reinforced, aspect ratio between 1.0 and 2.0, beam > 24\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3491,7 +3491,7 @@
       }
     }
   },
-  "B1042.022b": {
+  "B.10.42.022b": {
     "Description": "Concrete link beam, conventionally reinforced, aspect ratio between 2.0 and 4.0, beam > 24\" wide and depth < 30\"",
     "Comments": "None\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -3509,7 +3509,7 @@
       }
     }
   },
-  "B1044.001": {
+  "B.10.44.001": {
     "Description": "Rectangular low aspect ratio concrete walls 8\" or less thick single curtain up to 15' high",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3527,7 +3527,7 @@
       }
     }
   },
-  "B1044.002": {
+  "B.10.44.002": {
     "Description": "Rectangular low aspect ratio concrete walls 8\" or less thick single curtain 16' high to 24' high",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3545,7 +3545,7 @@
       }
     }
   },
-  "B1044.003": {
+  "B.10.44.003": {
     "Description": "Rectangular low aspect ratio concrete walls 8\" or less thick single curtain 25' high to 40' high",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3563,7 +3563,7 @@
       }
     }
   },
-  "B1044.011": {
+  "B.10.44.011": {
     "Description": "Rectangular low aspect ratio concrete walls 8\"-16\" double curtain; with heights of up to 15'",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3581,7 +3581,7 @@
       }
     }
   },
-  "B1044.012": {
+  "B.10.44.012": {
     "Description": "Rectangular low aspect ratio concrete walls 8\"-16\" double curtain; with heights of 16' to 24'",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3599,7 +3599,7 @@
       }
     }
   },
-  "B1044.013": {
+  "B.10.44.013": {
     "Description": "Rectangular low aspect ratio concrete walls 8\"-16\" double curtain; with heights of 24' to 40'",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3617,7 +3617,7 @@
       }
     }
   },
-  "B1044.021": {
+  "B.10.44.021": {
     "Description": "Rectangular low aspect ratio concrete walls 18\"-24\" thick with double curtain and  heights up to 15' ",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3635,7 +3635,7 @@
       }
     }
   },
-  "B1044.022": {
+  "B.10.44.022": {
     "Description": "Rectangular low aspect ratio concrete walls 18\"-24\" thick with double curtain and  heights  16' - 24' ",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3653,7 +3653,7 @@
       }
     }
   },
-  "B1044.023": {
+  "B.10.44.023": {
     "Description": "Rectangular low aspect ratio concrete walls 18\"-24\" thick with double curtain and  heights  25' - 40' ",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3671,7 +3671,7 @@
       }
     }
   },
-  "B1044.031": {
+  "B.10.44.031": {
     "Description": "Low-rise reinforced concrete walls with return flanges, less than 8\" thick up to 15' high",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3686,7 +3686,7 @@
       }
     }
   },
-  "B1044.032": {
+  "B.10.44.032": {
     "Description": "Low-rise reinforced concrete walls with return flanges, less than 8\" thick,  16'  to 24' high",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3701,7 +3701,7 @@
       }
     }
   },
-  "B1044.033": {
+  "B.10.44.033": {
     "Description": "Low-rise reinforced concrete walls with return flanges, less than 8\" thick,  25'  to 40' high",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3716,7 +3716,7 @@
       }
     }
   },
-  "B1044.041": {
+  "B.10.44.041": {
     "Description": "Low-rise reinforced concrete walls with return flanges, 8\" to 16\" thick up to 15' high",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3731,7 +3731,7 @@
       }
     }
   },
-  "B1044.042": {
+  "B.10.44.042": {
     "Description": "Low-rise reinforced concrete walls with return flanges, 8\" to 16\" thick, 16' to 24' high",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3746,7 +3746,7 @@
       }
     }
   },
-  "B1044.043": {
+  "B.10.44.043": {
     "Description": "Low-rise reinforced concrete walls with return flanges, 8\" to 16\" thick, 25' to 40' high",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3761,7 +3761,7 @@
       }
     }
   },
-  "B1044.051": {
+  "B.10.44.051": {
     "Description": "Low-rise reinforced concrete walls with return flanges, 17\" to 24\" thick\" up to 15' high",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3776,7 +3776,7 @@
       }
     }
   },
-  "B1044.052": {
+  "B.10.44.052": {
     "Description": "Low-rise reinforced concrete walls with return flanges, 17\" to 24\" thick,  16'  to 24' high",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3791,7 +3791,7 @@
       }
     }
   },
-  "B1044.053": {
+  "B.10.44.053": {
     "Description": "Low-rise reinforced concrete walls with return flanges, 17\" to 24\" thick,  25'  to 40' high",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3806,7 +3806,7 @@
       }
     }
   },
-  "B1044.061": {
+  "B.10.44.061": {
     "Description": "Low rise reinforced concrete walls with boundary columns, less than 8\" thick, height <15'",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3821,7 +3821,7 @@
       }
     }
   },
-  "B1044.062": {
+  "B.10.44.062": {
     "Description": "Low rise reinforced concrete walls with boundary columns, less than 8\" thick, height between 16'-24'",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3836,7 +3836,7 @@
       }
     }
   },
-  "B1044.063": {
+  "B.10.44.063": {
     "Description": "Low rise reinforced concrete walls with boundary columns, less than 8\" thick, height between 24'-40'",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3851,7 +3851,7 @@
       }
     }
   },
-  "B1044.071": {
+  "B.10.44.071": {
     "Description": "Low rise reinforced concrete walls with boundary columns, 8\" to 16\" thick, height <15'",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3866,7 +3866,7 @@
       }
     }
   },
-  "B1044.072": {
+  "B.10.44.072": {
     "Description": "Low rise reinforced concrete walls with boundary columns, 8\" to 16\" thick, height between 16'-24'",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3881,7 +3881,7 @@
       }
     }
   },
-  "B1044.073": {
+  "B.10.44.073": {
     "Description": "Low rise reinforced concrete walls with boundary columns, 8\" to 16\" thick, height between 24'-40'",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3896,7 +3896,7 @@
       }
     }
   },
-  "B1044.081": {
+  "B.10.44.081": {
     "Description": "Low rise reinforced concrete walls with boundary columns, 17\"-24\" thick, height <15'",
     "Comments": "Costing for each 144 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3911,7 +3911,7 @@
       }
     }
   },
-  "B1044.082": {
+  "B.10.44.082": {
     "Description": "Low rise reinforced concrete walls with boundary columns, 17\"-24\" thick, height between 16'-24'",
     "Comments": "Costing for each 400 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "400 SF",
@@ -3926,7 +3926,7 @@
       }
     }
   },
-  "B1044.083": {
+  "B.10.44.083": {
     "Description": "Low rise reinforced concrete walls with boundary columns, 17\"-24\" thick, height between 24'-40'",
     "Comments": "Costing for each 900 ft^2 Wall Panel, Orthogonal web reinforcement, f'c > 2500 psi, P/(A*f'c) <= 0.2\nNotes: Full repair description does not fully fit on sheet - consider shortening.  Description will fit in PACT.\nAuthor: Andrew Whittaker",
     "SuggestedComponentBlockSize": "900 SF",
@@ -3941,7 +3941,7 @@
       }
     }
   },
-  "B1044.091": {
+  "B.10.44.091": {
     "Description": "Slender Concrete Wall, 12\" thick, 12' high, 15' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3959,7 +3959,7 @@
       }
     }
   },
-  "B1044.092": {
+  "B.10.44.092": {
     "Description": "Slender Concrete Wall, 12\" thick, 12' high, 20' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3977,7 +3977,7 @@
       }
     }
   },
-  "B1044.093": {
+  "B.10.44.093": {
     "Description": "Slender Concrete Wall, 12\" thick, 12' high, 30' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -3995,7 +3995,7 @@
       }
     }
   },
-  "B1044.101": {
+  "B.10.44.101": {
     "Description": "Slender Concrete Wall, 18\" thick, 12' high, 15' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -4013,7 +4013,7 @@
       }
     }
   },
-  "B1044.102": {
+  "B.10.44.102": {
     "Description": "Slender Concrete Wall, 18\" thick, 12' high, 20' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -4031,7 +4031,7 @@
       }
     }
   },
-  "B1044.103": {
+  "B.10.44.103": {
     "Description": "Slender Concrete Wall, 18\" thick, 12' high, 30' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -4049,7 +4049,7 @@
       }
     }
   },
-  "B1044.111": {
+  "B.10.44.111": {
     "Description": "Slender Concrete Wall, 30\" thick, 12' high, 15' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -4067,7 +4067,7 @@
       }
     }
   },
-  "B1044.112": {
+  "B.10.44.112": {
     "Description": "Slender Concrete Wall, 30\" thick, 12' high, 20' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -4085,7 +4085,7 @@
       }
     }
   },
-  "B1044.113": {
+  "B.10.44.113": {
     "Description": "Slender Concrete Wall, 30\" thick, 12' high, 30' long",
     "Comments": "Slender concrete shear wall with aspect ratio greater than or equal to 2.0.  Costing assumes a 144 ft^2 wall panel.",
     "SuggestedComponentBlockSize": "144 SF",
@@ -4103,7 +4103,7 @@
       }
     }
   },
-  "B1049.001a": {
+  "B.10.49.001a": {
     "Description": "Reinforced concrete flat slabs- columns without shear reinforcing  0<Vg/Vo<.2, no continuity reinf",
     "Comments": "Costing per joint, minimum of 6\" thick slab, maximum of 12\" thick slab.\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4118,7 +4118,7 @@
       }
     }
   },
-  "B1049.001b": {
+  "B.10.49.001b": {
     "Description": "Reinforced concrete flat slabs- columns without shear reinforcing  0<Vg/Vo<.2, with continuity reinf",
     "Comments": "Costing per joint, minimum of 6\" thick slab, maximum of 12\" thick slab.\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4133,7 +4133,7 @@
       }
     }
   },
-  "B1049.002a": {
+  "B.10.49.002a": {
     "Description": "Reinforced concrete flat slabs- columns without shear reinforcing  .2<Vg/Vo<.4, no continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI 318-56,  ACI 318-63, ACI 318-89, ACI 318-95, ACI 318-99, ACI 318-05 \nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4148,7 +4148,7 @@
       }
     }
   },
-  "B1049.002b": {
+  "B.10.49.002b": {
     "Description": "Reinforced concrete flat slabs- columns without shear reinforcing  .2<Vg/Vo<.4, with continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI 318-56,  ACI 318-63, ACI 318-89, ACI 318-95, ACI 318-99, ACI 318-05 \nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4163,7 +4163,7 @@
       }
     }
   },
-  "B1049.003a": {
+  "B.10.49.003a": {
     "Description": "Reinforced concrete flat slabs- columns without shear reinforcing  .4<Vg/Vo<.6, no continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI 318-63, ACI 318-83, ACI 318-99, ACI 318-02, CAN3-A23.2-M84, A23.3 & MC-90\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4178,7 +4178,7 @@
       }
     }
   },
-  "B1049.003b": {
+  "B.10.49.003b": {
     "Description": "Reinforced concrete flat slabs- columns without shear reinforcing  .4<Vg/Vo<.6, with continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI 318-63, ACI 318-83, ACI 318-99, ACI 318-02, CAN3-A23.2-M84, A23.3 & MC-90\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4193,7 +4193,7 @@
       }
     }
   },
-  "B1049.011": {
+  "B.10.49.011": {
     "Description": "Reinforced concrete flat slabs- columns with shear reinforcing  0.2<Vg/Vo<0.4",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI 318-71, ACI 318-95, ACI 318-99, ACI 318-05\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4208,7 +4208,7 @@
       }
     }
   },
-  "B1049.012": {
+  "B.10.49.012": {
     "Description": "Reinforced concrete flat slabs- columns with shear reinforcing  0.4<Vg/Vo<.6",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI-318-63, ACI-318-05, A23.3 & MC-90\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4223,7 +4223,7 @@
       }
     }
   },
-  "B1049.021a": {
+  "B.10.49.021a": {
     "Description": "Post-tensioned concrete flat slabs- columns without shear reinforcing  0.2<Vg/Vo<.0.4, no continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI-318-77, ACI-318-89, ACI-318-05, IBC-03 \nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4238,7 +4238,7 @@
       }
     }
   },
-  "B1049.021b": {
+  "B.10.49.021b": {
     "Description": "Post-tensioned concrete flat slabs- columns without shear reinforcing  0.2<Vg/Vo<.0.4, with continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI-318-77, ACI-318-89, ACI-318-05, IBC-03 \nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4253,7 +4253,7 @@
       }
     }
   },
-  "B1049.022a": {
+  "B.10.49.022a": {
     "Description": "Post-tensioned concrete flat slabs- columns without shear reinforcing  0.4<Vg/Vo<.0.6, no continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI-318-77, ACI-318-83, ACI-318-89, ACI-318-05\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4268,7 +4268,7 @@
       }
     }
   },
-  "B1049.022b": {
+  "B.10.49.022b": {
     "Description": "Post-tensioned concrete flat slabs- columns without shear reinforcing  0.4<Vg/Vo<.0.6, with continuity reinf",
     "Comments": "Costing is on a per joint basis.\nConstruction Quality: ACI-318-77, ACI-318-83, ACI-318-89, ACI-318-05\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4283,7 +4283,7 @@
       }
     }
   },
-  "B1049.031": {
+  "B.10.49.031": {
     "Description": "Post-tensioned concrete flat slabs- columns with shear reinforcing  0<Vg/Vo<.0.4",
     "Comments": "Costing is on a per joint basis.\nNotes: Fragilities were based on judgment due to lack of test data.\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4298,7 +4298,7 @@
       }
     }
   },
-  "B1049.032": {
+  "B.10.49.032": {
     "Description": "Post-tensioned concrete flat slabs- columns with shear reinforcing  0.4<Vg/Vo<.0.6",
     "Comments": "Costing is on a per joint basis.\nNotes: Fragilities were based on judgment due to lack of test data.\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4313,7 +4313,7 @@
       }
     }
   },
-  "B1049.041a": {
+  "B.10.49.041a": {
     "Description": "Reinforced concrete flat slabs drop panel or drop capital- columns without shear reinforcing  0<Vg/Vo<0.4, no continuity reinf",
     "Comments": "Costing is on a per joint basis.\nNotes: Fragilities were based on judgment due to lack of test data.  The only available data were from a specimen that was constructed using ACI 318-89\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4328,7 +4328,7 @@
       }
     }
   },
-  "B1049.041b": {
+  "B.10.49.041b": {
     "Description": "Reinforced concrete flat slabs drop panel or drop capital- columns without shear reinforcing  0<Vg/Vo<0.4, with continuity reinf",
     "Comments": "Costing is on a per joint basis.\nNotes: Fragilities were based on judgment due to lack of test data.  The only available data were from a specimen that was constructed using ACI 318-89\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4343,7 +4343,7 @@
       }
     }
   },
-  "B1049.042a": {
+  "B.10.49.042a": {
     "Description": "Reinforced concrete flat slabs drop panel or drop capital- columns without shear reinforcing  0.4<Vg/Vo<0.6, no continuity reinf",
     "Comments": "Costing is on a per joint basis.\nNotes: Fragilities were based on judgment due to lack of test data.\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4358,7 +4358,7 @@
       }
     }
   },
-  "B1049.042b": {
+  "B.10.49.042b": {
     "Description": "Reinforced concrete flat slabs drop panel or drop capital- columns without shear reinforcing  0.4<Vg/Vo<0.6, with continuity reinf",
     "Comments": "Costing is on a per joint basis.\nNotes: Fragilities were based on judgment due to lack of test data.\nAuthor: John Wallace",
     "SuggestedComponentBlockSize": "1 EA",
@@ -4373,7 +4373,7 @@
       }
     }
   },
-  "B1051.001": {
+  "B.10.51.001": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, shear dominated, 4\" to 6\"' thick, up to 12 foot tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4388,7 +4388,7 @@
       }
     }
   },
-  "B1051.002": {
+  "B.10.51.002": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, shear dominated, 4\" to 6\"' thick, greater than 12 foot tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4403,7 +4403,7 @@
       }
     }
   },
-  "B1051.003": {
+  "B.10.51.003": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, 4\" to 6\" thick, flexure dominated up to 12' tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4421,7 +4421,7 @@
       }
     }
   },
-  "B1051.004": {
+  "B.10.51.004": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, 4\" to 6\" thick, flexure dominated greater than 12' tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4439,7 +4439,7 @@
       }
     }
   },
-  "B1051.011": {
+  "B.10.51.011": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, shear dominated, 8\" to 12\"' thick, up to 12 foot tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4454,7 +4454,7 @@
       }
     }
   },
-  "B1051.012": {
+  "B.10.51.012": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, shear dominated, 8\" to 12\"' thick, greater than 12 foot tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4469,7 +4469,7 @@
       }
     }
   },
-  "B1051.013": {
+  "B.10.51.013": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, 8\" to 12\" thick, flexure dominated up to 12' tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel,\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4487,7 +4487,7 @@
       }
     }
   },
-  "B1051.014": {
+  "B.10.51.014": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, 8\" to 12\" thick, flexure dominated greater than 12' tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4505,7 +4505,7 @@
       }
     }
   },
-  "B1051.021": {
+  "B.10.51.021": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, shear dominated, 16\" thick, up to 12 foot tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4520,7 +4520,7 @@
       }
     }
   },
-  "B1051.022": {
+  "B.10.51.022": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, shear dominated,16\"' thick, greater than 12 foot tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4535,7 +4535,7 @@
       }
     }
   },
-  "B1051.023": {
+  "B.10.51.023": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, 16\" thick, flexure dominated up to 12' tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4553,7 +4553,7 @@
       }
     }
   },
-  "B1051.024": {
+  "B.10.51.024": {
     "Description": "Ordinary reinforced masonry walls with partially grouted cells, 16\" thick, flexure dominated greater than 12' tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4571,7 +4571,7 @@
       }
     }
   },
-  "B1052.001": {
+  "B.10.52.001": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 8\" or 12\" thick, shear dominated, up t o12' tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4586,7 +4586,7 @@
       }
     }
   },
-  "B1052.002": {
+  "B.10.52.002": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 8\" or 12\" thick, shear dominated, greater than 12' tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4601,7 +4601,7 @@
       }
     }
   },
-  "B1052.003": {
+  "B.10.52.003": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 8\" to 12\" thick, flexure dominated up to 12' tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4619,7 +4619,7 @@
       }
     }
   },
-  "B1052.004": {
+  "B.10.52.004": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 8\" to 12\" thick, flexure dominated greater than 12' tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4637,7 +4637,7 @@
       }
     }
   },
-  "B1052.011": {
+  "B.10.52.011": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 16\" thick, shear dominated, up to 12' tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4652,7 +4652,7 @@
       }
     }
   },
-  "B1052.012": {
+  "B.10.52.012": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 16\" thick, shear dominated, greater than 12' tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4667,7 +4667,7 @@
       }
     }
   },
-  "B1052.013": {
+  "B.10.52.013": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 16\" thick, flexure dominated up to 12' tall",
     "Comments": "Costing for each 100 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4685,7 +4685,7 @@
       }
     }
   },
-  "B1052.014": {
+  "B.10.52.014": {
     "Description": "Special reinforced masonry walls with fully grouted cells, 16\" thick, flexure dominated greater than 12' tall",
     "Comments": "Costing for each 225 ft^2 Wall Panel\nAuthor: Benson Shing",
     "SuggestedComponentBlockSize": "225 SF",
@@ -4703,7 +4703,7 @@
       }
     }
   },
-  "B1061.001a": {
+  "B.10.61.001a": {
     "Description": "Cold formed steel walls with wood structural panel sheathing, interior - gypsum board",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2\" to 6\" OC at perimeter and 12\" OC EW in field.  \nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restraint at each end of wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4721,7 +4721,7 @@
       }
     }
   },
-  "B1061.001b": {
+  "B.10.61.001b": {
     "Description": "Cold formed steel walls with wood structural panel sheathing, exterior - stucco one side",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2\" to 6\" OC at perimeter and 12\" OC EW in field.  \nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restraint at each end of wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4739,7 +4739,7 @@
       }
     }
   },
-  "B1061.011a": {
+  "B.10.61.011a": {
     "Description": "Cold formed steel walls with flat strap X-bracing, interior - gypsum board",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 4.5 inch x 33 mil flat strap X-bracing on one side.  Straps attached to gussets with No. 8 screws.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4754,7 +4754,7 @@
       }
     }
   },
-  "B1061.011b": {
+  "B.10.61.011b": {
     "Description": "Cold formed steel walls with flat strap X-bracing, exterior - stucco one side",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 4.5 inch x 33 mil flat strap X-bracing on one side.  Straps attached to gussets with No. 8 screws.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4769,7 +4769,7 @@
       }
     }
   },
-  "B1061.021a": {
+  "B.10.61.021a": {
     "Description": "Cold formed steel walls with 22 or 31 mil steel sheathing, interior - gypsum board",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 22 or 31 mil steel sheathing attached with No. 8 screws spaced 2\" or 6\" OC at perimeter and 12\" OC EW in the field.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4784,7 +4784,7 @@
       }
     }
   },
-  "B1061.021b": {
+  "B.10.61.021b": {
     "Description": "Cold formed steel walls with 22 or 31 mil steel sheathing, exterior - stucco one side",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 22 or 31 mil steel sheathing attached with No. 8 screws spaced 2\" or 6\" OC at perimeter and 12\" OC EW in the field.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4799,7 +4799,7 @@
       }
     }
   },
-  "B1071.001": {
+  "B.10.71.001": {
     "Description": "Light framed wood walls with structural panel sheathing, gypsum wallboard no hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, no hold-downs. \nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4817,7 +4817,7 @@
       }
     }
   },
-  "B1071.002": {
+  "B.10.71.002": {
     "Description": "Light framed wood walls with structural panel sheathing, gypsum wallboard and hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:   1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with hold-downs. \nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4835,7 +4835,7 @@
       }
     }
   },
-  "B1071.011": {
+  "B.10.71.011": {
     "Description": "Light framed wood walls with structural panel sheathing, stucco no hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with no hold-downs. Three layer 7/8\" stucco with 1/2-inch chop strand fibers applied over wire mesh fastened with 1.25 -inch long staples.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4853,7 +4853,7 @@
       }
     }
   },
-  "B1071.012": {
+  "B.10.71.012": {
     "Description": "Light framed wood walls with structural panel sheathing, stucco,  hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with hold-downs. Three layer 7/8\" stucco with 1/2-inch chop strand fibers applied over wire mesh fastened with 1.25 -inch long staples.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4871,7 +4871,7 @@
       }
     }
   },
-  "B1071.031": {
+  "B.10.71.031": {
     "Description": "Wood walls with diagonal let-in bracing",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  Stud wall framing consists of 2 x 4\u2019s at 16 inches on center with double top plates and single sill plate. Diagonal bracing includes 2 forms. Block-bracing consists of diagonal blocking between studs that extends from the top of one edge of the panel to the bottom of the opposite edge. Diagonal bracing may also consist of let-in bracing for which a 1x or 2x brace (with same inclination as described for block-bracing) is recessed into studs. Walls may be sheathed with horizontal or vertical lumber siding.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4883,7 +4883,7 @@
       }
     }
   },
-  "B2011.001a": {
+  "B.20.11.001a": {
     "Description": "Exterior Wall - Cold formed steel walls with wood structural panel sheathing, interior - gypsum board",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2\" to 6\" OC at perimeter and 12\" OC EW in field.  \nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restraint at each end of wall.\nNotes: Copy of B1061.001a for use as an exterior wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4901,7 +4901,7 @@
       }
     }
   },
-  "B2011.001b": {
+  "B.20.11.001b": {
     "Description": "Exterior Wall - Cold formed steel walls with wood structural panel sheathing, exterior - stucco one side",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  38 mil cold formed steel framing with 7/16 OSB and 3/8 plywood panel sheathing with overturning restraint at each end of the wall per AISI design standard.  No. 8 screws 2\" to 6\" OC at perimeter and 12\" OC EW in field.  \nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restraint at each end of wall.\nNotes: Copy of B1061.001b for use as an exterior wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4919,7 +4919,7 @@
       }
     }
   },
-  "B2011.011a": {
+  "B.20.11.011a": {
     "Description": "Exterior Wall - Cold formed steel walls with flat strap X-bracing, interior - gypsum board",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 4.5 inch x 33 mil flat strap X-bracing on one side.  Straps attached to gussets with No. 8 screws.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.\nNotes: Copy of B1061.011a for use as an exterior wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4934,7 +4934,7 @@
       }
     }
   },
-  "B2011.011b": {
+  "B.20.11.011b": {
     "Description": "Exterior Wall - Cold formed steel walls with flat strap X-bracing, exterior - stucco one side",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 4.5 inch x 33 mil flat strap X-bracing on one side.  Straps attached to gussets with No. 8 screws.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.\nNotes: Copy of B1061.011b for use as an exterior wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4949,7 +4949,7 @@
       }
     }
   },
-  "B2011.021a": {
+  "B.20.11.021a": {
     "Description": "Exterior Wall - Cold formed steel walls with 22 or 31 mil steel sheathing, interior - gypsum board",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 22 or 31 mil steel sheathing attached with No. 8 screws spaced 2\" or 6\" OC at perimeter and 12\" OC EW in the field.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.\nNotes: Copy of B1061.021a for use as an exterior wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4964,7 +4964,7 @@
       }
     }
   },
-  "B2011.021b": {
+  "B.20.11.021b": {
     "Description": "Exterior Wall - Cold formed steel walls with 22 or 31 mil steel sheathing, exterior - stucco one side",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  33 mil cold formed steel framing with 22 or 31 mil steel sheathing attached with No. 8 screws spaced 2\" or 6\" OC at perimeter and 12\" OC EW in the field.\nConstruction Quality: High quality\nSeismic Installation Conditions: Overturning restrains required and sheathing screws driven flush with the surface of the strapping.\nNotes: Copy of B1061.021b for use as an exterior wall.",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4979,7 +4979,7 @@
       }
     }
   },
-  "B2011.101": {
+  "B.20.11.101": {
     "Description": "Exterior Wall - Light framed wood walls with structural panel sheathing, gypsum wallboard no hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, no hold-downs. \nNotes: Copy of B1071.001 for use as an exterior wall.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -4997,7 +4997,7 @@
       }
     }
   },
-  "B2011.102": {
+  "B.20.11.102": {
     "Description": "Exterior Wall - Light framed wood walls with structural panel sheathing, stucco,  hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with hold-downs. Three layer 7/8\" stucco with 1/2-inch chop strand fibers applied over wire mesh fastened with 1.25 -inch long staples.\nNotes: Copy of B1071.002 for use as an exterior wall.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5015,7 +5015,7 @@
       }
     }
   },
-  "B2011.111": {
+  "B.20.11.111": {
     "Description": "Exterior Wall - Light framed wood walls with structural panel sheathing, stucco no hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with no hold-downs. Three layer 7/8\" stucco with 1/2-inch chop strand fibers applied over wire mesh fastened with 1.25 -inch long staples.\nNotes: Copy of B1071.011 for use as an exterior wall.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5033,7 +5033,7 @@
       }
     }
   },
-  "B2011.121": {
+  "B.20.11.121": {
     "Description": "Exterior Wall - Light framed wood walls with structural panel sheathing, gypsum wallboard and hold-downs",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:   1 SIDE: 3/8\" OSB or 15/32 ply with 8d box nails at 4 to 6 inches along panel edges and 12 inches field nailing. DF #2, 2x4@16 studs. 1 SIDE: 1/2 gypsum board. Panel 8 feet tall, 8 or 16 feet long with or without door and window openings, double top plate, single bottom plate, with hold-downs. \nNotes: Copy of B1071.021 for use as an exterior wall.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5051,7 +5051,7 @@
       }
     }
   },
-  "B2011.131": {
+  "B.20.11.131": {
     "Description": "Exterior Wall - Wood walls with diagonal let-in bracing",
     "Comments": "Costing for each 100 ft^2 Wall Panel.   Assumed framing:  Stud wall framing consists of 2 x 4\u2019s at 16 inches on center with double top plates and single sill plate. Diagonal bracing includes 2 forms. Block-bracing consists of diagonal blocking between studs that extends from the top of one edge of the panel to the bottom of the opposite edge. Diagonal bracing may also consist of let-in bracing for which a 1x or 2x brace (with same inclination as described for block-bracing) is recessed into studs. Walls may be sheathed with horizontal or vertical lumber siding.\nNotes: Copy of B1071.031 for use as an exterior wall.\nAuthor: Andre Filiatrault",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5063,7 +5063,7 @@
       }
     }
   },
-  "B2011.201b": {
+  "B.20.11.201b": {
     "Description": "Precast Concrete Panels 4.5 inches thick - out of plane deformation",
     "Comments": "Costing is based upon 30'x13' panels.\nSeismic Installation Conditions: All\nNotes: Determine fragility peak floor acceleration anchorage capacity in accordance with Chapter 7 of Volume 2.",
     "SuggestedComponentBlockSize": "30 LF",
@@ -5075,7 +5075,7 @@
       }
     }
   },
-  "B2022.001": {
+  "B.20.22.001": {
     "Description": "Curtain Walls - Generic Midrise Stick-Built Curtain wall, Config: Monolithic, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5090,7 +5090,7 @@
       }
     }
   },
-  "B2022.002": {
+  "B.20.22.002": {
     "Description": "Curtain Walls - Generic Midrise Stick-Built Curtain wall, Config: Insulating Glass Units (dual pane), Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5105,7 +5105,7 @@
       }
     }
   },
-  "B2022.011": {
+  "B.20.22.011": {
     "Description": "Midrise stick-built curtain wall, Config: Asymmetric insulating glass units (dual-pane, unequal-thickness IGU), Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) inner AN / 1/2 in. (13 mm) outer AN LAM (0.030 PVB) IGU; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5123,7 +5123,7 @@
       }
     }
   },
-  "B2022.021": {
+  "B.20.22.021": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN LAM (0.030 PVB); glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5138,7 +5138,7 @@
       }
     }
   },
-  "B2022.022": {
+  "B.20.22.022": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN laminated, 2-sided SSG, Center Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence.",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5153,7 +5153,7 @@
       }
     }
   },
-  "B2022.023": {
+  "B.20.22.023": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN laminated, 2-sided SSG, Outside Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.  User to confirm damage state, repair, lead time, and casualty data.  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence.",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5168,7 +5168,7 @@
       }
     }
   },
-  "B2022.031": {
+  "B.20.22.031": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5183,7 +5183,7 @@
       }
     }
   },
-  "B2022.032": {
+  "B.20.22.032": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0 in. (0 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5198,7 +5198,7 @@
       }
     }
   },
-  "B2022.033": {
+  "B.20.22.033": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.13 in. (3 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5213,7 +5213,7 @@
       }
     }
   },
-  "B2022.034": {
+  "B.20.22.034": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.25 in. (6 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5228,7 +5228,7 @@
       }
     }
   },
-  "B2022.035": {
+  "B.20.22.035": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 2:1 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "32 SF",
@@ -5243,7 +5243,7 @@
       }
     }
   },
-  "B2022.036": {
+  "B.20.22.036": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 1:2 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "32 SF",
@@ -5258,7 +5258,7 @@
       }
     }
   },
-  "B2022.037": {
+  "B.20.22.037": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic, 2-sided SSG, Center Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5273,7 +5273,7 @@
       }
     }
   },
-  "B2022.038": {
+  "B.20.22.038": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic, 2-sided SSG, Outside Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5288,7 +5288,7 @@
       }
     }
   },
-  "B2022.039": {
+  "B.20.22.039": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5303,7 +5303,7 @@
       }
     }
   },
-  "B2022.040": {
+  "B.20.22.040": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 2:1 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5318,7 +5318,7 @@
       }
     }
   },
-  "B2022.041": {
+  "B.20.22.041": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 1:2 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5333,7 +5333,7 @@
       }
     }
   },
-  "B2022.051": {
+  "B.20.22.051": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Full tempered, Details: 1/4 in. (6 mm) FT monolithic, 2-sided SSG, Center Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5348,7 +5348,7 @@
       }
     }
   },
-  "B2022.052": {
+  "B.20.22.052": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Full tempered, Details: 1/4 in. (6 mm) FT monolithic, 2-sided SSG, Outside Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5363,7 +5363,7 @@
       }
     }
   },
-  "B2022.053": {
+  "B.20.22.053": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Full tempered, Details: 1/4 in. (6 mm) FT monolithic, Seamed Edge; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5378,7 +5378,7 @@
       }
     }
   },
-  "B2022.054": {
+  "B.20.22.054": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Full tempered, Details: 1/4 in. (6 mm) FT monolithic, Polished Edge; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5393,7 +5393,7 @@
       }
     }
   },
-  "B2022.061": {
+  "B.20.22.061": {
     "Description": "Midrise stick-built curtain wall, Config: Monolithic, Lamination: Not laminated, Glass Type: Heat strengthened, Details: 1/4 in. (6 mm) HS monolithic; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5408,7 +5408,7 @@
       }
     }
   },
-  "B2022.071": {
+  "B.20.22.071": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) inner AN / 1/4 in. (6 mm) outer AN LAM (0.030 PVB) IGU; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5426,7 +5426,7 @@
       }
     }
   },
-  "B2022.072": {
+  "B.20.22.072": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) inner AN / 1/4 in. (6 mm) outer AN LAM (0.060 PVB) IGU; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5444,7 +5444,7 @@
       }
     }
   },
-  "B2022.081": {
+  "B.20.22.081": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Annealed, Details: 1 in. (25 mm) AN insulating glass unit (IGU) [1/4 in. (6 mm) inner and outer panes]; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5459,7 +5459,7 @@
       }
     }
   },
-  "B2022.082": {
+  "B.20.22.082": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Annealed, Details: 1 in. (25 mm) AN IGU [1/4 in. (6 mm) inner and outer panes]; glass-frame clearance = 0.25 in. (6 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5474,7 +5474,7 @@
       }
     }
   },
-  "B2022.083": {
+  "B.20.22.083": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Annealed, Details: 1 in. (25 mm) AN IGU [1/4 in. (6 mm) inner and outer panes], 2-sided SSG, Center Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5492,7 +5492,7 @@
       }
     }
   },
-  "B2022.084": {
+  "B.20.22.084": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Annealed, Details: 1 in. (25 mm) AN IGU [1/4 in. (6 mm) inner and outer panes], 2-sided SSG, Outside Panel; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = wet",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5510,7 +5510,7 @@
       }
     }
   },
-  "B2022.091": {
+  "B.20.22.091": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Full tempered, Details: 1 in. (25 mm) FT IGU [1/4 in. (6 mm) inner and outer panes]; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5528,7 +5528,7 @@
       }
     }
   },
-  "B2022.101": {
+  "B.20.22.101": {
     "Description": "Midrise stick-built curtain wall, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Heat strengthened, Details: 1 in. (25 mm) HS IGU [1/4 in. (6 mm) inner and outer panes]; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5546,7 +5546,7 @@
       }
     }
   },
-  "B2022.201": {
+  "B.20.22.201": {
     "Description": "Curtain Walls - Unitized curtain wall (also generic unitized curtain wall), Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Full tempered, Details: 1-1/4 in. (32 mm) FT IGU [1/4 in. (6 mm) inner and outer panes], 4-sided SSG, VHBTM SGTTM; glass-frame clearance = 0.43 in. (11 mm); aspect ratio = Varies sealant = wet",
     "Comments": "None\nNotes: Damage state DS3 of glass fall out did not occur in physical testing to 10% drift.  DS3 0.1 median demand is intentional.",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5564,7 +5564,7 @@
       }
     }
   },
-  "B2023.001": {
+  "B.20.23.001": {
     "Description": "Generic Storefront, Config: Monolithic, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown",
     "Comments": "None\nNotes: None  This component requires user specified cost and time consequence data.  Values within PACT are defaults (equal to zero) and do not represent actual consequence.",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5582,7 +5582,7 @@
       }
     }
   },
-  "B2023.002": {
+  "B.20.23.002": {
     "Description": "Generic Storefront, Config: IGU, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5600,7 +5600,7 @@
       }
     }
   },
-  "B2023.011": {
+  "B.20.23.011": {
     "Description": "Storefront, Config: Monolithic, Lamination: Laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN LAM (0.030 PVB); glass-frame clearance = 0.41 in. (10 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5618,7 +5618,7 @@
       }
     }
   },
-  "B2023.021": {
+  "B.20.23.021": {
     "Description": "Storefront, Config: Monolithic, Lamination: Not laminated, Glass Type: Annealed, Details: 1/4 in. (6 mm) AN monolithic; glass-frame clearance = 0.41 in. (10 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5636,7 +5636,7 @@
       }
     }
   },
-  "B2023.041": {
+  "B.20.23.041": {
     "Description": "Storefront, Config: Symmetric insulating glass units (dual-pane, equal-thickness IGU), Lamination: Not laminated, Glass Type: Annealed, Details: 1 in. (25 mm) AN IGU; glass-frame clearance = 0.59 in. (15 mm); aspect ratio = 6:5 sealant = dry",
     "Comments": "None",
     "SuggestedComponentBlockSize": "30 SF",
@@ -5654,7 +5654,7 @@
       }
     }
   },
-  "B3011.011": {
+  "B.30.11.011": {
     "Description": "Concrete tile roof, tiles secured and compliant with UBC94",
     "Comments": "Costing per roofing square (100 SF)\nConstruction Quality: Any\nSeismic Installation Conditions: Compliant with UBC 1994",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5669,7 +5669,7 @@
       }
     }
   },
-  "B3011.012": {
+  "B.30.11.012": {
     "Description": "Clay tile roof, tiles secured and compliant with UBC94",
     "Comments": "Costing per roofing square (100 SF)\nConstruction Quality: Any\nSeismic Installation Conditions: Compliant with UBC 1994",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5684,7 +5684,7 @@
       }
     }
   },
-  "B3011.013": {
+  "B.30.11.013": {
     "Description": "Concrete tile roof, unsecured tiles",
     "Comments": "Costing per roofing square (100 SF)\nConstruction Quality: Any\nSeismic Installation Conditions: Compliant with UBC 1994",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5699,7 +5699,7 @@
       }
     }
   },
-  "B3011.014": {
+  "B.30.11.014": {
     "Description": "Clay tile roof, unsecured tiles",
     "Comments": "Costing per roofing square (100 SF)\nConstruction Quality: Any\nSeismic Installation Conditions: Compliant with UBC 1994",
     "SuggestedComponentBlockSize": "100 SF",
@@ -5714,7 +5714,7 @@
       }
     }
   },
-  "B3031.001a": {
+  "B.30.31.001a": {
     "Description": "Masonry Chimney - unreinforced, non industrial, above roof 5 ft, replace with masonry",
     "Comments": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequent elevated floors.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5729,7 +5729,7 @@
       }
     }
   },
-  "B3031.001b": {
+  "B.30.31.001b": {
     "Description": "Masonry Chimney - unreinforced, non industrial, above roof 10 ft, replace with masonry",
     "Comments": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequent elevated floors.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5744,7 +5744,7 @@
       }
     }
   },
-  "B3031.001c": {
+  "B.30.31.001c": {
     "Description": "Masonry Chimney - unreinforced, non industrial, above roof 15 ft, replace with masonry",
     "Comments": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequent elevated floors.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5759,7 +5759,7 @@
       }
     }
   },
-  "B3031.002a": {
+  "B.30.31.002a": {
     "Description": "Masonry Chimney - unreinforced, non industrial, above roof 5 ft, replace with framing",
     "Comments": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequent elevated floors.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5774,7 +5774,7 @@
       }
     }
   },
-  "B3031.002b": {
+  "B.30.31.002b": {
     "Description": "Masonry Chimney - unreinforced, non industrial, above roof 10 ft, replace with framing",
     "Comments": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequent elevated floors.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5789,7 +5789,7 @@
       }
     }
   },
-  "B3031.002c": {
+  "B.30.31.002c": {
     "Description": "Masonry Chimney - unreinforced, non industrial, above roof 15 ft, replace with framing",
     "Comments": "Demand parameter shall be defined as the first floor peak floor acceleration.  Unreinforced masonry chimney as a component of wood frame buildings.  Includes firebox and chimney, excludes exterior veneer or ornamentation.  May include chimneys where the quality of reinforcing is unknown.  For multiple story buildings enter the chimney fragility once at the first floor, do not specify this fragility at subsequent elevated floors.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Rebuilding with masonry will restore the chimney to its pre-earthquake condition.  Some jurisdictions prohibit unreinforced reconstruction and require either replacement of the damaged portion of the chimney with a metal flue within wood frame chase or a complete removal of the existing fireplace and chimney with replacement with a code compliant reinforced masonry design.  \nToppled chimney may cause damage to adjacent structure.  ",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5804,7 +5804,7 @@
       }
     }
   },
-  "B3041.001": {
+  "B.30.41.001": {
     "Description": "Masonry Parapet - unreinforced, unbraced",
     "Comments": "Unreinforced and unbraced masonry parapet as a component of a masonry building.  Parapet height / width of approximately 3.  Costing based upon repair of 3ft tall x 10ft segment.\nConstruction Quality: Normal\nSeismic Installation Conditions: All",
     "SuggestedComponentBlockSize": "10 LF",
@@ -5819,7 +5819,7 @@
       }
     }
   },
-  "C2011.001a": {
+  "C.20.11.001a": {
     "Description": "Prefabricated steel stair with steel treads and landings with seismic joints that accommodate drift.",
     "Comments": "Flexible stair with seismic interstory slip joint.  Steel prefab stringers, steel or concrete filled pan treads.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5837,7 +5837,7 @@
       }
     }
   },
-  "C2011.001b": {
+  "C.20.11.001b": {
     "Description": "Prefabricated steel stair with steel treads and landings with no seismic joint.",
     "Comments": "Flexible stair without seismic interstory slip joint.  Steel prefab stringers, steel or concrete filled pan treads.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Confirm median demand and dispersion values",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5855,7 +5855,7 @@
       }
     }
   },
-  "C2011.011a": {
+  "C.20.11.011a": {
     "Description": "Non-monolithic precast concrete stair assembly with concrete stringers and treads with seismic joints that accommodate drift.",
     "Comments": "Rigid stair with seismic interstory drift joint.  Precast concrete stair.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5873,7 +5873,7 @@
       }
     }
   },
-  "C2011.011b": {
+  "C.20.11.011b": {
     "Description": "Non-monolithic precast concrete stair assembly with concrete stringers and treads with no seismic joint.",
     "Comments": "Rigid stair without seismic interstory drift joint.  Precast concrete stair.\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: Confirm median demand and dispersion values.  Base document noted that there was insufficient data to establish median demand or dispersion values.  The median demand and dispersion values listed are from a best fit approximation of the data performed by MKA.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5891,7 +5891,7 @@
       }
     }
   },
-  "C2011.021a": {
+  "C.20.11.021a": {
     "Description": "Monolithic cast-in-place and precast concrete stairs with seismic joints that accommodate drift - replace in kind if replacement is required.",
     "Comments": "Cast in place concrete stair, with seismic interstory drift joint\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5909,7 +5909,7 @@
       }
     }
   },
-  "C2011.021b": {
+  "C.20.11.021b": {
     "Description": "Monolithic cast-in-place and precast concrete stairs with no seismic joints - replace in kind if replacement is required.",
     "Comments": "Cast in place concrete stair, no seismic interstory drift joint\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5927,7 +5927,7 @@
       }
     }
   },
-  "C2011.021c": {
+  "C.20.11.021c": {
     "Description": "Monolithic cast-in-place and precast concrete stairs with seismic joints that accommodate drift - replace with prefabricated steel stair if replacement is required.",
     "Comments": "Cast in place concrete stair, with seismic interstory drift joint\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5945,7 +5945,7 @@
       }
     }
   },
-  "C2011.021d": {
+  "C.20.11.021d": {
     "Description": "Monolithic cast-in-place and precast concrete stairs with no seismic joints - replace with prefabricated steel stair if replacement is required.",
     "Comments": "Cast in place concrete stair, no seismic interstory drift joint\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5963,7 +5963,7 @@
       }
     }
   },
-  "C2011.031a": {
+  "C.20.11.031a": {
     "Description": "Hybrid stair assembly with steel stringers and concrete treads and landings with seismic joints that accommodate drift.",
     "Comments": "Stair consists of steel stringers with precast treads rigidly linked to stringer\nConstruction Quality: Normal\nSeismic Installation Conditions: All\nNotes: User to provide median demand and dispersion values.  The values listed are default PACT values and do not represent the response of this component.",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5981,7 +5981,7 @@
       }
     }
   },
-  "C2011.031b": {
+  "C.20.11.031b": {
     "Description": "Hybrid stair assembly with steel stringers and concrete treads and landings with no seismic joints.",
     "Comments": "Stair consists of steel stringers with precast treads rigidly linked to stringer\nConstruction Quality: Normal\nSeismic Installation Conditions: All",
     "SuggestedComponentBlockSize": "1 EA",
@@ -5999,7 +5999,7 @@
       }
     }
   },
-  "C3011.003a": {
+  "C.30.11.003a": {
     "Description": "Wall Partition, Type: High End Marble or Wood Panel, Full Height, Fixed Below, Fixed Above",
     "Comments": "Costing based upon 9'x100' Panels\nConstruction Quality: Normal",
     "SuggestedComponentBlockSize": "100 LF",
@@ -6014,7 +6014,7 @@
       }
     }
   },
-  "C3011.003b": {
+  "C.30.11.003b": {
     "Description": "Wall Partition, Type: High End Marble or Wood Panel, Partial Height, Fixed Below, Lateral Braced Above",
     "Comments": "Costing based upon 9'x100' Panels\nConstruction Quality: Normal",
     "SuggestedComponentBlockSize": "100 LF",
@@ -6029,7 +6029,7 @@
       }
     }
   },
-  "C3011.003c": {
+  "C.30.11.003c": {
     "Description": "Wall Partition, Type: High End Marble or Wood Panel, Full Height, Fixed Below, Slip Track Above w/ returns (friction connection)",
     "Comments": "Costing based upon 9'x100' Panels\nConstruction Quality: Normal",
     "SuggestedComponentBlockSize": "100 LF",
@@ -6044,7 +6044,7 @@
       }
     }
   },
-  "C3011.003d": {
+  "C.30.11.003d": {
     "Description": "Wall Partition, Type: High End Marble or Wood Panel, Full Height, Fixed Below, Slip Track Above w/o returns (friction connection)",
     "Comments": "Costing based upon 9'x100' Panels\nConstruction Quality: Normal",
     "SuggestedComponentBlockSize": "100 LF",
@@ -6059,7 +6059,7 @@
       }
     }
   },
-  "C3032.001d": {
+  "C.30.32.001d": {
     "Description": "Suspended Ceiling, SDC A,B,C, Area (A): A > 2500, Vert support only",
     "Comments": "Costing for each 2500 SF Unit, Suspended Lay-in Acoustic Tile Ceiling, Support:  Vertical hanging wires only.  Includes lighting fixtures in suspended ceiling.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A, B, or C",
     "SuggestedComponentBlockSize": "2500 SF",
@@ -6077,7 +6077,7 @@
       }
     }
   },
-  "C3032.003d": {
+  "C.30.32.003d": {
     "Description": "Suspended Ceiling, SDC D,E (Ip=1.0), Area (A): A > 2500, Vert & Lat support",
     "Comments": "Costing for each 2500 SF Unit, Suspended Lay-in Acoustic Tile Ceiling, Support:  Vertical hanging wire, diagonal wires, and compression posts, 2 inch wide ledger support angles at wall and oversize holes around tile openings.  Includes lighting fixtures in suspended ceiling.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D or E (Ip = 1.0)",
     "SuggestedComponentBlockSize": "2500 SF",
@@ -6095,7 +6095,7 @@
       }
     }
   },
-  "C3032.004d": {
+  "C.30.32.004d": {
     "Description": "Suspended Ceiling, SDC D,E,F (Ip=1.5), Area (A): A > 2500, Vert & Lat support",
     "Comments": "Costing for each 2500 SF Unit, Suspended Lay-in Acoustic Tile Ceiling, Support:  Vertical hanging wire, diagonal wires, and compression posts, 2 inch wide ledger support angles at wall and oversize holes around tile openings.  Includes lighting fixtures in suspended ceiling.\nConstruction Quality: Special Inspection (e.g. OSHPD)\nSeismic Installation Conditions: SDC D, E or F (Ip = 1.5)",
     "SuggestedComponentBlockSize": "2500 SF",

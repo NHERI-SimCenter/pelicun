@@ -66,7 +66,8 @@
         },
         "Calculation": {
             "DamageProcessFrom": "DMG_process_P58.json",
-            "SaveDamageSampleTo":"DMG_sample.csv"
+            "SaveDamageQNTSampleTo":"DMG_QNT_sample.csv",
+            "SaveDamageDSSampleTo":"DMG_DS_sample.csv"
         }
     },
     "LossAssessment": {
@@ -78,7 +79,8 @@
             "LoadSampleFrom": "CMP_sample.csv"
         },
         "Damage":{
-            "LoadSampleFrom": "DMG_sample.csv"
+            "LoadQNTSampleFrom": "DMG_QNT_sample.csv",
+            "LoadDSSampleFrom": "DMG_DS_sample.csv"
         },
         "CalculateBldgRepair": {
             "LoadMappingFrom": "LOSS_map.csv",
