@@ -2462,8 +2462,10 @@ class LossModel(PelicunModel):
                 dv_units.loc[(dv_type.upper(), cmp_id)] = cmp_units.loc[
                     (cmp_id, dv_type)]
 
-        res = save_to_csv(self.sample, filepath, units=dv_units,
-                          use_simpleindex=filepath is not None)
+        res = save_to_csv(
+            self.sample, filepath, units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=filepath is not None)
 
         if filepath is not None:
             self.log_msg('Loss sample successfully saved.',
