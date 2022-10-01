@@ -5,7 +5,7 @@ exclude pelicun/lab.py
 exclude pelicun/tests/EDP?data/EDP_table_test_H01.out
 exclude pelicun/tests/input?data/DL_input_test_FULL.json
 exclude pelicun/tests/input?data/DL_input_test_H01.json
-exclude pelicun/examples/tmp
-exclude pelicun/resources/auto_population
+exclude pelicun/examples/tmp/*.*
+exclude pelicun/resources/auto_population/*.*
 exclude pelicun/resources/damage_pipeline_EQ_SimCenter.csv
 exclude pelicun/resources/damage_pipeline_EQ_Hazus.csv
