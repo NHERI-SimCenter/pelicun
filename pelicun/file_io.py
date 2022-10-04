@@ -409,7 +409,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                             active_labels.append(label)
 
                     if len(active_labels) > 0:
-                        data.loc[active_labels, cols_to_scale] *= unit_factor
+                        data.loc[active_labels, cols_to_scale] *= unit_factor   # type: ignore
 
                 labels_to_keep += active_labels
 
@@ -553,7 +553,7 @@ def load_data(data_source, unit_conversion_factors,
                 data.loc[:, unit_labels] *= unit_factor
 
             else:  # elif orientation==1:
-                data.loc[unit_labels, cols_to_scale] *= unit_factor
+                data.loc[unit_labels, cols_to_scale] *= unit_factor # type: ignore
 
         if log: log.msg('Unit conversion successful.', prepend_timestamp=False)
 
@@ -661,23 +661,24 @@ def load_from_file(filepath, log=None):
 def parse_units(custom_file=None):
     """
     Parse the unit conversion factor JSON file and return a dictionary.
-
+    
     Parameters
     ----------
-    custom_file: str, optional
-        If a custom file is provided, only the units specified in the
-        custom file are used.
+    additional_file: str, optional
+        If an additional file is provided, the function loads the
+        default unit conversion factors and then overrides definitions
+        using the additional user-specified JSON file.
 
     Raises
     ------
-    KeyError
-        If a key is defined twice.
-    ValueError
+    KeyError:
+        If a key is defined twice in any parsed JSON file.
+    ValueError:
         If a unit conversion factor is not a float.
-    ValueError
-        If the file does not have the JSON format.
-    FileNotFoundError
-        If the file does not exist.
+    FileNotFoundError:
+        If a file does not exist.
+    Exception:
+        If a file does not have the JSON format.
     """
 
     def get_contents(file_path):
@@ -689,22 +690,20 @@ def parse_units(custom_file=None):
             raise FileNotFoundError(
                 f'{file_path} was not found.') from exc
         except json.decoder.JSONDecodeError as exc:
-            raise ValueError(
-                f'{file_path} is not a valid JSON file.') from exc
+            raise Exception(
+                'settings/default_units.json is not a valid JSON file.') from exc
         for category_dict in list(dictionary.values()):
-            # ensure all first-level keys point to a dictionary
-            if not isinstance(category_dict, dict):
-                raise ValueError(
-                    f'{file_path} contains first-level keys '
-                    'that don\'t point to a dictionary')
-            # convert values to float
             for key, val in category_dict.items():
                 try:
-                    category_dict[key] = float(val)
-                except (ValueError, TypeError) as exc:
+                    dictionary[key] = float(val)
+                except ValueError as exc:
                     raise ValueError(
                         f'Unit {key} has a value of {val} '
                         'which cannot be interpreted as a float') from exc
+            del(category_dict)
+            
+            
+        return dictionary
 
         flattened = {}
         for category in dictionary:
