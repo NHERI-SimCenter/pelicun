@@ -86,7 +86,7 @@ Note that 2.6.0 is the last minor version before the v3.0 release.
 
 * Substantial improvements in coding style using flake8 and pylint to monitor and help enforce PEP8.
 
-* Several performance improvements made calculations more efficient, especially for large problems, such as regional assessements or tall buildings investigated using the FEMA P-58 methodology.
+* Several performance improvements made calculations more efficient, especially for large problems, such as regional assessments or tall buildings investigated using the FEMA P-58 methodology.
 
 * Several bugfixes and a large number of minor changes that make the engine more robust and easier to use.
 
@@ -137,7 +137,7 @@ Note that 2.6.0 is the last minor version before the v3.0 release.
 
 `pelicun` is distributed under the BSD 3-Clause license, see LICENSE.
 
-## Acknowledgement
+## Acknowledgment
 
 This material is based upon work supported by the National Science Foundation under Grants No. 1612843 2131111. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 
