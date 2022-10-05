@@ -66,6 +66,7 @@ from .file_io import save_to_csv, load_data
 
 idx = base.idx
 
+
 class PelicunModel:
     """
     Generic model class to manage methods shared between all models in Pelicun.
@@ -81,7 +82,7 @@ class PelicunModel:
         # concise syntax
         self.log_msg = self._asmnt.log.msg
         self.log_div = self._asmnt.log.div
-        
+
     def convert_marginal_params(self, marginal_params, units, arg_units=None):
         """
         Converts the parameters of marginal distributions in a model
@@ -192,7 +193,8 @@ class PelicunModel:
 
                         # get the scale factor
                         arg_unit = arg_units.get(row_id)
-                        arg_unit_factor = self._asmnt.calc_unit_scale_factor(arg_unit)
+                        arg_unit_factor = (
+                            self._asmnt.calc_unit_scale_factor(arg_unit))
 
                         # perform the scaling
                         theta[a_i] = theta[a_i] / arg_unit_factor
@@ -214,7 +216,6 @@ class PelicunModel:
         marginal_params = marginal_params[original_cols]
 
         return marginal_params
-
 
 
 class DemandModel(PelicunModel):
@@ -1400,7 +1401,8 @@ class DamageModel(PelicunModel):
                             index=function_ids
                         )
                         f_df['scale_factor'] = [
-                            self._asmnt.calc_unit_scale_factor(unit_name) for unit_name
+                            self._asmnt.calc_unit_scale_factor(unit_name)
+                            for unit_name
                             in damage_params.loc[function_ids,
                                                  ('Demand', 'Unit')]]
 
@@ -2202,11 +2204,13 @@ class DamageModel(PelicunModel):
             # Get the units and scale factor for quantity conversion
             cmp_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Component', 'Unit')]
-            cmp_qnt_scale_factor = self._asmnt.calc_unit_scale_factor(cmp_qnt_unit_name)
+            cmp_qnt_scale_factor = (
+                self._asmnt.calc_unit_scale_factor(cmp_qnt_unit_name))
 
             dmg_qnt_unit_name = self.damage_params.loc[
                 cmp_id, ('Damage', 'Unit')]
-            dmg_qnt_scale_factor = self._asmnt.calc_unit_scale_factor(dmg_qnt_unit_name)
+            dmg_qnt_scale_factor = (
+                self._asmnt.calc_unit_scale_factor(dmg_qnt_unit_name))
 
             qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
 
@@ -2410,7 +2414,8 @@ class DamageModel(PelicunModel):
 
             self.log_msg("Applying damage functions...")
 
-            qnt_sample = self._apply_damage_functions(EDP_req, demand, qnt_sample)
+            qnt_sample = self._apply_damage_functions(
+                EDP_req, demand, qnt_sample)
 
             self.log_msg("Damage functions successfully applied.",
                          prepend_timestamp=False)
@@ -3165,7 +3170,8 @@ class BldgRepairModel(LossModel):
                             dmg_quantities.loc[
                                 :, (dmg_cmp_i, ds)].columns.unique(level=0)):
 
-                        if ((self._asmnt.options.eco_scale["AcrossFloors"] is True) and (
+                        if ((self._asmnt.options.eco_scale[
+                                "AcrossFloors"] is True) and (
                                 loc_id > 0)):
                             break
 

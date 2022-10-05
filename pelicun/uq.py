@@ -63,7 +63,6 @@ from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
 import numpy as np
 import pandas as pd
-from . import base
 
 
 def scale_distribution(scale_factor, family, theta, truncation_limits=None):

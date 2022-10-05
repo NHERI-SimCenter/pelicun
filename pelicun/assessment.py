@@ -77,11 +77,10 @@ class Assessment:
 
     def __init__(self, config_options=None):
 
-
         self.stories = None
 
         self.options = base.Options(config_options, self)
-        
+
         self.unit_conversion_factors = file_io.parse_units(
             self.options.units_file)
 
@@ -240,4 +239,3 @@ class Assessment:
             scale_factor = 1.0
 
         return scale_factor
-

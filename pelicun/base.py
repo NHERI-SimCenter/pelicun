@@ -88,7 +88,7 @@ class Options:
     Options objects store analysis options and the logging
     configuration. Calling the `set_options` method is required after
     initializing those objects.
-        
+
     Parameters
     ----------
 
@@ -137,7 +137,6 @@ class Options:
             merged_config_options['LogShowMS'],
             merged_config_options['LogFile'],
             merged_config_options['PrintLog'])
-        
 
     def nondir_multi(self, EDP_type):
 
@@ -149,6 +148,7 @@ class Options:
 
         raise ValueError(f"Scale factor for non-directional demand "
                          f"calculation of {EDP_type} not specified.")
+
     @property
     def seed(self):
         return self._seed
@@ -172,7 +172,6 @@ class Options:
         self._units_file = value
 
 
-
 class Logger:
 
     """
@@ -182,11 +181,11 @@ class Logger:
     Methods
     -------
     ...
-    
+
     Attributes
     ----------
     ...
-    
+
     """
     # TODO: finalize docstring
 
@@ -347,7 +346,7 @@ class Logger:
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
 
-                    
+
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
@@ -479,7 +478,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     return data
 
 
-
 # print a matrix in a nice way using a DataFrame
 def show_matrix(data, use_describe=False):
     if use_describe:
@@ -508,8 +506,6 @@ def _warning(message, category, filename, lineno, file=None, line=None):
 
 
 warnings.showwarning = _warning
-
-
 
 
 def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,

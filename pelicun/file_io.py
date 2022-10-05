@@ -225,8 +225,8 @@ def merge_default_config(user_config):
     Merge the user-specified config with the configuration defined in
     the default_config.json file. User-specified values override
     default ones.
-    
-    Parameters. 
+
+    Parameters.
     ----------
     user_config: dict
         User-specified configuration dictionary
@@ -238,7 +238,7 @@ def merge_default_config(user_config):
     """
 
     config = load_default_options()  # start from the default config
-    
+
     if user_config is not None:
 
         # We update the default config with the values provided in the
@@ -341,7 +341,6 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
         If units is not None but unit_conversion_factors is None
     ValueError:
         If writing to a file fails.
-    
     """
 
     def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
@@ -367,7 +366,8 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
             if unit_conversion_factors is None:
                 raise ValueError(
-                    'When units is not None, unit_conversion_factors must be provided')
+                    'When units is not None, '
+                    'unit_conversion_factors must be provided')
 
             log_msg('Converting units...', prepend_timestamp=False)
 
@@ -400,7 +400,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                             active_labels.append(label)
 
                     if len(active_labels) > 0:
-                        data.loc[active_labels, cols_to_scale] *= unit_factor   # type: ignore
+                        data.loc[active_labels, cols_to_scale] *= unit_factor
 
                 labels_to_keep += active_labels
 
@@ -433,7 +433,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                 data.to_csv(filepath)
 
                 log_msg('Data successfully saved to file.',
-                             prepend_timestamp=False)
+                        prepend_timestamp=False)
 
             else:
                 raise ValueError(
@@ -552,7 +552,7 @@ def load_data(data_source, unit_conversion_factors,
                 data.loc[:, unit_labels] *= unit_factor
 
             else:  # elif orientation==1:
-                data.loc[unit_labels, cols_to_scale] *= unit_factor # type: ignore
+                data.loc[unit_labels, cols_to_scale] *= unit_factor
 
         log_msg('Unit conversion successful.', prepend_timestamp=False)
 
@@ -656,10 +656,11 @@ def load_from_file(filepath, log_msg_method=None):
 
     return data
 
+
 def parse_units(additional_file=None):
     """
     Parse the unit conversion factor JSON file and return a dictionary.
-    
+
     Parameters
     ----------
     additional_file: str, optional
@@ -684,8 +685,8 @@ def parse_units(additional_file=None):
             dictionary[key] = value
         else:
             raise KeyError(f'Unit {key} is defined twice in {file_path}\n'
-               'Please check the file and make sure '
-               'that unit conversion factors are only defined once.')
+                           'Please check the file and make sure '
+                           'that unit conversion factors are only defined once.')
 
     def get_contents(file_path):
         try:
@@ -705,9 +706,7 @@ def parse_units(additional_file=None):
                     raise ValueError(
                         f'Unit {key} has a value of {val} '
                         'which cannot be interpreted as a float') from exc
-            del(category_dict)
-            
-            
+            del (category_dict)
         return dictionary
 
     ucf_init = get_contents(base.pelicun_path / "settings/default_units.json")
