@@ -100,7 +100,6 @@ class Assessment:
         self.log.print_system_info()
 
         self.log.div()
-
         self.log.msg('Assessment Started')
 
     @property
