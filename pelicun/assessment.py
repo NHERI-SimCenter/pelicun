@@ -93,7 +93,7 @@ class Assessment:
         self.log.print_system_info()
 
         self.log.div()
-        self.log.msg('Assessement Started')
+        self.log.msg('Assessment Started')
 
     @property
     def demand(self):

@@ -84,7 +84,7 @@ class PelicunModel:
         
     def convert_marginal_params(self, marginal_params, units, arg_units=None):
         """
-        Converts the paremeters of marginal distributions in a model
+        Converts the parameters of marginal distributions in a model
 
         Parameters
         ----------
@@ -3039,7 +3039,7 @@ class BldgRepairModel(LossModel):
 
         Parameters
         ----------
-        dmg_quantitites: DataFrame
+        dmg_quantities: DataFrame
             A table with the quantity of damage experienced in each damage state
             of each performance group at each location and direction. You can use
             the prepare_dmg_quantities method in the DamageModel to get such a
