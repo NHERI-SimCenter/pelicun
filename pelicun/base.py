@@ -564,7 +564,7 @@ class Logger:
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
 
-                    
+
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 

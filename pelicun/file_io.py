@@ -409,7 +409,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                             active_labels.append(label)
 
                     if len(active_labels) > 0:
-                        data.loc[active_labels, cols_to_scale] *= unit_factor   # type: ignore
+                        data.loc[active_labels, cols_to_scale] *= unit_factor
 
                 labels_to_keep += active_labels
 
@@ -553,7 +553,7 @@ def load_data(data_source, unit_conversion_factors,
                 data.loc[:, unit_labels] *= unit_factor
 
             else:  # elif orientation==1:
-                data.loc[unit_labels, cols_to_scale] *= unit_factor # type: ignore
+                data.loc[unit_labels, cols_to_scale] *= unit_factor
 
         if log: log.msg('Unit conversion successful.', prepend_timestamp=False)
 
@@ -661,7 +661,7 @@ def load_from_file(filepath, log=None):
 def parse_units(custom_file=None):
     """
     Parse the unit conversion factor JSON file and return a dictionary.
-    
+
     Parameters
     ----------
     additional_file: str, optional
@@ -700,9 +700,7 @@ def parse_units(custom_file=None):
                     raise ValueError(
                         f'Unit {key} has a value of {val} '
                         'which cannot be interpreted as a float') from exc
-            del(category_dict)
-            
-            
+            del (category_dict)
         return dictionary
 
         flattened = {}
