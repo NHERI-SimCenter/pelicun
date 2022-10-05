@@ -74,8 +74,14 @@ class PelicunModel:
 
     def __init__(self, assessment):
 
+        # link the PelicunModel object to its Assessment object
         self._asmnt = assessment
 
+        # link logging methods as attributes enabling more
+        # concise syntax
+        self.log_msg = self._asmnt.log.msg
+        self.log_div = self._asmnt.log.div
+        
     def convert_marginal_params(self, marginal_params, units, arg_units=None):
         """
         Converts the paremeters of marginal distributions in a model
@@ -209,11 +215,6 @@ class PelicunModel:
 
         return marginal_params
 
-    def log_msg(self, msg='', prepend_timestamp=True, prepend_blank_space=True):
-        self._asmnt.log_msg(msg, prepend_timestamp, prepend_blank_space)
-
-    def log_div(self, prepend_timestamp=False):
-        self._asmnt.log_div(prepend_timestamp)
 
 
 class DemandModel(PelicunModel):
@@ -332,7 +333,7 @@ class DemandModel(PelicunModel):
             # currently not used. We remove it if it was in the raw data.
             if old_MI.nlevels == 4:
 
-                if self._asmnt.options.verbose:
+                if self._asmnt.log.verbose:
                     self.log_msg('Removing event_ID from header...',
                                  prepend_timestamp=False)
 
@@ -345,7 +346,7 @@ class DemandModel(PelicunModel):
 
             # Remove whitespace to avoid ambiguity
 
-            if self._asmnt.options.verbose:
+            if self._asmnt.log.verbose:
                 self.log_msg('Removing whitespace from header...',
                              prepend_timestamp=False)
 
@@ -573,7 +574,7 @@ class DemandModel(PelicunModel):
             if demand_type != 'ALL':
                 parse_settings(config[demand_type], demand_type)
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg(
                 "\nCalibration settings successfully parsed:\n"+str(cal_df),
                 prepend_timestamp=False)
@@ -643,7 +644,7 @@ class DemandModel(PelicunModel):
         # and the calibration settings
         cal_df = cal_df.drop(empirical_edps, axis=0)
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg("\nDemand data used for calibration:\n"+str(demand_sample),
                          prepend_timestamp=False)
 
@@ -1471,7 +1472,7 @@ class DamageModel(PelicunModel):
 
             return ds_id
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Generating capacity variables ...',
                          prepend_timestamp=True)
 
@@ -1679,7 +1680,7 @@ class DamageModel(PelicunModel):
 
                             ds_id = ds_id_next
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg(f"2x{rv_count} random variables created.",
                          prepend_timestamp=False)
 
@@ -1695,7 +1696,7 @@ class DamageModel(PelicunModel):
 
         capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB)
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Sampling capacities...',
                          prepend_timestamp=True)
 
@@ -1705,7 +1706,7 @@ class DamageModel(PelicunModel):
         lsds_RVs.generate_sample(
             sample_size=sample_size, method=self._asmnt.options.sampling_method)
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg("Raw samples are available",
                          prepend_timestamp=True)
 
@@ -1718,7 +1719,7 @@ class DamageModel(PelicunModel):
             lsds_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1).astype(int)
         lsds_sample = base.convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg(f"Successfully generated {sample_size} realizations.",
                          prepend_timestamp=True)
 
@@ -1733,7 +1734,7 @@ class DamageModel(PelicunModel):
         """
         DP = self.damage_params
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Collecting required demand information...',
                          prepend_timestamp=True)
 
@@ -1784,7 +1785,7 @@ class DamageModel(PelicunModel):
 
     def _assemble_required_demand_data(self, EDP_req):
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Assembling demand data for calculation...',
                          prepend_timestamp=True)
 
@@ -1844,7 +1845,7 @@ class DamageModel(PelicunModel):
             Assigns a Damage State to each component block in the asset model.
         """
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Evaluating damage states...', prepend_timestamp=True)
 
         dmg_eval = pd.DataFrame(columns=capacity_sample.columns,
@@ -1927,7 +1928,7 @@ class DamageModel(PelicunModel):
 
         """
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Calculating damage quantities...',
                          prepend_timestamp=True)
 
@@ -2003,7 +2004,7 @@ class DamageModel(PelicunModel):
 
         """
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Applying task...',
                          prepend_timestamp=True)
 
@@ -2142,7 +2143,7 @@ class DamageModel(PelicunModel):
                     raise ValueError(f"Unable to parse target event in damage "
                                      f"process: {target_event}")
 
-        if self._asmnt.options.verbose:
+        if self._asmnt.log.verbose:
             self.log_msg('Damage process task successfully applied.',
                          prepend_timestamp=False)
 

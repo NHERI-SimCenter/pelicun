@@ -68,6 +68,7 @@ import argparse
 import pprint
 import numpy as np
 import pandas as pd
+from . import file_io
 
 
 # set printing options
@@ -84,9 +85,10 @@ idx = pd.IndexSlice
 class Options:
 
     """
-    Options objects store analysis options and the logging configuration.
-    They are assessment-specific.
-    
+    Options objects store analysis options and the logging
+    configuration. Calling the `set_options` method is required after
+    initializing those objects.
+        
     Parameters
     ----------
 
@@ -96,26 +98,46 @@ class Options:
     log_show_ms: boolean
         If True, the timestamps in the log file are in microsecond precision.
     """
+    # TODO update this docstring
 
-    def __init__(self, assessment):
+    def __init__(self, user_config_options, assessment=None):
+        """
+        Initializes an Options object.
+
+        Parameters
+        ----------
+        user_config_options: dict, Optional
+            User-specified configuration dictionary. Any provided
+            user_config_options override the defaults.
+        assessment: Assessment, Optional
+            Assessment object that will be using this Options
+            object. If it is not intended to use this Options object
+            for an Assessment (e.g. defining an Options object for UQ
+            use), this value should be None.
+        """
 
         self._asmnt = assessment
-
-        self._verbose = False
-        self._log_show_ms = False
-        self._print_log = False
-        self._log_file = None
-
-        self.defaults = None
-        self.sampling_method = None
-
-        self._seed = None
         self._rng = np.random.default_rng()
+        merged_config_options = file_io.merge_default_config(
+            user_config_options)
 
-        self.reset_log_strings()
+        self._seed = merged_config_options['Seed']
+        self.sampling_method = merged_config_options['SamplingMethod']
 
-        self.demand_offset = {}
-        self.nondir_multi_dict = {}
+        self.units_file = merged_config_options['UnitsFile']
+
+        self.demand_offset = merged_config_options['DemandOffset']
+        self.nondir_multi_dict = merged_config_options['NonDirectionalMultipliers']
+        self.rho_cost_time = merged_config_options['RepairCostAndTimeCorrelation']
+        self.eco_scale = merged_config_options['EconomiesOfScale']
+
+        # instantiate a Logger object with the finalized configuration
+        self.log = Logger(
+            merged_config_options['Verbose'],
+            merged_config_options['LogShowMS'],
+            merged_config_options['LogFile'],
+            merged_config_options['PrintLog'])
+        
 
     def nondir_multi(self, EDP_type):
 
@@ -127,6 +149,61 @@ class Options:
 
         raise ValueError(f"Scale factor for non-directional demand "
                          f"calculation of {EDP_type} not specified.")
+    @property
+    def seed(self):
+        return self._seed
+
+    @seed.setter
+    def seed(self, value):
+        self._seed = value
+
+        self._rng = np.random.default_rng(self._seed)
+
+    @property
+    def rng(self):
+        return self._rng
+
+    @property
+    def units_file(self):
+        return self._units_file
+
+    @units_file.setter
+    def units_file(self, value):
+        self._units_file = value
+
+
+
+class Logger:
+
+    """
+    Logger objects are used to generate log files documenting
+    execution events and related messages.
+
+    Methods
+    -------
+    ...
+    
+    Attributes
+    ----------
+    ...
+    
+    """
+    # TODO: finalize docstring
+
+    def __init__(self, verbose, log_show_ms, log_file, print_log):
+        """
+        Initializes a Logger object.
+
+        Parameters
+        ----------
+        options_obj: Options
+            Options object. See the Options class.
+        """
+        self.verbose = verbose
+        self.log_show_ms = log_show_ms
+        self.log_file = log_file
+        self.print_log = print_log
+        self.reset_log_strings()
 
     @property
     def verbose(self):
@@ -159,20 +236,6 @@ class Options:
         return self._log_time_format
 
     @property
-    def seed(self):
-        return self._seed
-
-    @seed.setter
-    def seed(self, value):
-        self._seed = value
-
-        self._rng = np.random.default_rng(self._seed)
-
-    @property
-    def rng(self):
-        return self._rng
-
-    @property
     def log_file(self):
         return self._log_file
 
@@ -201,14 +264,6 @@ class Options:
                 raise
 
     @property
-    def units_file(self):
-        return self._units_file
-
-    @units_file.setter
-    def units_file(self, value):
-        self._units_file = value
-
-    @property
     def print_log(self):
         return self._print_log
 
@@ -229,35 +284,70 @@ class Options:
             self._log_pref = ' ' * 9
             self._log_div = '-' * (80 - 10)
 
-    def set_options(self, config_options):
+    def msg(self, msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Writes a message in the log file with the current time as prefix
 
-        if config_options is not None:
+        The time is in ISO-8601 format, e.g. 2018-06-16T20:24:04Z
 
-            for key, value in config_options.items():
+        Parameters
+        ----------
+        msg: string
+           Message to print.
 
-                if key == "Verbose":
-                    self.verbose = value
-                elif key == "Seed":
-                    self.seed = value
-                elif key == "LogShowMS":
-                    self.log_show_ms = value
-                elif key == "LogFile":
-                    self.log_file = value
-                elif key == "UnitsFile":
-                    self.units_file = value
-                elif key == "PrintLog":
-                    self.print_log = value
-                elif key == "SamplingMethod":
-                    self.sampling_method = value
-                elif key == "DemandOffset":
-                    self.demand_offset = value
-                elif key == "NonDirectionalMultipliers":
-                    self.nondir_multi_dict = value
-                elif key == "RepairCostAndTimeCorrelation":
-                    self.rho_cost_time = value
-                elif key == "EconomiesOfScale":
-                    self.eco_scale = value
+        """
+        # TODO update this docstring
 
+        # pylint: disable = consider-using-f-string
+        msg_lines = msg.split('\n')
+
+        for msg_i, msg_line in enumerate(msg_lines):
+
+            if (prepend_timestamp and (msg_i == 0)):
+                formatted_msg = '{} {}'.format(
+                    datetime.now().strftime(self.log_time_format), msg_line)
+            elif prepend_timestamp:
+                formatted_msg = self.log_pref + msg_line
+            elif prepend_blank_space:
+                formatted_msg = self.log_pref + msg_line
+            else:
+                formatted_msg = msg_line
+
+            if self.print_log:
+                print(formatted_msg)
+
+            if self.log_file is not None:
+                with open(self.log_file, 'a', encoding='utf-8') as f:
+                    f.write('\n'+formatted_msg)
+
+    def div(self, prepend_timestamp=False):
+        """
+        Adds a divider line in the log file
+        """
+
+        if prepend_timestamp:
+            msg = self.log_div
+        else:
+            msg = '-' * 80
+        self.msg(msg, prepend_timestamp=prepend_timestamp)
+
+    def print_system_info(self):
+        """
+        Writes system information in the log.
+        """
+
+        self.msg(
+            'System Information:',
+            prepend_timestamp=False, prepend_blank_space=False)
+        self.msg(
+            f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+            f'python: {sys.version}\n'
+            f'numpy: {np.__version__}\n'
+            f'pandas: {pd.__version__}\n',
+            prepend_timestamp=False)
+
+                    
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
@@ -420,22 +510,6 @@ def _warning(message, category, filename, lineno, file=None, line=None):
 warnings.showwarning = _warning
 
 
-def show_warning(warning_msg):
-    warnings.warn(UserWarning(warning_msg))
-
-
-def print_system_info(assessment):
-
-    assessment.log_msg(
-        'System Information:',
-        prepend_timestamp=False, prepend_blank_space=False)
-    assessment.log_msg(
-        f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
-        f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
-        f'python: {sys.version}\n'
-        f'numpy: {np.__version__}\n'
-        f'pandas: {pd.__version__}\n',
-        prepend_timestamp=False)
 
 
 def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,

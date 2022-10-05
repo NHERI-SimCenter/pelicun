@@ -202,7 +202,7 @@ def get_required_resources(input_path, assessment_type):
     return resources
 
 
-def load_default_options(options_object):
+def load_default_options():
     """
     Load the default_config.json file to set options to default values
 
@@ -214,72 +214,78 @@ def load_default_options(options_object):
 
     with open(base.pelicun_path / "settings/default_config.json",
               'r', encoding='utf-8') as f:
-        options_object.defaults = json.load(f)
+        default_config = json.load(f)
 
-    options_object.set_options(options_object.defaults.get('Options', None))
+    default_options = default_config['Options']
+    return default_options
 
 
-def merge_default_config(config, options_object):
+def merge_default_config(user_config):
     """
-    Merge the default_config.json file with the user specified config
-    file.
-    Parameters
+    Merge the user-specified config with the configuration defined in
+    the default_config.json file. User-specified values override
+    default ones.
+    
+    Parameters. 
     ----------
-    options_object: Options
-        Options object to be modified.
+    user_config: dict
+        User-specified configuration dictionary
+
+    Returns
+    -------
+    user_config: dict
+        Merged configuration dictionary
     """
 
-    defaults = options_object.defaults
+    config = load_default_options()  # start from the default config
+    
+    if user_config is not None:
 
-    if config is not None:
+        # We update the default config with the values provided in the
+        # user config.  The user config can't contain any keys that
+        # are not in the default config.
+        # We use a recursive function to handle nesting.
 
-        if config.get('DemandAssessment', False):
+        def update_vals(primary, update):
+            """
+            Updates the values of the `primary` nested dictionary with
+            those provided in the `update` nested dictionary. Assumes
+            that all keys of `update` exist in `primary` (`primary` is not
+            expanded with new keys), otherwise a KeyError is raised.
 
-            demand_def = defaults['DemandAssessment']
-            demand_config = config['DemandAssessment']
+            Parameters
+            ----------
+            primary: dict
+                Dictionary -which can contain nested dictionaries- to
+                be updated based on the values of `update`.
+            update: dict
+                Dictionary -which can contain nested dictionaries- to
+                be used to update the values of `primary`.
 
-            if 'Calibration' in demand_config.keys():
+            Raises
+            ------
+            KeyError: If any key of `update` does not exist in
+            `primary`.
+            KeyError: If update[key] is dict but primary[key] is not.
+            KeyError: If primary[key] is dict but update[key] is not.
+            """
+            for key in update:
+                if key not in primary:
+                    raise KeyError(f'Key {key} is invalid.')
+                if isinstance(update[key], dict):
+                    if not isinstance(primary[key], dict):
+                        raise KeyError(f'primary[{key}] should be a dictionary.')
+                    update_vals(primary[key], update[key])
+                else:
+                    # update[key] is not a dictionary
+                    if isinstance(primary[key], dict):
+                        raise KeyError(f'primary[{key}] should not be a dictionary.')
+                    # finally! update the value
+                    primary[key] = update[key]
 
-                calib_config = demand_config['Calibration']
-                calib_def = demand_def['Calibration']
-
-                for key, value in calib_def.items():
-
-                    if key in {'Marginals', }:
-                        continue
-
-                    if key not in calib_def:
-                        calib_def.update({key: value})
-
-                marginal_config = calib_config['Marginals']
-                marginal_def = calib_def['Marginals']
-
-                for key, value in marginal_def.items():
-
-                    if key not in marginal_config:
-                        marginal_config.update({key: value})
-
-            if 'Sampling' in demand_config.keys():
-
-                sample_config = demand_config['Sampling']
-
-                for key, value in demand_def['Sampling'].items():
-
-                    if key not in sample_config:
-                        sample_config.update({key: value})
-
-            if 'OutputUnits' in demand_def.keys():
-
-                if 'OutputUnits' not in demand_config.keys():
-                    demand_config.update({'OutputUnits': {}})
-
-                for key, value in demand_def['OutputUnits'].items():
-
-                    if key not in demand_config['OutputUnits']:
-                        demand_config['OutputUnits'].update({key: value})
-
-    else:
-        config = defaults
+        # perform the updating operation
+        update_vals(config, user_config)
+        # config is now updated with the user-specified configuration
 
     return config
 
