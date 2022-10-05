@@ -2100,6 +2100,7 @@ class DamageModel(PelicunModel):
 
         # Log a message indicating that damage states are being
         # evaluated
+
         if self._asmnt.log.verbose:
             self.log_msg('Evaluating damage states...', prepend_timestamp=True)
 
