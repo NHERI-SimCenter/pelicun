@@ -105,11 +105,11 @@ damage_processes = {
 default_DBs = {
     'fragility': {
         'FEMA P-58': 'fragility_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'fragility_DB_HAZUS_EQ.csv'
+        'Hazus Earthquake': 'fragility_DB_Hazus_EQ.csv'
     },
     'repair': {
         'FEMA P-58': 'bldg_repair_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'bldg_repair_DB_HAZUS_EQ.csv'
+        'Hazus Earthquake': 'bldg_repair_DB_Hazus_EQ.csv'
     }
 
 }
