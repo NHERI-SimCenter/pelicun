@@ -58,6 +58,7 @@ This module has classes and methods that handle file input and output.
 """
 
 import json
+import warnings
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -382,7 +383,10 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
                 labels = units.loc[units == unit_name].index.values
 
-                unit_factor = 1./unit_conversion_factors[unit_name]
+                with warnings.catch_warnings():
+                    warnings.simplefilter(
+                        action='ignore', category=FutureWarning)
+                    unit_factor = 1./unit_conversion_factors[unit_name]
 
                 active_labels = []
 
@@ -392,7 +396,10 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                             active_labels.append(label)
 
                     if len(active_labels) > 0:
-                        data.loc[:, active_labels] *= unit_factor
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                action='ignore', category=FutureWarning)
+                            data.loc[:, active_labels] *= unit_factor
 
                 else:  # elif orientation == 1:
                     for label in labels:
@@ -400,7 +407,10 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                             active_labels.append(label)
 
                     if len(active_labels) > 0:
-                        data.loc[active_labels, cols_to_scale] *= unit_factor
+                        with warnings.catch_warnings():
+                            warnings.simplefilter(
+                                action='ignore', category=FutureWarning)
+                            data.loc[active_labels, cols_to_scale] *= unit_factor
 
                 labels_to_keep += active_labels
 
@@ -549,10 +559,16 @@ def load_data(data_source, unit_conversion_factors,
             unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
-                data.loc[:, unit_labels] *= unit_factor
+                with warnings.catch_warnings():
+                    warnings.simplefilter(
+                        action='ignore', category=FutureWarning)
+                    data.loc[:, unit_labels] *= unit_factor
 
             else:  # elif orientation==1:
-                data.loc[unit_labels, cols_to_scale] *= unit_factor
+                with warnings.catch_warnings():
+                    warnings.simplefilter(
+                        action='ignore', category=FutureWarning)
+                    data.loc[unit_labels, cols_to_scale] *= unit_factor
 
         log_msg('Unit conversion successful.', prepend_timestamp=False)
 
@@ -568,9 +584,10 @@ def load_data(data_source, unit_conversion_factors,
         else:
             for col in data.columns:
                 try:
-                    data.loc[:, col] = data.loc[:, col].astype(float)
-                except:
+                    data[col] = data[col].astype(float)
+                except ValueError:
                     pass
+
 
     # convert column to MultiIndex if needed
     data = base.convert_to_MultiIndex(data, axis=1)
