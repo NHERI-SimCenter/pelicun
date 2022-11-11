@@ -248,7 +248,7 @@ def run_pelicun(config_path):
     #    log_msg("Output configuration missing. Terminating analysis.")
     #    return -1
 
-    # initialize the Pelicun Assessement
+    # initialize the Pelicun Assessment
     options = DL_config.get("Options", {})
     options.update({
         "LogFile": "pelicun_log.txt",

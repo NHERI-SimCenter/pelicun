@@ -109,7 +109,7 @@ class Options:
         Demand offsets are used in the process of mapping a component
         location to its associated EDP. This allows components that
         are sensitive to EDPs of different levels to be specified as
-        present at the same location (e.g. think of desctop computer
+        present at the same location (e.g. think of desktop computer
         and suspended ceiling, both at the same story). Each
         component's offset value is specified in the component
         fragility database. This setting applies a supplemental global
