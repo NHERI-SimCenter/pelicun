@@ -31,7 +31,7 @@ load-plugins=
     pylint.extensions.typing,
     pylint.extensions.redefined_variable_type,
     pylint.extensions.comparison_placement,
-    # pylint.extensions.docparams,
+    pylint.extensions.docparams,
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -94,7 +94,8 @@ enable=
 disable=
     attribute-defined-outside-init,
     invalid-name,
-    missing-docstring,
+    missing-param-doc,
+    missing-type-doc,
     protected-access,
     too-few-public-methods,
     # handled by black

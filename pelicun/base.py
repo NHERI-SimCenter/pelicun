@@ -86,19 +86,69 @@ class Options:
 
     """
     Options objects store analysis options and the logging
-    configuration. Calling the `set_options` method is required after
-    initializing those objects.
+    configuration.
 
-    Parameters
+    Attributes
     ----------
+    sampling_method: str
+        Sampling method to use. Specified in the user's configuration
+        dictionary, otherwise left as provided in the default configuration
+        file (see settings/default_config.json in the pelicun source
+        code). Can be any of ['LHS', 'LHS_midpoint',
+        'MonteCarlo']. The default is 'LHS'.
+    units_file: str
+        Location of a user-specified units file, which should contain
+        the names of supported units and their conversion factors (the
+        value some quantity of a given unit needs to be multiplied to
+        be expressed in the base units). Value specified in the user
+        configuration dictionary. Pelicun comes with a set of default
+        units which are always loaded (see settings/default_units.json
+        in the pelicun source code). Units specified in the units_file
+        overwrite the default units.
+    demand_offset: dict
+        Demand offsets are used in the process of mapping a component
+        location to its associated EDP. This allows components that
+        are sensitive to EDPs of different levels to be specified as
+        present at the same location (e.g. think of desctop computer
+        and suspended ceiling, both at the same story). Each
+        component's offset value is specified in the component
+        fragility database. This setting applies a supplemental global
+        offset to specific EDP types. The value is specified in the
+        user's configuration dictionary, otherwise left as provided in
+        the default configuration file (see
+        settings/default_config.json in the pelicun source code).
+    nondir_multi_dict: dict
+        Nondirectional components are sensitive to demands coming in
+        any direction. Results are typically available in two
+        orthogonal directions. FEMA P-58 suggests using the formula
+        `max(dir_1, dir_2) * 1.2` to estimate the demand for such
+        components. This parameter allows modifying the 1.2 multiplier
+        with a user-specified value. The change can be applied to
+        "ALL" EDPs, or for specific EDPs, such as "PFA", "PFV",
+        etc. The value is specified in the user's configuration
+        dictionary, otherwise left as provided in the default
+        configuration file (see settings/default_config.json in the
+        pelicun source code).
+    rho_cost_time: float
+        Specifies the correlation between the repair cost and repair
+        time consequences. The value is specified in the user's
+        configuration dictionary, otherwise left as provided in the
+        default configuration file (see
+        "RepairCostAndTimeCorrelation") (see
+        settings/default_config.json in the pelicun source code).
+    eco_scale: dict
+        Controls how the effects of economies of scale are handled in
+        the damaged component quantity aggregation for loss measure
+        estimation. The dictionary is specified in the user's
+        configuration dictionary, otherwise left as provided in the
+        default configuration file (see settings/default_config.json
+        in the pelicun source code).
+    log: Logger
+        Logger object. Configuration parameters coming from the user's
+        configuration dictionary or the default configuration file
+        control logging behavior. See Logger class.
 
-    verbose: boolean
-        If True, the pelicun echoes more information throughout the assessment.
-        This can be useful for debugging purposes.
-    log_show_ms: boolean
-        If True, the timestamps in the log file are in microsecond precision.
     """
-    # TODO update this docstring
 
     def __init__(self, user_config_options, assessment=None):
         """
@@ -139,6 +189,25 @@ class Options:
             merged_config_options['PrintLog'])
 
     def nondir_multi(self, EDP_type):
+        """
+        Returns the multiplicative factor used in nondirectional
+        component demand generation. Read the description of the
+        nondir_multi_dict attribute of the Options class.
+
+        Parameters
+        ----------
+        EDP_type: str
+            EDP type (e.g. "PFA", "PFV", ..., "ALL")
+
+        Raises
+        ------
+        ValueError
+            If the specified EDP type is not present in the
+            dictionary.  If this is the case, a value for that type
+            needs to be specified in the user's configuration
+            dictionary, under ['Options']['NonDirectionalMultipliers']
+            = {"edp_type": value, ...}
+        """
 
         if EDP_type in self.nondir_multi_dict:
             return self.nondir_multi_dict[EDP_type]
@@ -146,29 +215,47 @@ class Options:
         if 'ALL' in self.nondir_multi_dict:
             return self.nondir_multi_dict['ALL']
 
-        raise ValueError(f"Scale factor for non-directional demand "
-                         f"calculation of {EDP_type} not specified.")
+        raise ValueError(
+            f"Peak orthogonal EDP multiplier for non-directional demand "
+            f"calculation of {EDP_type} not specified.\n"
+            f"Please add {EDP_type} in the configuration dictionary "
+            f"under ['Options']['NonDirectionalMultipliers']"
+            " = {{'edp_type': value, ...}}")
 
     @property
     def seed(self):
+        """
+        seed property
+        """
         return self._seed
 
     @seed.setter
     def seed(self, value):
+        """
+        seed property setter
+        """
         self._seed = value
-
         self._rng = np.random.default_rng(self._seed)
 
     @property
     def rng(self):
+        """
+        rng property
+        """
         return self._rng
 
     @property
     def units_file(self):
+        """
+        units file property
+        """
         return self._units_file
 
     @units_file.setter
     def units_file(self, value):
+        """
+        units file property setter
+        """
         self._units_file = value
 
 
@@ -178,13 +265,30 @@ class Logger:
     Logger objects are used to generate log files documenting
     execution events and related messages.
 
-    Methods
-    -------
-    ...
-
     Attributes
     ----------
-    ...
+    verbose: bool
+        If True, the pelicun echoes more information throughout the
+        assessment.  This can be useful for debugging purposes. The
+        value is specified in the user's configuration dictionary,
+        otherwise left as provided in the default configuration file
+        (see settings/default_config.json in the pelicun source code).
+    log_show_ms: bool
+        If True, the timestamps in the log file are in microsecond
+        precision. The value is specified in the user's configuration
+        dictionary, otherwise left as provided in the default
+        configuration file (see settings/default_config.json in the
+        pelicun source code).
+    log_file: str, optional
+        If a value is provided, the log is written to that file. The
+        value is specified in the user's configuration dictionary,
+        otherwise left as provided in the default configuration file
+        (see settings/default_config.json in the pelicun source code).
+    print_log: bool
+        If True, the log is also printed to standard output. The
+        value is specified in the user's configuration dictionary,
+        otherwise left as provided in the default configuration file
+        (see settings/default_config.json in the pelicun source code).
 
     """
     # TODO: finalize docstring
@@ -195,8 +299,8 @@ class Logger:
 
         Parameters
         ----------
-        options_obj: Options
-            Options object. See the Options class.
+        see attributes of the Logger class.
+
         """
         self.verbose = verbose
         self.log_show_ms = log_show_ms
@@ -206,40 +310,67 @@ class Logger:
 
     @property
     def verbose(self):
+        """
+        verbose property
+        """
         return self._verbose
 
     @verbose.setter
     def verbose(self, value):
+        """
+        verbose property setter
+        """
         self._verbose = bool(value)
 
     @property
     def log_show_ms(self):
+        """
+        log_show_ms property
+        """
         return self._log_show_ms
 
     @log_show_ms.setter
     def log_show_ms(self, value):
+        """
+        log_show_ms property setter
+        """
         self._log_show_ms = bool(value)
 
         self.reset_log_strings()
 
     @property
     def log_pref(self):
+        """
+        log_pref property
+        """
         return self._log_pref
 
     @property
     def log_div(self):
+        """
+        log_div property
+        """
         return self._log_div
 
     @property
     def log_time_format(self):
+        """
+        log_time_format property
+        """
         return self._log_time_format
 
     @property
     def log_file(self):
+        """
+        log_file property
+        """
         return self._log_file
 
     @log_file.setter
     def log_file(self, value):
+        """
+        log_file property setter
+        """
 
         if value is None:
             self._log_file = None
@@ -264,13 +395,22 @@ class Logger:
 
     @property
     def print_log(self):
+        """
+        print_log property
+        """
         return self._print_log
 
     @print_log.setter
     def print_log(self, value):
+        """
+        print_log property setter
+        """
         self._print_log = str2bool(value)
 
     def reset_log_strings(self):
+        """
+        Populates the string-related attributes of the logger
+        """
 
         if self._log_show_ms:
             self._log_time_format = '%H:%M:%S:%f'
@@ -292,10 +432,13 @@ class Logger:
         Parameters
         ----------
         msg: string
-           Message to print.
+            Message to print.
+        prepend_timestamp: bool
+            Controls whether a timestamp is placed before the message.
+        prepend_blank_space: bool
+            Controls whether blank space is placed before the message.
 
         """
-        # TODO update this docstring
 
         # pylint: disable = consider-using-f-string
         msg_lines = msg.split('\n')
@@ -375,7 +518,7 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
 
     Raises
     ------
-    ValueError:
+    ValueError
         When an invalid axis parameter is specified
     """
 
@@ -431,7 +574,12 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     Returns
     -------
     data: DataFrame
-        The modified DataFrame
+        The modified DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If an invalid axis is specified.
     """
 
     # check if the requested axis is already a MultiIndex
@@ -478,8 +626,10 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     return data
 
 
-# print a matrix in a nice way using a DataFrame
 def show_matrix(data, use_describe=False):
+    """
+    Print a matrix in a nice way using a DataFrame
+    """
     if use_describe:
         pp.pprint(pd.DataFrame(data).describe(
             percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
@@ -487,8 +637,10 @@ def show_matrix(data, use_describe=False):
         pp.pprint(pd.DataFrame(data))
 
 
-# Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
+    """
+    Monkeypatch warnings to get prettier messages
+    """
     # pylint:disable = unused-argument
     if '\\' in filename:
         file_path = filename.split('\\')
@@ -510,7 +662,9 @@ warnings.showwarning = _warning
 
 def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
                               0.977, 0.999)):
-
+    """
+    Provide descriptive statistics.
+    """
     if not isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df
         cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
@@ -534,6 +688,9 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
 
 
 def str2bool(v):
+    """
+    Converts various bool-like forms of string to actual booleans
+    """
     # courtesy of Maxim @ stackoverflow
 
     if isinstance(v, bool):

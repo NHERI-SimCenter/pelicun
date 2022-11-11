@@ -234,6 +234,9 @@ def _get_theta(params, inits, dist_list):
 
 
 def _get_limit_probs(limits, distribution, theta):
+    """
+    Get the CDF value at the specified limits.
+    """
 
     if distribution in {'normal', 'lognormal'}:
 
@@ -854,6 +857,20 @@ class RandomVariable:
                  truncation_limits=np.nan,
                  bounds=None, custom_expr=None, raw_samples=None,
                  f_map=None, anchor=None):
+        """
+        Initializes a RandomVariable object.
+
+        Parameters
+        ----------
+        see the attributes of the RandomVariable class
+
+        Raises
+        ------
+        ValueError
+            If there are issues with the specified distribution theta
+            parameters.
+
+        """
 
         self.name = name
 
@@ -1093,6 +1110,13 @@ class RandomVariable:
     def inverse_transform(self, values=None, sample_size=None):
         """
         Uses inverse probability integral transformation on the provided values.
+
+        Raises
+        ------
+        ValueError
+            If no values are specified.
+        ValueError
+            If problematic truncation limits are assigned.
         """
         result = None
 

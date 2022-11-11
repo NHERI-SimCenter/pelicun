@@ -263,6 +263,10 @@ class DemandModel(PelicunModel):
 
     @property
     def sample(self):
+        """
+        Assigns the ._sample attribute if it is None and returns the
+        random variable sample.
+        """
 
         if self._sample is None:
 
@@ -877,6 +881,9 @@ class DemandModel(PelicunModel):
         self._RVs = RV_reg
 
     def generate_sample(self, config):
+        """
+        Generates an RV sample with the specified configuration.
+        """
 
         if self.marginal_params is None:
             raise ValueError('Model parameters have not been specified. Either'
@@ -922,6 +929,10 @@ class AssetModel(PelicunModel):
 
     @property
     def cmp_sample(self):
+        """
+        Assigns the _cmp_sample attribute if it is None and returns
+        the component sample.
+        """
 
         if self._cmp_sample is None:
 
@@ -1195,6 +1206,9 @@ class AssetModel(PelicunModel):
         # the empirical data and correlation files can be added later, if needed
 
     def _create_cmp_RVs(self):
+        """
+        Defines the RVs used for sampling component quantities.
+        """
 
         # initialize the registry
         RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
@@ -1221,6 +1235,9 @@ class AssetModel(PelicunModel):
         self._cmp_RVs = RV_reg
 
     def generate_cmp_sample(self, sample_size=None):
+        """
+        Generates component quantity realizations.
+        """
 
         if self.cmp_marginal_params is None:
             raise ValueError('Model parameters have not been specified. Load'
@@ -1265,6 +1282,9 @@ class DamageModel(PelicunModel):
 
     @property
     def sample(self):
+        """
+        Returns the damage sample.
+        """
 
         smpl = self._sample
 
@@ -1689,6 +1709,9 @@ class DamageModel(PelicunModel):
         return capacity_RV_reg, lsds_RV_reg
 
     def _generate_dmg_sample(self, sample_size, PGB):
+        """
+        Generates the damage sample.
+        """
 
         if self.damage_params is None:
             raise ValueError('Damage model parameters have not been specified. '
@@ -1786,6 +1809,9 @@ class DamageModel(PelicunModel):
         return EDP_req
 
     def _assemble_required_demand_data(self, EDP_req):
+        """
+        Assembles demand data for damage state determination.
+        """
 
         if self._asmnt.log.verbose:
             self.log_msg('Assembling demand data for calculation...',
@@ -1846,6 +1872,7 @@ class DamageModel(PelicunModel):
         dmg_sample: DataFrame
             Assigns a Damage State to each component block in the asset model.
         """
+        # TODO: update the Parameters section of the docstring
 
         if self._asmnt.log.verbose:
             self.log_msg('Evaluating damage states...', prepend_timestamp=True)
@@ -2446,7 +2473,9 @@ class LossModel(PelicunModel):
 
     @property
     def sample(self):
-
+        """
+        sample property
+        """
         return self._sample
 
     def save_sample(self, filepath=None):
@@ -2693,6 +2722,11 @@ class BldgRepairModel(LossModel):
         case_list: MultiIndex
             Index with cmp-loc-dir-ds descriptions that identify the RVs
             we need for the simulation.
+
+        Raises
+        ------
+        ValueError
+            When any Loss Driver is not recognized.
         """
 
         RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
@@ -3052,6 +3086,10 @@ class BldgRepairModel(LossModel):
         sample_size: integer
             The number of realizations to generate.
 
+        Raises
+        ------
+        ValueError
+            When any Loss Driver is not recognized.
         """
 
         # calculate the quantities for economies of scale

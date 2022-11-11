@@ -76,6 +76,14 @@ class Assessment:
     """
 
     def __init__(self, config_options=None):
+        """
+        Initializes an Assessment object.
+
+        Parameters
+        ----------
+        config_options (Optional[dict]):
+            User-specified configuration dictionary.
+        """
 
         self.stories = None
 
@@ -202,7 +210,7 @@ class Assessment:
 
         Raises
         ------
-        KeyError:
+        KeyError
             When an invalid unit is specified
         """
 
@@ -227,6 +235,22 @@ class Assessment:
         return scale_factor
 
     def scale_factor(self, unit):
+        """
+        Returns the scale factor of a given unit. If the unit is
+        unknown it raises an error. If the unit is None it returns
+        1.00.
+
+        Parameters
+        ----------
+        unit: str
+            A unit name.
+
+        Raises
+        ------
+        ValueError
+            If the unit is unknown.
+
+        """
 
         if unit is not None:
 

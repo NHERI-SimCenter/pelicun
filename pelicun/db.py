@@ -108,6 +108,11 @@ def create_FEMA_P58_fragility_db(source_file,
         Path where the fragility metadata should be saved. A json file is
         expected.
 
+    Raises
+    ------
+    ValueError
+        If there are problems with the mutually exclusive damage state
+        definition of some component.
     """
 
     # parse the source file

@@ -96,8 +96,22 @@ HAZUS_occ_converter = {
     }
 
 
-# this is a convenience function for converting strings to float or None
 def float_or_None(string):
+    """
+    This is a convenience function for converting strings to float or
+    None
+
+    Parameters
+    ----------
+    string: str
+        A string
+
+    Returns
+    -------
+    res: float, optional
+        A float, if the given string can be converted to a
+        float. Otherwise, it returns None
+    """
     try:
         res = float(string)
         return res
@@ -106,6 +120,21 @@ def float_or_None(string):
 
 
 def int_or_None(string):
+    """
+    This is a convenience function for converting strings to int or
+    None
+
+    Parameters
+    ----------
+    string: str
+        A string
+
+    Returns
+    -------
+    res: int, optional
+        An int, if the given string can be converted to an
+        int. Otherwise, it returns None
+    """
     try:
         res = int(string)
         return res
@@ -114,6 +143,9 @@ def int_or_None(string):
 
 
 def process_loc(string, stories):
+    """
+    Parses the location parameter.
+    """
     try:
         res = int(string)
         return [res, ]
@@ -206,11 +238,6 @@ def get_required_resources(input_path, assessment_type):
 def load_default_options():
     """
     Load the default_config.json file to set options to default values
-
-    Parameters
-    ----------
-    options_object: Options
-        Options object to be modified.
     """
 
     with open(base.pelicun_path / "settings/default_config.json",
@@ -321,9 +348,6 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
         Dictionary containing key-value pairs of unit names and their
         corresponding factors. Conversion factors are defined as the number of
         times a base unit fits in the alternative unit.
-    level: string, optional
-        Identifies the level referenced in the units dictionary when the data
-        has a MultiIndex header.
     orientation: int, {0, 1}, default: 0
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
@@ -338,9 +362,9 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
     Raises
     ------
-    ValueError:
+    ValueError
         If units is not None but unit_conversion_factors is None
-    ValueError:
+    ValueError
         If writing to a file fails.
     """
 
@@ -546,7 +570,7 @@ def load_data(data_source, unit_conversion_factors,
                     try:
                         data.loc[:, col] = data.loc[:, col].astype(float)
                         cols_to_scale.append(col)
-                    except:
+                    except ValueError:
                         pass
             else:
                 cols_to_scale = convert
@@ -587,7 +611,6 @@ def load_data(data_source, unit_conversion_factors,
                     data[col] = data[col].astype(float)
                 except ValueError:
                     pass
-
 
     # convert column to MultiIndex if needed
     data = base.convert_to_MultiIndex(data, axis=1)
@@ -640,6 +663,13 @@ def load_from_file(filepath, log_msg_method=None):
         Logging method to be used. Arguments: msg (str),
         prepend_timestamp (bool), prepend_blank_space (bool). If no method
         is specified, no logging is performed.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the filepath is invalid.
+    ValueError
+        If the file is not a CSV.
     """
 
     def log_msg(msg='', prepend_timestamp=True, prepend_blank_space=True):
@@ -655,8 +685,9 @@ def load_from_file(filepath, log_msg_method=None):
     filepath = Path(filepath).resolve()
 
     if not filepath.is_file():
-        raise ValueError(f"The filepath provided does not point to an existing "
-                         f"file: {filepath}")
+        raise FileNotFoundError(
+            f"The filepath provided does not point to an existing "
+            f"file: {filepath}")
 
     if filepath.suffix == '.csv':
 
@@ -687,13 +718,13 @@ def parse_units(additional_file=None):
 
     Raises
     ------
-    KeyError:
+    KeyError
         If a key is defined twice in any parsed JSON file.
-    ValueError:
+    ValueError
         If a unit conversion factor is not a float.
-    FileNotFoundError:
+    FileNotFoundError
         If a file does not exist.
-    Exception:
+    Exception
         If a file does not have the JSON format.
     """
 

@@ -1004,7 +1004,7 @@ def main(args):
     parser.add_argument('--outputEDP', default='EDP.csv')
     parser.add_argument('--outputDM', default='DM.csv')
     parser.add_argument('--outputDV', default='DV.csv')
-    parser.add_argument('--dirnameOutput', default = None)
+    parser.add_argument('--dirnameOutput', default=None)
     # parser.add_argument('--event_time', default=None)
     # parser.add_argument('--detailed_results', default = True,
     #    type = str2bool, nargs='?', const=True)
