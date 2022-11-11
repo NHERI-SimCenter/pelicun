@@ -251,9 +251,10 @@ def load_default_options():
 def merge_default_config(user_config):
     """
     Merge the user-specified config with the configuration defined in
-    the default_config.json file. User-specified values override
-    default ones.
-
+    the default_config.json file. If the user-specified config does
+    not include some option available in the default options, then the
+    default option is used in the merged config.
+    
     Parameters.
     ----------
     user_config: dict
@@ -265,55 +266,66 @@ def merge_default_config(user_config):
         Merged configuration dictionary
     """
 
-    config = load_default_options()  # start from the default config
+    config = user_config  # start from the user's config
+    default_config = load_default_options()
 
-    if user_config is not None:
+    if config is None:
+        config = {}
 
-        # We update the default config with the values provided in the
-        # user config.  The user config can't contain any keys that
-        # are not in the default config.
-        # We use a recursive function to handle nesting.
+    # We fill out the user's config with the values available in the
+    # default config that were not set.
+    # We use a recursive function to handle nesting.
 
-        def update_vals(primary, update):
-            """
-            Updates the values of the `primary` nested dictionary with
-            those provided in the `update` nested dictionary. Assumes
-            that all keys of `update` exist in `primary` (`primary` is not
-            expanded with new keys), otherwise a KeyError is raised.
+    def update_vals(primary, update):
+        """
+        Updates the values of the `primary` nested dictionary with
+        those provided in the `update` nested dictionary. If a key
+        already exists in primary, and does not map to another
+        dictionary, the value is left unchanged.
 
-            Parameters
-            ----------
-            primary: dict
-                Dictionary -which can contain nested dictionaries- to
-                be updated based on the values of `update`.
-            update: dict
-                Dictionary -which can contain nested dictionaries- to
-                be used to update the values of `primary`.
+        Parameters
+        ----------
+        primary: dict
+            Dictionary -which can contain nested dictionaries- to be
+            updated based on the values of `update`. New keys existing
+            in `update` are added to `primary`. Values of which keys
+            already exist in `update` are unchanged.
+        update: dict
+            Dictionary -which can contain nested dictionaries- to
+            be used to update the values of `primary`.
 
-            Raises
-            ------
-            KeyError: If any key of `update` does not exist in
-            `primary`.
-            KeyError: If update[key] is dict but primary[key] is not.
-            KeyError: If primary[key] is dict but update[key] is not.
-            """
-            for key in update:
+        Raises
+        ------
+        KeyError
+          If update[key] is dict but primary[key] is not.
+        KeyError
+          If primary[key] is dict but update[key] is not.
+        """
+        for key in update:
+            if isinstance(update[key], dict):
                 if key not in primary:
-                    raise KeyError(f'Key {key} is invalid.')
-                if isinstance(update[key], dict):
-                    if not isinstance(primary[key], dict):
-                        raise KeyError(f'primary[{key}] should be a dictionary.')
-                    update_vals(primary[key], update[key])
+                    primary[key] = {}
                 else:
-                    # update[key] is not a dictionary
-                    if isinstance(primary[key], dict):
-                        raise KeyError(f'primary[{key}] should not be a dictionary.')
-                    # finally! update the value
+                    if not isinstance(primary[key], dict):
+                        raise KeyError(
+                            f'primary[{key}] should be a dictionary.')
+                update_vals(primary[key], update[key])
+            else:
+                # update[key] is not a dictionary
+                if key not in primary:
+                    # key does not exist in primary.
                     primary[key] = update[key]
+                else:
+                    # key exists in primary and should be left alone
+                    # just check that it's not a dict here:
+                    if isinstance(primary[key], dict):
+                        raise KeyError(
+                            f'primary[{key}] should not be a dictionary.')
+                
 
-        # perform the updating operation
-        update_vals(config, user_config)
-        # config is now updated with the user-specified configuration
+    # perform the updating operation
+    update_vals(config, default_config)
+    # config is now updated with the user-specified configuration
 
     return config
 
