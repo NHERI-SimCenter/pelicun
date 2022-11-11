@@ -298,7 +298,8 @@ class DemandModel(PelicunModel):
         res = save_to_csv(
             self.sample, filepath, units=self.units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=filepath is not None)
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log)
 
         if filepath is not None:
             self.log_msg('Demand sample successfully saved.',
@@ -371,7 +372,7 @@ class DemandModel(PelicunModel):
 
         demand_data, units = load_data(
             filepath, self._asmnt.unit_conversion_factors,
-            return_units=True)
+            return_units=True, log=self._asmnt.log)
 
         parsed_data = demand_data.copy()
 
@@ -723,7 +724,8 @@ class DemandModel(PelicunModel):
         save_to_csv(self.correlation, file_prefix + '_correlation.csv')
         save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
                     units=self.units,
-                    unit_conversion_factors=self._asmnt.unit_conversion_factors)
+                    unit_conversion_factors=self._asmnt.unit_conversion_factors,
+                    log=self._asmnt.log)
 
         # the log standard deviations in the marginal parameters need to be
         # scaled up before feeding to the saving method where they will be
@@ -745,7 +747,8 @@ class DemandModel(PelicunModel):
         save_to_csv(marginal_params, file_prefix+'_marginals.csv',
                     units=self.units,
                     unit_conversion_factors=self._asmnt.unit_conversion_factors,
-                    orientation=1)
+                    orientation=1,
+                    log=self._asmnt.log)
 
         self.log_msg('Demand model successfully saved.', prepend_timestamp=False)
 
@@ -779,7 +782,8 @@ class DemandModel(PelicunModel):
 
         if empirical_data_source is not None:
             self.empirical_data = load_data(
-                empirical_data_source, self._asmnt.unit_conversion_factors)
+                empirical_data_source, self._asmnt.unit_conversion_factors,
+                log=self._asmnt.log)
             self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
                                                   inplace=True)
         else:
@@ -789,7 +793,7 @@ class DemandModel(PelicunModel):
             self.correlation = load_data(
                 correlation_data_source,
                 self._asmnt.unit_conversion_factors,
-                reindex=False)
+                reindex=False, log=self._asmnt.log)
             self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
             self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
         else:
@@ -805,7 +809,7 @@ class DemandModel(PelicunModel):
             self._asmnt.unit_conversion_factors,
             orientation=1, reindex=False,
             return_units=True,
-            convert=[])
+            convert=[], log=self._asmnt.log)
         marginal_params.index.set_names(['type', 'loc', 'dir'], inplace=True)
 
         marginal_params = self.convert_marginal_params(marginal_params.copy(),
@@ -972,7 +976,8 @@ class AssetModel(PelicunModel):
         res = save_to_csv(
             sample, filepath, units=units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=filepath is not None)
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log)
 
         if filepath is not None:
             self.log_msg('Asset components sample successfully saved.',
@@ -993,7 +998,7 @@ class AssetModel(PelicunModel):
 
         sample, units = load_data(
             filepath, self._asmnt.unit_conversion_factors,
-            return_units=True)
+            return_units=True, log=self._asmnt.log)
 
         sample.columns.names = ['cmp', 'loc', 'dir']
 
@@ -1120,7 +1125,7 @@ class AssetModel(PelicunModel):
             orientation=1,
             reindex=False,
             return_units=True,
-            convert=[])
+            convert=[], log=self._asmnt.log)
 
         # group units by cmp id to avoid redundant entries
         self.cmp_units = units.copy().groupby(level=0).first()
@@ -1311,7 +1316,8 @@ class DamageModel(PelicunModel):
             self.sample, filepath,
             units=qnt_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=filepath is not None)
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log)
 
         if filepath is not None:
             self.log_msg('Damage sample successfully saved.',
@@ -1331,7 +1337,8 @@ class DamageModel(PelicunModel):
         self.log_msg('Loading damage sample...')
 
         self._sample = load_data(
-            filepath, self._asmnt.unit_conversion_factors)
+            filepath, self._asmnt.unit_conversion_factors,
+            log=self._asmnt.log)
 
         self.log_msg('Damage sample successfully loaded.',
                      prepend_timestamp=False)
@@ -1367,7 +1374,8 @@ class DamageModel(PelicunModel):
             data = load_data(
                 data_path,
                 self._asmnt.unit_conversion_factors,
-                orientation=1, reindex=False, convert=[]
+                orientation=1, reindex=False, convert=[],
+                log=self._asmnt.log
             )
 
             data_list.append(data)
@@ -2500,7 +2508,8 @@ class LossModel(PelicunModel):
         res = save_to_csv(
             self.sample, filepath, units=dv_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=filepath is not None)
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log)
 
         if filepath is not None:
             self.log_msg('Loss sample successfully saved.',
@@ -2520,7 +2529,7 @@ class LossModel(PelicunModel):
         self.log_msg('Loading loss sample...')
 
         self._sample = load_data(
-            filepath, self._asmnt.unit_conversion_factors)
+            filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log)
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
@@ -2543,7 +2552,7 @@ class LossModel(PelicunModel):
 
         loss_map = load_data(
             mapping_path, self._asmnt.unit_conversion_factors,
-            orientation=1, reindex=False, convert=[])
+            orientation=1, reindex=False, convert=[], log=self._asmnt.log)
 
         loss_map['Driver'] = loss_map.index.values
         loss_map['Consequence'] = loss_map[self.loss_type]
@@ -2574,8 +2583,8 @@ class LossModel(PelicunModel):
                 self._asmnt.unit_conversion_factors,
                 orientation=1,
                 reindex=False,
-                convert=[]
-            )
+                convert=[],
+                log=self._asmnt.log)
 
             data_list.append(data)
 
@@ -3060,7 +3069,8 @@ class BldgRepairModel(LossModel):
         df_agg = save_to_csv(
             df_agg, None, units=dv_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=False)
+            use_simpleindex=False,
+            log=self._asmnt.log)
 
         df_agg.drop("Units", inplace=True)
 
