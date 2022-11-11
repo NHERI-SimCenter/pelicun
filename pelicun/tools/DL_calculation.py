@@ -1509,9 +1509,21 @@ def main(args):
     # parser.add_argument('-d', '--demandFile', default=None)
     # parser.add_argument('--DL_Method', default = None)
     # parser.add_argument('--outputBIM', default='BIM.csv')
-    # parser.add_argument('--outputEDP', default='EDP.csv')
-    # parser.add_argument('--outputDM', default='DM.csv')
-    # parser.add_argument('--outputDV', default='DV.csv')
+    parser.add_argument('--outputEDP', default='EDP.csv')
+    parser.add_argument('--outputDM', default='DM.csv')
+    parser.add_argument('--outputDV', default='DV.csv')
+    parser.add_argument('--dirnameOutput', default=None)
+    # parser.add_argument('--event_time', default=None)
+    # parser.add_argument('--detailed_results', default = True,
+    #    type = str2bool, nargs='?', const=True)
+    # parser.add_argument('--coupled_EDP', default = False,
+    #    type = str2bool, nargs='?', const=False)
+    # parser.add_argument('--log_file', default = True,
+    #    type = str2bool, nargs='?', const=True)
+    # parser.add_argument('--ground_failure', default = False,
+    #    type = str2bool, nargs='?', const=False)
+    # parser.add_argument('--auto_script', default=None)
+    # parser.add_argument('--resource_dir', default=None)
     args = parser.parse_args(args)
 
     log_msg('Initializing pelicun calculation...')

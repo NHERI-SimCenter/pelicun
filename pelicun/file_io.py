@@ -671,13 +671,13 @@ def parse_units(custom_file=None):
 
     Raises
     ------
-    KeyError:
+    KeyError
         If a key is defined twice in any parsed JSON file.
-    ValueError:
+    ValueError
         If a unit conversion factor is not a float.
-    FileNotFoundError:
+    FileNotFoundError
         If a file does not exist.
-    Exception:
+    Exception
         If a file does not have the JSON format.
     """
 

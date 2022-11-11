@@ -157,7 +157,6 @@ class Options:
         control logging behavior. See Logger class.
 
     """
-    # TODO update this docstring
 
     def __init__(self, user_config_options, assessment=None):
         """

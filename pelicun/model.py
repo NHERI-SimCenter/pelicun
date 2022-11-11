@@ -1798,8 +1798,6 @@ class DamageModel(PelicunModel):
 
     def _generate_dmg_sample(self, sample_size, PGB):
         """
-        Generates the damage sample.
-
         This method generates a damage sample by creating random
         variables (RVs) for capacities and limit-state-damage-states
         (lsds), and then sampling from these RVs. The sample size and
@@ -2097,6 +2095,7 @@ class DamageModel(PelicunModel):
             Assigns a Damage State to each component block in the
             asset model.
         """
+        # TODO: update the Parameters section of the docstring
 
         # Log a message indicating that damage states are being
         # evaluated
