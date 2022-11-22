@@ -275,7 +275,10 @@ def merge_default_config(user_config):
     # default config that were not set.
     # We use a recursive function to handle nesting.
 
-    def update_vals(primary, update):
+    def update_vals(
+            primary, update,
+            primary_path, update_path
+    ):
         """
         Updates the values of the `primary` nested dictionary with
         those provided in the `update` nested dictionary. If a key
@@ -288,42 +291,72 @@ def merge_default_config(user_config):
             Dictionary -which can contain nested dictionaries- to be
             updated based on the values of `update`. New keys existing
             in `update` are added to `primary`. Values of which keys
-            already exist in `update` are unchanged.
+            already exist in `update` are left unchanged.
         update: dict
             Dictionary -which can contain nested dictionaries- to
             be used to update the values of `primary`.
+        primary_path: str
+            Identifier for the primary dictionary. Used to make error
+            messages more meaningful.
+        update_path: str
+            Identifier for the primary dictionary. Used to make error
+            messages more meaningful.
 
         Raises
         ------
-        KeyError
+        ValueError
           If update[key] is dict but primary[key] is not.
-        KeyError
+        ValueError
           If primary[key] is dict but update[key] is not.
         """
+        # we go over the keys of `update`
         for key in update:
+            # if `update[key]` is a dictionary:
             if isinstance(update[key], dict):
+                # if the same `key` does not exist in primary,
+                # we associate it with an empty dictionary.
                 if key not in primary:
                     primary[key] = {}
+                # if it exists already, it should map to
+                # a dictionary.
                 else:
                     if not isinstance(primary[key], dict):
-                        raise KeyError(
-                            f'primary[{key}] should be a dictionary.')
-                update_vals(primary[key], update[key])
+                        raise ValueError(
+                            f'{primary_path}["{key}"] '
+                            'should map to a dictionary. '
+                            'The specified value is '
+                            f'{primary_path}["{key}"] = {primary[key]}, but '
+                            f'the default value is '
+                            f'{update_path}["{key}"] = {update[key]}. '
+                                f'Please revise {primary_path}["{key}"].'
+                        )
+                # With both being dictionaries, we recurse.
+                update_vals(
+                    primary[key], update[key],
+                    f'{primary_path}["{key}"]', f'{update_path}["{key}"]')
+            # if `update[key]` is NOT a dictionary:
             else:
-                # update[key] is not a dictionary
+                # if `key` does not exist in `primary`, we add it, with
+                # its corresponding value.
                 if key not in primary:
-                    # key does not exist in primary.
                     primary[key] = update[key]
                 else:
-                    # key exists in primary and should be left alone
-                    # just check that it's not a dict here:
+                    # key exists in primary and should be left alone,
+                    # but we must check that it's not a dict here:
                     if isinstance(primary[key], dict):
-                        raise KeyError(
-                            f'primary[{key}] should not be a dictionary.')
-                
-
+                        raise ValueError(
+                            f'{primary_path}["{key}"] '
+                            'should not map to a dictionary. '
+                            f'The specified value is '
+                            f'{primary_path}["{key}"] = {primary[key]}, but '
+                            f'the default value is '
+                            f'{update_path}["{key}"] = {update[key]}. '
+                            f'Please revise {primary_path}["{key}"].'
+                        )
     # perform the updating operation
-    update_vals(config, default_config)
+    update_vals(
+        config, default_config,
+        'user_settings', 'default_settings')
     # config is now updated with the user-specified configuration
 
     return config
