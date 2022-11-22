@@ -81,6 +81,11 @@ pd.options.display.width = 300
 
 idx = pd.IndexSlice
 
+# don't show FutureWarnings by default
+if not sys.warnoptions:
+    warnings.filterwarnings(
+        category=FutureWarning, action='ignore')
+
 
 class Options:
 
@@ -321,6 +326,13 @@ class Logger:
         verbose property setter
         """
         self._verbose = bool(value)
+        # display FutureWarnings
+        if self._verbose == True:
+            if not sys.warnoptions:
+                warnings.filterwarnings(
+                    category=FutureWarning,
+                    action='default')
+
 
     @property
     def log_show_ms(self):

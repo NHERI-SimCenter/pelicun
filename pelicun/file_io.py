@@ -58,7 +58,6 @@ This module has classes and methods that handle file input and output.
 """
 
 import json
-import warnings
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -411,10 +410,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
                 labels = units.loc[units == unit_name].index.values
 
-                with warnings.catch_warnings():
-                    warnings.simplefilter(
-                        action='ignore', category=FutureWarning)
-                    unit_factor = 1./unit_conversion_factors[unit_name]
+                unit_factor = 1. / unit_conversion_factors[unit_name]
 
                 active_labels = []
 
@@ -424,10 +420,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                             active_labels.append(label)
 
                     if len(active_labels) > 0:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                action='ignore', category=FutureWarning)
-                            data.loc[:, active_labels] *= unit_factor
+                        data.loc[:, active_labels] *= unit_factor
 
                 else:  # elif orientation == 1:
                     for label in labels:
@@ -435,10 +428,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                             active_labels.append(label)
 
                     if len(active_labels) > 0:
-                        with warnings.catch_warnings():
-                            warnings.simplefilter(
-                                action='ignore', category=FutureWarning)
-                            data.loc[active_labels, cols_to_scale] *= unit_factor
+                        data.loc[active_labels, cols_to_scale] *= unit_factor
 
                 labels_to_keep += active_labels
 
@@ -579,16 +569,10 @@ def load_data(data_source, unit_conversion_factors,
             unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
-                with warnings.catch_warnings():
-                    warnings.simplefilter(
-                        action='ignore', category=FutureWarning)
-                    data.loc[:, unit_labels] *= unit_factor
+                data.loc[:, unit_labels] *= unit_factor
 
             else:  # elif orientation==1:
-                with warnings.catch_warnings():
-                    warnings.simplefilter(
-                        action='ignore', category=FutureWarning)
-                    data.loc[unit_labels, cols_to_scale] *= unit_factor
+                data.loc[unit_labels, cols_to_scale] *= unit_factor
 
         if log: log.msg('Unit conversion successful.', prepend_timestamp=False)
 
