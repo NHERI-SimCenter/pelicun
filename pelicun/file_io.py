@@ -76,24 +76,24 @@ convert_dv_name = {
 }
 
 dependency_to_acronym = {
-        'btw. Fragility Groups':   'FG',
-        'btw. Performance Groups': 'PG',
-        'btw. Floors':             'LOC',
-        'btw. Directions':         'DIR',
-        'btw. Component Groups':   'CSG',
-        'btw. Damage States':      'DS',
-        'Independent':             'IND',
-        'per ATC recommendation':  'ATC',
-    }
+    'btw. Fragility Groups':   'FG',
+    'btw. Performance Groups': 'PG',
+    'btw. Floors':             'LOC',
+    'btw. Directions':         'DIR',
+    'btw. Component Groups':   'CSG',
+    'btw. Damage States':      'DS',
+    'Independent':             'IND',
+    'per ATC recommendation':  'ATC',
+}
 
 HAZUS_occ_converter = {
-        'RES':  'Residential',
-        'COM':  'Commercial',
-        'REL':  'Commercial',
-        'EDU':  'Educational',
-        'IND':  'Industrial',
-        'AGR':  'Industrial'
-    }
+    'RES':  'Residential',
+    'COM':  'Commercial',
+    'REL':  'Commercial',
+    'EDU':  'Educational',
+    'IND':  'Industrial',
+    'AGR':  'Industrial'
+}
 
 
 def float_or_None(string):
@@ -154,9 +154,9 @@ def process_loc(string, stories):
             s_low, s_high = string.split('-')
             s_low = process_loc(s_low, stories)
             s_high = process_loc(s_high, stories)
-            return list(range(s_low[0], s_high[0]+1))
+            return list(range(s_low[0], s_high[0] + 1))
         if string == "all":
-            return list(range(1, stories+1))
+            return list(range(1, stories + 1))
         if string == "top":
             return [stories, ]
         if string == "roof":
@@ -471,7 +471,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                 data.to_csv(filepath)
 
                 if log: log.msg('Data successfully saved to file.',
-                        prepend_timestamp=False)
+                                prepend_timestamp=False)
 
             else:
                 raise ValueError(
@@ -485,7 +485,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
     # at this line, data is None
     if log: log.msg('WARNING: Data was empty, no file saved.',
-            prepend_timestamp=False)
+                    prepend_timestamp=False)
     return None
 
 
