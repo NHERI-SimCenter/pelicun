@@ -126,13 +126,13 @@ def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
         Mean(s) of the non-truncated distribution.
     COV: float ndarray
         Covariance matrix of the non-truncated distribution
-    lower: float vector, optional, default: None
+    lower: float vector, optional, default: np.nan
         Lower bound(s) for the truncated distributions. A scalar value can be
         used for a univariate case, while a list of bounds is expected in
         multivariate cases. If the distribution is non-truncated from below
         in a subset of the dimensions, use either `None` or assign an infinite
         value (i.e. -numpy.inf) to those dimensions.
-    upper: float vector, optional, default: None
+    upper: float vector, optional, default: np.nan
         Upper bound(s) for the truncated distributions. A scalar value can be
         used for a univariate case, while a list of bounds is expected in
         multivariate cases. If the distribution is non-truncated from above
