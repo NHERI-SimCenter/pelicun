@@ -22,7 +22,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements_dev.txt
           python -m pip install -e .
-      - name: Run tests with tox
+      - name: Run tests
         run: |
           cd pelicun
           pytest tests
