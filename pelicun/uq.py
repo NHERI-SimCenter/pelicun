@@ -58,7 +58,7 @@ quantification in pelicun.
 
 from scipy.stats import uniform, norm
 from scipy.stats import multivariate_normal as mvn
-from scipy.stats.mvn import mvndst
+from scipy.stats._mvn import mvndst
 from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
 import numpy as np
