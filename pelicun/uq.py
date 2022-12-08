@@ -71,16 +71,18 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
 
     Parameters
     ----------
+    scale_factor: float
+        Value by which to scale the parameters.
     family: {'normal', 'lognormal', 'uniform'}
         Defines the type of probability distribution for the random variable.
-    theta: float ndarray
+    theta: float ndarray of length 2
         Set of parameters that define the cumulative distribution function of
         the variable given its distribution type. See the expected parameters
         explained in the RandomVariable class. Each parameter can be defined by
         one or more values. If a set of values are provided for one parameter,
         they define ordinates of a multilinear function that is used to get
         the parameter values given an independent variable.
-    truncation_limits: float ndarray, default: None
+    truncation_limits: float ndarray of length 2, default: None
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
     """
