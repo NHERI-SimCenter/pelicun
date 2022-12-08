@@ -12,6 +12,8 @@
 	<b>Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events</b>
 </p>
 
+![Tests](https://github.com/ioannis-vm/AZ_pelicun/actions/workflows/tests.yml/badge.svg)
+
 ## What is it?
 
 `pelicun` is a Python package that provides tools for assessment of damage and losses due to natural hazard events. It uses a stochastic damage and loss model that is an extension of the high-resolution PEER performance assessment methodology described in FEMA P58 (FEMA, 2012). While FEMA P58 aims to assess the seismic performance of a building, with `pelicun` we provide a more versatile, hazard-agnostic tool to assess the performance of several types of assets in the built environment.
