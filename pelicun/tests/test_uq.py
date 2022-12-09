@@ -46,9 +46,8 @@ import pickle
 import itertools
 import os
 import numpy as np
-import pandas as pd
-from scipy.stats import norm
 from numpy.testing import assert_allclose
+from scipy.stats import norm
 from pelicun import uq
 
 RNG = np.random.default_rng(40)
@@ -161,6 +160,210 @@ def test_mvn_orthotope_density(reset=False):
         compare = import_pickle(filename)
         assert np.allclose(res[0], compare[0])
         assert np.allclose(res[1], compare[1])
+
+
+def test__get_theta(reset=False):
+    data_dir = 'tests/data/uq/test__get_theta'
+    res = uq._get_theta(
+        np.array(
+            (
+                (1.00, 1.00),
+                (1.00, 0.5)
+            )
+        ),
+        np.array(
+            (
+                (0.00, 1.00),
+                (1.00, 0.5)
+            )
+        ),
+        ['normal', 'lognormal']
+    )
+    filename = f'{data_dir}/test_1.pcl'
+    if reset: export_pickle(filename, res)
+    compare = import_pickle(filename)
+    assert np.allclose(res, compare)
+    with pytest.raises(ValueError):
+        uq._get_theta(
+            np.array((1.00,)), np.array((1.00,)),
+            'not_a_distribution')
+
+
+def test__get_limit_probs(reset=False):
+    data_dir = 'tests/data/uq/test__get_limit_probs'
+    args_iter = itertools.product(
+        (
+            np.array((0.10, 0.20)),
+            np.array((np.nan, 0.20)),
+            np.array((0.10, np.nan)),
+            np.array((np.nan, np.nan))
+        ),
+        ('normal', 'lognormal'),
+        (np.array((0.15, 1.0)),)
+    )
+    for file_incr, args in enumerate(args_iter):
+        res = uq._get_limit_probs(*args)
+        filename = f'{data_dir}/test_{file_incr+1}.pcl'
+        if reset: export_pickle(filename, res)
+        compare = import_pickle(filename)
+        assert np.allclose(res[0], compare[0])
+        assert np.allclose(res[1], compare[1])
+    with pytest.raises(ValueError):
+        uq._get_limit_probs(
+            np.array((1.00,)),
+            'not_a_distribution',
+            np.array((1.00,)),
+        )
+
+
+def test__get_std_samples(reset=False):
+    data_dir = 'tests/data/uq/test__get_std_samples'
+    samples_list = [
+        np.array((
+            (1.00, 2.00, 3.00),
+        )),
+        np.array((
+            (0.657965, 1.128253, 1.044239, 1.599209),
+            (1.396495, 1.435923, 2.055659, 1.416298),
+            (1.948161, 1.576571, 1.469571, 1.190853)
+        )),
+    ]
+    theta_list = [
+        np.array((
+            (0.00, 1.0),
+        )),
+        np.array((
+            (1.00, 0.20),
+            (1.50, 0.6),
+            (1.30, 2.0),
+        )),
+    ]
+    tr_limits_list = [
+        np.array((
+            (np.nan, np.nan),
+        )),
+        np.array((
+            (np.nan, np.nan),
+            (1.10, np.nan),
+            (np.nan, 2.80),
+        ))
+    ]
+    dist_list_list = [
+        np.array(('normal',)),
+        np.array(('normal', 'lognormal', 'normal')),
+    ]
+    for file_incr, args in enumerate(zip(
+            samples_list, theta_list, tr_limits_list, dist_list_list
+    )):
+        res = uq._get_std_samples(*args)
+        filename = f'{data_dir}/test_{file_incr+1}.pcl'
+        if reset: export_pickle(filename, res)
+        compare = import_pickle(filename)
+        assert np.allclose(res, compare)
+    with pytest.raises(ValueError):
+        uq._get_std_samples(
+            np.array((
+                (1.00, 2.00, 3.00),
+            )),
+            np.array((
+                (0.00, 1.0),
+            )),
+            np.array((
+                (np.nan, np.nan),
+            )),
+            np.array(('some_unsupported_distribution',)),
+        )
+
+
+def test__get_std_corr_matrix(reset=False):
+    data_dir = 'tests/data/uq/test__get_std_corr_matrix'
+    std_samples_list = [
+        np.array((
+            (1.00,),
+        )),
+        np.array((
+            (1.00, 0.00),
+            (0.00, 1.00)
+        )),
+        np.array((
+            (1.00, 0.00),
+            (0.00, -1.00)
+        )),
+        np.array((
+            (1.00, 1.00),
+            (1.00, 1.00)
+        )),
+        np.array((
+            (1.00, 1e50),
+            (-1.00, -1.00)
+        )),
+    ]
+    for file_incr, std_samples in enumerate(std_samples_list):
+        res = uq._get_std_corr_matrix(std_samples)
+        filename = f'{data_dir}/test_{file_incr+1}.pcl'
+        if reset: export_pickle(filename, res)
+        compare = import_pickle(filename)
+        assert np.allclose(res, compare)
+    for bad_item in (np.nan, np.inf, -np.inf):
+        with pytest.raises(ValueError):
+            x = np.array((
+                (1.00, bad_item),
+                (-1.00, -1.00)
+            ))
+            uq._get_std_corr_matrix(x)
+
+
+def test__mvn_scale(reset=False):
+    data_dir = 'tests/data/uq/test__mvn_scale'
+    np.random.seed(40)
+    sample_list = [
+        np.random.normal(0.00, 1.00, size=(2, 5)).T,
+        np.random.normal(1.0e10, 1.00, size=(2, 5)).T
+    ]
+    rho_list = [
+        np.array((
+            (1.00, 0.00),
+            (0.00, 1.00)
+        )),
+        np.array((
+            (1.00, 0.00),
+            (0.00, 1.00)
+        ))
+    ]
+    for file_incr, args in enumerate(zip(sample_list, rho_list)):
+        res = uq._mvn_scale(*args)
+        filename = f'{data_dir}/test_{file_incr+1}.pcl'
+        if reset: export_pickle(filename, res)
+        compare = import_pickle(filename)
+        assert np.allclose(res, compare)
+
+
+
+def test_fit_distribution_to_sample_univariate(reset=False):
+    data_dir = 'tests/data/uq/test_fit_distribution_to_sample_univariate'
+    np.random.seed(40)
+
+    # baseline case
+    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00))
+    res = uq.fit_distribution_to_sample(
+        sample_vec,
+        'normal'
+    )
+    assert np.isclose(res[0, 0], np.mean(sample_vec))
+    assert np.isclose(res[0, 1], np.std(sample_vec))
+
+    # # censored data  # we have issues here
+    # c_lower = -1.50
+    # c_upper = 1.50
+    # usable_sample_idx = np.all([sample_vec>c_lower, sample_vec<c_upper], axis=0)
+    # usable_sample = sample_vec[usable_sample_idx]
+    # c_count = len(sample_vec) - len(usable_sample)
+    # uq.fit_distribution_to_sample(
+    #     usable_sample, 'normal',
+    #     censored_count=c_count,
+    #     detection_limits=[c_lower, c_upper])
+    
+    
 
 
 if __name__ == '__main__':
