@@ -214,6 +214,25 @@ def _get_theta(params, inits, dist_list):
     to the initial values) and the initial values to transform them to the
     parameters of the target distributions.
 
+    Parameters
+    ----------
+    params: float ndarray, Nx2
+      Numpy array containing the parameter values
+    inits: float ndarray, Nx2
+      Numpy array containing the initial values
+    dist_list: list of str
+      List of strings containing the names of the distributions.
+
+    Raises
+    ------
+    ValueError
+      If any of the distributions is unsupported.
+
+    Returns
+    -------
+    Theta:
+      The estimated parameters.
+
     """
 
     theta = np.zeros(inits.shape)
@@ -232,12 +251,34 @@ def _get_theta(params, inits, dist_list):
             theta[i, 0] = mu
             theta[i, 1] = sig
 
+        else:
+            raise ValueError(f'Unsupported distribution: {dist_i}')
+
     return theta
 
 
 def _get_limit_probs(limits, distribution, theta):
     """
     Get the CDF value at the specified limits.
+
+    Parameters
+    ----------
+    limits: float ndarray
+      The limits on which to return the CDF value.
+    distribution: str
+      The distribution to be used.
+    theta: float ndarray
+      The parameters of the specified distribution.
+
+    Raises
+    ------
+    ValueError
+      If any of the distributions is unsupported.
+
+    Returns
+    -------
+    The CDF values.
+
     """
 
     if distribution in {'normal', 'lognormal'}:
@@ -256,10 +297,40 @@ def _get_limit_probs(limits, distribution, theta):
         else:
             p_b = norm.cdf((b - mu) / sig)
 
+    else:
+        raise ValueError(f'Unsupported distribution: {distribution}')
+
     return p_a, p_b
 
 
 def _get_std_samples(samples, theta, tr_limits, dist_list):
+    """
+    Transform samples to standard normal space.
+
+    Parameters
+    ----------
+    samples: float ndarray, DxN
+      2D array of samples. Each row represents a sample.
+    theta: float ndarray, Dx2
+      2D array of theta values that represent each dimension of the
+      samples
+    tr_limits: float ndarray, Dx2
+      2D array with rows that represent [a, b] pairs of truncation
+      limits
+    dist_list: str ndarray of length D
+      1D array containing the names of the distributions
+
+    Raises
+    ------
+    ValueError
+      If any of the distributions is unsupported.
+
+    Returns
+    -------
+    std_samples: float ndarray, DxN
+      The samples transformed to standard normal space.
+    
+    """
 
     std_samples = np.zeros(samples.shape)
 
@@ -278,11 +349,40 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
             # then transform from uniform to standard normal
             std_samples[i] = norm.ppf(uni_samples, loc=0., scale=1.)
 
+        else:
+            raise ValueError(f'Unsupported distribution: {dist_i}')
+
     return std_samples
 
 
 def _get_std_corr_matrix(std_samples):
+    """
+    Estimate the correlation matrix of the given standard normal
+    samples. Ensure that the correlation matrix is positive
+    semidefinite.
 
+    Parameters
+    ----------
+    std_samples: float ndarray, DxN
+      Array containing the standard normal samples. Each column is a
+      sample.
+
+    Raises
+    ------
+    ValueError
+      If any of the elements of std_samples is np.inf or np.nan
+
+    Returns
+    -------
+    rho_hat: float ndarray, DxD
+      Correlation matrix.
+    """
+
+    if (True in np.isinf(std_samples)
+        or True in np.isnan(std_samples)):
+        raise ValueError(
+            'array must not contain infs or NaNs')
+    
     n_dims, n_samples = std_samples.shape
 
     # initialize the correlation matrix estimate
@@ -333,15 +433,18 @@ def _get_std_corr_matrix(std_samples):
 
 
 def _mvn_scale(x, rho):
+    """
+    Utility function used in _neg_log_likelihood
+    """
 
     x = np.atleast_2d(x)
     n_dims = x.shape[1]
 
     # create an uncorrelated covariance matrix
-    rho_0 = np.zeros((n_dims, n_dims))
-    np.fill_diagonal(rho_0, 1)
+    rho_0 = np.eye(n_dims, n_dims)
 
     a = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho_0)
+    a[a<1.0e-10] = 1.0e-10
 
     b = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho)
 
