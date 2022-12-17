@@ -50,7 +50,7 @@ Detailed documentation of the available methods and their use is available at ht
 
 - `pandas` >= 1.4.0
 
-- 'tables' >= 3.7.0
+- `tables` >= 3.7.0
 
 We recommend installing each of these using `pip`. For convenience, we also published a nheri_simcenter python package that gets all of these and a few additional dependencies installed to initialize the Python environment for SimCenter tools.
 
