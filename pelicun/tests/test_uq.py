@@ -577,8 +577,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
 
     # censored data, lower and upper
     np.random.seed(40)
-    c_lower = -1.50
-    c_upper = 1.50
+    c_lower = -2.50
+    c_upper = 2.50
     sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00))
     usable_sample_idx = np.all(
         [sample_vec > c_lower, sample_vec < c_upper], axis=0)
