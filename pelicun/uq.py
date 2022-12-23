@@ -58,7 +58,7 @@ quantification in pelicun.
 
 from scipy.stats import uniform, norm
 from scipy.stats import multivariate_normal as mvn
-from scipy.stats._mvn import mvndst
+from scipy.stats._mvn import mvndst  # pylint: disable=no-name-in-module
 from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
 import numpy as np
@@ -329,7 +329,7 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
     -------
     std_samples: float ndarray, DxN
       The samples transformed to standard normal space.
-    
+
     """
 
     std_samples = np.zeros(samples.shape)
@@ -343,8 +343,7 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
             lim_high = tr_lim_i[1]
 
             if (True in (samples_i > lim_high).tolist()
-                or
-                True in (samples_i < lim_low).tolist()):
+                    or True in (samples_i < lim_low).tolist()):
                 raise ValueError(
                     'One or more sample values lie outside '
                     'of the specified truncation limits.')
@@ -389,10 +388,10 @@ def _get_std_corr_matrix(std_samples):
     """
 
     if (True in np.isinf(std_samples)
-        or True in np.isnan(std_samples)):
+            or True in np.isnan(std_samples)):
         raise ValueError(
             'array must not contain infs or NaNs')
-    
+
     n_dims, n_samples = std_samples.shape
 
     # initialize the correlation matrix estimate
@@ -403,7 +402,7 @@ def _get_std_corr_matrix(std_samples):
     for dim_i in range(n_dims):
         for dim_j in np.arange(dim_i + 1, n_dims):
             rho_hat[dim_i, dim_j] = (
-                    np.sum(std_samples[dim_i] * std_samples[dim_j]) / n_samples)
+                np.sum(std_samples[dim_i] * std_samples[dim_j]) / n_samples)
             rho_hat[dim_j, dim_i] = rho_hat[dim_i, dim_j]
 
     # make sure rho_hat is positive semidefinite
@@ -454,7 +453,7 @@ def _mvn_scale(x, rho):
     rho_0 = np.eye(n_dims, n_dims)
 
     a = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho_0)
-    a[a<1.0e-10] = 1.0e-10
+    a[a < 1.0e-10] = 1.0e-10
 
     b = mvn.pdf(x, mean=np.zeros(n_dims), cov=rho)
 
@@ -464,6 +463,48 @@ def _mvn_scale(x, rho):
 def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
                         dist_list, tr_limits, det_limits, censored_count,
                         enforce_bounds=False):
+    """
+    Calculate the negative log likelihood of the given data samples
+    given the parameter values and distribution information.
+
+    This function is used as an objective function in optimization
+    algorithms to estimate the parameters of the distribution of the
+    input data.
+
+    Parameters
+    ----------
+    params : ndarray
+        1D array with the parameter values to be assessed.
+    inits : ndarray
+        1D array with the initial estimates for the distribution
+        parameters.
+    bnd_lower : ndarray
+        1D array with the lower bounds for the distribution
+        parameters.
+    bnd_upper : ndarray
+        1D array with the upper bounds for the distribution
+        parameters.
+    samples : ndarray
+        2D array with the data samples. Each column corresponds to a
+        different random variable.
+    dist_list : list
+        List with the distribution types for each random variable.
+    tr_limits : list
+        List with the truncation limits for each random variable.
+    det_limits : list
+        List with the detection limits for each random variable.
+    censored_count : int
+        Number of censored samples in the data.
+    enforce_bounds : bool, optional
+        If True, the parameters are only considered valid if they are
+        within the bounds defined by bnd_lower and bnd_upper. The
+        default value is False.
+
+    Returns
+    -------
+    float
+        The negative log likelihood of the data given the distribution parameters.
+    """
 
     # First, check if the parameters are within the pre-defined bounds
     # TODO: check if it is more efficient to use a bounded minimization algo
@@ -656,6 +697,11 @@ def fit_distribution_to_sample(raw_samples, distribution,
     Rho: float 2D ndarray, optional
         In the multivariate case, returns the estimate of the correlation
         matrix.
+
+    Raises
+    ------
+    ValueError
+        If NaN values are produced during standard normal space transformation
     """
 
     samples = np.atleast_2d(raw_samples)
@@ -690,8 +736,8 @@ def fit_distribution_to_sample(raw_samples, distribution,
 
     # Define initial values of distribution parameters
     # Initialize arrays
-    mu_init = np.ones(n_dims)*np.nan
-    sig_init = np.ones_like(mu_init)*np.nan
+    mu_init = np.ones(n_dims) * np.nan
+    sig_init = np.ones_like(mu_init) * np.nan
 
     for d_i, distr in enumerate(dist_list):
 
@@ -846,6 +892,31 @@ def fit_distribution_to_sample(raw_samples, distribution,
 
 
 def _OLS_percentiles(params, values, perc, family):
+    """
+    Estimate percentiles using ordinary least squares (OLS).
+
+    Parameters
+    ----------
+    params : tuple of floats
+        The parameters of the selected distribution family.
+    values : float ndarray
+        The sample values for which the percentiles are requested.
+    perc : float ndarray
+        The requested percentile(s).
+    family : str
+        The distribution family to use for the percentile estimation.
+        Can be either 'normal' or 'lognormal'.
+
+    Returns
+    -------
+    float
+        The sum of the squared errors between the estimated and actual values.
+
+    Raises
+    ------
+    ValueError
+        If `family` is not 'normal' or 'lognormal'.
+    """
 
     theta_0 = params[0]
     theta_1 = params[1]
@@ -905,16 +976,16 @@ def fit_distribution_to_percentiles(values, percentiles, families):
         inits = [values[median_id], ]
 
         if family == 'normal':
-            inits.append((np.abs(values[extreme_id] - inits[0]) /
-                          np.abs(norm.ppf(percentiles[extreme_id],
-                                          loc=0, scale=1))
-                          ))
+            inits.append(
+                (np.abs(values[extreme_id] - inits[0])
+                 / np.abs(norm.ppf(percentiles[extreme_id],
+                                   loc=0, scale=1))))
 
         elif family == 'lognormal':
-            inits.append((np.abs(np.log(values[extreme_id]/inits[0])) /
-                          np.abs(norm.ppf(percentiles[extreme_id],
-                                          loc=0, scale=1))
-                          ))
+            inits.append(
+                (np.abs(np.log(values[extreme_id] / inits[0]))
+                 / np.abs(norm.ppf(percentiles[extreme_id],
+                                   loc=0, scale=1))))
 
         out_list.append(minimize(_OLS_percentiles, inits,
                                  args=(values, percentiles, family),
@@ -1157,7 +1228,7 @@ class RandomVariable:
 
         if self.distribution == 'normal':
             mu, cov = self.theta[:2]
-            sig = np.abs(mu)*cov
+            sig = np.abs(mu) * cov
 
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
@@ -1220,7 +1291,7 @@ class RandomVariable:
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
-            result = uniform.cdf(values, loc=a, scale=b-a)
+            result = uniform.cdf(values, loc=a, scale=(b - a))
 
         return result
 
@@ -1257,7 +1328,7 @@ class RandomVariable:
                 if np.isnan(b):
                     b = np.inf
 
-                p_a, p_b = [norm.cdf((lim-mu)/sig) for lim in (a, b)]
+                p_a, p_b = [norm.cdf((lim - mu) / sig) for lim in (a, b)]
 
                 if p_b - p_a == 0:
                     raise ValueError(
@@ -1325,7 +1396,7 @@ class RandomVariable:
             if np.any(~np.isnan(self.truncation_limits)):
                 a, b = self.truncation_limits
 
-            result = uniform.ppf(values, loc=a, scale=b-a)
+            result = uniform.ppf(values, loc=a, scale=(b - a))
 
         elif self.distribution == 'empirical':
 
@@ -1348,7 +1419,7 @@ class RandomVariable:
             # else:
             raw_sample_count = len(self._raw_samples)
             new_sample = np.tile(self._raw_samples,
-                                 int(sample_size/raw_sample_count)+1)
+                                 int(sample_size / raw_sample_count) + 1)
             result = new_sample[:sample_size]
 
         elif self.distribution == 'deterministic':
@@ -1657,9 +1728,9 @@ class RandomVariableRegistry:
         # Generate a dictionary with IDs of the free (non-anchored and
         # non-deterministic) variables
         RV_list = [RV_name for RV_name, RV in self.RV.items() if
-                   ((RV.anchor == RV) or
-                    (RV.distribution in {'deterministic',
-                                         'coupled_empirical'}))]
+                   ((RV.anchor == RV) or (
+                       RV.distribution in {
+                           'deterministic', 'coupled_empirical'}))]
         RV_ID = {RV_name: ID for ID, RV_name in enumerate(RV_list)}
         RV_count = len(RV_ID)
 

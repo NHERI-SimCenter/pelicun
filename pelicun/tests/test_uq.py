@@ -41,18 +41,24 @@
 These are unit and integration tests on the uq module of pelicun.
 """
 
-import pytest
 import pickle
 import itertools
 import os
 import re
 import inspect
+import pytest
 import numpy as np
-from numpy.testing import assert_allclose
 from scipy.stats import norm
 from pelicun import uq
 
 RNG = np.random.default_rng(40)
+
+# for tests, we sometimes create things or call them just to see if
+# things would work, so the following are irrelevant:
+
+# pylint: disable=unused-variable
+# pylint: disable=pointless-statement
+
 
 # The tests maintain the order of definitions of the `uq.py` file.
 
@@ -159,11 +165,13 @@ def reset_all_test_data(restore=True, purge=False):
         # generate a list of functions defined in the current file.
         functions = [obj for obj in globals().values() if inspect.isfunction(obj)]
         # filter functions that have `reset` as one of their arguments
-        reset_functions = [f for f in functions if 'reset' in f.__code__.co_varnames]
+        reset_functions = [
+            f for f in functions if 'reset' in f.__code__.co_varnames]
         # and their name begins with `test_`
-        test_functions = [f for f in reset_functions if f.__name__.startswith('test_')]
+        test_functions = [
+            f for f in reset_functions if f.__name__.startswith('test_')]
         # execute them
-        for f in reset_functions:
+        for f in test_functions:
             f(reset=True)
 
 #  _____                 _   _
@@ -176,6 +184,9 @@ def reset_all_test_data(restore=True, purge=False):
 
 
 def test_scale_distribution(reset=False):
+    """
+    Tests the functionality of the scale_distribution function.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test_scale_distribution'
@@ -210,6 +221,9 @@ def test_scale_distribution(reset=False):
 
 
 def test_mvn_orthotope_density(reset=False):
+    """
+    Tests the functionality of the mvn_orthotope_density function.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test_mvn_orthotope_density'
@@ -253,7 +267,7 @@ def test_mvn_orthotope_density(reset=False):
     # verify that each set works as intended
     file_incr = 0
     for args in zip(
-        mu_vals, cov_vals, lower_vals, upper_vals):
+            mu_vals, cov_vals, lower_vals, upper_vals):
         file_incr += 1
         # run the function
         res = uq.mvn_orthotope_density(*args)
@@ -269,6 +283,9 @@ def test_mvn_orthotope_density(reset=False):
 
 
 def test__get_theta(reset=False):
+    """
+    Tests the functionality of the _get_theta utility function.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test__get_theta'
@@ -305,6 +322,9 @@ def test__get_theta(reset=False):
 
 
 def test__get_limit_probs(reset=False):
+    """
+    Tests the functionality of the _get_limit_probs function.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test__get_limit_probs'
@@ -344,6 +364,9 @@ def test__get_limit_probs(reset=False):
 
 
 def test__get_std_samples(reset=False):
+    """
+    Tests the functionality of the _get_std_samples utility function.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test__get_std_samples'
@@ -415,6 +438,10 @@ def test__get_std_samples(reset=False):
 
 
 def test__get_std_corr_matrix(reset=False):
+    """
+    Tests the functionality of the _get_std_corr_matrix utility
+    function.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test__get_std_corr_matrix'
@@ -465,6 +492,9 @@ def test__get_std_corr_matrix(reset=False):
 
 
 def test__mvn_scale(reset=False):
+    """
+    Tests the functionality of the _mvn_scale utility function.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test__mvn_scale'
@@ -501,6 +531,11 @@ def test__mvn_scale(reset=False):
 
 
 def test_fit_distribution_to_sample_univariate(reset=False):
+    """
+    Tests the functionality of the
+    fit_distribution_to_sample_univariate function, only considering
+    univariate input cases.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test_fit_distribution_to_sample_univariate'
@@ -508,7 +543,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     file_incr = 0
 
     # baseline case
-    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
+    sample_vec = np.array(
+        (-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
     res = uq.fit_distribution_to_sample(
         sample_vec,
         'normal'
@@ -524,7 +560,9 @@ def test_fit_distribution_to_sample_univariate(reset=False):
         'normal'
     )
     assert np.isclose(res[0][0, 0], np.mean(sample_vec))
-    assert np.isclose(res[0][0, 1], np.std(sample_vec)/np.mean(sample_vec))  # yay!
+    assert np.isclose(
+        res[0][0, 1],
+        np.std(sample_vec) / np.mean(sample_vec))
     assert np.isclose(res[1][0, 0], 1.00)
 
     # lognormal
@@ -542,7 +580,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     c_lower = -1.50
     c_upper = 1.50
     sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00))
-    usable_sample_idx = np.all([sample_vec>c_lower, sample_vec<c_upper], axis=0)
+    usable_sample_idx = np.all(
+        [sample_vec > c_lower, sample_vec < c_upper], axis=0)
     usable_sample = sample_vec[usable_sample_idx].reshape((1, -1))
     c_count = len(sample_vec) - len(usable_sample)
     usable_sample = usable_sample.reshape((1, -1))
@@ -562,7 +601,7 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     c_lower = -1.50
     c_upper = np.inf
     sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00))
-    usable_sample_idx = np.all([sample_vec>c_lower, sample_vec<c_upper], axis=0)
+    usable_sample_idx = np.all([sample_vec > c_lower, sample_vec < c_upper], axis=0)
     usable_sample = sample_vec[usable_sample_idx].reshape((1, -1))
     c_count = len(sample_vec) - len(usable_sample)
     usable_sample = usable_sample.reshape((1, -1))
@@ -582,7 +621,7 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     c_lower = -np.inf
     c_upper = 1.50
     sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00))
-    usable_sample_idx = np.all([sample_vec>c_lower, sample_vec<c_upper], axis=0)
+    usable_sample_idx = np.all([sample_vec > c_lower, sample_vec < c_upper], axis=0)
     usable_sample = sample_vec[usable_sample_idx].reshape((1, -1))
     c_count = len(sample_vec) - len(usable_sample)
     usable_sample = usable_sample.reshape((1, -1))
@@ -604,7 +643,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     # truncated data, lower and upper, expect failure
     t_lower = -1.50
     t_upper = 1.50
-    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
+    sample_vec = np.array(
+        (-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
     with pytest.raises(ValueError):
         res = uq.fit_distribution_to_sample(
             sample_vec, 'normal',
@@ -613,7 +653,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     # truncated data, only lower, expect failure
     t_lower = -1.50
     t_upper = np.inf
-    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
+    sample_vec = np.array(
+        (-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
     with pytest.raises(ValueError):
         res = uq.fit_distribution_to_sample(
             sample_vec, 'normal',
@@ -622,7 +663,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     # truncated data, only upper, expect failure
     t_lower = -np.inf
     t_upper = 1.50
-    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
+    sample_vec = np.array(
+        (-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
     with pytest.raises(ValueError):
         res = uq.fit_distribution_to_sample(
             sample_vec, 'normal',
@@ -632,7 +674,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     np.random.seed(40)
     t_lower = -4.50
     t_upper = 4.50
-    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
+    sample_vec = np.array(
+        (-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
     res_a = uq.fit_distribution_to_sample(
         sample_vec, 'normal',
         truncation_limits=[t_lower, t_upper])
@@ -647,7 +690,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     np.random.seed(40)
     t_lower = -4.50
     t_upper = np.inf
-    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
+    sample_vec = np.array(
+        (-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
     res_b = uq.fit_distribution_to_sample(
         sample_vec, 'normal',
         truncation_limits=[t_lower, t_upper])
@@ -662,7 +706,8 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     np.random.seed(40)
     t_lower = -np.inf
     t_upper = 4.50
-    sample_vec = np.array((-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
+    sample_vec = np.array(
+        (-3.00, -2.00, -1.00, 0.00, 1.00, 2.00, 3.00)).reshape((1, -1))
     res_c = uq.fit_distribution_to_sample(
         sample_vec, 'normal',
         truncation_limits=[t_lower, t_upper])
@@ -679,6 +724,11 @@ def test_fit_distribution_to_sample_univariate(reset=False):
 
 
 def test_fit_distribution_to_sample_multivariate(reset=False):
+    """
+    Tests the functionality of the
+    fit_distribution_to_sample_univariate function, only considering
+    multivariate input cases.
+    """
 
     # test data location
     data_dir = 'tests/data/uq/test_fit_distribution_to_sample_multivariate'
@@ -731,7 +781,11 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
     # more to come!
 
 
-def test_fit_distribution_to_percentiles(reset=False):
+def test_fit_distribution_to_percentiles():
+    """
+    Tests the functionality of the fit_distribution_to_percentiles
+    function.
+    """
 
     # normal, mean of 20 and standard deviation of 10
     percentiles = np.linspace(0.01, 0.99, num=10000)
@@ -748,8 +802,8 @@ def test_fit_distribution_to_percentiles(reset=False):
     ln_mu = 20.00
     ln_std = 10.00
     # calculate mu, std of the underlying normal distribution
-    n_mu = np.log(ln_mu) - 0.50 * np.log(1.00 + (ln_std/ln_mu)**2)
-    n_std = np.sqrt(np.log(1.00 + (ln_std/ln_mu)**2))
+    n_mu = np.log(ln_mu) - 0.50 * np.log(1.00 + (ln_std / ln_mu)**2)
+    n_std = np.sqrt(np.log(1.00 + (ln_std / ln_mu)**2))
     percentiles = np.linspace(0.01, .99, num=10000)
     n_values = norm.ppf(percentiles, loc=n_mu, scale=n_std)
     # values that correspond to those percentiles for the lognormal distr
@@ -759,7 +813,7 @@ def test_fit_distribution_to_percentiles(reset=False):
         ln_values, percentiles, ['normal', 'lognormal'])
     # theoretical lognormal distr median and beta (for assertions)
     ln_delta = ln_mu**2 / np.sqrt(ln_mu**2 + ln_std**2)
-    ln_beta = np.sqrt(2.00 * np.log(np.sqrt(ln_mu**2 + ln_std**2)/ln_mu))
+    ln_beta = np.sqrt(2.00 * np.log(np.sqrt(ln_mu**2 + ln_std**2) / ln_mu))
     assert res[0] == 'lognormal'
     assert np.allclose(res[1], np.array((ln_delta, ln_beta)))
 
@@ -773,7 +827,11 @@ def test_fit_distribution_to_percentiles(reset=False):
 # The following tests verify the methods of the objects of the module.
 
 
-def test_RandomVariable(reset=False):
+def test_RandomVariable():
+    """
+    Tests the instantiation and basic functionality of the
+    `RandomVariable` class.
+    """
 
     # instantiate a random variable with default attributes
     rv_1 = uq.RandomVariable(
@@ -788,6 +846,10 @@ def test_RandomVariable(reset=False):
         'rv_2',
         'coupled_empirical'
     )
+    # verify that the attributes have been assigned as expected
+    assert rv_2.name == 'rv_2'
+    assert rv_2._distribution == 'coupled_empirical'
+    assert np.isnan(rv_2._theta[0])
 
     # verify that other distributions require theta
     distributions = (
@@ -795,21 +857,24 @@ def test_RandomVariable(reset=False):
         'uniform', 'deterministic')
     for distribution in distributions:
         with pytest.raises(ValueError):
-            rv_err = uq.RandomVariable(
+            rv_err = uq.RandomVariable(  # noqa: F841
                 "won't see the light of day",
                 distribution)
 
 
-def test_RandomVariable_cdf(reset=False):
-
+def test_RandomVariable_cdf():
+    """
+    Tests the functionality of the `cdf` method of the
+    `RandomVariable` class.
+    """
     # create a normal random variable
     rv = uq.RandomVariable(
         'test_rv', 'normal', theta=(1.0, 1.0))
-    
+
     # evaluate CDF at different points
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
-    
+
     # assert that CDF values are correct
     assert np.allclose(
         cdf,
@@ -819,7 +884,7 @@ def test_RandomVariable_cdf(reset=False):
     # same for lognormal
     rv = uq.RandomVariable(
         'test_rv', 'lognormal', theta=(1.0, 1.0))
-    
+
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
 
@@ -831,7 +896,7 @@ def test_RandomVariable_cdf(reset=False):
     # and for uniform
     rv = uq.RandomVariable(
         'test_rv', 'uniform', theta=(0.0, 1.0))
-    
+
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
 
@@ -841,29 +906,33 @@ def test_RandomVariable_cdf(reset=False):
         rtol=1e-5)
 
 
-def test_RandomVariable_inverse_transform(reset=False):
+def test_RandomVariable_inverse_transform():
+    """
+    Tests the functionality of the `inverse_transform` method of the
+    `RandomVariable` class.
+    """
 
     # create a uniform random variable
     rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.0, 1.0))
-    
+
     samples = np.array((0.10, 0.20, 0.30))
-    
+
     # compute inverse transform of samples
     rv.uni_sample = samples
     rv.inverse_transform_sampling(samples)
     inverse_transform = rv.sample
-    
+
     # assert that inverse transform values are correct
     assert np.allclose(inverse_transform, samples, rtol=1e-5)
-    
+
     # create a lognormal random variable
     rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
-    
+
     # compute inverse transform of samples
     rv.uni_sample = samples
     rv.inverse_transform_sampling(samples)
     inverse_transform = rv.sample
-    
+
     # assert that inverse transform values are correct
     assert np.allclose(
         inverse_transform,
@@ -872,29 +941,39 @@ def test_RandomVariable_inverse_transform(reset=False):
 
     # create a normal random variable
     rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
-    
+
     # compute inverse transform of samples
     rv.uni_sample = samples
     rv.inverse_transform_sampling(samples)
     inverse_transform = rv.sample
-    
+
     # assert that inverse transform values are correct
     assert np.allclose(
         inverse_transform,
         np.array((0.35922422, 0.57918938, 0.73779974)),
         rtol=1e-5)
 
-def test_RandomVariable_Set(reset=False):
-    
+
+def test_RandomVariable_Set():
+    """
+    Tests the instantiation and basic functionality of the
+    `RandomVariable_Set` class.
+    """
+
     rv_1 = uq.RandomVariable('rv1', 'normal', theta=(1.0, 1.0))
     rv_2 = uq.RandomVariable('rv2', 'normal', theta=(1.0, 1.0))
-    rv_set = uq.RandomVariableSet(
+    rv_set = uq.RandomVariableSet(  # noqa: F841
         'test_set',
         (rv_1, rv_2),
         np.array(((1.0, 0.50), (0.50, 1.0)))
     )
 
+
 def test_RandomVariable_Set_apply_correlation(reset=False):
+    """
+    Tests the functionality of the `apply_correlation` method of the
+    `RandomVariable_Set` class.
+    """
 
     data_dir = 'tests/data/uq/test_random_variable_set_apply_correlation'
     file_incr = 0
@@ -911,10 +990,10 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
         distribution='uniform',
         theta=(-5.0, 5.0)
     )
-    
+
     rv_1.uni_sample = np.random.random(size=100)
     rv_2.uni_sample = np.random.random(size=100)
-    
+
     rvs = uq.RandomVariableSet(
         name='test_set',
         RV_list=[rv_1, rv_2],
@@ -933,8 +1012,16 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
         compare = import_pickle(filename)
         assert np.allclose(res, compare)
 
-def test_RandomVariable_Set_apply_correlation_special(reset=False):
 
+def test_RandomVariable_Set_apply_correlation_special():
+    """"
+    This function tests the apply_correlation method of the
+    RandomVariableSet class when given special input conditions.
+    The first test checks that the method works when given a non
+    positive semidefinite correlation matrix.
+    The second test checks that the method works when given a non full
+    rank matrix.
+    """
     # inputs that cause `apply_correlation` to use the SVD
 
     # non positive semidefinite correlation matrix
@@ -958,18 +1045,25 @@ def test_RandomVariable_Set_apply_correlation_special(reset=False):
 
 
 def test_RandomVariable_Set_orthotope_density(reset=False):
+    """
+    Tests the functionality of the `orthotope_density` method of the
+    `RandomVariable_Set` class.
+    """
 
     data_dir = 'tests/data/uq/test_random_variable_set_orthotope_density'
 
     # create some random variables
-    rv_1 = uq.RandomVariable('rv1', 'normal', theta=[5.0, 0.1], truncation_limits=np.array((np.nan, 10.0)))
+    rv_1 = uq.RandomVariable(
+        'rv1', 'normal', theta=[5.0, 0.1],
+        truncation_limits=np.array((np.nan, 10.0)))
     rv_2 = uq.RandomVariable('rv2', 'lognormal', theta=[10.0, 0.2])
     rv_3 = uq.RandomVariable('rv3', 'uniform', theta=[13.0, 17.0])
     rv_4 = uq.RandomVariable('rv4', 'uniform', theta=[0.0, 1.0])
     rv_5 = uq.RandomVariable('rv5', 'uniform', theta=[0.0, 1.0])
 
     # create a random variable set
-    rv_set = uq.RandomVariableSet('rv_set', (rv_1, rv_2, rv_3, rv_4, rv_5), np.identity(5))
+    rv_set = uq.RandomVariableSet(
+        'rv_set', (rv_1, rv_2, rv_3, rv_4, rv_5), np.identity(5))
 
     # define test cases
     test_cases = (
@@ -1009,9 +1103,13 @@ def test_RandomVariable_Set_orthotope_density(reset=False):
         compare = import_pickle(filename)
         # verify equality
         assert np.allclose(res, compare)
-    
+
 
 def test_RandomVariableRegistry_generate_sample(reset=False):
+    """
+    Tests the functionality of the `generate_sample` method of the
+    `RandomVariableRegistry` class.
+    """
 
     data_dir = 'tests/data/uq/test_RandomVariableRegistry_generate_sample'
     file_incr = 0
@@ -1046,7 +1144,6 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         # on rare occasions.
         # assert np.isclose(np.mean(res), 1.0, atol=1e-2)
         # assert np.isclose(np.std(res), 1.0, atol=1e-2)
-
 
         #
         # Random variable registry with multiple random variables
@@ -1090,7 +1187,6 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         assert 'rv2' in rv_dictionary
         with pytest.raises(KeyError):
             rv_dictionary['rv3']
-
 
 
 if __name__ == '__main__':
