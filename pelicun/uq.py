@@ -726,8 +726,6 @@ def fit_distribution_to_sample(raw_samples, distribution,
     bnd_lower = bnd_lower.flatten()
     bnd_upper = bnd_upper.flatten()
 
-    # inits_0 = np.copy(inits)
-
     # There is nothing to gain from a time-consuming optimization if..
     #     the number of samples is too small
     if ((n_samples < 3) or (
@@ -1393,7 +1391,12 @@ class RandomVariable:
 
 class RandomVariableSet:
     """
-    Description
+    Represents a set of random variables, each of which is described
+    by its own probability distribution. The set allows the user to
+    define correlations between the random variables, and provides
+    methods to sample from the correlated variables and estimate
+    various statistical properties of the set, such as the probability
+    density within a specified range or orthotope.
 
     Parameters
     ----------
