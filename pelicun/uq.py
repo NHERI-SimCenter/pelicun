@@ -339,6 +339,16 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
 
         if dist_i in {'normal', 'lognormal'}:
 
+            lim_low = tr_lim_i[0]
+            lim_high = tr_lim_i[1]
+
+            if (True in (samples_i > lim_high).tolist()
+                or
+                True in (samples_i < lim_low).tolist()):
+                raise ValueError(
+                    'One or more sample values lie outside '
+                    'of the specified truncation limits.')
+
             # first transform from normal to uniform
             uni_samples = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
 
@@ -655,17 +665,13 @@ def fit_distribution_to_sample(raw_samples, distribution,
     n_dims, n_samples = samples.shape
 
     if (tr_limits.shape[0] == 1) and (n_dims != 1):
-        tr_limits = np.tile(tr_limits[0], n_dims).reshape([n_dims, 2])
+        tr_limits = np.tile(tr_limits[0], (n_dims, 1))
 
     if (det_limits.shape[0] == 1) and (n_dims != 1):
-        det_limits = np.tile(det_limits[0], n_dims).reshape([n_dims, 2])
+        det_limits = np.tile(det_limits[0], (n_dims, 1))
 
     if (dist_list.shape[0] == 1) and (n_dims != 1):
-        dist_list = np.tile(dist_list[0], n_dims).reshape([n_dims, 1])
-
-    # transpose limit arrays
-    tr_limits = tr_limits.T
-    det_limits = det_limits.T
+        dist_list = np.tile(dist_list[0], n_dims)
 
     # Convert samples and limits to log space if the distribution is lognormal
     for d_i, distr in enumerate(dist_list):
@@ -800,6 +806,12 @@ def fit_distribution_to_sample(raw_samples, distribution,
     # Calculate rho in the standard normal space because we will generate new
     # samples using that type of correlation (i.e., Gaussian copula)
     std_samples = _get_std_samples(samples, theta, tr_limits, dist_list)
+    if True in np.isnan(std_samples.flatten()).tolist():
+        raise ValueError(
+            'Something went wrong.'
+            '\n'
+            'Conversion to standard normal space was unsuccessful.'
+        )
     rho_hat = _get_std_corr_matrix(std_samples)
     if rho_hat is None:
         # If there is not enough data to produce a valid correlation matrix
@@ -826,10 +838,11 @@ def fit_distribution_to_sample(raw_samples, distribution,
             # theta = theta_mod.T
         # Convert the std to cov if the distribution is normal
         elif distr == 'normal':
-            theta[d_i][1] = theta[d_i][1] / np.abs(theta[d_i][0])
-
-    # for val in list(zip(inits_0, theta)):
-    #    print(val)
+            # note: this results in cov=inf if the mean is zero.
+            if np.abs(theta[d_i][0]) < 1.0e-40:
+                theta[d_i][1] = np.inf
+            else:
+                theta[d_i][1] = theta[d_i][1] / np.abs(theta[d_i][0])
 
     return theta, rho_hat
 
@@ -939,8 +952,9 @@ class RandomVariable:
         empirical and coupled_empirical - N/A;
         deterministic - the deterministic value assigned to the variable.
     truncation_limits: float ndarray, optional
-        Defines the [a,b] truncation limits for the distribution. Use None to
-        assign no limit in one direction.
+        Defines the np.array((a, b)) truncation limits for the
+        distribution. Use np.nan to assign no limit in one direction,
+        like so: np.array((a, np.nan)), or np.array((np.nan, b)).
     bounded: float ndarray, optional
         Defines the [P_a, P_b] probability bounds for the distribution. Use None
         to assign no lower or upper bound.

@@ -663,12 +663,11 @@ class DemandModel(PelicunModel):
             distribution=cal_df.loc[:, 'Family'].values,
             censored_count=censored_count,
             detection_limits=cal_df.loc[
-                :, ['CensorLower', 'CensorUpper']].values.T,
+                :, ['CensorLower', 'CensorUpper']].values,
             truncation_limits=cal_df.loc[
-                :, ['TruncateLower', 'TruncateUpper']].values.T,
+                :, ['TruncateLower', 'TruncateUpper']].values,
             multi_fit=False
         )
-
         # fit the joint distribution
         self.log_msg("\nCalibration successful, processing results...",
                      prepend_timestamp=False)
