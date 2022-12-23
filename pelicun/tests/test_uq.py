@@ -125,13 +125,13 @@ def reset_all_test_data(restore=True, purge=False):
     Note: This function assumes that the interpreter's current
     directory is the package root directory (`pelicun`). The code
     assumes that the test data directory exists.
-    Data delition only involves `.pcl` files that begin with `test_` and
+    Data deletion only involves `.pcl` files that begin with `test_` and
     reside in /tests/data/uq.
 
     Parameters
     ----------
     restore: bool
-      Whther to re-generate the test result data
+      Whether to re-generate the test result data
     purge: bool
       Whether to remove the test result data before re-generating the
       new values.
