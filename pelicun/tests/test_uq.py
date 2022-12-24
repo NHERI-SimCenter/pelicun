@@ -39,17 +39,21 @@
 
 """
 These are unit and integration tests on the uq module of pelicun.
+
+Note: Test functions that require reading the expected test results
+from a file should include a reset=False argument to enable automatic
+reset from the `reset_all_test_data` function of the test_util.py
+file.
 """
 
-import pickle
 import itertools
-import os
-import re
-import inspect
 import pytest
 import numpy as np
 from scipy.stats import norm
+from tests.test_util import import_pickle
+from tests.test_util import export_pickle
 from pelicun import uq
+
 
 RNG = np.random.default_rng(40)
 
@@ -61,118 +65,6 @@ RNG = np.random.default_rng(40)
 
 
 # The tests maintain the order of definitions of the `uq.py` file.
-
-
-def export_pickle(filepath, obj, makedirs=True):
-    """
-    Auxiliary function to export a pickle object.
-    Parameters
-    ----------
-    filepath: str
-      The path of the file to be exported,
-      including any subdirectories.
-    obj: object
-      The object to be pickled
-    makedirs: bool
-      If True, then the directories preceding the filename
-      will be created if they do not exist.
-    """
-    # extract the directory name
-    dirname = os.path.dirname(filepath)
-    # if making directories is requested,
-    if makedirs:
-        # and the path does not exist
-        if not os.path.exists(dirname):
-            # create the directory
-            os.makedirs(dirname)
-    # open the file with the given filepath
-    with open(filepath, 'wb') as f:
-        # and store the object in the file
-        pickle.dump(obj, f)
-
-
-def import_pickle(filepath):
-    """
-    Auxiliary function to import a pickle object.
-    Parameters
-    ----------
-    filepath: str
-      The path of the file to be imported.
-
-    Returns
-    -------
-    The pickled object.
-
-    """
-    # open the file with the given filepath
-    with open(filepath, 'rb') as f:
-        # and retrieve the pickled object
-        return pickle.load(f)
-
-
-def reset_all_test_data(restore=True, purge=False):
-    """
-    Update the expected result pickle files with new results, accepting
-    the values obtained by executing the code as correct from now on.
-
-    Warning: This function should never be used if tests are
-    failing. Its only purpose is to aid the development of more tests
-    and keeping things tidy. If tests are failing, the specific tests
-    need to be investigated, and after rectifying the cause, new
-    expected test result values should be created at an individual
-    basis.
-
-    Note: This function assumes that the interpreter's current
-    directory is the package root directory (`pelicun`). The code
-    assumes that the test data directory exists.
-    Data deletion only involves `.pcl` files that begin with `test_` and
-    reside in /tests/data/uq.
-
-    Parameters
-    ----------
-    restore: bool
-      Whether to re-generate the test result data
-    purge: bool
-      Whether to remove the test result data before re-generating the
-      new values.
-
-    Raises
-    ------
-
-    ValueError
-      If the test directory is not found.
-
-    """
-
-    # where the uq test result data are stored
-    testdir = os.path.join(*('tests', 'data', 'uq'))
-    if not os.path.exists(testdir):
-        raise ValueError('tests/data/uq directory not found.')
-
-    # clean up existing test result data
-    # only remove .pcl files that start with `test_`
-    pattern = re.compile(r'^test_.\.pcl')
-    if purge:
-        for root, _, files in os.walk('.'):
-            for filename in files:
-                if pattern.match(filename):
-                    print(f'removing: {filename}')
-                    file_path = os.path.join(root, filename)
-                    os.remove(file_path)
-
-    # generate new data
-    if restore:
-        # generate a list of functions defined in the current file.
-        functions = [obj for obj in globals().values() if inspect.isfunction(obj)]
-        # filter functions that have `reset` as one of their arguments
-        reset_functions = [
-            f for f in functions if 'reset' in f.__code__.co_varnames]
-        # and their name begins with `test_`
-        test_functions = [
-            f for f in reset_functions if f.__name__.startswith('test_')]
-        # execute them
-        for f in test_functions:
-            f(reset=True)
 
 #  _____                 _   _
 # |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
