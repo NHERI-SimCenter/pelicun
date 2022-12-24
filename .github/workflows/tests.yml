@@ -25,5 +25,5 @@ jobs:
       - name: Run tests
         run: |
           cd pelicun
-          pytest tests
+          python -m pytest --cov=pelicun tests
 
