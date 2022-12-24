@@ -246,8 +246,6 @@ def test_print_system_info():
 
     # verify the contents of the output
     assert 'System Information:\n' in output
-    assert f'python: {sys.version}\n' in output
-    assert f'pandas: {pd.__version__}\n' in output
 
     # remove the created log file
     os.remove('log.txt')
