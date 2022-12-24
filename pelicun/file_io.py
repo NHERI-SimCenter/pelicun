@@ -247,6 +247,85 @@ def load_default_options():
     return default_options
 
 
+def update_vals(
+        primary, update,
+        primary_path, update_path
+):
+    """
+    Updates the values of the `primary` nested dictionary with
+    those provided in the `update` nested dictionary. If a key
+    already exists in primary, and does not map to another
+    dictionary, the value is left unchanged.
+
+    Parameters
+    ----------
+    primary: dict
+        Dictionary -which can contain nested dictionaries- to be
+        updated based on the values of `update`. New keys existing
+        in `update` are added to `primary`. Values of which keys
+        already exist in `update` are left unchanged.
+    update: dict
+        Dictionary -which can contain nested dictionaries- to
+        be used to update the values of `primary`.
+    primary_path: str
+        Identifier for the primary dictionary. Used to make error
+        messages more meaningful.
+    update_path: str
+        Identifier for the primary dictionary. Used to make error
+        messages more meaningful.
+
+    Raises
+    ------
+    ValueError
+      If update[key] is dict but primary[key] is not.
+    ValueError
+      If primary[key] is dict but update[key] is not.
+    """
+    # we go over the keys of `update`
+    for key in update:
+        # if `update[key]` is a dictionary:
+        if isinstance(update[key], dict):
+            # if the same `key` does not exist in primary,
+            # we associate it with an empty dictionary.
+            if key not in primary:
+                primary[key] = {}
+            # if it exists already, it should map to
+            # a dictionary.
+            else:
+                if not isinstance(primary[key], dict):
+                    raise ValueError(
+                        f'{primary_path}["{key}"] '
+                        'should map to a dictionary. '
+                        'The specified value is '
+                        f'{primary_path}["{key}"] = {primary[key]}, but '
+                        f'the default value is '
+                        f'{update_path}["{key}"] = {update[key]}. '
+                            f'Please revise {primary_path}["{key}"].'
+                    )
+            # With both being dictionaries, we recurse.
+            update_vals(
+                primary[key], update[key],
+                f'{primary_path}["{key}"]', f'{update_path}["{key}"]')
+        # if `update[key]` is NOT a dictionary:
+        else:
+            # if `key` does not exist in `primary`, we add it, with
+            # its corresponding value.
+            if key not in primary:
+                primary[key] = update[key]
+            else:
+                # key exists in primary and should be left alone,
+                # but we must check that it's not a dict here:
+                if isinstance(primary[key], dict):
+                    raise ValueError(
+                        f'{primary_path}["{key}"] '
+                        'should not map to a dictionary. '
+                        f'The specified value is '
+                        f'{primary_path}["{key}"] = {primary[key]}, but '
+                        f'the default value is '
+                        f'{update_path}["{key}"] = {update[key]}. '
+                        f'Please revise {primary_path}["{key}"].'
+                    )
+
 def merge_default_config(user_config):
     """
     Merge the user-specified config with the configuration defined in
@@ -274,90 +353,9 @@ def merge_default_config(user_config):
     # We fill out the user's config with the values available in the
     # default config that were not set.
     # We use a recursive function to handle nesting.
-
-    def update_vals(
-            primary, update,
-            primary_path, update_path
-    ):
-        """
-        Updates the values of the `primary` nested dictionary with
-        those provided in the `update` nested dictionary. If a key
-        already exists in primary, and does not map to another
-        dictionary, the value is left unchanged.
-
-        Parameters
-        ----------
-        primary: dict
-            Dictionary -which can contain nested dictionaries- to be
-            updated based on the values of `update`. New keys existing
-            in `update` are added to `primary`. Values of which keys
-            already exist in `update` are left unchanged.
-        update: dict
-            Dictionary -which can contain nested dictionaries- to
-            be used to update the values of `primary`.
-        primary_path: str
-            Identifier for the primary dictionary. Used to make error
-            messages more meaningful.
-        update_path: str
-            Identifier for the primary dictionary. Used to make error
-            messages more meaningful.
-
-        Raises
-        ------
-        ValueError
-          If update[key] is dict but primary[key] is not.
-        ValueError
-          If primary[key] is dict but update[key] is not.
-        """
-        # we go over the keys of `update`
-        for key in update:
-            # if `update[key]` is a dictionary:
-            if isinstance(update[key], dict):
-                # if the same `key` does not exist in primary,
-                # we associate it with an empty dictionary.
-                if key not in primary:
-                    primary[key] = {}
-                # if it exists already, it should map to
-                # a dictionary.
-                else:
-                    if not isinstance(primary[key], dict):
-                        raise ValueError(
-                            f'{primary_path}["{key}"] '
-                            'should map to a dictionary. '
-                            'The specified value is '
-                            f'{primary_path}["{key}"] = {primary[key]}, but '
-                            f'the default value is '
-                            f'{update_path}["{key}"] = {update[key]}. '
-                                f'Please revise {primary_path}["{key}"].'
-                        )
-                # With both being dictionaries, we recurse.
-                update_vals(
-                    primary[key], update[key],
-                    f'{primary_path}["{key}"]', f'{update_path}["{key}"]')
-            # if `update[key]` is NOT a dictionary:
-            else:
-                # if `key` does not exist in `primary`, we add it, with
-                # its corresponding value.
-                if key not in primary:
-                    primary[key] = update[key]
-                else:
-                    # key exists in primary and should be left alone,
-                    # but we must check that it's not a dict here:
-                    if isinstance(primary[key], dict):
-                        raise ValueError(
-                            f'{primary_path}["{key}"] '
-                            'should not map to a dictionary. '
-                            f'The specified value is '
-                            f'{primary_path}["{key}"] = {primary[key]}, but '
-                            f'the default value is '
-                            f'{update_path}["{key}"] = {update[key]}. '
-                            f'Please revise {primary_path}["{key}"].'
-                        )
-    # perform the updating operation
     update_vals(
         config, default_config,
         'user_settings', 'default_settings')
-    # config is now updated with the user-specified configuration
 
     return config
 
