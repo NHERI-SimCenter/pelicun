@@ -745,7 +745,7 @@ def parse_units(additional_file=None):
                 dictionary = json.load(f)
         except FileNotFoundError as exc:
             raise FileNotFoundError(
-                'settings/default_units.json was not found.') from exc
+                f'{file_path} was not found.') from exc
         except json.decoder.JSONDecodeError as exc:
             raise Exception(
                 'settings/default_units.json is not a valid JSON file.') from exc

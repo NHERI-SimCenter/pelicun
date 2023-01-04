@@ -41,14 +41,11 @@
 These are unit and integration tests on the file_io module of pelicun.
 """
 
-import pickle
-import itertools
+import tempfile
 import os
-import re
-import inspect
 import pytest
 import numpy as np
-from scipy.stats import norm
+import pandas as pd
 from pelicun import file_io
 
 # for tests, we sometimes create things or call them just to see if
@@ -62,6 +59,10 @@ from pelicun import file_io
 # The tests maintain the order of definitions of the `file_io.py` file.
 
 def test_float_or_None():
+    """
+    Tests the functionality of the float_or_None function.
+    """
+
     # Test with a string that can be converted to a float
     assert file_io.float_or_None('3.14') == 3.14
 
@@ -72,13 +73,16 @@ def test_float_or_None():
     assert file_io.float_or_None('-3.14') == -3.14
 
     # Test with a string that can't be converted to a float
-    assert file_io.float_or_None('hello') == None
+    assert file_io.float_or_None('hello') is None
 
     # Test with an empty string
-    assert file_io.float_or_None('') == None
+    assert file_io.float_or_None('') is None
 
 
 def test_int_or_None():
+    """
+    Tests the functionality of the int_or_None function.
+    """
 
     # Test the case when the string can be converted to int
     assert file_io.int_or_None('123') == 123
@@ -94,6 +98,9 @@ def test_int_or_None():
 
 
 def test_process_loc():
+    """
+    Tests the functionality of the process_loc function.
+    """
 
     # Test when string can be converted to an int
     assert file_io.process_loc('5', 10) == [5, ]
@@ -115,6 +122,10 @@ def test_process_loc():
 
 
 def test_update_vals():
+    """
+    Tests the functionality of the update_vals function.
+    """
+
     primary = {'b': {'c': 4, 'd': 5}, 'g': 7}
     update = {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6}
     file_io.update_vals(update, primary, 'update', 'primary')
@@ -137,6 +148,10 @@ def test_update_vals():
 
 
 def test_merge_default_config():
+    """
+    Tests the functionality of the merge_default_config function.
+    """
+
     # Test merging an empty user config with the default config
     user_config = {}
     merged_config = file_io.merge_default_config(user_config)
@@ -161,6 +176,154 @@ def test_merge_default_config():
     user_config = {'Verbose': True, 'NonDirectionalMultipliers': {'PFA': 1.5}}
     merged_config = file_io.merge_default_config(user_config)
     assert merged_config == {**file_io.load_default_options(), **user_config}
+
+
+def test_parse_units():
+    """
+    Tests the functionality of the parse_units function.
+    """
+
+    # Test the default units are parsed correctly
+    units = file_io.parse_units()
+    assert isinstance(units, dict)
+    assert 'length' in units
+    assert 'time' in units
+    assert 'force' in units
+    assert 'pressure' in units
+
+    # Test that additional units are parsed correctly
+    additional_units_file = \
+        'tests/data/file_io/test_parse_units/additional_units_a.json'
+    units = file_io.parse_units(additional_units_file)
+    assert isinstance(units, dict)
+    assert 'length' in units
+    assert 'time' in units
+    assert 'force' in units
+    assert 'pressure' in units
+    assert 'mass' in units
+    assert isinstance(units['time'], dict)
+    assert 'year' in units['time']
+
+    # Test that an exception is raised if the additional units file is not found
+    with pytest.raises(FileNotFoundError):
+        units = file_io.parse_units('invalid/file/path.json')
+
+    # Test that an exception is raised if the additional units file is
+    # not a valid JSON file
+    invalid_json_file = 'tests/data/file_io/test_parse_units/invalid.json'
+    with pytest.raises(Exception):
+        units = file_io.parse_units(invalid_json_file)
+
+    # # Test that an exception is raised if a unit is defined twice in
+    # # the additional units file
+    # duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate.json'
+    # with pytest.raises(KeyError):
+    #     units = file_io.parse_units(duplicate_units_file)
+    # ...
+    # oops: this does not raise an exception. It's due to the groupping we did.
+
+    # Test that an exception is raised if a unit conversion factor is not a float
+    invalid_units_file = 'tests/data/file_io/test_parse_units/not_float.json'
+    with pytest.raises(TypeError):
+        units = file_io.parse_units(invalid_units_file)
+
+
+def test_save_to_csv():
+    """
+    Tests the functionality of the save_to_csv function.
+    """
+
+    # Test saving with orientation 0
+    data = pd.DataFrame(
+        {"A": [1e-3, 2e-3, 3e-3],
+         "B": [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(
+        ["meters", "meters"], index=["A", "B"])
+    unit_conversion_factors = {"meters": 0.001}
+
+    # Save to a temporary file
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = os.path.join(tmpdir, 'foo.csv')
+        file_io.save_to_csv(
+            data, filepath,
+            units, unit_conversion_factors, orientation=0)
+        assert os.path.isfile(filepath)
+        # Check that the file contains the expected data
+        with open(filepath, 'r', encoding='utf-8') as f:
+            contents = f.read()
+            assert contents == (
+                ',A,B\n0,meters,meters\n0,1.0,4.0'
+                '\n1,2.0,5.0\n2,3.0,6.0\n')
+
+    # Test saving with orientation 1
+    data = pd.DataFrame(
+        {"A": [1e-3, 2e-3, 3e-3],
+         "B": [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(
+        ["meters", "meters"], index=["A", "B"])
+    unit_conversion_factors = {"meters": 0.001}
+
+    # Save to a temporary file
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = os.path.join(tmpdir, 'bar.csv')
+        file_io.save_to_csv(
+            data, filepath,
+            units, unit_conversion_factors, orientation=1)
+        assert os.path.isfile(filepath)
+        # Check that the file contains the expected data
+        with open(filepath, 'r', encoding='utf-8') as f:
+            contents = f.read()
+            assert contents == (
+                ',0,A,B\n0,,0.001,0.004\n1,,0.002,'
+                '0.005\n2,,0.003,0.006\n')
+
+
+def test_load_data():
+    """
+    Tests the functionality of the load_data function.
+    """
+
+    # test loading data with orientation 0
+
+    filepath = os.path.join(
+        'tests', 'data', 'file_io',
+        'test_load_data', 'units.csv')
+    unit_conversion_factors = {"inps2": 0.0254, "rad": 1.00}
+
+    data = file_io.load_data(filepath, unit_conversion_factors)
+    assert np.array_equal(data.index.values, np.array(range(6)))
+    assert data.shape == (6, 19)
+    assert isinstance(data.columns, pd.core.indexes.multi.MultiIndex)
+    assert data.columns.nlevels == 4
+
+    _, units = file_io.load_data(
+        filepath, unit_conversion_factors, return_units=True)
+
+    for item in unit_conversion_factors:
+        assert item in units.unique()
+
+    filepath = os.path.join(
+        'tests', 'data', 'file_io',
+        'test_load_data', 'no_units.csv')
+    data_nounits = file_io.load_data(filepath, {})
+    assert isinstance(data_nounits, pd.DataFrame)
+
+    # test loading data with orientation 1
+    filepath = os.path.join(
+        'tests', 'data', 'file_io',
+        'test_load_data', 'orient_1.csv')
+    data = file_io.load_data(
+        filepath, unit_conversion_factors,
+        orientation=1, reindex=False)
+    assert isinstance(data.index, pd.core.indexes.multi.MultiIndex)
+    assert data.shape == (10, 2)
+    assert data.index.nlevels == 4
+
+    # try with reindexing
+    data = file_io.load_data(
+        filepath, unit_conversion_factors,
+        orientation=1, reindex=True)
+    assert np.array_equal(data.index.values, np.array(range(10)))
 
 
 if __name__ == '__main__':

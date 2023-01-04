@@ -50,8 +50,8 @@ import itertools
 import pytest
 import numpy as np
 from scipy.stats import norm
-from tests.test_util import import_pickle
-from tests.test_util import export_pickle
+from test_util import import_pickle
+from test_util import export_pickle
 from pelicun import uq
 
 
