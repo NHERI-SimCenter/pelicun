@@ -94,4 +94,3 @@ def import_pickle(filepath):
     with open(filepath, 'rb') as f:
         # and retrieve the pickled object
         return pickle.load(f)
-

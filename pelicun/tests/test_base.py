@@ -43,7 +43,6 @@ These are unit and integration tests on the base module of pelicun.
 
 import os
 import io
-import sys
 from contextlib import redirect_stdout
 import re
 import argparse
