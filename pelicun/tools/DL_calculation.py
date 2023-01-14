@@ -308,19 +308,29 @@ def run_pelicun(config_path):
     else:
         demands = raw_demands
 
+    # load the available demand sample
+    PAL.demand.load_sample(demands)
+
     # get the calibration information
     if demand_config.get('Calibration', False):
-
-        # load the available demand sample
-        PAL.demand.load_sample(demands)
 
         # then use it to calibrate the demand model
         PAL.demand.calibrate_model(demand_config['Calibration'])
 
-        # and generate a new demand sample
-        sample_size = int(demand_config['SampleSize'])
+    else:
+        # if no calibration is requested, 
+        # set all demands to use empirical distribution
+        PAL.demand.calibrate_model({
+            "ALL": {"DistributionFamily": "empirical"}
+            })
 
-        PAL.demand.generate_sample({"SampleSize": sample_size})
+    # and generate a new demand sample
+    sample_size = int(demand_config['SampleSize'])
+
+    PAL.demand.generate_sample({
+        "SampleSize": sample_size,
+        'PreserveRawOrder': demand_config.get('CoupledDemands', False)
+        })
 
     # get the generated demand sample
     demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
