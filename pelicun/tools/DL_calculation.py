@@ -784,6 +784,7 @@ def run_pelicun(config_path):
                 consequence_db = bldg_repair_config['ConsequenceDatabasePath']
                 conseq_df = load_data(
                     bldg_repair_config['ConsequenceDatabasePath'],
+                    unit_conversion_factors={},
                     orientation=1, reindex=False, convert=[])
 
             # add the replacement consequence to the data
