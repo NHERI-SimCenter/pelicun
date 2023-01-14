@@ -803,7 +803,9 @@ def run_pelicun(config_path):
                 index=pd.MultiIndex.from_tuples(
                     [('replacement', 'Cost'), ('replacement', 'Time')]))
 
-            DL_method = bldg_repair_config['ConsequenceDatabase']
+            #DL_method = bldg_repair_config['ConsequenceDatabase']
+            DL_method = damage_config.get('DamageProcess', 'User Defined')
+
             rc = ('replacement', 'Cost')
             if 'ReplacementCost' in bldg_repair_config.keys():
                 rCost_config = bldg_repair_config['ReplacementCost']
