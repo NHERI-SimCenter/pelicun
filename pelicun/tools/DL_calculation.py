@@ -111,11 +111,11 @@ damage_processes = {
 default_DBs = {
     'fragility': {
         'FEMA P-58': 'fragility_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'fragility_DB_HAZUS_EQ.csv'
+        'Hazus Earthquake': 'fragility_DB_Hazus_EQ.csv'
     },
     'repair': {
         'FEMA P-58': 'bldg_repair_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'bldg_repair_DB_HAZUS_EQ.csv'
+        'Hazus Earthquake': 'bldg_repair_DB_Hazus_EQ.csv'
     }
 
 }
@@ -254,7 +254,7 @@ def run_pelicun(config_path):
     #    log_msg("Output configuration missing. Terminating analysis.")
     #    return -1
 
-    # initialize the Pelicun Assessement
+    # initialize the Pelicun Assessment
     options = DL_config.get("Options", {})
     options.update({
         "LogFile": "pelicun_log.txt",
@@ -1070,7 +1070,7 @@ def main(args):
     parser.add_argument('--outputEDP', default='EDP.csv')
     parser.add_argument('--outputDM', default='DM.csv')
     parser.add_argument('--outputDV', default='DV.csv')
-    parser.add_argument('--dirnameOutput', default = None)
+    parser.add_argument('--dirnameOutput', default=None)
     # parser.add_argument('--event_time', default=None)
     # parser.add_argument('--detailed_results', default = True,
     #    type = str2bool, nargs='?', const=True)

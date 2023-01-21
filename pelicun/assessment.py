@@ -49,7 +49,6 @@ This module has classes and methods that control the performance assessment.
 """
 
 import json
-from datetime import datetime
 from . import base
 from . import file_io
 from . import model
@@ -77,25 +76,31 @@ class Assessment:
     """
 
     def __init__(self, config_options=None):
+        """
+        Initializes an Assessment object.
 
+        Parameters
+        ----------
+        config_options (Optional[dict]):
+            User-specified configuration dictionary.
+        """
 
         self.stories = None
-        self.options = base.Options(self)
 
-        file_io.load_default_options(self.options)
+        self.options = base.Options(config_options, self)
 
-        self.options.set_options(file_io.merge_default_config(
-            config_options, self.options))
         self.unit_conversion_factors = file_io.parse_units(
             self.options.units_file)
 
-        self.log_msg(f'pelicun {pelicun_version} | \n',
+        self.log = self.options.log
+
+        self.log.msg(f'pelicun {pelicun_version} | \n',
                      prepend_timestamp=False, prepend_blank_space=False)
 
-        base.print_system_info(self)
+        self.log.print_system_info()
 
-        self.log_div()
-        self.log_msg('Assessement Started')
+        self.log.div()
+        self.log.msg('Assessment Started')
 
     @property
     def demand(self):
@@ -168,7 +173,8 @@ class Assessment:
 
         return file_io.load_data(
             data_path, self.unit_conversion_factors,
-            orientation=1, reindex=False, convert=[])
+            orientation=1, reindex=False, convert=[],
+            log=self.log)
 
     def get_default_metadata(self, data_name):
         """
@@ -188,57 +194,6 @@ class Assessment:
 
         return data
 
-    def log_div(self, prepend_timestamp=False):
-        """
-        Print a divider line to the log file
-
-        """
-
-        if prepend_timestamp:
-            msg = self.options.log_div
-
-        else:
-            msg = '-' * 80
-
-        self.log_msg(msg, prepend_timestamp=prepend_timestamp)
-
-
-    def log_msg(self, msg='', prepend_timestamp=True, prepend_blank_space=True):
-        """
-        Print a message to the screen with the current time as prefix
-
-        The time is in ISO-8601 format, e.g. 2018-06-16T20:24:04Z
-
-        Parameters
-        ----------
-        msg: string
-           Message to print.
-
-        """
-
-        # pylint: disable = consider-using-f-string
-        msg_lines = msg.split('\n')
-
-        for msg_i, msg_line in enumerate(msg_lines):
-
-            if (prepend_timestamp and (msg_i == 0)):
-                formatted_msg = '{} {}'.format(
-                    datetime.now().strftime(self.options.log_time_format), msg_line)
-            elif prepend_timestamp:
-                formatted_msg = self.options.log_pref + msg_line
-            elif prepend_blank_space:
-                formatted_msg = self.options.log_pref + msg_line
-            else:
-                formatted_msg = msg_line
-
-            if self.options.print_log:
-                print(formatted_msg)
-
-            if self.options.log_file is not None:
-                with open(self.options.log_file, 'a', encoding='utf-8') as f:
-                    f.write('\n'+formatted_msg)
-
-
     def calc_unit_scale_factor(self, unit):
         """
         Determines the scale factor from input unit to the corresponding SI unit
@@ -256,7 +211,7 @@ class Assessment:
 
         Raises
         ------
-        KeyError:
+        KeyError
             When an invalid unit is specified
         """
 
@@ -281,6 +236,22 @@ class Assessment:
         return scale_factor
 
     def scale_factor(self, unit):
+        """
+        Returns the scale factor of a given unit. If the unit is
+        unknown it raises an error. If the unit is None it returns
+        1.00.
+
+        Parameters
+        ----------
+        unit: str
+            A unit name.
+
+        Raises
+        ------
+        ValueError
+            If the unit is unknown.
+
+        """
 
         if unit is not None:
 
@@ -293,4 +264,3 @@ class Assessment:
             scale_factor = 1.0
 
         return scale_factor
-

@@ -12,6 +12,8 @@
 	<b>Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events</b>
 </p>
 
+![Tests](https://github.com/ioannis-vm/AZ_pelicun/actions/workflows/tests.yml/badge.svg)
+
 ## What is it?
 
 `pelicun` is a Python package that provides tools for assessment of damage and losses due to natural hazard events. It uses a stochastic damage and loss model that is an extension of the high-resolution PEER performance assessment methodology described in FEMA P58 (FEMA, 2012). While FEMA P58 aims to assess the seismic performance of a building, with `pelicun` we provide a more versatile, hazard-agnostic tool to assess the performance of several types of assets in the built environment.
@@ -48,7 +50,7 @@ Detailed documentation of the available methods and their use is available at ht
 
 - `pandas` >= 1.4.0
 
-- 'tables' >= 3.7.0
+- `tables` >= 3.7.0
 
 We recommend installing each of these using `pip`. For convenience, we also published a nheri_simcenter python package that gets all of these and a few additional dependencies installed to initialize the Python environment for SimCenter tools.
 
@@ -86,7 +88,7 @@ Note that 2.6.0 is the last minor version before the v3.0 release.
 
 * Substantial improvements in coding style using flake8 and pylint to monitor and help enforce PEP8.
 
-* Several performance improvements made calculations more efficient, especially for large problems, such as regional assessements or tall buildings investigated using the FEMA P-58 methodology.
+* Several performance improvements made calculations more efficient, especially for large problems, such as regional assessments or tall buildings investigated using the FEMA P-58 methodology.
 
 * Several bugfixes and a large number of minor changes that make the engine more robust and easier to use.
 
@@ -137,7 +139,7 @@ Note that 2.6.0 is the last minor version before the v3.0 release.
 
 `pelicun` is distributed under the BSD 3-Clause license, see LICENSE.
 
-## Acknowledgement
+## Acknowledgment
 
 This material is based upon work supported by the National Science Foundation under Grants No. 1612843 2131111. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 

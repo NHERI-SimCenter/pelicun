@@ -173,8 +173,9 @@ def auto_populate(DL_input_path, EDP_input_path,
 
     Raises
     ------
-    ValueError when no Building Information is provided as part of the
-    DL_input
+    ValueError
+        When no Building Information is provided as part of the
+        DL_input
     """
 
     # load the available DL input information
