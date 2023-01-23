@@ -50,6 +50,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from pelicun import base
+import numpy as np
 
 # for tests, we sometimes create things or call them just to see if
 # things would work, so the following are irrelevant:

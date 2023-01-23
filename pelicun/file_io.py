@@ -664,15 +664,14 @@ def parse_units(custom_file=None):
 
     Parameters
     ----------
-    additional_file: str, optional
-        If an additional file is provided, the function loads the
-        default unit conversion factors and then overrides definitions
-        using the additional user-specified JSON file.
+    custom_file: str, optional
+        If a custom file is provided, only the units specified in the
+        custom file are used.
 
     Raises
     ------
     KeyError
-        If a key is defined twice in any parsed JSON file.
+        If a key is defined twice.
     ValueError
         If a unit conversion factor is not a float.
     FileNotFoundError

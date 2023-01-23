@@ -2095,7 +2095,6 @@ class DamageModel(PelicunModel):
             Assigns a Damage State to each component block in the
             asset model.
         """
-        # TODO: update the Parameters section of the docstring
 
         # Log a message indicating that damage states are being
         # evaluated
@@ -3015,9 +3014,9 @@ class LossModel(PelicunModel):
         for d_i, data_path in enumerate(data_paths):
 
             if 'PelicunDefault/' in data_path:
-                data_paths[d_i] = data_path.replace('PelicunDefault/',
-                                                    str(base.pelicun_path) +
-                                                    '/resources/SimCenterDBDL/')
+                data_paths[d_i] = data_path.replace(
+                    'PelicunDefault/',
+                    str(base.pelicun_path) + '/resources/')
 
         data_list = []
         # load the data files one by one
