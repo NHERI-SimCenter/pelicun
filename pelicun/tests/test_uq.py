@@ -46,7 +46,6 @@ reset from the `reset_all_test_data` function of the test_util.py
 file.
 """
 
-import itertools
 import pytest
 import numpy as np
 from scipy.stats import norm
@@ -81,7 +80,7 @@ def test_scale_distribution():
     # used in all cases
     theta = np.array((-1.00, 1.00))
     trunc = np.array((-2.00, 2.00))
-    
+
     # case 1:
     # normal distribution, factor of two
     res = uq.scale_distribution(2.00, 'normal', theta, trunc)
@@ -143,7 +142,7 @@ def test_mvn_orthotope_density():
     lower_val = np.array((0.00, 0.00))
     upper_val = np.array((np.nan, np.nan))
     res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
-    assert np.allclose(res, np.array((1.00/4.00, 2.00e-16)))
+    assert np.allclose(res, np.array((1.00 / 4.00, 2.00e-16)))
 
     # case 5:
     # bivariate normal with correlation
@@ -154,7 +153,7 @@ def test_mvn_orthotope_density():
     lower_val = np.array((0.00, 0.00))
     upper_val = np.array((np.nan, np.nan))
     res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
-    assert np.allclose(res, np.array((1.00/3.00, 2.00e-16)))
+    assert np.allclose(res, np.array((1.00 / 3.00, 2.00e-16)))
 
     # case 6:
     # multivariate 3-D standard normal, hyperrectangle occupying
@@ -164,7 +163,7 @@ def test_mvn_orthotope_density():
     lower_val = np.array((0.00, 0.00, 0.00))
     upper_val = np.array((np.nan, np.nan, np.nan))
     res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
-    assert np.allclose(res, np.array((1.00/8.00, 2.00e-16)))
+    assert np.allclose(res, np.array((1.00 / 8.00, 2.00e-16)))
 
 
 def test__get_theta():
@@ -215,7 +214,7 @@ def test__get_limit_probs():
         np.array((0.15, 1.00)))
     assert np.allclose(
         res, np.array((0.4800611941616275, 0.5199388058383725)))
-    
+
     res = uq._get_limit_probs(
         np.array((np.nan, 0.20)),
         'normal',
@@ -281,7 +280,7 @@ def test__get_std_samples():
     """
 
     # test that it works with valid inputs
-    
+
     # case 1:
     # univariate samples
     samples = np.array((
@@ -299,7 +298,7 @@ def test__get_std_samples():
         res,
         np.array(((1.00, 2.00, 3.00)))
     )
-    
+
     # case 2:
     # multivariate samples
     samples = np.array((
@@ -322,8 +321,8 @@ def test__get_std_samples():
     assert np.allclose(
         res,
         np.array(((-1.710175,  0.641265,  0.221195,  2.996045),
-                  (-0.70791883, -0.60009227,  0.7158206 , -0.65293631),
-                  ( 0.88090031,  0.57580461,  0.49642554,  0.30123205)))
+                  (-0.70791883, -0.60009227,  0.7158206, -0.65293631),
+                  (0.88090031,  0.57580461,  0.49642554,  0.30123205)))
     )
 
     # test that it fails for invalid inputs
@@ -403,7 +402,7 @@ def test__get_std_corr_matrix():
         np.array(((1.00, 0.00),
                   (0.00, 1.00)))
     )
-    
+
     # test that it fails for invalid inputs
 
     for bad_item in (np.nan, np.inf, -np.inf):

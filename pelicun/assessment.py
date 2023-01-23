@@ -169,7 +169,7 @@ class Assessment:
 
         """
 
-        data_path = str(base.pelicun_path)+'/resources/'+data_name+'.csv'
+        data_path = f'{base.pelicun_path}/resources/{data_name}.csv'
 
         return file_io.load_data(
             data_path, self.unit_conversion_factors,

@@ -681,10 +681,9 @@ def fit_distribution_to_sample(raw_samples, distribution,
         estimates, those solutions only offer negligible reduction in the
         negative log likelihood, while making subsequent sampling of the
         truncated normal distribution very challenging.
-    log_msg_method:
-        Logging method to be used. Arguments: msg (str),
-        prepend_timestamp (bool), prepend_blank_space (bool). If no method
-        is specified, no logging is performed.
+    logger_object:
+        Logging object to be used. If no object is specified, no
+        logging is performed.
 
     Returns
     -------

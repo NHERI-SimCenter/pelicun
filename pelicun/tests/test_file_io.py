@@ -58,69 +58,6 @@ from pelicun import file_io
 
 # The tests maintain the order of definitions of the `file_io.py` file.
 
-def test_float_or_None():
-    """
-    Tests the functionality of the float_or_None function.
-    """
-
-    # Test with a string that can be converted to a float
-    assert file_io.float_or_None('3.14') == 3.14
-
-    # Test with a string that represents an integer
-    assert file_io.float_or_None('42') == 42.0
-
-    # Test with a string that represents a negative number
-    assert file_io.float_or_None('-3.14') == -3.14
-
-    # Test with a string that can't be converted to a float
-    assert file_io.float_or_None('hello') is None
-
-    # Test with an empty string
-    assert file_io.float_or_None('') is None
-
-
-def test_int_or_None():
-    """
-    Tests the functionality of the int_or_None function.
-    """
-
-    # Test the case when the string can be converted to int
-    assert file_io.int_or_None('123') == 123
-    assert file_io.int_or_None('-456') == -456
-    assert file_io.int_or_None('0') == 0
-    assert file_io.int_or_None('+789') == 789
-
-    # Test the case when the string cannot be converted to int
-    assert file_io.int_or_None('abc') is None
-    assert file_io.int_or_None('123a') is None
-    assert file_io.int_or_None(' ') is None
-    assert file_io.int_or_None('') is None
-
-
-def test_process_loc():
-    """
-    Tests the functionality of the process_loc function.
-    """
-
-    # Test when string can be converted to an int
-    assert file_io.process_loc('5', 10) == [5, ]
-
-    # Test when string is in the form 'low-high'
-    assert file_io.process_loc('2-5', 10) == [2, 3, 4, 5]
-
-    # Test when string is 'all'
-    assert file_io.process_loc('all', 10) == list(range(1, 11))
-
-    # Test when string is 'top'
-    assert file_io.process_loc('top', 10) == [10, ]
-
-    # Test when string is 'roof'
-    assert file_io.process_loc('roof', 10) == [10, ]
-
-    # Test when string cannot be converted to an int or recognized
-    assert file_io.process_loc('abc', 10) is None
-
-
 def test_update_vals():
     """
     Tests the functionality of the update_vals function.

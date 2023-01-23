@@ -49,6 +49,7 @@ import argparse
 import pytest
 import pandas as pd
 from pelicun import base
+import numpy as np
 
 # for tests, we sometimes create things or call them just to see if
 # things would work, so the following are irrelevant:
@@ -377,7 +378,6 @@ def test_describe():
     # passing a 1D numpy array
     base.describe(
         np.array((1.00, 2.00, 3.00)))
-    
 
 
 def test_str2bool():
@@ -396,6 +396,69 @@ def test_str2bool():
     assert base.str2bool(False) is False
     with pytest.raises(argparse.ArgumentTypeError):
         base.str2bool('In most cases, it depends..')
+
+
+def test_float_or_None():
+    """
+    Tests the functionality of the float_or_None function.
+    """
+
+    # Test with a string that can be converted to a float
+    assert base.float_or_None('3.14') == 3.14
+
+    # Test with a string that represents an integer
+    assert base.float_or_None('42') == 42.0
+
+    # Test with a string that represents a negative number
+    assert base.float_or_None('-3.14') == -3.14
+
+    # Test with a string that can't be converted to a float
+    assert base.float_or_None('hello') is None
+
+    # Test with an empty string
+    assert base.float_or_None('') is None
+
+
+def test_int_or_None():
+    """
+    Tests the functionality of the int_or_None function.
+    """
+
+    # Test the case when the string can be converted to int
+    assert base.int_or_None('123') == 123
+    assert base.int_or_None('-456') == -456
+    assert base.int_or_None('0') == 0
+    assert base.int_or_None('+789') == 789
+
+    # Test the case when the string cannot be converted to int
+    assert base.int_or_None('abc') is None
+    assert base.int_or_None('123a') is None
+    assert base.int_or_None(' ') is None
+    assert base.int_or_None('') is None
+
+
+def test_process_loc():
+    """
+    Tests the functionality of the process_loc function.
+    """
+
+    # Test when string can be converted to an int
+    assert base.process_loc('5', 10) == [5, ]
+
+    # Test when string is in the form 'low-high'
+    assert base.process_loc('2-5', 10) == [2, 3, 4, 5]
+
+    # Test when string is 'all'
+    assert base.process_loc('all', 10) == list(range(1, 11))
+
+    # Test when string is 'top'
+    assert base.process_loc('top', 10) == [10, ]
+
+    # Test when string is 'roof'
+    assert base.process_loc('roof', 10) == [10, ]
+
+    # Test when string cannot be converted to an int or recognized
+    assert base.process_loc('abc', 10) is None
 
 
 def test_run_input_specs():
