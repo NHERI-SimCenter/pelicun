@@ -163,6 +163,24 @@ def process_loc(string, stories):
         return None
 
 
+def dict_raise_on_duplicates(ordered_pairs):
+    """
+    Reject duplicate keys.
+
+    https://stackoverflow.com/questions/14902299/
+    json-loads-allows-duplicate-keys-
+    in-a-dictionary-overwriting-the-first-value
+    
+    """
+    d = {}
+    for k, v in ordered_pairs:
+        if k in d:
+           raise ValueError("duplicate key: %r" % (k,))
+        else:
+           d[k] = v
+    return d
+
+
 def get_required_resources(input_path, assessment_type):
     """
     List the data files required to perform an assessment.
@@ -191,7 +209,7 @@ def get_required_resources(input_path, assessment_type):
     AT = assessment_type
 
     with open(input_path, 'r', encoding='utf-8') as f:
-        jd = json.load(f)
+        jd = json.load(f, object_pairs_hook=dict_raise_on_duplicates)
 
     DL_input = jd['DamageAndLoss']
 
@@ -708,7 +726,7 @@ def load_from_file(filepath, log=None):
     return data
 
 
-def parse_units(additional_file=None):
+def parse_units(custom_file=None):
     """
     Parse the unit conversion factor JSON file and return a dictionary.
 
@@ -725,56 +743,48 @@ def parse_units(additional_file=None):
         If a key is defined twice in any parsed JSON file.
     ValueError
         If a unit conversion factor is not a float.
+    ValueError
+        If a file does not have the JSON format.
     FileNotFoundError
         If a file does not exist.
-    Exception
-        If a file does not have the JSON format.
     """
-
-    def add_unique_keys_only(key, value, dictionary, file_path):
-        if key not in dictionary:
-            dictionary[key] = value
-        else:
-            raise KeyError(f'Unit {key} is defined twice in {file_path}\n'
-                           'Please check the file and make sure '
-                           'that unit conversion factors are only defined once.')
 
     def get_contents(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                dictionary = json.load(f)
+                dictionary = json.load(
+                    f, object_pairs_hook=dict_raise_on_duplicates)
         except FileNotFoundError as exc:
             raise FileNotFoundError(
                 f'{file_path} was not found.') from exc
         except json.decoder.JSONDecodeError as exc:
-            raise Exception(
-                'settings/default_units.json is not a valid JSON file.') from exc
+            raise ValueError(
+                f'{file_path} is not a valid JSON file.') from exc
         for category_dict in list(dictionary.values()):
+            # ensure all first-level keys point to a dictionary
+            if not isinstance(category_dict, dict):
+                raise ValueError(
+                    f'{file_path} contains first-level keys '
+                    'that don\'t point to a dictionary')
+            # convert values to float
             for key, val in category_dict.items():
                 try:
-                    dictionary[key] = float(val)
+                    category_dict[key] = float(val)
                 except ValueError as exc:
                     raise ValueError(
                         f'Unit {key} has a value of {val} '
                         'which cannot be interpreted as a float') from exc
-            del (category_dict)
-        return dictionary
 
-    ucf_init = get_contents(base.pelicun_path / "settings/default_units.json")
+        flattened= {}
+        for category in dictionary:
+            for unit_name, factor in dictionary[category].items():
+                if unit_name in flattened:
+                    raise ValueError(f'{unit_name} defined twice in {file_path}.')
+                flattened[unit_name] = factor
 
-    ucf = {}
-    for key, value in ucf_init.items():
-        add_unique_keys_only(key, value, ucf, 'settings/default_units.json')
+        return flattened
 
-    if additional_file:
-        ucf_init = get_contents(additional_file)
-        ucf_additional = {}
-        for key, value in ucf_init.items():
-            add_unique_keys_only(
-                key, value, ucf_additional, additional_file)
-        # combine the two: additional file takes precedent.
-        # i.e., redefining default units with the additional ones is allowed
-        for key, value in ucf_additional.items():
-            ucf[key] = value
-
-    return ucf
+    if custom_file:
+        return get_contents(custom_file)
+    else:
+        return get_contents(base.pelicun_path / "settings/default_units.json")
