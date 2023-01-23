@@ -186,23 +186,42 @@ def test_parse_units():
     # Test the default units are parsed correctly
     units = file_io.parse_units()
     assert isinstance(units, dict)
-    assert 'length' in units
-    assert 'time' in units
-    assert 'force' in units
-    assert 'pressure' in units
+    expect = {
+        'sec': 1.0, 'minute': 60.0, 'hour': 3600.0,
+        'day': 86400.0, 'm': 1.0, 'mm': 0.001,
+        'cm': 0.01, 'km': 1000.0, 'in': 0.0254,
+        'inch': 0.0254, 'ft': 0.3048, 'mile': 1609.344,
+        'm2': 1.0, 'mm2': 1e-06, 'cm2': 0.0001,
+        'km2': 1000000.0, 'in2': 0.00064516, 'inch2': 0.00064516,
+        'ft2': 0.09290304, 'mile2': 2589988.110336, 'm3': 1.0,
+        'in3': 1.6387064e-05, 'inch3': 1.6387064e-05, 'ft3': 0.028316846592,
+        'cmps': 0.01, 'mps': 1.0, 'mph': 0.44704,
+        'inps': 0.0254, 'inchps': 0.0254, 'ftps': 0.3048,
+        'mps2': 1.0, 'inps2': 0.0254, 'inchps2': 0.0254,
+        'ftps2': 0.3048, 'g': 9.80665, 'kg': 1.0,
+        'ton': 1000.0, 'lb': 0.453592, 'N': 1.0,
+        'kN': 1000.0, 'lbf': 4.4482179868, 'kip': 4448.2179868,
+        'kips': 4448.2179868, 'Pa': 1.0, 'kPa': 1000.0,
+        'MPa': 1000000.0, 'GPa': 1000000000.0, 'psi': 6894.751669043338,
+        'ksi': 6894751.669043338, 'Mpsi': 6894751669.043338, 'A': 1.0,
+        'V': 1.0, 'kV': 1000.0, 'ea': 1.0,
+        'rad': 1.0, 'C': 1.0, 'USD_2011': 1.0,
+        'USD': 1.0, 'loss_ratio': 1.0, 'worker_day': 1.0,
+        'EA': 1.0, 'SF': 0.09290304, 'LF': 0.3048,
+        'TN': 1000.0, 'AP': 1.0, 'CF': 0.0004719474432,
+        'KV': 1000.0
+    }
+    for thing in units:
+        assert thing in expect
+        assert units[thing] == expect[thing]
 
     # Test that additional units are parsed correctly
     additional_units_file = \
         'tests/data/file_io/test_parse_units/additional_units_a.json'
     units = file_io.parse_units(additional_units_file)
     assert isinstance(units, dict)
-    assert 'length' in units
-    assert 'time' in units
-    assert 'force' in units
-    assert 'pressure' in units
-    assert 'mass' in units
-    assert isinstance(units['time'], dict)
-    assert 'year' in units['time']
+    assert 'year' in units
+    assert units['year'] == 1.00
 
     # Test that an exception is raised if the additional units file is not found
     with pytest.raises(FileNotFoundError):
@@ -214,13 +233,11 @@ def test_parse_units():
     with pytest.raises(Exception):
         units = file_io.parse_units(invalid_json_file)
 
-    # # Test that an exception is raised if a unit is defined twice in
-    # # the additional units file
-    # duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate.json'
-    # with pytest.raises(KeyError):
-    #     units = file_io.parse_units(duplicate_units_file)
-    # ...
-    # oops: this does not raise an exception. It's due to the groupping we did.
+    # Test that an exception is raised if a unit is defined twice in
+    # the additional units file
+    duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate.json'
+    with pytest.raises(ValueError):
+        units = file_io.parse_units(duplicate_units_file)
 
     # Test that an exception is raised if a unit conversion factor is not a float
     invalid_units_file = 'tests/data/file_io/test_parse_units/not_float.json'
