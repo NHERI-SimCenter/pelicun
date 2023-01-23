@@ -66,12 +66,15 @@ def test_update_vals():
     primary = {'b': {'c': 4, 'd': 5}, 'g': 7}
     update = {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6}
     file_io.update_vals(update, primary, 'update', 'primary')
-    assert primary == {'b': {'c': 4, 'd': 5}, 'g': 7}
+    assert primary == {'b': {'c': 4, 'd': 5}, 'g': 7}  # unchanged
+    assert update == {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6, 'g': 7}  # updated
+    # note: key 'g' created, 'f' left there, 'c', 'd' updated, as intended
 
     primary = {'a': {'b': {'c': 4}}}
     update = {'a': {'b': {'c': 3}}}
     file_io.update_vals(update, primary, 'update', 'primary')
-    assert primary == {'a': {'b': {'c': 4}}}
+    assert primary == {'a': {'b': {'c': 4}}}  # unchanged
+    assert update == {'a': {'b': {'c': 3}}}  # updated
 
     primary = {'a': {'b': 4}}
     update = {'a': {'b': {'c': 3}}}
