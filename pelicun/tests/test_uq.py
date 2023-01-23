@@ -49,6 +49,7 @@ file.
 import pytest
 import numpy as np
 from scipy.stats import norm
+from scipy.stats import lognorm
 from tests.test_util import import_pickle
 from tests.test_util import export_pickle
 from pelicun import uq
@@ -692,25 +693,13 @@ def test_fit_distribution_to_percentiles():
     assert res[0] == 'normal'
     assert np.allclose(res[1], np.array((20.00, 10.00)))
 
-    # lognormal, mean of 20 and standard deviation of 10
-    # median and beta are calculated based on the above.
-    ln_mu = 20.00
-    ln_std = 10.00
-    # calculate mu, std of the underlying normal distribution
-    n_mu = np.log(ln_mu) - 0.50 * np.log(1.00 + (ln_std / ln_mu)**2)
-    n_std = np.sqrt(np.log(1.00 + (ln_std / ln_mu)**2))
-    percentiles = np.linspace(0.01, .99, num=10000)
-    n_values = norm.ppf(percentiles, loc=n_mu, scale=n_std)
-    # values that correspond to those percentiles for the lognormal distr
-    ln_values = np.exp(n_values)
+    # lognormal, median of 20 and beta of 0.4
+    ln_values = lognorm.ppf(percentiles, s=0.40, scale=20.00)
     # fit
     res = uq.fit_distribution_to_percentiles(
         ln_values, percentiles, ['normal', 'lognormal'])
-    # theoretical lognormal distr median and beta (for assertions)
-    ln_delta = ln_mu**2 / np.sqrt(ln_mu**2 + ln_std**2)
-    ln_beta = np.sqrt(2.00 * np.log(np.sqrt(ln_mu**2 + ln_std**2) / ln_mu))
     assert res[0] == 'lognormal'
-    assert np.allclose(res[1], np.array((ln_delta, ln_beta)))
+    assert np.allclose(res[1], np.array((20.0, 0.40)))
 
 
 #  __  __      _   _               _
