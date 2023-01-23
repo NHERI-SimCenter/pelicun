@@ -666,7 +666,8 @@ class DemandModel(PelicunModel):
                 :, ['CensorLower', 'CensorUpper']].values,
             truncation_limits=cal_df.loc[
                 :, ['TruncateLower', 'TruncateUpper']].values,
-            multi_fit=False
+            multi_fit=False,
+            logger_object=self._asmnt.log
         )
         # fit the joint distribution
         self.log_msg("\nCalibration successful, processing results...",
