@@ -351,8 +351,33 @@ def test_describe():
     Tests the functionality of the describe function.
     """
 
-    pd.DataFrame([[1, 2, 3], [4, 5, 6]], columns=['A', 'B', 'C'])
-    assert True  # Only ensure the above didn't fail.
+    # case 1:
+    # passing a dataframe
+    df = pd.DataFrame(
+        ((1.00, 2.00, 3.00),
+         (4.00, 5.00, 6.00)),
+        columns=['A', 'B', 'C'])
+    base.describe(df)
+
+    # case 2:
+    # passing a series
+    df = pd.Series(
+        (1.00, 2.00, 3.00),
+        name='A')
+    base.describe(df)
+
+    # case 3:
+    # passing a 2D numpy array
+    base.describe(
+        np.array((
+            (1.00, 2.00, 3.00),
+            (4.00, 5.00, 6.00))))
+
+    # case 4:
+    # passing a 1D numpy array
+    base.describe(
+        np.array((1.00, 2.00, 3.00)))
+    
 
 
 def test_str2bool():
