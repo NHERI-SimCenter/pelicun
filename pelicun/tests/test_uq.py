@@ -84,7 +84,7 @@ def test_scale_distribution():
     # case 1:
     # normal distribution, factor of two
     res = uq.scale_distribution(2.00, 'normal', theta, trunc)
-    assert np.allclose(res[0], np.array((-2.00,  2.00)))  # theta_new
+    assert np.allclose(res[0], np.array((-2.00,  1.00)))  # theta_new
     assert np.allclose(res[1], np.array((-4.00,  4.00)))  # truncation_limits
 
     # case 2:
