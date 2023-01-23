@@ -686,6 +686,10 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
         else:
             df = pd.DataFrame(vals, columns=cols)
 
+    # cast Series into a DataFrame
+    if isinstance(df, pd.Series):
+        df = pd.DataFrame(df)
+
     desc = df.describe(percentiles).T
 
     # add log standard deviation to the stats
