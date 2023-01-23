@@ -921,6 +921,10 @@ def test_RandomVariable_Set_apply_correlation_special():
     """
     # inputs that cause `apply_correlation` to use the SVD
 
+    # note: The inputs passed to this function may not be valid
+    # correlation matrices, but they are suitable for causing the svd
+    # to be utilized for testing purposes.
+
     # non positive semidefinite correlation matrix
     rho = np.array(((1.00, 0.50), (0.50, -1.00)))
     rv_1 = uq.RandomVariable('rv1', 'normal', theta=[5.0, 0.1])
