@@ -53,6 +53,9 @@ This module defines constants, basic classes and methods for pelicun.
     log_div
     log_msg
     describe
+    float_or_None
+    int_or_None
+    process_loc
     str2bool
 
     Options
@@ -72,7 +75,7 @@ from . import file_io
 
 
 # set printing options
-pp = pprint.PrettyPrinter(indent=2, width=80-24)
+pp = pprint.PrettyPrinter(indent=2, width=80 - 24)
 
 pd.options.display.max_rows = 20
 pd.options.display.max_columns = None
@@ -327,12 +330,11 @@ class Logger:
         """
         self._verbose = bool(value)
         # display FutureWarnings
-        if self._verbose == True:
+        if self._verbose is True:
             if not sys.warnoptions:
                 warnings.filterwarnings(
                     category=FutureWarning,
                     action='default')
-
 
     @property
     def log_show_ms(self):
@@ -472,7 +474,7 @@ class Logger:
 
             if self.log_file is not None:
                 with open(self.log_file, 'a', encoding='utf-8') as f:
-                    f.write('\n'+formatted_msg)
+                    f.write('\n' + formatted_msg)
 
     def div(self, prepend_timestamp=False):
         """
@@ -686,6 +688,10 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
         else:
             df = pd.DataFrame(vals, columns=cols)
 
+    # cast Series into a DataFrame
+    if isinstance(df, pd.Series):
+        df = pd.DataFrame(df)
+
     desc = df.describe(percentiles).T
 
     # add log standard deviation to the stats
@@ -712,6 +718,74 @@ def str2bool(v):
     if v.lower() in {'no', 'false', 'False', 'f', 'n', '0'}:
         return False
     raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+def float_or_None(string):
+    """
+    This is a convenience function for converting strings to float or
+    None
+
+    Parameters
+    ----------
+    string: str
+        A string
+
+    Returns
+    -------
+    res: float, optional
+        A float, if the given string can be converted to a
+        float. Otherwise, it returns None
+    """
+    try:
+        res = float(string)
+        return res
+    except ValueError:
+        return None
+
+
+def int_or_None(string):
+    """
+    This is a convenience function for converting strings to int or
+    None
+
+    Parameters
+    ----------
+    string: str
+        A string
+
+    Returns
+    -------
+    res: int, optional
+        An int, if the given string can be converted to an
+        int. Otherwise, it returns None
+    """
+    try:
+        res = int(string)
+        return res
+    except ValueError:
+        return None
+
+
+def process_loc(string, stories):
+    """
+    Parses the location parameter.
+    """
+    try:
+        res = int(string)
+        return [res, ]
+    except ValueError:
+        if "-" in string:
+            s_low, s_high = string.split('-')
+            s_low = process_loc(s_low, stories)
+            s_high = process_loc(s_high, stories)
+            return list(range(s_low[0], s_high[0] + 1))
+        if string == "all":
+            return list(range(1, stories + 1))
+        if string == "top":
+            return [stories, ]
+        if string == "roof":
+            return [stories, ]
+        return None
 
 
 # Input specs

@@ -46,16 +46,14 @@ reset from the `reset_all_test_data` function of the test_util.py
 file.
 """
 
-import itertools
 import pytest
 import numpy as np
 from scipy.stats import norm
-from test_util import import_pickle
-from test_util import export_pickle
+from scipy.stats import lognorm
+from tests.test_util import import_pickle
+from tests.test_util import export_pickle
 from pelicun import uq
 
-
-RNG = np.random.default_rng(40)
 
 # for tests, we sometimes create things or call them just to see if
 # things would work, so the following are irrelevant:
@@ -75,114 +73,106 @@ RNG = np.random.default_rng(40)
 # The following tests verify the functions of the module.
 
 
-def test_scale_distribution(reset=False):
+def test_scale_distribution():
     """
     Tests the functionality of the scale_distribution function.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test_scale_distribution'
+    # used in all cases
+    theta = np.array((-1.00, 1.00))
+    trunc = np.array((-2.00, 2.00))
 
-    # generate combinations of arguments
-    args_iter = itertools.product(
-        (2.00,),
-        ('normal', 'lognormal', 'uniform'),
-        (np.array((-1.00, 1.00)),),
-        (np.array((-2.00, 2.00)),)
-    )
-    args_list = list(args_iter)
-    args_list.append(
-        (2.00, 'uniform', np.array((-1.00, 1.00)), np.array((-2.00, 2.00)))
-    )
+    # case 1:
+    # normal distribution, factor of two
+    res = uq.scale_distribution(2.00, 'normal', theta, trunc)
+    assert np.allclose(res[0], np.array((-2.00,  1.00)))  # theta_new
+    assert np.allclose(res[1], np.array((-4.00,  4.00)))  # truncation_limits
 
-    # verify that each set works as intended
-    for file_incr, arg in enumerate(args_list):
-        # retrieve arguments
-        factor, distr, theta, trunc = arg
-        # run the function
-        res = uq.scale_distribution(factor, distr, theta, trunc)
-        # construct a filepath for the results
-        filename = f'{data_dir}/test_{file_incr+1}.pcl'
-        # overwrite results if needed
-        if reset: export_pickle(filename, res)
-        # retrieve expected results
-        compare = import_pickle(filename)
-        # verify equality
-        assert np.allclose(res[0], compare[0])
-        assert np.allclose(res[1], compare[1])
+    # case 2:
+    # lognormal distribution, factor of two
+    res = uq.scale_distribution(2.00, 'lognormal', theta, trunc)
+    assert np.allclose(res[0], np.array((-2.00,  1.00)))  # theta_new
+    assert np.allclose(res[1], np.array((-4.00,  4.00)))  # truncation_limits
+
+    # case 3:
+    # uniform distribution, factor of two
+    res = uq.scale_distribution(2.00, 'uniform', theta, trunc)
+    assert np.allclose(res[0], np.array((-2.00,  2.00)))  # theta_new
+    assert np.allclose(res[1], np.array((-4.00,  4.00)))  # truncation_limits
 
 
-def test_mvn_orthotope_density(reset=False):
+def test_mvn_orthotope_density():
     """
     Tests the functionality of the mvn_orthotope_density function.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test_mvn_orthotope_density'
+    # case 1:
+    # zero-width slice should result in a value of zero.
+    mu_val = 0.00
+    cov_val = 1.00
+    lower_val = -1.00
+    upper_val = -1.00
+    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    assert np.allclose(res, np.array((0.00, 2.00e-16)))
 
-    # generate combinations of arguments
-    mu_vals = (
-        0.00,
-        0.00,
-        0.00,
-        np.array((0.00, 0.00)),
-        np.array((0.00, 0.00)),
-    )
-    cov_vals = (
-        1.00,
-        1.00,
-        1.00,
-        np.array(
-            ((1.00, 0.00),
-             (0.00, 1.00))
-        ),
-        np.array(
-            ((1.00, 0.50),
-             (0.50, 1.00))
-        ),
-    )
-    lower_vals = (
-        -1.00,
-        np.nan,
-        +0.00,
-        np.array((0.00, 0.00)),
-        np.array((0.00, 0.00))
-    )
-    upper_vals = (
-        -1.00,
-        +0.00,
-        np.nan,
-        np.array((np.nan, np.nan)),
-        np.array((np.nan, np.nan))
-    )
+    # case 2:
+    # all negative values should result in a value of 0.50
+    mu_val = 0.00
+    cov_val = 1.00
+    lower_val = np.nan
+    upper_val = 0.00
+    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    assert np.allclose(res, np.array((0.50, 2.00e-16)))
 
-    # verify that each set works as intended
-    file_incr = 0
-    for args in zip(
-            mu_vals, cov_vals, lower_vals, upper_vals):
-        file_incr += 1
-        # run the function
-        res = uq.mvn_orthotope_density(*args)
-        # construct a filepath for the results
-        filename = f'{data_dir}/test_{file_incr+1}.pcl'
-        # overwrite results if needed
-        if reset: export_pickle(filename, res)
-        # retrieve expected results
-        compare = import_pickle(filename)
-        # verify equality
-        assert np.allclose(res[0], compare[0])
-        assert np.allclose(res[1], compare[1])
+    # case 3:
+    # similar to 2, all positive values should result in 0.50
+    mu_val = 0.00
+    cov_val = 1.00
+    lower_val = 0.00
+    upper_val = np.nan
+    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    assert np.allclose(res, np.array((0.50, 2.00e-16)))
+
+    # case 4:
+    # bivariate standard normal, hyperrectangle occupying positive
+    # domain should result in 1/4
+    mu_val = np.array((0.00, 0.00))
+    cov_val = np.array(
+        ((1.00, 0.00),
+         (0.00, 1.00)))
+    lower_val = np.array((0.00, 0.00))
+    upper_val = np.array((np.nan, np.nan))
+    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    assert np.allclose(res, np.array((1.00 / 4.00, 2.00e-16)))
+
+    # case 5:
+    # bivariate normal with correlation
+    mu_val = np.array((0.00, 0.00))
+    cov_val = np.array(
+        ((1.00, 0.50),
+         (0.50, 1.00)))
+    lower_val = np.array((0.00, 0.00))
+    upper_val = np.array((np.nan, np.nan))
+    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    assert np.allclose(res, np.array((1.00 / 3.00, 2.00e-16)))
+
+    # case 6:
+    # multivariate 3-D standard normal, hyperrectangle occupying
+    # positive domain should result in 1/8
+    mu_val = np.array((0.00, 0.00, 0.00))
+    cov_val = np.eye(3)
+    lower_val = np.array((0.00, 0.00, 0.00))
+    upper_val = np.array((np.nan, np.nan, np.nan))
+    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    assert np.allclose(res, np.array((1.00 / 8.00, 2.00e-16)))
 
 
-def test__get_theta(reset=False):
+def test__get_theta():
     """
     Tests the functionality of the _get_theta utility function.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test__get_theta'
-
-    # generate combinations of arguments
+    # evaluate uq._get_theta() for some valid inputs
     res = uq._get_theta(
         np.array(
             (
@@ -198,55 +188,85 @@ def test__get_theta(reset=False):
         ),
         ['normal', 'lognormal']
     )
-    # construct a filepath for the results
-    filename = f'{data_dir}/test_1.pcl'
-    # overwrite results if needed
-    if reset: export_pickle(filename, res)
-    # retrieve expected results
-    compare = import_pickle(filename)
-    # verify equality
-    assert np.allclose(res, compare)
-    # verify failure
+
+    # check that the expected output is obtained
+    assert np.allclose(
+        res,
+        np.array(((2.71828183, 2.71828183),
+                  (1.82436064, 0.82436064))))
+
+    # check that it failes for invalid inputs
     with pytest.raises(ValueError):
         uq._get_theta(
             np.array((1.00,)), np.array((1.00,)),
             'not_a_distribution')
 
 
-def test__get_limit_probs(reset=False):
+def test__get_limit_probs():
     """
     Tests the functionality of the _get_limit_probs function.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test__get_limit_probs'
+    # verify that it works for valid inputs
 
-    # generate combinations of arguments
-    args_iter = itertools.product(
-        (
-            np.array((0.10, 0.20)),
-            np.array((np.nan, 0.20)),
-            np.array((0.10, np.nan)),
-            np.array((np.nan, np.nan))
-        ),
-        ('normal', 'lognormal'),
-        (np.array((0.15, 1.0)),)
-    )
+    res = uq._get_limit_probs(
+        np.array((0.10, 0.20)),
+        'normal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.4800611941616275, 0.5199388058383725)))
 
-    # verify that each set works as intended
-    for file_incr, args in enumerate(args_iter):
-        # run the function
-        res = uq._get_limit_probs(*args)
-        # construct a filepath for the results
-        filename = f'{data_dir}/test_{file_incr+1}.pcl'
-        # overwrite results if needed
-        if reset: export_pickle(filename, res)
-        # retrieve expected results
-        compare = import_pickle(filename)
-        # verify equality
-        assert np.allclose(res[0], compare[0])
-        assert np.allclose(res[1], compare[1])
-    # verify failure
+    res = uq._get_limit_probs(
+        np.array((np.nan, 0.20)),
+        'normal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.0, 0.5199388058383725)))
+
+    res = uq._get_limit_probs(
+        np.array((0.10, np.nan)),
+        'normal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.4800611941616275, 1.0)))
+
+    res = uq._get_limit_probs(
+        np.array((np.nan, np.nan)),
+        'normal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.0, 1.0)))
+
+    res = uq._get_limit_probs(
+        np.array((0.10, 0.20)),
+        'lognormal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.4800611941616275, 0.5199388058383725)))
+
+    res = uq._get_limit_probs(
+        np.array((np.nan, 0.20)),
+        'lognormal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.0, 0.5199388058383725)))
+
+    res = uq._get_limit_probs(
+        np.array((0.10, np.nan)),
+        'lognormal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.4800611941616275, 1.0)))
+
+    res = uq._get_limit_probs(
+        np.array((np.nan, np.nan)),
+        'lognormal',
+        np.array((0.15, 1.00)))
+    assert np.allclose(
+        res, np.array((0.0, 1.0)))
+
+    # verify that it fails for invalid inputs
+
     with pytest.raises(ValueError):
         uq._get_limit_probs(
             np.array((1.00,)),
@@ -255,65 +275,59 @@ def test__get_limit_probs(reset=False):
         )
 
 
-def test__get_std_samples(reset=False):
+def test__get_std_samples():
     """
     Tests the functionality of the _get_std_samples utility function.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test__get_std_samples'
+    # test that it works with valid inputs
 
-    # generate combinations of arguments
-    samples_list = [
-        np.array((
-            (1.00, 2.00, 3.00),
-        )),
-        np.array((
-            (0.657965, 1.128253, 1.044239, 1.599209),
-            (1.396495, 1.435923, 2.055659, 1.416298),
-            (1.948161, 1.576571, 1.469571, 1.190853)
-        )),
-    ]
-    theta_list = [
-        np.array((
-            (0.00, 1.0),
-        )),
-        np.array((
-            (1.00, 0.20),
-            (1.50, 0.6),
-            (1.30, 2.0),
-        )),
-    ]
-    tr_limits_list = [
-        np.array((
-            (np.nan, np.nan),
-        )),
-        np.array((
-            (np.nan, np.nan),
-            (1.10, np.nan),
-            (np.nan, 2.80),
-        ))
-    ]
-    dist_list_list = [
-        np.array(('normal',)),
-        np.array(('normal', 'lognormal', 'normal')),
-    ]
+    # case 1:
+    # univariate samples
+    samples = np.array((
+        (1.00, 2.00, 3.00),
+    ))
+    theta = np.array((
+        (0.00, 1.0),
+    ))
+    tr_limits = np.array((
+        (np.nan, np.nan),
+    ))
+    dist_list = np.array(('normal',))
+    res = uq._get_std_samples(samples, theta, tr_limits, dist_list)
+    assert np.allclose(
+        res,
+        np.array(((1.00, 2.00, 3.00)))
+    )
 
-    # verify that each set works as intended
-    for file_incr, args in enumerate(zip(
-            samples_list, theta_list, tr_limits_list, dist_list_list
-    )):
-        # run the function
-        res = uq._get_std_samples(*args)
-        # construct a filepath for the results
-        filename = f'{data_dir}/test_{file_incr+1}.pcl'
-        # overwrite results if needed
-        if reset: export_pickle(filename, res)
-        # retrieve expected results
-        compare = import_pickle(filename)
-        # verify equality
-        assert np.allclose(res, compare)
-    # verify failure
+    # case 2:
+    # multivariate samples
+    samples = np.array((
+        (0.657965, 1.128253, 1.044239, 1.599209),
+        (1.396495, 1.435923, 2.055659, 1.416298),
+        (1.948161, 1.576571, 1.469571, 1.190853)
+    ))
+    theta = np.array((
+        (1.00, 0.20),
+        (1.50, 0.6),
+        (1.30, 2.0),
+    ))
+    tr_limits = np.array((
+        (np.nan, np.nan),
+        (1.10, np.nan),
+        (np.nan, 2.80),
+    ))
+    dist_list = np.array(('normal', 'lognormal', 'normal'))
+    res = uq._get_std_samples(samples, theta, tr_limits, dist_list)
+    assert np.allclose(
+        res,
+        np.array(((-1.710175,  0.641265,  0.221195,  2.996045),
+                  (-0.70791883, -0.60009227,  0.7158206, -0.65293631),
+                  (0.88090031,  0.57580461,  0.49642554,  0.30123205)))
+    )
+
+    # test that it fails for invalid inputs
+
     with pytest.raises(ValueError):
         uq._get_std_samples(
             np.array((
@@ -329,51 +343,69 @@ def test__get_std_samples(reset=False):
         )
 
 
-def test__get_std_corr_matrix(reset=False):
+def test__get_std_corr_matrix():
     """
     Tests the functionality of the _get_std_corr_matrix utility
     function.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test__get_std_corr_matrix'
+    # test that it works with valid inputs
 
-    # generate combinations of arguments
-    std_samples_list = [
-        np.array((
-            (1.00,),
-        )),
-        np.array((
-            (1.00, 0.00),
-            (0.00, 1.00)
-        )),
-        np.array((
-            (1.00, 0.00),
-            (0.00, -1.00)
-        )),
-        np.array((
-            (1.00, 1.00),
-            (1.00, 1.00)
-        )),
-        np.array((
-            (1.00, 1e50),
-            (-1.00, -1.00)
-        )),
-    ]
+    # case 1:
+    std_samples = np.array(((1.00,),))
+    res = uq._get_std_corr_matrix(std_samples)
+    assert np.allclose(res, np.array(((1.00,),)))
 
-    # verify that each set works as intended
-    for file_incr, std_samples in enumerate(std_samples_list):
-        # run the function
-        res = uq._get_std_corr_matrix(std_samples)
-        # construct a filepath for the results
-        filename = f'{data_dir}/test_{file_incr+1}.pcl'
-        # overwrite results if needed
-        if reset: export_pickle(filename, res)
-        # retrieve expected results
-        compare = import_pickle(filename)
-        # verify equality
-        assert np.allclose(res, compare)
-    # verify failure
+    # case 2:
+    std_samples = np.array((
+        (1.00, 0.00),
+        (0.00, 1.00)
+    ))
+    res = uq._get_std_corr_matrix(std_samples)
+    assert np.allclose(
+        res,
+        np.array(((1.00, 0.00),
+                  (0.00, 1.00)))
+    )
+
+    # case 3:
+    std_samples = np.array((
+        (1.00, 0.00),
+        (0.00, -1.00)
+    ))
+    res = uq._get_std_corr_matrix(std_samples)
+    assert np.allclose(
+        res,
+        np.array(((1.00, 0.00),
+                  (0.00, 1.00)))
+    )
+
+    # case 4:
+    std_samples = np.array((
+        (1.00, 1.00),
+        (1.00, 1.00)
+    ))
+    res = uq._get_std_corr_matrix(std_samples)
+    assert np.allclose(
+        res,
+        np.array(((1.00, 1.00),
+                  (1.00, 1.00)))
+    )
+
+    # case 5:
+    std_samples = np.array((
+        (1.00, 1e50),
+        (-1.00, -1.00)
+    ))
+    res = uq._get_std_corr_matrix(std_samples)
+    assert np.allclose(
+        res,
+        np.array(((1.00, 0.00),
+                  (0.00, 1.00)))
+    )
+
+    # test that it fails for invalid inputs
+
     for bad_item in (np.nan, np.inf, -np.inf):
         with pytest.raises(ValueError):
             x = np.array((
@@ -383,56 +415,42 @@ def test__get_std_corr_matrix(reset=False):
             uq._get_std_corr_matrix(x)
 
 
-def test__mvn_scale(reset=False):
+def test__mvn_scale():
     """
     Tests the functionality of the _mvn_scale utility function.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test__mvn_scale'
-
-    # generate combinations of arguments
+    # case 1:
     np.random.seed(40)
-    sample_list = [
-        np.random.normal(0.00, 1.00, size=(2, 5)).T,
-        np.random.normal(1.0e10, 1.00, size=(2, 5)).T
-    ]
-    rho_list = [
-        np.array((
-            (1.00, 0.00),
-            (0.00, 1.00)
-        )),
-        np.array((
-            (1.00, 0.00),
-            (0.00, 1.00)
-        ))
-    ]
+    sample = np.random.normal(0.00, 1.00, size=(2, 5)).T
+    rho = np.array((
+        (1.00, 0.00),
+        (0.00, 1.00)
+    ))
+    res = uq._mvn_scale(sample, rho)
+    assert np.allclose(
+        res, np.array((1.0, 1.0, 1.0, 1.0, 1.0))
+    )
 
-    # verify that each set works as intended
-    for file_incr, args in enumerate(zip(sample_list, rho_list)):
-        # run the function
-        res = uq._mvn_scale(*args)
-        # construct a filepath for the results
-        filename = f'{data_dir}/test_{file_incr+1}.pcl'
-        # overwrite results if needed
-        if reset: export_pickle(filename, res)
-        # retrieve expected results
-        compare = import_pickle(filename)
-        # verify equality
-        assert np.allclose(res, compare)
+    # case 2:
+    np.random.seed(40)
+    sample = np.random.normal(1.0e10, 1.00, size=(2, 5)).T
+    rho = np.array((
+        (1.00, 0.00),
+        (0.00, 1.00)
+    ))
+    res = uq._mvn_scale(sample, rho)
+    assert np.allclose(
+        res, np.array((0.0, 0.0, 0.0, 0.0, 0.0))
+    )
 
 
-def test_fit_distribution_to_sample_univariate(reset=False):
+def test_fit_distribution_to_sample_univariate():
     """
     Tests the functionality of the
     fit_distribution_to_sample_univariate function, only considering
     univariate input cases.
     """
-
-    # test data location
-    data_dir = 'tests/data/uq/test_fit_distribution_to_sample_univariate'
-
-    file_incr = 0
 
     # baseline case
     sample_vec = np.array(
@@ -485,12 +503,9 @@ def test_fit_distribution_to_sample_univariate(reset=False):
         usable_sample, 'normal',
         censored_count=c_count,
         detection_limits=[c_lower, c_upper])
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res_a)
-    compare = import_pickle(filename)
-    assert np.allclose(res_a[0], compare[0])
-    assert np.allclose(res_a[1], compare[1])
+    compare_a = (np.array(((1.13825975, 0.46686491))), np.array(((1.00,)),))
+    assert np.allclose(res_a[0], compare_a[0])
+    assert np.allclose(res_a[1], compare_a[1])
 
     # censored data, only lower
     np.random.seed(40)
@@ -505,12 +520,9 @@ def test_fit_distribution_to_sample_univariate(reset=False):
         usable_sample, 'normal',
         censored_count=c_count,
         detection_limits=[c_lower, c_upper])
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res_b)
-    compare = import_pickle(filename)
-    assert np.allclose(res_b[0], compare[0])
-    assert np.allclose(res_b[1], compare[1])
+    compare_b = (np.array(((-1.68598848,  1.75096914))), np.array(((1.00,)),))
+    assert np.allclose(res_b[0], compare_b[0])
+    assert np.allclose(res_b[1], compare_b[1])
 
     # censored data, only upper
     np.random.seed(40)
@@ -525,12 +537,9 @@ def test_fit_distribution_to_sample_univariate(reset=False):
         usable_sample, 'normal',
         censored_count=c_count,
         detection_limits=[c_lower, c_upper])
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res_c)
-    compare = import_pickle(filename)
-    assert np.allclose(res_c[0], compare[0])
-    assert np.allclose(res_c[1], compare[1])
+    compare_c = (np.array(((1.68598845, 1.75096921))), np.array(((1.00,)),))
+    assert np.allclose(res_c[0], compare_c[0])
+    assert np.allclose(res_c[1], compare_c[1])
 
     # symmetry check
     assert np.isclose(res_b[0][0, 0], -res_c[0][0, 0])
@@ -575,12 +584,9 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     res_a = uq.fit_distribution_to_sample(
         sample_vec, 'normal',
         truncation_limits=[t_lower, t_upper])
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res_a)
-    compare = import_pickle(filename)
-    assert np.allclose(res_a[0], compare[0])
-    assert np.allclose(res_a[1], compare[1])
+    compare_a = (np.array(((4.00319616e-08, 5.73506118e+07))), np.array(((1.00,)),))
+    assert np.allclose(res_a[0], compare_a[0])
+    assert np.allclose(res_a[1], compare_a[1])
 
     # truncated data, only lower
     np.random.seed(40)
@@ -591,12 +597,9 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     res_b = uq.fit_distribution_to_sample(
         sample_vec, 'normal',
         truncation_limits=[t_lower, t_upper])
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res_b)
-    compare = import_pickle(filename)
-    assert np.allclose(res_b[0], compare[0])
-    assert np.allclose(res_b[1], compare[1])
+    compare_b = (np.array(((-0.09587816, 21.95601487))), np.array(((1.00,))))
+    assert np.allclose(res_b[0], compare_b[0])
+    assert np.allclose(res_b[1], compare_b[1])
 
     # truncated data, only upper
     np.random.seed(40)
@@ -607,12 +610,9 @@ def test_fit_distribution_to_sample_univariate(reset=False):
     res_c = uq.fit_distribution_to_sample(
         sample_vec, 'normal',
         truncation_limits=[t_lower, t_upper])
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res_c)
-    compare = import_pickle(filename)
-    assert np.allclose(res_c[0], compare[0])
-    assert np.allclose(res_c[1], compare[1])
+    compare_c = (np.array(((0.09587811, 21.95602574))), np.array(((1.00,)),))
+    assert np.allclose(res_c[0], compare_c[0])
+    assert np.allclose(res_c[1], compare_c[1])
 
     # symmetry check
     assert np.isclose(res_b[0][0, 0], -res_c[0][0, 0])
@@ -693,25 +693,13 @@ def test_fit_distribution_to_percentiles():
     assert res[0] == 'normal'
     assert np.allclose(res[1], np.array((20.00, 10.00)))
 
-    # lognormal, mean of 20 and standard deviation of 10
-    # median and beta are calculated based on the above.
-    ln_mu = 20.00
-    ln_std = 10.00
-    # calculate mu, std of the underlying normal distribution
-    n_mu = np.log(ln_mu) - 0.50 * np.log(1.00 + (ln_std / ln_mu)**2)
-    n_std = np.sqrt(np.log(1.00 + (ln_std / ln_mu)**2))
-    percentiles = np.linspace(0.01, .99, num=10000)
-    n_values = norm.ppf(percentiles, loc=n_mu, scale=n_std)
-    # values that correspond to those percentiles for the lognormal distr
-    ln_values = np.exp(n_values)
+    # lognormal, median of 20 and beta of 0.4
+    ln_values = lognorm.ppf(percentiles, s=0.40, scale=20.00)
     # fit
     res = uq.fit_distribution_to_percentiles(
         ln_values, percentiles, ['normal', 'lognormal'])
-    # theoretical lognormal distr median and beta (for assertions)
-    ln_delta = ln_mu**2 / np.sqrt(ln_mu**2 + ln_std**2)
-    ln_beta = np.sqrt(2.00 * np.log(np.sqrt(ln_mu**2 + ln_std**2) / ln_mu))
     assert res[0] == 'lognormal'
-    assert np.allclose(res[1], np.array((ln_delta, ln_beta)))
+    assert np.allclose(res[1], np.array((20.0, 0.40)))
 
 
 #  __  __      _   _               _
@@ -906,6 +894,7 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
         filename = f'{data_dir}/test_{file_incr}.pcl'
         if reset: export_pickle(filename, res)
         compare = import_pickle(filename)
+        print(compare)
         assert np.allclose(res, compare)
 
 
@@ -919,6 +908,10 @@ def test_RandomVariable_Set_apply_correlation_special():
     rank matrix.
     """
     # inputs that cause `apply_correlation` to use the SVD
+
+    # note: The inputs passed to this function may not be valid
+    # correlation matrices, but they are suitable for causing the svd
+    # to be utilized for testing purposes.
 
     # non positive semidefinite correlation matrix
     rho = np.array(((1.00, 0.50), (0.50, -1.00)))

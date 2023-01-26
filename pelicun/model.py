@@ -437,7 +437,7 @@ class DemandModel(PelicunModel):
 
             # convert PID to RID in each subdomain
             RID = PID.copy()
-            RID[large] = PID[large] - 3*yield_drift
+            RID[large] = PID[large] - 3 * yield_drift
             RID[medium] = 0.3 * (PID[medium] - yield_drift)
             RID[small] = 0.
 
@@ -568,7 +568,7 @@ class DemandModel(PelicunModel):
                      'SigIncrease', 'Theta_0', 'Theta_1'],
             index=demand_sample.columns,
             dtype=float
-            )
+        )
 
         cal_df['Family'] = cal_df['Family'].astype(str)
 
@@ -582,7 +582,7 @@ class DemandModel(PelicunModel):
 
         if self._asmnt.log.verbose:
             self.log_msg(
-                "\nCalibration settings successfully parsed:\n"+str(cal_df),
+                "\nCalibration settings successfully parsed:\n" + str(cal_df),
                 prepend_timestamp=False)
         else:
             self.log_msg(
@@ -651,7 +651,7 @@ class DemandModel(PelicunModel):
         cal_df = cal_df.drop(empirical_edps, axis=0)
 
         if self._asmnt.log.verbose:
-            self.log_msg("\nDemand data used for calibration:\n"+str(demand_sample),
+            self.log_msg(f"\nDemand data used for calibration:\n{demand_sample}",
                          prepend_timestamp=False)
 
         # fit the joint distribution
@@ -666,7 +666,8 @@ class DemandModel(PelicunModel):
                 :, ['CensorLower', 'CensorUpper']].values,
             truncation_limits=cal_df.loc[
                 :, ['TruncateLower', 'TruncateUpper']].values,
-            multi_fit=False
+            multi_fit=False,
+            logger_object=self._asmnt.log
         )
         # fit the joint distribution
         self.log_msg("\nCalibration successful, processing results...",
@@ -697,8 +698,8 @@ class DemandModel(PelicunModel):
 
         self.marginal_params = model_params
 
-        self.log_msg("\nCalibrated demand model marginal distributions:\n" +
-                     str(model_params),
+        self.log_msg("\nCalibrated demand model marginal distributions:\n"
+                     + str(model_params),
                      prepend_timestamp=False)
 
         # save the correlation matrix
@@ -706,8 +707,8 @@ class DemandModel(PelicunModel):
                                         columns=cal_df.index,
                                         index=cal_df.index)
 
-        self.log_msg("\nCalibrated demand model correlation matrix:\n" +
-                     str(self.correlation),
+        self.log_msg("\nCalibrated demand model correlation matrix:\n"
+                     + str(self.correlation),
                      prepend_timestamp=False)
 
     def save_model(self, file_prefix):
@@ -743,7 +744,7 @@ class DemandModel(PelicunModel):
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
-        save_to_csv(marginal_params, file_prefix+'_marginals.csv',
+        save_to_csv(marginal_params, file_prefix + '_marginals.csv',
                     units=self.units,
                     unit_conversion_factors=self._asmnt.unit_conversion_factors,
                     orientation=1,
@@ -1049,7 +1050,7 @@ class AssetModel(PelicunModel):
                     return np.array([stories, ]).astype(str)
 
                 if loc_str == "roof":
-                    return np.array([stories+1, ]).astype(str)
+                    return np.array([stories + 1, ]).astype(str)
 
                 raise ValueError(f"Cannot parse location string: "
                                  f"{loc_str}") from exc
@@ -1099,7 +1100,7 @@ class AssetModel(PelicunModel):
                     w = np.array(attribute_str.split(','), dtype=float)
 
                     # return a normalized vector
-                    return w/np.sum(w)
+                    return w / np.sum(w)
 
                 # else:
                 raise ValueError(f"Cannot parse Blocks string: "
@@ -1203,8 +1204,8 @@ class AssetModel(PelicunModel):
         self.log_msg("Model parameters successfully loaded.",
                      prepend_timestamp=False)
 
-        self.log_msg("\nComponent model marginal distributions:\n" +
-                     str(cmp_marginal_params),
+        self.log_msg("\nComponent model marginal distributions:\n"
+                     + str(cmp_marginal_params),
                      prepend_timestamp=False)
 
         # the empirical data and correlation files can be added later, if needed
@@ -1525,7 +1526,7 @@ class DamageModel(PelicunModel):
 
             # if the number of blocks is provided, calculate the weights
             if np.atleast_1d(blocks).shape[0] == 1:
-                blocks = np.full(int(blocks), 1./blocks)
+                blocks = np.full(int(blocks), 1. / blocks)
             # otherwise, assume that the list contains the weights
 
             # initialize the damaged quantity sample variable
@@ -1590,7 +1591,7 @@ class DamageModel(PelicunModel):
 
                                 for ls_i in range(ls_count):
 
-                                    block_id = int(block_i)*ls_count + ls_i + 1
+                                    block_id = int(block_i) * ls_count + ls_i + 1
 
                                     frg_rv_tag = (
                                         'FRG-'
@@ -1601,7 +1602,7 @@ class DamageModel(PelicunModel):
                                         f'{ls_id}')
 
                                     # generate samples of almost surely yes/no damage
-                                    if int(ls_id) <= ls_i+1:
+                                    if int(ls_id) <= ls_i + 1:
                                         target_value = np.nextafter(-np.inf, 1)
                                     else:
                                         target_value = np.nextafter(np.inf, -1)
@@ -1868,18 +1869,23 @@ class DamageModel(PelicunModel):
 
         Parameters
         ----------
-        CMP_to_EDP: Series
-            Identifies the EDP assigned to each component
-        demand: DataFrame
-            Provides a sample of the demand required (and available) for the
-            damage assessment.
+        demand_dict: dict
+            Dictionary containing the demand of each demand type.
+        EDP_req: dict
+            Dictionary containing the EDPs assigned to each demand
+            type.
+        capacity_sample: DataFrame
+            Provides a sample of the capacity.
+        lsds_sample: DataFrame
+            Provides the mapping between limit states and damage
+            states.
 
         Returns
         -------
         dmg_sample: DataFrame
-            Assigns a Damage State to each component block in the asset model.
+            Assigns a Damage State to each component block in the
+            asset model.
         """
-        # TODO: update the Parameters section of the docstring
 
         if self._asmnt.log.verbose:
             self.log_msg('Evaluating damage states...', prepend_timestamp=True)
@@ -1896,7 +1902,7 @@ class DamageModel(PelicunModel):
             PG_cols = pd.concat([dmg_eval.loc[:1, PG_i] for PG_i in PG_list],
                                 axis=1, keys=PG_list).columns
 
-            demand_df.append(pd.concat([pd.Series(demand_vals)]*len(PG_cols),
+            demand_df.append(pd.concat([pd.Series(demand_vals)] * len(PG_cols),
                                        axis=1, keys=PG_cols))
 
         demand_df = pd.concat(demand_df, axis=1)
@@ -2570,9 +2576,9 @@ class LossModel(PelicunModel):
         for d_i, data_path in enumerate(data_paths):
 
             if 'PelicunDefault/' in data_path:
-                data_paths[d_i] = data_path.replace('PelicunDefault/',
-                                                    str(base.pelicun_path) +
-                                                    '/resources/')
+                data_paths[d_i] = data_path.replace(
+                    'PelicunDefault/',
+                    str(base.pelicun_path) + '/resources/')
 
         data_list = []
         # load the data files one by one

@@ -623,7 +623,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
                                truncation_limits=(np.nan, np.nan),
                                censored_count=0, detection_limits=(np.nan, np.nan),
                                multi_fit=False, alpha_lim=1e-4,
-                               log_msg_method=None):
+                               logger_object=None):
     """
     Fit a distribution to sample using maximum likelihood estimation.
 
@@ -681,10 +681,9 @@ def fit_distribution_to_sample(raw_samples, distribution,
         estimates, those solutions only offer negligible reduction in the
         negative log likelihood, while making subsequent sampling of the
         truncated normal distribution very challenging.
-    log_msg_method:
-        Logging method to be used. Arguments: msg (str),
-        prepend_timestamp (bool), prepend_blank_space (bool). If no method
-        is specified, no logging is performed.
+    logger_object:
+        Logging object to be used. If no object is specified, no
+        logging is performed.
 
     Returns
     -------
@@ -863,8 +862,8 @@ def fit_distribution_to_sample(raw_samples, distribution,
         rho_hat = np.zeros((n_dims, n_dims))
         np.fill_diagonal(rho_hat, 1.0)
 
-        if log_msg_method:
-            log_msg_method(
+        if logger_object:
+            logger_object.log(
                 "\nWARNING: Demand sample size too small to reliably estimate "
                 "the correlation matrix. Assuming uncorrelated demands.",
                 prepend_timestamp=False, prepend_blank_space=False)

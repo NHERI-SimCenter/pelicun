@@ -58,69 +58,6 @@ from pelicun import file_io
 
 # The tests maintain the order of definitions of the `file_io.py` file.
 
-def test_float_or_None():
-    """
-    Tests the functionality of the float_or_None function.
-    """
-
-    # Test with a string that can be converted to a float
-    assert file_io.float_or_None('3.14') == 3.14
-
-    # Test with a string that represents an integer
-    assert file_io.float_or_None('42') == 42.0
-
-    # Test with a string that represents a negative number
-    assert file_io.float_or_None('-3.14') == -3.14
-
-    # Test with a string that can't be converted to a float
-    assert file_io.float_or_None('hello') is None
-
-    # Test with an empty string
-    assert file_io.float_or_None('') is None
-
-
-def test_int_or_None():
-    """
-    Tests the functionality of the int_or_None function.
-    """
-
-    # Test the case when the string can be converted to int
-    assert file_io.int_or_None('123') == 123
-    assert file_io.int_or_None('-456') == -456
-    assert file_io.int_or_None('0') == 0
-    assert file_io.int_or_None('+789') == 789
-
-    # Test the case when the string cannot be converted to int
-    assert file_io.int_or_None('abc') is None
-    assert file_io.int_or_None('123a') is None
-    assert file_io.int_or_None(' ') is None
-    assert file_io.int_or_None('') is None
-
-
-def test_process_loc():
-    """
-    Tests the functionality of the process_loc function.
-    """
-
-    # Test when string can be converted to an int
-    assert file_io.process_loc('5', 10) == [5, ]
-
-    # Test when string is in the form 'low-high'
-    assert file_io.process_loc('2-5', 10) == [2, 3, 4, 5]
-
-    # Test when string is 'all'
-    assert file_io.process_loc('all', 10) == list(range(1, 11))
-
-    # Test when string is 'top'
-    assert file_io.process_loc('top', 10) == [10, ]
-
-    # Test when string is 'roof'
-    assert file_io.process_loc('roof', 10) == [10, ]
-
-    # Test when string cannot be converted to an int or recognized
-    assert file_io.process_loc('abc', 10) is None
-
-
 def test_update_vals():
     """
     Tests the functionality of the update_vals function.
@@ -129,12 +66,15 @@ def test_update_vals():
     primary = {'b': {'c': 4, 'd': 5}, 'g': 7}
     update = {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6}
     file_io.update_vals(update, primary, 'update', 'primary')
-    assert primary == {'b': {'c': 4, 'd': 5}, 'g': 7}
+    assert primary == {'b': {'c': 4, 'd': 5}, 'g': 7}  # unchanged
+    assert update == {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6, 'g': 7}  # updated
+    # note: key 'g' created, 'f' left there, 'c', 'd' updated, as intended
 
     primary = {'a': {'b': {'c': 4}}}
     update = {'a': {'b': {'c': 3}}}
     file_io.update_vals(update, primary, 'update', 'primary')
-    assert primary == {'a': {'b': {'c': 4}}}
+    assert primary == {'a': {'b': {'c': 4}}}  # unchanged
+    assert update == {'a': {'b': {'c': 3}}}  # updated
 
     primary = {'a': {'b': 4}}
     update = {'a': {'b': {'c': 3}}}
@@ -186,23 +126,42 @@ def test_parse_units():
     # Test the default units are parsed correctly
     units = file_io.parse_units()
     assert isinstance(units, dict)
-    assert 'length' in units
-    assert 'time' in units
-    assert 'force' in units
-    assert 'pressure' in units
+    expect = {
+        'sec': 1.0, 'minute': 60.0, 'hour': 3600.0,
+        'day': 86400.0, 'm': 1.0, 'mm': 0.001,
+        'cm': 0.01, 'km': 1000.0, 'in': 0.0254,
+        'inch': 0.0254, 'ft': 0.3048, 'mile': 1609.344,
+        'm2': 1.0, 'mm2': 1e-06, 'cm2': 0.0001,
+        'km2': 1000000.0, 'in2': 0.00064516, 'inch2': 0.00064516,
+        'ft2': 0.09290304, 'mile2': 2589988.110336, 'm3': 1.0,
+        'in3': 1.6387064e-05, 'inch3': 1.6387064e-05, 'ft3': 0.028316846592,
+        'cmps': 0.01, 'mps': 1.0, 'mph': 0.44704,
+        'inps': 0.0254, 'inchps': 0.0254, 'ftps': 0.3048,
+        'mps2': 1.0, 'inps2': 0.0254, 'inchps2': 0.0254,
+        'ftps2': 0.3048, 'g': 9.80665, 'kg': 1.0,
+        'ton': 1000.0, 'lb': 0.453592, 'N': 1.0,
+        'kN': 1000.0, 'lbf': 4.4482179868, 'kip': 4448.2179868,
+        'kips': 4448.2179868, 'Pa': 1.0, 'kPa': 1000.0,
+        'MPa': 1000000.0, 'GPa': 1000000000.0, 'psi': 6894.751669043338,
+        'ksi': 6894751.669043338, 'Mpsi': 6894751669.043338, 'A': 1.0,
+        'V': 1.0, 'kV': 1000.0, 'ea': 1.0,
+        'rad': 1.0, 'C': 1.0, 'USD_2011': 1.0,
+        'USD': 1.0, 'loss_ratio': 1.0, 'worker_day': 1.0,
+        'EA': 1.0, 'SF': 0.09290304, 'LF': 0.3048,
+        'TN': 1000.0, 'AP': 1.0, 'CF': 0.0004719474432,
+        'KV': 1000.0
+    }
+    for thing in units:
+        assert thing in expect
+        assert units[thing] == expect[thing]
 
     # Test that additional units are parsed correctly
     additional_units_file = \
         'tests/data/file_io/test_parse_units/additional_units_a.json'
     units = file_io.parse_units(additional_units_file)
     assert isinstance(units, dict)
-    assert 'length' in units
-    assert 'time' in units
-    assert 'force' in units
-    assert 'pressure' in units
-    assert 'mass' in units
-    assert isinstance(units['time'], dict)
-    assert 'year' in units['time']
+    assert 'year' in units
+    assert units['year'] == 1.00
 
     # Test that an exception is raised if the additional units file is not found
     with pytest.raises(FileNotFoundError):
@@ -214,13 +173,11 @@ def test_parse_units():
     with pytest.raises(Exception):
         units = file_io.parse_units(invalid_json_file)
 
-    # # Test that an exception is raised if a unit is defined twice in
-    # # the additional units file
-    # duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate.json'
-    # with pytest.raises(KeyError):
-    #     units = file_io.parse_units(duplicate_units_file)
-    # ...
-    # oops: this does not raise an exception. It's due to the groupping we did.
+    # Test that an exception is raised if a unit is defined twice in
+    # the additional units file
+    duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate.json'
+    with pytest.raises(ValueError):
+        units = file_io.parse_units(duplicate_units_file)
 
     # Test that an exception is raised if a unit conversion factor is not a float
     invalid_units_file = 'tests/data/file_io/test_parse_units/not_float.json'

@@ -46,9 +46,6 @@ This module has classes and methods that handle file input and output.
 
 .. autosummary::
 
-    float_or_None
-    int_or_None
-    process_loc
     get_required_resources
     load_default_options
     merge_default_config
@@ -95,72 +92,21 @@ HAZUS_occ_converter = {
 }
 
 
-def float_or_None(string):
+def dict_raise_on_duplicates(ordered_pairs):
     """
-    This is a convenience function for converting strings to float or
-    None
+    Reject duplicate keys.
 
-    Parameters
-    ----------
-    string: str
-        A string
+    https://stackoverflow.com/questions/14902299/
+    json-loads-allows-duplicate-keys-
+    in-a-dictionary-overwriting-the-first-value
 
-    Returns
-    -------
-    res: float, optional
-        A float, if the given string can be converted to a
-        float. Otherwise, it returns None
     """
-    try:
-        res = float(string)
-        return res
-    except ValueError:
-        return None
-
-
-def int_or_None(string):
-    """
-    This is a convenience function for converting strings to int or
-    None
-
-    Parameters
-    ----------
-    string: str
-        A string
-
-    Returns
-    -------
-    res: int, optional
-        An int, if the given string can be converted to an
-        int. Otherwise, it returns None
-    """
-    try:
-        res = int(string)
-        return res
-    except ValueError:
-        return None
-
-
-def process_loc(string, stories):
-    """
-    Parses the location parameter.
-    """
-    try:
-        res = int(string)
-        return [res, ]
-    except ValueError:
-        if "-" in string:
-            s_low, s_high = string.split('-')
-            s_low = process_loc(s_low, stories)
-            s_high = process_loc(s_high, stories)
-            return list(range(s_low[0], s_high[0] + 1))
-        if string == "all":
-            return list(range(1, stories + 1))
-        if string == "top":
-            return [stories, ]
-        if string == "roof":
-            return [stories, ]
-        return None
+    d = {}
+    for k, v in ordered_pairs:
+        if k in d:
+            raise ValueError(f"duplicate key: {k}")
+        d[k] = v
+    return d
 
 
 def get_required_resources(input_path, assessment_type):
@@ -191,7 +137,7 @@ def get_required_resources(input_path, assessment_type):
     AT = assessment_type
 
     with open(input_path, 'r', encoding='utf-8') as f:
-        jd = json.load(f)
+        jd = json.load(f, object_pairs_hook=dict_raise_on_duplicates)
 
     DL_input = jd['DamageAndLoss']
 
@@ -281,6 +227,10 @@ def update_vals(
     ValueError
       If update[key] is dict but primary[key] is not.
     """
+
+    # pylint: disable=R5501
+    # (`consider using elif`)
+
     # we go over the keys of `primary`
     for key in primary:
         # if `primary[key]` is a dictionary:
@@ -291,17 +241,16 @@ def update_vals(
                 update[key] = {}
             # if it exists already, it should map to
             # a dictionary.
-            else:
-                if not isinstance(update[key], dict):
-                    raise ValueError(
-                        f'{update_path}["{key}"] '
-                        'should map to a dictionary. '
-                        'The specified value is '
-                        f'{update_path}["{key}"] = {update[key]}, but '
-                        f'the default value is '
-                        f'{primary_path}["{key}"] = {primary[key]}. '
-                            f'Please revise {update_path}["{key}"].'
-                    )
+            elif not isinstance(update[key], dict):
+                raise ValueError(
+                    f'{update_path}["{key}"] '
+                    'should map to a dictionary. '
+                    'The specified value is '
+                    f'{update_path}["{key}"] = {update[key]}, but '
+                    f'the default value is '
+                    f'{primary_path}["{key}"] = {primary[key]}. '
+                    f'Please revise {update_path}["{key}"].'
+                )
             # With both being dictionaries, we recurse.
             update_vals(
                 update[key], primary[key],
@@ -325,6 +274,8 @@ def update_vals(
                         f'{primary_path}["{key}"] = {primary[key]}. '
                         f'Please revise {update_path}["{key}"].'
                     )
+    # pylint: enable=R5501
+
 
 def merge_default_config(user_config):
     """
@@ -332,7 +283,7 @@ def merge_default_config(user_config):
     the default_config.json file. If the user-specified config does
     not include some option available in the default options, then the
     default option is used in the merged config.
-    
+
     Parameters.
     ----------
     user_config: dict
@@ -412,8 +363,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
     if filepath is None:
         if log: log.msg('Preparing data ...', prepend_timestamp=False)
 
-    else:
-        if log: log.msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+    elif log: log.msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
 
@@ -708,73 +658,64 @@ def load_from_file(filepath, log=None):
     return data
 
 
-def parse_units(additional_file=None):
+def parse_units(custom_file=None):
     """
     Parse the unit conversion factor JSON file and return a dictionary.
 
     Parameters
     ----------
-    additional_file: str, optional
-        If an additional file is provided, the function loads the
-        default unit conversion factors and then overrides definitions
-        using the additional user-specified JSON file.
+    custom_file: str, optional
+        If a custom file is provided, only the units specified in the
+        custom file are used.
 
     Raises
     ------
     KeyError
-        If a key is defined twice in any parsed JSON file.
+        If a key is defined twice.
     ValueError
         If a unit conversion factor is not a float.
+    ValueError
+        If the file does not have the JSON format.
     FileNotFoundError
-        If a file does not exist.
-    Exception
-        If a file does not have the JSON format.
+        If the file does not exist.
     """
-
-    def add_unique_keys_only(key, value, dictionary, file_path):
-        if key not in dictionary:
-            dictionary[key] = value
-        else:
-            raise KeyError(f'Unit {key} is defined twice in {file_path}\n'
-                           'Please check the file and make sure '
-                           'that unit conversion factors are only defined once.')
 
     def get_contents(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                dictionary = json.load(f)
+                dictionary = json.load(
+                    f, object_pairs_hook=dict_raise_on_duplicates)
         except FileNotFoundError as exc:
             raise FileNotFoundError(
                 f'{file_path} was not found.') from exc
         except json.decoder.JSONDecodeError as exc:
-            raise Exception(
-                'settings/default_units.json is not a valid JSON file.') from exc
+            raise ValueError(
+                f'{file_path} is not a valid JSON file.') from exc
         for category_dict in list(dictionary.values()):
+            # ensure all first-level keys point to a dictionary
+            if not isinstance(category_dict, dict):
+                raise ValueError(
+                    f'{file_path} contains first-level keys '
+                    'that don\'t point to a dictionary')
+            # convert values to float
             for key, val in category_dict.items():
                 try:
-                    dictionary[key] = float(val)
+                    category_dict[key] = float(val)
                 except ValueError as exc:
                     raise ValueError(
                         f'Unit {key} has a value of {val} '
                         'which cannot be interpreted as a float') from exc
-            del (category_dict)
-        return dictionary
 
-    ucf_init = get_contents(base.pelicun_path / "settings/default_units.json")
+        flattened = {}
+        for category in dictionary:
+            for unit_name, factor in dictionary[category].items():
+                if unit_name in flattened:
+                    raise ValueError(f'{unit_name} defined twice in {file_path}.')
+                flattened[unit_name] = factor
 
-    ucf = {}
-    for key, value in ucf_init.items():
-        add_unique_keys_only(key, value, ucf, 'settings/default_units.json')
+        return flattened
 
-    if additional_file:
-        ucf_init = get_contents(additional_file)
-        ucf_additional = {}
-        for key, value in ucf_init.items():
-            add_unique_keys_only(
-                key, value, ucf_additional, additional_file)
-        # combine the two: additional file takes precedent.
-        # i.e., redefining default units with the additional ones is allowed
-        for key, value in ucf_additional.items():
-            ucf[key] = value
+    if custom_file:
+        return get_contents(custom_file)
 
-    return ucf
+    return get_contents(base.pelicun_path / "settings/default_units.json")
