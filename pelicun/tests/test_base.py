@@ -48,19 +48,14 @@ import re
 import argparse
 import pytest
 import pandas as pd
-from pelicun import base
 import numpy as np
+from pelicun import base
 
 # for tests, we sometimes create things or call them just to see if
 # things would work, so the following are irrelevant:
 
 # pylint: disable=useless-suppression
 # pylint: disable=unused-variable
-# pylint: disable=pointless-statement
-
-# funny how with pylint you get an error if you suppress a type of
-# error that your code would not cause, leading to ...a pylint error
-# requiring suppression of the suppression-related error. :D
 
 
 # The tests maintain the order of definitions of the `base.py` file.
@@ -352,32 +347,58 @@ def test_describe():
     Tests the functionality of the describe function.
     """
 
+    expected_idx = pd.Index(
+        ('count', 'mean', 'std', 'log_std', 'min',
+         '0.1%', '2.3%', '10%', '15.9%', '50%',
+         '84.1%', '90%', '97.7%', '99.9%',
+         'max'), dtype='object')
+
     # case 1:
     # passing a dataframe
+
     df = pd.DataFrame(
         ((1.00, 2.00, 3.00),
          (4.00, 5.00, 6.00)),
         columns=['A', 'B', 'C'])
-    base.describe(df)
+    desc = base.describe(df)
+    assert np.all(desc.index == expected_idx)
+    assert np.all(
+        desc.columns == pd.Index(
+            ('A', 'B', 'C'), dtype='object'))
 
     # case 2:
     # passing a series
-    df = pd.Series(
+
+    sr = pd.Series(
         (1.00, 2.00, 3.00),
         name='A')
-    base.describe(df)
+    desc = base.describe(sr)
+    assert np.all(desc.index == expected_idx)
+    assert np.all(
+        desc.columns == pd.Index(
+            ('A',), dtype='object'))
 
     # case 3:
     # passing a 2D numpy array
-    base.describe(
+
+    desc = base.describe(
         np.array((
             (1.00, 2.00, 3.00),
             (4.00, 5.00, 6.00))))
+    assert np.all(desc.index == expected_idx)
+    assert np.all(
+        desc.columns == pd.Index(
+            (0, 1, 2), dtype='object'))
 
     # case 4:
     # passing a 1D numpy array
-    base.describe(
+
+    desc = base.describe(
         np.array((1.00, 2.00, 3.00)))
+    assert np.all(desc.index == expected_idx)
+    assert np.all(
+        desc.columns == pd.Index(
+            (0,), dtype='object'))
 
 
 def test_str2bool():

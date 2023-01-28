@@ -136,34 +136,35 @@ def test_mvn_orthotope_density():
     # case 4:
     # bivariate standard normal, hyperrectangle occupying positive
     # domain should result in 1/4
-    mu_val = np.array((0.00, 0.00))
-    cov_val = np.array(
+    mu_arr = np.array((0.00, 0.00))
+    cov_mat = np.array(
         ((1.00, 0.00),
          (0.00, 1.00)))
-    lower_val = np.array((0.00, 0.00))
-    upper_val = np.array((np.nan, np.nan))
-    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    lower_arr = np.array((0.00, 0.00))
+    upper_arr = np.array((np.nan, np.nan))
+    res = uq.mvn_orthotope_density(
+        mu_arr, cov_mat, lower_arr, upper_arr)
     assert np.allclose(res, np.array((1.00 / 4.00, 2.00e-16)))
 
     # case 5:
     # bivariate normal with correlation
-    mu_val = np.array((0.00, 0.00))
-    cov_val = np.array(
+    mu_arr = np.array((0.00, 0.00))
+    cov_arr = np.array(
         ((1.00, 0.50),
          (0.50, 1.00)))
-    lower_val = np.array((0.00, 0.00))
-    upper_val = np.array((np.nan, np.nan))
-    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    lower_arr = np.array((0.00, 0.00))
+    upper_arr = np.array((np.nan, np.nan))
+    res = uq.mvn_orthotope_density(mu_arr, cov_arr, lower_arr, upper_arr)
     assert np.allclose(res, np.array((1.00 / 3.00, 2.00e-16)))
 
     # case 6:
     # multivariate 3-D standard normal, hyperrectangle occupying
     # positive domain should result in 1/8
-    mu_val = np.array((0.00, 0.00, 0.00))
-    cov_val = np.eye(3)
-    lower_val = np.array((0.00, 0.00, 0.00))
-    upper_val = np.array((np.nan, np.nan, np.nan))
-    res = uq.mvn_orthotope_density(mu_val, cov_val, lower_val, upper_val)
+    mu_arr = np.array((0.00, 0.00, 0.00))
+    cov_arr = np.eye(3)
+    lower_arr = np.array((0.00, 0.00, 0.00))
+    upper_arr = np.array((np.nan, np.nan, np.nan))
+    res = uq.mvn_orthotope_density(mu_arr, cov_arr, lower_arr, upper_arr)
     assert np.allclose(res, np.array((1.00 / 8.00, 2.00e-16)))
 
 
@@ -674,7 +675,58 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
     assert np.allclose(res[0], compare[0])
     assert np.allclose(res[1], compare[1])
 
-    # more to come!
+    # extreme examples
+
+    # 1) noisy input data, normal fit
+    np.random.seed(40)
+    sample = np.random.multivariate_normal(
+        (np.log(20.00), np.log(20.00)),
+        np.array((
+            (0.10, 0.05),
+            (0.05, 0.10)
+        )),
+        size=10000
+    ).T
+    sample = np.exp(sample)
+    sample += np.random.uniform(-10.00, 10.00, size=sample.shape)
+
+    np.random.seed(40)
+    res = uq.fit_distribution_to_sample(
+        sample,
+        ['normal', 'normal']
+    )
+    # note: this example is epxected to work, and
+    # res[0], res[1] are expected to be close to:
+    # >>> res[0]
+    # array([[21.09749553,  0.42643435],
+    #        [21.18991591,  0.42246912]])
+    # >>> res[1]
+    # array([[1.        , 0.29832355],
+    #        [0.29832355, 1.        ]])
+    #
+    # but we don't assert that to avoid having random false-negative
+    # tests
+
+    # 2) very noisy input data, normal fit
+    np.random.seed(40)
+    sample = np.random.multivariate_normal(
+        (np.log(20.00), np.log(20.00)),
+        np.array((
+            (0.30, 0.15),
+            (0.15, 0.30)
+        )),
+        size=10000
+    ).T
+    sample = np.exp(sample)
+    sample += np.random.uniform(-15.00, 15.00, size=sample.shape)
+
+    # note: this example is (currently) epxected to fail
+    #       with an error message
+    with pytest.raises(ValueError):
+        res = uq.fit_distribution_to_sample(
+            sample,
+            ['normal', 'normal']
+        )
 
 
 def test_fit_distribution_to_percentiles():
@@ -894,7 +946,6 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
         filename = f'{data_dir}/test_{file_incr}.pcl'
         if reset: export_pickle(filename, res)
         compare = import_pickle(filename)
-        print(compare)
         assert np.allclose(res, compare)
 
 
