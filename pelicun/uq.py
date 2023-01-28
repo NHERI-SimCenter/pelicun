@@ -351,7 +351,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # First, check if the parameters are within the pre-defined bounds
     # TODO: check if it is more efficient to use a bounded minimization algo
     if enforce_bounds:
-        if ((params > bnd_lower) & (params < bnd_upper)).all(0) is False:
+        if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
             # if they are not, then return a large value to discourage the
             # optimization algorithm from going in that direction
             return 1e10
@@ -456,7 +456,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # normalize the NLL with the sample count
     NLL = NLL / samples.size
 
-    # print(theta[0], NLL)
+    #print(theta[0], params, NLL)
 
     return NLL
 
@@ -610,9 +610,6 @@ def fit_distribution_to_sample(raw_samples, distribution,
     bnd_lower = np.array([[-10.0, -5.0] for t in range(n_dims)])
     bnd_upper = np.array([[10.0, 5.0] for t in range(n_dims)])
 
-    bnd_lower = bnd_lower.flatten()
-    bnd_upper = bnd_upper.flatten()
-
     # inits_0 = np.copy(inits)
 
     # There is nothing to gain from a time-consuming optimization if..
@@ -655,8 +652,8 @@ def fit_distribution_to_sample(raw_samples, distribution,
             out_m_i = minimize(_neg_log_likelihood,
                                np.zeros(inits[dim].size),
                                args=(inits_i,
-                                     bnd_lower[dim:dim + 1],
-                                     bnd_upper[dim:dim + 1],
+                                     bnd_lower[dim],
+                                     bnd_upper[dim],
                                      samples[dim:dim + 1],
                                      [dist_list[dim], ],
                                      [tr_limits_i, ],
@@ -674,6 +671,9 @@ def fit_distribution_to_sample(raw_samples, distribution,
         # we attempt the multivariate fitting using the marginal results as
         # initial parameters.
         if multi_fit or (censored_count > 0):
+
+            bnd_lower = bnd_lower.flatten()
+            bnd_upper = bnd_upper.flatten()
 
             out_m = minimize(_neg_log_likelihood,
                              np.zeros(inits.size),
