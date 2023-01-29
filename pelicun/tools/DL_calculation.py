@@ -816,7 +816,7 @@ def run_pelicun(config_path):
 
                 adf.loc[rc, ('DS1', 'Theta_0')] = rCost_config["Median"]
 
-                if rCost_config.get('Distribution', 'N/A') != 'N/A':
+                if ~pd.isna(rCost_config.get('Distribution', np.nan)):
                     adf.loc[rc, ('DS1', 'Family')] = rCost_config[
                         "Distribution"]
                     adf.loc[rc, ('DS1', 'Theta_1')] = rCost_config[
@@ -857,7 +857,7 @@ def run_pelicun(config_path):
 
                 adf.loc[rt, ('DS1', 'Theta_0')] = rTime_config["Median"]
 
-                if rTime_config.get('Distribution', 'N/A') != 'N/A':
+                if ~pd.isna(rTime_config.get('Distribution', np.nan)):
                     adf.loc[rt, ('DS1', 'Family')] = rTime_config[
                         "Distribution"]
                     adf.loc[rt, ('DS1', 'Theta_1')] = rTime_config[
