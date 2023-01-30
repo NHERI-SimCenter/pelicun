@@ -374,7 +374,7 @@ def _get_std_corr_matrix(std_samples):
     ----------
     std_samples: float ndarray, DxN
       Array containing the standard normal samples. Each column is a
-      sample.
+      sample. It should not contain Inf or NaN values.
 
     Raises
     ------
@@ -390,7 +390,7 @@ def _get_std_corr_matrix(std_samples):
     if (True in np.isinf(std_samples)
             or True in np.isnan(std_samples)):
         raise ValueError(
-            'array must not contain infs or NaNs')
+            'std_samples array must not contain inf or NaN values')
 
     n_dims, n_samples = std_samples.shape
 
@@ -849,11 +849,14 @@ def fit_distribution_to_sample(raw_samples, distribution,
     # Calculate rho in the standard normal space because we will generate new
     # samples using that type of correlation (i.e., Gaussian copula)
     std_samples = _get_std_samples(samples, theta, tr_limits, dist_list)
-    if True in np.isnan(std_samples.flatten()).tolist():
+    if True in np.isnan(std_samples) or \
+       True in np.isinf(std_samples):
         raise ValueError(
             'Something went wrong.'
             '\n'
-            'Conversion to standard normal space was unsuccessful.'
+            'Conversion to standard normal space was unsuccessful. \n'
+            'The given samples might deviate '
+            'substantially from the specified distribution.'
         )
     rho_hat = _get_std_corr_matrix(std_samples)
     if rho_hat is None:

@@ -1191,7 +1191,7 @@ class AssetModel(PelicunModel):
                      f"{cmp_marginal_params.shape[0]} performance groups identified",
                      prepend_timestamp=False)
 
-        # Now we can take care of converting the values to SI units
+        # Now we can take care of converting the values to base units
         self.log_msg("Converting model parameters to internal units...",
                      prepend_timestamp=False)
 
@@ -1407,7 +1407,7 @@ class DamageModel(PelicunModel):
 
         # TODO: load defaults for Demand-Offset and Demand-Directional
 
-        # Now convert model parameters to SI units
+        # Now convert model parameters to base units
         for LS_i in damage_params.columns.unique(level=0):
             if LS_i.startswith('LS'):
 
@@ -2629,7 +2629,7 @@ class LossModel(PelicunModel):
 
         loss_params.drop(columns=DS_to_drop, level=0, inplace=True)
 
-        # convert values to internal SI units
+        # convert values to internal base units
         for DS in loss_params.columns.unique(level=0):
             if DS.startswith('DS'):
 

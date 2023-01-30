@@ -196,18 +196,20 @@ class Assessment:
 
     def calc_unit_scale_factor(self, unit):
         """
-        Determines the scale factor from input unit to the corresponding SI unit
+        Determines the scale factor from input unit to the
+        corresponding base unit
 
         Parameters
         ----------
         unit: str
-            Either a unit name, or a quantity and a unit name separated by a space.
+            Either a unit name, or a quantity and a unit name
+            separated by a space.
             For example: 'ft' or '100 ft'.
 
         Returns
         -------
         scale_factor: float
-            Scale factor that convert values from unit to SI unit
+            Scale factor that convert values from unit to base unit
 
         Raises
         ------

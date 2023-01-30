@@ -151,9 +151,9 @@ def test_parse_units():
         'TN': 1000.0, 'AP': 1.0, 'CF': 0.0004719474432,
         'KV': 1000.0
     }
-    for thing in units:
+    for thing, value in units.items():
         assert thing in expect
-        assert units[thing] == expect[thing]
+        assert value == expect[thing]
 
     # Test that additional units are parsed correctly
     additional_units_file = \
