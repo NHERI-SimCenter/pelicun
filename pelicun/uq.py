@@ -267,6 +267,10 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
             # first transform from normal to uniform
             uni_samples = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
 
+            # replace 0 and 1 values with the nearest float
+            uni_samples[uni_samples==0] = np.nextafter(0,1)
+            uni_samples[uni_samples==1] = np.nextafter(1,-1)
+
             # consider truncation if needed
             p_a, p_b = _get_limit_probs(tr_lim_i, dist_i, theta_i)
             uni_samples = (uni_samples - p_a) / (p_b - p_a)
