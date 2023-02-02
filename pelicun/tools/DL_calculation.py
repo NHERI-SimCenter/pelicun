@@ -78,10 +78,13 @@ idx = pd.IndexSlice
 
 damage_processes = {
     'FEMA P-58': {
-        "1_collapse": {
+        "1_excessive.coll.DEM": {
+            "DS1": "collapse_DS1"
+        },
+        "2_collapse": {
             "DS1": "ALL_NA"
         },
-        "2_excessiveRID": {
+        "3_excessiveRID": {
             "DS1": "irreparable_DS1"
         }
     },
@@ -93,10 +96,13 @@ damage_processes = {
         "2_LF": {
             "DS5": "collapse_DS1"
         },
-        "3_collapse": {
+        "3_excessive.coll.DEM": {
+            "DS1": "collapse_DS1"
+        },
+        "4_collapse": {
             "DS1": "ALL_NA"
         },
-        "4_excessiveRID": {
+        "5_excessiveRID": {
             "DS1": "irreparable_DS1"
         }
     }
@@ -302,19 +308,29 @@ def run_pelicun(config_path):
     else:
         demands = raw_demands
 
+    # load the available demand sample
+    PAL.demand.load_sample(demands)
+
     # get the calibration information
     if demand_config.get('Calibration', False):
-
-        # load the available demand sample
-        PAL.demand.load_sample(demands)
 
         # then use it to calibrate the demand model
         PAL.demand.calibrate_model(demand_config['Calibration'])
 
-        # and generate a new demand sample
-        sample_size = int(demand_config['SampleSize'])
+    else:
+        # if no calibration is requested, 
+        # set all demands to use empirical distribution
+        PAL.demand.calibrate_model({
+            "ALL": {"DistributionFamily": "empirical"}
+            })
 
-        PAL.demand.generate_sample({"SampleSize": sample_size})
+    # and generate a new demand sample
+    sample_size = int(demand_config['SampleSize'])
+
+    PAL.demand.generate_sample({
+        "SampleSize": sample_size,
+        'PreserveRawOrder': demand_config.get('CoupledDemands', False)
+        })
 
     # get the generated demand sample
     demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
@@ -391,7 +407,37 @@ def run_pelicun(config_path):
         cmp_marginals = pd.read_csv(asset_config['ComponentAssignmentFile'],
                                     index_col=0, encoding_errors='replace')
 
-        # add a component to support collapse calculation
+        DEM_types = demand_sample.columns.unique(level=0)
+
+        # add component(s) to support collapse calculation
+        if 'CollapseFragility' in damage_config.keys():
+            coll_DEM = damage_config['CollapseFragility']["DemandType"]
+            if coll_DEM.startswith('SA'):
+                # we have a global demand and evaluate collapse directly
+                pass
+
+            else:
+                # we need story-specific collapse assessment
+
+                if coll_DEM in DEM_types:
+
+                    # excessive coll_DEM is added on every floor to detect large RIDs
+                    cmp_marginals.loc['excessive.coll.DEM', 'Units'] = 'ea'
+
+                    locs = demand_sample[coll_DEM].columns.unique(level=0)
+                    cmp_marginals.loc['excessive.coll.DEM', 'Location'] = ','.join(locs)
+
+                    dirs = demand_sample[coll_DEM].columns.unique(level=1)
+                    cmp_marginals.loc['excessive.coll.DEM', 'Direction'] = ','.join(dirs)
+
+                    cmp_marginals.loc['excessive.coll.DEM', 'Theta_0'] = 1.0                
+
+                else:
+
+                    log_msg(f'WARNING: No {coll_DEM} among available demands. Collapse '
+                             'cannot be evaluated.')
+
+        # always add a component to support basic collapse calculation
         cmp_marginals.loc['collapse', 'Units'] = 'ea'
         cmp_marginals.loc['collapse', 'Location'] = 0
         cmp_marginals.loc['collapse', 'Direction'] = 1
@@ -399,8 +445,7 @@ def run_pelicun(config_path):
 
         # add components to support irreparable damage calculation
         if 'IrreparableDamage' in damage_config.keys():
-
-            DEM_types = demand_sample.columns.unique(level=0)
+            
             if 'RID' in DEM_types:
 
                 # excessive RID is added on every floor to detect large RIDs
@@ -483,8 +528,15 @@ def run_pelicun(config_path):
 
             coll_config = damage_config['CollapseFragility']
 
-            adf.loc['collapse', ('Demand', 'Directional')] = 1
-            adf.loc['collapse', ('Demand', 'Offset')] = 0
+            if 'excessive.coll.DEM' in cmp_marginals.index:
+                # if there is story-specific evaluation
+                coll_CMP_name = 'excessive.coll.DEM'
+            else:
+                # otherwise, for global collapse evaluation
+                coll_CMP_name = 'collapse'
+
+            adf.loc[coll_CMP_name, ('Demand', 'Directional')] = 1
+            adf.loc[coll_CMP_name, ('Demand', 'Offset')] = 0
 
             coll_DEM = coll_config["DemandType"]
 
@@ -504,28 +556,39 @@ def run_pelicun(config_path):
                 return -1
 
             if coll_DEM_spec is None:
-                adf.loc['collapse', ('Demand', 'Type')] = coll_DEM_name
+                adf.loc[coll_CMP_name, ('Demand', 'Type')] = coll_DEM_name
 
             else:
-                adf.loc['collapse', ('Demand', 'Type')] = \
+                adf.loc[coll_CMP_name, ('Demand', 'Type')] = \
                     f'{coll_DEM_name}|{coll_DEM_spec}'
 
             coll_DEM_unit = add_units(
                 pd.DataFrame(columns=[f'{coll_DEM}-1-1', ]),
                 length_unit).iloc[0, 0]
 
-            adf.loc['collapse', ('Demand', 'Unit')] = coll_DEM_unit
+            adf.loc[coll_CMP_name, ('Demand', 'Unit')] = coll_DEM_unit
 
-            adf.loc['collapse', ('LS1', 'Family')] = (
-                coll_config.get('CapacityDistribution', ""))
+            adf.loc[coll_CMP_name, ('LS1', 'Family')] = (
+                coll_config.get('CapacityDistribution', np.nan))
 
-            adf.loc['collapse', ('LS1', 'Theta_0')] = (
-                coll_config.get('CapacityMedian', ""))
+            adf.loc[coll_CMP_name, ('LS1', 'Theta_0')] = (
+                coll_config.get('CapacityMedian', np.nan))
 
-            adf.loc['collapse', ('LS1', 'Theta_1')] = (
-                coll_config.get('Theta_1', ""))
+            adf.loc[coll_CMP_name, ('LS1', 'Theta_1')] = (
+                coll_config.get('Theta_1', np.nan))
 
-            adf.loc['collapse', 'Incomplete'] = 0
+            adf.loc[coll_CMP_name, 'Incomplete'] = 0
+
+            if coll_CMP_name != 'collapse':
+                # for story-specific evaluation, we need to add a placeholder 
+                # fragility that will never trigger, but helps us aggregate 
+                # results in the end
+                adf.loc['collapse', ('Demand', 'Directional')] = 1
+                adf.loc['collapse', ('Demand', 'Offset')] = 0
+                adf.loc['collapse', ('Demand', 'Type')] = 'One'
+                adf.loc['collapse', ('Demand', 'Unit')] = 'ea'
+                adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
+                adf.loc['collapse', 'Incomplete'] = 0                
 
         else:
 
@@ -536,7 +599,7 @@ def run_pelicun(config_path):
             adf.loc['collapse', ('Demand', 'Offset')] = 0
             adf.loc['collapse', ('Demand', 'Type')] = 'One'
             adf.loc['collapse', ('Demand', 'Unit')] = 'ea'
-            adf.loc['collapse', ('LS1', 'Theta_0')] = 2.0
+            adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
             adf.loc['collapse', 'Incomplete'] = 0
 
         if 'IrreparableDamage' in damage_config.keys():
@@ -568,7 +631,7 @@ def run_pelicun(config_path):
             adf.loc['irreparable', ('Demand', 'Offset')] = 0
             adf.loc['irreparable', ('Demand', 'Type')] = 'One'
             adf.loc['irreparable', ('Demand', 'Unit')] = 'ea'
-            adf.loc['irreparable', ('LS1', 'Theta_0')] = 2.0
+            adf.loc['irreparable', ('LS1', 'Theta_0')] = 1e10
             adf.loc['irreparable', 'Incomplete'] = 0
 
         PAL.damage.load_damage_model([fragility_db, adf])
@@ -731,6 +794,7 @@ def run_pelicun(config_path):
                 consequence_db = bldg_repair_config['ConsequenceDatabasePath']
                 conseq_df = load_data(
                     bldg_repair_config['ConsequenceDatabasePath'],
+                    unit_conversion_factors={},
                     orientation=1, reindex=False, convert=[])
 
             # add the replacement consequence to the data
@@ -739,7 +803,9 @@ def run_pelicun(config_path):
                 index=pd.MultiIndex.from_tuples(
                     [('replacement', 'Cost'), ('replacement', 'Time')]))
 
-            DL_method = bldg_repair_config['ConsequenceDatabase']
+            #DL_method = bldg_repair_config['ConsequenceDatabase']
+            DL_method = damage_config.get('DamageProcess', 'User Defined')
+
             rc = ('replacement', 'Cost')
             if 'ReplacementCost' in bldg_repair_config.keys():
                 rCost_config = bldg_repair_config['ReplacementCost']
@@ -750,7 +816,7 @@ def run_pelicun(config_path):
 
                 adf.loc[rc, ('DS1', 'Theta_0')] = rCost_config["Median"]
 
-                if rCost_config.get('Distribution', 'N/A') != 'N/A':
+                if ~pd.isna(rCost_config.get('Distribution', np.nan)):
                     adf.loc[rc, ('DS1', 'Family')] = rCost_config[
                         "Distribution"]
                     adf.loc[rc, ('DS1', 'Theta_1')] = rCost_config[
@@ -791,7 +857,7 @@ def run_pelicun(config_path):
 
                 adf.loc[rt, ('DS1', 'Theta_0')] = rTime_config["Median"]
 
-                if rTime_config.get('Distribution', 'N/A') != 'N/A':
+                if ~pd.isna(rTime_config.get('Distribution', np.nan)):
                     adf.loc[rt, ('DS1', 'Family')] = rTime_config[
                         "Distribution"]
                     adf.loc[rt, ('DS1', 'Theta_1')] = rTime_config[
