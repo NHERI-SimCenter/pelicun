@@ -627,10 +627,6 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
     multivariate input cases.
     """
 
-    # test data location
-    data_dir = 'tests/data/uq/test_fit_distribution_to_sample_multivariate'
-    file_incr = 0
-
     # uncorrelated, normal
     np.random.seed(40)
     sample = np.random.multivariate_normal(
@@ -646,10 +642,16 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
         sample,
         ['normal', 'normal']
     )
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res)
-    compare = import_pickle(filename)
+    compare = (
+        np.array((
+            (0.9909858 , 1.01732669),
+            (0.99994493, 0.99588164)
+        )),
+        np.array((
+            (1.00, 0.0092258),
+            (0.0092258, 1.00)
+        ))
+    )
     assert np.allclose(res[0], compare[0])
     assert np.allclose(res[1], compare[1])
 
@@ -668,17 +670,64 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
         sample,
         ['normal', 'normal']
     )
-    file_incr += 1
-    filename = f'{data_dir}/test_{file_incr}.pcl'
-    if reset: export_pickle(filename, res)
-    compare = import_pickle(filename)
+    compare = (
+        np.array((
+            (1.00833201, 1.0012552),
+            (1.00828936, 0.99477853)
+        )),
+        np.array((
+            (1.00, 0.70623679),
+            (0.70623679, 1.00)
+        ))
+    )
     assert np.allclose(res[0], compare[0])
     assert np.allclose(res[1], compare[1])
 
-    # extreme examples
+    # samples that contain duplicate rows
+    np.random.seed(40)
+    sample = np.full(
+        (2, 10),
+        3.14,
+        
+    )
+    np.random.seed(40)
+    res = uq.fit_distribution_to_sample(
+        sample,
+        ['normal', 'normal']
+    )
+    compare = (
+        np.array((
+            (3.14, 1.0e-6),
+            (3.14, 1.0e-6)
+        )),
+        np.array((
+            (1.00, 0.00),
+            (0.00, 1.00)
+        ))
+    )
+    assert np.allclose(res[0], compare[0])
+    assert np.allclose(res[1], compare[1])
+
+    # only a single row: requires different syntax (see univariate)
+    # and thus fails.
+    np.random.seed(40)
+    sample = np.full(
+        (1, 10),
+        3.14,
+        
+    )
+    np.random.seed(40)
+    with pytest.raises(IndexError):
+        res = uq.fit_distribution_to_sample(
+            sample,
+            ['normal', 'normal']
+        )
+
+    # extreme examples:
+    # for these we just ensure that the function works without
+    # producing any error messages.
 
     # 1) noisy input data, normal fit
-    np.random.seed(40)
     sample = np.random.multivariate_normal(
         (np.log(20.00), np.log(20.00)),
         np.array((
@@ -689,44 +738,33 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
     ).T
     sample = np.exp(sample)
     sample += np.random.uniform(-10.00, 10.00, size=sample.shape)
-
-    np.random.seed(40)
     res = uq.fit_distribution_to_sample(
         sample,
         ['normal', 'normal']
     )
-    # note: this example is epxected to work, and
-    # res[0], res[1] are expected to be close to:
-    # >>> res[0]
-    # array([[21.09749553,  0.42643435],
-    #        [21.18991591,  0.42246912]])
-    # >>> res[1]
-    # array([[1.        , 0.29832355],
-    #        [0.29832355, 1.        ]])
-    #
-    # but we don't assert that to avoid having random false-negative
-    # tests
+    for res_i in res:
+        assert not np.any(np.isinf(res_i))
+        assert not np.any(np.isnan(res_i))
 
     # 2) very noisy input data, normal fit
-    np.random.seed(40)
-    sample = np.random.multivariate_normal(
-        (np.log(20.00), np.log(20.00)),
-        np.array((
-            (0.30, 0.15),
-            (0.15, 0.30)
-        )),
-        size=10000
-    ).T
-    sample = np.exp(sample)
-    sample += np.random.uniform(-15.00, 15.00, size=sample.shape)
+    sample = np.random.uniform(-10.00, 10.00, size=sample.shape)
+    res = uq.fit_distribution_to_sample(
+        sample,
+        ['normal', 'normal']
+    )
+    for res_i in res:
+        assert not np.any(np.isinf(res_i))
+        assert not np.any(np.isnan(res_i))
 
-    # note: this example is (currently) epxected to fail
-    #       with an error message
-    with pytest.raises(ValueError):
-        res = uq.fit_distribution_to_sample(
-            sample,
-            ['normal', 'normal']
-        )
+    # 3) very noisy input data, lognormal fit
+    sample = np.random.uniform(10.00, 100.00, size=sample.shape)
+    res = uq.fit_distribution_to_sample(
+        sample,
+        ['lognormal', 'lognormal']
+    )
+    for res_i in res:
+        assert not np.any(np.isinf(res_i))
+        assert not np.any(np.isnan(res_i))
 
 
 def test_fit_distribution_to_percentiles():
