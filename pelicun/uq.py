@@ -85,6 +85,12 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
     truncation_limits: float ndarray of length 2, default: None
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
+
+    Raises
+    ------
+    ValueError
+        If the specified distribution family is unsupported.
+    
     """
 
     if truncation_limits is not None:
@@ -109,6 +115,9 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
 
     elif family == 'deterministic':
         theta_new[0] = theta[0] * scale_factor
+
+    else:
+        raise ValueError(f'Unsupported distribution: {family}')
 
     return theta_new, truncation_limits
 
