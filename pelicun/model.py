@@ -270,6 +270,8 @@ class DemandModel(PelicunModel):
 
         if self._sample is None:
 
+            assert self._RVs is not None
+            assert self._RVs.RV_sample is not None
             sample = pd.DataFrame(self._RVs.RV_sample)
             sample.sort_index(axis=0, inplace=True)
             sample.sort_index(axis=1, inplace=True)
@@ -1241,7 +1243,9 @@ class AssetModel(PelicunModel):
 
     def generate_cmp_sample(self, sample_size=None):
         """
-        Generates component quantity realizations.
+        Generates component quantity realizations.  If a sample_size
+        is not specified, the sample size found in the demand model is
+        used.
         """
 
         if self.cmp_marginal_params is None:
@@ -1253,7 +1257,13 @@ class AssetModel(PelicunModel):
         self.log_msg('Generating sample from component quantity variables...')
 
         if sample_size is None:
-            sample_size = self._asmnt.demand.sample.shape[0]
+            try:
+                sample_size = self._asmnt.demand.sample.shape[0]
+            except AssertionError:
+                raise ValueError(
+                    'Sample size was not specified, '
+                    'and it cannot be determined from '
+                    'the demand model.')
 
         self._create_cmp_RVs()
 
