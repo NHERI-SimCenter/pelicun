@@ -521,6 +521,28 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 demand_stats.to_csv("DEM_stats.csv",
                                     index_label=demand_stats.columns.name)
 
+        if regional == True:
+            
+            demand_sample = PAL.demand.save_sample()
+
+            mean = demand_sample.mean()
+            median = demand_sample.median()
+            std = demand_sample.std()
+            beta = np.log(demand_sample).std()            
+
+            res = pd.concat([mean,std,median,beta], 
+                keys=['mean','std','median','beta']).to_frame().T
+
+            res = res.reorder_levels([1,2,3,0], axis=1)
+
+            res.sort_index(axis=1, inplace=True)
+
+            res.dropna(axis=1, how='all', inplace=True)
+
+            res.columns.rename(['type', 'loc', 'dir', 'stat'], inplace=True)
+
+            res.to_csv(output_path/"EDP.csv", index_label=res.columns.name)
+
     # Asset Definition ------------------------------------------------------------
 
     # set the number of stories
