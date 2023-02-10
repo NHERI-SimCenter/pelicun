@@ -36,17 +36,19 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-# Joanna J. Zou
 
 from time import gmtime
 from time import strftime
-import sys
-import os
-import json
+import sys, os, json
+import warnings
 import argparse
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
+
+from pelicun.auto import auto_populate
+from pelicun.base import str2bool
 from pelicun.base import convert_to_MultiIndex
 from pelicun.base import convert_to_SimpleIndex
 from pelicun.base import describe
@@ -1064,24 +1066,28 @@ def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--filenameDL')
     parser.add_argument('-d', '--demandFile', default=None)
-    # parser.add_argument('-s', '--sampleSize', default = None)
+    parser.add_argument('-s', '--Realizations', default = None)
+    parser.add_argument('--dirnameOutput', default = None)
+    parser.add_argument('--event_time', default=None)
+    parser.add_argument('--detailed_results', default = True,
+       type = str2bool, nargs='?', const=True)
+    parser.add_argument('--coupled_EDP', default = False,
+       type = str2bool, nargs='?', const=False)
+    parser.add_argument('--log_file', default = True,
+       type = str2bool, nargs='?', const=True)
+    parser.add_argument('--ground_failure', default = False,
+       type = str2bool, nargs='?', const=False)
+    parser.add_argument('--auto_script', default=None)
+    parser.add_argument('--resource_dir', default=None)
+    parser.add_argument('--custom_fragility_dir', default=None)
+    parser.add_argument('--regional', default = False,
+       type = str2bool, nargs='?', const=False)
+    # parser.add_argument('-d', '--demandFile', default=None)
     # parser.add_argument('--DL_Method', default = None)
     # parser.add_argument('--outputBIM', default='BIM.csv')
-    parser.add_argument('--outputEDP', default='EDP.csv')
-    parser.add_argument('--outputDM', default='DM.csv')
-    parser.add_argument('--outputDV', default='DV.csv')
-    parser.add_argument('--dirnameOutput', default=None)
-    # parser.add_argument('--event_time', default=None)
-    # parser.add_argument('--detailed_results', default = True,
-    #    type = str2bool, nargs='?', const=True)
-    # parser.add_argument('--coupled_EDP', default = False,
-    #    type = str2bool, nargs='?', const=False)
-    # parser.add_argument('--log_file', default = True,
-    #    type = str2bool, nargs='?', const=True)
-    # parser.add_argument('--ground_failure', default = False,
-    #    type = str2bool, nargs='?', const=False)
-    # parser.add_argument('--auto_script', default=None)
-    # parser.add_argument('--resource_dir', default=None)
+    # parser.add_argument('--outputEDP', default='EDP.csv')
+    # parser.add_argument('--outputDM', default='DM.csv')
+    # parser.add_argument('--outputDV', default='DV.csv')
     args = parser.parse_args(args)
 
     log_msg('Initializing pelicun calculation...')
@@ -1089,19 +1095,18 @@ def main(args):
     # print(args)
     out = run_pelicun(
         args.filenameDL,
-        # args.demandFile,
-        # args.sampleSize,
-        # args.DL_Method,
-        # args.outputBIM, args.outputEDP,
-        # args.outputDM, args.outputDV,
-        # output_path = args.dirnameOutput,
-        # detailed_results = args.detailed_results,
-        # coupled_EDP = args.coupled_EDP,
-        # log_file = args.log_file,
-        # event_time = args.event_time,
-        # ground_failure = args.ground_failure,
-        # auto_script_path = args.auto_script,
-        # resource_dir = args.resource_dir
+        demand_file = args.demandFile,
+        output_path = args.dirnameOutput,
+        realizations = args.Realizations,
+        detailed_results = args.detailed_results,
+        coupled_EDP = args.coupled_EDP,
+        log_file = args.log_file,
+        event_time = args.event_time,
+        ground_failure = args.ground_failure,
+        auto_script_path = args.auto_script,
+        resource_dir = args.resource_dir,
+        custom_fragility_dir = args.custom_fragility_dir,
+        regional = args.regional
     )
 
     if out == -1:
