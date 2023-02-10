@@ -323,40 +323,43 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         else:
             log_msg("Terminating analysis.")
 
-        return -1
+            return -1
+
+    GI_config = config.get('GeneralInformation', None)
 
     asset_config = DL_config.get('Asset', None)
     demand_config = DL_config.get('Demands', None)
     damage_config = DL_config.get('Damage', None)
     loss_config = DL_config.get('Losses', None)
-    # out_config = DL_config.get('Outputs', None)
-
-    out_config = {
-        'Demand': {
-            'Sample': True,
-            'Statistics': True
-        },
-        'Asset': {
-            'Sample': True,
-            'Statistics': True
-        },
-        'Damage': {
-            'Sample': True,
-            'Statistics': True,
-            'GroupedSample': True,
-            'GroupedStatistics': True
-        },
-        'Loss': {
-            'BldgRepair': {
+    out_config = DL_config.get('Outputs', None)
+    
+    if out_config == None:
+        out_config = {
+            'Demand': {
+                'Sample': True,
+                'Statistics': True
+            },
+            'Asset': {
+                'Sample': True,
+                'Statistics': True
+            },
+            'Damage': {
                 'Sample': True,
                 'Statistics': True,
                 'GroupedSample': True,
-                'GroupedStatistics': True,
-                'AggregateSample': True,
-                'AggregateStatistics': True
+                'GroupedStatistics': True
+            },
+            'Loss': {
+                'BldgRepair': {
+                    'Sample': True,
+                    'Statistics': True,
+                    'GroupedSample': True,
+                    'GroupedStatistics': True,
+                    'AggregateSample': True,
+                    'AggregateStatistics': True
+                }
             }
         }
-    }
 
     if asset_config is None:
         log_msg("Asset configuration missing. Terminating analysis.")
@@ -368,7 +371,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
     # get the length unit from the config file
     try:
-        length_unit = config['GeneralInformation']['units']['length']
+        length_unit = GI_config['units']['length']
     except KeyError:
         log_msg(
             "No default length unit provided in the input file. "
@@ -543,6 +546,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             res.to_csv(output_path/"EDP.csv", index_label=res.columns.name)
 
+
     # Asset Definition ------------------------------------------------------------
 
     # set the number of stories
@@ -677,6 +681,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             df_res.dropna(axis=1, how='all', inplace=True)
 
             df_res.to_csv(output_path/'AIM.csv')
+
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
@@ -960,6 +965,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 df_res = pd.concat([df_res_c,], axis=1, keys=['collapse',])
 
                 df_res.to_csv(output_path/'DM.csv')
+
     # Loss Assessment -----------------------------------------------------------
 
     # if a loss assessment is requested
