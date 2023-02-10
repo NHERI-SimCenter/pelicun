@@ -651,6 +651,32 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     "CMP_stats.csv",
                     index_label=cmp_stats.columns.name)
 
+        if regional == True:
+
+            #flatten the dictionary
+            AIM_flat_dict = {}
+            for key, item in GI_config.items():
+                if isinstance(item, dict):
+                    if key not in ['units', 'location']:
+                        for sub_key, sub_item in item.items():
+                            AIM_flat_dict.update({f'{key}_{sub_key}': sub_item})
+                else:
+                    AIM_flat_dict.update({key: [item,]})
+
+
+            # do not save polygons
+            for header_to_remove in ['geometry', 'Footprint']:
+                try:
+                    AIM_flat_dict.pop(header_to_remove)
+                except:
+                    pass
+
+            # create the output DF
+            df_res = pd.DataFrame.from_dict(AIM_flat_dict)
+
+            df_res.dropna(axis=1, how='all', inplace=True)
+
+            df_res.to_csv(output_path/'AIM.csv')
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
