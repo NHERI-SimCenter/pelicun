@@ -509,7 +509,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             if 'Sample' in out_reqs:
                 demand_sample_s = convert_to_SimpleIndex(demand_sample, axis=1)
-                demand_sample_s.to_csv("DEM_sample.zip",
+                demand_sample_s.to_csv(output_path/"DEM_sample.zip",
                                        index_label=demand_sample_s.columns.name,
                                        compression=dict(
                                            method='zip',
@@ -518,7 +518,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             if 'Statistics' in out_reqs:
                 demand_stats = convert_to_SimpleIndex(
                     describe(demand_sample), axis=1)
-                demand_stats.to_csv("DEM_stats.csv",
+                demand_stats.to_csv(output_path/"DEM_stats.csv",
                                     index_label=demand_stats.columns.name)
 
         if regional == True:
@@ -640,7 +640,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             if 'Sample' in out_reqs:
                 cmp_sample_s = convert_to_SimpleIndex(cmp_sample, axis=1)
-                cmp_sample_s.to_csv("CMP_sample.zip",
+                cmp_sample_s.to_csv(output_path/"CMP_sample.zip",
                                     index_label=cmp_sample_s.columns.name,
                                     compression=dict(method='zip',
                                                      archive_name='CMP_sample.csv'))
@@ -648,7 +648,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             if 'Statistics' in out_reqs:
                 cmp_stats = convert_to_SimpleIndex(describe(cmp_sample), axis=1)
                 cmp_stats.to_csv(
-                    "CMP_stats.csv",
+                    output_path/"CMP_stats.csv",
                     index_label=cmp_stats.columns.name)
 
         if regional == True:
@@ -913,7 +913,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 if 'Sample' in out_reqs:
                     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
                     damage_sample_s.to_csv(
-                        "DMG_sample.zip",
+                        output_path/"DMG_sample.zip",
                         index_label=damage_sample_s.columns.name,
                         compression=dict(method='zip',
                                          archive_name='DMG_sample.csv'))
@@ -921,7 +921,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 if 'Statistics' in out_reqs:
                     damage_stats = convert_to_SimpleIndex(describe(damage_sample),
                                                           axis=1)
-                    damage_stats.to_csv("DMG_stats.csv",
+                    damage_stats.to_csv(output_path/"DMG_stats.csv",
                                         index_label=damage_stats.columns.name)
 
                 if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
@@ -929,7 +929,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
                     if 'GroupedSample' in out_reqs:
                         grp_damage_s = convert_to_SimpleIndex(grp_damage, axis=1)
-                        grp_damage_s.to_csv("DMG_grp.zip",
+                        grp_damage_s.to_csv(output_path/"DMG_grp.zip",
                                             index_label=grp_damage_s.columns.name,
                                             compression=dict(
                                                 method='zip',
@@ -938,7 +938,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     if 'GroupedStatistics' in out_reqs:
                         grp_stats = convert_to_SimpleIndex(describe(grp_damage),
                                                            axis=1)
-                        grp_stats.to_csv("DMG_grp_stats.csv",
+                        grp_stats.to_csv(output_path/"DMG_grp_stats.csv",
                                          index_label=grp_stats.columns.name)
 
             if regional == True:
@@ -1163,7 +1163,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         repair_sample_s = convert_to_SimpleIndex(
                             repair_sample, axis=1)
                         repair_sample_s.to_csv(
-                            "DV_bldg_repair_sample.zip",
+                            output_path/"DV_bldg_repair_sample.zip",
                             index_label=repair_sample_s.columns.name,
                             compression=dict(
                                 method='zip',
@@ -1173,7 +1173,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         repair_stats = convert_to_SimpleIndex(
                             describe(repair_sample),
                             axis=1)
-                        repair_stats.to_csv("DV_bldg_repair_stats.csv",
+                        repair_stats.to_csv(output_path/"DV_bldg_repair_stats.csv",
                                             index_label=repair_stats.columns.name)
 
                     if np.any(np.isin(
@@ -1184,7 +1184,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         if 'GroupedSample' in out_reqs:
                             grp_repair_s = convert_to_SimpleIndex(grp_repair, axis=1)
                             grp_repair_s.to_csv(
-                                "DV_bldg_repair_grp.zip",
+                                output_path/"DV_bldg_repair_grp.zip",
                                 index_label=grp_repair_s.columns.name,
                                 compression=dict(
                                     method='zip',
@@ -1193,7 +1193,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         if 'GroupedStatistics' in out_reqs:
                             grp_stats = convert_to_SimpleIndex(
                                 describe(grp_repair), axis=1)
-                            grp_stats.to_csv("DV_bldg_repair_grp_stats.csv",
+                            grp_stats.to_csv(output_path/"DV_bldg_repair_grp_stats.csv",
                                              index_label=grp_stats.columns.name)
 
                     if np.any(np.isin(['AggregateSample',
@@ -1202,7 +1202,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         if 'AggregateSample' in out_reqs:
                             agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
                             agg_repair_s.to_csv(
-                                "DV_bldg_repair_agg.zip",
+                                output_path/"DV_bldg_repair_agg.zip",
                                 index_label=agg_repair_s.columns.name,
                                 compression=dict(
                                     method='zip',
@@ -1211,7 +1211,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         if 'AggregateStatistics' in out_reqs:
                             agg_stats = convert_to_SimpleIndex(
                                 describe(agg_repair), axis=1)
-                            agg_stats.to_csv("DV_bldg_repair_agg_stats.csv",
+                            agg_stats.to_csv(output_path/"DV_bldg_repair_agg_stats.csv",
                                              index_label=agg_stats.columns.name)
 
     # Result Summary -----------------------------------------------------------
@@ -1244,10 +1244,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     summary_stats = describe(summary)
 
     # save summary sample
-    summary.to_csv("DL_summary.csv", index_label='#')
+    summary.to_csv(output_path/"DL_summary.csv", index_label='#')
 
     # save summary statistics
-    summary_stats.to_csv("DL_summary_stats.csv")
+    summary_stats.to_csv(output_path/"DL_summary_stats.csv")
 
     return 0
 
