@@ -493,14 +493,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
         demand_sample = pd.concat([demand_sample, RID_sample], axis=1)
 
-    # add a constant zero demand
+    # add a constant one demand
     demand_sample[('ONE', '0', '1')] = np.ones(demand_sample.shape[0])
     demand_sample.loc['Units', ('ONE', '0', '1')] = 'ea'
 
     PAL.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
 
     # save results
-    if out_config.get('Demand', False):
+    if out_config.get('Demand', None) != None:
 
         out_reqs = [out if val else "" for out, val in out_config['Demand'].items()]
 
@@ -632,7 +632,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     cmp_sample = PAL.asset.save_cmp_sample()
 
     # if requested, save results
-    if out_config.get('Asset', False):
+    if out_config.get('Asset', None) != None:
 
         out_reqs = [out if val else "" for out, val in out_config['Asset'].items()]
 
@@ -900,7 +900,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         PAL.damage.calculate(dmg_process=dmg_process)
 
         # if requested, save results
-        if out_config.get('Damage', False):
+        if out_config.get('Damage', None) != None:
 
             out_reqs = [out if val else ""
                         for out, val in out_config['Damage'].items()]
