@@ -125,6 +125,25 @@ default_DBs = {
     }
 
 }
+# list of output files help perform safe initialization of output dir
+output_files = [
+    "DEM_sample.zip",
+    "DEM_stats.csv",
+    "CMP_sample.zip",
+    "CMP_stats.csv",
+    "DMG_sample.zip",
+    "DMG_stats.csv",
+    "DMG_grp.zip",
+    "DMG_grp_stats.csv",
+    "DV_bldg_repair_sample.zip",
+    "DV_bldg_repair_stats.csv",
+    "DV_bldg_repair_grp.zip",
+    "DV_bldg_repair_grp_stats.csv",
+    "DV_bldg_repair_agg.zip",
+    "DV_bldg_repair_agg_stats.csv",
+    "DL_summary.csv",
+    "DL_summary_stats.csv",
+]
 
 
 def add_units(raw_demands, length_unit):
@@ -186,14 +205,57 @@ def add_units(raw_demands, length_unit):
     return convert_to_SimpleIndex(demands, axis=1)
 
 
-def run_pelicun(config_path):
+def regional_output_demand():
+    pass
+
+def run_pelicun(config_path, demand_file, output_path, coupled_EDP, 
+    realizations, auto_script_path, detailed_results, regional, **kwargs):
+    """
+    Use settings in the config JSON to prepare and run a Pelicun calculation.
+
+    Parameters
+    ----------
+    config_path: string
+        Path pointing to the location of the JSON configuration file.
+    demand_file: string
+        Path pointing to the location of a CSV file with the demand data.
+    output_path: string, optional
+        Path pointing to the location where results shall be saved.
+    coupled_EDP: bool, optional
+        If True, EDPs are not resampled and processed in order.
+    realizations: int, optional
+        Number of realizations to generate.
+    auto_script_path: string, optional
+        Path pointing to the location of a Python script with an auto_populate
+        method that automatically creates the performance model using data
+        provided in the AIM JSON file.
+    detailed_results: bool, optional
+        If False, only the main statistics are saved.
+
+    """
 
     # Initial setup -----------------------------------------------------------
 
     # get the absolute path to the config file
     config_path = Path(config_path).resolve()
 
-    # open the file and load the contents
+    # If the output path was not specified, results are saved in the directory 
+    # of the input file.
+    if output_path is None:
+        output_path = config_path.parents[0]
+    else:
+        output_path = Path(output_path)
+
+    # Initialize the output folder - i.e., remove existing output files from 
+    # there
+    files = os.listdir(output_path)
+    for filename in files:
+        if filename in output_files:
+            try:
+                os.remove(output_path/filename)
+            except:
+                # TODO: show some kind of a warning here
+                pass
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
