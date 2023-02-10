@@ -941,6 +941,25 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         grp_stats.to_csv("DMG_grp_stats.csv",
                                          index_label=grp_stats.columns.name)
 
+            if regional == True:
+
+                damage_sample = PAL.damage.save_sample()
+
+                # first, get the collapse probability
+                df_res_c = pd.DataFrame([0,],
+                    columns=pd.MultiIndex.from_tuples([('probability',' '),]),
+                    index=[0, ])
+
+                if 'collapse-0-1-1' in damage_sample.columns:
+                    df_res_c['probability'] = (
+                        damage_sample['collapse-0-1-1'].mean())
+
+                else:
+                    df_res_c['probability'] = 0.0
+
+                df_res = pd.concat([df_res_c,], axis=1, keys=['collapse',])
+
+                df_res.to_csv(output_path/'DM.csv')
     # Loss Assessment -----------------------------------------------------------
 
     # if a loss assessment is requested
