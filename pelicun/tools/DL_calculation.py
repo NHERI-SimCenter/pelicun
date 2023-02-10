@@ -256,14 +256,72 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             except:
                 # TODO: show some kind of a warning here
                 pass
+
+    # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
     DL_config = config.get('DL', None)
-    if DL_config is None:
+    if (DL_config == None) or (DL_config == {}):
 
-        log_msg("Damage and Loss configuration missing from input file. "
-                "Terminating analysis.")
+        log_msg("Damage and Loss configuration missing from config file. ")
+
+        if auto_script_path != None:
+            log_msg("Trying to auto-populate")
+
+            config_ap, CMP = auto_populate(config, auto_script_path)
+
+            # add the demand information
+            config_ap['DL']['Demands'].update({
+                'DemandFilePath': f'{demand_file}',
+                'SampleSize': f'{realizations}'
+            })
+
+            if coupled_EDP==True:
+                config_ap['DL']['Demands'].update({
+                    "CoupledDemands": True
+                })
+
+            else:
+                config_ap['DL']['Demands'].update({
+                    "Calibration": {
+                        "ALL": {
+                            "DistributionFamily": "lognormal"
+                        }
+                    }
+                })
+
+            # save the component data        
+            CMP.to_csv(output_path/'CMP_QNT.csv')
+
+            # update the config file with the location
+            config_ap['DL']['Asset'].update({
+                "ComponentAssignmentFile": str(output_path/'CMP_QNT.csv')
+            })
+
+            # if detailed results are not requested, add a lean output config
+            if detailed_results == False:
+                config_ap['DL'].update({
+                    'Outputs': {  
+                        'Demand': {},
+                        'Asset': {},
+                        'Damage': {},
+                        'Loss': {
+                            'BldgRepair': {}                   
+                        }
+                    }
+                })
+
+            # save the extended config to a file
+            config_ap_path = Path(config_path.stem + '_ap.json').resolve()
+
+            with open(config_ap_path, 'w') as f:
+                json.dump(config_ap, f, indent=2)
+
+            DL_config = config_ap.get('DL', None)
+
+        else:
+            log_msg("Terminating analysis.")
 
         return -1
 
