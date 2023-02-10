@@ -64,6 +64,10 @@ from pelicun.assessment import Assessment
 # pylint: disable=too-many-nested-blocks
 # pylint: disable=too-many-branches
 
+# suppress FutureWarnings by default - credit: ioannis_vm
+if not sys.warnoptions:
+    warnings.filterwarnings(
+        category=FutureWarning, action='ignore')
 
 def log_msg(msg):
 
