@@ -65,6 +65,11 @@ from pelicun import assessment
 # The following tests verify the methods of the objects of the module.
 
 
+def test_import_model():
+
+    from pelicun import model
+
+
 def test_PelicunModel_init():
 
     asmt = assessment.Assessment()
@@ -100,7 +105,7 @@ def test_PelicunModel_convert_marginal_params():
     # many rows, with conversions
     marginal_params = pd.DataFrame(
         [[np.nan, 1.0, np.nan, np.nan, np.nan, np.nan],
-         ['normal', 0.0, 1.0, np.nan, -0.50, 0.50],
+         ['normal', np.nan, 1.0, np.nan, -0.50, 0.50],
          ['lognormal', 1.0, 0.5, np.nan, 0.50, 1.50],
          ['uniform', 0.0, 10.0, np.nan, np.nan, np.nan],
          ],
@@ -125,17 +130,17 @@ def test_PelicunModel_convert_marginal_params():
     # res:
     #       Family  Theta_0   Theta_1  Theta_2  TruncateLower  TruncateUpper
     # A        NaN   1.0000       NaN      NaN            NaN            NaN
-    # B     normal   0.0000  1.000000      NaN        -0.1524         0.1524
+    # B     normal   NaN     1.000000      NaN        -0.1524         0.1524
     # C  lognormal   0.0254  0.500000      NaN         0.0127         0.0381
     # D    uniform   0.0000  0.006452      NaN            NaN            NaN
 
     expected_df = pd.DataFrame({
       'Family': [np.nan, 'normal', 'lognormal', 'uniform'],
-      'Theta_0': [1.0000, 0.0000, 0.0254, 0.0000],
+      'Theta_0': [1.0000, np.nan, 0.0254, 0.0000],
       'Theta_1': [np.nan, 1.000000, 0.500000, 0.0064516],
       'Theta_2': [np.nan, np.nan, np.nan, np.nan],
-      'TruncateLower': [np.nan, -0.1524, 0.0127, np.nan],
-      'TruncateUpper': [np.nan, 0.1524, 0.0381, np.nan]
+      'TruncateLower': [np.nan, -0.50, 0.0127, np.nan],
+      'TruncateUpper': [np.nan, 0.50, 0.0381, np.nan]
     }, index=['A', 'B', 'C', 'D'])
 
     pd.testing.assert_frame_equal(expected_df, res)
@@ -378,15 +383,154 @@ def test_AssetModel_init():
 
 def test_AssetModel_load_cmp_model():
 
-    mdl, asmt = create_AssetModel()
+    mdl, _ = create_AssetModel()
     cmp_marginals = pd.read_csv(
-        'tests/data/model/test_AssetModel_load_cmp_model/CMP_marginals.csv', index_col=0)
-    asmt.stories = 4
+        'tests/data/model/test_AssetModel/CMP_marginals.csv', index_col=0)
     mdl.load_cmp_model({'marginals': cmp_marginals})
+
+    expected_cmp_marginal_params = pd.DataFrame(
+        {
+            'Theta_0': (8.0, 8.0, 8.0, 8.0, 8.0, 8.0),
+            'Blocks': (1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        },
+        index=pd.MultiIndex.from_tuples(
+            (
+                ('component_a', '0', '1'),
+                ('component_a', '0', '2'),
+                ('component_a', '1', '1'),
+                ('component_a', '1', '2'),
+                ('component_a', '2', '1'),
+                ('component_a', '2', '2')
+            ),
+            names=('cmp', 'loc', 'dir')))
+
+    pd.testing.assert_frame_equal(
+        expected_cmp_marginal_params,
+        mdl.cmp_marginal_params)
+    
+    expected_cmp_units = pd.Series(
+        data=['ea'], index=['component_a'],
+        name='Units')
+
+    pd.testing.assert_series_equal(expected_cmp_units, mdl.cmp_units)
+
+
+def test_AssetModel_generate_cmp_sample():
+
+    mdl, _ = create_AssetModel()
+
+    mdl.cmp_marginal_params = pd.DataFrame(
+        {
+            'Theta_0': (8.0, 8.0, 8.0, 8.0, 8.0, 8.0),
+            'Blocks': (1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        },
+        index=pd.MultiIndex.from_tuples(
+            (
+                ('component_a', '0', '1'),
+                ('component_a', '0', '2'),
+                ('component_a', '1', '1'),
+                ('component_a', '1', '2'),
+                ('component_a', '2', '1'),
+                ('component_a', '2', '2')
+            ),
+            names=('cmp', 'loc', 'dir')))
+
+    mdl.cmp_units = pd.Series(
+        data=['ea'], index=['component_a'],
+        name='Units')
+
     mdl.generate_cmp_sample(sample_size=10)
 
-    res = mdl.save_cmp_sample()
+    assert mdl._cmp_RVs is not None
 
+    expected_cmp_sample = pd.DataFrame(
+        {
+            ('component_a', f'{i}', f'{j}'): 8.0
+            for i in range(3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('component_a', f'{i}', f'{j}')
+                for i in range(3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    pd.testing.assert_frame_equal(
+        expected_cmp_sample,
+        mdl.cmp_sample)
+
+def test_AssetModel_save_cmp_sample():
+
+    mdl, _ = create_AssetModel()
+
+    mdl._cmp_sample = pd.DataFrame(
+        {
+            ('component_a', f'{i}', f'{j}'): 8.0
+            for i in range(3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('component_a', f'{i}', f'{j}')
+                for i in range(3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    mdl.cmp_units = pd.Series(
+        data=['ea'], index=['component_a'],
+        name='Units')
+
+    res = mdl.save_cmp_sample()
+    assert isinstance(res, pd.DataFrame)
+
+    temp_dir = tempfile.mkdtemp()
+    # save the sample there
+    mdl.save_cmp_sample(f'{temp_dir}/temp.csv')
+
+    # load the component sample to a different AssetModel
+    mdl, _ = create_AssetModel()
+    mdl.load_cmp_sample(f'{temp_dir}/temp.csv')
+
+
+def create_DamageModel():
+
+    asmt = assessment.Assessment()
+    mdl = asmt.damage
+
+    return mdl, asmt
+
+def test_DamageModel_init():
+
+    mdl, _ = create_DamageModel()
+    assert mdl.log_msg
+    assert mdl.log_div
+
+    assert mdl.damage_params is None
+    assert mdl._sample is None
+
+def test_DamageModel():
+
+    mdl, asmt = create_DamageModel()
+
+    # asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+    # mdl.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+
+    # dmg_process = {
+    #     "1_collapse": {
+    #         "DS1": "ALL_NA"
+    #     },
+    #     "2_excessiveRID": {
+    #         "DS1": "irreparable_DS1"
+    #     }
+    # }
+
+    # mdl.calculate(dmg_process=dmg_process)
 
 #  _____                 _   _
 # |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
@@ -395,4 +539,44 @@ def test_AssetModel_load_cmp_model():
 # |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
 #
 # The following tests verify the functions of the module.
+
+
+def test_prep_constant_median_DV():
+
+    median = 10.00
+    constant_median_DV = model.prep_constant_median_DV(median)
+    assert constant_median_DV() == median
+
+def test_prep_bounded_multilinear_median_DV():
+
+    medians = np.array((1.00, 2.00, 3.00, 4.00, 5.00))
+    quantities = np.array((0.00, 1.00, 2.00, 3.00, 4.00))
+    f = model.prep_bounded_multilinear_median_DV(medians, quantities)
+
+    result = f(2.5)
+    expected = 3.5
+    assert result == expected
+
+    result = f(0.00)
+    expected = 1.00
+    assert result == expected
+
+    result = f(4.00)
+    expected = 5.0
+    assert result == expected
+
+    result = f(-1.00)
+    expected = 1.00
+    assert result == expected
+
+    result = f(5.00)
+    expected = 5.00
+    assert result == expected
+
+    result = f([2.5, 3.5])
+    expected = [3.5, 4.5]
+    assert np.allclose(result, expected)
+
+    with pytest.raises(ValueError):
+        f(None)
 
