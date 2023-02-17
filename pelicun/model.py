@@ -1282,6 +1282,22 @@ class DamageModel(PelicunModel):
     """
     Manages damage information used in assessments.
 
+    This class contains the following methods:
+
+    - save_sample()
+    - load_sample()
+    - load_damage_model()
+    - calculate()
+        - _get_pg_batches()
+        - _generate_dmg_sample()
+            - _create_dmg_rvs()
+        - _get_required_demand_type()
+        - _assemble_required_demand_data()
+        - _evaluate_damage_state()
+        - _prepare_dmg_quantities()
+        - _perform_dmg_task()
+        - _apply_dmg_funcitons()
+
     Parameters
     ----------
 
@@ -1292,6 +1308,8 @@ class DamageModel(PelicunModel):
         super().__init__(assessment)
 
         self.damage_params = None
+
+        self._dmg_function_scale_factors = None
 
         self._sample = None
 
@@ -1470,6 +1488,23 @@ class DamageModel(PelicunModel):
         """
         Creates random variables required later for the damage calculation.
 
+        The method initializes two random variable registries,
+        capacity_RV_reg and lsds_RV_reg, and loops through each
+        performance group in the input performance group block (PGB)
+        dataframe. For each performance group, it retrieves the
+        component sample and blocks and checks if the limit state is
+        defined for the component. If the limit state is defined, the
+        method gets the list of limit states and the parameters for
+        each limit state. If the family of the limit state parameters
+        is "function", the method generates samples of yes/no damage
+        and adds limit-state-to-damage-state (LSDS) assignments to the
+        lsds_RV_reg registry. If the family is not "function", the
+        method assigns correlation between limit state random
+        variables, adds the limit state random variables to the
+        capacity_RV_reg registry, and adds LSDS assignments to the
+        lsds_RV_reg registry. After looping through all performance
+        groups, the method returns the two registries.
+
         """
 
         def assign_lsds(ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag):
@@ -1546,6 +1581,7 @@ class DamageModel(PelicunModel):
                 qnt_list = [qnt_sample, ]
                 self.qnt_units = self._asmnt.asset.cmp_units.copy()
 
+            assert self.damage_params is not None
             if cmp_id in self.damage_params.index:
 
                 frg_params = self.damage_params.loc[cmp_id, :]
@@ -1726,28 +1762,62 @@ class DamageModel(PelicunModel):
 
         return capacity_RV_reg, lsds_RV_reg
 
+
     def _generate_dmg_sample(self, sample_size, PGB):
         """
         Generates the damage sample.
+
+        This method generates a damage sample by creating random
+        variables (RVs) for capacities and limit-state-damage-states
+        (lsds), and then sampling from these RVs. The sample size and
+        performance group batches (PGB) are specified as inputs. The
+        method returns the capacity sample and the lsds sample.
+
+        Parameters
+        ----------
+        sample_size : int
+            The number of realizations to generate.
+        PGB : DataFrame
+            A DataFrame that groups performance groups into batches
+            for efficient damage assessment.
+
+        Returns
+        -------
+        capacity_sample : DataFrame
+            A DataFrame that represents the capacity sample.
+        lsds_sample : DataFrame
+            A DataFrame that represents the .
+
+        Raises
+        ------
+        ValueError
+            If the damage parameters have not been specified.
+
         """
 
+        # Check if damage model parameters have been specified
         if self.damage_params is None:
             raise ValueError('Damage model parameters have not been specified. '
                              'Load parameters from the default damage model '
                              'databases or provide your own damage model '
                              'definitions before generating a sample.')
 
+        # Create capacity and LSD RVs for each performance group
         capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB)
 
         if self._asmnt.log.verbose:
             self.log_msg('Sampling capacities...',
                          prepend_timestamp=True)
 
+        # Generate samples for capacity RVs
         capacity_RVs.generate_sample(
-            sample_size=sample_size, method=self._asmnt.options.sampling_method)
+            sample_size=sample_size,
+            method=self._asmnt.options.sampling_method)
 
+        # Generate samples for LSD RVs
         lsds_RVs.generate_sample(
-            sample_size=sample_size, method=self._asmnt.options.sampling_method)
+            sample_size=sample_size,
+            method=self._asmnt.options.sampling_method)
 
         if self._asmnt.log.verbose:
             self.log_msg("Raw samples are available",
@@ -1755,80 +1825,178 @@ class DamageModel(PelicunModel):
 
         # get the capacity and lsds samples
         capacity_sample = pd.DataFrame(
-            capacity_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1)
-        capacity_sample = base.convert_to_MultiIndex(capacity_sample, axis=1)['FRG']
+            capacity_RVs.RV_sample).sort_index(
+                axis=0).sort_index(axis=1)
+        capacity_sample = base.convert_to_MultiIndex(
+            capacity_sample, axis=1)['FRG']
 
         lsds_sample = pd.DataFrame(
-            lsds_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1).astype(int)
-        lsds_sample = base.convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+            lsds_RVs.RV_sample).sort_index(
+                axis=0).sort_index(axis=1).astype(int)
+        lsds_sample = base.convert_to_MultiIndex(
+            lsds_sample, axis=1)['LSDS']
 
         if self._asmnt.log.verbose:
-            self.log_msg(f"Successfully generated {sample_size} realizations.",
-                         prepend_timestamp=True)
+            self.log_msg(
+                f"Successfully generated {sample_size} realizations.",
+                prepend_timestamp=True)
 
         return capacity_sample, lsds_sample
 
-    def get_required_demand_type(self, PGB):
+    def _get_required_demand_type(self, PGB):
         """
-        Returns the id of the demand needed to calculate damage to a component
+        Returns the id of the demand needed to calculate damage to a
+        component. We assume that a damage model sample is available.
 
-        Note that we assume that a damage model sample is available.
+        This method returns the demand type and its properties
+        required to calculate the damage to a component. The
+        properties include whether the demand is directional, the
+        offset, and the type of the demand. The method takes as input
+        a dataframe PGB that contains information about the component
+        groups in the asset. For each component group PG in the PGB
+        dataframe, the method retrieves the relevant damage parameters
+        from the damage_params dataframe and parses the demand type
+        into its properties. If the demand type has a subtype, the
+        method splits it and adds the subtype to the demand type to
+        form the EDP (engineering demand parameter) type. The method
+        also considers the default offset for the demand type, if it
+        is specified in the options attribute of the assessment, and
+        adds the offset to the EDP. If the demand is directional, the
+        direction is added to the EDP. The method collects all the
+        unique EDPs for each component group and returns them as a
+        dictionary where each key is an EDP and its value is a list of
+        component groups that require that EDP.
+
+        Parameters
+        ----------
+        `PGB`: pd.DataFrame
+            A pandas DataFrame with the block information for
+            each component
+
+        Returns
+        -------
+        EDP_req: dict
+            A dictionary of EDP requirements, where each key is the EDP
+            string (e.g., "Peak Ground Acceleration-0-0"), and the
+            corresponding value is a list of tuples (component_id,
+            location, direction)
 
         """
+
+        # Assign the damage_params attribute to a local variable `DP`
         DP = self.damage_params
 
+        # Check if verbose logging is enabled in `self._asmnt.log`
         if self._asmnt.log.verbose:
+            # If verbose logging is enabled, log a message indicating
+            # that we are collecting demand information
             self.log_msg('Collecting required demand information...',
                          prepend_timestamp=True)
 
+        # Initialize an empty dictionary to store the unique EDP
+        # requirements
         EDP_req = {}
 
+        # Iterate over the index of the `PGB` DataFrame
         for PG in PGB.index:
+            # Get the component name from the first element of the
+            # `PG` tuple
             cmp = PG[0]
 
-            # get the parameters from the damage model db
+            # Get the directional, offset, and demand_type parameters
+            # from the `DP` DataFrame
             directional, offset, demand_type = DP.loc[
                 cmp, [('Demand', 'Directional'),
                       ('Demand', 'Offset'),
                       ('Demand', 'Type')]]
 
-            # parse the demand type
+            # Parse the demand type
 
-            # first check if there is a subtype included
+            # Check if there is a subtype included in the demand_type
+            # string
             if '|' in demand_type:
+                # If there is a subtype, split the demand_type string
+                # on the '|' character
                 demand_type, subtype = demand_type.split('|')
+                # Convert the demand type to the corresponding EDP
+                # type using `base.EDP_to_demand_type`
                 demand_type = base.EDP_to_demand_type[demand_type]
+                # Concatenate the demand type and subtype to form the
+                # EDP type
                 EDP_type = f'{demand_type}_{subtype}'
             else:
+                # If there is no subtype, convert the demand type to
+                # the corresponding EDP type using
+                # `base.EDP_to_demand_type`
                 demand_type = base.EDP_to_demand_type[demand_type]
+                # Assign the EDP type to be equal to the demand type
                 EDP_type = demand_type
 
-            # consider the default offset, if needed
+            # Consider the default offset, if needed
             if demand_type in self._asmnt.options.demand_offset.keys():
-
+                # If the demand type has a default offset in
+                # `self._asmnt.options.demand_offset`, add the offset
+                # to the default offset
                 offset = int(offset + self._asmnt.options.demand_offset[demand_type])
-
             else:
+                # If the demand type does not have a default offset in
+                # `self._asmnt.options.demand_offset`, convert the
+                # offset to an integer
                 offset = int(offset)
 
+            # Determine the direction
             if directional:
+                # If the demand is directional, use the third element
+                # of the `PG` tuple as the direction
                 direction = PG[2]
             else:
+                # If the demand is not directional, use '0' as the
+                # direction
                 direction = '0'
 
+            # Concatenate the EDP type, offset, and direction to form
+            # the EDP key
             EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
 
+            # If the EDP key is not already in the `EDP_req`
+            # dictionary, add it and initialize it with an empty list
             if EDP not in EDP_req:
                 EDP_req.update({EDP: []})
 
+            # Add the current PG (performance group) to the list of
+            # PGs associated with the current EDP key
             EDP_req[EDP].append(PG)
 
-        # return the unique EDP requirements
+        # Return the unique EDP requirements
         return EDP_req
 
     def _assemble_required_demand_data(self, EDP_req):
         """
         Assembles demand data for damage state determination.
+
+        The method takes the maximum of all available directions for
+        non-directional demand, scaling it using the non-directional
+        multiplier specified in self._asmnt.options, and returning the
+        result as a dictionary with keys in the format of
+        '<demand_type>-<offset>-<direction>' and values as arrays of
+        demand values. If demand data is not found, logs a warning
+        message and skips the corresponding damages calculation.
+
+        Parameters
+        ----------
+        EDP_req : dict
+            A dictionary of unique EDP requirements
+
+        Returns
+        -------
+        demand_dict : dict
+            A dictionary of assembled demand data for calculation
+
+        Raises
+        ------
+        KeyError
+            If demand data for a given EDP cannot be found
+
         """
 
         if self._asmnt.log.verbose:
@@ -1897,32 +2065,50 @@ class DamageModel(PelicunModel):
             asset model.
         """
 
+        # Log a message indicating that damage states are being
+        # evaluated
         if self._asmnt.log.verbose:
             self.log_msg('Evaluating damage states...', prepend_timestamp=True)
 
+        # Create an empty dataframe with columns and index taken from
+        # the input capacity sample
         dmg_eval = pd.DataFrame(columns=capacity_sample.columns,
                                 index=capacity_sample.index)
 
+        # Initialize an empty list to store demand data
         demand_df = []
 
+        # For each demand type in the demand dictionary
         for demand_name, demand_vals in demand_dict.items():
 
+            # Get the list of PGs assigned to this demand type
             PG_list = EDP_req[demand_name]
 
+            # Create a list of columns for the demand data
+            # corresponding to each PG in the PG_list
             PG_cols = pd.concat([dmg_eval.loc[:1, PG_i] for PG_i in PG_list],
                                 axis=1, keys=PG_list).columns
 
+            # Create a dataframe with demand values repeated for the
+            # number of PGs and assign the columns as PG_cols
             demand_df.append(pd.concat([pd.Series(demand_vals)] * len(PG_cols),
                                        axis=1, keys=PG_cols))
 
+        # Concatenate all demand dataframes into a single dataframe
         demand_df = pd.concat(demand_df, axis=1)
+        # Sort the columns of the demand dataframe
         demand_df.sort_index(axis=1, inplace=True)
 
+        # Evaluate the damage exceedance by subtracting demand from
+        # capacity and checking if the result is less than zero
         dmg_eval = (capacity_sample - demand_df) < 0
 
+        # Remove any columns with NaN values from the damage
+        # exceedance dataframe
         dmg_eval.dropna(axis=1, inplace=True)
 
-        # initialize the DataFrames that store the damage states and quantities
+        # initialize the DataFrames that store the damage states and
+        # quantities
         ds_sample = capacity_sample.groupby(level=[0, 1, 2, 3], axis=1).first()
         ds_sample.loc[:, :] = np.zeros(ds_sample.shape, dtype=int)
 
@@ -1960,81 +2146,123 @@ class DamageModel(PelicunModel):
 
         return ds_sample
 
-    def prepare_dmg_quantities(self, PGB, ds_sample,
-                               dropzero=True, dropempty=True):
+    def _prepare_dmg_quantities(self, PGB, ds_sample,
+                                dropzero=True, dropempty=True):
         """
-        Combine component quantity and damage state information in one DF.
+        Combine component quantity and damage state information in one
+        DataFrame.
 
-        This method assumes that a component quantity sample is available in
-        the asset model and a damage state sample is available here in the
-        damage model.
+        This method assumes that a component quantity sample is
+        available in the asset model and a damage state sample is
+        available in the damage model.
 
         Parameters
         ----------
-        cmp_list: list of strings, optional, default: "ALL"
-            The method will return damage results for these components. Choosing
-            "ALL" will return damage results for all available components.
+        PGB: DataFrame
+            A DataFrame that contains the Block identifier for each
+            component.
+        ds_sample: DataFrame
+            A DataFrame that assigns a damage state to each component
+            block in the asset model.
         dropzero: bool, optional, default: True
-            If True, the quantity of non-damaged components is not saved.
+            If True, the quantity of non-damaged components is not
+            saved.
         dropempty: bool, optional, default: True
+            If True, the blocks with no damaged quantities are
+            dropped.
+
+        Returns
+        -------
+        res_df: DataFrame
+            A DataFrame that combines the component quantity and
+            damage state information.
+
+        Raises
+        ------
+        ValueError
+            If the number of blocks is not provided or if the list of
+            weights does not contain the same number of elements as
+            the number of blocks.
 
         """
 
+        # Log a message indicating that the calculation of damage quantities is starting
         if self._asmnt.log.verbose:
             self.log_msg('Calculating damage quantities...',
                          prepend_timestamp=True)
 
-        # get the corresponding parts of the quantity and damage matrices
+        # Store the damage state sample as a local variable
         dmg_ds = ds_sample
 
+        # Retrieve the component quantity information from the asset
+        # model
         cmp_qnt = self._asmnt.asset.cmp_sample  # .values
+        # Retrieve the component marginal parameters from the asset
+        # model
         cmp_params = self._asmnt.asset.cmp_marginal_params
 
+        # Combine the component quantity information for the columns
+        # in the damage state sample
         dmg_qnt = pd.concat(
             [cmp_qnt[PG[:3]] for PG in dmg_ds.columns],
             axis=1, keys=dmg_ds.columns)
 
+        # Initialize a list to store the block weights
         block_weights = []
 
+        # For each component in the list of PG blocks
         for PG in PGB.index:
 
+            # Set the number of blocks to 1, unless specified
+            # otherwise in the component marginal parameters
             blocks = 1
             if cmp_params is not None:
                 if 'Blocks' in cmp_params.columns:
 
                     blocks = cmp_params.loc[PG, 'Blocks']
 
-            # if the number of blocks is provided, calculate the weights
+            # If the number of blocks is specified, calculate the
+            # weights as the reciprocal of the number of blocks
             if np.atleast_1d(blocks).shape[0] == 1:
                 blocks_array = np.full(int(blocks), 1. / blocks)
-            # otherwise, assume that the list contains the weights
 
+            # Otherwise, assume that the list contains the weights
             block_weights += blocks_array.tolist()
 
+        # Broadcast the block weights to match the shape of the damage
+        # quantity DataFrame
         block_weights = np.broadcast_to(block_weights, (dmg_qnt.shape[0],
                                                         len(block_weights)))
 
+        # Multiply the damage quantities by the block weights
         dmg_qnt *= block_weights
 
-        # get the realized Damage States
-        # Note that these might be fewer than all possible Damage States
+        # Get the unique damage states from the damage state sample
+        # Note that these might be fewer than all possible Damage
+        # States
         ds_list = np.unique(dmg_ds.values)
+        # Filter out any NaN values from the list of damage states
         ds_list = ds_list[pd.notna(ds_list)].astype(int)
 
-        # If requested, drop the zero damage case
+        # If the dropzero option is True, remove the zero damage state
+        # from the list of damage states
         if dropzero:
             ds_list = ds_list[ds_list != 0]
 
-        # only perform this if there is at least one DS we are interested in
+        # Only proceed with the calculation if there is at least one
+        # damage state in the list
         if len(ds_list) > 0:
 
-            # collect damaged quantities in each DS and add it to res
+            # Create a list of DataFrames, where each DataFrame stores
+            # the damage quantities for a specific damage state
             res_list = [pd.DataFrame(
                 np.where(dmg_ds == ds_i, dmg_qnt, 0),
                 columns=dmg_ds.columns,
                 index=dmg_ds.index
             ) for ds_i in ds_list]
 
+            # Combine the damage quantity DataFrames into a single
+            # DataFrame
             res_df = pd.concat(
                 res_list, axis=1,
                 keys=[f'{ds_i:g}' for ds_i in ds_list])
@@ -2054,6 +2282,60 @@ class DamageModel(PelicunModel):
         """
         Perform a task from a damage process.
 
+        The method performs a task from a damage process on a given
+        quantity sample. The method first checks if the source
+        component specified in the task exists among the available
+        components in the quantity sample. If the source component is
+        not found, a warning message is logged and the method returns
+        the original quantity sample unchanged.  Otherwise, the method
+        executes the events specified in the task. The events can be
+        triggered by a limit state exceedance or a damage state
+        occurrence. If the event is triggered by a damage state, the
+        method moves all quantities of the target component(s) into
+        the target damage state in pre-selected realizations. If the
+        target event is "NA", the method removes quantity information
+        from the target components in the pre-selected
+        realizations. After executing the events, the method returns
+        the updated quantity sample.
+
+        Parameters
+        ----------
+        task : list
+            A list representing a task from the damage process. The
+            list contains two elements:
+            - The first element is a string representing the source
+              component, e.g., `'CMP_A'`.
+            - The second element is a dictionary representing the
+              events triggered by the damage state of the source
+              component. The keys of the dictionary are strings that
+              represent the damage state of the source component,
+              e.g., `'DS1'`. The values are lists of strings
+              representing the target component(s) and event(s), e.g.,
+              `['CMP_B', 'CMP_C']`.
+        qnt_sample : pandas DataFrame
+            A DataFrame representing the quantities of the components
+            in the damage sample.
+
+        Returns
+        -------
+        pandas DataFrame
+            A DataFrame representing the quantities of the components
+            in the damage sample after the task has been performed.
+
+        Raises
+        ------
+        ValueError
+            If the source component is not found among the components
+            in the damage sample
+        ValueError
+            If the source event is not a limit state (LS) or damage
+            state (DS)
+        ValueError
+            If the target event is not a limit state (LS), damage
+            state (DS), or not available (NA)
+        ValueError
+            If the target event is a limit state (LS)
+
         """
 
         if self._asmnt.log.verbose:
@@ -2072,13 +2354,11 @@ class DamageModel(PelicunModel):
         # check if it exists among the available ones
         if source_cmp not in cmp_list:
 
-            self.log_msg(f"WARNING: Source component {source_cmp} in the prescribed "
-                         "damage process not found among components in the damage "
-                         "sample. The corresponding part of the damage process is "
-                         "skipped.", prepend_timestamp=False)
-
-            # raise ValueError(f"source component not found among components in "
-            #                  f"the damage sample: {source_cmp}")
+            self.log_msg(
+                f"WARNING: Source component {source_cmp} in the prescribed "
+                "damage process not found among components in the damage "
+                "sample. The corresponding part of the damage process is "
+                "skipped.", prepend_timestamp=False)
 
             return qnt_sample
 
@@ -2299,21 +2579,58 @@ class DamageModel(PelicunModel):
         """
         Group performance groups into batches for efficient damage assessment.
 
+        The method takes as input the block_batch_size, which
+        specifies the maximum number of blocks per batch. The method
+        first checks if performance groups have been defined in the
+        cmp_marginal_params dataframe, and if so, it uses the 'Blocks'
+        column as the performance group information. If performance
+        groups have not been defined in cmp_marginal_params, the
+        method uses the cmp_sample dataframe to define the performance
+        groups, with each performance group having a single block.
+
+        The method then checks if the performance groups are available
+        in the damage parameters dataframe, and removes any
+        performance groups that are not found in the damage
+        parameters. The method then groups the performance groups
+        based on the locations and directions of the components, and
+        calculates the cumulative sum of the blocks for each
+        group. The method then divides the performance groups into
+        batches of size specified by block_batch_size and assigns a
+        batch number to each group. Finally, the method groups the
+        performance groups by batch number, component, location, and
+        direction, and returns a dataframe that shows the number of
+        blocks for each batch.
+
         """
 
+        # Get the marginal parameters for the components from the
+        # asset model
         cmp_marginals = self._asmnt.asset.cmp_marginal_params
+
+        # Initialize the batch dataframe
         pg_batch = None
+
+        # If marginal parameters are available, use the 'Blocks'
+        # column to initialize the batch dataframe
         if cmp_marginals is not None:
 
+            # Check if the "Blocks" column exists in the component
+            # marginal parameters
             if 'Blocks' in cmp_marginals.columns:
                 pg_batch = cmp_marginals['Blocks'].to_frame()
 
+        # If the "Blocks" column doesn't exist, create a new dataframe
+        # with "Blocks" column filled with ones, using the component
+        # sample as the index.
         if pg_batch is None:
             cmp_sample = self._asmnt.asset.cmp_sample
             pg_batch = pd.DataFrame(np.ones(cmp_sample.shape[1]),
                                     index=cmp_sample.columns,
                                     columns=['Blocks'])
 
+        # Check if the damage model information exists for each
+        # performance group If not, remove the performance group from
+        # the analysis and log a warning message.
         first_time = True
         for pg_i in pg_batch.index:
 
@@ -2321,7 +2638,9 @@ class DamageModel(PelicunModel):
 
                 blocks_i = pg_batch.loc[pg_i, 'Blocks']
 
-                # if a list of block weights is provided get the number of blocks
+                # If the "Blocks" column contains a list of block
+                # weights, get the number of blocks from the shape of
+                # the list.
                 if np.atleast_1d(blocks_i).shape[0] != 1:
                     blocks_i = np.atleast_1d(blocks_i).shape[0]
 
@@ -2340,16 +2659,22 @@ class DamageModel(PelicunModel):
 
                 self.log_msg(f"{pg_i}", prepend_timestamp=False)
 
+        # Convert the data types of the dataframe to be efficient
         pg_batch = pg_batch.convert_dtypes()
 
+        # Sum up the number of blocks for each performance group
         pg_batch = pg_batch.groupby(['loc', 'dir', 'cmp']).sum()
         pg_batch.sort_index(axis=0, inplace=True)
 
+        # Calculate cumulative sum of blocks
         pg_batch['CBlocks'] = np.cumsum(pg_batch['Blocks'].values.astype(int))
         pg_batch['Batch'] = 0
 
+        # Group the performance groups into batches
         for batch_i in range(1, pg_batch.shape[0] + 1):
 
+            # Find the mask for blocks that are less than the batch
+            # size and greater than 0
             batch_mask = np.all(
                 np.array([pg_batch['CBlocks'] < block_batch_size,
                           pg_batch['CBlocks'] > 0]),
@@ -2361,12 +2686,19 @@ class DamageModel(PelicunModel):
 
             pg_batch.loc[batch_mask, 'Batch'] = batch_i
 
+            # Decrement the cumulative block count by the max count in
+            # the current batch
             pg_batch['CBlocks'] -= pg_batch.loc[
                 pg_batch['Batch'] == batch_i, 'CBlocks'].max()
 
+            # If the maximum cumulative block count is 0, exit the
+            # loop
             if pg_batch['CBlocks'].max() == 0:
                 break
 
+        # Group the performance groups by batch, component, location,
+        # and direction, and keep only the number of blocks for each
+        # group
         pg_batch = pg_batch.groupby(
             ['Batch', 'cmp', 'loc', 'dir']).sum().loc[:, 'Blocks'].to_frame()
 
@@ -2422,7 +2754,7 @@ class DamageModel(PelicunModel):
                 sample_size, PGB)
 
             # Get the required demand types for the analysis
-            EDP_req = self.get_required_demand_type(PGB)
+            EDP_req = self._get_required_demand_type(PGB)
 
             # Create the demand vector
             demand_dict = self._assemble_required_demand_data(EDP_req)
@@ -2431,7 +2763,7 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(demand_dict, EDP_req,
                                                     capacity_sample, lsds_sample)
 
-            qnt_sample = self.prepare_dmg_quantities(PGB, ds_sample,
+            qnt_sample = self._prepare_dmg_quantities(PGB, ds_sample,
                                                      dropzero=False,
                                                      dropempty=False)
 
