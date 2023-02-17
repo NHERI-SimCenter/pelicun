@@ -421,13 +421,11 @@ def test_AssetModel_generate_cmp_sample():
 
     mdl.cmp_marginal_params = pd.DataFrame(
         {
-            'Theta_0': (8.0, 8.0, 8.0, 8.0, 8.0, 8.0),
-            'Blocks': (1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+            'Theta_0': (8.0, 8.0, 8.0, 8.0),
+            'Blocks': (1.0, 1.0, 1.0, 1.0)
         },
         index=pd.MultiIndex.from_tuples(
             (
-                ('component_a', '0', '1'),
-                ('component_a', '0', '2'),
                 ('component_a', '1', '1'),
                 ('component_a', '1', '2'),
                 ('component_a', '2', '1'),
@@ -446,13 +444,13 @@ def test_AssetModel_generate_cmp_sample():
     expected_cmp_sample = pd.DataFrame(
         {
             ('component_a', f'{i}', f'{j}'): 8.0
-            for i in range(3) for j in range(1, 3)
+            for i in range(1, 3) for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('component_a', f'{i}', f'{j}')
-                for i in range(3) for j in range(1, 3)
+                for i in range(1, 3) for j in range(1, 3)
             ),
             names=('cmp', 'loc', 'dir')
         )
@@ -469,13 +467,13 @@ def test_AssetModel_save_cmp_sample():
     mdl._cmp_sample = pd.DataFrame(
         {
             ('component_a', f'{i}', f'{j}'): 8.0
-            for i in range(3) for j in range(1, 3)
+            for i in range(1, 3) for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('component_a', f'{i}', f'{j}')
-                for i in range(3) for j in range(1, 3)
+                for i in range(1, 3) for j in range(1, 3)
             ),
             names=('cmp', 'loc', 'dir')
         )
@@ -511,26 +509,502 @@ def test_DamageModel_init():
     assert mdl.log_div
 
     assert mdl.damage_params is None
+    assert mdl._dmg_function_scale_factors is None
     assert mdl._sample is None
 
-def test_DamageModel():
+def test_DamageModel_load_damage_model():
 
     mdl, asmt = create_DamageModel()
 
-    # asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
 
-    # mdl.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    asmt.asset._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}'): 8.0
+            for i in range(1, 3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}')
+                for i in range(1, 3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
 
-    # dmg_process = {
-    #     "1_collapse": {
-    #         "DS1": "ALL_NA"
-    #     },
-    #     "2_excessiveRID": {
-    #         "DS1": "irreparable_DS1"
-    #     }
-    # }
+    mdl.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
 
-    # mdl.calculate(dmg_process=dmg_process)
+    # should no longer be None
+    assert mdl.damage_params is not None
+
+    # defining this dataframe in a proper way was kind of hard, so we
+    # resort to comparing it against its string version for now.
+    # Note that this shouldn't be the standard way of asserting dataframes for equality.
+    # See other tests for the proper way.
+
+    assert mdl.damage_params.to_string() == (
+        '                 Demand                                          '
+        'Incomplete                  LS1                                  '
+        '         LS2                                           LS3       '
+        '                                    LS4                       \n '
+        '           Directional Offset                         Type Unit  '
+        '            DamageStateWeights     Family Theta_0 Theta_1 DamageS'
+        'tateWeights     Family Theta_0 Theta_1 DamageStateWeights     Fam'
+        'ily Theta_0 Theta_1 DamageStateWeights Family Theta_0 Theta_1\nID'
+        '                                                                         '
+        '                                                                         '
+        '                                                                 '
+        '                                            \nB.10.31.001        '
+        ' 1.0    0.0  Peak Interstory Drift Ratio   ea        0.0  0.95000'
+        '0 | 0.050000  lognormal    0.04     0.4               None  logno'
+        'rmal    0.08     0.4               None  lognormal    0.11     0.'
+        '4                NaN   None     NaN     NaN')
+
+
+def test_DamageModel_get_pg_batches():
+
+    damage_model, asmt = create_DamageModel()
+    asset_model = asmt.asset
+
+    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+    asset_model._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}'): 8.0
+            for i in range(1, 3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}')
+                for i in range(1, 3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+
+    # make sure that the method works for different batch sizes
+    for i in (1, 4, 8, 10, 100):
+        damage_model._get_pg_batches(block_batch_size=i)
+
+    # verify the result is correct for certain cases
+    res = damage_model._get_pg_batches(block_batch_size=1)
+    expected_res = pd.DataFrame(
+        np.array((1, 1, 1, 1)),
+        index = pd.MultiIndex.from_tuples(
+            (
+                (1, 'B.10.31.001', '1', '1'),
+                (2, 'B.10.31.001', '1', '2'),
+                (3, 'B.10.31.001', '2', '1'),
+                (4, 'B.10.31.001', '2', '2')),
+            names = ('Batch', 'cmp', 'loc', 'dir')
+        ),
+        columns = ('Blocks',)
+    ).astype('Int64')
+
+    pd.testing.assert_frame_equal(
+        expected_res,
+        res)
+
+    res = damage_model._get_pg_batches(block_batch_size=1000)
+    expected_res = pd.DataFrame(
+        np.array((1, 1, 1, 1)),
+        index = pd.MultiIndex.from_tuples(
+            (
+                (1, 'B.10.31.001', '1', '1'),
+                (1, 'B.10.31.001', '1', '2'),
+                (1, 'B.10.31.001', '2', '1'),
+                (1, 'B.10.31.001', '2', '2')),
+            names = ('Batch', 'cmp', 'loc', 'dir')
+        ),
+        columns = ('Blocks',)
+    ).astype('Int64')
+
+    pd.testing.assert_frame_equal(
+        expected_res,
+        res)
+
+
+def test_DamageModel_create_dmg_RVs():
+
+    damage_model, asmt = create_DamageModel()
+    asset_model = asmt.asset
+
+    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+    asset_model._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}'): 8.0
+            for i in range(1, 3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}')
+                for i in range(1, 3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    pg_batch = damage_model._get_pg_batches(block_batch_size=1)
+    batches = pg_batch.index.get_level_values(0).unique()
+    for PGB_i in batches:
+        PGB = pg_batch.loc[PGB_i]
+        # ensure the following works in each case
+        damage_model._create_dmg_RVs(PGB)
+
+    # check the output for a single case
+    PGB_i = batches[-1]
+    PGB = pg_batch.loc[PGB_i]
+
+    capacity_RV_reg, lsds_RV_reg = damage_model._create_dmg_RVs(PGB)
+
+    assert capacity_RV_reg is not None
+    assert lsds_RV_reg is not None
+
+    assert (
+        list(capacity_RV_reg._variables.keys()) == [
+            'FRG-B.10.31.001-2-2-1-1', 'FRG-B.10.31.001-2-2-1-2',
+            'FRG-B.10.31.001-2-2-1-3'])
+
+    assert capacity_RV_reg._sets == {}
+
+    assert (
+        list(lsds_RV_reg._variables.keys()) == [
+            'LSDS-B.10.31.001-2-2-1-1', 'LSDS-B.10.31.001-2-2-1-2',
+            'LSDS-B.10.31.001-2-2-1-3'])
+
+    assert lsds_RV_reg._sets == {}
+    
+
+
+def test_DamageModel_generate_dmg_sample():
+
+    damage_model, asmt = create_DamageModel()
+    asset_model = asmt.asset
+
+    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+    asset_model._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}'): 8.0
+            for i in range(1, 3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}')
+                for i in range(1, 3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    pg_batch = damage_model._get_pg_batches(block_batch_size=1)
+    batches = pg_batch.index.get_level_values(0).unique()
+    PGB_i = batches[-1]
+    PGB = pg_batch.loc[PGB_i]
+    sample_size = 10
+
+    # test the _generate_dmg_sample method
+    capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
+                sample_size, PGB)
+
+    # run a few checks on the results of the method
+
+    # note: the method generates random results. We avoid checking
+    # those for equality, because subsequent changes in the code might
+    # break the tests. The functionality of the uq module, which is
+    # used to generate the random samples, is tested with a dedicated
+    # test suite.
+    
+    for res in (capacity_sample, lsds_sample):
+        assert res.shape == (10, 3)
+
+        assert list(res.columns) == [
+            ('B.10.31.001', '2', '2', '1', '1'),
+            ('B.10.31.001', '2', '2', '1', '2'),
+            ('B.10.31.001', '2', '2', '1', '3')]
+
+        assert (
+            list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    assert capacity_sample.to_numpy().dtype == np.dtype('float64')
+    assert lsds_sample.to_numpy().dtype == np.dtype('int64')
+
+
+def test_DamageModel_get_required_demand_type():
+
+    damage_model, asmt = create_DamageModel()
+    asset_model = asmt.asset
+
+    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+    asset_model._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}'): 8.0
+            for i in range(1, 3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}')
+                for i in range(1, 3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+
+    pg_batch = damage_model._get_pg_batches(block_batch_size=1)
+    batches = pg_batch.index.get_level_values(0).unique()
+    PGB_i = batches[-1]
+    PGB = pg_batch.loc[PGB_i]
+
+    EDP_req = damage_model._get_required_demand_type(PGB)
+
+    assert EDP_req == {'PID-2-2': [('B.10.31.001', '2', '2')]}
+
+
+def test_DamageModel_assemble_required_demand_data():
+
+    asmt = assessment.Assessment()
+    damage_model = asmt.damage
+    demand_model = asmt.demand
+    asset_model = asmt.asset
+
+    demand_model.load_sample(
+        'tests/data/model/'
+        'test_DamageModel_assemble_'
+        'required_demand_data/demand_sample.csv')
+
+    # calibrate the model
+    demand_model.calibrate_model(
+        {
+            "ALL": {
+                "DistributionFamily": "lognormal"
+            },
+            "PID": {
+                "DistributionFamily": "lognormal",
+                "TruncateLower": "",
+                "TruncateUpper": "0.06"
+            }
+        }
+    )
+
+    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+    asset_model._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}'): 8.0
+            for i in range(1, 3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}')
+                for i in range(1, 3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+
+    pg_batch = damage_model._get_pg_batches(block_batch_size=1)
+    batches = pg_batch.index.get_level_values(0).unique()
+
+    expected_demand_dicts = [
+        {'PID-1-1': np.array([0.02672])},
+        {'PID-1-2': np.array([0.02672])},
+        {'PID-2-1': np.array([0.02672])},
+        {'PID-2-2': np.array([0.02672])}
+    ]
+    
+    for i, PGB_i in enumerate(batches):
+        PGB = pg_batch.loc[PGB_i]
+        EDP_req = damage_model._get_required_demand_type(PGB)
+        demand_dict = damage_model._assemble_required_demand_data(EDP_req)
+        assert demand_dict == expected_demand_dicts[i]
+
+
+def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
+
+    asmt = assessment.Assessment()
+    damage_model = asmt.damage
+    demand_model = asmt.demand
+    asset_model = asmt.asset
+
+    demand_model.load_sample(
+        'tests/data/model/'
+        'test_DamageModel_assemble_'
+        'required_demand_data/demand_sample.csv')
+
+    # calibrate the model
+    demand_model.calibrate_model(
+        {
+            "ALL": {
+                "DistributionFamily": "lognormal"
+            },
+            "PID": {
+                "DistributionFamily": "lognormal",
+                "TruncateLower": "",
+                "TruncateUpper": "0.06"
+            }
+        }
+    )
+
+    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+    asset_model._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}'): 8.0
+            for i in range(1, 3) for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}')
+                for i in range(1, 3) for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir')
+        )
+    )
+
+    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+
+    pg_batch = damage_model._get_pg_batches(block_batch_size=1)
+    batches = pg_batch.index.get_level_values(0).unique()
+
+    PGB_i = batches[-1]
+    PGB = pg_batch.loc[PGB_i]
+    EDP_req = damage_model._get_required_demand_type(PGB)
+    demand_dict = damage_model._assemble_required_demand_data(EDP_req)
+
+    sample_size = 10
+    capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
+        sample_size, PGB)
+
+    ds_sample = damage_model._evaluate_damage_state(demand_dict, EDP_req,
+                                            capacity_sample, lsds_sample)
+
+    qnt_sample = damage_model._prepare_dmg_quantities(PGB, ds_sample,
+                                             dropzero=False,
+                                             dropempty=False)
+
+    # note: the realized number of damage states is random, limiting
+    # our assertions
+    assert ds_sample.shape[0] == 10
+    assert qnt_sample.shape[0] == 10
+    assert (
+        list(qnt_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    assert (
+        list(ds_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    assert list(ds_sample.columns)[0] == ('B.10.31.001', '2', '2', '1')
+    assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0')
+
+
+# def test_DamageModel_perform_dmg_task():
+#     asmt = assessment.Assessment()
+#     damage_model = asmt.damage
+#     demand_model = asmt.demand
+#     asset_model = asmt.asset
+
+#     # Load demand sample data
+#     demand_model.load_sample(
+#         'tests/data/model/'
+#         'test_DamageModel_assemble_'
+#         'required_demand_data/demand_sample.csv')
+
+#     # Calibrate the demand model
+#     demand_model.calibrate_model(
+#         {
+#             "ALL": {
+#                 "DistributionFamily": "lognormal"
+#             },
+#             "PID": {
+#                 "DistributionFamily": "lognormal",
+#                 "TruncateLower": "",
+#                 "TruncateUpper": "0.06"
+#             }
+#         }
+#     )
+
+#     # Load the default data for the assessment
+#     asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+
+#     # Set the component sample for the asset model
+#     asset_model._cmp_sample = pd.DataFrame(
+#         {
+#             ('B.10.31.001', f'{i}', f'{j}'): 8.0
+#             for i in range(1, 3) for j in range(1, 3)
+#         },
+#         index=range(10),
+#         columns=pd.MultiIndex.from_tuples(
+#             (
+#                 ('B.10.31.001', f'{i}', f'{j}')
+#                 for i in range(1, 3) for j in range(1, 3)
+#             ),
+#             names=('cmp', 'loc', 'dir')
+#         )
+#     )
+
+#     # Load the damage model
+#     damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+
+#     # Get the PG batches
+#     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
+#     batches = pg_batch.index.get_level_values(0).unique()
+
+#     # Select the last PG batch
+#     PGB_i = batches[-1]
+#     PGB = pg_batch.loc[PGB_i]
+
+#     # Get the required EDP type
+#     EDP_req = damage_model._get_required_demand_type(PGB)
+
+#     # Assemble the required demand data
+#     demand_dict = damage_model._assemble_required_demand_data(EDP_req)
+
+#     # Set the sample size
+#     sample_size = 10
+
+#     # Generate the damage sample
+#     capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
+#         sample_size, PGB)
+
+#     # Evaluate the damage state
+#     ds_sample = damage_model._evaluate_damage_state(demand_dict, EDP_req,
+#                                             capacity_sample, lsds_sample)
+
+#    # Prepare the damage quantities
+#     qnt_sample = damage_model._prepare_dmg_quantities(PGB, ds_sample,
+#                                              dropzero=False,
+#                                              dropempty=False)
+    
+#     # Perform a damage task
+#     task = ['0_B.10.31.001', {'DS0': ['B.10.31.001_NA']}]
+#     qnt_sample = damage_model._perform_dmg_task(task, qnt_sample)
+
+#     # Check if the damage task was performed correctly
+#     cmp_list = qnt_sample.columns.get_level_values(0).unique().tolist()
+#     source_cmp = task[0].split('_')[1]
+#     target_cmp, target_event = task[1].popitem()[1][0].split('_')
+
+#     assert source_cmp in cmp_list
+#     assert target_cmp in cmp_list
+#     assert target_event == 'DS0'
+#     assert (qnt_sample[source_cmp] == np.nan).all().all()
+#     assert (qnt_sample[target_cmp] == 8).all().all()
+
 
 #  _____                 _   _
 # |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
