@@ -649,10 +649,10 @@
 			}
 		},
 		"Fragility_beta":{
-			"High_code": 0.65,
-			"Moderate_code": 0.65,
-			"Low_code": 0.65,
-			"Pre_code": 0.65
+			"High_code": 0.4,
+			"Moderate_code": 0.4,
+			"Low_code": 0.4,
+			"Pre_code": 0.4
 		},
 		"P_collapse": {
 			"W1":   0.03,
