@@ -194,12 +194,12 @@ def add_units(raw_demands, length_unit):
     if np.any(EDP_mask):
         demands.iloc[0, EDP_mask] = length_unit
 
-    # rotation
+    # drift ratio
     rot_EDPs = ['PID', 'PRD', 'DWD', 'RDR', 'PMD', 'RID']
     EDP_mask = np.isin(demand_cols, rot_EDPs)
 
     if np.any(EDP_mask):
-        demands.iloc[0, EDP_mask] = 'rad'
+        demands.iloc[0, EDP_mask] = 'unitless'
 
     # convert back to simple header and return the DF
     return convert_to_SimpleIndex(demands, axis=1)
@@ -490,7 +490,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 RID_list.append(RID)
 
             RID = pd.concat(RID_list, axis=1)
-            RID_units = pd.Series(['rad', ]*RID.shape[1], index=RID.columns,
+            RID_units = pd.Series(['unitless', ]*RID.shape[1], index=RID.columns,
                                   name='Units')
         RID_sample = pd.concat([RID, RID_units.to_frame().T])
 
@@ -498,7 +498,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
     # add a constant one demand
     demand_sample[('ONE', '0', '1')] = np.ones(demand_sample.shape[0])
-    demand_sample.loc['Units', ('ONE', '0', '1')] = 'ea'
+    demand_sample.loc['Units', ('ONE', '0', '1')] = 'unitless'
 
     PAL.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
 
@@ -765,7 +765,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 adf.loc['collapse', ('Demand', 'Directional')] = 1
                 adf.loc['collapse', ('Demand', 'Offset')] = 0
                 adf.loc['collapse', ('Demand', 'Type')] = 'One'
-                adf.loc['collapse', ('Demand', 'Unit')] = 'ea'
+                adf.loc['collapse', ('Demand', 'Unit')] = 'unitless'
                 adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
                 adf.loc['collapse', 'Incomplete'] = 0                
 
@@ -777,7 +777,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             adf.loc['collapse', ('Demand', 'Directional')] = 1
             adf.loc['collapse', ('Demand', 'Offset')] = 0
             adf.loc['collapse', ('Demand', 'Type')] = 'One'
-            adf.loc['collapse', ('Demand', 'Unit')] = 'ea'
+            adf.loc['collapse', ('Demand', 'Unit')] = 'unitless'
             adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
             adf.loc['collapse', 'Incomplete'] = 0
 
@@ -792,7 +792,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             adf.loc['excessiveRID',
                     ('Demand', 'Type')] = 'Residual Interstory Drift Ratio'
 
-            adf.loc['excessiveRID', ('Demand', 'Unit')] = 'rad'
+            adf.loc['excessiveRID', ('Demand', 'Unit')] = 'unitless'
             adf.loc['excessiveRID',
                     ('LS1', 'Theta_0')] = irrep_config['DriftCapacityMedian']
 
@@ -809,7 +809,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             adf.loc['irreparable', ('Demand', 'Directional')] = 1
             adf.loc['irreparable', ('Demand', 'Offset')] = 0
             adf.loc['irreparable', ('Demand', 'Type')] = 'One'
-            adf.loc['irreparable', ('Demand', 'Unit')] = 'ea'
+            adf.loc['irreparable', ('Demand', 'Unit')] = 'unitless'
             adf.loc['irreparable', ('LS1', 'Theta_0')] = 1e10
             adf.loc['irreparable', 'Incomplete'] = 0
 
@@ -1015,7 +1015,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
                 adf.loc[rc, ('DS1', 'Theta_0')] = rCost_config["Median"]
 
-                if ~pd.isna(rCost_config.get('Distribution', np.nan)):
+                if pd.isna(rCost_config.get('Distribution', np.nan)) == False:
                     adf.loc[rc, ('DS1', 'Family')] = rCost_config[
                         "Distribution"]
                     adf.loc[rc, ('DS1', 'Theta_1')] = rCost_config[
@@ -1056,7 +1056,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
                 adf.loc[rt, ('DS1', 'Theta_0')] = rTime_config["Median"]
 
-                if ~pd.isna(rTime_config.get('Distribution', np.nan)):
+                if pd.isna(rTime_config.get('Distribution', np.nan))==False:
                     adf.loc[rt, ('DS1', 'Family')] = rTime_config[
                         "Distribution"]
                     adf.loc[rt, ('DS1', 'Theta_1')] = rTime_config[

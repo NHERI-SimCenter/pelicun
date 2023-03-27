@@ -237,7 +237,7 @@ def create_FEMA_P58_fragility_db(source_file,
 
     # conversion dictionary for demand unit names
     convert_demand_unit = {
-        'Unit less': 'ea',
+        'Unit less': 'unitless',
         'Radians': 'rad',
         'g': 'g',
         'meter/sec': 'mps'
