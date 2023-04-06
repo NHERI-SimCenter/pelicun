@@ -1308,9 +1308,7 @@ class DamageModel(PelicunModel):
         super().__init__(assessment)
 
         self.damage_params = None
-
         self._dmg_function_scale_factors = None
-
         self._sample = None
 
     @property
@@ -2676,7 +2674,7 @@ class DamageModel(PelicunModel):
             # Find the mask for blocks that are less than the batch
             # size and greater than 0
             batch_mask = np.all(
-                np.array([pg_batch['CBlocks'] < block_batch_size,
+                np.array([pg_batch['CBlocks'] <= block_batch_size,
                           pg_batch['CBlocks'] > 0]),
                 axis=0)
 
@@ -2709,6 +2707,7 @@ class DamageModel(PelicunModel):
         Calculate the damage state of each component block in the asset.
 
         """
+
         self.log_div()
         self.log_msg('Calculating damages...')
 
