@@ -995,6 +995,128 @@ def test_DamageModel_perform_dmg_task():
     for task in dmg_process.items():
         qnt_sample = damage_model._perform_dmg_task(task, qnt_sample)
 
+def test_DamageModel__get_pg_batches():
+
+    asmt = assessment.Assessment()
+    damage_model = asmt.damage
+    asset_model = asmt.asset
+
+    asset_model.cmp_marginal_params = pd.DataFrame(
+        np.full((4, 2), 2.00),
+        index=pd.MultiIndex.from_tuples(
+            (
+             ('cmp_1', 1, 1),
+             ('cmp_1', 1, 2),
+             ('cmp_2', 1, 1),
+             ('cmp_2', 1, 2)
+            ), names=['cmp', 'loc', 'dir']
+        ),
+        columns = ('Theta_0', 'Blocks')
+    )
+
+    damage_model.damage_params = pd.DataFrame(
+        np.empty(2),
+        index=('cmp_1', 'cmp_2'),
+        columns=['ID']
+    )
+
+    df_1 = damage_model._get_pg_batches(1)
+    assert [i[0] for i in df_1.index] == [1, 2, 3, 4]
+
+    df_4 = damage_model._get_pg_batches(4)
+    assert [i[0] for i in df_4.index] == [1, 1, 2, 2]
+
+    df_8 = damage_model._get_pg_batches(8)
+    assert [i[0] for i in df_8.index] == [1, 1, 1, 1]
+
+
+def test_DamageModel_calculate():
+
+    asmt = assessment.Assessment()
+    dmg_process = {
+        "1_collapse": {
+            "DS1": "ALL_NA"
+    },
+        "2_excessiveRID": {
+            "DS1": "irreparable_DS1"
+        }
+    }
+    asmt.demand._sample = pd.DataFrame(
+        np.column_stack((
+            np.array((4.94, 2.73, 4.26, 2.79)),
+            np.array((4.74, 2.23, 4.14, 2.28)),
+            np.array((0.02, 0.022, 0.021, 0.02)),
+            np.array((0.02, 0.022, 0.021, 0.02)),
+        )),
+        columns = pd.MultiIndex.from_tuples(
+            (
+             ('PFA', '1', '1'),
+             ('PFA', '1', '2'),
+             ('PID', '1', '1'),
+             ('PID', '1', '2'),
+            ), names=['type', 'loc', 'dir']
+        ),
+        index = range(4)
+    )
+    asmt.asset.cmp_marginal_params = pd.DataFrame(
+        np.full((4, 2), 2.00),
+        index=pd.MultiIndex.from_tuples(
+            (
+             ('cmp_1', '1', '1'),
+             ('cmp_1', '1', '2'),
+             ('cmp_2', '1', '1'),
+             ('cmp_2', '1', '2')
+            ), names=['cmp', 'loc', 'dir']
+        ),
+        columns = ('Theta_0', 'Blocks')
+    )
+    asmt.asset.generate_cmp_sample(sample_size=4)
+    asmt.damage.damage_params = pd.DataFrame(
+        np.array((
+            (1.0, 0.0, 'Peak Interstory Drift Ratio', 'ea', 0.0,
+             None, 'lognormal', 1e-2, 0.40,
+             None, 'lognormal', 2e-2, 0.40,
+             None, 'lognormal', 3e-2, 0.40,
+             None, 'lognormal', 4e-2, 0.40),
+            (1.0, 0.0, 'Peak Interstory Drift Ratio', 'ea', 0.0,
+             None, 'lognormal', 1e-2, 0.40,
+             None, 'lognormal', 2e-2, 0.40,
+             None, 'lognormal', 3e-2, 0.40,
+             None, 'lognormal', 4e-2, 0.40),
+            )),
+        index = ['cmp_1', 'cmp_2'],
+        columns=pd.MultiIndex.from_tuples(
+        ((    'Demand',        'Directional'),
+         (    'Demand',             'Offset'),
+         (    'Demand',               'Type'),
+         (    'Demand',               'Unit'),
+         ('Incomplete',                   ''),
+         (       'LS1', 'DamageStateWeights'),
+         (       'LS1',             'Family'),
+         (       'LS1',            'Theta_0'),
+         (       'LS1',            'Theta_1'),
+         (       'LS2', 'DamageStateWeights'),
+         (       'LS2',             'Family'),
+         (       'LS2',            'Theta_0'),
+         (       'LS2',            'Theta_1'),
+         (       'LS3', 'DamageStateWeights'),
+         (       'LS3',             'Family'),
+         (       'LS3',            'Theta_0'),
+         (       'LS3',            'Theta_1'),
+         (       'LS4', 'DamageStateWeights'),
+         (       'LS4',             'Family'),
+         (       'LS4',            'Theta_0'),
+         (       'LS4',            'Theta_1')),
+        )
+    )    
+    asmt.damage.calculate(dmg_process=dmg_process)
+    assert asmt.damage._dmg_function_scale_factors == None
+
+    # note: Due to inherrent randomness, we can't assert the actual
+    # values of this result
+    assert asmt.damage._sample is not None
+
+
 #  _____                 _   _
 # |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
 # | |_ | | | | '_ \ / __| __| |/ _ \| '_ \/ __|
