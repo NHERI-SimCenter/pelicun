@@ -2822,7 +2822,7 @@ class LossModel(PelicunModel):
         super().__init__(assessment)
 
         self._sample = None
-
+        self.loss_params = None
         self.loss_type = 'Generic'
 
     @property
@@ -2987,10 +2987,13 @@ class LossModel(PelicunModel):
         if len(cmp_incomplete_list) > 0:
             loss_params.drop(cmp_incomplete_list, inplace=True)
 
-            self.log_msg("\nWARNING: Loss information is incomplete for the "
-                         f"following component(s) {cmp_incomplete_list}. They were "
-                         "removed from the analysis.\n",
-                         prepend_timestamp=False)
+            self.log_msg(
+                "\n"
+                "WARNING: Loss information is incomplete for the "
+                f"following component(s) {cmp_incomplete_list}. "
+                "They were removed from the analysis."
+                "\n",
+                prepend_timestamp=False)
 
         self.loss_params = loss_params.sort_index(axis=1)
 
@@ -3011,35 +3014,39 @@ class LossModel(PelicunModel):
         """
         This is placeholder method.
 
-        The method of sampling decision variables in Decision Variable-specific
-        and needs to be implemented in every child of the LossModel
-        independently.
+        The method of sampling decision variables in Decision
+        Variable-specific and needs to be implemented in every child
+        of the LossModel independently.
         """
         raise NotImplementedError
 
     def calculate(self):
         """
-        Calculate the repair cost and time of each component block in the asset.
+        Calculate the repair cost and time of each component block in
+        the asset.
 
         """
 
         self.log_div()
         self.log_msg("Calculating losses...")
 
-        drivers = [d for d, c in self.loss_map['Driver']]
+        drivers = [d for d, _ in self.loss_map['Driver']]
 
         if 'DMG' in drivers:
             sample_size = self._asmnt.damage.sample.shape[0]
         elif 'DEM' in drivers:
             sample_size = self._asmnt.demand.sample.shape[0]
+        else:
+            raise ValueError(
+                'Invalid loss drivers. Check the specified loss map.')
 
-        # First, get the damaged quantities in each damage state for each
-        # component of interest.
+        # First, get the damaged quantities in each damage state for
+        # each component of interest.
         dmg_q = self._asmnt.damage.sample.copy()
 
         # Now sample random Decision Variables
-        # Note that this method is DV-specific and needs to be implemented in
-        # every child of the LossModel independently.
+        # Note that this method is DV-specific and needs to be
+        # implemented in every child of the LossModel independently.
         self._generate_DV_sample(dmg_q, sample_size)
 
         self.log_msg("Loss calculation successful.")
