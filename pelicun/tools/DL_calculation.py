@@ -146,6 +146,49 @@ output_files = [
 ]
 
 
+def convert_df_to_dict(df, axis=1):
+
+    out_dict = {}
+    
+    if axis == 1:
+        df_in = df
+    elif axis == 0:
+        df_in = df.T
+    else:
+        pass
+        # TODO: raise error
+        
+    MI = df_in.columns
+    
+    for label in MI.unique(level=0):
+        
+        out_dict.update({label: np.nan})
+        
+        sub_df = df_in[label]
+        
+        skip_sub = True
+        
+        if MI.nlevels>1: 
+            skip_sub = False
+            
+            if isinstance(sub_df, pd.Series):
+                skip_sub = True
+            elif (len(sub_df.columns) == 1) and (sub_df.columns[0] == ""):
+                skip_sub = True
+            
+            if skip_sub == False:
+                out_dict[label] = convert_df_to_dict(sub_df)
+                
+        if skip_sub == True:
+            
+            if np.all(sub_df.index.astype(str).str.isnumeric()) == True:
+                out_dict[label] = df_in[label].tolist()
+            else:
+                out_dict[label] = {key:sub_df.loc[key] for key in sub_df.index}
+                
+    return out_dict
+
+
 def add_units(raw_demands, length_unit):
 
     demands = raw_demands.T
@@ -209,7 +252,7 @@ def regional_output_demand():
     pass
 
 def run_pelicun(config_path, demand_file, output_path, coupled_EDP, 
-    realizations, auto_script_path, detailed_results, regional, **kwargs):
+    realizations, auto_script_path, detailed_results, regional, output_format, **kwargs):
     """
     Use settings in the config JSON to prepare and run a Pelicun calculation.
 
@@ -245,6 +288,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         output_path = config_path.parents[0]
     else:
         output_path = Path(output_path)
+
+    # Initialize the array that we'll use to collect the output file names
+    output_files = []
 
     # Initialize the output folder - i.e., remove existing output files from 
     # there
@@ -333,6 +379,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     loss_config = DL_config.get('Losses', None)
     out_config = DL_config.get('Outputs', None)
     
+    # provide all outputs if the files are not specified
     if out_config == None:
         out_config = {
             'Demand': {
@@ -360,6 +407,24 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 }
             }
         }
+
+    # provide outputs in CSV by default
+    if ('Format' in out_config.keys()) == False:
+        out_config.update({
+            'Format': {
+                'CSV': True,
+                'JSON': False
+            }
+        })
+
+    # override file format specification if the output_format is provided
+    if output_format != None:
+        out_config.update({
+            'Format': {
+                'CSV': 'csv' in output_format,
+                'JSON': 'json' in output_format,
+            }
+        })
 
     if asset_config is None:
         log_msg("Asset configuration missing. Terminating analysis.")
@@ -516,13 +581,15 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                                        index_label=demand_sample_s.columns.name,
                                        compression=dict(
                                            method='zip',
-                                           archive_name='DEM_sample.csv'))
+                                           archive_name='DEM_sample.csv'))   
+                output_files.append('DEM_sample.zip')             
 
             if 'Statistics' in out_reqs:
                 demand_stats = convert_to_SimpleIndex(
                     describe(demand_sample), axis=1)
                 demand_stats.to_csv(output_path/"DEM_stats.csv",
                                     index_label=demand_stats.columns.name)
+                output_files.append('DEM_stats.csv')
 
         if regional == True:
             
@@ -545,6 +612,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             res.columns.rename(['type', 'loc', 'dir', 'stat'], inplace=True)
 
             res.to_csv(output_path/"EDP.csv", index_label=res.columns.name)
+            output_files.append('EDP.csv')
 
 
     # Asset Definition ------------------------------------------------------------
@@ -648,12 +716,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                                     index_label=cmp_sample_s.columns.name,
                                     compression=dict(method='zip',
                                                      archive_name='CMP_sample.csv'))
+                output_files.append('CMP_sample.zip')
 
             if 'Statistics' in out_reqs:
                 cmp_stats = convert_to_SimpleIndex(describe(cmp_sample), axis=1)
                 cmp_stats.to_csv(
                     output_path/"CMP_stats.csv",
                     index_label=cmp_stats.columns.name)
+                output_files.append('CMP_stats.csv')
 
         if regional == True:
 
@@ -681,6 +751,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             df_res.dropna(axis=1, how='all', inplace=True)
 
             df_res.to_csv(output_path/'AIM.csv')
+            output_files.append('AIM.csv')
 
     # Damage Assessment -----------------------------------------------------------
 
@@ -922,12 +993,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         index_label=damage_sample_s.columns.name,
                         compression=dict(method='zip',
                                          archive_name='DMG_sample.csv'))
+                    output_files.append('DMG_sample.zip')
 
                 if 'Statistics' in out_reqs:
                     damage_stats = convert_to_SimpleIndex(describe(damage_sample),
                                                           axis=1)
                     damage_stats.to_csv(output_path/"DMG_stats.csv",
                                         index_label=damage_stats.columns.name)
+                    output_files.append('DMG_stats.csv')
 
                 if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
                     grp_damage = damage_sample.groupby(level=[0, 3], axis=1).sum()
@@ -939,12 +1012,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                                             compression=dict(
                                                 method='zip',
                                                 archive_name='DMG_grp.csv'))
+                        output_files.append('DMG_grp.zip')
 
                     if 'GroupedStatistics' in out_reqs:
                         grp_stats = convert_to_SimpleIndex(describe(grp_damage),
                                                            axis=1)
                         grp_stats.to_csv(output_path/"DMG_grp_stats.csv",
                                          index_label=grp_stats.columns.name)
+                        output_files.append('DMG_grp_stats.csv')
 
             if regional == True:
 
@@ -965,6 +1040,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 df_res = pd.concat([df_res_c,], axis=1, keys=['collapse',])
 
                 df_res.to_csv(output_path/'DM.csv')
+                output_files.append('DM.csv')
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -1174,6 +1250,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             compression=dict(
                                 method='zip',
                                 archive_name='DV_bldg_repair_sample.csv'))
+                        output_files.append('DV_bldg_repair_sample.zip')
 
                     if 'Statistics' in out_reqs:
                         repair_stats = convert_to_SimpleIndex(
@@ -1181,6 +1258,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             axis=1)
                         repair_stats.to_csv(output_path/"DV_bldg_repair_stats.csv",
                                             index_label=repair_stats.columns.name)
+                        output_files.append('DV_bldg_repair_stats.csv')
 
                     if np.any(np.isin(
                             ['GroupedSample', 'GroupedStatistics'], out_reqs)):
@@ -1195,12 +1273,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                                 compression=dict(
                                     method='zip',
                                     archive_name='DV_bldg_repair_grp.csv'))
+                            output_files.append('DV_bldg_repair_grp.zip')
 
                         if 'GroupedStatistics' in out_reqs:
                             grp_stats = convert_to_SimpleIndex(
                                 describe(grp_repair), axis=1)
                             grp_stats.to_csv(output_path/"DV_bldg_repair_grp_stats.csv",
                                              index_label=grp_stats.columns.name)
+                            output_files.append('DV_bldg_repair_grp_stats.csv')
 
                     if np.any(np.isin(['AggregateSample',
                                        'AggregateStatistics'], out_reqs)):
@@ -1213,12 +1293,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                                 compression=dict(
                                     method='zip',
                                     archive_name='DV_bldg_repair_agg.csv'))
+                            output_files.append('DV_bldg_repair_agg.zip')
 
                         if 'AggregateStatistics' in out_reqs:
                             agg_stats = convert_to_SimpleIndex(
                                 describe(agg_repair), axis=1)
                             agg_stats.to_csv(output_path/"DV_bldg_repair_agg_stats.csv",
                                              index_label=agg_stats.columns.name)
+                            output_files.append('DV_bldg_repair_agg_stats.csv')
 
     # Result Summary -----------------------------------------------------------
 
@@ -1251,9 +1333,36 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
     # save summary sample
     summary.to_csv(output_path/"DL_summary.csv", index_label='#')
+    output_files.append('DL_summary.csv')
 
     # save summary statistics
     summary_stats.to_csv(output_path/"DL_summary_stats.csv")
+    output_files.append('DL_summary_stats.csv')
+
+    # create json outputs if needed
+    if out_config['Format']['JSON'] == True:
+
+        for filename in output_files:
+            
+            filename_json = filename[:-3]+'json'
+            
+            df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
+            
+            out_dict = convert_df_to_dict(df)
+            
+            with open(output_path/filename_json, 'w') as f:
+                json.dump(out_dict, f, indent=2)
+
+    # remove csv outputs if they were not requested
+    if out_config['Format']['CSV'] == False:
+
+        for filename in output_files:
+
+            # keep the DL_summary and DL_summary_stats files
+            if 'DL_summary' in filename:
+                continue
+            
+            os.remove(output_path/filename)
 
     return 0
 
@@ -1279,6 +1388,7 @@ def main(args):
     parser.add_argument('--custom_fragility_dir', default=None)
     parser.add_argument('--regional', default = False,
        type = str2bool, nargs='?', const=False)
+    parser.add_argument('--output_format', default = None)
     # parser.add_argument('-d', '--demandFile', default=None)
     # parser.add_argument('--DL_Method', default = None)
     # parser.add_argument('--outputBIM', default='BIM.csv')
@@ -1303,7 +1413,8 @@ def main(args):
         auto_script_path = args.auto_script,
         resource_dir = args.resource_dir,
         custom_fragility_dir = args.custom_fragility_dir,
-        regional = args.regional
+        regional = args.regional,
+        output_format = args.output_format
     )
 
     if out == -1:
