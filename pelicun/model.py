@@ -1406,7 +1406,7 @@ class DamageModel(PelicunModel):
 
             data_list.append(data)
 
-        damage_params = pd.concat(data_list, axis=0)
+        damage_params = pd.concat(data_list, axis=0)     
 
         # drop redefinitions of components
         damage_params = damage_params.groupby(damage_params.index).first()

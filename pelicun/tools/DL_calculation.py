@@ -759,13 +759,19 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     if damage_config is not None:
 
         # load the fragility information
-        if asset_config['ComponentDatabase'] != "User Defined":
-            fragility_db = (
+        if asset_config['ComponentDatabase'] in default_DBs['fragility'].keys():
+            component_db = [
                 'PelicunDefault/' +
-                default_DBs['fragility'][asset_config['ComponentDatabase']])
-
+                default_DBs['fragility'][asset_config['ComponentDatabase']],]
         else:
-            fragility_db = asset_config['ComponentDatabasePath']
+            component_db = []
+
+        if asset_config.get('ComponentDatabasePath', False) != False:
+
+            extra_comps = asset_config['ComponentDatabasePath']
+
+            component_db += [extra_comps,]
+        component_db = component_db[::-1]
 
         # prepare additional fragility data
 
@@ -884,11 +890,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             adf.loc['irreparable', ('LS1', 'Theta_0')] = 1e10
             adf.loc['irreparable', 'Incomplete'] = 0
 
-        PAL.damage.load_damage_model([fragility_db, adf])
+        PAL.damage.load_damage_model(component_db + [adf,])
 
         # load the damage process if needed
         dmg_process = None
-        if damage_config.get('DamageProcess', False):
+        if damage_config.get('DamageProcess', False) != False:
 
             dp_approach = damage_config['DamageProcess']
 
@@ -967,6 +973,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 with open(damage_config['DamageProcessFilePath'], 'r',
                           encoding='utf-8') as f:
                     dmg_process = json.load(f)
+
+            elif dp_approach == "None":
+
+                # no damage process applied for the calculation
+                dmg_process = None
 
             else:
                 log_msg(f"Prescribed Damage Process not recognized: "
