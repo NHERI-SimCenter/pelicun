@@ -58,6 +58,7 @@ This module has classes and methods to manage databases used by pelicun.
 import re
 import json
 import numpy as np
+from scipy.stats import norm
 import pandas as pd
 from . import base
 from .uq import fit_distribution_to_percentiles
@@ -756,7 +757,7 @@ def create_FEMA_P58_bldg_repair_db(
                     elif family == 'LogNormal':
                         p10, p50, p90 = np.exp(norm.ppf([0.1, 0.5, 0.9], loc=np.log(theta_0), scale=theta_1))
 
-                    energy_est.update({f'DS{DS_i}': np.array([p10, p50, p90]
+                    energy_est.update({f'DS{DS_i}': np.array([p10, p50, p90])})
 
             # now prepare the equivalent mutex damage states
             sim_ds_count = len(cost_est.keys())
