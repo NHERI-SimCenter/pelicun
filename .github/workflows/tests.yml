@@ -22,12 +22,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements_dev.txt
           python -m pip install -e .
-          python -m pip install codecov
       - name: Run tests
         run: |
           cd pelicun
           python -m pytest --cov-report=xml --cov=pelicun tests
       - name: Upload coverage to Codecov
-        run: |
-          codecov
+        uses: codecov/codecov-action@v2.1.1
+        with:
+          flags: unittests
 
