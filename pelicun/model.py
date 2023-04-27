@@ -1796,7 +1796,6 @@ class DamageModel(PelicunModel):
 
         return capacity_RV_reg, lsds_RV_reg
 
-
     def _generate_dmg_sample(self, sample_size, PGB):
         """
         This method generates a damage sample by creating random
@@ -2865,9 +2864,8 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(demand_dict, EDP_req,
                                                     capacity_sample, lsds_sample)
 
-            qnt_sample = self._prepare_dmg_quantities(PGB, ds_sample,
-                                                     dropzero=False,
-                                                     dropempty=False)
+            qnt_sample = self._prepare_dmg_quantities(
+                PGB, ds_sample, dropzero=False, dropempty=False)
 
             qnt_samples.append(qnt_sample)
 
