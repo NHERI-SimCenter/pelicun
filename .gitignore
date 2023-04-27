@@ -33,3 +33,4 @@ __pycache__
 *~/
 /.emacs.desktop
 /.emacs.desktop.lock
+/pelicun/coverage.xml
