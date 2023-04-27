@@ -13,6 +13,7 @@
 </p>
 
 ![Tests](https://github.com/ioannis-vm/AZ_pelicun/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/github/ioannis-vm/AZ_pelicun/branch/master/graph/badge.svg?token=GQEAW2ULS7)](https://codecov.io/github/ioannis-vm/AZ_pelicun)
 
 ## What is it?
 
