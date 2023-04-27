@@ -78,7 +78,7 @@ class PelicunModel:
 
     def convert_marginal_params(self, marginal_params, units, arg_units=None):
         """
-        Converts the paremeters of marginal distributions in a model
+        Converts the paremeters of marginal distributions in a model to SI
 
         Parameters
         ----------
@@ -91,10 +91,15 @@ class PelicunModel:
             identical to the index of the marginal_params argument. The values
             are strings that correspond to the units listed in base.py.
         arg_units: Series
-            Only used if one or more marginal parameters are defined as a
-            function of an independent variable (e.g., median repair cost as a
-            function of aggregate quantity of damage). This Series provides the
-            units of the argument(s) of the function(s).
+            Identifies the size of a reference entity for the marginal 
+            parameters. For example, when the parameters refer to a component
+            repair cost, the reference size is the component block size the 
+            repair cost corresponds to. When the parameters refer to a capacity,
+            demand, or component quantity, the reference size can be omitted 
+            and the default value will ensure that the corresponding scaling is
+            skipped. This Series provides the units of the reference entities 
+            for each component. Use '1 EA' if you want to skip such scaling for
+            select components but provide arg units for others.
 
         Returns
         -------
@@ -172,10 +177,40 @@ class PelicunModel:
                 tr_limits = marginal_params.loc[
                     row_id, ['TruncateLower', 'TruncateUpper']]
 
-                # convert the parameters
-                theta, tr_limits = uq.scale_distribution(
-                    unit_factor, family, theta, tr_limits)
+                arg_unit_factor = 1.0
 
+                # check if there is a need to scale due to argument units
+                if not (arg_units is None):
+
+                    # get the argument unit for the given marginal
+                    arg_unit = arg_units.get(row_id)
+
+                    if arg_unit != '1 EA':
+
+                        # get the scale factor
+                        arg_unit_factor = self._asmnt.calc_unit_scale_factor(arg_unit)
+
+                        # scale arguments, if needed
+                        for a_i, arg in enumerate(args):
+
+                            if arg != []:
+                                args[a_i] = arg * arg_unit_factor
+
+                # convert the distribution parameters to SI
+                theta, tr_limits = uq.scale_distribution(
+                    unit_factor/arg_unit_factor, family, theta, tr_limits)
+
+                # convert multilinear function parameters back into strings
+                for a_i, arg in enumerate(args):
+
+                    if len(arg) > 0:
+
+                        theta[a_i] = '|'.join(
+                            [','.join([f'{val:g}' for val in vals])
+                             for vals in (theta[a_i], args[a_i])])
+
+                """
+                # TODO: remove this after merging with test branch from John
                 # for each theta, check if there is a need to scale arguments
                 for a_i, arg in enumerate(args):
 
@@ -196,6 +231,7 @@ class PelicunModel:
                         theta[a_i] = '|'.join(
                             [','.join([f'{val:g}' for val in vals])
                              for vals in (theta[a_i], args[a_i])])
+                """
 
                 # and update the values in the DF
                 marginal_params.loc[
