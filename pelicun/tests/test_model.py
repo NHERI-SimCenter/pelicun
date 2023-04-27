@@ -381,7 +381,7 @@ def test_DemandModel_generate_sample():
         index=pd.Index((0, 1, 2), dtype='object')
     )
     pd.testing.assert_frame_equal(
-        expected_sample, obtained_sample, check_exact=False, check_less_precise=2)
+        expected_sample, obtained_sample, check_exact=False)
 
     # compare against the expected values for the units
     expected_units = pd.Series(
