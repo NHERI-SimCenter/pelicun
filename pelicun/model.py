@@ -3116,8 +3116,7 @@ class LossModel(PelicunModel):
 
     def calculate(self):
         """
-        Calculate the repair cost and time of each component block in
-        the asset.
+        Calculate the consequences for each damaged component block in the asset.
 
         """
 
@@ -3210,6 +3209,8 @@ class BldgRepairModel(LossModel):
                                  f"{driver_type}")
 
             # load the parameters
+            # TODO: remove specific DV_type references and make the code below
+            # generate parameters for any DV_types provided
             if (conseq_cmp_id, 'Cost') in LP.index:
                 cost_params = LP.loc[(conseq_cmp_id, 'Cost'), :]
             else:
@@ -3328,7 +3329,10 @@ class BldgRepairModel(LossModel):
 
         medians = {}
 
-        for DV_type, DV_type_scase in zip(['COST', 'TIME'], ['Cost', 'Time']):
+        DV_types = self.loss_params.index.unique(level=1)
+
+        #for DV_type, DV_type_scase in zip(['COST', 'TIME'], ['Cost', 'Time']):
+        for DV_type in DV_types:
 
             cmp_list = []
             median_list = []
@@ -3632,7 +3636,10 @@ class BldgRepairModel(LossModel):
         dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0, 3, 1, 2])
         dmg_quantities.sort_index(axis=1, inplace=True)
 
-        for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
+        DV_types = self.loss_params.index.unique(level=1)
+
+        #for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
+        for DV_type in DV_types:
 
             if std_sample is not None:
                 prob_cmp_list = std_sample[DV_type].columns.unique(level=0)
