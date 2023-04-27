@@ -26,8 +26,3 @@ jobs:
         run: |
           cd pelicun
           python -m pytest --cov-report=xml --cov=pelicun tests
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2.1.1
-        with:
-          flags: unittests
-
