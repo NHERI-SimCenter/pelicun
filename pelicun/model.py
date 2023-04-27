@@ -1259,11 +1259,11 @@ class AssetModel(PelicunModel):
         if sample_size is None:
             try:
                 sample_size = self._asmnt.demand.sample.shape[0]
-            except AssertionError:
+            except AssertionError as exc:
                 raise ValueError(
                     'Sample size was not specified, '
                     'and it cannot be determined from '
-                    'the demand model.')
+                    'the demand model.') from exc
 
         self._create_cmp_RVs()
 
@@ -1760,7 +1760,6 @@ class DamageModel(PelicunModel):
 
         return capacity_RV_reg, lsds_RV_reg
 
-
     def _generate_dmg_sample(self, sample_size, PGB):
         """
         Generates the damage sample.
@@ -2184,7 +2183,8 @@ class DamageModel(PelicunModel):
 
         """
 
-        # Log a message indicating that the calculation of damage quantities is starting
+        # Log a message indicating that the calculation of damage
+        # quantities is starting
         if self._asmnt.log.verbose:
             self.log_msg('Calculating damage quantities...',
                          prepend_timestamp=True)
@@ -2762,9 +2762,8 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(demand_dict, EDP_req,
                                                     capacity_sample, lsds_sample)
 
-            qnt_sample = self._prepare_dmg_quantities(PGB, ds_sample,
-                                                     dropzero=False,
-                                                     dropempty=False)
+            qnt_sample = self._prepare_dmg_quantities(
+                PGB, ds_sample, dropzero=False, dropempty=False)
 
             qnt_samples.append(qnt_sample)
 
@@ -2885,9 +2884,11 @@ class LossModel(PelicunModel):
 
         Parameters
         ----------
-        data_paths: list of string
-            List of paths to data files with consequence model parameters.
-            Default XY datasets can be accessed as PelicunDefault/XY.
+        data_paths: list of string or DataFrame
+            List of paths to data files with consequence model
+            parameters.  Default XY datasets can be accessed as
+            PelicunDefault/XY.  The list can also contain DataFrame
+            objects, in which case that data is used directly.
         mapping_path: string
             Path to a csv file that maps drivers (i.e., damage or edp data) to
             loss models.
@@ -3184,12 +3185,14 @@ class BldgRepairModel(LossModel):
 
                         cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{direction}'
 
-                        RV_reg.add_RV(uq.RandomVariable(
-                            name=cost_rv_tag,
-                            distribution=cost_family,
-                            theta=cost_theta,
-                            truncation_limits=[0., np.nan]
-                        ))
+                        RV_reg.add_RV(
+                            uq.RandomVariable(
+                                name=cost_rv_tag,
+                                distribution=cost_family,
+                                theta=cost_theta,
+                                truncation_limits=[0., np.nan]
+                            )
+                        )
                         rv_count += 1
 
                     # assign time RV
@@ -3282,9 +3285,9 @@ class BldgRepairModel(LossModel):
                     # check if the distribution type is supported
                     family = loss_params_DS.get('Family', np.nan)
 
-                    if ((not pd.isna(family)) and
-                        (family not in
-                         ['normal', 'lognormal', 'deterministic'])):
+                    if ((not pd.isna(family)) and (
+                        family not in [
+                            'normal', 'lognormal', 'deterministic'])):
                         raise ValueError(f"Loss Distribution of type {family} "
                                          f"not supported.")
 
