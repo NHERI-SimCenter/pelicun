@@ -2833,6 +2833,16 @@ class BldgRepairModel(LossModel):
             else:
                 time_params = None
 
+            if (conseq_cmp_id, 'CO2') in LP.index:
+                CO2_params = LP.loc[(conseq_cmp_id, 'CO2'), :]
+            else:
+                CO2_params = None
+
+            if (conseq_cmp_id, 'Energy') in LP.index:
+                energy_params = LP.loc[(conseq_cmp_id, 'Energy'), :]
+            else:
+                energy_params = None
+
             if driver_cmp_id not in driver_cmps:
                 continue
 
@@ -2875,10 +2885,46 @@ class BldgRepairModel(LossModel):
                 else:
                     time_family = np.nan
 
-                # If neither cost nor time has a stochastic model assigned,
+                if CO2_params is not None:
+
+                    CO2_params_DS = CO2_params[f'DS{ds}']
+
+                    CO2_family = CO2_params_DS.get('Family', np.nan)
+                    CO2_theta = [CO2_params_DS.get(f"Theta_{t_i}", np.nan)
+                                  for t_i in range(3)]
+
+                    # If the first parameter is controlled by a function, we use
+                    # 1.0 in its place and will scale the results in a later
+                    # step
+                    if isinstance(CO2_theta[0], str):
+                        CO2_theta[0] = 1.0
+
+                else:
+                    CO2_family = np.nan
+
+                if energy_params is not None:
+
+                    energy_params_DS = energy_params[f'DS{ds}']
+
+                    energy_family = energy_params_DS.get('Family', np.nan)
+                    energy_theta = [energy_params_DS.get(f"Theta_{t_i}", np.nan)
+                                  for t_i in range(3)]
+
+                    # If the first parameter is controlled by a function, we use
+                    # 1.0 in its place and will scale the results in a later
+                    # step
+                    if isinstance(energy_theta[0], str):
+                        energy_theta[0] = 1.0
+
+                else:
+                    energy_family = np.nan
+
+                # If neither of the DV_types has a stochastic model assigned,
                 # we do not need random variables for this DS
-                if ((pd.isna(cost_family) is True) and (
-                        pd.isna(time_family) is True)):
+                if ((pd.isna(cost_family) == True) and (
+                    pd.isna(time_family) == True) and (
+                    pd.isna(CO2_family) == True) and (
+                    pd.isna(energy_family) == True)):
                     continue
 
                 # Otherwise, load the loc-dir cases
@@ -2889,7 +2935,7 @@ class BldgRepairModel(LossModel):
                     # assign cost RV
                     if pd.isna(cost_family) is False:
 
-                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{direction}'
+                        cost_rv_tag = f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=cost_rv_tag,
@@ -2901,7 +2947,7 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(time_family) is False:
-                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{direction}'
+                        time_rv_tag = f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=time_rv_tag,
@@ -2911,7 +2957,33 @@ class BldgRepairModel(LossModel):
                         ))
                         rv_count += 1
 
-                    # assign correlation between cost and time RVs
+                    # assign time RV
+                    if pd.isna(CO2_family) is False:
+                        CO2_rv_tag = f'CO2-{loss_cmp_id}-{ds}-{loc}-{direction}'
+
+                        RV_reg.add_RV(uq.RandomVariable(
+                            name=CO2_rv_tag,
+                            distribution=CO2_family,
+                            theta=CO2_theta,
+                            truncation_limits=[0., np.nan]
+                        ))
+                        rv_count += 1
+
+                    # assign time RV
+                    if pd.isna(energy_family) is False:
+                        energy_rv_tag = f'Energy-{loss_cmp_id}-{ds}-{loc}-{direction}'
+
+                        RV_reg.add_RV(uq.RandomVariable(
+                            name=energy_rv_tag,
+                            distribution=energy_family,
+                            theta=energy_theta,
+                            truncation_limits=[0., np.nan]
+                        ))
+                        rv_count += 1
+
+                    # assign correlation between RVs across DV_types
+                    # TODO: add more DV_types and handle cases with only a 
+                    # subset of them being defined
                     if ((pd.isna(cost_family) is False) and (
                             pd.isna(time_family) is False) and (
                                 self._asmnt.options.rho_cost_time != 0.0)):
@@ -2955,7 +3027,7 @@ class BldgRepairModel(LossModel):
 
                 # check if the given DV type is available as an output for the
                 # selected component
-                if (loss_cmp_name, DV_type_scase) not in self.loss_params.index:
+                if (loss_cmp_name, DV_type) not in self.loss_params.index:
                     continue
 
                 if driver_type != 'DMG':
@@ -2980,7 +3052,7 @@ class BldgRepairModel(LossModel):
                         continue
 
                     loss_params_DS = self.loss_params.loc[
-                        (loss_cmp_name, DV_type_scase),
+                        (loss_cmp_name, DV_type),
                         ds]
 
                     # check if theta_0 is defined
@@ -3102,21 +3174,33 @@ class BldgRepairModel(LossModel):
         df_agg = pd.DataFrame(index=DV.index,
                               columns=['repair_cost',
                                        'repair_time-parallel',
-                                       'repair_time-sequential'])
+                                       'repair_time-sequential',
+                                       'repair_CO2',
+                                       'repair_energy'])
 
-        if 'COST' in DVG.columns:
-            df_agg['repair_cost'] = DVG['COST'].sum(axis=1)
+        if 'Cost' in DVG.columns:
+            df_agg['repair_cost'] = DVG['Cost'].sum(axis=1)
         else:
             df_agg = df_agg.drop('repair_cost', axis=1)
 
-        if 'TIME' in DVG.columns:
-            df_agg['repair_time-sequential'] = DVG['TIME'].sum(axis=1)
+        if 'Time' in DVG.columns:
+            df_agg['repair_time-sequential'] = DVG['Time'].sum(axis=1)
 
-            df_agg['repair_time-parallel'] = DVG['TIME'].max(axis=1)
+            df_agg['repair_time-parallel'] = DVG['Time'].max(axis=1)
         else:
             df_agg = df_agg.drop(['repair_time-parallel',
                                   'repair_time-sequential'],
                                  axis=1)
+
+        if 'CO2' in DVG.columns:
+            df_agg['repair_CO2'] = DVG['CO2'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_CO2', axis=1)
+
+        if 'Energy' in DVG.columns:
+            df_agg['repair_energy'] = DVG['Energy'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_energy', axis=1)
 
         # convert units
 
@@ -3128,6 +3212,8 @@ class BldgRepairModel(LossModel):
         dv_units['repair_cost'] = cmp_units['Cost']
         dv_units['repair_time-parallel'] = cmp_units['Time']
         dv_units['repair_time-sequential'] = cmp_units['Time']
+        dv_units['repair_CO2'] = cmp_units['CO2']
+        dv_units['repair_energy'] = cmp_units['Energy']
 
         df_agg = save_to_csv(
             df_agg, None, units=dv_units,
