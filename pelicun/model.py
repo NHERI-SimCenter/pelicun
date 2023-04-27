@@ -2143,8 +2143,7 @@ class DamageModel(PelicunModel):
 
         return ds_sample
 
-    def _prepare_dmg_quantities(self, PGB, ds_sample,
-                                dropzero=True, dropempty=True):
+    def prepare_dmg_quantities(self, PGB, ds_sample, dropzero=True,):
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -2162,24 +2161,7 @@ class DamageModel(PelicunModel):
             A DataFrame that assigns a damage state to each component
             block in the asset model.
         dropzero: bool, optional, default: True
-            If True, the quantity of non-damaged components is not
-            saved.
-        dropempty: bool, optional, default: True
-            If True, the blocks with no damaged quantities are
-            dropped.
-
-        Returns
-        -------
-        res_df: DataFrame
-            A DataFrame that combines the component quantity and
-            damage state information.
-
-        Raises
-        ------
-        ValueError
-            If the number of blocks is not provided or if the list of
-            weights does not contain the same number of elements as
-            the number of blocks.
+            If True, the quantity of non-damaged components is not saved.
 
         """
 
@@ -2245,6 +2227,7 @@ class DamageModel(PelicunModel):
         # If the dropzero option is True, remove the zero damage state
         # from the list of damage states
         if dropzero:
+
             ds_list = ds_list[ds_list != 0]
 
         # Only proceed with the calculation if there is at least one
@@ -2265,14 +2248,13 @@ class DamageModel(PelicunModel):
                 res_list, axis=1,
                 keys=[f'{ds_i:g}' for ds_i in ds_list])
 
-            # remove the DS level from the columns
+            # remove the block level from the columns
             res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 0, 4])
             res_df = res_df.groupby(level=[0, 1, 2, 3], axis=1).sum()
 
-            dropempty = True
-            # If requested, the blocks with no damaged quantities are dropped
-            if dropempty:
-                res_df = res_df.iloc[:, np.where(res_df.sum(axis=0) != 0)[0]]
+            # The damage states with no damaged quantities are dropped
+            # Note that some of these are not even valid DSs at the given PG            
+            res_df = res_df.iloc[:, np.where(res_df.sum(axis=0) != 0)[0]]
 
         return res_df
 
@@ -2702,6 +2684,73 @@ class DamageModel(PelicunModel):
 
         return pg_batch
 
+    def _complete_ds_cols(self, dmg_sample):
+
+        # get a shortcut for the damage model parameters
+        DP = self.damage_params
+
+        # Get the header for the results that we can use to identify
+        # cmp-loc-dir sets
+        dmg_header = dmg_sample.groupby(
+            level=[0,1,2], axis=1).first().iloc[:2,:]
+
+        # get the number of possible limit states
+        ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
+
+        # initialize the result dataframe
+        res = pd.DataFrame()
+
+        # walk through all components that have damage parameters provided
+        for cmp_id in DP.index:
+            
+            # get the component-specific parameters
+            cmp_data = DP.loc[cmp_id]
+
+            # and initialize the damage state counter
+            ds_count = 0
+            
+            # walk through all limit states for the component
+            for ls in ls_list:
+                
+                # check if the given limit state is defined
+                if pd.isna(cmp_data[(ls, 'Theta_0')]) == False:
+                    
+                    # check if there is only one damage state
+                    if pd.isna(cmp_data[(ls, 'DamageStateWeights')]) == True:
+                        
+                        ds_count += 1
+                        
+                    else:
+
+                        # or if there are more than one, how many
+                        ds_count += len(
+                            cmp_data[(ls, 'DamageStateWeights')].split('|'))
+                        
+            # get the list of valid cmp-loc-dir sets
+            cmp_header = dmg_header.loc[:,[cmp_id,]]
+            
+            # Create a dataframe where they are repeated ds_count times in the 
+            # columns. The keys put the DS id in the first level of the 
+            # multiindexed column
+            cmp_headers = pd.concat(
+                [cmp_header for ds_i in range(ds_count+1)], 
+                keys=[str(r) for r in range(0,ds_count+1)], 
+                axis=1)
+            
+            # add these new columns to the result dataframe
+            res = pd.concat([res,cmp_headers], axis=1)
+                
+        # Fill the result dataframe with zeros and reorder its columns to have
+        # the damage states at the lowest like - matching the dmg_sample input
+        res = pd.DataFrame(0.,
+            columns = res.columns.reorder_levels([1,2,3,0]), 
+            index = dmg_sample.index)
+
+        # replace zeros wherever the dmg_sample has results    
+        res.loc[:,dmg_sample.columns.to_list()] = dmg_sample
+
+        return res
+
     def calculate(self, dmg_process=None, block_batch_size=1000):
         """
         Calculate the damage state of each component block in the asset.
@@ -2762,13 +2811,17 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(demand_dict, EDP_req,
                                                     capacity_sample, lsds_sample)
 
-            qnt_sample = self._prepare_dmg_quantities(
-                PGB, ds_sample, dropzero=False, dropempty=False)
+            qnt_sample = self.prepare_dmg_quantities(PGB, ds_sample,
+                                                     dropzero=False)
 
             qnt_samples.append(qnt_sample)
 
         qnt_sample = pd.concat(qnt_samples, axis=1)
         qnt_sample.sort_index(axis=1, inplace=True)
+
+        # Create a comprehensive table with all possible DSs to have a robust 
+        # input for the damage processes evaluation below
+        qnt_sample = self._complete_ds_cols(qnt_sample)
 
         self.log_msg("Raw damage calculation successful.",
                      prepend_timestamp=False)
@@ -2799,6 +2852,10 @@ class DamageModel(PelicunModel):
 
             self.log_msg("Damage functions successfully applied.",
                          prepend_timestamp=False)
+
+        # If requested, remove columns with no damage from the sample
+        if self._asmnt.options.list_all_ds == False:
+            qnt_sample = qnt_sample.iloc[:, np.where(qnt_sample.sum(axis=0) != 0)[0]]
 
         self._sample = qnt_sample
 

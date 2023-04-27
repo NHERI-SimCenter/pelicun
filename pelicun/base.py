@@ -175,6 +175,17 @@ class Options:
         """
 
         self._asmnt = assessment
+
+        self._verbose = False
+        self._log_show_ms = False
+        self._print_log = False
+        self._log_file = None
+
+        self.defaults = None
+        self.sampling_method = None
+        self.list_all_ds = None
+
+        self._seed = None
         self._rng = np.random.default_rng()
         merged_config_options = file_io.merge_default_config(
             user_config_options)
@@ -502,7 +513,6 @@ class Logger:
             f'numpy: {np.__version__}\n'
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
-
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
