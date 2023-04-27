@@ -108,6 +108,7 @@ class Options:
 
         self.defaults = None
         self.sampling_method = None
+        self.list_all_ds = None
 
         self._seed = None
         self._rng = np.random.default_rng()
@@ -257,6 +258,8 @@ class Options:
                     self.rho_cost_time = value
                 elif key == "EconomiesOfScale":
                     self.eco_scale = value
+                elif key == "ListAllDamageStates":
+                    self.list_all_ds = value
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
