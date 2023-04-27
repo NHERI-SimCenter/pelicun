@@ -25,6 +25,6 @@ jobs:
       - name: Run tests
         run: |
           cd pelicun
-          python -m pytest tests --cov=pelicun --cov-report html
+          python -m pytest tests
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
