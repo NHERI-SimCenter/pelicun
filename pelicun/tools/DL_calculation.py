@@ -1087,7 +1087,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             adf = pd.DataFrame(
                 columns=conseq_df.columns,
                 index=pd.MultiIndex.from_tuples(
-                    [('replacement', 'Cost'), ('replacement', 'Time')]))
+                    [('replacement', 'Cost'), 
+                     ('replacement', 'Time'),
+                     ('replacement', 'Carbon'),
+                     ('replacement', 'Energy')]))
 
             #DL_method = bldg_repair_config['ConsequenceDatabase']
             DL_method = damage_config.get('DamageProcess', 'User Defined')
@@ -1173,6 +1176,66 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rt, ('DV', 'Unit')] = 'loss_ratio'
                     adf.loc[rt, ('DS1', 'Theta_0')] = 1
+
+            rcarb = ('replacement', 'Carbon')
+            if 'ReplacementCarbon' in bldg_repair_config.keys():
+                rCarbon_config = bldg_repair_config['ReplacementCarbon']
+                rcarb = ('replacement', 'Carbon')
+
+                adf.loc[rcarb, ('Quantity', 'Unit')] = "1 EA"
+
+                adf.loc[rcarb, ('DV', 'Unit')] = rCarbon_config["Unit"]
+
+                adf.loc[rcarb, ('DS1', 'Theta_0')] = rCarbon_config["Median"]
+
+                if pd.isna(rCarbon_config.get('Distribution', np.nan))==False:
+                    adf.loc[rcarb, ('DS1', 'Family')] = rCarbon_config[
+                        "Distribution"]
+                    adf.loc[rcarb, ('DS1', 'Theta_1')] = rCarbon_config[
+                        "Theta_1"]
+            else:
+                # add a default replacement carbon value as a placeholder
+                # the default value depends on the consequence database
+
+                # for FEMA P-58, use 0 kg
+                if DL_method == 'FEMA P-58':
+                    adf.loc[rcarb, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[rcarb, ('DV', 'Unit')] = 'kg'
+                    adf.loc[rcarb, ('DS1', 'Theta_0')] = 0
+
+                else:
+                    # for everything else, remove this consequence
+                    adf.drop(rcarb, inplace=True)
+
+            ren = ('replacement', 'Energy')
+            if 'ReplacementEnergy' in bldg_repair_config.keys():
+                rEnergy_config = bldg_repair_config['ReplacementEnergy']
+                ren = ('replacement', 'Energy')
+
+                adf.loc[ren, ('Quantity', 'Unit')] = "1 EA"
+
+                adf.loc[ren, ('DV', 'Unit')] = rEnergy_config["Unit"]
+
+                adf.loc[ren, ('DS1', 'Theta_0')] = rEnergy_config["Median"]
+
+                if pd.isna(rEnergy_config.get('Distribution', np.nan))==False:
+                    adf.loc[ren, ('DS1', 'Family')] = rEnergy_config[
+                        "Distribution"]
+                    adf.loc[ren, ('DS1', 'Theta_1')] = rEnergy_config[
+                        "Theta_1"]
+            else:
+                # add a default replacement energy value as a placeholder
+                # the default value depends on the consequence database
+
+                # for FEMA P-58, use 0 kg
+                if DL_method == 'FEMA P-58':
+                    adf.loc[ren, ('Quantity', 'Unit')] = '1 EA'
+                    adf.loc[ren, ('DV', 'Unit')] = 'MJ'
+                    adf.loc[ren, ('DS1', 'Theta_0')] = 0
+
+                else:
+                    # for everything else, remove this consequence
+                    adf.drop(ren, inplace=True)
 
             # prepare the loss map
             loss_map = None
