@@ -610,7 +610,7 @@ def create_FEMA_P58_bldg_repair_db(
 
     # create the MultiIndex
     comps = df_db_source.index.values
-    DVs = ['Cost', 'Time', 'CO2', 'Energy']
+    DVs = ['Cost', 'Time', 'Carbon', 'Energy']
     df_MI = pd.MultiIndex.from_product([comps, DVs], names=['ID', 'DV'])
 
     df_db = pd.DataFrame(
@@ -641,8 +641,8 @@ def create_FEMA_P58_bldg_repair_db(
         # assume the component information is complete
         incomplete_cost = False
         incomplete_time = False
-        incomplete_CO2 = False
-        incomplete_Energy = False
+        incomplete_carbon = False
+        incomplete_energy = False
 
         # store units
 
@@ -650,7 +650,7 @@ def create_FEMA_P58_bldg_repair_db(
             ' '.join(cmp.Fragility_Unit_of_Measure.split(' ')[::-1]).strip())
         df_db.loc[(cmp.Index, 'Cost'), 'DV-Unit'] = "USD_2011"
         df_db.loc[(cmp.Index, 'Time'), 'DV-Unit'] = "worker_day"
-        df_db.loc[(cmp.Index, 'CO2'), 'DV-Unit'] = "kg"
+        df_db.loc[(cmp.Index, 'Carbon'), 'DV-Unit'] = "kg"
         df_db.loc[(cmp.Index, 'Energy'), 'DV-Unit'] = "MJ"
 
         # get the raw metadata for the component
@@ -699,7 +699,7 @@ def create_FEMA_P58_bldg_repair_db(
 
             cost_est = {}
             time_est = {}
-            CO2_est = {}
+            carbon_est = {}
             energy_est = {}
 
             # get the p10, p50, and p90 estimates for all damage states
@@ -737,7 +737,7 @@ def create_FEMA_P58_bldg_repair_db(
                     elif family == 'LogNormal':
                         p10, p50, p90 = np.exp(norm.ppf([0.1, 0.5, 0.9], loc=np.log(theta_0), scale=theta_1))
 
-                    CO2_est.update({f'DS{DS_i}': np.array([p10, p50, p90])})
+                    carbon_est.update({f'DS{DS_i}': np.array([p10, p50, p90])})
 
                 if not pd.isna(getattr(cmp, f'DS{DS_i}_Embodied_Energy_MJ')):
 
@@ -771,7 +771,7 @@ def create_FEMA_P58_bldg_repair_db(
                                     for ds_i in range(sim_ds_count)],
                                    axis=0)
 
-                CO2_vals = np.sum([CO2_est[f'DS{ds_i + 1}']
+                carbon_vals = np.sum([carbon_est[f'DS{ds_i + 1}']
                                    if ds_map[-ds_i - 1] == '1' else np.zeros(3)
                                    for ds_i in range(sim_ds_count)],
                                   axis=0)
@@ -793,12 +793,12 @@ def create_FEMA_P58_bldg_repair_db(
                               np.sqrt(cost_theta[1] ** 2.0 + 0.25 ** 2.0)]
 
                 # fit distributions to environmental impact consequences
-                family_hat_CO2, theta_hat_CO2 = fit_distribution_to_percentiles(
-                    CO2_vals[:3], [0.1, 0.5, 0.9], ['normal', 'lognormal'])
+                family_hat_carbon, theta_hat_carbon = fit_distribution_to_percentiles(
+                    carbon_vals[:3], [0.1, 0.5, 0.9], ['normal', 'lognormal'])
 
-                CO2_theta = theta_hat_CO2
-                if family_hat_CO2 == 'normal':
-                    CO2_theta[1] = CO2_theta[1] / CO2_theta[0]
+                carbon_theta = theta_hat_carbon
+                if family_hat_carbon == 'normal':
+                    carbon_theta[1] = carbon_theta[1] / carbon_theta[0]
 
                 family_hat_energy, theta_hat_energy = fit_distribution_to_percentiles(
                     energy_vals[:3], [0.1, 0.5, 0.9], ['normal', 'lognormal'])
@@ -839,12 +839,12 @@ def create_FEMA_P58_bldg_repair_db(
                           f'DS{DS_i}-LongLeadTime'] = int(time_vals[5] > 0)
 
 
-                df_db.loc[(cmp.Index, 'CO2'), f'DS{DS_i}-Family'] = family_hat_CO2
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = family_hat_carbon
 
-                df_db.loc[(cmp.Index, 'CO2'), f'DS{DS_i}-Theta_0'] = f"{CO2_theta[0]:g}"
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'] = f"{carbon_theta[0]:g}"
 
-                df_db.loc[(cmp.Index, 'CO2'),
-                f'DS{DS_i}-Theta_1'] = f"{CO2_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Carbon'),
+                f'DS{DS_i}-Theta_1'] = f"{carbon_theta[1]:g}"
 
                 df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Family'] = family_hat_energy
 
@@ -945,15 +945,15 @@ def create_FEMA_P58_bldg_repair_db(
                     else:
                         incomplete_time = True
 
-                # CO2
+                # Carbon
                 if not pd.isna(getattr(cmp, f'DS{DS_i}_Best_Fit')):
-                    df_db.loc[(cmp.Index, 'CO2'), f'DS{DS_i}-Family'] = (
+                    df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = (
                         convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit')])
 
-                    df_db.loc[(cmp.Index, 'CO2'), f'DS{DS_i}-Theta_0'] = getattr(cmp,
+                    df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'] = getattr(cmp,
                                                                              f'DS{DS_i}_Embodied_Carbon_kg_CO2eq')
 
-                    df_db.loc[(cmp.Index, 'CO2'), f'DS{DS_i}-Theta_1'] = getattr(cmp, f'DS{DS_i}_CV_or_Beta')
+                    df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_1'] = getattr(cmp, f'DS{DS_i}_CV_or_Beta')
 
                 # Energy
                 if not pd.isna(getattr(cmp, f'DS{DS_i}_Best_Fit_1')):
@@ -966,8 +966,8 @@ def create_FEMA_P58_bldg_repair_db(
 
         df_db.loc[(cmp.Index, 'Cost'), 'Incomplete'] = int(incomplete_cost)
         df_db.loc[(cmp.Index, 'Time'), 'Incomplete'] = int(incomplete_time)
-        df_db.loc[(cmp.Index, 'CO2'), 'Incomplete'] = int(incomplete_CO2)
-        df_db.loc[(cmp.Index, 'Energy'), 'Incomplete'] = int(incomplete_Energy)
+        df_db.loc[(cmp.Index, 'Carbon'), 'Incomplete'] = int(incomplete_carbon)
+        df_db.loc[(cmp.Index, 'Energy'), 'Incomplete'] = int(incomplete_energy)
         # store the metadata for this component
         meta_dict.update({cmpID: meta_data})
 

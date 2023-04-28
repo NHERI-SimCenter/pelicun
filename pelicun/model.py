@@ -2833,10 +2833,10 @@ class BldgRepairModel(LossModel):
             else:
                 time_params = None
 
-            if (conseq_cmp_id, 'CO2') in LP.index:
-                CO2_params = LP.loc[(conseq_cmp_id, 'CO2'), :]
+            if (conseq_cmp_id, 'Carbon') in LP.index:
+                carbon_params = LP.loc[(conseq_cmp_id, 'Carbon'), :]
             else:
-                CO2_params = None
+                carbon_params = None
 
             if (conseq_cmp_id, 'Energy') in LP.index:
                 energy_params = LP.loc[(conseq_cmp_id, 'Energy'), :]
@@ -2885,22 +2885,22 @@ class BldgRepairModel(LossModel):
                 else:
                     time_family = np.nan
 
-                if CO2_params is not None:
+                if carbon_params is not None:
 
-                    CO2_params_DS = CO2_params[f'DS{ds}']
+                    carbon_params_DS = carbon_params[f'DS{ds}']
 
-                    CO2_family = CO2_params_DS.get('Family', np.nan)
-                    CO2_theta = [CO2_params_DS.get(f"Theta_{t_i}", np.nan)
+                    carbon_family = carbon_params_DS.get('Family', np.nan)
+                    carbon_theta = [carbon_params_DS.get(f"Theta_{t_i}", np.nan)
                                   for t_i in range(3)]
 
                     # If the first parameter is controlled by a function, we use
                     # 1.0 in its place and will scale the results in a later
                     # step
-                    if isinstance(CO2_theta[0], str):
-                        CO2_theta[0] = 1.0
+                    if isinstance(carbon_theta[0], str):
+                        carbon_theta[0] = 1.0
 
                 else:
-                    CO2_family = np.nan
+                    carbon_family = np.nan
 
                 if energy_params is not None:
 
@@ -2923,7 +2923,7 @@ class BldgRepairModel(LossModel):
                 # we do not need random variables for this DS
                 if ((pd.isna(cost_family) == True) and (
                     pd.isna(time_family) == True) and (
-                    pd.isna(CO2_family) == True) and (
+                    pd.isna(carbon_family) == True) and (
                     pd.isna(energy_family) == True)):
                     continue
 
@@ -2958,13 +2958,13 @@ class BldgRepairModel(LossModel):
                         rv_count += 1
 
                     # assign time RV
-                    if pd.isna(CO2_family) is False:
-                        CO2_rv_tag = f'CO2-{loss_cmp_id}-{ds}-{loc}-{direction}'
+                    if pd.isna(carbon_family) is False:
+                        carbon_rv_tag = f'Carbon-{loss_cmp_id}-{ds}-{loc}-{direction}'
 
                         RV_reg.add_RV(uq.RandomVariable(
-                            name=CO2_rv_tag,
-                            distribution=CO2_family,
-                            theta=CO2_theta,
+                            name=carbon_rv_tag,
+                            distribution=carbon_family,
+                            theta=carbon_theta,
                             truncation_limits=[0., np.nan]
                         ))
                         rv_count += 1
@@ -3175,7 +3175,7 @@ class BldgRepairModel(LossModel):
                               columns=['repair_cost',
                                        'repair_time-parallel',
                                        'repair_time-sequential',
-                                       'repair_CO2',
+                                       'repair_carbon',
                                        'repair_energy'])
 
         if 'Cost' in DVG.columns:
@@ -3192,10 +3192,10 @@ class BldgRepairModel(LossModel):
                                   'repair_time-sequential'],
                                  axis=1)
 
-        if 'CO2' in DVG.columns:
-            df_agg['repair_CO2'] = DVG['CO2'].sum(axis=1)
+        if 'Carbon' in DVG.columns:
+            df_agg['repair_carbon'] = DVG['Carbon'].sum(axis=1)
         else:
-            df_agg = df_agg.drop('repair_CO2', axis=1)
+            df_agg = df_agg.drop('repair_carbon', axis=1)
 
         if 'Energy' in DVG.columns:
             df_agg['repair_energy'] = DVG['Energy'].sum(axis=1)
@@ -3212,7 +3212,7 @@ class BldgRepairModel(LossModel):
         dv_units['repair_cost'] = cmp_units['Cost']
         dv_units['repair_time-parallel'] = cmp_units['Time']
         dv_units['repair_time-sequential'] = cmp_units['Time']
-        dv_units['repair_CO2'] = cmp_units['CO2']
+        dv_units['repair_carbon'] = cmp_units['Carbon']
         dv_units['repair_energy'] = cmp_units['Energy']
 
         df_agg = save_to_csv(
