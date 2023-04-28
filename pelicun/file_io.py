@@ -372,7 +372,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
             labels_to_keep = []
 
-            for unit_name in units.unique():
+            for unit_name in units.unique():                
 
                 labels = units.loc[units == unit_name].index.values
 
