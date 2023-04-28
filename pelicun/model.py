@@ -3599,11 +3599,18 @@ class BldgRepairModel(LossModel):
 
         dv_units = pd.Series(index=df_agg.columns, name='Units', dtype='object')
 
-        dv_units['repair_cost'] = cmp_units['Cost']
-        dv_units['repair_time-parallel'] = cmp_units['Time']
-        dv_units['repair_time-sequential'] = cmp_units['Time']
-        dv_units['repair_carbon'] = cmp_units['Carbon']
-        dv_units['repair_energy'] = cmp_units['Energy']
+        if 'Cost' in DVG.columns:
+            dv_units['repair_cost'] = cmp_units['Cost']
+
+        if 'Time' in DVG.columns:
+            dv_units['repair_time-parallel'] = cmp_units['Time']
+            dv_units['repair_time-sequential'] = cmp_units['Time']
+
+        if 'Carbon' in DVG.columns:
+            dv_units['repair_carbon'] = cmp_units['Carbon']
+
+        if 'Energy' in DVG.columns:
+            dv_units['repair_energy'] = cmp_units['Energy']
 
         df_agg = save_to_csv(
             df_agg, None, units=dv_units,
