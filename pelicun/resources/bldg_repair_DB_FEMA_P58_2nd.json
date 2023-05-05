@@ -6104,7 +6104,7 @@
       },
       "DS2": {
         "Description": "Glass falls from frame.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -6121,7 +6121,7 @@
       },
       "DS2": {
         "Description": "Glass falls from frame.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -7339,7 +7339,7 @@
       },
       "DS3": {
         "Description": "Loss of live load capacity.  ",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -8536,7 +8536,7 @@
       },
       "DS2": {
         "Description": "Pipe Break - 1 break per 1000 feet of pipe.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -8570,7 +8570,7 @@
       },
       "DS2": {
         "Description": "Pipe Break - 1 break per 1000 feet of pipe.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -8732,7 +8732,7 @@
       },
       "DS2": {
         "Description": "Pipe Break - 1 break per 1000 feet of pipe.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -8749,7 +8749,7 @@
       },
       "DS2": {
         "Description": "Pipe Break - 1 break per 1000 feet of pipe.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -8783,7 +8783,7 @@
       },
       "DS2": {
         "Description": "Vertical Brace Failure - 1 failure per 1000 feet of pipe.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -8817,7 +8817,7 @@
       },
       "DS2": {
         "Description": "Vertical Brace Failure - 1 failure per 1000 feet of pipe. ",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
@@ -9006,7 +9006,7 @@
       },
       "DS2": {
         "Description": "Large Leakage w/ major repair - 1 leak per 1000 feet of pipe.",
-        "RepairAction": NaN
+        "RepairAction": "<missing data>"
       }
     }
   },
