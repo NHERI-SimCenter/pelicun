@@ -2596,7 +2596,7 @@ class LossModel(PelicunModel):
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
-    def load_model(self, data_paths, mapping_path):
+    def load_model(self, data_paths, mapping_path, decision_variables=None):
         """
         Load the list of prescribed consequence models and their parameters
 
@@ -2608,6 +2608,10 @@ class LossModel(PelicunModel):
         mapping_path: string
             Path to a csv file that maps drivers (i.e., damage or edp data) to
             loss models.
+        decision_variables: list of string, optional
+            List of decision variables to include in the analysis. If None, 
+            all variables provided in the consequence models are included. When
+            a list is provided, only variables in the list will be included.
         """
 
         self.log_div()
@@ -2708,6 +2712,21 @@ class LossModel(PelicunModel):
                          f"following component(s) {cmp_incomplete_list}. They were "
                          "removed from the analysis.\n",
                          prepend_timestamp=False)
+
+        # filter decision variables, if needed
+        if decision_variables != None:
+
+            loss_params = loss_params.reorder_levels([1,0])
+
+            available_DVs = loss_params.index.unique(level=0)
+            filtered_DVs = []
+            
+            for DV_i in decision_variables:
+
+                if DV_i in available_DVs:
+                    filtered_DVs.append(DV_i)
+
+            loss_params = loss_params.loc[filtered_DVs, :].reorder_levels([1,0])
 
         self.loss_params = loss_params.sort_index(axis=1)
 
