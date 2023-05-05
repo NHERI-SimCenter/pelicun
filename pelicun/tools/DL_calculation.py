@@ -1319,7 +1319,20 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 loss_map.loc['DMG-collapse',    'BldgRepair'] = 'replacement'
                 loss_map.loc['DMG-irreparable', 'BldgRepair'] = 'replacement'
 
-            PAL.bldg_repair.load_model([conseq_df, adf], loss_map)
+            # assemble the list of requested decision variables
+            DV_list = []
+            if bldg_repair_config.get('DecisionVariables',False) != False:
+
+                for DV_i, DV_status in bldg_repair_config['DecisionVariables'].items():
+
+                    if DV_status == True:
+                        DV_list.append(DV_i)
+
+            else:
+                DV_list = None
+
+            PAL.bldg_repair.load_model(consequence_db + [adf,], loss_map,
+                                       decision_variables=DV_list)
 
             PAL.bldg_repair.calculate()
 
