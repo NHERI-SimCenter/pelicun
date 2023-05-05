@@ -3633,7 +3633,7 @@ class BldgRepairModel(LossModel):
             dv_units['repair_carbon'] = cmp_units['Carbon']
 
         if 'Energy' in DVG.columns:
-            dv_units['repair_energy'] = cmp_units['Energy']
+            dv_units['repair_energy'] = cmp_units['Energy']        
 
         df_agg = save_to_csv(
             df_agg, None, units=dv_units,
@@ -3754,10 +3754,16 @@ class BldgRepairModel(LossModel):
 
         DV_types = self.loss_params.index.unique(level=1)
 
+        if std_sample != None:
+            std_DV_types = std_sample.columns.unique(level=0)
+        else:
+            std_DV_types = []
+
         #for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
         for DV_type in DV_types:
 
-            if std_sample is not None:
+            if ((std_sample is not None) and (DV_type in std_DV_types)):
+
                 prob_cmp_list = std_sample[DV_type].columns.unique(level=0)
             else:
                 prob_cmp_list = []
@@ -3812,7 +3818,7 @@ class BldgRepairModel(LossModel):
                             if cmp_i in prob_cmp_list:
                                 std_i = std_sample.loc[:, (DV_type, cmp_i, ds, loc)]
                             else:
-                                std_i = None
+                                std_i = None                        
 
                         if std_i is not None:
                             res_list.append(dmg_i.mul(median_i, axis=0) * std_i)
