@@ -39,7 +39,7 @@
 
 name = "pelicun"
 
-__version__ = '3.2b2'
+__version__ = '3.2b4'
 
 __copyright__ = ("Copyright (c) 2018 Leland Stanford "
                  "Junior University and The Regents "

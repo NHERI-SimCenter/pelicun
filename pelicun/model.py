@@ -3359,7 +3359,7 @@ class BldgRepairModel(LossModel):
 
         DV_types = self.loss_params.index.unique(level=1)
 
-        if std_sample != None:
+        if isinstance(std_sample, pd.DataFrame):
             std_DV_types = std_sample.columns.unique(level=0)
         else:
             std_DV_types = []
@@ -3367,8 +3367,7 @@ class BldgRepairModel(LossModel):
         #for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
         for DV_type in DV_types:
 
-            if ((std_sample is not None) and (DV_type in std_DV_types)):
-
+            if DV_type in std_DV_types:
                 prob_cmp_list = std_sample[DV_type].columns.unique(level=0)
             else:
                 prob_cmp_list = []
