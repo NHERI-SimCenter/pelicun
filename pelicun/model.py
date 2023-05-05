@@ -2881,7 +2881,8 @@ class BldgRepairModel(LossModel):
                     # If the first parameter is controlled by a function, we use
                     # 1.0 in its place and will scale the results in a later
                     # step
-                    if isinstance(cost_theta[0], str):
+                    if '|' in str(cost_theta[0]):
+                        #if isinstance(cost_theta[0], str):
                         cost_theta[0] = 1.0
 
                 else:
@@ -2898,7 +2899,8 @@ class BldgRepairModel(LossModel):
                     # If the first parameter is controlled by a function, we use
                     # 1.0 in its place and will scale the results in a later
                     # step
-                    if isinstance(time_theta[0], str):
+                    if '|' in str(time_theta[0]):
+                        # if isinstance(time_theta[0], str):
                         time_theta[0] = 1.0
 
                 else:
@@ -2915,7 +2917,8 @@ class BldgRepairModel(LossModel):
                     # If the first parameter is controlled by a function, we use
                     # 1.0 in its place and will scale the results in a later
                     # step
-                    if isinstance(carbon_theta[0], str):
+                    if '|' in str(carbon_theta[0]):
+                        # if isinstance(carbon_theta[0], str):
                         carbon_theta[0] = 1.0
 
                 else:
@@ -2932,7 +2935,8 @@ class BldgRepairModel(LossModel):
                     # If the first parameter is controlled by a function, we use
                     # 1.0 in its place and will scale the results in a later
                     # step
-                    if isinstance(energy_theta[0], str):
+                    if '|' in str(energy_theta[0]):
+                        # if isinstance(energy_theta[0], str):
                         energy_theta[0] = 1.0
 
                 else:
@@ -3077,7 +3081,7 @@ class BldgRepairModel(LossModel):
                     # check if theta_0 is defined
                     theta_0 = loss_params_DS.get('Theta_0', np.nan)
 
-                    if pd.isna(theta_0):
+                    if pd.isna(theta_0) == True:
                         continue
 
                     # check if the distribution type is supported
@@ -3093,7 +3097,7 @@ class BldgRepairModel(LossModel):
                     try:
                         theta_0 = float(theta_0)
 
-                        if pd.isna(loss_params_DS.get('Family', np.nan)):
+                        if pd.isna(loss_params_DS.get('Family', np.nan)) == True:
 
                             # if theta_0 is constant, then use it directly
                             f_median = prep_constant_median_DV(theta_0)
@@ -3276,9 +3280,9 @@ class BldgRepairModel(LossModel):
         self.log_msg("\nAggregating damage quantities...",
                      prepend_timestamp=False)
 
-        if self._asmnt.options.eco_scale["AcrossFloors"] is True:
+        if self._asmnt.options.eco_scale["AcrossFloors"] == True:
 
-            if self._asmnt.options.eco_scale["AcrossDamageStates"] is True:
+            if self._asmnt.options.eco_scale["AcrossDamageStates"] == True:
 
                 eco_qnt = dmg_quantities.groupby(level=[0, ], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', ]
@@ -3288,7 +3292,7 @@ class BldgRepairModel(LossModel):
                 eco_qnt = dmg_quantities.groupby(level=[0, 3], axis=1).sum()
                 eco_qnt.columns.names = ['cmp', 'ds']
 
-        elif self._asmnt.options.eco_scale["AcrossDamageStates"] is True:
+        elif self._asmnt.options.eco_scale["AcrossDamageStates"] == True:
 
             eco_qnt = dmg_quantities.groupby(level=[0, 1], axis=1).sum()
             eco_qnt.columns.names = ['cmp', 'loc']
