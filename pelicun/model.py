@@ -139,7 +139,7 @@ class PelicunModel:
 
                 # load the theta values
                 theta = marginal_params.loc[
-                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']]
+                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']].values
 
                 # if theta_0 is N/A then we have no entry for this row
                 if pd.isna(theta[0]):
