@@ -1,0 +1,30 @@
+{
+    "DL": {
+        "Asset": {
+            "ComponentAssignmentFile": "CMP_QNT.csv",
+            "ComponentDatabase": "User Defined",
+            "ComponentDatabasePath": "PelicunDefault/fragility_DB_HAZUS_TRNSP.csv"
+            
+        },
+        "Damage": {
+            "DamageProcess": "PelicunDefault/fragility_DB_HAZUS_TRNSP.csv"
+        },
+        "Demands": {
+            "Calibration": {
+                "ALL": {
+                    "DistributionFamily": "empirical"
+                }
+            },
+            "DemandFilePath": "demands.csv",
+            "SampleSize": "500"
+        }
+    },
+    "GeneralInformation": {
+        "units": {
+            "force": "kips",
+            "length": "in",
+            "temperature": "C",
+            "time": "sec"
+        }
+    }
+}
