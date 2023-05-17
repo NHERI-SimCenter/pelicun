@@ -1,5 +1,5 @@
 {
-  "HRD.GS.1": {
+  "HRD.GF.1": {
     "Description": "Major roads including interstate and state highways, other roads with four lanes or more, and parkways; railway tracks/roadbeds; or light rail track/roadbeds.",
     "SuggestedComponentBlockSize": "1 EA",
     "RoundUpToIntegerQuantity": "True",
@@ -21,7 +21,7 @@
       }
     }
   },
-  "HRD.GS.2": {
+  "HRD.GF.2": {
     "Description": "Urban roads including intercity roads and other roads with two lanes.",
     "SuggestedComponentBlockSize": "1 EA",
     "RoundUpToIntegerQuantity": "True",
@@ -804,13 +804,13 @@
     "SuggestedComponentBlockSize": "1 EA",
     "RoundUpToIntegerQuantity": "True",
     "LimitStates": {
-      "LS3": {
-        "DS3": {
+      "LS1": {
+        "DS1": {
           "Description": "Extensive Damage: Incipient unseating of the bridge supersturcture"
         }
       },
-      "LS4": {
-        "DS4": {
+      "LS2": {
+        "DS2": {
           "Description": "Complete Damage: Partial or total bridge collapse"
         }
       }

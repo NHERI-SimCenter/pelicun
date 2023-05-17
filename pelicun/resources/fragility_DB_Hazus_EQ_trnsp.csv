@@ -29,7 +29,7 @@ HWB.GS.25,0,Spectral Acceleration|1.0,g,0,0,lognormal,0.3,0.6,,lognormal,0.5,0.6
 HWB.GS.26,0,Spectral Acceleration|1.0,g,0,0,lognormal,0.75,0.6,,lognormal,0.75,0.6,,lognormal,0.75,0.6,,lognormal,1.1,0.6,
 HWB.GS.27,0,Spectral Acceleration|1.0,g,0,0,lognormal,0.75,0.6,,lognormal,0.75,0.6,,lognormal,0.75,0.6,,lognormal,1.1,0.6,
 HWB.GS.28,0,Spectral Acceleration|1.0,g,0,0,lognormal,0.8,0.6,,lognormal,1,0.6,,lognormal,1.2,0.6,,lognormal,1.7,0.6,
-HWB.GF,0,Permanent Ground Deformation,inch,0,0,,,,,,,,,lognormal,3.9,0.2,,lognormal,13.8,0.2,
+HWB.GF,0,Permanent Ground Deformation,inch,0,0,lognormal,3.9,0.2,,lognormal,13.8,0.2,,,,,,,,,
 HTU.GS.1,0,Peak Ground Acceleration,g,0,0,lognormal,0.6,0.6,,lognormal,0.8,0.6,,,,,,,,,
 HTU.GS.2,0,Peak Ground Acceleration,g,0,0,lognormal,0.5,0.6,,lognormal,0.7,0.6,,,,,,,,,
 HTU.GF,0,Permanent Ground Deformation,inch,0,0,lognormal,6,0.7,,lognormal,12,0.5,,lognormal,60,0.5,,,,,
