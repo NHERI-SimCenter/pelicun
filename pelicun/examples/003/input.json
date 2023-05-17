@@ -3,11 +3,11 @@
         "Asset": {
             "ComponentAssignmentFile": "CMP_QNT.csv",
             "ComponentDatabase": "User Defined",
-            "ComponentDatabasePath": "PelicunDefault/fragility_DB_HAZUS_TRNSP.csv"
+            "ComponentDatabasePath": "PelicunDefault/fragility_DB_Hazus_EQ_trnsp.csv"
             
         },
         "Damage": {
-            "DamageProcess": "PelicunDefault/fragility_DB_HAZUS_TRNSP.csv"
+            "DamageProcess": "PelicunDefault/fragility_DB_Hazus_EQ_trnsp.csv"
         },
         "Demands": {
             "Calibration": {
