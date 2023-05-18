@@ -53,6 +53,7 @@ from pelicun.base import convert_to_MultiIndex
 from pelicun.base import convert_to_SimpleIndex
 from pelicun.base import describe
 from pelicun.base import EDP_to_demand_type
+from pelicun.base import pelicun_path
 from pelicun.file_io import load_data
 from pelicun.assessment import Assessment
 
@@ -1083,12 +1084,16 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             if bldg_repair_config.get('ConsequenceDatabasePath', False) != False:
 
-                extra_comps = bldg_repair_config['ConsequenceDatabasePath']
+                extra_comps_path = bldg_repair_config['ConsequenceDatabasePath']
 
-                consequence_db += [extra_comps,]
-
+                consequence_db += [extra_comps_path,]
+                
+                if 'PelicunDefault/' in extra_comps_path:
+                    extra_comps_path = extra_comps_path.replace(
+                        'PelicunDefault/', f'{pelicun_path}/resources/')
+                print(extra_comps_path)
                 extra_conseq_df = load_data(
-                    bldg_repair_config['ConsequenceDatabasePath'],
+                    extra_comps_path,
                     unit_conversion_factors={},
                     orientation=1, reindex=False, convert=[])
 
