@@ -7,7 +7,7 @@
             
         },
         "Damage": {
-            "DamageProcess": "PelicunDefault/fragility_DB_Hazus_EQ_trnsp.csv"
+            "DamageProcess": "None"
         },
         "Demands": {
             "Calibration": {
@@ -17,6 +17,14 @@
             },
             "DemandFilePath": "demands.csv",
             "SampleSize": "500"
+        },
+        "Losses": {
+            "BldgRepair": {
+                "ConsequenceDatabase": "User Defined",
+                "ConsequenceDatabasePath": "PelicunDefault/trnsp_repair_DB_Hazus_EQ.csv",
+                "MapApproach": "User Defined",
+                "MapFilePath": "lossmap.csv"
+            }
         }
     },
     "GeneralInformation": {
