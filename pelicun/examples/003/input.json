@@ -3,7 +3,7 @@
         "Asset": {
             "ComponentAssignmentFile": "CMP_QNT.csv",
             "ComponentDatabase": "User Defined",
-            "ComponentDatabasePath": "PelicunDefault/fragility_DB_Hazus_EQ_trnsp.csv"
+            "ComponentDatabasePath": "PelicunDefault/damage_DB_Hazus_EQ_trnsp.csv"
             
         },
         "Damage": {
@@ -21,7 +21,7 @@
         "Losses": {
             "BldgRepair": {
                 "ConsequenceDatabase": "User Defined",
-                "ConsequenceDatabasePath": "PelicunDefault/trnsp_repair_DB_Hazus_EQ.csv",
+                "ConsequenceDatabasePath": "PelicunDefault/loss_repair_DB_Hazus_EQ_trnsp.csv",
                 "MapApproach": "User Defined",
                 "MapFilePath": "lossmap.csv"
             }
