@@ -1091,7 +1091,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 if 'PelicunDefault/' in extra_comps_path:
                     extra_comps_path = extra_comps_path.replace(
                         'PelicunDefault/', f'{pelicun_path}/resources/')
-                print(extra_comps_path)
+
                 extra_conseq_df = load_data(
                     extra_comps_path,
                     unit_conversion_factors={},
