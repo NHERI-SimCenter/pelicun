@@ -1114,6 +1114,7 @@ class RandomVariable:
         self._raw_samples = np.atleast_1d(raw_samples)
         self._uni_samples = None
         self._RV_set = None
+        self._sample_DF = None
 
         if anchor is None:
             self._anchor = self
