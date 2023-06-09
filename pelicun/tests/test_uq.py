@@ -50,6 +50,7 @@ import pytest
 import numpy as np
 from scipy.stats import norm
 from scipy.stats import lognorm
+import warnings
 from tests.test_util import import_pickle
 from tests.test_util import export_pickle
 from pelicun import uq
@@ -99,6 +100,11 @@ def test_scale_distribution():
     res = uq.scale_distribution(2.00, 'uniform', theta, trunc)
     assert np.allclose(res[0], np.array((-2.00,  2.00)))  # theta_new
     assert np.allclose(res[1], np.array((-4.00,  4.00)))  # truncation_limits
+
+    # case 4: unsupported distribution
+    with pytest.raises(ValueError):
+        uq.scale_distribution(
+            0.50, 'benktander-weibull', np.array((1.00, 10.00)))
 
 
 def test_mvn_orthotope_density():
@@ -446,12 +452,67 @@ def test__mvn_scale():
     )
 
 
+def test__neg_log_likelihood():
+    """
+    Tests the functionality of the _neg_log_likelihood function, only
+    considering certain edge cases. Normal inputs are tested by
+    test_fit_distribution_to_sample_univariate.
+    """
+
+    # Parameters not whithin the pre-defined bounds should yield a
+    # large value to discourage the optimization algorithm from going
+    # in that direction.
+    res = uq._neg_log_likelihood(
+        np.array((1e8, 0.20)),
+        np.array((1.00, 0.20)),
+        np.array((0.00, 0.00)),
+        np.array((20.00, 1.00)),
+        np.array(
+            (
+                (0.90, 0.10),
+                (1.10, 0.30),
+            ),
+        ),
+        ['normal', 'normal'],
+        [None, None],
+        [None, None],
+        0,
+        enforce_bounds=True)
+
+    assert res == 1e10
+
+    # if there is nan in the parameters, the function should return a large value.
+    res = uq._neg_log_likelihood(
+        np.array((np.nan, 0.20)),
+        np.array((1.00, 0.20)),
+        0.00,
+        20.00,
+        np.array(((0.90, 0.10), (1.10, 0.30),),),
+        ['normal', 'normal'],
+        [-np.inf, np.inf],
+        [np.nan, np.nan],
+        0,
+        enforce_bounds=False)
+
+    assert res == 1e10
+
+
 def test_fit_distribution_to_sample_univariate():
     """
     Tests the functionality of the
     fit_distribution_to_sample_univariate function, only considering
     univariate input cases.
     """
+
+    # a single value in the sample
+    sample_vec = np.array((1.00,))
+    res = uq.fit_distribution_to_sample(
+        sample_vec,
+        'normal'
+    )
+    assert np.isclose(res[0][0, 0], 1.00)
+    assert np.isclose(res[0][0, 1], 1e-06)
+    assert np.isclose(res[1][0, 0], 1.00)
 
     # baseline case
     sample_vec = np.array(
@@ -620,7 +681,7 @@ def test_fit_distribution_to_sample_univariate():
     assert np.isclose(res_b[0][0, 1], res_c[0][0, 1])
 
 
-def test_fit_distribution_to_sample_multivariate(reset=False):
+def test_fit_distribution_to_sample_multivariate():
     """
     Tests the functionality of the
     fit_distribution_to_sample_univariate function, only considering
@@ -638,13 +699,15 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
         size=10000
     ).T
     np.random.seed(40)
+    # note: distribution can be specified once, implying that it is
+    # the same for all random variables.
     res = uq.fit_distribution_to_sample(
         sample,
-        ['normal', 'normal']
+        ['normal']
     )
     compare = (
         np.array((
-            (0.9909858 , 1.01732669),
+            (0.9909858, 1.01732669),
             (0.99994493, 0.99588164)
         )),
         np.array((
@@ -683,12 +746,41 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
     assert np.allclose(res[0], compare[0])
     assert np.allclose(res[1], compare[1])
 
+    # correlated, normal, truncated and with detection limits
+    np.random.seed(40)
+    sample = np.random.multivariate_normal(
+        (1.00, 1.00),
+        np.array((
+            (1.00, 0.70),
+            (0.70, 1.00)
+        )),
+        size=10000
+    ).T
+    np.random.seed(40)
+    res = uq.fit_distribution_to_sample(
+        sample,
+        ['normal', 'normal'],
+        truncation_limits=np.array((-5.00, 6.00)),
+        detection_limits=np.array((0.20, 1.80))
+    )
+    compare = (
+        np.array((
+            (1.00833201, 1.0012552),
+            (1.00828936, 0.99477853)
+        )),
+        np.array((
+            (1.00, 0.70624434),
+            (0.70624434, 1.00)
+        ))
+    )
+    assert np.allclose(res[0], compare[0])
+    assert np.allclose(res[1], compare[1])
+
     # samples that contain duplicate rows
     np.random.seed(40)
     sample = np.full(
         (2, 10),
         3.14,
-        
     )
     np.random.seed(40)
     res = uq.fit_distribution_to_sample(
@@ -708,13 +800,41 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
     assert np.allclose(res[0], compare[0])
     assert np.allclose(res[1], compare[1])
 
+    # lognormal with detection limits
+    np.random.seed(40)
+    sample = np.log(np.random.multivariate_normal(
+        (100.00, 100.00),
+        np.array((
+            (1e-2, 1e-8),
+            (1e-8, 1e-2)
+        )),
+        size=10000
+    ).T)
+    np.random.seed(40)
+    res = uq.fit_distribution_to_sample(
+        sample,
+        ['lognormal', 'lognormal'],
+        detection_limits=np.array((1e-8, 5.00))
+    )
+    compare = (
+        np.array((
+            (4.60517598e+00, 2.18581908e-04),
+            (4.60517592e+00, 2.16575944e-04)
+        )),
+        np.array((
+            (1.00, 0.01229486),
+            (0.01229486, 1.00)
+        ))
+    )
+    assert np.allclose(res[0], compare[0])
+    assert np.allclose(res[1], compare[1])
+
     # only a single row: requires different syntax (see univariate)
     # and thus fails.
     np.random.seed(40)
     sample = np.full(
         (1, 10),
         3.14,
-        
     )
     np.random.seed(40)
     with pytest.raises(IndexError):
@@ -766,6 +886,21 @@ def test_fit_distribution_to_sample_multivariate(reset=False):
         assert not np.any(np.isinf(res_i))
         assert not np.any(np.isnan(res_i))
 
+    # 4) data that deviate substantially from normal
+    # https://stackoverflow.com/questions/14463277/how-to-disable-python-warnings
+    # Thanks @ Boris Verkhovskiy & Mike
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        sample = np.concatenate((
+            np.random.normal(0.00, 1.00, size=100000),
+            np.array((np.inf,))
+        ))
+        with pytest.raises(ValueError):
+            uq.fit_distribution_to_sample(
+                sample,
+                ['normal']
+            )
+
 
 def test_fit_distribution_to_percentiles():
     """
@@ -776,8 +911,6 @@ def test_fit_distribution_to_percentiles():
     # normal, mean of 20 and standard deviation of 10
     percentiles = np.linspace(0.01, 0.99, num=10000)
     values = norm.ppf(percentiles, loc=20, scale=10)
-    # run the function to obtain the best distribution candidate and
-    # its parameters
     res = uq.fit_distribution_to_percentiles(
         values, percentiles, ['normal', 'lognormal'])
     assert res[0] == 'normal'
@@ -785,11 +918,39 @@ def test_fit_distribution_to_percentiles():
 
     # lognormal, median of 20 and beta of 0.4
     ln_values = lognorm.ppf(percentiles, s=0.40, scale=20.00)
-    # fit
     res = uq.fit_distribution_to_percentiles(
         ln_values, percentiles, ['normal', 'lognormal'])
     assert res[0] == 'lognormal'
     assert np.allclose(res[1], np.array((20.0, 0.40)))
+
+    # unrecognized distribution family
+    percentiles = np.linspace(0.01, 0.99, num=10000)
+    values = norm.ppf(percentiles, loc=20, scale=10)
+    with pytest.raises(ValueError):
+        uq.fit_distribution_to_percentiles(
+            values, percentiles, ['lognormal', 'birnbaum-saunders'])
+
+
+def test__OLS_percentiles():
+    """
+    Tests the functionality of the _OLS_percentiles function for
+    certain edge cases. Ordinary cases are covered by
+    test_fit_distribution_to_percentiles.
+    """
+
+    # normal: negative standard deviation
+    params = np.array((2.50, -0.10))
+    perc = np.linspace(1e-2, 1.00 - 1e-2, num=5)
+    values = norm.ppf(perc, loc=20, scale=10)
+    family = 'normal'
+    res = uq._OLS_percentiles(params, values, perc, family)
+
+    # lognormal: negative median
+    params = np.array((-1.00, 0.40))
+    perc = np.linspace(1e-2, 1.00-1e-2, num=5)
+    values = lognorm.ppf(perc, s=0.40, scale=20.00)
+    family = 'lognormal'
+    res = uq._OLS_percentiles(params, values, perc, family)
 
 
 #  __  __      _   _               _
@@ -835,6 +996,26 @@ def test_RandomVariable():
                 "won't see the light of day",
                 distribution)
 
+    # define a distribution with a given theta
+    rv_3 = uq.RandomVariable('rv_3', 'normal', np.array((1.00, 0.20)))
+    # redefine the theta attribute
+    rv_3.theta = np.array((2.00, 0.20))
+    # retrieve other attributes
+    assert np.allclose(rv_3.theta, np.array((2.00, 0.20)))
+    assert rv_3.bounds is None
+    assert rv_3.custom_expr is None
+    assert rv_3.RV_set is None
+    assert rv_3.sample_DF is None
+    # assign an anchor value
+    rv_3.anchor = 2.00
+
+    # multinomial with invalid p values provided in the theta vector
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'rv_invalid', 'multinomial',
+            np.array((0.20, 0.70, 0.10, 42.00))
+        )
+
 
 def test_RandomVariable_cdf():
     """
@@ -843,7 +1024,9 @@ def test_RandomVariable_cdf():
     """
     # create a normal random variable
     rv = uq.RandomVariable(
-        'test_rv', 'normal', theta=(1.0, 1.0))
+        'test_rv', 'normal',
+        theta=(1.0, 1.0),
+        truncation_limits=np.array((0.00, np.nan)))
 
     # evaluate CDF at different points
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
@@ -852,22 +1035,67 @@ def test_RandomVariable_cdf():
     # assert that CDF values are correct
     assert np.allclose(
         cdf,
-        (0.02275013, 0.15865525, 0.30853754,
-         0.5, 0.84134475), rtol=1e-5)
+        (0. , 0. , 0.1781461, 0.40571329, 0.81142658), rtol=1e-5)
 
-    # same for lognormal
+    # repeat without truncation limits
     rv = uq.RandomVariable(
-        'test_rv', 'lognormal', theta=(1.0, 1.0))
+        'test_rv', 'normal',
+        theta=(1.0, 1.0))
+
+    # evaluate CDF at different points
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+
+    # assert that CDF values are correct
+    assert np.allclose(
+        cdf,
+        (0.02275013, 0.15865525, 0.30853754, 0.5 , 0.84134475), rtol=1e-5)
+
+    # lognormal, lower truncation
+    rv = uq.RandomVariable(
+        'test_rv', 'lognormal',
+        theta=(1.0, 1.0),
+        truncation_limits = np.array((0.10, np.nan))
+        )
 
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
 
     assert np.allclose(
         cdf,
-        (0.0, 0.0, 0.2441086, 0.5, 0.7558914),
+        (0. , 0. , 0.23597085, 0.49461712, 0.75326339),
         rtol=1e-5)
 
-    # and for uniform
+    # lognormal, upper truncation
+    rv = uq.RandomVariable(
+        'test_rv', 'lognormal',
+        theta=(1.0, 1.0),
+        truncation_limits = np.array((np.nan, 5.00))
+        )
+
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+
+    assert np.allclose(
+        cdf,
+        (0.00 , 0.00 , 0.25797755, 0.52840734, 0.79883714),
+        rtol=1e-5)
+
+    # lognormal, no truncation
+    rv = uq.RandomVariable(
+        'test_rv', 'lognormal',
+        theta=(1.0, 1.0)
+        )
+
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+
+    assert np.allclose(
+        cdf,
+        (0. , 0. , 0.2441086, 0.5 , 0.7558914),
+        rtol=1e-5)
+
+    # uniform, both theta values
     rv = uq.RandomVariable(
         'test_rv', 'uniform', theta=(0.0, 1.0))
 
@@ -877,6 +1105,43 @@ def test_RandomVariable_cdf():
     assert np.allclose(
         cdf,
         (0.0, 0.0, 0.5, 1.0, 1.0),
+        rtol=1e-5)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        # uniform, only upper theta value ( -inf implied )
+        rv = uq.RandomVariable(
+            'test_rv', 'uniform', theta=(np.nan, 100.00))
+
+        x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+        cdf = rv.cdf(x)
+
+        assert np.all(np.isnan(cdf))
+
+    # uniform, only lower theta value ( +inf implied )
+    rv = uq.RandomVariable(
+        'test_rv', 'uniform', theta=(0.00, np.nan))
+
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+
+    assert np.allclose(
+        cdf,
+        (0.0, 0.0, 0.0, 0.0, 0.0),
+        rtol=1e-5)
+
+    # uniform, with truncation limits
+    rv = uq.RandomVariable(
+        'test_rv', 'uniform',
+        theta=(0.0, 10.0),
+        truncation_limits=np.array((0.00, 1.00)))
+
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+
+    assert np.allclose(
+        cdf,
+        (0.0 , 0.0 , 0.5, 1.0 , 1.0),
         rtol=1e-5)
 
 
@@ -893,18 +1158,40 @@ def test_RandomVariable_inverse_transform():
 
     # compute inverse transform of samples
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(samples)
+    rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
 
     # assert that inverse transform values are correct
     assert np.allclose(inverse_transform, samples, rtol=1e-5)
+
+    # uniform with unspecified bounds
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        rv = uq.RandomVariable('test_rv', 'uniform', theta=(np.nan, 1.0))
+        samples = np.array((0.10, 0.20, 0.30))
+        rv.uni_sample = samples
+        rv.inverse_transform_sampling(samples)
+        inverse_transform = rv.sample
+        assert np.all(np.isnan(inverse_transform))
+        rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.00, np.nan))
+        rv.uni_sample = samples
+        rv.inverse_transform_sampling(samples)
+        inverse_transform = rv.sample
+        assert np.all(np.isinf(inverse_transform))
+    rv = uq.RandomVariable('test_rv', 'uniform',
+        theta=(0.00, 1.00),
+        truncation_limits=np.array((0.20, 0.80)))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling(samples)
+    inverse_transform = rv.sample
+    assert np.allclose(inverse_transform, np.array((0.26, 0.32, 0.38)), rtol=1e-5)
 
     # create a lognormal random variable
     rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
 
     # compute inverse transform of samples
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(samples)
+    rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
 
     # assert that inverse transform values are correct
@@ -913,12 +1200,24 @@ def test_RandomVariable_inverse_transform():
         np.array((0.52688352, 0.65651442, 0.76935694)),
         rtol=1e-5)
 
+    # lognormal with truncation limits
+    rv = uq.RandomVariable(
+        'test_rv', 'lognormal', theta=(1.0, 0.5),
+        truncation_limits=np.array((0.50, np.nan)))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling(len(samples))
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform,
+        np.array((0.62614292, 0.73192471, 0.83365823)),
+        rtol=1e-5)
+
     # create a normal random variable
     rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
 
     # compute inverse transform of samples
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(samples)
+    rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
 
     # assert that inverse transform values are correct
@@ -926,6 +1225,64 @@ def test_RandomVariable_inverse_transform():
         inverse_transform,
         np.array((0.35922422, 0.57918938, 0.73779974)),
         rtol=1e-5)
+
+    # test that if fails without values
+    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling(100)
+
+    # normal with truncation limits
+    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(np.nan, 1.20))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling(len(samples))
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform,
+        np.array((0.24508018, 0.43936, 0.57313359)),
+        rtol=1e-5)
+    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, np.nan))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling(len(samples))
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform,
+        np.array((0.8863824, 0.96947866, 1.0517347)),
+        rtol=1e-5)
+    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, 1.20))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling(len(samples))
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform,
+        np.array((0.84155378, 0.88203946, 0.92176503)),
+        rtol=1e-5)
+
+    # edge cases
+
+    # normal with problematic truncation limits
+    rv = uq.RandomVariable(
+        'test_rv', 'normal', theta=(1.0, 0.5),
+        truncation_limits=(1e8, 2e8))
+    rv.uni_sample = samples
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling(len(samples))
+
+    # lognormal without values to sample from
+    rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling(len(samples))
+
+    # uniform without values to sample from
+    rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.0, 1.0))
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling(len(samples))
+
+    # empirical, coupled_empirical without values to sample from
+    for distr in ('empirical', 'coupled_empirical'):
+        rv = uq.RandomVariable('test_rv', distr)
+        with pytest.raises(ValueError):
+            rv.inverse_transform_sampling()
+
 
 
 def test_RandomVariable_Set():
