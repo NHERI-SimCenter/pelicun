@@ -930,20 +930,29 @@ def _OLS_percentiles(params, values, perc, family):
         If `family` is not 'normal' or 'lognormal'.
     """
 
-    theta_0 = params[0]
-    theta_1 = params[1]
-
-    if theta_0 <= 0:
-        return 1e10
-
-    if theta_1 <= 0:
-        return 1e10
-
     if family == 'normal':
+
+        theta_0 = params[0]
+        theta_1 = params[1]
+
+        if theta_0 <= 0:
+            return 1e10
+
+        if theta_1 <= 0:
+            return 1e10
 
         val_hat = norm.ppf(perc, loc=theta_0, scale=theta_1)
 
     elif family == 'lognormal':
+
+        theta_0 = params[0]
+        theta_1 = params[1]
+
+        if theta_0 <= 0:
+            return 1e10
+
+        if theta_1 <= 0:
+            return 1e10
 
         val_hat = np.exp(norm.ppf(perc, loc=np.log(theta_0), scale=theta_1))
 
