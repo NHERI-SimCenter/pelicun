@@ -162,12 +162,6 @@ def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
     mu = np.atleast_1d(mu)
     COV = np.atleast_2d(COV)
 
-    if mu.shape == ():
-        mu = np.asarray([mu])
-        COV = np.asarray([COV])
-    else:
-        COV = np.asarray(COV)
-
     sig = np.sqrt(np.diag(COV))
     corr = COV / np.outer(sig, sig)
 
