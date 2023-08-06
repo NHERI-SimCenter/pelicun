@@ -97,7 +97,7 @@ damage_processes = {
         }
     },
 
-    'Hazus Earthquake': {
+    'Hazus Earthquake - Buildings': {
         "1_STR": {
             "DS5": "collapse_DS1"
         },
@@ -118,12 +118,14 @@ damage_processes = {
 
 default_DBs = {
     'fragility': {
-        'FEMA P-58': 'fragility_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'fragility_DB_Hazus_EQ.csv'
+        'FEMA P-58': 'damage_DB_FEMA_P58_2nd.csv',
+        'Hazus Earthquake - Buildings': 'damage_DB_Hazus_EQ_bldg.csv',
+        'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv'
     },
     'repair': {
-        'FEMA P-58': 'bldg_repair_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'bldg_repair_DB_Hazus_EQ.csv'
+        'FEMA P-58': 'loss_repair_DB_FEMA_P58_2nd.csv',
+        'Hazus Earthquake - Buildings': 'loss_repair_DB_Hazus_EQ_bldg.csv',
+        'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv'
     }
 
 }
@@ -778,7 +780,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         # prepare additional fragility data
 
         # get the database header from the default P58 db
-        P58_data = PAL.get_default_data('fragility_DB_FEMA_P58_2nd')
+        P58_data = PAL.get_default_data('damage_DB_FEMA_P58_2nd')
 
         adf = pd.DataFrame(columns=P58_data.columns)
 
@@ -904,7 +906,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 dmg_process = damage_processes[dp_approach]
 
                 # For Hazus Earthquake, we need to specify the component ids
-                if dp_approach == 'Hazus Earthquake':
+                if dp_approach == 'Hazus Earthquake - Buildings':
 
                     cmp_list = cmp_sample.columns.unique(level=0)
 
@@ -1071,7 +1073,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             bldg_repair_config = loss_config['BldgRepair']
 
-            # load the consequence information
+            # load the fragility information
             if bldg_repair_config['ConsequenceDatabase'] in default_DBs['repair'].keys():
                 consequence_db = [
                     'PelicunDefault/' +
@@ -1147,7 +1149,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     adf.loc[rc, ('DS1', 'Theta_0')] = 0
 
                 # for Hazus EQ, use 1.0 as a loss_ratio
-                elif DL_method == 'Hazus Earthquake':
+                elif DL_method == 'Hazus Earthquake - Buildings':
                     adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
 
@@ -1187,7 +1189,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     adf.loc[rt, ('DS1', 'Theta_0')] = 0
 
                 # for Hazus EQ, use 1.0 as a loss_ratio
-                elif DL_method == 'Hazus Earthquake':
+                elif DL_method == 'Hazus Earthquake - Buildings':
                     adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rt, ('DV', 'Unit')] = 'day'
 
@@ -1291,7 +1293,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             drivers.append(f'DMG-{dmg_cmp}')
                             loss_models.append(dmg_cmp)
 
-                elif DL_method == 'Hazus Earthquake':
+                elif DL_method == 'Hazus Earthquake - Buildings':
 
                     # with Hazus Earthquake we assume that consequence
                     # archetypes are only differentiated by occupancy type
