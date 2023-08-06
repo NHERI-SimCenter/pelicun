@@ -3284,23 +3284,27 @@ class BldgRepairModel(LossModel):
 
             if self._asmnt.options.eco_scale["AcrossDamageStates"] == True:
 
-                eco_qnt = dmg_quantities.groupby(level=[0, ], axis=1).sum()
-                eco_qnt.columns.names = ['cmp', ]
+                eco_levels = [0, ]
+                eco_columns = ['cmp', ]
 
             else:
 
-                eco_qnt = dmg_quantities.groupby(level=[0, 3], axis=1).sum()
-                eco_qnt.columns.names = ['cmp', 'ds']
+                eco_levels = [0, 3]
+                eco_columns = ['cmp', 'ds']
 
         elif self._asmnt.options.eco_scale["AcrossDamageStates"] == True:
 
-            eco_qnt = dmg_quantities.groupby(level=[0, 1], axis=1).sum()
-            eco_qnt.columns.names = ['cmp', 'loc']
+            eco_levels = [0, 1]
+            eco_columns = ['cmp', 'loc']
 
         else:
 
-            eco_qnt = dmg_quantities.groupby(level=[0, 1, 3], axis=1).sum()
-            eco_qnt.columns.names = ['cmp', 'loc', 'ds']
+            eco_levels = [0, 1, 3]
+            eco_columns = ['cmp', 'loc', 'ds']
+
+        eco_group = dmg_quantities.groupby(level=eco_levels, axis=1)
+        eco_qnt = eco_group.sum().mask(eco_group.count()==0, np.nan)
+        eco_qnt.columns.names = eco_columns
 
         self.log_msg("Successfully aggregated damage quantities.",
                      prepend_timestamp=False)
