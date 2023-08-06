@@ -1841,8 +1841,18 @@ def create_Hazus_EQ_fragility_db(source_file,
         for dl in design_levels:
             if bt in S_data['EDP_limits'][dl].keys():
 
+                # add a dot in bt between structure and height labels, if needed
+                if ((len(bt)>2) and (bt[-1] in ['L','M','H'])):
+                    bt_exp = f'{bt[:-1]}.{bt[-1]}'
+                    st = bt[:-1]
+                    hc = bt[-1]
+                else:
+                    bt_exp = bt
+                    st = bt
+                    hc = None
+
                 # create the component id
-                cmp_id = f'STR.{bt}.{convert_design_level[dl]}'
+                cmp_id = f'STR.{bt_exp}.{convert_design_level[dl]}'
                 df_db.loc[counter, 'ID'] = cmp_id
 
                 # store demand specifications
@@ -2008,8 +2018,18 @@ def create_Hazus_EQ_fragility_db(source_file,
         for dl in design_levels:
             if bt in LF_data['EDP_limits'][dl].keys():
 
+                # add a dot in bt between structure and height labels, if needed
+                if ((len(bt)>2) and (bt[-1] in ['L','M','H'])):
+                    bt_exp = f'{bt[:-1]}.{bt[-1]}'
+                    st = bt[:-1]
+                    hc = bt[-1]
+                else:
+                    bt_exp = bt
+                    st = bt
+                    hc = None
+
                 # create the component id
-                cmp_id = f'LF.{bt}.{convert_design_level[dl]}'
+                cmp_id = f'LF.{bt_exp}.{convert_design_level[dl]}'
                 df_db.loc[counter, 'ID'] = cmp_id
 
                 # store demand specifications
