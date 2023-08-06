@@ -1838,7 +1838,44 @@ def create_Hazus_EQ_fragility_db(source_file,
                 df_db.loc[counter, 'Demand-Unit'] = "rad"
                 df_db.loc[counter, 'Demand-Offset'] = 0
 
+                # add metadata
+                if hc != None:
+                    cmp_meta = {
+                        "Description": (
+                            frag_meta['Meta']['Collections']['STR']['Description']+", "+
+                            frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
+                            frag_meta['Meta']['HeightClasses'][hc]['Description'] + ", "+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
+                            ),
+                        "Comments": (
+                            frag_meta['Meta']['Collections']['STR']['Comment']+"\n"+
+                            frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
+                            frag_meta['Meta']['HeightClasses'][hc]['Comment'] + "\n"+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                            ),
+                        "SuggestedComponentBlockSize": "1 EA",
+                        "RoundUpToIntegerQuantity": "True",
+                        "LimitStates": {}
+                    }
+                else:
+                    cmp_meta = {
+                        "Description": (
+                            frag_meta['Meta']['Collections']['STR']['Description']+", "+
+                            frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
+                            ),
+                        "Comments": (
+                            frag_meta['Meta']['Collections']['STR']['Comment']+"\n"+
+                            frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                            ),
+                        "SuggestedComponentBlockSize": "1 EA",
+                        "RoundUpToIntegerQuantity": "True",
+                        "LimitStates": {}
+                    }
+
                 # store the Limit State parameters
+                ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
                 for LS_i in range(1, 5):
 
                     df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
@@ -1851,6 +1888,19 @@ def create_Hazus_EQ_fragility_db(source_file,
                         p_coll = S_data['P_collapse'][bt]
                         df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
                             f'{1.0 - p_coll} | {p_coll}')
+
+                        cmp_meta["LimitStates"].update({"LS4": {
+                            "DS4": {"Description": ds_meta['DS4']},
+                            "DS5": {"Description": ds_meta['DS5']}
+                        }})
+
+                    else:
+                        cmp_meta["LimitStates"].update({f"LS{LS_i}": {
+                            f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
+                        }})
+
+                # store metadata
+                meta_dict.update({cmp_id:cmp_meta})
 
                 counter += 1
 
@@ -1865,12 +1915,30 @@ def create_Hazus_EQ_fragility_db(source_file,
     df_db.loc[counter, 'Demand-Unit'] = "rad"
     df_db.loc[counter, 'Demand-Offset'] = 0
 
+    # add metadata
+    cmp_meta = {
+        "Description": frag_meta['Meta']['Collections']['NSD']['Description'],
+        "Comments": frag_meta['Meta']['Collections']['NSD']['Comment'],
+        "SuggestedComponentBlockSize": "1 EA",
+        "RoundUpToIntegerQuantity": "True",
+        "LimitStates": {}
+    }
+
     # store the Limit State parameters
+    ds_meta = frag_meta['Meta']['Collections']['NSD']['DamageStates']
     for LS_i in range(1, 5):
         df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
         df_db.loc[counter, f'LS{LS_i}-Theta_0'] = NSD_data['EDP_limits'][
             LS_i - 1]
         df_db.loc[counter, f'LS{LS_i}-Theta_1'] = NSD_data['Fragility_beta']
+
+        # add limit state metadata
+        cmp_meta["LimitStates"].update({f"LS{LS_i}": 
+            {f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
+        }})
+
+    # store metadata
+    meta_dict.update({'NSD':cmp_meta})
 
     counter += 1
 
@@ -1888,12 +1956,36 @@ def create_Hazus_EQ_fragility_db(source_file,
         df_db.loc[counter, 'Demand-Unit'] = "g"
         df_db.loc[counter, 'Demand-Offset'] = 0
 
+        # add metadata
+        cmp_meta = {
+            "Description": (
+                frag_meta['Meta']['Collections']['NSA']['Description']+", "+
+                frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
+                ),
+            "Comments": (
+                frag_meta['Meta']['Collections']['NSA']['Comment']+"\n"+
+                frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                ),
+            "SuggestedComponentBlockSize": "1 EA",
+            "RoundUpToIntegerQuantity": "True",
+            "LimitStates": {}
+        }
+
         # store the Limit State parameters
+        ds_meta = frag_meta['Meta']['Collections']['NSA']['DamageStates']
         for LS_i in range(1, 5):
             df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
             df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
                 NSA_data['EDP_limits'][dl][LS_i - 1]
             df_db.loc[counter, f'LS{LS_i}-Theta_1'] = NSA_data['Fragility_beta']
+
+            # add limit state metadata
+            cmp_meta["LimitStates"].update({f"LS{LS_i}": 
+                {f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
+            }})
+
+        # store metadata
+        meta_dict.update({cmp_id:cmp_meta})
 
         counter += 1
 
@@ -1913,7 +2005,44 @@ def create_Hazus_EQ_fragility_db(source_file,
                 df_db.loc[counter, 'Demand-Unit'] = "g"
                 df_db.loc[counter, 'Demand-Offset'] = 0
 
+                # add metadata
+                if hc != None:
+                    cmp_meta = {
+                        "Description": (
+                            frag_meta['Meta']['Collections']['LF']['Description']+", "+
+                            frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
+                            frag_meta['Meta']['HeightClasses'][hc]['Description'] + ", "+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
+                            ),
+                        "Comments": (
+                            frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
+                            frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
+                            frag_meta['Meta']['HeightClasses'][hc]['Comment'] + "\n"+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                            ),
+                        "SuggestedComponentBlockSize": "1 EA",
+                        "RoundUpToIntegerQuantity": "True",
+                        "LimitStates": {}
+                    }
+                else:
+                    cmp_meta = {
+                        "Description": (
+                            frag_meta['Meta']['Collections']['LF']['Description']+", "+
+                            frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
+                            ),
+                        "Comments": (
+                            frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
+                            frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
+                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                            ),
+                        "SuggestedComponentBlockSize": "1 EA",
+                        "RoundUpToIntegerQuantity": "True",
+                        "LimitStates": {}
+                    }
+
                 # store the Limit State parameters
+                ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
                 for LS_i in range(1, 5):
 
                     df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
@@ -1926,6 +2055,19 @@ def create_Hazus_EQ_fragility_db(source_file,
                         p_coll = LF_data['P_collapse'][bt]
                         df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
                             f'{1.0 - p_coll} | {p_coll}')
+
+                        cmp_meta["LimitStates"].update({"LS4": {
+                            "DS4": {"Description": ds_meta['DS4']},
+                            "DS5": {"Description": ds_meta['DS5']}
+                        }})
+
+                    else:
+                        cmp_meta["LimitStates"].update({f"LS{LS_i}": {
+                            f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
+                        }})
+
+                # store metadata
+                meta_dict.update({cmp_id:cmp_meta})
 
                 counter += 1
 
@@ -1943,7 +2085,23 @@ def create_Hazus_EQ_fragility_db(source_file,
             df_db.loc[counter, 'Demand-Unit'] = "inch"
             df_db.loc[counter, 'Demand-Offset'] = 0
 
+            # add metadata
+            cmp_meta = {
+                "Description": (
+                    frag_meta['Meta']['Collections']['GF']['Description']+
+                    f", {direction} Direction, {f_depth} Foundation"
+                    ),
+                "Comments": (
+                    frag_meta['Meta']['Collections']['GF']['Comment']
+                    ),
+                "SuggestedComponentBlockSize": "1 EA",
+                "RoundUpToIntegerQuantity": "True",
+                "LimitStates": {}
+            }
+
             # store the Limit State parameters
+            ds_meta = frag_meta['Meta']['Collections']['GF']['DamageStates']
+
             df_db.loc[counter, 'LS1-Family'] = 'lognormal'
             df_db.loc[counter, 'LS1-Theta_0'] = \
                 GF_data['EDP_limits'][direction][f_depth]
@@ -1952,6 +2110,14 @@ def create_Hazus_EQ_fragility_db(source_file,
             p_complete = GF_data['P_Complete']
             df_db.loc[counter, 'LS1-DamageStateWeights'] = (
                 f'{1.0 - p_complete} | {p_complete}')
+
+            cmp_meta["LimitStates"].update({"LS1": {
+                "DS1": {"Description": ds_meta['DS1']},
+                "DS2": {"Description": ds_meta['DS2']}
+            }})
+
+            # store metadata
+            meta_dict.update({cmp_id:cmp_meta})
 
             counter += 1
 
@@ -2072,8 +2238,26 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
         # create the component id
         cmp_id = f'STR.{occ_type}'
 
+        cmp_meta = {
+            "Description": (
+                frag_meta['Meta']['Collections']['STR']['Description']+", "+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Description']
+                ),
+            "Comments": (
+                frag_meta['Meta']['Collections']['STR']['Comment']+"\n"+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Comment']                
+                ),
+            "SuggestedComponentBlockSize": "1 EA",
+            "RoundUpToIntegerQuantity": "True",
+            "DamageStates": {}
+        }
+
         # store the consequence values for each Damage State
+        ds_meta = frag_meta['Meta']['Collections']['STR']['DamageStates']
         for DS_i in range(1, 6):
+
+            cmp_meta["DamageStates"].update({f"DS{DS_i}": 
+                {"Description": ds_meta[f"DS{DS_i}"]}})
 
             # DS4 and DS5 have identical repair consequences
             if DS_i == 5:
@@ -2089,6 +2273,9 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
                 (cmp_id, 'Time'),
                 f'DS{DS_i}-Theta_0'] = S_data['Repair_time'][occ_type][ds_i-1]
 
+        # store metadata
+        meta_dict.update({cmp_id:cmp_meta})
+
     # Second, the non-structural drift sensitive one
     NSD_data = raw_data['NonStructural_Drift_Sensitive_Fragility_Groups']
 
@@ -2097,12 +2284,33 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
         # create the component id
         cmp_id = f'NSD.{occ_type}'
 
+        cmp_meta = {
+            "Description": (
+                frag_meta['Meta']['Collections']['NSD']['Description']+", "+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Description']
+                ),
+            "Comments": (
+                frag_meta['Meta']['Collections']['NSD']['Comment']+"\n"+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Comment']                
+                ),
+            "SuggestedComponentBlockSize": "1 EA",
+            "RoundUpToIntegerQuantity": "True",
+            "DamageStates": {}
+        }
+
         # store the consequence values for each Damage State
+        ds_meta = frag_meta['Meta']['Collections']['NSD']['DamageStates']
         for DS_i in range(1, 5):
+
+            cmp_meta["DamageStates"].update({f"DS{DS_i}": 
+                {"Description": ds_meta[f"DS{DS_i}"]}})
 
             df_db.loc[
                 (cmp_id, 'Cost'),
                 f'DS{DS_i}-Theta_0'] = NSD_data['Repair_cost'][occ_type][DS_i-1]
+
+        # store metadata
+        meta_dict.update({cmp_id:cmp_meta})
 
     # Third, the non-structural acceleration sensitive fragilities
     NSA_data = raw_data['NonStructural_Acceleration_Sensitive_Fragility_Groups']
@@ -2112,12 +2320,33 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
         # create the component id
         cmp_id = f'NSA.{occ_type}'
 
+        cmp_meta = {
+            "Description": (
+                frag_meta['Meta']['Collections']['NSA']['Description']+", "+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Description']
+                ),
+            "Comments": (
+                frag_meta['Meta']['Collections']['NSA']['Comment']+"\n"+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Comment']                
+                ),
+            "SuggestedComponentBlockSize": "1 EA",
+            "RoundUpToIntegerQuantity": "True",
+            "DamageStates": {}
+        }
+
         # store the consequence values for each Damage State
+        ds_meta = frag_meta['Meta']['Collections']['NSA']['DamageStates']
         for DS_i in range(1, 5):
+
+            cmp_meta["DamageStates"].update({f"DS{DS_i}": 
+                {"Description": ds_meta[f"DS{DS_i}"]}})
 
             df_db.loc[
                 (cmp_id, 'Cost'),
                 f'DS{DS_i}-Theta_0'] = NSA_data['Repair_cost'][occ_type][DS_i-1]
+
+        # store metadata
+        meta_dict.update({cmp_id:cmp_meta})
 
     # Fourth, the lifeline facilities
     LF_data = raw_data['Lifeline_Facilities']
@@ -2127,7 +2356,22 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
         # create the component id
         cmp_id = f'LF.{occ_type}'
 
+        cmp_meta = {
+            "Description": (
+                frag_meta['Meta']['Collections']['LF']['Description']+", "+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Description']
+                ),
+            "Comments": (
+                frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
+                frag_meta['Meta']['OccupancyTypes'][occ_type]['Comment']                
+                ),
+            "SuggestedComponentBlockSize": "1 EA",
+            "RoundUpToIntegerQuantity": "True",
+            "DamageStates": {}
+        }
+
         # store the consequence values for each Damage State
+        ds_meta = frag_meta['Meta']['Collections']['LF']['DamageStates']
         for DS_i in range(1, 6):
 
             # DS4 and DS5 have identical repair consequences
@@ -2136,6 +2380,9 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
             else:
                 ds_i = DS_i
 
+            cmp_meta["DamageStates"].update({f"DS{DS_i}": 
+                {"Description": ds_meta[f"DS{DS_i}"]}})
+
             df_db.loc[
                 (cmp_id, 'Cost'),
                 f'DS{DS_i}-Theta_0'] = LF_data['Repair_cost'][occ_type][ds_i - 1]
@@ -2143,6 +2390,9 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
             df_db.loc[
                 (cmp_id, 'Time'),
                 f'DS{DS_i}-Theta_0'] = LF_data['Repair_time'][occ_type][ds_i - 1]
+
+        # store metadata
+        meta_dict.update({cmp_id:cmp_meta})
 
     # remove empty rows (from the end)
     df_db.dropna(how='all', inplace=True)
