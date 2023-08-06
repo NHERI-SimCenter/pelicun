@@ -303,8 +303,11 @@ def create_FEMA_P58_fragility_db(source_file,
 
         # store the global (i.e., not DS-specific) metadata
 
-        # every component is assumed to have a comp. description
-        comments = cmp_meta['Component_Description']
+        # start with a comp. description
+        if not pd.isna(cmp_meta['Component_Description']):
+            comments = cmp_meta['Component_Description']
+        else:
+            comments = ''
 
         # the additional fields are added to the description if they exist
 
@@ -716,8 +719,11 @@ def create_FEMA_P58_bldg_repair_db(
 
         # store the global (i.e., not DS-specific) metadata
 
-        # every component is assumed to have a comp. description
-        comments = cmp_meta['Component_Description']
+        # start with a comp. description
+        if not pd.isna(cmp_meta['Component_Description']):
+            comments = cmp_meta['Component_Description']
+        else:
+            comments = ''
 
         # the additional fields are added to the description if they exist
         if cmp_meta['Construction_Quality'] != 'Not Specified':
@@ -1224,8 +1230,11 @@ def create_FEMA_P58_bldg_injury_db(
 
         # store the global (i.e., not DS-specific) metadata
 
-        # every component is assumed to have a comp. description
-        comments = cmp_meta['Component_Description']
+        # start with a comp. description
+        if not pd.isna(cmp_meta['Component_Description']):
+            comments = cmp_meta['Component_Description']
+        else:
+            comments = ''
 
         # the additional fields are added to the description if they exist
         if cmp_meta['Construction_Quality'] != 'Not Specified':
@@ -1600,8 +1609,11 @@ def create_FEMA_P58_bldg_redtag_db(
 
         # store the global (i.e., not DS-specific) metadata
 
-        # every component is assumed to have a comp. description
-        comments = cmp_meta['Component_Description']
+        # start with a comp. description
+        if not pd.isna(cmp_meta['Component_Description']):
+            comments = cmp_meta['Component_Description']
+        else:
+            comments = ''
 
         # the additional fields are added to the description if they exist
         if cmp_meta['Construction_Quality'] != 'Not Specified':
