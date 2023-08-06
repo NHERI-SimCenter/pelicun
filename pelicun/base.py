@@ -808,19 +808,6 @@ def process_loc(string, stories):
 
 # Input specs
 
-CMP_data_path = dict(
-    P58='/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf',
-    HAZUS_HU='/resources/HAZUS_MH_2.1.hdf',
-    HAZUS_FL='/resources/HAZUS_MH_2.1_FL.hdf',
-    HAZUS_MISC='/resources/HAZUS_MH_2.1_MISC.hdf'
-)
-
-POP_data_path = dict(
-    P58='/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf'
-)
-
 EDP_to_demand_type = {
     # Drifts
     'Story Drift Ratio':               'PID',
