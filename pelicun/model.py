@@ -193,7 +193,7 @@ class PelicunModel:
                         # scale arguments, if needed
                         for a_i, arg in enumerate(args):
 
-                            if arg != []:
+                            if isinstance(arg, np.ndarray):
                                 args[a_i] = arg * arg_unit_factor
 
                 # convert the distribution parameters to SI
