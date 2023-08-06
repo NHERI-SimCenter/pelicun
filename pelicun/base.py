@@ -718,7 +718,7 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
 
     for col in desc.columns:
         if np.min(df[col]) > 0.0:
-            desc.loc['log_std', col] = np.std(np.log(df[col]))
+            desc.loc['log_std', col] = np.std(np.log(df[col]), ddof=1)
 
     return desc
 
