@@ -60,6 +60,9 @@ import json
 import numpy as np
 from scipy.stats import norm
 import pandas as pd
+from pathlib import Path
+from copy import deepcopy
+
 from . import base
 from .uq import fit_distribution_to_percentiles
 
@@ -103,6 +106,8 @@ def create_FEMA_P58_fragility_db(source_file,
     ----------
     source_file: string
         Path to the fragility database file.
+    meta_file: string
+        Path to the JSON file with metadata about the database.
     target_data_file: string
         Path where the fragility data file should be saved. A csv file is
         expected.
@@ -116,6 +121,13 @@ def create_FEMA_P58_fragility_db(source_file,
     df = pd.read_excel(source_file, sheet_name='Summary', header=2, index_col=1,
                        true_values=["YES", "Yes", "yes"],
                        false_values=["NO", "No", "no"])
+
+    # parse the extra metadata file
+    if Path(meta_file).is_file():
+        with open(meta_file, 'r') as f:
+            frag_meta = json.load(f)
+    else:
+        frag_meta = {}
 
     # remove the empty rows and columns
     df.dropna(axis=0, how='all', inplace=True)
@@ -221,6 +233,19 @@ def create_FEMA_P58_fragility_db(source_file,
 
     # initialize the dictionary that stores the fragility metadata
     meta_dict = {}
+
+    # add the general information to the meta dict
+    if "_GeneralInformation" in frag_meta.keys():
+
+        frag_meta = frag_meta["_GeneralInformation"]
+
+        # remove the decision variable part from the general info
+        frag_meta.pop("DecisionVariables", None)
+
+        meta_dict.update({"_GeneralInformation": frag_meta})
+
+        
+
 
     # conversion dictionary for demand types
     convert_demand_type = {
@@ -497,6 +522,8 @@ def create_FEMA_P58_bldg_repair_db(
     ----------
     source_file: string
         Path to the fragility database file.
+    meta_file: string
+        Path to the JSON file with metadata about the database.
     target_data_file: string
         Path where the consequence data file should be saved. A csv file is
         expected.
@@ -510,6 +537,13 @@ def create_FEMA_P58_bldg_repair_db(
     df = pd.concat(
         [pd.read_excel(source_file, sheet_name=sheet, header=2, index_col=1)
          for sheet in ('Summary', 'Cost Summary', 'Env Summary')], axis=1)
+
+    # parse the extra metadata file
+    if Path(meta_file).is_file():
+        with open(meta_file, 'r') as f:
+            frag_meta = json.load(f)
+    else:
+        frag_meta = {}
 
     # remove duplicate columns
     # (there are such because we joined two tables that were read separately)
@@ -633,6 +667,13 @@ def create_FEMA_P58_bldg_repair_db(
 
     # initialize the dictionary that stores the loss metadata
     meta_dict = {}
+
+    # add the general information to the meta dict
+    if "_GeneralInformation" in frag_meta.keys():
+
+        frag_meta = frag_meta["_GeneralInformation"]
+
+        meta_dict.update({"_GeneralInformation": frag_meta})
 
     convert_family = {
         'LogNormal': 'lognormal',
@@ -1692,6 +1733,8 @@ def create_Hazus_EQ_fragility_db(source_file,
     ----------
     source_file: string
         Path to the fragility database file.
+    meta_file: string
+        Path to the JSON file with metadata about the database.
     target_data_file: string
         Path where the fragility data file should be saved. A csv file is
         expected.
@@ -1704,6 +1747,13 @@ def create_Hazus_EQ_fragility_db(source_file,
     # parse the source file
     with open(source_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
+
+    # parse the extra metadata file
+    if Path(meta_file).is_file():
+        with open(meta_file, 'r') as f:
+            frag_meta = json.load(f)
+    else:
+        frag_meta = {}
 
     # prepare lists of labels for various building features
     design_levels = list(
@@ -1748,6 +1798,28 @@ def create_Hazus_EQ_fragility_db(source_file,
         index=np.arange(len(building_types) * len(design_levels) * 5),
         dtype=float
     )
+
+    # initialize the dictionary that stores the fragility metadata
+    meta_dict = {}
+
+    # add the general information to the meta dict
+    if "_GeneralInformation" in frag_meta.keys():
+
+        GI = frag_meta["_GeneralInformation"]
+
+        # remove the decision variable part from the general info
+        GI.pop("DecisionVariables", None)
+
+        for key, item in deepcopy(GI).items():
+
+            if key == 'ComponentGroups_Damage':
+                GI.update({'ComponentGroups': item})
+
+            if key.startswith('ComponentGroups'):
+                GI.pop(key, None)
+
+        meta_dict.update({"_GeneralInformation": GI})
+
     counter = 0
 
     # First, prepare the structural fragilities
@@ -1923,6 +1995,8 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     ----------
     source_file: string
         Path to the Hazus database file.
+    meta_file: string
+        Path to the JSON file with metadata about the database.
     target_data_file: string
         Path where the repair DB file should be saved. A csv file is
         expected.
@@ -1935,6 +2009,13 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     # parse the source file
     with open(source_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
+
+    # parse the extra metadata file
+    if Path(meta_file).is_file():
+        with open(meta_file, 'r') as f:
+            frag_meta = json.load(f)
+    else:
+        frag_meta = {}
 
     # prepare lists of labels for various building features
     occupancies = list(
@@ -1964,6 +2045,24 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
         index=df_MI,
         dtype=float
     )
+
+    # initialize the dictionary that stores the loss metadata
+    meta_dict = {}
+
+    # add the general information to the meta dict
+    if "_GeneralInformation" in frag_meta.keys():
+
+        GI = frag_meta["_GeneralInformation"]
+
+        for key, item in deepcopy(GI).items():
+
+            if key == 'ComponentGroups_Loss_Repair':
+                GI.update({'ComponentGroups': item})
+
+            if key.startswith('ComponentGroups'):
+                GI.pop(key, None)
+
+        meta_dict.update({"_GeneralInformation": GI})
 
     # First, prepare the structural damage consequences
     S_data = raw_data['Structural_Fragility_Groups']
@@ -2104,6 +2203,13 @@ def create_Hazus_EQ_bldg_injury_db(source_file,
     # parse the source file
     with open(source_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
+
+    # parse the extra metadata file
+    if Path(meta_file).is_file():
+        with open(meta_file, 'r') as f:
+            frag_meta = json.load(f)
+    else:
+        frag_meta = {}
 
     # prepare lists of labels for various building features
     building_types = list(
