@@ -2162,10 +2162,10 @@ def create_Hazus_EQ_fragility_db(source_file,
     df_db.dropna(how='all', inplace=True)
 
     # All Hazus components have complete fragility info,
-    df_db.loc[:, 'Incomplete'] = 0
+    df_db['Incomplete'] = 0
 
     # none of them are directional,
-    df_db.loc[:, 'Demand-Directional'] = 0
+    df_db['Demand-Directional'] = 0
 
     # rename the index
     df_db.set_index("ID", inplace=True)
@@ -2176,9 +2176,9 @@ def create_Hazus_EQ_fragility_db(source_file,
     # save the fragility data
     df_db.to_csv(target_data_file)
 
-    # save the metadata - later
-    # with open(target_meta_file, 'w+') as f:
-    #    json.dump(meta_dict, f, indent=2)
+    # save the metadata
+    with open(target_meta_file, 'w+') as f:
+        json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the fragility data from Hazus EQ")
 
@@ -2435,7 +2435,8 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     df_db.dropna(how='all', inplace=True)
 
     # All Hazus components have complete fragility info,
-    df_db.loc[:, 'Incomplete'] = 0
+    df_db['Incomplete'] = 0
+    #df_db.loc[:, 'Incomplete'] = 0
 
     # The damage quantity unit is the same for all consequence values
     df_db.loc[:, 'Quantity-Unit'] = "1 EA"
@@ -2457,8 +2458,8 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     df_db.to_csv(target_data_file)
 
     # save the metadata - later
-    # with open(target_meta_file, 'w+') as f:
-    #    json.dump(meta_dict, f, indent=2)
+    with open(target_meta_file, 'w+') as f:
+        json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the repair consequence data from Hazus "
           "EQ")
