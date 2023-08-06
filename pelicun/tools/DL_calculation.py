@@ -1016,7 +1016,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     output_files.append('DMG_stats.csv')
 
                 if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
-                    grp_damage = damage_sample.groupby(level=[0, 3], axis=1).sum()
+
+                    damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
+
+                    grp_damage = damage_groupby.sum().mask(
+                        damage_groupby.count()==0, np.nan)                    
 
                     if 'GroupedSample' in out_reqs:
                         grp_damage_s = convert_to_SimpleIndex(grp_damage, axis=1)
@@ -1370,8 +1374,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
                     if np.any(np.isin(
                             ['GroupedSample', 'GroupedStatistics'], out_reqs)):
-                        grp_repair = repair_sample.groupby(
-                            level=[0, 1, 2], axis=1).sum()
+                        
+                        repair_groupby = repair_sample.groupby(
+                            level=[0,1,2], axis=1)
+                        grp_repair = repair_groupby.sum().mask(
+                            repair_groupby.count()==0, np.nan)
 
                         if 'GroupedSample' in out_reqs:
                             grp_repair_s = convert_to_SimpleIndex(grp_repair, axis=1)
