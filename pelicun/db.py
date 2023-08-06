@@ -90,8 +90,9 @@ def parse_DS_Hierarchy(DSH):
 
 
 def create_FEMA_P58_fragility_db(source_file,
-                                 target_data_file='fragility_DB_FEMA_P58_2nd.csv',
-                                 target_meta_file='fragility_DB_FEMA_P58_2nd.json'):
+                                 meta_file='',
+                                 target_data_file='damage_DB_FEMA_P58_2nd.csv',
+                                 target_meta_file='damage_DB_FEMA_P58_2nd.json'):
     """
     Create a fragility parameter database based on the FEMA P58 data
 
@@ -488,8 +489,9 @@ def create_FEMA_P58_fragility_db(source_file,
 
 def create_FEMA_P58_bldg_repair_db(
         source_file,
-        target_data_file='bldg_repair_DB_FEMA_P58_2nd.csv',
-        target_meta_file='bldg_repair_DB_FEMA_P58_2nd.json'):
+        meta_file='',
+        target_data_file='loss_repair_DB_FEMA_P58_2nd.csv',
+        target_meta_file='loss_repair_DB_FEMA_P58_2nd.json'):
     """
     Create a repair consequence parameter database based on the FEMA P58 data
 
@@ -1681,8 +1683,9 @@ def create_FEMA_P58_bldg_redtag_db(
 
 
 def create_Hazus_EQ_fragility_db(source_file,
-                                 target_data_file='fragility_DB_Hazus_EQ.csv',
-                                 target_meta_file='fragility_DB_Hazus_EQ.json'):
+                                 meta_file='',
+                                 target_data_file='damage_DB_Hazus_EQ_bldg.csv',
+                                 target_meta_file='damage_DB_Hazus_EQ_bldg.json'):
     """
     Create a database file based on the HAZUS EQ Technical Manual
 
@@ -1911,8 +1914,9 @@ def create_Hazus_EQ_fragility_db(source_file,
 
 
 def create_Hazus_EQ_bldg_repair_db(source_file,
-                                   target_data_file='bldg_repair_DB_Hazus_EQ.csv',
-                                   target_meta_file='bldg_repair_DB_Hazus_EQ.json'):
+                                   meta_file='',
+                                   target_data_file='loss_repair_DB_Hazus_EQ_bldg.csv',
+                                   target_meta_file='loss_repair_DB_Hazus_EQ_bldg.json'):
     """
     Create a database file based on the HAZUS EQ Technical Manual
 
