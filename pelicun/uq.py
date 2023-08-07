@@ -1707,6 +1707,9 @@ class RandomVariableRegistry:
         """
         Add a new random variable to the registry.
         """
+        if RV.name in self._variables:
+            raise ValueError(
+                f'RV {RV.name} already exists in the registry.')
         self._variables.update({RV.name: RV})
 
     @property

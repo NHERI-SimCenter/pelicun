@@ -56,6 +56,7 @@ loss assessment.
 
 """
 
+from itertools import product
 from copy import deepcopy
 import numpy as np
 import pandas as pd
@@ -108,7 +109,14 @@ class PelicunModel:
         marginal_params: DataFrame
             Same structure as the input DataFrame but with values scaled to
             represent internal Standard International units.
+
         """
+
+        assert np.alltrue(marginal_params.index == units.index)
+
+        # ensure that the index has unique entries
+        base.dedupe_index(marginal_params)
+        units.index = marginal_params.index
 
         # preserve the columns in the input marginal_params
         original_cols = marginal_params.columns
@@ -137,15 +145,11 @@ class PelicunModel:
             for row_id in unit_ids:
 
                 # pull the parameters of the marginal distribution
-                family = marginal_params.loc[row_id, 'Family']
+                family = marginal_params.at[row_id, 'Family']
 
                 # load the theta values
                 theta = marginal_params.loc[
                     row_id, ['Theta_0', 'Theta_1', 'Theta_2']]
-
-                # if theta_0 is N/A then we have no entry for this row
-                if pd.isna(theta[0]):
-                    continue
 
                 # for each theta
                 args = []
@@ -948,7 +952,7 @@ class AssetModel(PelicunModel):
 
             cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
 
-            cmp_sample.columns.names = ['cmp', 'loc', 'dir']
+            cmp_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
 
             self._cmp_sample = cmp_sample
 
@@ -1093,7 +1097,7 @@ class AssetModel(PelicunModel):
             try:
 
                 res = dtype(attribute_str)
-                return np.array([res, ])
+                return res
 
             except ValueError as exc:
 
@@ -1134,58 +1138,55 @@ class AssetModel(PelicunModel):
 
         marginal_params = pd.concat([marginal_params, units], axis=1)
 
-        # First, we need to expand the table to have unique component blocks in
-        # each row
-
-        self.log_msg("\nParsing model file to characterize each component block",
-                     prepend_timestamp=False)
-
-        # Create a multiindex that identifies individual performance groups
-        MI_list = []
+        cmp_marginal_param_dct = {
+            'Family': [], 'Theta_0': [], 'Theta_1': [], 'Theta_2': [],
+            'TruncateLower': [], 'TruncateUpper': [], 'Blocks': [],
+            'Units': []
+        }
+        index = []
         for row in marginal_params.itertuples():
             locs = get_locations(row.Location)
             dirs = get_directions(row.Direction)
+            idx = list(product((row.Index, ), locs, dirs))
+            num_vals = len(idx)
+            for col in cmp_marginal_param_dct:
+                if col == 'Blocks':
+                    cmp_marginal_param_dct[col].extend([
+                        get_attribute(
+                            getattr(row, 'Blocks', np.nan),
+                            dtype=int, default=1.0)
+                    ]*num_vals)
+                elif col == 'Units':
+                    cmp_marginal_param_dct[col].extend([
+                        self.cmp_units[row.Index]
+                    ]*num_vals)
+                elif col == 'Family':
+                    cmp_marginal_param_dct[col].extend([
+                        row.Family
+                    ]*num_vals)
+                else:
+                    cmp_marginal_param_dct[col].extend([
+                        get_attribute(getattr(row, col, np.nan))
+                    ]*num_vals)
+            index.extend(idx)
+        index = pd.MultiIndex.from_tuples(index, names=['cmp', 'loc', 'dir'])
+        dtypes = {
+            'Family': object, 'Theta_0': float, 'Theta_1': float,
+            'Theta_2': float, 'TruncateLower': float,
+            'TruncateUpper': float, 'Blocks': int, 'Units': object
+        }
+        cmp_marginal_param_series = []
+        for col in cmp_marginal_param_dct:
+            cmp_marginal_param_series.append(
+                pd.Series(
+                    cmp_marginal_param_dct[col],
+                    dtype=dtypes[col], name=col, index=index))
 
-            MI_list.append(pd.MultiIndex.from_product(
-                [[row.Index, ], locs, dirs], names=['cmp', 'loc', 'dir']))
-
-        MI = MI_list[0].append(MI_list[1:])
-
-        # Create a DataFrame that will hold marginal params for performance groups
-        marginal_cols = ['Units', 'Family', 'Theta_0', 'Theta_1', 'Theta_2',
-                         'TruncateLower', 'TruncateUpper', 'Blocks']
-        cmp_marginal_params = pd.DataFrame(
-            columns=marginal_cols,
-            index=MI,
-            dtype=float
+        cmp_marginal_params = pd.concat(
+            cmp_marginal_param_series, axis=1
         )
-        # prescribe dtypes
-        cmp_marginal_params[['Units', 'Family']] = cmp_marginal_params[
-            ['Units', 'Family']].astype(object)
 
-        # Fill the DataFrame with information on component quantity variables
-        for row in marginal_params.itertuples():
-
-            # create the MI for the component
-            MI = pd.MultiIndex.from_product(
-                [[row.Index, ],
-                 get_locations(row.Location),
-                 get_directions(row.Direction)
-                 ],
-                names=['cmp', 'loc', 'dir'])
-
-            # update the marginal param DF
-            cmp_marginal_params.loc[MI, marginal_cols] = np.array([
-                row.Units,
-                getattr(row, 'Family', np.nan),
-                float(row.Theta_0),
-                get_attribute(getattr(row, 'Theta_1', np.nan)),
-                get_attribute(getattr(row, 'Theta_2', np.nan)),
-                get_attribute(getattr(row, 'TruncateLower', np.nan)),
-                get_attribute(getattr(row, 'TruncateUpper', np.nan)),
-                get_attribute(getattr(row, 'Blocks', np.nan), dtype=int,
-                              default=1.0)
-            ], dtype=object)
+        assert not cmp_marginal_params['Theta_0'].isnull().values.any()
 
         cmp_marginal_params.dropna(axis=1, how='all', inplace=True)
 
@@ -1198,10 +1199,11 @@ class AssetModel(PelicunModel):
                      prepend_timestamp=False)
 
         cmp_marginal_params = self.convert_marginal_params(
-            cmp_marginal_params.copy(), cmp_marginal_params['Units']
-        ).sort_index(axis=0)
+            cmp_marginal_params, cmp_marginal_params['Units']
+        )
 
         self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
+
 
         self.log_msg("Model parameters successfully loaded.",
                      prepend_timestamp=False)
@@ -1227,7 +1229,7 @@ class AssetModel(PelicunModel):
 
             # create a random variable and add it to the registry
             RV_reg.add_RV(uq.RandomVariable(
-                name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}',
+                name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
                 distribution=getattr(rv_params, "Family", np.nan),
                 theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
                        for t_i in range(3)],
@@ -1642,6 +1644,7 @@ class DamageModel(PelicunModel):
                                         f'{PG[0]}-'     # cmp_id
                                         f'{PG[1]}-'     # loc
                                         f'{PG[2]}-'     # dir
+                                        f'{PG[3]}-'     # uid
                                         f'{block_id}-'  # block
                                         f'{ls_id}')
 
@@ -1663,6 +1666,7 @@ class DamageModel(PelicunModel):
                                         f'{PG[0]}-'          # cmp_id
                                         f'{PG[1]}-'          # loc
                                         f'{PG[2]}-'          # dir
+                                        f'{PG[3]}-'          # uid
                                         f'{str(block_id)}-'  # block
                                         f'{ls_id}')
 
@@ -1673,7 +1677,7 @@ class DamageModel(PelicunModel):
 
                                     if ls_id == '1':
                                         qnt_columns.append(
-                                            f'{PG[0]}-{PG[1]}-{PG[2]}-{block_id}')
+                                            f'{PG[0]}-{PG[1]}-{PG[2]}-{PG[3]}-{block_id}')
 
                                 ds_id = ds_id_post
 
@@ -1702,6 +1706,7 @@ class DamageModel(PelicunModel):
                                     f'{PG[0]}-'      # cmp_id
                                     f'{PG[1]}-'      # loc
                                     f'{PG[2]}-'      # dir
+                                    f'{PG[3]}-'      # uid
                                     f'{block_i+1}-'  # block
                                     f'{ls_id}')
 
@@ -1744,6 +1749,7 @@ class DamageModel(PelicunModel):
                                     f'{PG[0]}-'      # cmp_id
                                     f'{PG[1]}-'      # loc
                                     f'{PG[2]}-'      # dir
+                                    f'{PG[3]}-'      # uid
                                     f'{block_i+1}-'  # block
                                     f'{ls_id}')
 
@@ -1826,12 +1832,16 @@ class DamageModel(PelicunModel):
                 axis=0).sort_index(axis=1)
         capacity_sample = base.convert_to_MultiIndex(
             capacity_sample, axis=1)['FRG']
+        capacity_sample.columns.names = [
+            'cmp', 'loc', 'dir', 'uid', 'block', 'ls']
 
         lsds_sample = pd.DataFrame(
             lsds_RVs.RV_sample).sort_index(
                 axis=0).sort_index(axis=1).astype(int)
         lsds_sample = base.convert_to_MultiIndex(
             lsds_sample, axis=1)['LSDS']
+        lsds_sample.columns.names = [
+            'cmp', 'loc', 'dir', 'uid', 'block', 'ls']
 
         if self._asmnt.log.verbose:
             self.log_msg(
@@ -2085,7 +2095,7 @@ class DamageModel(PelicunModel):
             # corresponding to each PG in the PG_list
             PG_cols = pd.concat([dmg_eval.loc[:1, PG_i] for PG_i in PG_list],
                                 axis=1, keys=PG_list).columns
-
+            PG_cols.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
             # Create a dataframe with demand values repeated for the
             # number of PGs and assign the columns as PG_cols
             demand_df.append(pd.concat([pd.Series(demand_vals)] * len(PG_cols),
@@ -2106,16 +2116,16 @@ class DamageModel(PelicunModel):
 
         # initialize the DataFrames that store the damage states and
         # quantities
-        ds_sample = capacity_sample.groupby(level=[0, 1, 2, 3], axis=1).first()
+        ds_sample = capacity_sample.groupby(level=[0, 1, 2, 3, 4], axis=1).first()
         ds_sample.loc[:, :] = np.zeros(ds_sample.shape, dtype=int)
 
         # get a list of limit state ids among all components in the damage model
-        ls_list = dmg_eval.columns.get_level_values(4).unique()
+        ls_list = dmg_eval.columns.get_level_values(5).unique()
 
         # for each consecutive limit state...
         for LS_id in ls_list:
             # get all cmp - loc - dir - block where this limit state occurs
-            dmg_e_ls = dmg_eval.loc[:, idx[:, :, :, :, LS_id]].dropna(axis=1)
+            dmg_e_ls = dmg_eval.loc[:, idx[:, :, :, :, :, LS_id]].dropna(axis=1)
 
             # Get the damage states corresponding to this limit state in each
             # block
@@ -2126,7 +2136,7 @@ class DamageModel(PelicunModel):
             # Drop the limit state level from the columns to make the damage
             # exceedance DataFrame compatible with the other DataFrames in the
             # following steps
-            dmg_e_ls.columns = dmg_e_ls.columns.droplevel(4)
+            dmg_e_ls.columns = dmg_e_ls.columns.droplevel(5)
 
             # Same thing for the lsds DataFrame
             lsds.columns = dmg_e_ls.columns
@@ -2229,8 +2239,9 @@ class DamageModel(PelicunModel):
 
         # Broadcast the block weights to match the shape of the damage
         # quantity DataFrame
-        block_weights = np.broadcast_to(block_weights, (dmg_qnt.shape[0],
-                                                        len(block_weights)))
+        block_weights = np.broadcast_to(
+            block_weights,
+            (dmg_qnt.shape[0], len(block_weights)))
 
         # Multiply the damage quantities by the block weights
         dmg_qnt *= block_weights
@@ -2661,7 +2672,7 @@ class DamageModel(PelicunModel):
         pg_batch = pg_batch.convert_dtypes()
 
         # Sum up the number of blocks for each performance group
-        pg_batch = pg_batch.groupby(['loc', 'dir', 'cmp']).sum()
+        pg_batch = pg_batch.groupby(['loc', 'dir', 'cmp', 'uid']).sum()
         pg_batch.sort_index(axis=0, inplace=True)
 
         # Calculate cumulative sum of blocks
@@ -2698,7 +2709,7 @@ class DamageModel(PelicunModel):
         # and direction, and keep only the number of blocks for each
         # group
         pg_batch = pg_batch.groupby(
-            ['Batch', 'cmp', 'loc', 'dir']).sum().loc[:, 'Blocks'].to_frame()
+            ['Batch', 'cmp', 'loc', 'dir', 'uid']).sum().loc[:, 'Blocks'].to_frame()
 
         return pg_batch
 
@@ -2759,8 +2770,9 @@ class DamageModel(PelicunModel):
             demand_dict = self._assemble_required_demand_data(EDP_req)
 
             # Evaluate the Damage State of each Component Block
-            ds_sample = self._evaluate_damage_state(demand_dict, EDP_req,
-                                                    capacity_sample, lsds_sample)
+            ds_sample = self._evaluate_damage_state(
+                demand_dict, EDP_req,
+                capacity_sample, lsds_sample)
 
             qnt_sample = self._prepare_dmg_quantities(
                 PGB, ds_sample, dropzero=False, dropempty=False)

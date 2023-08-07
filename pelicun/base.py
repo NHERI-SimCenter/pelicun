@@ -788,6 +788,22 @@ def process_loc(string, stories):
         return None
 
 
+def dedupe_index(dataframe, dtype=str):
+    """
+    Adds an extra level to the index of a dataframe so that all
+    resulting index elements are unique. Assumes that the original
+    index is a MultiIndex with specified names.
+
+    """
+
+    inames = dataframe.index.names
+    dataframe.reset_index(inplace=True)
+    dataframe['uid'] = (
+        dataframe.groupby([*inames]).cumcount()).astype(dtype)
+    dataframe.set_index([*inames] + ['uid'], inplace=True)
+    dataframe.sort_index(inplace=True)
+
+
 # Input specs
 
 CMP_data_path = dict(
