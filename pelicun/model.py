@@ -86,7 +86,7 @@ class PelicunModel:
 
     def convert_marginal_params(self, marginal_params, units, arg_units=None):
         """
-        Converts the parameters of marginal distributions in a model
+        Converts the parameters of marginal distributions in a model to SI units.
 
         Parameters
         ----------
@@ -1985,7 +1985,7 @@ class DamageModel(PelicunModel):
         non-directional demand, scaling it using the non-directional
         multiplier specified in self._asmnt.options, and returning the
         result as a dictionary with keys in the format of
-        '<demand_type>-<offset>-<direction>' and values as arrays of
+        '<demand_type>-<location>-<direction>' and values as arrays of
         demand values. If demand data is not found, logs a warning
         message and skips the corresponding damages calculation.
 
