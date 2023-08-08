@@ -41,6 +41,7 @@
 These are unit and integration tests on the assessment module of pelicun.
 """
 
+import pytest
 from pelicun import base
 from pelicun import model
 from pelicun import assessment
@@ -122,6 +123,17 @@ def test_assessment_get_default_metadata():
         # checking the contens.
         asmt.get_default_data(data_source)
 
+    data_sources = (
+        'bldg_injury_DB_FEMA_P58_2nd',
+        'bldg_redtag_DB_FEMA_P58_2nd',
+        'bldg_repair_DB_FEMA_P58_2nd',
+        'fragility_DB_FEMA_P58_2nd',
+        'fragility_DB_SimCenter_Hazus_HU'
+    )
+
+    for data_source in data_sources:
+        asmt.get_default_metadata(data_source)
+
 
 def test_assessment_calc_unit_scale_factor():
     """
@@ -150,6 +162,13 @@ def test_assessment_calc_unit_scale_factor():
     assert asmt.calc_unit_scale_factor('in') == 1.00
     assert asmt.calc_unit_scale_factor('m') == 39.3701
 
+    # exceptions
+
+    # unrecognized unit
+    with pytest.raises(KeyError):
+        asmt.calc_unit_scale_factor('smoot')
+        # 1 smoot was 67 inches in 1958.
+
 
 def test_assessment_scale_factor():
     """
@@ -159,8 +178,8 @@ def test_assessment_scale_factor():
 
     # default unit file
     asmt = create_assessment_obj()
-    assert asmt.calc_unit_scale_factor('m') == 1.00
-    assert asmt.calc_unit_scale_factor('in') == 0.0254
+    assert asmt.scale_factor('m') == 1.00
+    assert asmt.scale_factor('in') == 0.0254
 
     # when a custom unit file is specified, changing the base units
     asmt = create_assessment_obj({
@@ -169,5 +188,9 @@ def test_assessment_scale_factor():
                       'custom_units.json')
     })
 
-    assert asmt.calc_unit_scale_factor('in') == 1.00
-    assert asmt.calc_unit_scale_factor('m') == 39.3701
+    assert asmt.scale_factor('in') == 1.00
+    assert asmt.scale_factor('m') == 39.3701
+
+    # exceptions
+    with pytest.raises(ValueError):
+        asmt.scale_factor('helen')

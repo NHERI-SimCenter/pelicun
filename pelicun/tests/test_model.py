@@ -176,6 +176,7 @@ def DemandModel_load_sample(path):
 
     # instantiate a DemandModel object
     asmt = assessment.Assessment()
+    asmt.log.verbose = True
     mdl = asmt.demand
 
     # load the sample from the specified path
@@ -200,6 +201,15 @@ def test_DemandModel_load_sample():
     obtained_sample = mdl._sample
     obtained_units = mdl.units
 
+    mdl_2 = DemandModel_load_sample(
+        'tests/data/model/test_DemandModel_'
+        'load_sample/demand_sample_B.csv')
+    obtained_sample_2 = mdl_2._sample
+    obtained_units_2 = mdl_2.units
+
+    pd.testing.assert_frame_equal(obtained_sample, obtained_sample_2)
+    pd.testing.assert_series_equal(obtained_units, obtained_units_2)
+    
     # compare against the expected values for the sample
     expected_sample = pd.DataFrame(
         [[4.029069, 10.084915, 0.02672, 8.690585], ],
@@ -231,6 +241,23 @@ def test_DemandModel_load_sample():
     pd.testing.assert_series_equal(expected_units, obtained_units)
 
 
+def test_DemandModel_estimate_RID():
+    """
+    Tests the functionality of the estimate_RID method of the
+    DemandModel object.
+    """
+
+    mdl = DemandModel_load_sample(
+        'tests/data/model/test_DemandModel_'
+        'estimate_RID/demand_sample_A.csv')
+
+    demands = mdl.sample['PID']
+    params = {'yield_drift': 0.01}
+    res = mdl.estimate_RID(demands, params)
+    assert list(res.columns) == [('RID', '1', '1')]
+    assert mdl.estimate_RID(demands, params, method='xyz') is None
+
+
 def test_DemandModel_save_sample():
     """
     Tests the functionality of the load_sample method of
@@ -246,6 +273,7 @@ def test_DemandModel_save_sample():
     temp_dir = tempfile.mkdtemp()
     # save the sample there
     mdl.save_sample(f'{temp_dir}/temp.csv')
+    mdl.save_sample(save_units=False)
 
 
 def get_calibrated_model(path, config):
@@ -269,18 +297,21 @@ def test_DemandModel_calibrate_model():
     DemandModel object.
     """
 
+    config = {
+        "ALL": {
+            "DistributionFamily": "normal",
+            "AddUncertainty": 0.20,
+        },
+        "PID": {
+            "DistributionFamily": "lognormal",
+            "TruncateLower": "",
+            "TruncateUpper": "0.06"
+        },
+    }
+
     mdl = get_calibrated_model(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
-        {
-            "ALL": {
-                "DistributionFamily": "lognormal"
-            },
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateLower": "",
-                "TruncateUpper": "0.06"
-            }
-        }
+        config
     )
 
     assert mdl is not None
@@ -310,25 +341,6 @@ def test_DemandModel_save_load_model():
     temp_dir = tempfile.mkdtemp()
     # save the model there
     mdl.save_model(f'{temp_dir}/temp')
-
-    # load the model in another DemandModel
-    # note: this currently fails.
-
-    mdl2 = get_calibrated_model(
-        'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
-        {
-            "ALL": {
-                "DistributionFamily": "lognormal"
-            },
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateLower": "",
-                "TruncateUpper": "0.06"
-            }
-        }
-    )
-    with pytest.raises(ValueError):
-        mdl2.load_model(f'{temp_dir}/temp')
 
 
 def test_DemandModel_generate_sample():
@@ -504,6 +516,20 @@ def test_AssetModel_generate_cmp_sample():
         expected_cmp_sample,
         mdl.cmp_sample)
 
+    #
+    # exceptions
+    #
+
+    # without specifying model parameters
+    asmt_B = assessment.Assessment()
+    mdl_B = asmt_B.asset
+    with pytest.raises(ValueError):
+        mdl_B.generate_cmp_sample(sample_size=10)
+
+    # without specifying sample size
+    with pytest.raises(ValueError):
+        mdl.generate_cmp_sample()
+
 
 def test_AssetModel_save_cmp_sample():
     """
@@ -560,6 +586,7 @@ def test_DamageModel_init():
     assert mdl.damage_params is None
     assert mdl._dmg_function_scale_factors is None
     assert mdl._sample is None
+    assert mdl.sample is None
 
 
 def test_DamageModel_load_damage_model():
@@ -593,32 +620,36 @@ def test_DamageModel_load_damage_model():
     # should no longer be None
     assert mdl.damage_params is not None
 
-    # defining this dataframe in a proper way was kind of hard, so we
-    # resort to comparing it against its string version for now.
-    # Note that this shouldn't be the standard way of asserting
-    # dataframes for equality.
-    # See other tests for the proper way.
+    assert list(mdl.damage_params.columns) == [
+        ("Demand", "Directional"), ("Demand", "Offset"),
+        ("Demand", "Type"), ("Demand", "Unit"),
+        ("Incomplete", ""), ("LS1", "DamageStateWeights"),
+        ("LS1", "Family"), ("LS1", "Theta_0"),
+        ("LS1", "Theta_1"), ("LS2", "DamageStateWeights"),
+        ("LS2", "Family"), ("LS2", "Theta_0"), ("LS2", "Theta_1"),
+        ("LS3", "DamageStateWeights"),
+        ("LS3", "Family"), ("LS3", "Theta_0"), ("LS3", "Theta_1"),
+        ("LS4", "DamageStateWeights"),
+        ("LS4", "Family"), ("LS4", "Theta_0"), ("LS4", "Theta_1")]
 
-    # oops. it fails on Windows.
-    # assert mdl.damage_params.to_string() == (
-    #     '                 Demand                                          '
-    #     'Incomplete                  LS1                                  '
-    #     '         LS2                                           LS3       '
-    #     '                                    LS4                       \n '
-    #     '           Directional Offset                         Type Unit  '
-    #     '            DamageStateWeights     Family Theta_0 Theta_1 DamageS'
-    #     'tateWeights     Family Theta_0 Theta_1 DamageStateWeights     Fam'
-    #     'ily Theta_0 Theta_1 DamageStateWeights Family Theta_0 Theta_1\nID'
-    #     '                                                                         '
-    #     '                                                                         '
-    #     '                                                                 '
-    #     '                                            \nB.10.31.001        '
-    #     ' 1.0    0.0  Peak Interstory Drift Ratio   ea        0.0  0.95000'
-    #     '0 | 0.050000  lognormal    0.04     0.4               None  logno'
-    #     'rmal    0.08     0.4               None  lognormal    0.11     0.'
-    #     '4                NaN   None     NaN     NaN')
+    assert list(mdl.damage_params.index) == ['B.10.31.001']
 
-    # TODO fix this assertion
+    contents = mdl.damage_params.to_numpy().reshape(-1)
+
+    expected_contents = np.array(
+        [1.0, 0.0, 'Peak Interstory Drift Ratio', 'ea', 0.0,
+        '0.950000 | 0.050000', 'lognormal', 0.04, 0.4, None, 'lognormal',
+        0.08, 0.4, None, 'lognormal', 0.11, 0.4, np.nan, None, np.nan, np.nan],
+      dtype=object)
+
+    # this comparison was tricky
+    for x, y in zip(contents, expected_contents):
+        if isinstance(x, str):
+            assert x == y
+        elif x is None:
+            continue
+        elif np.isnan(x):
+            continue
 
 
 def test_DamageModel_get_pg_batches():
