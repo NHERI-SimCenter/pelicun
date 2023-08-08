@@ -1151,20 +1151,24 @@ def test_RandomVariable_inverse_transform():
     `RandomVariable` class.
     """
 
-    # create a uniform random variable
+    #
+    # uniform
+    #
+
     rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.0, 1.0))
 
     samples = np.array((0.10, 0.20, 0.30))
 
-    # compute inverse transform of samples
     rv.uni_sample = samples
     rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
 
-    # assert that inverse transform values are correct
     assert np.allclose(inverse_transform, samples, rtol=1e-5)
 
+    #
     # uniform with unspecified bounds
+    #
+
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
         rv = uq.RandomVariable('test_rv', 'uniform', theta=(np.nan, 1.0))
@@ -1186,21 +1190,25 @@ def test_RandomVariable_inverse_transform():
     inverse_transform = rv.sample
     assert np.allclose(inverse_transform, np.array((0.26, 0.32, 0.38)), rtol=1e-5)
 
-    # create a lognormal random variable
+    #
+    # lognormal
+    #
+
     rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
 
-    # compute inverse transform of samples
     rv.uni_sample = samples
     rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
 
-    # assert that inverse transform values are correct
     assert np.allclose(
         inverse_transform,
         np.array((0.52688352, 0.65651442, 0.76935694)),
         rtol=1e-5)
 
+    #
     # lognormal with truncation limits
+    #
+
     rv = uq.RandomVariable(
         'test_rv', 'lognormal', theta=(1.0, 0.5),
         truncation_limits=np.array((0.50, np.nan)))
@@ -1212,27 +1220,31 @@ def test_RandomVariable_inverse_transform():
         np.array((0.62614292, 0.73192471, 0.83365823)),
         rtol=1e-5)
 
-    # create a normal random variable
+    #
+    # normal
+    #
+
     rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
 
-    # compute inverse transform of samples
     rv.uni_sample = samples
     rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
 
-    # assert that inverse transform values are correct
     assert np.allclose(
         inverse_transform,
         np.array((0.35922422, 0.57918938, 0.73779974)),
         rtol=1e-5)
 
-    # test that if fails without values
     rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
     with pytest.raises(ValueError):
         rv.inverse_transform_sampling(100)
 
+    #
     # normal with truncation limits
-    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(np.nan, 1.20))
+    #
+
+    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5),
+        truncation_limits=(np.nan, 1.20))
     rv.uni_sample = samples
     rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
@@ -1240,7 +1252,8 @@ def test_RandomVariable_inverse_transform():
         inverse_transform,
         np.array((0.24508018, 0.43936, 0.57313359)),
         rtol=1e-5)
-    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, np.nan))
+    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5),
+        truncation_limits=(0.80, np.nan))
     rv.uni_sample = samples
     rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
@@ -1248,7 +1261,8 @@ def test_RandomVariable_inverse_transform():
         inverse_transform,
         np.array((0.8863824, 0.96947866, 1.0517347)),
         rtol=1e-5)
-    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, 1.20))
+    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5),
+        truncation_limits=(0.80, 1.20))
     rv.uni_sample = samples
     rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
@@ -1257,7 +1271,31 @@ def test_RandomVariable_inverse_transform():
         np.array((0.84155378, 0.88203946, 0.92176503)),
         rtol=1e-5)
 
+    #
+    # empirical
+    #
+
+    rv = uq.RandomVariable(
+        'test_rv', 'empirical',
+        raw_samples=(1.00, 2.00, 3.00, 4.00))
+
+    samples = np.array((0.10, 0.50, 0.90))
+
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling(len(samples))
+    inverse_transform = rv.sample
+
+    assert np.allclose(
+        inverse_transform, np.array((1.00, 3.00, 4.00)),
+        rtol=1e-5)
+
+    #
+    # TODO: figure out how to do coupled empirical
+    #
+
+    #
     # edge cases
+    #
 
     # normal with problematic truncation limits
     rv = uq.RandomVariable(
@@ -1283,6 +1321,19 @@ def test_RandomVariable_inverse_transform():
         with pytest.raises(ValueError):
             rv.inverse_transform_sampling()
 
+    # deterministic
+    rv = uq.RandomVariable(
+        'test_rv', 'deterministic',
+        theta=np.array((0.00, 1.00)))
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling()
+
+    # multinomial
+    rv = uq.RandomVariable(
+        'test_rv', 'multinomial',
+        theta=np.array((0.20, 0.30, 0.50)))
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling()
 
 
 def test_RandomVariable_Set():
@@ -1291,12 +1342,24 @@ def test_RandomVariable_Set():
     `RandomVariable_Set` class.
     """
 
+    # a set of two random variables
     rv_1 = uq.RandomVariable('rv1', 'normal', theta=(1.0, 1.0))
     rv_2 = uq.RandomVariable('rv2', 'normal', theta=(1.0, 1.0))
     rv_set = uq.RandomVariableSet(  # noqa: F841
         'test_set',
         (rv_1, rv_2),
         np.array(((1.0, 0.50), (0.50, 1.0)))
+    )
+
+    # size of the set
+    assert rv_set.size == 2
+
+    # a set with only one random variable
+    rv_1 = uq.RandomVariable('rv1', 'normal', theta=(1.0, 1.0))
+    rv_set = uq.RandomVariableSet(  # noqa: F841
+        'test_set',
+        (rv_1, ),
+        np.array(((1.0, 0.50), ))
     )
 
 
@@ -1342,6 +1405,16 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
         if reset: export_pickle(filename, res)
         compare = import_pickle(filename)
         assert np.allclose(res, compare)
+
+    # we also test .sample here
+
+    rv_1.inverse_transform_sampling(10)
+    rv_2.inverse_transform_sampling(10)
+    rvset_sample = rvs.sample
+    assert set(rvset_sample.keys()) == set(('rv1', 'rv2'))
+    vals = list(rvset_sample.values())
+    assert np.alltrue(vals[0] == rv_1.sample)
+    assert np.alltrue(vals[1] == rv_2.sample)
 
 
 def test_RandomVariable_Set_apply_correlation_special():

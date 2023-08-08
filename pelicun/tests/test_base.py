@@ -115,6 +115,10 @@ def test_options_init():
     # remove the log file that was created
     os.remove('test_log_file')
 
+    # test seed property and setter
+    options.seed = 42
+    assert options.seed == 42
+
 
 def test_nondir_multi():
     """
@@ -166,6 +170,13 @@ def test_logger_init():
     assert os.path.basename(log.log_file) == 'log.txt'
     assert log.print_log is True
     os.remove('log.txt')
+
+    # test exceptions
+    log_config = {'verbose': True, 'log_show_ms': False,
+                  'log_file': '/', 'print_log': True}
+    with pytest.raises(IsADirectoryError):
+        log = base.Logger(**log_config)
+
 
 
 def test_logger_msg():
@@ -320,6 +331,13 @@ def test_convert_to_MultiIndex():
     # Test an invalid axis parameter
     with pytest.raises(ValueError):
         base.convert_to_MultiIndex(data_converted, axis=2, inplace=False)
+
+    # inplace=True
+    data = pd.DataFrame({'A': (1, 2, 3), 'B': (4, 5, 6)})
+    data.index = ('A-1', 'B-1', 'C-1')
+    base.convert_to_MultiIndex(data, axis=0, inplace=True)
+    expected_index = pd.MultiIndex.from_arrays((('A', 'B', 'C'), ('1', '1', '1')))
+    assert data.index.equals(expected_index)
 
 
 def test_show_matrix():

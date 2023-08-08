@@ -175,13 +175,19 @@ def test_parse_units():
 
     # Test that an exception is raised if a unit is defined twice in
     # the additional units file
-    duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate.json'
+    duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate2.json'
     with pytest.raises(ValueError):
         units = file_io.parse_units(duplicate_units_file)
 
     # Test that an exception is raised if a unit conversion factor is not a float
     invalid_units_file = 'tests/data/file_io/test_parse_units/not_float.json'
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
+        units = file_io.parse_units(invalid_units_file)
+
+    # Test that we get an error if some first-level key does not point
+    # to a dictionary
+    invalid_units_file = 'tests/data/file_io/test_parse_units/not_dict.json'
+    with pytest.raises(ValueError):
         units = file_io.parse_units(invalid_units_file)
 
 
@@ -234,6 +240,60 @@ def test_save_to_csv():
                 ',0,A,B\n0,,0.001,0.004\n1,,0.002,'
                 '0.005\n2,,0.003,0.006\n')
 
+    #
+    # edge cases
+    #
+
+    data = pd.DataFrame(
+        {"A": [1e-3, 2e-3, 3e-3],
+         "B": [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(
+        ["meters", "meters"], index=["A", "B"])
+
+    # units given, without unit conversion factors
+    unit_conversion_factors = None
+    with pytest.raises(ValueError):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, 'foo.csv')
+            file_io.save_to_csv(
+                data, filepath,
+                units, unit_conversion_factors, orientation=0)
+
+    unit_conversion_factors = {"meters": 0.001}
+
+    # not csv extension
+    with pytest.raises(ValueError):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            filepath = os.path.join(tmpdir, 'foo.xyz')
+            file_io.save_to_csv(
+                data, filepath,
+                units, unit_conversion_factors, orientation=0)
+
+    # no data, log a complaint
+    class Logger:
+        """
+        Logger object used for a single test
+        """
+
+        def __init__(self):
+            self.logs = []
+
+        def msg(self, text, **kwargs):
+            """
+            Keep track of the contents of the logging calls
+            """
+            self.logs.append((text, kwargs))
+
+    mylogger = Logger()
+    data = None
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = os.path.join(tmpdir, 'foo.csv')
+        file_io.save_to_csv(
+            data, filepath,
+            units, unit_conversion_factors, orientation=0,
+            log=mylogger)
+    assert mylogger.logs[-1][0] == 'WARNING: Data was empty, no file saved.'
+
 
 def test_load_data():
     """
@@ -276,11 +336,36 @@ def test_load_data():
     assert data.shape == (10, 2)
     assert data.index.nlevels == 4
 
+    # with convert=None
+    filepath = os.path.join(
+        'tests', 'data', 'file_io',
+        'test_load_data', 'orient_1_units.csv')
+    unit_conversion_factors = {"g": 1.00, "rad": 1.00}
+    data = file_io.load_data(
+        filepath, unit_conversion_factors,
+        orientation=1, reindex=False)
+    assert isinstance(data.index, pd.core.indexes.multi.MultiIndex)
+    assert data.shape == (10, 3)
+    assert data.index.nlevels == 4
+
     # try with reindexing
     data = file_io.load_data(
         filepath, unit_conversion_factors,
         orientation=1, reindex=True)
     assert np.array_equal(data.index.values, np.array(range(10)))
+
+    #
+    # edge cases
+    #
+
+    # exception: not an existing file
+    with pytest.raises(FileNotFoundError):
+        file_io.load_from_file('/')
+    # exception: not a .csv file
+    with pytest.raises(ValueError):
+        file_io.load_from_file('db.py')
+    
+    
 
 
 if __name__ == '__main__':
