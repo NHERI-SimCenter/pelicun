@@ -701,7 +701,7 @@ def parse_units(custom_file=None):
             for key, val in category_dict.items():
                 try:
                     category_dict[key] = float(val)
-                except ValueError as exc:
+                except (ValueError, TypeError) as exc:
                     raise ValueError(
                         f'Unit {key} has a value of {val} '
                         'which cannot be interpreted as a float') from exc
