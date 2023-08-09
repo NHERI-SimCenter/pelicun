@@ -111,12 +111,16 @@ class PelicunModel:
             represent internal Standard International units.
 
         """
-
         assert np.alltrue(marginal_params.index == units.index)
+        if arg_units is not None:
+            assert np.alltrue(
+                marginal_params.index == arg_units.index)
 
-        # ensure that the index has unique entries
-        base.dedupe_index(marginal_params)
-        units.index = marginal_params.index
+        # ensure that the index has unique entries by including a
+        # component uid
+        if marginal_params.index.names == ('cmp', 'loc', 'dir'):
+            base.dedupe_index(marginal_params)
+            units.index = marginal_params.index
 
         # preserve the columns in the input marginal_params
         original_cols = marginal_params.columns
@@ -1006,7 +1010,7 @@ class AssetModel(PelicunModel):
             filepath, self._asmnt.unit_conversion_factors,
             return_units=True, log=self._asmnt.log)
 
-        sample.columns.names = ['cmp', 'loc', 'dir']
+        sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
 
         self._cmp_sample = sample
 
@@ -1162,7 +1166,7 @@ class AssetModel(PelicunModel):
                     ]*num_vals)
                 elif col == 'Family':
                     cmp_marginal_param_dct[col].extend([
-                        row.Family
+                        getattr(row, col, np.nan)
                     ]*num_vals)
                 else:
                     cmp_marginal_param_dct[col].extend([
@@ -2277,8 +2281,8 @@ class DamageModel(PelicunModel):
                 keys=[f'{ds_i:g}' for ds_i in ds_list])
 
             # remove the DS level from the columns
-            res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 0, 4])
-            res_df = res_df.groupby(level=[0, 1, 2, 3], axis=1).sum()
+            res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 4, 5, 0])
+            res_df = res_df.groupby(level=[0, 1, 2, 3, 4], axis=1).sum()
 
             dropempty = True
             # If requested, the blocks with no damaged quantities are dropped
@@ -2950,7 +2954,10 @@ class LossModel(PelicunModel):
         loss_params = pd.concat(data_list, axis=0)
 
         # drop redefinitions of components
-        loss_params = loss_params.groupby(level=[0, 1]).first()
+        loss_params = loss_params.groupby(
+            level=[0, 1]).first().transform(lambda x: x.fillna(np.nan))
+        # note: .groupby introduces None entries. We replace them with
+        # NaN for consistency.
 
         # keep only the relevant data
         loss_cmp = np.unique(self.loss_map['Consequence'].values)
@@ -2986,7 +2993,6 @@ class LossModel(PelicunModel):
         # convert values to internal base units
         for DS in loss_params.columns.unique(level=0):
             if DS.startswith('DS'):
-
                 loss_params.loc[:, DS] = self.convert_marginal_params(
                     loss_params.loc[:, DS].copy(),
                     loss_params[('DV', 'Unit')],
