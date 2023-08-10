@@ -1,0 +1,16 @@
+The file FEMAP-58_FragilityDatabase_v3.1.2.xls is based on the data distributed as part of Volume 3 in the FEMA P-58 2nd Edition publication at https://femap58.atcouncil.org/ . The basis of this particular file is available at https://femap58.atcouncil.org/documents/pact-3-1-2/17-3-2-provided-fragility-data-1
+
+The following minor changes were made to the original file:
+- Units that used one of ["TN", "CF", "KV", "AP"] in the "Fragility Unit of Measure" column were replaced with "EA 1".
+- The original "By User" units for C3021 components were replaced with "SF 1" in the "Fragility Unit of Measure" column. This change is based on the data in the "Cost Summary" tab and in the "FEMAP-58_ConsequenceEstimationSummary_March2018.xlsx" file that provides details of the cost consequence development.
+- Embodied carbon and energy consequences were cleared for the component-damage state combinations listed below. These damage states had zero median consequences which is almost surely incorrect data and cannot be used in the analyses:
+	= B1031.001-DS1
+	= B1031.011a-DS1
+	= B1031.011b-DS1
+	= B1031.011c-DS1
+	= B1031.021a-DS1
+	= B1031.021b-DS1
+	= B1031.021c-DS1
+	= D2021.023b-DS2
+	= D2021.024b-DS2
+- Replaced "None" entries under "Component Description" with empty strings (i.e., "").

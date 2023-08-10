@@ -1,0 +1,67 @@
+{
+  "_GeneralInformation": {
+    "ShortName": "Hazus Earthquake Methodology - Transportation",
+    "Description": "The models in this dataset are based on version 5.1 of the Hazus Earthquake Model Technical Manual",
+    "Version": "1.0",
+    "DecisionVariables": {
+      "Cost": "Repair costs are measured by loss ratios as percentage of replacement cost.",
+      "Time": "Repair time is measured in days and captures the time it takes to completely repair the damages."
+    },
+    "ComponentGroups": [
+      "HRD - Road segments",
+      "HWB - Bridges",
+      "HTU - Tunnels"
+    ]
+  },
+  "HRD": {
+    "Description": "Roadway segments",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "DamageStates": {
+      "DS1": {
+        "Description": "Slight Damage: Roadway, railway or light rail track/roadbed damage due to slight (a few inches of ) settlement or offset of the ground."
+      },
+      "DS2": {
+        "Description": "Moderate Damage: Roadway, railway, or light rail track/roadbed damage due to moderate (several inches of ) settlement or offset of the ground. Moderate damage is characterized by considerable derailment and requires rail repairs to resume operations."
+      },
+      "DS3": {
+        "Description": "Extensive/Complete Damage: Roadway, railway, or light rail track/roadbed damage due to extensive (a few feet of) settlement or offset of the ground.  Moderate damage results in potential derailment over an extended length of track and requires rail repairs to resume operations."
+      }
+    }
+  },
+  "HWB": {
+    "Description": "Highway/railway bridge structures",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "DamageStates": {
+      "DS1": {
+        "Description": "Slight Damage: Minor cracking and spalling to the abutment, cracks in shear keys at abutments, minor spalling and cracks at hinges, minor spalling at the column (damage requires no more than cosmetic repair), or minor cracking to the deck"
+      },
+      "DS2": {
+        "Description": "Moderate Damage: Any column experiencing moderate (shear cracks) cracking and spalling (column structurally still sound), moderate movement of the abutment (<2 inches), extensive cracking and spalling of shear keys, any connection having cracked shear keys or bent bolts, keeper bar failure without unseating, rocker bearing failure, or moderate settlement of the approach"
+      },
+      "DS3": {
+        "Description": "Extensive Damage: Any column degrading without collapse, shear failure (column structurally unsafe), significant residual movement at connections, major settlement of the approach, major vertical offset of the abutment, differential settlement at connections, or shear key failure at abutments, incipient unseating of the bridge supersturcture"
+      },
+      "DS4": {
+        "Description": "Complete Damage: Any column collapsing and connection losing all bearing support, which may lead to imminent deck collapse, or tilting of substructure due to foundation failure"
+      }
+    }
+  },
+  "HTU": {
+    "Description": "Highway/railway tunnel structures",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "DamageStates": {
+      "DS1": {
+        "Description": "Slight Damage: Minor cracking of the tunnel liner (damage requires no more than cosmetic repair), some rock falling, or slight settlement of the ground at a tunnel portal"
+      },
+      "DS2": {
+        "Description": "Moderate Damage: Moderate cracking of the tunnel liner and rock falling"
+      },
+      "DS3": {
+        "Description": "Extensive/Complete Damage: Major ground settlement at a tunnel portal and extensive/major cracking of the tunnel liner, which may include possible collapse"
+      }
+    }
+  }
+}
