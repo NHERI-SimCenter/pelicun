@@ -2955,10 +2955,7 @@ class LossModel(PelicunModel):
                              dtype='object')
 
         for cmp_id, dv_type in cmp_units.index:
-
-            if (dv_type, cmp_id) in dv_units.index:
-                dv_units.loc[(dv_type, cmp_id)] = cmp_units.loc[
-                    (cmp_id, dv_type)]
+            dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
 
         res = save_to_csv(
             self.sample, filepath, units=dv_units,
