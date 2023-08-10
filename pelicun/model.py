@@ -1427,7 +1427,7 @@ class DamageModel(PelicunModel):
 
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace(
-                    'PelicunDefault/', f'{base.pelicun_path}/resources/SimCenterDBDL/')
+                    'PelicunDefault/', f'{base.pelicun_path}/resources/SimCenterDBDL/DB/')
 
         data_list = []
         # load the data files one by one
@@ -3034,7 +3034,7 @@ class LossModel(PelicunModel):
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace(
                     'PelicunDefault/',
-                    str(base.pelicun_path) + '/resources/')
+                    f'{base.pelicun_path}/resources/SimCenterDBDL/DB/')
 
         data_list = []
         # load the data files one by one

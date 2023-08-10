@@ -169,7 +169,7 @@ class Assessment:
 
         """
 
-        data_path = f'{base.pelicun_path}/resources/{data_name}.csv'
+        data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/DB/{data_name}.csv'
 
         return file_io.load_data(
             data_path, self.unit_conversion_factors,
@@ -187,7 +187,7 @@ class Assessment:
 
         """
 
-        data_path = str(base.pelicun_path) + '/resources/SimCenterDBDL/' + data_name + '.json'
+        data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/DB/{data_name}.json'
 
         with open(data_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
