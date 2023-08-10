@@ -1796,6 +1796,7 @@ class DamageModel(PelicunModel):
 
         return capacity_RV_reg, lsds_RV_reg
 
+
     def _generate_dmg_sample(self, sample_size, PGB):
         """
         This method generates a damage sample by creating random
@@ -2178,7 +2179,8 @@ class DamageModel(PelicunModel):
 
         return ds_sample
 
-    def prepare_dmg_quantities(self, PGB, ds_sample, dropzero=True,):
+    def _prepare_dmg_quantities(self, PGB, ds_sample,
+                                dropzero=True, dropempty=True):
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -2196,7 +2198,24 @@ class DamageModel(PelicunModel):
             A DataFrame that assigns a damage state to each component
             block in the asset model.
         dropzero: bool, optional, default: True
-            If True, the quantity of non-damaged components is not saved.
+            If True, the quantity of non-damaged components is not
+            saved.
+        dropempty: bool, optional, default: True
+            If True, the blocks with no damaged quantities are
+            dropped.
+
+        Returns
+        -------
+        res_df: DataFrame
+            A DataFrame that combines the component quantity and
+            damage state information.
+
+        Raises
+        ------
+        ValueError
+            If the number of blocks is not provided or if the list of
+            weights does not contain the same number of elements as
+            the number of blocks.
 
         """
 
@@ -2846,8 +2865,9 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(demand_dict, EDP_req,
                                                     capacity_sample, lsds_sample)
 
-            qnt_sample = self.prepare_dmg_quantities(PGB, ds_sample,
-                                                     dropzero=False)
+            qnt_sample = self._prepare_dmg_quantities(PGB, ds_sample,
+                                                     dropzero=False,
+                                                     dropempty=False)
 
             qnt_samples.append(qnt_sample)
 
