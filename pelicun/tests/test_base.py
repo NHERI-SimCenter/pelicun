@@ -505,6 +505,4 @@ def test_run_input_specs():
     """
     Just for the shake of coverage ^_^
     """
-    print(base.CMP_data_path)
-    print(base.POP_data_path)
-    print(base.EDP_to_demand_type)
+    print(base.pelicun_path)

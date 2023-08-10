@@ -689,18 +689,22 @@ def parse_units(custom_file=None):
             raise FileNotFoundError(
                 f'{file_path} was not found.') from exc
         except json.decoder.JSONDecodeError as exc:
-            raise Exception(
-                'settings/default_units.json is not a valid JSON file.') from exc
+            raise ValueError(
+                f'{file_path} is not a valid JSON file.') from exc
         for category_dict in list(dictionary.values()):
+            # ensure all first-level keys point to a dictionary
+            if not isinstance(category_dict, dict):
+                raise ValueError(
+                    f'{file_path} contains first-level keys '
+                    'that don\'t point to a dictionary')
+            # convert values to float
             for key, val in category_dict.items():
                 try:
-                    dictionary[key] = float(val)
-                except ValueError as exc:
+                    category_dict[key] = float(val)
+                except (ValueError, TypeError) as exc:
                     raise ValueError(
                         f'Unit {key} has a value of {val} '
                         'which cannot be interpreted as a float') from exc
-            del (category_dict)
-        return dictionary
 
         flattened = {}
         for category in dictionary:
