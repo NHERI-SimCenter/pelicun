@@ -598,7 +598,7 @@ def test_DamageModel_load_damage_model():
     asmt = assessment.Assessment()
     mdl = asmt.damage
 
-    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
     asmt.asset._cmp_sample = pd.DataFrame(
         {
@@ -615,7 +615,7 @@ def test_DamageModel_load_damage_model():
         )
     )
 
-    mdl.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    mdl.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     # should no longer be None
     assert mdl.damage_params is not None
@@ -637,7 +637,7 @@ def test_DamageModel_load_damage_model():
     contents = mdl.damage_params.to_numpy().reshape(-1)
 
     expected_contents = np.array(
-        [1.0, 0.0, 'Peak Interstory Drift Ratio', 'ea', 0.0,
+        [1.0, 0.0, 'Peak Interstory Drift Ratio', 'unitless', 0.0,
         '0.950000 | 0.050000', 'lognormal', 0.04, 0.4, None, 'lognormal',
         0.08, 0.4, None, 'lognormal', 0.11, 0.4, np.nan, None, np.nan, np.nan],
       dtype=object)
@@ -662,7 +662,7 @@ def test_DamageModel_get_pg_batches():
     damage_model = asmt.damage
     asset_model = asmt.asset
 
-    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
     asset_model._cmp_sample = pd.DataFrame(
         {
@@ -679,7 +679,7 @@ def test_DamageModel_get_pg_batches():
         )
     )
 
-    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     # make sure that the method works for different batch sizes
     for i in (1, 4, 8, 10, 100):
@@ -733,7 +733,7 @@ def test_DamageModel_create_dmg_RVs():
     damage_model = asmt.damage
     asset_model = asmt.asset
 
-    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
     asset_model._cmp_sample = pd.DataFrame(
         {
@@ -750,7 +750,7 @@ def test_DamageModel_create_dmg_RVs():
         )
     )
 
-    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
     for PGB_i in batches:
@@ -792,7 +792,7 @@ def test_DamageModel_generate_dmg_sample():
     damage_model = asmt.damage
     asset_model = asmt.asset
 
-    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
     asset_model._cmp_sample = pd.DataFrame(
         {
@@ -809,7 +809,7 @@ def test_DamageModel_generate_dmg_sample():
         )
     )
 
-    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
     PGB_i = batches[-1]
@@ -853,7 +853,7 @@ def test_DamageModel_get_required_demand_type():
     damage_model = asmt.damage
     asset_model = asmt.asset
 
-    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
     asset_model._cmp_sample = pd.DataFrame(
         {
@@ -870,7 +870,7 @@ def test_DamageModel_get_required_demand_type():
         )
     )
 
-    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -912,7 +912,7 @@ def test_DamageModel_assemble_required_demand_data():
         }
     )
 
-    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
     asset_model._cmp_sample = pd.DataFrame(
         {
@@ -929,7 +929,7 @@ def test_DamageModel_assemble_required_demand_data():
         )
     )
 
-    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -979,7 +979,7 @@ def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
         }
     )
 
-    asmt.get_default_data('fragility_DB_FEMA_P58_2nd')
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
     asset_model._cmp_sample = pd.DataFrame(
         {
@@ -996,7 +996,7 @@ def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
         )
     )
 
-    damage_model.load_damage_model(['PelicunDefault/fragility_DB_FEMA_P58_2nd.csv'])
+    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -1297,8 +1297,8 @@ def test_LossModel_load_sample_save_sample():
         index=(0, 1),
         columns=pd.MultiIndex.from_tuples(
             (
-                ("COST", "B.10.41.001a", "B.10.41.001a", "1", "1", "1"),
-                ("TIME", "B.10.41.001a", "B.10.41.001a", "1", "1", "1"),
+                ("Cost", "B.10.41.001a", "B.10.41.001a", "1", "1", "1"),
+                ("Time", "B.10.41.001a", "B.10.41.001a", "1", "1", "1"),
             ),
             names=("dv", "loss", "dmg", "ds", "loc", "dir"),
         ),
@@ -1344,7 +1344,7 @@ def test_LossModel_load_model():
             )
         ),
     )
-    data_path_2 = 'PelicunDefault/bldg_repair_DB_FEMA_P58_2nd.csv'
+    data_path_2 = 'PelicunDefault/loss_repair_DB_FEMA_P58_2nd.csv'
 
     mapping_path = pd.DataFrame(
         (("B.10.31.001"), ("D.50.92.033k")),
@@ -1506,9 +1506,9 @@ def test_BldgRepairModel_aggregate_losses():
         ((100.00, 1.00),),
         columns=pd.MultiIndex.from_tuples(
             (
-                ("COST", "some.test.component",
+                ("Cost", "some.test.component",
                  "some.test.component", "1", "1", "1"),
-                ("TIME", "some.test.component",
+                ("Time", "some.test.component",
                  "some.test.component", "1", "1", "1"),
             ),
             names=("dv", "loss", "dmg", "ds", "loc", "dir"),
