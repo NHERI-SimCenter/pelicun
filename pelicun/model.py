@@ -2316,8 +2316,9 @@ class DamageModel(PelicunModel):
                 res_list, axis=1,
                 keys=[f'{ds_i:g}' for ds_i in ds_list])
             # remove the block level from the columns
-            res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 0, 4])
-            res_df = res_df.groupby(level=[0, 1, 2, 3], axis=1).sum()
+            res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 4, 0, 5])
+            res_df = res_df.groupby(level=[0, 1, 2, 3, 4], axis=1).sum()
+            res_df.columns.names = [*res_df.columns.names[0:4], 'ds']
 
             # The damage states with no damaged quantities are dropped
             # Note that some of these are not even valid DSs at the given PG            
@@ -3378,7 +3379,7 @@ class BldgRepairModel(LossModel):
                     # assign cost RV
                     if pd.isna(cost_family) is False:
 
-                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        cost_rv_tag = f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(
                             uq.RandomVariable(
@@ -3392,7 +3393,7 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(time_family) is False:
-                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        time_rv_tag = f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=time_rv_tag,

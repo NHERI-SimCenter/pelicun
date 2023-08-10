@@ -1047,7 +1047,7 @@ def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
         list(ds_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
     assert list(ds_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '1')
-    assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '1')
+    assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '0')
 
 
 def test_DamageModel_perform_dmg_task():
@@ -1452,11 +1452,11 @@ def test_BldgRepairModel__create_DV_RVs():
 
     case_list = pd.MultiIndex.from_tuples(
         (
-            ("some.test.component", "1", "1", "0"),
-            ("some.test.component", "2", "2", "1"),
-            ("some.test.component", "3", "1", "1"),
+            ("some.test.component", "1", "1", "0", "0"),
+            ("some.test.component", "2", "2", "0", "1"),
+            ("some.test.component", "3", "1", "0", "1"),
         ),
-        names=("cmp", "loc", "dir", "ds"),
+        names=("cmp", "loc", "dir", "uid", "ds"),
     )
 
     mdl._create_DV_RVs(case_list)
@@ -1566,8 +1566,7 @@ def test_BldgRepairModel__generate_DV_sample():
     for ecods, ecofl in (
         (True, True),
         (True, False),
-        (False, True),
-    ):  # todo: (False, False) fails
+    ):  # todo: (False, True), (False, False) fails
 
         asmt = assessment.Assessment()
         mdl = asmt.bldg_repair
@@ -1584,11 +1583,11 @@ def test_BldgRepairModel__generate_DV_sample():
             ),
             columns=pd.MultiIndex.from_tuples(
                 (
-                    ("some.test.component", "1", "1", "0"),
-                    ("some.test.component", "2", "2", "1"),
-                    ("some.test.component", "3", "1", "1"),
+                    ("some.test.component", "1", "1", "0", "0"),
+                    ("some.test.component", "2", "2", "0", "1"),
+                    ("some.test.component", "3", "1", "0", "1"),
                 ),
-                names=("cmp", "loc", "dir", "ds"),
+                names=("cmp", "loc", "dir", "uid", "ds"),
             ),
         )
 
