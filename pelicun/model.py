@@ -1326,7 +1326,7 @@ class DamageModel(PelicunModel):
         smpl = self._sample
 
         if smpl is not None:
-            smpl.columns.names = ['cmp', 'loc', 'dir', 'ds']
+            smpl.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         return self._sample
 
@@ -2216,7 +2216,7 @@ class DamageModel(PelicunModel):
         # Combine the component quantity information for the columns
         # in the damage state sample
         dmg_qnt = pd.concat(
-            [cmp_qnt[PG[:3]] for PG in dmg_ds.columns],
+            [cmp_qnt[PG[:4]] for PG in dmg_ds.columns],
             axis=1, keys=dmg_ds.columns)
 
         # Initialize a list to store the block weights
@@ -3115,7 +3115,7 @@ class BldgRepairModel(LossModel):
 
         # make ds the second level in the MultiIndex
         case_DF = pd.DataFrame(
-            index=case_list.reorder_levels([0, 3, 1, 2]), columns=[0, ])
+            index=case_list.reorder_levels([0, 4, 1, 2, 3]), columns=[0, ])
         case_DF.sort_index(axis=0, inplace=True)
         driver_cmps = case_list.get_level_values(0).unique()
 
@@ -3194,14 +3194,14 @@ class BldgRepairModel(LossModel):
                     continue
 
                 # Otherwise, load the loc-dir cases
-                loc_dir = case_DF.loc[(driver_cmp_id, ds)].index.values
+                loc_dir_uid = case_DF.loc[(driver_cmp_id, ds)].index.values
 
-                for loc, direction in loc_dir:
+                for loc, direction, uid in loc_dir_uid:
 
                     # assign cost RV
                     if pd.isna(cost_family) is False:
 
-                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{direction}'
+                        cost_rv_tag = f'COST-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(
                             uq.RandomVariable(
@@ -3215,7 +3215,7 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(time_family) is False:
-                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{direction}'
+                        time_rv_tag = f'TIME-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=time_rv_tag,
@@ -3233,7 +3233,7 @@ class BldgRepairModel(LossModel):
                         rho = self._asmnt.options.rho_cost_time
 
                         RV_reg.add_RV_set(uq.RandomVariableSet(
-                            f'DV-{loss_cmp_id}-{ds}-{loc}-{direction}_set',
+                            f'DV-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}_set',
                             list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
                             np.array([[1.0, rho], [rho, 1.0]])))
 
@@ -3528,19 +3528,23 @@ class BldgRepairModel(LossModel):
             RV_reg.generate_sample(
                 sample_size=sample_size, method=self._asmnt.options.sampling_method)
 
-            std_sample = base.convert_to_MultiIndex(pd.DataFrame(RV_reg.RV_sample),
-                                                    axis=1).sort_index(axis=1)
-            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir']
+            std_sample = base.convert_to_MultiIndex(
+                pd.DataFrame(RV_reg.RV_sample),axis=1).sort_index(axis=1)
+            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'uid']
 
             # convert column names to int
             std_idx = std_sample.columns.levels
 
-            std_sample.columns = std_sample.columns.set_levels([
-                std_idx[0],
-                std_idx[1].astype(int),
-                std_idx[2],
-                std_idx[3],
-                std_idx[4]])
+            std_sample.columns = std_sample.columns.set_levels(
+                [
+                    std_idx[0],
+                    std_idx[1].astype(int),
+                    std_idx[2],
+                    std_idx[3],
+                    std_idx[4],
+                    std_idx[5],
+                ]
+            )
 
             std_sample.sort_index(axis=1, inplace=True)
 
@@ -3554,7 +3558,7 @@ class BldgRepairModel(LossModel):
         res_list = []
         key_list = []
 
-        dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0, 3, 1, 2])
+        dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0, 4, 1, 2, 3])
         dmg_quantities.sort_index(axis=1, inplace=True)
 
         for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
@@ -3641,7 +3645,7 @@ class BldgRepairModel(LossModel):
                 key_list += [(DV_type, loss_cmp_i, dmg_cmp_i, ds, loc)
                              for loss_cmp_i, dmg_cmp_i, ds, loc in cmp_list]
 
-        lvl_names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir']
+        lvl_names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'uid']
         DV_sample = pd.concat(res_list, axis=1, keys=key_list,
                               names=lvl_names)
 
