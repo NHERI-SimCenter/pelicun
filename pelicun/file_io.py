@@ -387,7 +387,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
             labels_to_keep = []
 
-            for unit_name in units.unique():
+            for unit_name in units.unique():                
 
                 labels = units.loc[units == unit_name].index.values
 
@@ -674,10 +674,10 @@ def parse_units(custom_file=None):
         If a key is defined twice.
     ValueError
         If a unit conversion factor is not a float.
-    ValueError
-        If the file does not have the JSON format.
     FileNotFoundError
-        If the file does not exist.
+        If a file does not exist.
+    Exception
+        If a file does not have the JSON format.
     """
 
     def get_contents(file_path):

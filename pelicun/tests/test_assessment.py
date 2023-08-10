@@ -107,31 +107,18 @@ def test_assessment_get_default_metadata():
     asmt = create_assessment_obj()
 
     data_sources = (
-        'bldg_injury_DB_FEMA_P58_2nd',
-        'bldg_injury_DB_Hazus_EQ',
-        'bldg_redtag_DB_FEMA_P58_2nd',
-        'bldg_repair_DB_FEMA_P58_2nd',
-        'bldg_repair_DB_Hazus_EQ',
-        'bldg_repair_DB_SimCenter_Hazus_HU',
-        'fragility_DB_FEMA_P58_2nd',
-        'fragility_DB_Hazus_EQ',
-        'fragility_DB_SimCenter_Hazus_HU'
+        'damage_DB_FEMA_P58_2nd',
+        'damage_DB_Hazus_EQ_bldg',
+        'damage_DB_Hazus_EQ_trnsp',
+        'loss_repair_DB_FEMA_P58_2nd',
+        'loss_repair_DB_Hazus_EQ_bldg',
+        'loss_repair_DB_Hazus_EQ_trnsp',
     )
 
     for data_source in data_sources:
         # here we just test that we can load the data file, without
         # checking the contens.
         asmt.get_default_data(data_source)
-
-    data_sources = (
-        'bldg_injury_DB_FEMA_P58_2nd',
-        'bldg_redtag_DB_FEMA_P58_2nd',
-        'bldg_repair_DB_FEMA_P58_2nd',
-        'fragility_DB_FEMA_P58_2nd',
-        'fragility_DB_SimCenter_Hazus_HU'
-    )
-
-    for data_source in data_sources:
         asmt.get_default_metadata(data_source)
 
 

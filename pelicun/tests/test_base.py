@@ -50,6 +50,7 @@ import pytest
 import pandas as pd
 import numpy as np
 from pelicun import base
+import numpy as np
 
 # for tests, we sometimes create things or call them just to see if
 # things would work, so the following are irrelevant:
@@ -504,6 +505,4 @@ def test_run_input_specs():
     """
     Just for the shake of coverage ^_^
     """
-    print(base.CMP_data_path)
-    print(base.POP_data_path)
-    print(base.EDP_to_demand_type)
+    print(base.pelicun_path)
