@@ -2315,10 +2315,10 @@ class DamageModel(PelicunModel):
             res_df = pd.concat(
                 res_list, axis=1,
                 keys=[f'{ds_i:g}' for ds_i in ds_list])
+            res_df.columns.names = ['ds', *res_df.columns.names[1::]]
             # remove the block level from the columns
             res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 4, 0, 5])
             res_df = res_df.groupby(level=[0, 1, 2, 3, 4], axis=1).sum()
-            res_df.columns.names = [*res_df.columns.names[0:4], 'ds']
 
             # The damage states with no damaged quantities are dropped
             # Note that some of these are not even valid DSs at the given PG            
@@ -2758,9 +2758,9 @@ class DamageModel(PelicunModel):
         DP = self.damage_params
 
         # Get the header for the results that we can use to identify
-        # cmp-loc-dir sets
+        # cmp-loc-dir-uid sets
         dmg_header = dmg_sample.groupby(
-            level=[0,1,2], axis=1).first().iloc[:2,:]
+            level=[0,1,2,3], axis=1).first().iloc[:2,:]
 
         # get the number of possible limit states
         ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
@@ -2794,7 +2794,7 @@ class DamageModel(PelicunModel):
                         ds_count += len(
                             cmp_data[(ls, 'DamageStateWeights')].split('|'))
                         
-            # get the list of valid cmp-loc-dir sets
+            # get the list of valid cmp-loc-dir-uid sets
             cmp_header = dmg_header.loc[:,[cmp_id,]]
             
             # Create a dataframe where they are repeated ds_count times in the 
@@ -2804,6 +2804,7 @@ class DamageModel(PelicunModel):
                 [cmp_header for ds_i in range(ds_count+1)], 
                 keys=[str(r) for r in range(0,ds_count+1)], 
                 axis=1)
+            cmp_headers.columns.names = ['ds', *cmp_headers.columns.names[1::]]
             
             # add these new columns to the result dataframe
             res = pd.concat([res,cmp_headers], axis=1)
@@ -2811,7 +2812,7 @@ class DamageModel(PelicunModel):
         # Fill the result dataframe with zeros and reorder its columns to have
         # the damage states at the lowest like - matching the dmg_sample input
         res = pd.DataFrame(0.,
-            columns = res.columns.reorder_levels([1,2,3,0]), 
+            columns = res.columns.reorder_levels([1,2,3,4,0]), 
             index = dmg_sample.index)
 
         # replace zeros wherever the dmg_sample has results    
@@ -2879,7 +2880,6 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(
                 demand_dict, EDP_req,
                 capacity_sample, lsds_sample)
-
             qnt_sample = self._prepare_dmg_quantities(
                 PGB, ds_sample, dropzero=False, dropempty=False)
 
@@ -2904,7 +2904,11 @@ class DamageModel(PelicunModel):
 
             for task in dmg_process.items():
 
-                qnt_sample = self._perform_dmg_task(task, qnt_sample)
+                try:
+                    qnt_sample = self._perform_dmg_task(task, qnt_sample)
+                except:
+                    breakpoint()
+                    print()
 
             self.log_msg("Damage processes successfully applied.",
                          prepend_timestamp=False)
@@ -3717,7 +3721,7 @@ class BldgRepairModel(LossModel):
 
             else:
 
-                eco_levels = [0, 3]
+                eco_levels = [0, 4]
                 eco_columns = ['cmp', 'ds']
 
         elif self._asmnt.options.eco_scale["AcrossDamageStates"] == True:
@@ -3727,12 +3731,12 @@ class BldgRepairModel(LossModel):
 
         else:
 
-            eco_levels = [0, 1, 3]
+            eco_levels = [0, 1, 4]
             eco_columns = ['cmp', 'loc', 'ds']
 
         eco_group = dmg_quantities.groupby(level=eco_levels, axis=1)
         eco_qnt = eco_group.sum().mask(eco_group.count()==0, np.nan)
-        eco_qnt.columns.names = eco_columns
+        assert eco_qnt.columns.names == eco_columns
 
         self.log_msg("Successfully aggregated damage quantities.",
                      prepend_timestamp=False)
