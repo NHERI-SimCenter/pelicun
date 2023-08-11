@@ -116,9 +116,9 @@ class PelicunModel:
             represent internal Standard International units.
 
         """
-        assert np.alltrue(marginal_params.index == units.index)
+        assert np.all(marginal_params.index == units.index)
         if arg_units is not None:
-            assert np.alltrue(
+            assert np.all(
                 marginal_params.index == arg_units.index)
 
         # ensure that the index has unique entries by including a

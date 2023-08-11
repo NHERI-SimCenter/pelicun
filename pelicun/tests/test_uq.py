@@ -1413,8 +1413,8 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
     rvset_sample = rvs.sample
     assert set(rvset_sample.keys()) == set(('rv1', 'rv2'))
     vals = list(rvset_sample.values())
-    assert np.alltrue(vals[0] == rv_1.sample)
-    assert np.alltrue(vals[1] == rv_2.sample)
+    assert np.all(vals[0] == rv_1.sample)
+    assert np.all(vals[1] == rv_2.sample)
 
 
 def test_RandomVariable_Set_apply_correlation_special():
