@@ -2436,7 +2436,7 @@ class DamageModel(PelicunModel):
 
                     # get the realizations with non-zero quantity of the target DS
                     source_ds_vals = source_cmp_df.groupby(
-                        level=[2], axis=1).max()
+                        level=[3], axis=1).max()
 
                     if ds_target in source_ds_vals.columns:
                         source_ds_vals = source_ds_vals[ds_target]
@@ -2496,21 +2496,22 @@ class DamageModel(PelicunModel):
                     for target_cmp_i in target_cmp:
                         locs = cmp_qnt[target_cmp_i].columns.get_level_values(0)
                         dirs = cmp_qnt[target_cmp_i].columns.get_level_values(1)
-                        for loc, direction in zip(locs, dirs):
+                        uids = cmp_qnt[target_cmp_i].columns.get_level_values(2)
+                        for loc, direction, uid in zip(locs, dirs, uids):
                             # because we cannot be certain that ds_i had been
                             # triggered earlier, we have to add this damage
                             # state manually for each PG of each component, if needed
                             if ds_i not in qnt_sample[
-                                    (target_cmp_i, loc, direction)].columns:
+                                    (target_cmp_i, loc, direction, uid)].columns:
                                 qnt_sample[
-                                    (target_cmp_i, loc, direction, ds_i)] = 0.0
+                                    (target_cmp_i, loc, direction, uid, ds_i)] = 0.0
 
                             qnt_sample.loc[
                                 source_mask,
-                                (target_cmp_i, loc, direction, ds_i)] = (
+                                (target_cmp_i, loc, direction, uid, ds_i)] = (
                                 cmp_qnt.loc[
                                     source_mask,
-                                    (target_cmp_i, loc, direction)].values)
+                                    (target_cmp_i, loc, direction, uid)].values)
 
                 # clear all damage information
                 elif target_event == 'NA':
@@ -2904,11 +2905,7 @@ class DamageModel(PelicunModel):
 
             for task in dmg_process.items():
 
-                try:
-                    qnt_sample = self._perform_dmg_task(task, qnt_sample)
-                except:
-                    breakpoint()
-                    print()
+                qnt_sample = self._perform_dmg_task(task, qnt_sample)
 
             self.log_msg("Damage processes successfully applied.",
                          prepend_timestamp=False)
@@ -3409,7 +3406,7 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(carbon_family) is False:
-                        carbon_rv_tag = f'Carbon-{loss_cmp_id}-{ds}-{loc}-{direction}'
+                        carbon_rv_tag = f'Carbon-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=carbon_rv_tag,
@@ -3421,7 +3418,7 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(energy_family) is False:
-                        energy_rv_tag = f'Energy-{loss_cmp_id}-{ds}-{loc}-{direction}'
+                        energy_rv_tag = f'Energy-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=energy_rv_tag,
