@@ -3314,7 +3314,7 @@ class BldgRepairModel(LossModel):
         self.log_msg("\nCalculating the median repair consequences...",
                      prepend_timestamp=False)
 
-        medians = self._calc_median_consequence(eco_qnt)
+        medians = self._calc_median_consequence(eco_qnt)        
 
         self.log_msg("Successfully determined median repair consequences.",
                      prepend_timestamp=False)
@@ -3425,14 +3425,14 @@ class BldgRepairModel(LossModel):
                             if cmp_i in prob_cmp_list:
                                 std_i = std_sample.loc[:, (DV_type, cmp_i, ds, loc)]
                             else:
-                                std_i = None                        
+                                std_i = None                                             
 
                         if std_i is not None:
                             res_list.append(dmg_i.mul(median_i, axis=0) * std_i)
                         else:
                             res_list.append(dmg_i.mul(median_i, axis=0))
 
-                        loc_list.append(loc)
+                        loc_list.append(loc)                         
 
                     if self._asmnt.options.eco_scale["AcrossFloors"] is True:
                         ds_list += [ds, ]
@@ -3456,7 +3456,8 @@ class BldgRepairModel(LossModel):
         DV_sample = pd.concat(res_list, axis=1, keys=key_list,
                               names=lvl_names)
 
-        DV_sample = DV_sample.fillna(0).convert_dtypes()
+        #DV_sample = DV_sample.fillna(0).convert_dtypes()
+        DV_sample = DV_sample.astype(float)
         DV_sample.columns.names = lvl_names
 
         # When the 'replacement' consequence is triggered, all local repair
@@ -3475,7 +3476,7 @@ class BldgRepairModel(LossModel):
         locs = locs[locs != '0']
 
         if id_replacement is not None:
-            DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
+            DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = np.nan
 
         self._sample = DV_sample
 
