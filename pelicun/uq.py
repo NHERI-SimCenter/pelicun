@@ -876,7 +876,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
         np.fill_diagonal(rho_hat, 1.0)
 
         if logger_object:
-            logger_object.log(
+            logger_object.msg(
                 "\nWARNING: Demand sample size too small to reliably estimate "
                 "the correlation matrix. Assuming uncorrelated demands.",
                 prepend_timestamp=False, prepend_blank_space=False)
