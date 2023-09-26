@@ -117,11 +117,13 @@ damage_processes = {
 default_DBs = {
     'fragility': {
         'FEMA P-58': 'fragility_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'fragility_DB_HAZUS_EQ.csv'
+        'Hazus Earthquake': 'fragility_DB_HAZUS_EQ.csv',
+        'Hazus Earthquake Transportation': 'damage_DB_Hazus_EQ_trnsp.csv'
     },
     'repair': {
         'FEMA P-58': 'bldg_repair_DB_FEMA_P58_2nd.csv',
-        'Hazus Earthquake': 'bldg_repair_DB_HAZUS_EQ.csv'
+        'Hazus Earthquake': 'bldg_repair_DB_HAZUS_EQ.csv',
+        'Hazus Earthquake Transportation' : 'loss_repair_DB_Hazus_EQ_trnsp.csv'
     }
 
 }
@@ -1030,9 +1032,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     columns=pd.MultiIndex.from_tuples([('probability',' '),]),
                     index=[0, ])
 
-                if 'collapse-0-1-1' in damage_sample.columns:
+                if ("collapse", 0, 1, 1) in damage_sample.columns:
                     df_res_c['probability'] = (
-                        damage_sample['collapse-0-1-1'].mean())
+                        damage_sample[("collapse", 0, 1, 1)].mean())
 
                 else:
                     df_res_c['probability'] = 0.0
@@ -1192,11 +1194,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             drivers.append(f'DMG-{dmg_cmp}')
                             loss_models.append(dmg_cmp)
 
-                elif DL_method == 'Hazus Earthquake':
+                elif DL_method == 'Hazus Earthquake' or DL_method == 'Hazus Earthquake Transportation':
 
                     # with Hazus Earthquake we assume that consequence
                     # archetypes are only differentiated by occupancy type
-                    occ_type = asset_config['OccupancyType']
+                    occ_type = asset_config.get('OccupancyType',None)
 
                     for dmg_cmp in dmg_cmps:
 
@@ -1204,7 +1206,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             continue
 
                         cmp_class = dmg_cmp.split('.')[0]
-                        loss_cmp = f'{cmp_class}.{occ_type}'
+                        if occ_type is not None:
+                            loss_cmp = f'{cmp_class}.{occ_type}'
+                        else:
+                            loss_cmp = cmp_class
 
                         if loss_cmp in loss_cmps:
                             drivers.append(f'DMG-{dmg_cmp}')
