@@ -1,0 +1,7 @@
+ID,Incomplete,Quantity-Unit,DV-Unit,DS1-Theta_0,DS2-Theta_0,DS3-Theta_0,DS4-Theta_0
+HRD-Cost,0,1 EA,loss_ratio,0.1,0.75,0.9,
+HRD-Time,0,1 EA,day,2,9,70,
+HWB-Cost,0,1 EA,loss_ratio,0.3,0.7,0.98,1
+HWB-Time,0,1 EA,day,2,10,200,365
+HTU-Cost,0,1 EA,loss_ratio,0.1,0.75,1
+HTU-Time,0,1 EA,day,2,10,365

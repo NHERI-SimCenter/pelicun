@@ -149,16 +149,18 @@ class PelicunModel:
                 args = []
                 for t_i, theta_i in enumerate(theta):
 
-                    try:
-                        # if theta is a scalar, just store it
+                    # if theta_i evaluates to NaN, it is considered undefined
+                    if pd.isna(theta_i):
+                        args.append([])
+                        continue
+
+                    # otherwise, we first check if it is a single scalar
+                    try:                        
+                        # if yes, we just store it
                         theta[t_i] = float(theta_i)
                         args.append([])
 
-                    except ValueError:
-
-                        if pd.isna(theta_i):
-                            args.append([])
-                            continue
+                    except ValueError:                      
 
                         # otherwise, we assume it is a string using SimCenter
                         # array notation to identify coordinates of a
