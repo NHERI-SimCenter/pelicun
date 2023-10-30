@@ -84,6 +84,9 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 idx = pd.IndexSlice
 
+#TODO: separate Damage Processes for Hazus Earthquake - Buildings and - Transportation
+#TODO: Loss map for Hazus EQ Transportation
+
 damage_processes = {
     'FEMA P-58': {
         "1_excessive.coll.DEM": {
@@ -97,6 +100,7 @@ damage_processes = {
         }
     },
 
+    #TODO: expand with ground failure logic
     'Hazus Earthquake - Buildings': {
         "1_STR": {
             "DS5": "collapse_DS1"
@@ -1149,7 +1153,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     adf.loc[rc, ('DS1', 'Theta_0')] = 0
 
                 # for Hazus EQ, use 1.0 as a loss_ratio
-                elif DL_method == 'Hazus Earthquake - Buildings':
+                elif DL_method == 'Hazus Earthquake':
                     adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
 
