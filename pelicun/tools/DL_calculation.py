@@ -212,6 +212,9 @@ regional_out_config = {
     'Format': {
         'CSV': False,
         'JSON': True
+    },
+    'Settings': {
+        'CondenseDS': True
     }
 }
 
@@ -424,13 +427,12 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 config_ap['DL'].update({
                     'Outputs': full_out_config
                 })
+                # add output settings from regional output config
+                if 'Settings' not in config_ap['DL']['Outputs'].keys():
+                    config_ap['DL']['Outputs'].update({'Settings':{}})
 
-            # set the output format to provide both CSV and JSON - for now
-            if "Format" not in config_ap['DL']['Outputs'].keys():
-
-                config_ap['DL']['Outputs'].update({
-                    
-                })
+                config_ap['DL']['Outputs']['Settings'].update(
+                    regional_out_config['Settings'])
 
             # save the extended config to a file
             config_ap_path = Path(config_path.stem + '_ap.json').resolve()
@@ -1070,7 +1072,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
 
                     grp_damage = damage_groupby.sum().mask(
-                        damage_groupby.count()==0, np.nan)                    
+                        damage_groupby.count()==0, np.nan)  
+
+                    # if requested, condense DS output to a single column
+                    if out_config['Settings'].get('CondenseDS', False) == True:
+                        ds_list = grp_damage.columns.get_level_values(1).astype(int)
+                    
+                        grp_damage = grp_damage.mul(ds_list, axis=1).groupby(
+                            level=0, axis=1).sum().astype(int)
 
                     if 'GroupedSample' in out_reqs:
                         grp_damage_s = convert_to_SimpleIndex(grp_damage, axis=1)
