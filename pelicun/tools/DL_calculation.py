@@ -214,7 +214,8 @@ regional_out_config = {
         'JSON': True
     },
     'Settings': {
-        'CondenseDS': True
+        'CondenseDS': True,
+        'SimpleIndexInJSON': True
     }
 }
 
@@ -476,6 +477,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 'JSON': 'json' in output_format,
             }
         })
+
+    # add empty Settings to output config to simplify code below
+    if ('Settings' in out_config.keys()) == False:
+        out_config.update({'Settings':{}})
 
     if asset_config is None:
         log_msg("Asset configuration missing. Terminating analysis.")
@@ -1523,7 +1528,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             
             filename_json = filename[:-3]+'json'
             
-            df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
+            if out_config['Settings'].get('SimpleIndexInJSON', False) == True:
+                df = pd.read_csv(output_path/filename, index_col=0)
+            else:
+                df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
             
             out_dict = convert_df_to_dict(df)
             
