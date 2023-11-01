@@ -153,6 +153,68 @@ output_files = [
     "DL_summary_stats.csv",
 ]
 
+full_out_config = {
+    'Demand': {
+        'Sample': True,
+        'Statistics': True
+    },
+    'Asset': {
+        'Sample': True,
+        'Statistics': True
+    },
+    'Damage': {
+        'Sample': True,
+        'Statistics': True,
+        'GroupedSample': True,
+        'GroupedStatistics': True
+    },
+    'Loss': {
+        'BldgRepair': {
+            'Sample': True,
+            'Statistics': True,
+            'GroupedSample': True,
+            'GroupedStatistics': True,
+            'AggregateSample': True,
+            'AggregateStatistics': True
+        }
+    },
+    'Format': {
+        'CSV': True,
+        'JSON': True
+    }
+}
+
+regional_out_config = {
+    'Demand': {
+        'Sample': True,
+        'Statistics': False
+    },
+    'Asset': {
+        'Sample': True,
+        'Statistics': False
+    },
+    'Damage': {
+        'Sample': False,
+        'Statistics': False,
+        'GroupedSample': True,
+        'GroupedStatistics': False
+    },
+    'Loss': {
+        'BldgRepair': {
+            'Sample': True,
+            'Statistics': True,
+            'GroupedSample': True,
+            'GroupedStatistics': False,
+            'AggregateSample': True,
+            'AggregateStatistics': True
+        }
+    },
+    'Format': {
+        'CSV': False,
+        'JSON': True
+    }
+}
+
 
 def convert_df_to_dict(df, axis=1):
 
@@ -356,14 +418,18 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             # if detailed results are not requested, add a lean output config
             if detailed_results == False:
                 config_ap['DL'].update({
-                    'Outputs': {  
-                        'Demand': {},
-                        'Asset': {},
-                        'Damage': {},
-                        'Loss': {
-                            'BldgRepair': {}                   
-                        }
-                    }
+                    'Outputs': regional_out_config
+                })
+            else:
+                config_ap['DL'].update({
+                    'Outputs': full_out_config
+                })
+
+            # set the output format to provide both CSV and JSON - for now
+            if "Format" not in config_ap['DL']['Outputs'].keys():
+
+                config_ap['DL']['Outputs'].update({
+                    
                 })
 
             # save the extended config to a file
@@ -389,32 +455,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     
     # provide all outputs if the files are not specified
     if out_config == None:
-        out_config = {
-            'Demand': {
-                'Sample': True,
-                'Statistics': True
-            },
-            'Asset': {
-                'Sample': True,
-                'Statistics': True
-            },
-            'Damage': {
-                'Sample': True,
-                'Statistics': True,
-                'GroupedSample': True,
-                'GroupedStatistics': True
-            },
-            'Loss': {
-                'BldgRepair': {
-                    'Sample': True,
-                    'Statistics': True,
-                    'GroupedSample': True,
-                    'GroupedStatistics': True,
-                    'AggregateSample': True,
-                    'AggregateStatistics': True
-                }
-            }
-        }
+        out_config = full_out_config
 
     # provide outputs in CSV by default
     if ('Format' in out_config.keys()) == False:
