@@ -101,7 +101,7 @@ damage_processes = {
     },
 
     #TODO: expand with ground failure logic
-    'Hazus Earthquake - Buildings': {
+    'Hazus Earthquake': {
         "1_STR": {
             "DS5": "collapse_DS1"
         },
