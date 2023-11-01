@@ -89,7 +89,7 @@ def auto_populate(config, auto_script_path, **kwargs):
     auto_populate_ext = auto_script.auto_populate
 
     # generate the DL input data
-    AIM_ap, DL_ap, CMP = auto_populate_ext(config)
+    AIM_ap, DL_ap, CMP = auto_populate_ext(AIM=config)
 
     # assemble the extended config
     config['GeneralInformation'].update(AIM_ap)
