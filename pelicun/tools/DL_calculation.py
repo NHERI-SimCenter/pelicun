@@ -622,10 +622,12 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         out_reqs = [out if val else "" for out, val in out_config['Demand'].items()]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-            demand_sample = PAL.demand.save_sample()
+            demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
 
             if 'Sample' in out_reqs:
-                demand_sample_s = convert_to_SimpleIndex(demand_sample, axis=1)
+                demand_sample_s = demand_sample.copy()
+                demand_sample_s = pd.concat([demand_sample_s,demand_units.to_frame().T])
+                demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
                 demand_sample_s.to_csv(output_path/"DEM_sample.zip",
                                        index_label=demand_sample_s.columns.name,
                                        compression=dict(
@@ -634,8 +636,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 output_files.append('DEM_sample.zip')             
 
             if 'Statistics' in out_reqs:
-                demand_stats = convert_to_SimpleIndex(
-                    describe(demand_sample), axis=1)
+                demand_stats = describe(demand_sample)
+                demand_stats = pd.concat([demand_stats,demand_units.to_frame().T])
+                demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
                 demand_stats.to_csv(output_path/"DEM_stats.csv",
                                     index_label=demand_stats.columns.name)
                 output_files.append('DEM_stats.csv')
@@ -951,7 +954,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 dmg_process = damage_processes[dp_approach]
 
                 # For Hazus Earthquake, we need to specify the component ids
-                if dp_approach == 'Hazus Earthquake - Buildings':
+                if dp_approach == 'Hazus Earthquake':
 
                     cmp_list = cmp_sample.columns.unique(level=0)
 
