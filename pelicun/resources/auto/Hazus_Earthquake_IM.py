@@ -55,13 +55,13 @@ ap_DesignLevel_W1 = {
 def convertBridgeToHAZUSclass(AIM):
 
     #TODO: replace labels in AIM with standard CamelCase versions
-    structureType = AIM["bridgeClass"]
+    structureType = AIM["BridgeClass"]
     # if type(structureType)== str and len(structureType)>3 and structureType[:3] == "HWB" and 0 < int(structureType[3:]) and 29 > int(structureType[3:]):
     #     return AIM["bridge_class"]
-    state = AIM["stateCode"]
-    yr_built = AIM["yearBuilt"] 
-    num_span = AIM["numOfSpans"]
-    len_max_span = AIM["maxSpanLength"] 
+    state = AIM["StateCode"]
+    yr_built = AIM["YearBuilt"] 
+    num_span = AIM["NumOfSpans"]
+    len_max_span = AIM["MaxSpanLength"] 
 
     seismic = ((int(state)==6 and int(yr_built)>=1975) or 
                (int(state)!=6 and int(yr_built)>=1990))
@@ -219,9 +219,9 @@ def convertBridgeToHAZUSclass(AIM):
 
 def convertTunnelToHAZUSclass(AIM):
 
-    if ("bored" in AIM["constructType"]) or ("drilled" in AIM["constructType"]):
+    if ("Bored" in AIM["ConstructType"]) or ("Drilled" in AIM["ConstructType"]):
         return "HTU1"
-    elif ("cut" in AIM["constructType"]) or ("cover" in AIM["constructType"]):
+    elif ("Cut" in AIM["ConstructType"]) or ("Cover" in AIM["ConstructType"]):
         return "HTU2"
     else:
         # Select HTU2 for unclassfied tunnels because it is more conservative. 
@@ -229,10 +229,10 @@ def convertTunnelToHAZUSclass(AIM):
 
 def convertRoadToHAZUSclass(AIM):
 
-    if AIM["roadType"] in ["primary", "secondary"]:
+    if AIM["RoadType"] in ["Primary", "Secondary"]:
         return "HRD1"
 
-    elif AIM["roadType"]=="residential":
+    elif AIM["RoadType"]=="Residential":
         return "HRD2"
 
     else:
@@ -379,7 +379,7 @@ def auto_populate(AIM):
 
         inf_type = GI["assetSubtype"]
         
-        if inf_type == "hwyBridge":
+        if inf_type == "HwyBridge":
 
             # get the bridge class
             bt = convertBridgeToHAZUSclass(GI)
@@ -411,7 +411,7 @@ def auto_populate(AIM):
                 }
             }
 
-        elif inf_type == "hwyTunnel":
+        elif inf_type == "HwyTunnel":
 
             # get the tunnel class
             tt = convertTunnelToHAZUSclass(GI)
@@ -442,7 +442,7 @@ def auto_populate(AIM):
                     }
                 }
             }
-        elif inf_type == "roadway":
+        elif inf_type == "Roadway":
 
             # get the road class
             rt = convertRoadToHAZUSclass(GI)
