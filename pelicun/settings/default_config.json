@@ -1,5 +1,5 @@
 {
-    "Options": {
+  "Options": {
 	"Verbose": false,
 	"Seed": null,
 	"LogShowMS": false,
@@ -11,6 +11,7 @@
 	    "PFV": -1
 	},
 	"SamplingMethod": "LHS",
+	"ListAllDamageStates": false,
 	"NonDirectionalMultipliers": {
 	    "ALL": 1.2
 	},
@@ -23,14 +24,14 @@
     "DemandAssessment": {
 	"Calibration": {
 	    "Marginals": {
-		"ALL": {
-		    "DistributionFamily": "lognormal"
-		}
+			"ALL": {
+			    "DistributionFamily": "lognormal"
+			}
 	    }
 	},
 	"Sampling": {
 	    "SampleSize": 1000,
 	    "PreserveRawOrder": false
 	}
-    }
+  }
 }

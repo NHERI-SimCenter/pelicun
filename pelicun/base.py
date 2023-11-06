@@ -175,6 +175,18 @@ class Options:
         """
 
         self._asmnt = assessment
+
+        self._verbose = False
+        self._log_show_ms = False
+        self._print_log = False
+        self._log_file = None
+
+        self.defaults = None
+        self.sampling_method = None
+        self.list_all_ds = None
+
+        self._seed = None
+
         self._rng = np.random.default_rng()
         merged_config_options = file_io.merge_default_config(
             user_config_options)
@@ -265,7 +277,6 @@ class Options:
         units file property setter
         """
         self._units_file = value
-
 
 class Logger:
 
@@ -503,6 +514,55 @@ class Logger:
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
 
+        # pylint: disable = consider-using-f-string
+        msg_lines = msg.split('\n')
+
+        for msg_i, msg_line in enumerate(msg_lines):
+
+            if (prepend_timestamp and (msg_i == 0)):
+                formatted_msg = '{} {}'.format(
+                    datetime.now().strftime(self.log_time_format), msg_line)
+            elif prepend_timestamp:
+                formatted_msg = self.log_pref + msg_line
+            elif prepend_blank_space:
+                formatted_msg = self.log_pref + msg_line
+            else:
+                formatted_msg = msg_line
+
+            if self.print_log:
+                print(formatted_msg)
+
+            if self.log_file is not None:
+                with open(self.log_file, 'a', encoding='utf-8') as f:
+                    f.write('\n'+formatted_msg)
+
+    def div(self, prepend_timestamp=False):
+        """
+        Adds a divider line in the log file
+        """
+
+        if prepend_timestamp:
+            msg = self.log_div
+        else:
+            msg = '-' * 80
+        self.msg(msg, prepend_timestamp=prepend_timestamp)
+
+    def print_system_info(self):
+        """
+        Writes system information in the log.
+        """
+
+        self.msg(
+            'System Information:',
+            prepend_timestamp=False, prepend_blank_space=False)
+        self.msg(
+            f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+            f'python: {sys.version}\n'
+            f'numpy: {np.__version__}\n'
+            f'pandas: {pd.__version__}\n',
+            prepend_timestamp=False)
+
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
@@ -544,22 +604,30 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
             data_mod = data.copy()
 
         if axis == 0:
-            simple_name = '-'.join(
-                [n if n is not None else "" for n in data.index.names])
-            simple_index = ['-'.join([str(id_i) for id_i in id])
-                            for id in data.index]
 
-            data_mod.index = simple_index
-            data_mod.index.name = simple_name
+            # only perform this if there are multiple levels
+            if data.index.nlevels > 1:
+
+                simple_name = '-'.join(
+                    [n if n is not None else "" for n in data.index.names])
+                simple_index = ['-'.join([str(id_i) for id_i in id])
+                                for id in data.index]
+
+                data_mod.index = simple_index
+                data_mod.index.name = simple_name
 
         elif axis == 1:
-            simple_name = '-'.join(
-                [n if n is not None else "" for n in data.columns.names])
-            simple_index = ['-'.join([str(id_i) for id_i in id])
-                            for id in data.columns]
 
-            data_mod.columns = simple_index
-            data_mod.columns.name = simple_name
+            # only perform this if there are multiple levels
+            if data.columns.nlevels > 1:
+
+                simple_name = '-'.join(
+                    [n if n is not None else "" for n in data.columns.names])
+                simple_index = ['-'.join([str(id_i) for id_i in id])
+                                for id in data.columns]
+
+                data_mod.columns = simple_index
+                data_mod.columns.name = simple_name
 
     else:
         raise ValueError(f"Invalid axis parameter: {axis}")
@@ -700,7 +768,7 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
 
     for col in desc.columns:
         if np.min(df[col]) > 0.0:
-            desc.loc['log_std', col] = np.std(np.log(df[col]))
+            desc.loc['log_std', col] = np.std(np.log(df[col]), ddof=1)
 
     return desc
 
@@ -789,19 +857,6 @@ def process_loc(string, stories):
 
 
 # Input specs
-
-CMP_data_path = dict(
-    P58='/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf',
-    HAZUS_HU='/resources/HAZUS_MH_2.1.hdf',
-    HAZUS_FL='/resources/HAZUS_MH_2.1_FL.hdf',
-    HAZUS_MISC='/resources/HAZUS_MH_2.1_MISC.hdf'
-)
-
-POP_data_path = dict(
-    P58='/resources/FEMA_P58_2nd_ed.hdf',
-    HAZUS_EQ='/resources/HAZUS_MH_2.1_EQ.hdf'
-)
 
 EDP_to_demand_type = {
     # Drifts

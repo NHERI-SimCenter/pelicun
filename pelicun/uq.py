@@ -85,6 +85,12 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
     truncation_limits: float ndarray of length 2, default: None
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
+
+    Raises
+    ------
+    ValueError
+        If the specified distribution family is unsupported.
+    
     """
 
     if truncation_limits is not None:
@@ -109,6 +115,9 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
 
     elif family == 'deterministic':
         theta_new[0] = theta[0] * scale_factor
+
+    else:
+        raise ValueError(f'Unsupported distribution: {family}')
 
     return theta_new, truncation_limits
 
@@ -152,12 +161,6 @@ def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
     # process the inputs and get the number of dimensions
     mu = np.atleast_1d(mu)
     COV = np.atleast_2d(COV)
-
-    if mu.shape == ():
-        mu = np.asarray([mu])
-        COV = np.asarray([COV])
-    else:
-        COV = np.asarray(COV)
 
     sig = np.sqrt(np.diag(COV))
     corr = COV / np.outer(sig, sig)
@@ -351,6 +354,10 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
             # first transform from normal to uniform
             uni_samples = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
 
+            # replace 0 and 1 values with the nearest float
+            uni_samples[uni_samples==0] = np.nextafter(0,1)
+            uni_samples[uni_samples==1] = np.nextafter(1,-1)
+
             # consider truncation if needed
             p_a, p_b = _get_limit_probs(tr_lim_i, dist_i, theta_i)
             uni_samples = (uni_samples - p_a) / (p_b - p_a)
@@ -509,7 +516,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # First, check if the parameters are within the pre-defined bounds
     # TODO: check if it is more efficient to use a bounded minimization algo
     if enforce_bounds:
-        if ((params > bnd_lower) & (params < bnd_upper)).all(0) is False:
+        if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
             # if they are not, then return a large value to discourage the
             # optimization algorithm from going in that direction
             return 1e10
@@ -614,7 +621,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # normalize the NLL with the sample count
     NLL = NLL / samples.size
 
-    # print(theta[0], NLL)
+    #print(theta[0], params, NLL)
 
     return NLL
 
@@ -811,8 +818,8 @@ def fit_distribution_to_sample(raw_samples, distribution,
             out_m_i = minimize(_neg_log_likelihood,
                                np.zeros(inits[dim].size),
                                args=(inits_i,
-                                     bnd_lower[dim:dim + 1],
-                                     bnd_upper[dim:dim + 1],
+                                     bnd_lower[dim],
+                                     bnd_upper[dim],
                                      samples[dim:dim + 1],
                                      [dist_list[dim], ],
                                      [tr_limits_i, ],
@@ -830,6 +837,9 @@ def fit_distribution_to_sample(raw_samples, distribution,
         # we attempt the multivariate fitting using the marginal results as
         # initial parameters.
         if multi_fit or (censored_count > 0):
+
+            bnd_lower = bnd_lower.flatten()
+            bnd_upper = bnd_upper.flatten()
 
             out_m = minimize(_neg_log_likelihood,
                              np.zeros(inits.size),
@@ -866,7 +876,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
         np.fill_diagonal(rho_hat, 1.0)
 
         if logger_object:
-            logger_object.log(
+            logger_object.msg(
                 "\nWARNING: Demand sample size too small to reliably estimate "
                 "the correlation matrix. Assuming uncorrelated demands.",
                 prepend_timestamp=False, prepend_blank_space=False)
@@ -920,20 +930,29 @@ def _OLS_percentiles(params, values, perc, family):
         If `family` is not 'normal' or 'lognormal'.
     """
 
-    theta_0 = params[0]
-    theta_1 = params[1]
-
-    if theta_0 <= 0:
-        return 1e10
-
-    if theta_1 <= 0:
-        return 1e10
-
     if family == 'normal':
+
+        theta_0 = params[0]
+        theta_1 = params[1]
+
+        if theta_0 <= 0:
+            return 1e10
+
+        if theta_1 <= 0:
+            return 1e10
 
         val_hat = norm.ppf(perc, loc=theta_0, scale=theta_1)
 
     elif family == 'lognormal':
+
+        theta_0 = params[0]
+        theta_1 = params[1]
+
+        if theta_0 <= 0:
+            return 1e10
+
+        if theta_1 <= 0:
+            return 1e10
 
         val_hat = np.exp(norm.ppf(perc, loc=np.log(theta_0), scale=theta_1))
 
@@ -1095,6 +1114,7 @@ class RandomVariable:
         self._raw_samples = np.atleast_1d(raw_samples)
         self._uni_samples = None
         self._RV_set = None
+        self._sample_DF = None
 
         if anchor is None:
             self._anchor = self
