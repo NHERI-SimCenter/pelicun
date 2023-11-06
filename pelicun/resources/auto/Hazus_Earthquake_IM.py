@@ -55,13 +55,13 @@ ap_DesignLevel_W1 = {
 def convertBridgeToHAZUSclass(AIM):
 
     #TODO: replace labels in AIM with standard CamelCase versions
-    structureType = AIM["bridge_class"]
+    structureType = AIM["BridgeClass"]
     # if type(structureType)== str and len(structureType)>3 and structureType[:3] == "HWB" and 0 < int(structureType[3:]) and 29 > int(structureType[3:]):
     #     return AIM["bridge_class"]
-    state = AIM["state_code"]
-    yr_built = AIM["year_built"] 
-    num_span = AIM["nspans"]
-    len_max_span = AIM["lmaxspan"] 
+    state = AIM["StateCode"]
+    yr_built = AIM["YearBuilt"] 
+    num_span = AIM["NumOfSpans"]
+    len_max_span = AIM["MaxSpanLength"] 
 
     seismic = ((int(state)==6 and int(yr_built)>=1975) or 
                (int(state)!=6 and int(yr_built)>=1990))
@@ -104,16 +104,27 @@ def convertBridgeToHAZUSclass(AIM):
 
     elif structureType in list(range(301,307)):
         if not seismic:
-            if state != 6:
-                bridge_class = "HWB12"
+            if len_max_span>=20:
+                if state != 6:
+                    bridge_class = "HWB12"
+                else:
+                    bridge_class = "HWB13"
             else:
-                bridge_class = "HWB13"
+                if state != 6:
+                    bridge_class = "HWB24"
+                else:
+                    bridge_class = "HWB25"
         else:
             bridge_class = "HWB14"
 
     elif structureType in list(range(402,411)):
         if not seismic:
-            bridge_class = "HWB15"
+            if len_max_span>=20:
+                bridge_class = "HWB15"
+            elif state != 6:
+                bridge_class = "HWB26"
+            else:
+                bridge_class = "HWB27"
         else:
             bridge_class = "HWB16"
 
@@ -137,6 +148,7 @@ def convertBridgeToHAZUSclass(AIM):
             bridge_class = "HWB22"
         else:
             bridge_class = "HWB23"
+    
     
     #TODO: review and add HWB24-27 rules
     #TODO: also double check rules for HWB10-11 and HWB22-23
@@ -207,9 +219,9 @@ def convertBridgeToHAZUSclass(AIM):
 
 def convertTunnelToHAZUSclass(AIM):
 
-    if ("Bored" in AIM["cons_type"]) or ("Drilled" in AIM["cons_type"]):
+    if ("Bored" in AIM["ConstructType"]) or ("Drilled" in AIM["ConstructType"]):
         return "HTU1"
-    elif ("Cut" in AIM["cons_type"]) or ("Cover" in AIM["cons_type"]):
+    elif ("Cut" in AIM["ConstructType"]) or ("Cover" in AIM["ConstructType"]):
         return "HTU2"
     else:
         # Select HTU2 for unclassfied tunnels because it is more conservative. 
@@ -217,10 +229,10 @@ def convertTunnelToHAZUSclass(AIM):
 
 def convertRoadToHAZUSclass(AIM):
 
-    if AIM["road_type"] in ["primary", "secondary"]:
+    if AIM["RoadType"] in ["Primary", "Secondary"]:
         return "HRD1"
 
-    elif AIM["road_type"]=="residential":
+    elif AIM["RoadType"]=="Residential":
         return "HRD2"
 
     else:
@@ -367,7 +379,7 @@ def auto_populate(AIM):
 
         inf_type = GI["assetSubtype"]
         
-        if inf_type == "hwy_bridge":
+        if inf_type == "HwyBridge":
 
             # get the bridge class
             bt = convertBridgeToHAZUSclass(GI)
@@ -399,7 +411,7 @@ def auto_populate(AIM):
                 }
             }
 
-        elif inf_type == "hwy_tunnel":
+        elif inf_type == "HwyTunnel":
 
             # get the tunnel class
             tt = convertTunnelToHAZUSclass(GI)
@@ -430,7 +442,7 @@ def auto_populate(AIM):
                     }
                 }
             }
-        elif inf_type == "roadway":
+        elif inf_type == "Roadway":
 
             # get the road class
             rt = convertRoadToHAZUSclass(GI)
