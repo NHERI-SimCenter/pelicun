@@ -115,6 +115,11 @@ def create_FEMA_P58_fragility_db(source_file,
         Path where the fragility metadata should be saved. A json file is
         expected.
 
+    Raises
+    ------
+    ValueError
+        If there are problems with the mutually exclusive damage state
+        definition of some component.
     """
 
     # parse the source file
@@ -2436,7 +2441,7 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     # The damage quantity unit is the same for all consequence values
     df_db.loc[:, 'Quantity-Unit'] = "1 EA"
 
-    # The output units are also indentical among all components
+    # The output units are also identical among all components
     df_db.loc[idx[:, 'Cost'], 'DV-Unit'] = "loss_ratio"
     df_db.loc[idx[:, 'Time'], 'DV-Unit'] = "day"
 
@@ -2576,7 +2581,7 @@ def create_Hazus_EQ_bldg_injury_db(source_file,
     # The damage quantity unit is the same for all consequence values
     df_db.loc[:, 'Quantity-Unit'] = "1 EA"
 
-    # The output units are also indentical among all components
+    # The output units are also identical among all components
     df_db.loc[:, 'DV-Unit'] = "injury_rate"
 
     # convert to simple index

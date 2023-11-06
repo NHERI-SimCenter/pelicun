@@ -1,7 +1,11 @@
 {
   "_GeneralInformation": {
     "ShortName": "FEMA P-58 2nd Edition",
+<<<<<<<< HEAD:pelicun/resources/SimCenterDBDL/damage_DB_FEMA_P58_2nd.json
     "Description": "The models in this dataset are based on the 2nd edition of FEMA P-58. Specifically, the parameters are parsed from the FEMAP-58_FragilityDatabase_v3.1.2.xls file that is published as part of Volume 3 of the methodology. A few obvious typos and errors have been fixed in that file; these adjustments are captured in the changelog at https://github.com/NHERI-SimCenter/DB_DamageAndLoss/blob/main/data_sources/FEMA_P58/changelog.txt . Simultaneous damage states have been replaced with equivalent Mutually exclusive damage states. Component classification is based on UNIFORMAT II as per NISTIR 6389.",
+========
+    "Description": "The models in this dataset are based on the 2nd edition of FEMA P-58. Speecifically, the parameters are parsed from the FEMAP-58_FragilityDatabase_v3.1.2.xls file that is published as part of Volume 3 of the methodology. A few obvious typos and errors have been fixed in that file; these adjustments are captured in the changelog here: <URL>. Simultaneous damage states have been replaced with equivalent Mutually exclusive damage states. Component classification is based on UNIFORMAT II as per NISTIR 6389.",
+>>>>>>>> John/2023-08_cmp_uid:pelicun/resources/SimCenterDBDL/DB/damage_DB_FEMA_P58_2nd.json
     "Version": "1.0",
     "ComponentGroups": {
       "B - Shell": {

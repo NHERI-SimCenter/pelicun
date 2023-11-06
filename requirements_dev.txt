@@ -4,3 +4,4 @@ flake8
 pylint
 yapf
 pytest
+pytest-cov

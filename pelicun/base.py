@@ -53,6 +53,9 @@ This module defines constants, basic classes and methods for pelicun.
     log_div
     log_msg
     describe
+    float_or_None
+    int_or_None
+    process_loc
     str2bool
 
     Options
@@ -68,10 +71,11 @@ import argparse
 import pprint
 import numpy as np
 import pandas as pd
+from . import file_io
 
 
 # set printing options
-pp = pprint.PrettyPrinter(indent=2, width=80-24)
+pp = pprint.PrettyPrinter(indent=2, width=80 - 24)
 
 pd.options.display.max_rows = 20
 pd.options.display.max_columns = None
@@ -80,24 +84,95 @@ pd.options.display.width = 300
 
 idx = pd.IndexSlice
 
+# don't show FutureWarnings by default
+if not sys.warnoptions:
+    warnings.filterwarnings(
+        category=FutureWarning, action='ignore')
+
 
 class Options:
 
     """
-    Options objects store analysis options and the logging configuration.
-    They are assessment-specific.
-    
-    Parameters
-    ----------
+    Options objects store analysis options and the logging
+    configuration.
 
-    verbose: boolean
-        If True, the pelicun echoes more information throughout the assessment.
-        This can be useful for debugging purposes.
-    log_show_ms: boolean
-        If True, the timestamps in the log file are in microsecond precision.
+    Attributes
+    ----------
+    sampling_method: str
+        Sampling method to use. Specified in the user's configuration
+        dictionary, otherwise left as provided in the default configuration
+        file (see settings/default_config.json in the pelicun source
+        code). Can be any of ['LHS', 'LHS_midpoint',
+        'MonteCarlo']. The default is 'LHS'.
+    units_file: str
+        Location of a user-specified units file, which should contain
+        the names of supported units and their conversion factors (the
+        value some quantity of a given unit needs to be multiplied to
+        be expressed in the base units). Value specified in the user
+        configuration dictionary. Pelicun comes with a set of default
+        units which are always loaded (see settings/default_units.json
+        in the pelicun source code). Units specified in the units_file
+        overwrite the default units.
+    demand_offset: dict
+        Demand offsets are used in the process of mapping a component
+        location to its associated EDP. This allows components that
+        are sensitive to EDPs of different levels to be specified as
+        present at the same location (e.g. think of desktop computer
+        and suspended ceiling, both at the same story). Each
+        component's offset value is specified in the component
+        fragility database. This setting applies a supplemental global
+        offset to specific EDP types. The value is specified in the
+        user's configuration dictionary, otherwise left as provided in
+        the default configuration file (see
+        settings/default_config.json in the pelicun source code).
+    nondir_multi_dict: dict
+        Nondirectional components are sensitive to demands coming in
+        any direction. Results are typically available in two
+        orthogonal directions. FEMA P-58 suggests using the formula
+        `max(dir_1, dir_2) * 1.2` to estimate the demand for such
+        components. This parameter allows modifying the 1.2 multiplier
+        with a user-specified value. The change can be applied to
+        "ALL" EDPs, or for specific EDPs, such as "PFA", "PFV",
+        etc. The value is specified in the user's configuration
+        dictionary, otherwise left as provided in the default
+        configuration file (see settings/default_config.json in the
+        pelicun source code).
+    rho_cost_time: float
+        Specifies the correlation between the repair cost and repair
+        time consequences. The value is specified in the user's
+        configuration dictionary, otherwise left as provided in the
+        default configuration file (see
+        "RepairCostAndTimeCorrelation") (see
+        settings/default_config.json in the pelicun source code).
+    eco_scale: dict
+        Controls how the effects of economies of scale are handled in
+        the damaged component quantity aggregation for loss measure
+        estimation. The dictionary is specified in the user's
+        configuration dictionary, otherwise left as provided in the
+        default configuration file (see settings/default_config.json
+        in the pelicun source code).
+    log: Logger
+        Logger object. Configuration parameters coming from the user's
+        configuration dictionary or the default configuration file
+        control logging behavior. See Logger class.
+
     """
 
-    def __init__(self, assessment):
+    def __init__(self, user_config_options, assessment=None):
+        """
+        Initializes an Options object.
+
+        Parameters
+        ----------
+        user_config_options: dict, Optional
+            User-specified configuration dictionary. Any provided
+            user_config_options override the defaults.
+        assessment: Assessment, Optional
+            Assessment object that will be using this Options
+            object. If it is not intended to use this Options object
+            for an Assessment (e.g. defining an Options object for UQ
+            use), this value should be None.
+        """
 
         self._asmnt = assessment
 
@@ -111,14 +186,48 @@ class Options:
         self.list_all_ds = None
 
         self._seed = None
+
         self._rng = np.random.default_rng()
+        merged_config_options = file_io.merge_default_config(
+            user_config_options)
 
-        self.reset_log_strings()
+        self._seed = merged_config_options['Seed']
+        self.sampling_method = merged_config_options['SamplingMethod']
 
-        self.demand_offset = {}
-        self.nondir_multi_dict = {}
+        self.units_file = merged_config_options['UnitsFile']
+
+        self.demand_offset = merged_config_options['DemandOffset']
+        self.nondir_multi_dict = merged_config_options['NonDirectionalMultipliers']
+        self.rho_cost_time = merged_config_options['RepairCostAndTimeCorrelation']
+        self.eco_scale = merged_config_options['EconomiesOfScale']
+
+        # instantiate a Logger object with the finalized configuration
+        self.log = Logger(
+            merged_config_options['Verbose'],
+            merged_config_options['LogShowMS'],
+            merged_config_options['LogFile'],
+            merged_config_options['PrintLog'])
 
     def nondir_multi(self, EDP_type):
+        """
+        Returns the multiplicative factor used in nondirectional
+        component demand generation. Read the description of the
+        nondir_multi_dict attribute of the Options class.
+
+        Parameters
+        ----------
+        EDP_type: str
+            EDP type (e.g. "PFA", "PFV", ..., "ALL")
+
+        Raises
+        ------
+        ValueError
+            If the specified EDP type is not present in the
+            dictionary.  If this is the case, a value for that type
+            needs to be specified in the user's configuration
+            dictionary, under ['Options']['NonDirectionalMultipliers']
+            = {"edp_type": value, ...}
+        """
 
         if EDP_type in self.nondir_multi_dict:
             return self.nondir_multi_dict[EDP_type]
@@ -126,59 +235,167 @@ class Options:
         if 'ALL' in self.nondir_multi_dict:
             return self.nondir_multi_dict['ALL']
 
-        raise ValueError(f"Scale factor for non-directional demand "
-                         f"calculation of {EDP_type} not specified.")
+        raise ValueError(
+            f"Peak orthogonal EDP multiplier for non-directional demand "
+            f"calculation of {EDP_type} not specified.\n"
+            f"Please add {EDP_type} in the configuration dictionary "
+            f"under ['Options']['NonDirectionalMultipliers']"
+            " = {{'edp_type': value, ...}}")
+
+    @property
+    def seed(self):
+        """
+        seed property
+        """
+        return self._seed
+
+    @seed.setter
+    def seed(self, value):
+        """
+        seed property setter
+        """
+        self._seed = value
+        self._rng = np.random.default_rng(self._seed)
+
+    @property
+    def rng(self):
+        """
+        rng property
+        """
+        return self._rng
+
+    @property
+    def units_file(self):
+        """
+        units file property
+        """
+        return self._units_file
+
+    @units_file.setter
+    def units_file(self, value):
+        """
+        units file property setter
+        """
+        self._units_file = value
+
+class Logger:
+
+    """
+    Logger objects are used to generate log files documenting
+    execution events and related messages.
+
+    Attributes
+    ----------
+    verbose: bool
+        If True, the pelicun echoes more information throughout the
+        assessment.  This can be useful for debugging purposes. The
+        value is specified in the user's configuration dictionary,
+        otherwise left as provided in the default configuration file
+        (see settings/default_config.json in the pelicun source code).
+    log_show_ms: bool
+        If True, the timestamps in the log file are in microsecond
+        precision. The value is specified in the user's configuration
+        dictionary, otherwise left as provided in the default
+        configuration file (see settings/default_config.json in the
+        pelicun source code).
+    log_file: str, optional
+        If a value is provided, the log is written to that file. The
+        value is specified in the user's configuration dictionary,
+        otherwise left as provided in the default configuration file
+        (see settings/default_config.json in the pelicun source code).
+    print_log: bool
+        If True, the log is also printed to standard output. The
+        value is specified in the user's configuration dictionary,
+        otherwise left as provided in the default configuration file
+        (see settings/default_config.json in the pelicun source code).
+
+    """
+    # TODO: finalize docstring
+
+    def __init__(self, verbose, log_show_ms, log_file, print_log):
+        """
+        Initializes a Logger object.
+
+        Parameters
+        ----------
+        see attributes of the Logger class.
+
+        """
+        self.verbose = verbose
+        self.log_show_ms = log_show_ms
+        self.log_file = log_file
+        self.print_log = print_log
+        self.reset_log_strings()
 
     @property
     def verbose(self):
+        """
+        verbose property
+        """
         return self._verbose
 
     @verbose.setter
     def verbose(self, value):
+        """
+        verbose property setter
+        """
         self._verbose = bool(value)
+        # display FutureWarnings
+        if self._verbose is True:
+            if not sys.warnoptions:
+                warnings.filterwarnings(
+                    category=FutureWarning,
+                    action='default')
 
     @property
     def log_show_ms(self):
+        """
+        log_show_ms property
+        """
         return self._log_show_ms
 
     @log_show_ms.setter
     def log_show_ms(self, value):
+        """
+        log_show_ms property setter
+        """
         self._log_show_ms = bool(value)
 
         self.reset_log_strings()
 
     @property
     def log_pref(self):
+        """
+        log_pref property
+        """
         return self._log_pref
 
     @property
     def log_div(self):
+        """
+        log_div property
+        """
         return self._log_div
 
     @property
     def log_time_format(self):
+        """
+        log_time_format property
+        """
         return self._log_time_format
 
     @property
-    def seed(self):
-        return self._seed
-
-    @seed.setter
-    def seed(self, value):
-        self._seed = value
-
-        self._rng = np.random.default_rng(self._seed)
-
-    @property
-    def rng(self):
-        return self._rng
-
-    @property
     def log_file(self):
+        """
+        log_file property
+        """
         return self._log_file
 
     @log_file.setter
     def log_file(self, value):
+        """
+        log_file property setter
+        """
 
         if value is None:
             self._log_file = None
@@ -202,22 +419,23 @@ class Options:
                 raise
 
     @property
-    def units_file(self):
-        return self._units_file
-
-    @units_file.setter
-    def units_file(self, value):
-        self._units_file = value
-
-    @property
     def print_log(self):
+        """
+        print_log property
+        """
         return self._print_log
 
     @print_log.setter
     def print_log(self, value):
+        """
+        print_log property setter
+        """
         self._print_log = str2bool(value)
 
     def reset_log_strings(self):
+        """
+        Populates the string-related attributes of the logger
+        """
 
         if self._log_show_ms:
             self._log_time_format = '%H:%M:%S:%f'
@@ -230,36 +448,121 @@ class Options:
             self._log_pref = ' ' * 9
             self._log_div = '-' * (80 - 10)
 
-    def set_options(self, config_options):
+    def msg(self, msg='', prepend_timestamp=True, prepend_blank_space=True):
+        """
+        Writes a message in the log file with the current time as prefix
 
-        if config_options is not None:
+        The time is in ISO-8601 format, e.g. 2018-06-16T20:24:04Z
 
-            for key, value in config_options.items():
+        Parameters
+        ----------
+        msg: string
+            Message to print.
+        prepend_timestamp: bool
+            Controls whether a timestamp is placed before the message.
+        prepend_blank_space: bool
+            Controls whether blank space is placed before the message.
 
-                if key == "Verbose":
-                    self.verbose = value
-                elif key == "Seed":
-                    self.seed = value
-                elif key == "LogShowMS":
-                    self.log_show_ms = value
-                elif key == "LogFile":
-                    self.log_file = value
-                elif key == "UnitsFile":
-                    self.units_file = value
-                elif key == "PrintLog":
-                    self.print_log = value
-                elif key == "SamplingMethod":
-                    self.sampling_method = value
-                elif key == "DemandOffset":
-                    self.demand_offset = value
-                elif key == "NonDirectionalMultipliers":
-                    self.nondir_multi_dict = value
-                elif key == "RepairCostAndTimeCorrelation":
-                    self.rho_cost_time = value
-                elif key == "EconomiesOfScale":
-                    self.eco_scale = value
-                elif key == "ListAllDamageStates":
-                    self.list_all_ds = value
+        """
+
+        # pylint: disable = consider-using-f-string
+        msg_lines = msg.split('\n')
+
+        for msg_i, msg_line in enumerate(msg_lines):
+
+            if (prepend_timestamp and (msg_i == 0)):
+                formatted_msg = '{} {}'.format(
+                    datetime.now().strftime(self.log_time_format), msg_line)
+            elif prepend_timestamp:
+                formatted_msg = self.log_pref + msg_line
+            elif prepend_blank_space:
+                formatted_msg = self.log_pref + msg_line
+            else:
+                formatted_msg = msg_line
+
+            if self.print_log:
+                print(formatted_msg)
+
+            if self.log_file is not None:
+                with open(self.log_file, 'a', encoding='utf-8') as f:
+                    f.write('\n' + formatted_msg)
+
+    def div(self, prepend_timestamp=False):
+        """
+        Adds a divider line in the log file
+        """
+
+        if prepend_timestamp:
+            msg = self.log_div
+        else:
+            msg = '-' * 80
+        self.msg(msg, prepend_timestamp=prepend_timestamp)
+
+    def print_system_info(self):
+        """
+        Writes system information in the log.
+        """
+
+        self.msg(
+            'System Information:',
+            prepend_timestamp=False, prepend_blank_space=False)
+        self.msg(
+            f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+            f'python: {sys.version}\n'
+            f'numpy: {np.__version__}\n'
+            f'pandas: {pd.__version__}\n',
+            prepend_timestamp=False)
+
+        # pylint: disable = consider-using-f-string
+        msg_lines = msg.split('\n')
+
+        for msg_i, msg_line in enumerate(msg_lines):
+
+            if (prepend_timestamp and (msg_i == 0)):
+                formatted_msg = '{} {}'.format(
+                    datetime.now().strftime(self.log_time_format), msg_line)
+            elif prepend_timestamp:
+                formatted_msg = self.log_pref + msg_line
+            elif prepend_blank_space:
+                formatted_msg = self.log_pref + msg_line
+            else:
+                formatted_msg = msg_line
+
+            if self.print_log:
+                print(formatted_msg)
+
+            if self.log_file is not None:
+                with open(self.log_file, 'a', encoding='utf-8') as f:
+                    f.write('\n'+formatted_msg)
+
+    def div(self, prepend_timestamp=False):
+        """
+        Adds a divider line in the log file
+        """
+
+        if prepend_timestamp:
+            msg = self.log_div
+        else:
+            msg = '-' * 80
+        self.msg(msg, prepend_timestamp=prepend_timestamp)
+
+    def print_system_info(self):
+        """
+        Writes system information in the log.
+        """
+
+        self.msg(
+            'System Information:',
+            prepend_timestamp=False, prepend_blank_space=False)
+        self.msg(
+            f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
+            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
+            f'python: {sys.version}\n'
+            f'numpy: {np.__version__}\n'
+            f'pandas: {pd.__version__}\n',
+            prepend_timestamp=False)
+
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
@@ -289,7 +592,7 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
 
     Raises
     ------
-    ValueError:
+    ValueError
         When an invalid axis parameter is specified
     """
 
@@ -353,7 +656,12 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     Returns
     -------
     data: DataFrame
-        The modified DataFrame
+        The modified DataFrame.
+
+    Raises
+    ------
+    ValueError
+        If an invalid axis is specified.
     """
 
     # check if the requested axis is already a MultiIndex
@@ -400,9 +708,10 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     return data
 
 
-
-# print a matrix in a nice way using a DataFrame
 def show_matrix(data, use_describe=False):
+    """
+    Print a matrix in a nice way using a DataFrame
+    """
     if use_describe:
         pp.pprint(pd.DataFrame(data).describe(
             percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
@@ -410,8 +719,10 @@ def show_matrix(data, use_describe=False):
         pp.pprint(pd.DataFrame(data))
 
 
-# Monkeypatch warnings to get prettier messages
 def _warning(message, category, filename, lineno, file=None, line=None):
+    """
+    Monkeypatch warnings to get prettier messages
+    """
     # pylint:disable = unused-argument
     if '\\' in filename:
         file_path = filename.split('\\')
@@ -431,27 +742,11 @@ def _warning(message, category, filename, lineno, file=None, line=None):
 warnings.showwarning = _warning
 
 
-def show_warning(warning_msg):
-    warnings.warn(UserWarning(warning_msg))
-
-
-def print_system_info(assessment):
-
-    assessment.log_msg(
-        'System Information:',
-        prepend_timestamp=False, prepend_blank_space=False)
-    assessment.log_msg(
-        f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
-        f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
-        f'python: {sys.version}\n'
-        f'numpy: {np.__version__}\n'
-        f'pandas: {pd.__version__}\n',
-        prepend_timestamp=False)
-
-
 def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
                               0.977, 0.999)):
-
+    """
+    Provide descriptive statistics.
+    """
     if not isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df
         cols = np.arange(vals.shape[1]) if vals.ndim > 1 else 0
@@ -460,6 +755,10 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
             df = pd.Series(vals, name=cols)
         else:
             df = pd.DataFrame(vals, columns=cols)
+
+    # cast Series into a DataFrame
+    if isinstance(df, pd.Series):
+        df = pd.DataFrame(df)
 
     desc = df.describe(percentiles).T
 
@@ -475,6 +774,9 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
 
 
 def str2bool(v):
+    """
+    Converts various bool-like forms of string to actual booleans
+    """
     # courtesy of Maxim @ stackoverflow
 
     if isinstance(v, bool):
@@ -484,6 +786,90 @@ def str2bool(v):
     if v.lower() in {'no', 'false', 'False', 'f', 'n', '0'}:
         return False
     raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+def float_or_None(string):
+    """
+    This is a convenience function for converting strings to float or
+    None
+
+    Parameters
+    ----------
+    string: str
+        A string
+
+    Returns
+    -------
+    res: float, optional
+        A float, if the given string can be converted to a
+        float. Otherwise, it returns None
+    """
+    try:
+        res = float(string)
+        return res
+    except ValueError:
+        return None
+
+
+def int_or_None(string):
+    """
+    This is a convenience function for converting strings to int or
+    None
+
+    Parameters
+    ----------
+    string: str
+        A string
+
+    Returns
+    -------
+    res: int, optional
+        An int, if the given string can be converted to an
+        int. Otherwise, it returns None
+    """
+    try:
+        res = int(string)
+        return res
+    except ValueError:
+        return None
+
+
+def process_loc(string, stories):
+    """
+    Parses the location parameter.
+    """
+    try:
+        res = int(string)
+        return [res, ]
+    except ValueError:
+        if "-" in string:
+            s_low, s_high = string.split('-')
+            s_low = process_loc(s_low, stories)
+            s_high = process_loc(s_high, stories)
+            return list(range(s_low[0], s_high[0] + 1))
+        if string == "all":
+            return list(range(1, stories + 1))
+        if string == "top":
+            return [stories, ]
+        if string == "roof":
+            return [stories, ]
+        return None
+
+
+def dedupe_index(dataframe, dtype=str):
+    """
+    Adds an extra level to the index of a dataframe so that all
+    resulting index elements are unique. Assumes that the original
+    index is a MultiIndex with specified names.
+
+    """
+
+    inames = dataframe.index.names
+    dataframe.reset_index(inplace=True)
+    dataframe['uid'] = (
+        dataframe.groupby([*inames]).cumcount()).astype(dtype)
+    dataframe.set_index([*inames] + ['uid'], inplace=True)
+    dataframe.sort_index(inplace=True)
 
 
 # Input specs
@@ -530,53 +916,3 @@ EDP_to_demand_type = {
     # Placeholder for advanced calculations
     'One':                            'ONE'
 }
-
-# ~~~~~~~~~~~~~~~~~~ #
-# currently not used #
-# ~~~~~~~~~~~~~~~~~~ #
-
-# default_units = dict(
-#     force='N',
-#     length='m',
-#     area='m2',
-#     volume='m3',
-#     speed='mps',
-#     acceleration='mps2',
-# )
-
-# EDP_units = dict(
-#     # drifts and rotations are not listed here because they are unitless
-
-#     # Floor response
-#     PFA='acceleration',
-#     PFV='speed',
-#     PFD='length',
-
-#     # Wind intensity
-#     PWS='speed',
-
-#     # Inundation intensity
-#     PIH='length',
-
-#     # Shaking intensity
-#     PGA='acceleration',
-#     PGV='speed',
-#     SA='acceleration',
-#     SV='speed',
-#     SD='length',
-#     PGD='length',
-# )
-
-# # PFA in FEMA P58 corresponds to the top of the given story. The ground floor
-# # has an index of 0. When damage of acceleration-sensitive components
-# # is controlled by the acceleration of the bottom of the story, the
-# # corresponding PFA location needs to be reduced by 1. The SimCenter framework
-# # assumes that PFA corresponds to the bottom of the given story
-# # by default, hence, we would need to subtract 1 from the location values.
-# # Rather than changing the locations themselves, we assign an offset of -1
-# # so that the results still get collected at the appropriate story.
-# EDP_offset_adjustment = dict(
-#     PFA=-1,
-#     PFV=-1,
-#     PFD=-1
-# )
