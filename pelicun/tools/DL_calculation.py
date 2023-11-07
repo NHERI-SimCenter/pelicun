@@ -84,6 +84,9 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 idx = pd.IndexSlice
 
+#TODO: separate Damage Processes for Hazus Earthquake - Buildings and - Transportation
+#TODO: Loss map for Hazus EQ Transportation
+
 damage_processes = {
     'FEMA P-58': {
         "1_excessive.coll.DEM": {
@@ -97,7 +100,8 @@ damage_processes = {
         }
     },
 
-    'Hazus Earthquake - Buildings': {
+    #TODO: expand with ground failure logic
+    'Hazus Earthquake': {
         "1_STR": {
             "DS5": "collapse_DS1"
         },
@@ -148,6 +152,72 @@ output_files = [
     "DL_summary.csv",
     "DL_summary_stats.csv",
 ]
+
+full_out_config = {
+    'Demand': {
+        'Sample': True,
+        'Statistics': True
+    },
+    'Asset': {
+        'Sample': True,
+        'Statistics': True
+    },
+    'Damage': {
+        'Sample': True,
+        'Statistics': True,
+        'GroupedSample': True,
+        'GroupedStatistics': True
+    },
+    'Loss': {
+        'BldgRepair': {
+            'Sample': True,
+            'Statistics': True,
+            'GroupedSample': True,
+            'GroupedStatistics': True,
+            'AggregateSample': True,
+            'AggregateStatistics': True
+        }
+    },
+    'Format': {
+        'CSV': True,
+        'JSON': True
+    }
+}
+
+regional_out_config = {
+    'Demand': {
+        'Sample': True,
+        'Statistics': False
+    },
+    'Asset': {
+        'Sample': True,
+        'Statistics': False
+    },
+    'Damage': {
+        'Sample': False,
+        'Statistics': False,
+        'GroupedSample': True,
+        'GroupedStatistics': False
+    },
+    'Loss': {
+        'BldgRepair': {
+            'Sample': True,
+            'Statistics': True,
+            'GroupedSample': True,
+            'GroupedStatistics': False,
+            'AggregateSample': True,
+            'AggregateStatistics': True
+        }
+    },
+    'Format': {
+        'CSV': False,
+        'JSON': True
+    },
+    'Settings': {
+        'CondenseDS': True,
+        'SimpleIndexInJSON': True
+    }
+}
 
 
 def convert_df_to_dict(df, axis=1):
@@ -352,15 +422,18 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             # if detailed results are not requested, add a lean output config
             if detailed_results == False:
                 config_ap['DL'].update({
-                    'Outputs': {  
-                        'Demand': {},
-                        'Asset': {},
-                        'Damage': {},
-                        'Loss': {
-                            'BldgRepair': {}                   
-                        }
-                    }
+                    'Outputs': regional_out_config
                 })
+            else:
+                config_ap['DL'].update({
+                    'Outputs': full_out_config
+                })
+                # add output settings from regional output config
+                if 'Settings' not in config_ap['DL']['Outputs'].keys():
+                    config_ap['DL']['Outputs'].update({'Settings':{}})
+
+                config_ap['DL']['Outputs']['Settings'].update(
+                    regional_out_config['Settings'])
 
             # save the extended config to a file
             config_ap_path = Path(config_path.stem + '_ap.json').resolve()
@@ -385,32 +458,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     
     # provide all outputs if the files are not specified
     if out_config == None:
-        out_config = {
-            'Demand': {
-                'Sample': True,
-                'Statistics': True
-            },
-            'Asset': {
-                'Sample': True,
-                'Statistics': True
-            },
-            'Damage': {
-                'Sample': True,
-                'Statistics': True,
-                'GroupedSample': True,
-                'GroupedStatistics': True
-            },
-            'Loss': {
-                'BldgRepair': {
-                    'Sample': True,
-                    'Statistics': True,
-                    'GroupedSample': True,
-                    'GroupedStatistics': True,
-                    'AggregateSample': True,
-                    'AggregateStatistics': True
-                }
-            }
-        }
+        out_config = full_out_config
 
     # provide outputs in CSV by default
     if ('Format' in out_config.keys()) == False:
@@ -429,6 +477,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 'JSON': 'json' in output_format,
             }
         })
+
+    # add empty Settings to output config to simplify code below
+    if ('Settings' in out_config.keys()) == False:
+        out_config.update({'Settings':{}})
 
     if asset_config is None:
         log_msg("Asset configuration missing. Terminating analysis.")
@@ -452,7 +504,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     #    log_msg("Output configuration missing. Terminating analysis.")
     #    return -1
 
-    # initialize the Pelicun Assessment
+    # initialize the Pelicun Assessement
     options = DL_config.get("Options", {})
     options.update({
         "LogFile": "pelicun_log.txt",
@@ -577,10 +629,12 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         out_reqs = [out if val else "" for out, val in out_config['Demand'].items()]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-            demand_sample = PAL.demand.save_sample()
+            demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
 
             if 'Sample' in out_reqs:
-                demand_sample_s = convert_to_SimpleIndex(demand_sample, axis=1)
+                demand_sample_s = demand_sample.copy()
+                demand_sample_s = pd.concat([demand_sample_s,demand_units.to_frame().T])
+                demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
                 demand_sample_s.to_csv(output_path/"DEM_sample.zip",
                                        index_label=demand_sample_s.columns.name,
                                        compression=dict(
@@ -589,8 +643,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 output_files.append('DEM_sample.zip')             
 
             if 'Statistics' in out_reqs:
-                demand_stats = convert_to_SimpleIndex(
-                    describe(demand_sample), axis=1)
+                demand_stats = describe(demand_sample)
+                demand_stats = pd.concat([demand_stats,demand_units.to_frame().T])
+                demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
                 demand_stats.to_csv(output_path/"DEM_stats.csv",
                                     index_label=demand_stats.columns.name)
                 output_files.append('DEM_stats.csv')
@@ -906,7 +961,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 dmg_process = damage_processes[dp_approach]
 
                 # For Hazus Earthquake, we need to specify the component ids
-                if dp_approach == 'Hazus Earthquake - Buildings':
+                if dp_approach == 'Hazus Earthquake':
 
                     cmp_list = cmp_sample.columns.unique(level=0)
 
@@ -1022,7 +1077,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
 
                     grp_damage = damage_groupby.sum().mask(
-                        damage_groupby.count()==0, np.nan)                    
+                        damage_groupby.count()==0, np.nan)  
+
+                    # if requested, condense DS output to a single column
+                    if out_config['Settings'].get('CondenseDS', False) == True:
+                        ds_list = grp_damage.columns.get_level_values(1).astype(int)
+                    
+                        grp_damage = grp_damage.mul(ds_list, axis=1).groupby(
+                            level=0, axis=1).sum().astype(int)
 
                     if 'GroupedSample' in out_reqs:
                         grp_damage_s = convert_to_SimpleIndex(grp_damage, axis=1)
@@ -1049,9 +1111,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     columns=pd.MultiIndex.from_tuples([('probability',' '),]),
                     index=[0, ])
 
-                if 'collapse-0-1-1' in damage_sample.columns:
+                if ("collapse", 0, 1, 1) in damage_sample.columns:
                     df_res_c['probability'] = (
-                        damage_sample['collapse-0-1-1'].mean())
+                        damage_sample[("collapse", 0, 1, 1)].mean())
 
                 else:
                     df_res_c['probability'] = 0.0
@@ -1149,7 +1211,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     adf.loc[rc, ('DS1', 'Theta_0')] = 0
 
                 # for Hazus EQ, use 1.0 as a loss_ratio
-                elif DL_method == 'Hazus Earthquake - Buildings':
+                elif DL_method == 'Hazus Earthquake':
                     adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
 
@@ -1293,11 +1355,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             drivers.append(f'DMG-{dmg_cmp}')
                             loss_models.append(dmg_cmp)
 
-                elif DL_method == 'Hazus Earthquake - Buildings':
+                elif DL_method in ['Hazus Earthquake', 'Hazus Earthquake Transportation']:
 
                     # with Hazus Earthquake we assume that consequence
                     # archetypes are only differentiated by occupancy type
-                    occ_type = asset_config['OccupancyType']
+                    occ_type = asset_config.get('OccupancyType',None)
 
                     for dmg_cmp in dmg_cmps:
 
@@ -1305,7 +1367,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             continue
 
                         cmp_class = dmg_cmp.split('.')[0]
-                        loss_cmp = f'{cmp_class}.{occ_type}'
+                        if occ_type is not None:
+                            loss_cmp = f'{cmp_class}.{occ_type}'
+                        else:
+                            loss_cmp = cmp_class
 
                         if loss_cmp in loss_cmps:
                             drivers.append(f'DMG-{dmg_cmp}')
@@ -1463,7 +1528,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             
             filename_json = filename[:-3]+'json'
             
-            df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
+            if out_config['Settings'].get('SimpleIndexInJSON', False) == True:
+                df = pd.read_csv(output_path/filename, index_col=0)
+            else:
+                df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
             
             out_dict = convert_df_to_dict(df)
             
@@ -1509,21 +1577,9 @@ def main(args):
     # parser.add_argument('-d', '--demandFile', default=None)
     # parser.add_argument('--DL_Method', default = None)
     # parser.add_argument('--outputBIM', default='BIM.csv')
-    parser.add_argument('--outputEDP', default='EDP.csv')
-    parser.add_argument('--outputDM', default='DM.csv')
-    parser.add_argument('--outputDV', default='DV.csv')
-    parser.add_argument('--dirnameOutput', default=None)
-    # parser.add_argument('--event_time', default=None)
-    # parser.add_argument('--detailed_results', default = True,
-    #    type = str2bool, nargs='?', const=True)
-    # parser.add_argument('--coupled_EDP', default = False,
-    #    type = str2bool, nargs='?', const=False)
-    # parser.add_argument('--log_file', default = True,
-    #    type = str2bool, nargs='?', const=True)
-    # parser.add_argument('--ground_failure', default = False,
-    #    type = str2bool, nargs='?', const=False)
-    # parser.add_argument('--auto_script', default=None)
-    # parser.add_argument('--resource_dir', default=None)
+    # parser.add_argument('--outputEDP', default='EDP.csv')
+    # parser.add_argument('--outputDM', default='DM.csv')
+    # parser.add_argument('--outputDV', default='DV.csv')
     args = parser.parse_args(args)
 
     log_msg('Initializing pelicun calculation...')
