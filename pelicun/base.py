@@ -514,56 +514,6 @@ class Logger:
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
 
-        # pylint: disable = consider-using-f-string
-        msg_lines = msg.split('\n')
-
-        for msg_i, msg_line in enumerate(msg_lines):
-
-            if (prepend_timestamp and (msg_i == 0)):
-                formatted_msg = '{} {}'.format(
-                    datetime.now().strftime(self.log_time_format), msg_line)
-            elif prepend_timestamp:
-                formatted_msg = self.log_pref + msg_line
-            elif prepend_blank_space:
-                formatted_msg = self.log_pref + msg_line
-            else:
-                formatted_msg = msg_line
-
-            if self.print_log:
-                print(formatted_msg)
-
-            if self.log_file is not None:
-                with open(self.log_file, 'a', encoding='utf-8') as f:
-                    f.write('\n'+formatted_msg)
-
-    def div(self, prepend_timestamp=False):
-        """
-        Adds a divider line in the log file
-        """
-
-        if prepend_timestamp:
-            msg = self.log_div
-        else:
-            msg = '-' * 80
-        self.msg(msg, prepend_timestamp=prepend_timestamp)
-
-    def print_system_info(self):
-        """
-        Writes system information in the log.
-        """
-
-        self.msg(
-            'System Information:',
-            prepend_timestamp=False, prepend_blank_space=False)
-        self.msg(
-            f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
-            f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
-            f'python: {sys.version}\n'
-            f'numpy: {np.__version__}\n'
-            f'pandas: {pd.__version__}\n',
-            prepend_timestamp=False)
-
-
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
