@@ -3168,7 +3168,7 @@ class LossModel(PelicunModel):
 
     def calculate(self):
         """
-        Calculate the repair cost and time of each component block in
+        Calculate the consequences of each component block damage in
         the asset.
 
         """
