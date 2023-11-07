@@ -160,10 +160,6 @@ class PelicunModel:
                 theta = marginal_params.loc[
                     row_id, ['Theta_0', 'Theta_1', 'Theta_2']].values
 
-                # if theta_0 is N/A then we have no entry for this row
-                if pd.isna(theta[0]):
-                    continue
-
                 # for each theta
                 args = []
                 for t_i, theta_i in enumerate(theta):
