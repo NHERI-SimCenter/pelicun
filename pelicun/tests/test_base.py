@@ -175,7 +175,7 @@ def test_logger_init():
     # test exceptions
     log_config = {'verbose': True, 'log_show_ms': False,
                   'log_file': '/', 'print_log': True}
-    with pytest.raises(IsADirectoryError):
+    with pytest.raises((IsADirectoryError, FileExistsError)):
         log = base.Logger(**log_config)
 
 
