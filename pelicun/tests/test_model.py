@@ -103,11 +103,12 @@ def test_PelicunModel_convert_marginal_params():
 
     # res:
 
-    #                 Theta_0
-    # cmp loc dir uid        
-    # A   0   1   0       1.0
+    #             Theta_0
+    # cmp loc dir        
+    # A   0   1       1.0
 
     assert 'Theta_0' in res.columns
+    assert res.to_dict() == {'Theta_0': {('A', '0', '1'): 1.0}}
 
     # many rows, with conversions
     marginal_params = pd.DataFrame(
@@ -136,20 +137,6 @@ def test_PelicunModel_convert_marginal_params():
     res = mdl.convert_marginal_params(
         marginal_params, units, arg_units)
 
-    # check that the columns are exactly the following, in no specific
-    # order.
-    assert set(res.columns) == {
-        'Theta_0', 'Family', 'Theta_1', 'Theta_2',
-        'TruncateLower', 'TruncateUpper'}
-
-    # res:
-    #                     Family  Theta_0   Theta_1  Theta_2  TruncateLower  TruncateUpper
-    # cmp loc dir uid                                                                     
-    # A   0   1   0          NaN   1.0000       NaN      NaN            NaN            NaN
-    # B   0   1   0       normal      NaN  1.000000      NaN        -0.1524         0.1524
-    # C   0   1   0    lognormal   0.0254  0.500000      NaN         0.0127         0.0381
-    # D   0   1   0      uniform   0.0000  0.006452      NaN            NaN            NaN
-
     expected_df = pd.DataFrame(
         {
             'Family': [np.nan, 'normal', 'lognormal', 'uniform'],
@@ -160,11 +147,11 @@ def test_PelicunModel_convert_marginal_params():
             'TruncateUpper': [np.nan, 0.1524, 0.0381, np.nan]
         },
         index=pd.MultiIndex.from_tuples((
-                ('A', '0', '1', '0'),
-                ('B', '0', '1', '0'),
-                ('C', '0', '1', '0'),
-                ('D', '0', '1', '0'),
-            ),names=('cmp', 'loc', 'dir', 'uid')))
+                ('A', '0', '1'),
+                ('B', '0', '1'),
+                ('C', '0', '1'),
+                ('D', '0', '1'),
+            ),names=('cmp', 'loc', 'dir')))
 
     pd.testing.assert_frame_equal(expected_df, res)
 

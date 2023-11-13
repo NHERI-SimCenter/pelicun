@@ -121,12 +121,6 @@ class PelicunModel:
             assert np.all(
                 marginal_params.index == arg_units.index)
 
-        # ensure that the index has unique entries by including a
-        # component uid
-        if marginal_params.index.names == ('cmp', 'loc', 'dir'):
-            base.dedupe_index(marginal_params)
-            units.index = marginal_params.index
-
         # preserve the columns in the input marginal_params
         original_cols = marginal_params.columns
 
@@ -1242,6 +1236,10 @@ class AssetModel(PelicunModel):
         # Now we can take care of converting the values to base units
         self.log_msg("Converting model parameters to internal units...",
                      prepend_timestamp=False)
+
+        # ensure that the index has unique entries by introducing an
+        # internal component uid
+        base.dedupe_index(cmp_marginal_params)
 
         cmp_marginal_params = self.convert_marginal_params(
             cmp_marginal_params, cmp_marginal_params['Units']
