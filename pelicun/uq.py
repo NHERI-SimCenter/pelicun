@@ -935,9 +935,6 @@ def _OLS_percentiles(params, values, perc, family):
         theta_0 = params[0]
         theta_1 = params[1]
 
-        if theta_0 <= 0:
-            return 1e10
-
         if theta_1 <= 0:
             return 1e10
 
