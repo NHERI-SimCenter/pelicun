@@ -532,6 +532,12 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
         raw_demands = convert_to_MultiIndex(raw_demands, axis=1)
 
+        if 'Units' in raw_demands.index:
+            raw_units = raw_demands.loc['Units',:]
+        else:
+            raw_units = None
+        raw_demands.drop('Units', axis=0, inplace=True)
+
         DEM_to_drop = np.full(raw_demands.shape[0], False)
 
         for DEM_type, limit in demand_config['CollapseLimits'].items():
@@ -545,6 +551,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                                :, idx[DEM_type, :, :]].max(axis=1) > float(limit)
 
         raw_demands = raw_demands.loc[~DEM_to_drop, :]
+
+        if isinstance(raw_units,pd.Series):
+            raw_demands = pd.concat([raw_demands, raw_units.to_frame().T], axis=0)
 
         log_msg(f"{np.sum(DEM_to_drop)} realizations removed from the demand "
                 f"input because they exceed the collapse limit. The remaining "
