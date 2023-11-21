@@ -215,8 +215,15 @@ regional_out_config = {
     },
     'Settings': {
         'CondenseDS': True,
-        'SimpleIndexInJSON': True
+        'SimpleIndexInJSON': True,
+        'AggregateColocatedComponentResults': True
     }
+}
+
+pbe_settings = {
+    'CondenseDS': False,
+    'SimpleIndexInJSON': False,
+    'AggregateColocatedComponentResults': True
 }
 
 
@@ -480,7 +487,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
     # add empty Settings to output config to simplify code below
     if ('Settings' in out_config.keys()) == False:
-        out_config.update({'Settings':{}})
+        out_config.update({'Settings':pbe_settings})
 
     if asset_config is None:
         log_msg("Asset configuration missing. Terminating analysis.")
