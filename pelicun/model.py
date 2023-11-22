@@ -1006,7 +1006,7 @@ class AssetModel(PelicunModel):
 
         return cmp_sample
 
-    def save_cmp_sample(self, filepath=None):
+    def save_cmp_sample(self, filepath=None, save_units=False):
         """
         Save component quantity sample to a csv file
 
@@ -1035,7 +1035,13 @@ class AssetModel(PelicunModel):
                          prepend_timestamp=False)
             return None
         # else:
+        units = res.loc["Units"]
         res.drop("Units", inplace=True)
+        
+        if save_units:
+            return res.astype(float), units
+
+        #else:
         return res.astype(float)
 
     def load_cmp_sample(self, filepath):
@@ -1371,7 +1377,7 @@ class DamageModel(PelicunModel):
 
         return self._sample
 
-    def save_sample(self, filepath=None):
+    def save_sample(self, filepath=None, save_units=False):
         """
         Save damage sample to a csv file
 
@@ -1398,7 +1404,12 @@ class DamageModel(PelicunModel):
             return None
 
         # else:
+        units = res.loc["Units"]
         res.drop("Units", inplace=True)
+
+        if save_units:
+            return res.astype(float), units
+
         return res.astype(float)
 
     def load_sample(self, filepath):
@@ -2963,7 +2974,7 @@ class LossModel(PelicunModel):
         """
         return self._sample
 
-    def save_sample(self, filepath=None):
+    def save_sample(self, filepath=None, save_units=False):
         """
         Save loss sample to a csv file
 
@@ -2991,7 +3002,12 @@ class LossModel(PelicunModel):
             return None
 
         # else:
+        units = res.loc["Units"]
         res.drop("Units", inplace=True)
+
+        if save_units:
+            return res.astype(float), units
+
         return res.astype(float)
 
     def load_sample(self, filepath):
