@@ -31,3 +31,6 @@ __pycache__
 
 # Emacs automated backup files
 *~/
+/.emacs.desktop
+/.emacs.desktop.lock
+/pelicun/coverage.xml
