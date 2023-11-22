@@ -645,11 +645,14 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         out_reqs = [out if val else "" for out, val in out_config['Demand'].items()]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
+
             demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
 
+            demand_units = demand_units.to_frame().T
+
             if 'Sample' in out_reqs:
-                demand_sample_s = demand_sample.copy()
-                demand_sample_s = pd.concat([demand_sample_s,demand_units.to_frame().T])
+
+                demand_sample_s = pd.concat([demand_sample,demand_units])
                 demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
                 demand_sample_s.to_csv(output_path/"DEM_sample.zip",
                                        index_label=demand_sample_s.columns.name,
@@ -659,13 +662,17 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 output_files.append('DEM_sample.zip')             
 
             if 'Statistics' in out_reqs:
+
                 demand_stats = describe(demand_sample)
-                demand_stats = pd.concat([demand_stats,demand_units.to_frame().T])
+                demand_stats = pd.concat([demand_stats,demand_units])
                 demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
                 demand_stats.to_csv(output_path/"DEM_stats.csv",
                                     index_label=demand_stats.columns.name)
                 output_files.append('DEM_stats.csv')
 
+        # - - - - - 
+        # This is almost surely not needed any more
+        """
         if regional == True:
             
             demand_sample = PAL.demand.save_sample()
@@ -688,7 +695,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             res.to_csv(output_path/"EDP.csv", index_label=res.columns.name)
             output_files.append('EDP.csv')
-
+        """
+        # - - - - - 
 
     # Asset Definition ------------------------------------------------------------
 
@@ -781,12 +789,19 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     # if requested, save results
     if out_config.get('Asset', None) != None:
 
-        out_reqs = [out if val else "" for out, val in out_config['Asset'].items()]
+        cmp_sample, cmp_units = PAL.asset.save_cmp_sample(save_units=True)
+        cmp_units = cmp_units.to_frame().T
+
+        out_reqs = [out if val else "" 
+                    for out, val in out_config['Asset'].items()]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
 
             if 'Sample' in out_reqs:
-                cmp_sample_s = convert_to_SimpleIndex(cmp_sample, axis=1)
+
+                cmp_sample_s = pd.concat([cmp_sample, cmp_units])
+
+                cmp_sample_s = convert_to_SimpleIndex(cmp_sample_s, axis=1)
                 cmp_sample_s.to_csv(output_path/"CMP_sample.zip",
                                     index_label=cmp_sample_s.columns.name,
                                     compression=dict(method='zip',
@@ -794,12 +809,19 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 output_files.append('CMP_sample.zip')
 
             if 'Statistics' in out_reqs:
-                cmp_stats = convert_to_SimpleIndex(describe(cmp_sample), axis=1)
+
+                cmp_stats = describe(cmp_sample)
+                cmp_stats = pd.concat([cmp_stats, cmp_units])
+
+                cmp_stats = convert_to_SimpleIndex(cmp_stats, axis=1)
                 cmp_stats.to_csv(
                     output_path/"CMP_stats.csv",
                     index_label=cmp_stats.columns.name)
                 output_files.append('CMP_stats.csv')
 
+        # - - - - - 
+        # This is almost surely not needed any more
+        """
         if regional == True:
 
             #flatten the dictionary
@@ -827,6 +849,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             df_res.to_csv(output_path/'AIM.csv')
             output_files.append('AIM.csv')
+        """
+        # - - - - - 
 
     # Damage Assessment -----------------------------------------------------------
 
@@ -979,6 +1003,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 # For Hazus Earthquake, we need to specify the component ids
                 if dp_approach == 'Hazus Earthquake':
 
+                    cmp_sample = PAL.asset.save_cmp_sample()
+
                     cmp_list = cmp_sample.columns.unique(level=0)
 
                     cmp_map = {
@@ -1064,6 +1090,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
         # if requested, save results
         if out_config.get('Damage', None) != None:
 
+            damage_sample, damage_units = PAL.damage.save_sample(save_units=True)
+            damage_units = damage_units.to_frame().T
             out_reqs = [out if val else ""
                         for out, val in out_config['Damage'].items()]
 
@@ -1073,7 +1101,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 damage_sample = PAL.damage.save_sample()
 
                 if 'Sample' in out_reqs:
-                    damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
+
+                    damage_sample_s = pd.concat([damage_sample, damage_units])
+
+                    damage_sample_s = convert_to_SimpleIndex(
+                        damage_sample_s, axis=1)
                     damage_sample_s.to_csv(
                         output_path/"DMG_sample.zip",
                         index_label=damage_sample_s.columns.name,
@@ -1082,8 +1114,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     output_files.append('DMG_sample.zip')
 
                 if 'Statistics' in out_reqs:
-                    damage_stats = convert_to_SimpleIndex(describe(damage_sample),
-                                                          axis=1)
+
+                    damage_stats = describe(damage_sample)
+                    damage_stats = pd.concat([damage_stats, damage_units])
+
+                    damage_stats = convert_to_SimpleIndex(damage_stats, axis=1)
                     damage_stats.to_csv(output_path/"DMG_stats.csv",
                                         index_label=damage_stats.columns.name)
                     output_files.append('DMG_stats.csv')
@@ -1092,6 +1127,10 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
                     damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
 
+                        damage_units = damage_units.groupby(
+
+                        damage_units = damage_units.groupby(
+                            level=[0,4], axis=1).first()
                     grp_damage = damage_groupby.sum().mask(
                         damage_groupby.count()==0, np.nan)  
 
@@ -1102,8 +1141,15 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         grp_damage = grp_damage.mul(ds_list, axis=1).groupby(
                             level=0, axis=1).sum().astype(int)
 
+                        damage_units = damage_units.gropuby(
+                            level=0, axis=1).first()
+
                     if 'GroupedSample' in out_reqs:
-                        grp_damage_s = convert_to_SimpleIndex(grp_damage, axis=1)
+
+                        grp_damage_s = pd.concat([grp_damage, damage_units])
+
+                        grp_damage_s = convert_to_SimpleIndex(
+                            grp_damage_s, axis=1)
                         grp_damage_s.to_csv(output_path/"DMG_grp.zip",
                                             index_label=grp_damage_s.columns.name,
                                             compression=dict(
@@ -1112,12 +1158,18 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         output_files.append('DMG_grp.zip')
 
                     if 'GroupedStatistics' in out_reqs:
-                        grp_stats = convert_to_SimpleIndex(describe(grp_damage),
-                                                           axis=1)
+
+                        grp_stats = describe(grp_damage)
+                        grp_stats = pd.concat([grp_stats, damage_units])
+
+                        grp_stats = convert_to_SimpleIndex(grp_stats,axis=1)
                         grp_stats.to_csv(output_path/"DMG_grp_stats.csv",
                                          index_label=grp_stats.columns.name)
                         output_files.append('DMG_grp_stats.csv')
 
+            # - - - - - 
+            # This is almost surely not needed any more
+            """
             if regional == True:
 
                 damage_sample = PAL.damage.save_sample()
@@ -1138,6 +1190,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
                 df_res.to_csv(output_path/'DM.csv')
                 output_files.append('DM.csv')
+            """
+            # - - - - - 
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -1425,8 +1479,12 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             agg_repair = PAL.bldg_repair.aggregate_losses()
 
+            # if requested, save results
             if out_config_loss.get('BldgRepair', False):
 
+                repair_sample, repair_units = PAL.bldg_repair.save_sample(
+                    save_units=True)
+                repair_units = repair_units.to_frame().T
                 out_reqs = [out if val else ""
                             for out, val in out_config_loss['BldgRepair'].items()]
 
@@ -1437,6 +1495,11 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     repair_sample = PAL.bldg_repair.save_sample()
 
                     if 'Sample' in out_reqs:
+
+                        repair_sample_s = repair_sample.copy()
+                        repair_sample_s = pd.concat(
+                            [repair_sample_s, repair_units])
+
                         repair_sample_s = convert_to_SimpleIndex(
                             repair_sample, axis=1)
                         repair_sample_s.to_csv(
@@ -1448,23 +1511,35 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                         output_files.append('DV_bldg_repair_sample.zip')
 
                     if 'Statistics' in out_reqs:
+
+                        repair_stats = describe(repair_sample)
+                        repair_stats = pd.concat(
+                            [repair_stats, repair_units])
+
                         repair_stats = convert_to_SimpleIndex(
-                            describe(repair_sample),
-                            axis=1)
+                            repair_stats, axis=1)
                         repair_stats.to_csv(output_path/"DV_bldg_repair_stats.csv",
                                             index_label=repair_stats.columns.name)
                         output_files.append('DV_bldg_repair_stats.csv')
 
                     if np.any(np.isin(
                             ['GroupedSample', 'GroupedStatistics'], out_reqs)):
-                        
+
                         repair_groupby = repair_sample.groupby(
                             level=[0,1,2], axis=1)
+
+                        repair_units = repair_units.groupby(
+                            level=[0,1,2], axis=1).first()
+
                         grp_repair = repair_groupby.sum().mask(
                             repair_groupby.count()==0, np.nan)
 
                         if 'GroupedSample' in out_reqs:
-                            grp_repair_s = convert_to_SimpleIndex(grp_repair, axis=1)
+
+                            grp_repair_s = pd.concat([grp_repair, repair_units])
+
+                            grp_repair_s = convert_to_SimpleIndex(
+                                grp_repair_s, axis=1)
                             grp_repair_s.to_csv(
                                 output_path/"DV_bldg_repair_grp.zip",
                                 index_label=grp_repair_s.columns.name,
@@ -1474,8 +1549,13 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             output_files.append('DV_bldg_repair_grp.zip')
 
                         if 'GroupedStatistics' in out_reqs:
+
+                            grp_stats = describe(grp_repair)
+                            grp_stats = pd.concat(
+                                [grp_stats, repair_units])
+
                             grp_stats = convert_to_SimpleIndex(
-                                describe(grp_repair), axis=1)
+                                grp_stats, axis=1)
                             grp_stats.to_csv(output_path/"DV_bldg_repair_grp_stats.csv",
                                              index_label=grp_stats.columns.name)
                             output_files.append('DV_bldg_repair_grp_stats.csv')
