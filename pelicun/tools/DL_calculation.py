@@ -784,13 +784,20 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
     elif asset_config.get('ComponentSampleFile', False):
         PAL.asset.load_cmp_sample(asset_config['ComponentSampleFile'])
 
-    cmp_sample = PAL.asset.save_cmp_sample()
-
     # if requested, save results
     if out_config.get('Asset', None) != None:
 
         cmp_sample, cmp_units = PAL.asset.save_cmp_sample(save_units=True)
         cmp_units = cmp_units.to_frame().T
+
+        if out_config['Settings'].get(
+        'AggregateColocatedComponentResults', False) == True:
+            cmp_units = cmp_units.groupby(level=[0,1,2], axis=1).first()
+
+            cmp_groupby_uid = cmp_sample.groupby(level=[0,1,2], axis=1)
+
+            cmp_sample = cmp_groupby_uid.sum().mask(
+                cmp_groupby_uid.count()==0, np.nan)
 
         out_reqs = [out if val else "" 
                     for out, val in out_config['Asset'].items()]
@@ -1092,13 +1099,24 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             damage_sample, damage_units = PAL.damage.save_sample(save_units=True)
             damage_units = damage_units.to_frame().T
+
+            if out_config['Settings'].get(
+                'AggregateColocatedComponentResults', False) == True:
+                damage_units = damage_units.groupby(
+                    level=[0,1,2,4], axis=1).first()
+
+                damage_groupby_uid = damage_sample.groupby(
+                    level=[0,1,2,4], axis=1)
+
+                damage_sample = damage_groupby_uid.sum().mask(
+                    damage_groupby_uid.count()==0, np.nan)
+
             out_reqs = [out if val else ""
                         for out, val in out_config['Damage'].items()]
 
             if np.any(np.isin(['Sample', 'Statistics',
                                'GroupedSample', 'GroupedStatistics'],
                               out_reqs)):
-                damage_sample = PAL.damage.save_sample()
 
                 if 'Sample' in out_reqs:
 
@@ -1125,12 +1143,21 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
                 if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
 
-                    damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
+                    if out_config['Settings'].get(
+                        'AggregateColocatedComponentResults', False) == True:
+                        
+                        damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
 
                         damage_units = damage_units.groupby(
+                            level=[0,3], axis=1).first()
+
+                    else:
+
+                        damage_groupby = damage_sample.groupby(level=[0,4], axis=1)
 
                         damage_units = damage_units.groupby(
                             level=[0,4], axis=1).first()
+
                     grp_damage = damage_groupby.sum().mask(
                         damage_groupby.count()==0, np.nan)  
 
@@ -1485,14 +1512,26 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 repair_sample, repair_units = PAL.bldg_repair.save_sample(
                     save_units=True)
                 repair_units = repair_units.to_frame().T
+
+                if out_config['Settings'].get(
+                    'AggregateColocatedComponentResults', False) == True:
+
+                    repair_units = repair_units.groupby(
+                        level=[0,1,2,3,4,5], axis=1).first()
+
+                    repair_groupby_uid = repair_sample.groupby(
+                        level=[0,1,2,3,4,5], axis=1)
+
+                    repair_sample = repair_groupby_uid.sum().mask(
+                        repair_groupby_uid.count()==0, np.nan)
+
                 out_reqs = [out if val else ""
                             for out, val in out_config_loss['BldgRepair'].items()]
 
                 if np.any(np.isin(['Sample', 'Statistics',
                                    'GroupedSample', 'GroupedStatistics',
                                    'AggregateSample', 'AggregateStatistics'],
-                                  out_reqs)):
-                    repair_sample = PAL.bldg_repair.save_sample()
+                                  out_reqs)):                    
 
                     if 'Sample' in out_reqs:
 
@@ -1501,7 +1540,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             [repair_sample_s, repair_units])
 
                         repair_sample_s = convert_to_SimpleIndex(
-                            repair_sample, axis=1)
+                            repair_sample_s, axis=1)
                         repair_sample_s.to_csv(
                             output_path/"DV_bldg_repair_sample.zip",
                             index_label=repair_sample_s.columns.name,
@@ -1628,7 +1667,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 df = pd.read_csv(output_path/filename, index_col=0)
             else:
                 df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
-            
+
             out_dict = convert_df_to_dict(df)
             
             with open(output_path/filename_json, 'w') as f:
