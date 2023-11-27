@@ -228,7 +228,7 @@ def test_parse_units():
 
     # Test that an exception is raised if a unit conversion factor is not a float
     invalid_units_file = 'tests/data/file_io/test_parse_units/not_float.json'
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         units = file_io.parse_units(invalid_units_file)
 
     # Test that we get an error if some first-level key does not point
