@@ -522,4 +522,5 @@ def test_run_input_specs():
     """
     Just for the shake of coverage ^_^
     """
-    print(base.pelicun_path)
+    assert (
+        os.path.basename(base.pelicun_path) == 'pelicun')
