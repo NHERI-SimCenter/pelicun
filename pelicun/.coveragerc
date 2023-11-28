@@ -1,2 +1,5 @@
 [run]
 omit = db.py,auto.py
+[report]
+exclude_lines = 
+    def get_required_resources
