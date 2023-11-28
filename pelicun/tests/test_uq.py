@@ -1193,6 +1193,15 @@ def test_RandomVariable_inverse_transform():
     inverse_transform = rv.sample
     assert np.allclose(inverse_transform, np.array((0.26, 0.32, 0.38)), rtol=1e-5)
 
+    # sample as a pandas series, with a log() map
+    rv._f_map = np.log
+    assert (
+        rv.sample_DF
+        .to_dict() == {
+            0: -1.3470736479666092,
+            1: -1.1394342831883646,
+            2: -0.9675840262617056})
+
     #
     # lognormal
     #
@@ -1292,9 +1301,16 @@ def test_RandomVariable_inverse_transform():
         inverse_transform, np.array((1.00, 3.00, 4.00)),
         rtol=1e-5)
 
-    #
-    # TODO: figure out how to do coupled empirical
-    #
+    rv = uq.RandomVariable(
+        'test_rv', 'coupled_empirical',
+        raw_samples=np.array((1.00, 2.00, 3.00, 4.00)))
+    rv.inverse_transform_sampling(6)
+    inverse_transform = rv.sample
+
+    assert np.allclose(
+        inverse_transform,
+        np.array((1.00, 2.00, 3.00, 4.00, 1.00, 2.00)),
+        rtol=1e-5)
 
     #
     # edge cases
@@ -1569,6 +1585,8 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         rv_registry.add_RV(rv_1)
         rv_registry.add_RV(rv_2)
         rv_registry.add_RV(rv_3)
+        with pytest.raises(ValueError):
+            rv_registry.add_RV(rv_3)
 
         # create a random variable set and add it to the registry
         rv_set = uq.RandomVariableSet(
