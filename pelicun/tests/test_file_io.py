@@ -58,6 +58,13 @@ from pelicun import file_io
 
 # The tests maintain the order of definitions of the `file_io.py` file.
 
+def test_dict_raise_on_duplicates():
+    res = file_io.dict_raise_on_duplicates([('A', '1'), ('B', '2')])
+    assert res == {'A': '1', 'B': '2'}
+    with pytest.raises(ValueError):
+        file_io.dict_raise_on_duplicates([('A', '1'), ('A', '2')])
+
+
 def test_update_vals():
     """
     Tests the functionality of the update_vals function.
@@ -228,7 +235,7 @@ def test_parse_units():
 
     # Test that an exception is raised if a unit conversion factor is not a float
     invalid_units_file = 'tests/data/file_io/test_parse_units/not_float.json'
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         units = file_io.parse_units(invalid_units_file)
 
     # Test that we get an error if some first-level key does not point

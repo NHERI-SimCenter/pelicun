@@ -361,6 +361,23 @@ def test_show_matrix():
     assert True  # if no AssertionError is thrown, then the test passes
 
 
+def test__warning(capsys):
+    """
+    Tests the functionality of the _warning function.
+    """
+    msg = 'This is a test.'
+    category = 'undefined'
+    base._warning(msg, category, '{path to a file}', '{line number}')
+    captured = capsys.readouterr()
+    assert captured.out == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
+    base._warning(msg, category, 'some\\file', '{line number}')
+    captured = capsys.readouterr()
+    assert captured.out == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    base._warning(msg, category, 'some/file', '{line number}')
+    captured = capsys.readouterr()
+    assert captured.out == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+
+
 def test_describe():
     """
     Tests the functionality of the describe function.
@@ -505,4 +522,5 @@ def test_run_input_specs():
     """
     Just for the shake of coverage ^_^
     """
-    print(base.pelicun_path)
+    assert (
+        os.path.basename(base.pelicun_path) == 'pelicun')
