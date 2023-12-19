@@ -248,11 +248,6 @@ def auto_populate(AIM):
         else:
             ot = GI['OccupancyClass']
 
-        ReplacementCost = GI.get('ReplacementCost', None)
-        ReplacementTime = GI.get('ReplacementTime', None)
-        ReplacementCarbon = GI.get('ReplacementCarbon', None)
-        ReplacementEnergy = GI.get('ReplacementEnergy', None)
-        # population = GI.get('Population', 1.0)
         plan_area = GI.get('PlanArea', 1.0)
 
         rise = convert_story_rise(bt, stories)
