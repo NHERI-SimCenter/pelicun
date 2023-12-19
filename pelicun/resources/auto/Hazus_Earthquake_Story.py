@@ -154,7 +154,7 @@ def story_scale(stories, comp_type):
 
 def auto_populate(AIM):
     """
-    Automatically creates a performance model for PGA-based Hazus EQ analysis.
+    Automatically creates a performance model for story EDP-based Hazus EQ analysis.
 
     Parameters
     ----------
@@ -195,10 +195,6 @@ def auto_populate(AIM):
 
         # get the building parameters
         bt = GI['StructureType'] #building type
-        # TODO Is this needed?
-        # Below is from pelicun 2 autopop. Needs EDP_input from DL_calculation
-        # if bt == 'RV.structType':
-        #         bt = EDP_input['structType'].values[0]
 
         # get the number of stories / height
         stories = GI.get('NumberOfStories', None)
@@ -246,7 +242,7 @@ def auto_populate(AIM):
 
             GI_ap['DesignLevel'] = dl
 
-        # get the occupancy class TODO Shall we add this to IM-based autopop?
+        # get the occupancy class
         if GI['OccupancyClass'] in ap_Occupancy.keys():
             ot = ap_Occupancy[GI['OccupancyClass']]
         else:
@@ -268,9 +264,9 @@ def auto_populate(AIM):
         FG_NSA = f'NSA.{dl}'
 
         CMP = pd.DataFrame(
-                {f'{FG_S}':   ['ea',      'all',     '1, 2', '{q}'.format(q = story_scale(stories, 'S')/stories/2.),   'N/A'],
-                 f'{FG_NSA}': ['ea',      'all',      1, '{q}'.format(q = story_scale(stories, 'NSA')/stories),   'N/A'],
-                 f'{FG_NSD}': ['ea',      'all',     '1, 2', '{q}'.format(q = story_scale(stories, 'NSD')/stories/2.),   'N/A']},
+                {f'{FG_S}':   ['ea',      'all',     '1, 2', f"{story_scale(stories, 'S')/stories/2.}",   'N/A'],
+                 f'{FG_NSA}': ['ea',      'all',      0, f"{story_scale(stories, 'NSA')/stories}",   'N/A'],
+                 f'{FG_NSD}': ['ea',      'all',     '1, 2', f"{story_scale(stories, 'NSD')/stories/2.}",   'N/A']},
                 index = ['Units','Location','Direction',
                          'Theta_0','Family']
             
@@ -295,26 +291,6 @@ def auto_populate(AIM):
                     "ConsequenceDatabase": "Hazus Earthquake - Buildings",
                     "MapApproach": "Automatic"
                 }
-        if ReplacementCost is not None:
-            bldg_repair_config.update({"ReplacementCost":{
-                "Unit" : 'UserDefined',
-                'Median': ReplacementCost
-            }})
-        if ReplacementTime is not None:
-            bldg_repair_config.update({"ReplacementTime":{
-                "Unit" : 'UserDefined',
-                'Median': ReplacementTime
-            }})
-        if ReplacementCarbon is not None:
-            bldg_repair_config.update({"ReplacementCarbon":{
-                "Unit" : 'UserDefined',
-                'Median': ReplacementCarbon
-            }})
-        if ReplacementEnergy is not None:
-            bldg_repair_config.update({"ReplacementEnergy":{
-                "Unit" : 'UserDefined',
-                'Median': ReplacementEnergy
-            }})
         DL_ap = {
             "Asset": {
                 "ComponentAssignmentFile": "CMP_QNT.csv",
