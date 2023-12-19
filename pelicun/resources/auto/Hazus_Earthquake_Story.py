@@ -296,13 +296,25 @@ def auto_populate(AIM):
                     "MapApproach": "Automatic"
                 }
         if ReplacementCost is not None:
-            bldg_repair_config.update({"ReplacementCost":ReplacementCost})
+            bldg_repair_config.update({"ReplacementCost":{
+                "Unit" : 'UserDefined',
+                'Median': ReplacementCost
+            }})
         if ReplacementTime is not None:
-            bldg_repair_config.update({"ReplacementTime":ReplacementTime})
+            bldg_repair_config.update({"ReplacementTime":{
+                "Unit" : 'UserDefined',
+                'Median': ReplacementTime
+            }})
         if ReplacementCarbon is not None:
-            bldg_repair_config.update({"ReplacementCarbon":ReplacementCarbon})
+            bldg_repair_config.update({"ReplacementCarbon":{
+                "Unit" : 'UserDefined',
+                'Median': ReplacementCarbon
+            }})
         if ReplacementEnergy is not None:
-            bldg_repair_config.update({"ReplacementEnergy":ReplacementEnergy})
+            bldg_repair_config.update({"ReplacementEnergy":{
+                "Unit" : 'UserDefined',
+                'Median': ReplacementEnergy
+            }})
         DL_ap = {
             "Asset": {
                 "ComponentAssignmentFile": "CMP_QNT.csv",
