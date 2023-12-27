@@ -265,7 +265,8 @@ def convert_df_to_dict(df, axis=1):
         if skip_sub == True:
             
             if np.all(sub_df.index.astype(str).str.isnumeric()) == True:
-                out_dict[label] = df_in[label].tolist()
+                out_dict_label = df_in[label].astype(float)
+                out_dict[label] = out_dict_label.tolist()
             else:
                 out_dict[label] = {key:sub_df.loc[key] for key in sub_df.index}
                 
@@ -1701,8 +1702,19 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             else:
                 df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
 
-            out_dict = convert_df_to_dict(df)
-            
+            if "Units" in df.index:
+                df_units = df.loc['Units',:].to_frame().T
+                df.drop("Units", axis=0, inplace=True)
+
+                out_dict = convert_df_to_dict(df)
+
+                out_dict.update({"Units": 
+                    {col: df_units.loc["Units", col] for col in df_units.columns}})
+
+            else:
+
+                out_dict = convert_df_to_dict(df)
+                
             with open(output_path/filename_json, 'w') as f:
                 json.dump(out_dict, f, indent=2)
 
