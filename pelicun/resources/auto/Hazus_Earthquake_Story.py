@@ -76,28 +76,6 @@ convert_design_level = {
         'Pre-Code'     : 'PC'
     }
 
-def convert_story_rise(structureType, stories):
-    rise = None
-    if structureType == 'RM1':
-        if stories <= 3:
-            rise = "L"
-        else:
-            rise = "M"
-    elif structureType == 'URM':
-        if stories <= 2:
-            rise = "L"
-        else:
-            rise = "M"
-    elif structureType in ['S1', 'S2', 'S4', 'S5', 'C1', 'C2', 'C3', 'PC1', \
-                           'PC2', 'RM2']:
-        if stories <=3:
-            rise = "L"
-        elif stories <= 7:
-            rise = "M"
-        else:
-            rise = "H"
-    return rise
-
 def story_scale(stories, comp_type):
     if comp_type == 'NSA':
         if stories == 1:
@@ -194,33 +172,7 @@ def auto_populate(AIM):
     if assetType=="Buildings":
 
         # get the building parameters
-        bt = GI['StructureType'] #building type
-
-        # get the number of stories / height
-        stories = GI.get('NumberOfStories', None)
-
-        if stories!=None:
-            # We assume that the structure type does not include height information
-            # and we append it here based on the number of story information
-
-            if bt not in ['W1', 'W2', 'S3', 'PC1', 'MH']:
-                if bt not in ['URM']:
-                    if stories <= 3:
-                        bt += 'L'
-                    elif stories <= 7:
-                        bt += 'M'
-                    else:
-                        if bt in ['RM']:
-                            bt += 'M'
-                        else:
-                            bt += 'H'
-                else:
-                    if stories <= 2:
-                        bt += 'L'
-                    else:
-                        bt += 'M'
-
-            GI_ap['BuildingType'] = bt
+        bt = GI['StructureType'] #building type        
 
         # get the design level
         dl = GI.get('DesignLevel', None)
@@ -242,19 +194,10 @@ def auto_populate(AIM):
 
             GI_ap['DesignLevel'] = dl
 
-        # get the occupancy class
-        if GI['OccupancyClass'] in ap_Occupancy.keys():
-            ot = ap_Occupancy[GI['OccupancyClass']]
-        else:
-            ot = GI['OccupancyClass']
+        # get the number of stories / height
+        stories = GI.get('NumberOfStories', None)
 
-        plan_area = GI.get('PlanArea', 1.0)
-
-        rise = convert_story_rise(bt, stories)
-        if rise is not None:
-            FG_S = f'STR.{bt}.{rise}.{dl}'
-        else:
-            FG_S = f'STR.{bt}.{dl}'
+        FG_S = f'STR.{bt}.{dl}'
         FG_NSD = f'NSD'
         FG_NSA = f'NSA.{dl}'
 
@@ -282,14 +225,31 @@ def auto_populate(AIM):
             ).T
 
             CMP = pd.concat([CMP, CMP_GF], axis=0)
+
+
+        # get the occupancy class
+        if GI['OccupancyClass'] in ap_Occupancy.keys():
+            ot = ap_Occupancy[GI['OccupancyClass']]
+        else:
+            ot = GI['OccupancyClass']
+
+        plan_area = GI.get('PlanArea', 1.0)
+
         bldg_repair_config = {
-                    "ConsequenceDatabase": "Hazus Earthquake - Buildings",
-                    "MapApproach": "Automatic"
+                    "ConsequenceDatabase": "Hazus Earthquake - Stories",
+                    "MapApproach": "Automatic",
+                    "DecisionVariables": {
+                        "Cost": True,
+                        "Carbon": False,
+                        "Energy": False,
+                        "Time": False
+                    }
                 }
+
         DL_ap = {
             "Asset": {
                 "ComponentAssignmentFile": "CMP_QNT.csv",
-                "ComponentDatabase": "Hazus Earthquake - Buildings",
+                "ComponentDatabase": "Hazus Earthquake - Stories",
                 "NumberOfStories": f"{stories}",
                 "OccupancyType": f"{ot}",
                 "PlanArea": str(plan_area)
