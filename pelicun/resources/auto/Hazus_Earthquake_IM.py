@@ -52,6 +52,23 @@ ap_DesignLevel_W1 = {
     1975: 'MC',
     2100: 'HC'
 }
+
+ap_Occupancy = {
+    'Other/Unknown': 'RES3',
+    'Residential - Single-Family': 'RES1',
+    'Residential - Town-Home': 'RES3',
+    'Residential - Multi-Family': 'RES3',
+    'Residential - Mixed Use': 'RES3',
+    'Office': 'COM4',
+    'Hotel': 'RES4',
+    'School': 'EDU1',
+    'Industrial - Light': 'IND2',
+    'Industrial - Warehouse': 'IND2',
+    'Industrial - Heavy': 'IND1',
+    'Retail': 'COM1',
+    'Parking' : 'COM10'
+}
+
 def convertBridgeToHAZUSclass(AIM):
 
     #TODO: replace labels in AIM with standard CamelCase versions
@@ -351,8 +368,6 @@ def auto_populate(AIM):
 
             GI_ap['DesignLevel'] = dl
 
-        # get the occupancy class
-        ot = GI['OccupancyClass']
         # get the number of stories / height
         stories = GI.get('NumberOfStories', None)
 
@@ -387,6 +402,16 @@ def auto_populate(AIM):
             ).T
 
             CMP = pd.concat([CMP, CMP_GF], axis=0)
+
+        # set the number of stories to 1
+        # there is only one component in a building-level resolution
+        stories = 1
+
+        # get the occupancy class
+        if GI['OccupancyClass'] in ap_Occupancy.keys():
+            ot = ap_Occupancy[GI['OccupancyClass']]
+        else:
+            ot = GI['OccupancyClass']
         
         DL_ap = {
             "Asset": {
