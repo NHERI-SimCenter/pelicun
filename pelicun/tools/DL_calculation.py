@@ -124,11 +124,13 @@ default_DBs = {
     'fragility': {
         'FEMA P-58': 'damage_DB_FEMA_P58_2nd.csv',
         'Hazus Earthquake - Buildings': 'damage_DB_Hazus_EQ_bldg.csv',
+        'Hazus Earthquake - Stories': 'damage_DB_Hazus_EQ_story.csv',
         'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv'
     },
     'repair': {
         'FEMA P-58': 'loss_repair_DB_FEMA_P58_2nd.csv',
         'Hazus Earthquake - Buildings': 'loss_repair_DB_Hazus_EQ_bldg.csv',
+        'Hazus Earthquake - Stories': 'loss_repair_DB_Hazus_EQ_story.csv',
         'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv'
     }
 
@@ -1452,7 +1454,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             drivers.append(f'DMG-{dmg_cmp}')
                             loss_models.append(dmg_cmp)
 
-                elif DL_method in ['Hazus Earthquake', 'Hazus Earthquake Transportation']:
+                elif DL_method in ['Hazus Earthquake', 
+                                   'Hazus Earthquake Transportation']:
 
                     # with Hazus Earthquake we assume that consequence
                     # archetypes are only differentiated by occupancy type
