@@ -1148,29 +1148,59 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     if out_config['Settings'].get(
                         'AggregateColocatedComponentResults', False) == True:
                         
-                        damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
+                        damage_groupby = damage_sample.groupby(level=[0,1,3], axis=1)
 
                         damage_units = damage_units.groupby(
-                            level=[0,3], axis=1).first()
+                            level=[0,1,3], axis=1).first()
 
                     else:
 
-                        damage_groupby = damage_sample.groupby(level=[0,4], axis=1)
+                        damage_groupby = damage_sample.groupby(level=[0,1,4], axis=1)
 
                         damage_units = damage_units.groupby(
-                            level=[0,4], axis=1).first()
+                            level=[0,1,4], axis=1).first()
 
                     grp_damage = damage_groupby.sum().mask(
                         damage_groupby.count()==0, np.nan)  
 
-                    # if requested, condense DS output to a single column
+                    # if requested, condense DS output
                     if out_config['Settings'].get('CondenseDS', False) == True:
-                        ds_list = grp_damage.columns.get_level_values(1).astype(int)
-                    
-                        grp_damage = grp_damage.mul(ds_list, axis=1).groupby(
-                            level=0, axis=1).sum().astype(int)
 
-                        damage_units = damage_units.gropuby(
+                        # replace non-zero values with 1
+                        grp_damage = grp_damage.mask(
+                            grp_damage.astype(np.float64).values>0, 1)
+
+                        # get the corresponding DS for each column
+                        ds_list = grp_damage.columns.get_level_values(2).astype(int)
+                
+                        # replace ones with the corresponding DS in each cell
+                        grp_damage = grp_damage.mul(ds_list, axis=1)
+
+                        # aggregate across damage state indices
+                        damage_groupby_2 = grp_damage.groupby(
+                            level=[0,1], axis=1)
+
+                        # choose the max value
+                        # i.e., the governing DS for each comp-loc pair
+                        grp_damage = damage_groupby_2.max().mask(
+                            damage_groupby_2.count()==0, np.nan)
+
+                        # aggregate units to the same format
+                        # assume identical units across locations for each comp
+                        damage_units = damage_units.groupby(
+                            level=[0,1], axis=1).first()
+
+                    else:
+                        # otherwise, aggregate damage quantities for each comp
+                        damage_groupby_2 = grp_damage.groupby(
+                            level=0, axis=1)
+
+                        # preserve NaNs
+                        grp_damage = damage_groupby_2.sum().mask(
+                            damage_groupby_2.count()==0, np.nan)
+
+                        # and aggregate units to the same format
+                        damage_units = damage_units.groupby(
                             level=0, axis=1).first()
 
                     if 'GroupedSample' in out_reqs:
