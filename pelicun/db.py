@@ -1738,7 +1738,8 @@ def create_FEMA_P58_bldg_redtag_db(
 def create_Hazus_EQ_fragility_db(source_file,
                                  meta_file='',
                                  target_data_file='damage_DB_Hazus_EQ_bldg.csv',
-                                 target_meta_file='damage_DB_Hazus_EQ_bldg.json'):
+                                 target_meta_file='damage_DB_Hazus_EQ_bldg.json',
+                                 resolution='building'):
     """
     Create a database file based on the HAZUS EQ Technical Manual
 
@@ -1758,8 +1759,17 @@ def create_Hazus_EQ_fragility_db(source_file,
     target_meta_file: string
         Path where the fragility metadata should be saved. A json file is
         expected.
+    resoltuion: string
+        If building, the function produces the conventional Hazus 
+        fragilities. If story, the function produces story-level 
+        fragilities.
 
     """
+
+    # adjust the target filenames if needed
+    if resolution == 'story':
+        target_data_file = target_data_file.replace('bldg', 'story')
+        target_meta_file = target_meta_file.replace('bldg', 'story')
 
     # parse the source file
     with open(source_file, 'r', encoding='utf-8') as f:
@@ -1856,12 +1866,23 @@ def create_Hazus_EQ_fragility_db(source_file,
                     st = bt
                     hc = None
 
+                # story-level fragilities are based only on the low rise archetypes
+                if resolution == 'story':
+                    if hc in ['M', 'H']:
+                        continue
+                    elif hc == 'L':
+                        bt_exp = st
+
                 # create the component id
                 cmp_id = f'STR.{bt_exp}.{convert_design_level[dl]}'
                 df_db.loc[counter, 'ID'] = cmp_id
 
                 # store demand specifications
-                df_db.loc[counter, 'Demand-Type'] = "Peak Roof Drift Ratio"
+                if resolution == 'building':
+                    df_db.loc[counter, 'Demand-Type'] = "Peak Roof Drift Ratio"
+                elif resolution == 'story':
+                    df_db.loc[counter, 'Demand-Type'] = "Peak Interstory Drift Ratio"
+
                 df_db.loc[counter, 'Demand-Unit'] = "rad"
                 df_db.loc[counter, 'Demand-Offset'] = 0
 
@@ -1938,7 +1959,11 @@ def create_Hazus_EQ_fragility_db(source_file,
     df_db.loc[counter, 'ID'] = 'NSD'
 
     # store demand specifications
-    df_db.loc[counter, 'Demand-Type'] = "Peak Roof Drift Ratio"
+    if resolution == 'building':
+        df_db.loc[counter, 'Demand-Type'] = "Peak Roof Drift Ratio"
+    elif resolution == 'story':
+        df_db.loc[counter, 'Demand-Type'] = "Peak Interstory Drift Ratio"
+
     df_db.loc[counter, 'Demand-Unit'] = "rad"
     df_db.loc[counter, 'Demand-Offset'] = 0
 
@@ -2016,97 +2041,98 @@ def create_Hazus_EQ_fragility_db(source_file,
 
         counter += 1
 
-    # Fourth, the lifeline facilities
-    LF_data = raw_data['Lifeline_Facilities']
+    # Fourth, the lifeline facilities - only at the building-level resolution
+    if resolution == 'building':
+        LF_data = raw_data['Lifeline_Facilities']
 
-    for bt in building_types:
-        for dl in design_levels:
-            if bt in LF_data['EDP_limits'][dl].keys():
+        for bt in building_types:
+            for dl in design_levels:
+                if bt in LF_data['EDP_limits'][dl].keys():
 
-                # add a dot in bt between structure and height labels, if needed
-                if ((len(bt)>2) and (bt[-1] in ['L','M','H'])):
-                    bt_exp = f'{bt[:-1]}.{bt[-1]}'
-                    st = bt[:-1]
-                    hc = bt[-1]
-                else:
-                    bt_exp = bt
-                    st = bt
-                    hc = None
-
-                # create the component id
-                cmp_id = f'LF.{bt_exp}.{convert_design_level[dl]}'
-                df_db.loc[counter, 'ID'] = cmp_id
-
-                # store demand specifications
-                df_db.loc[counter, 'Demand-Type'] = "Peak Ground Acceleration"
-                df_db.loc[counter, 'Demand-Unit'] = "g"
-                df_db.loc[counter, 'Demand-Offset'] = 0
-
-                # add metadata
-                if hc != None:
-                    cmp_meta = {
-                        "Description": (
-                            frag_meta['Meta']['Collections']['LF']['Description']+", "+
-                            frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
-                            frag_meta['Meta']['HeightClasses'][hc]['Description'] + ", "+
-                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
-                            ),
-                        "Comments": (
-                            frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
-                            frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
-                            frag_meta['Meta']['HeightClasses'][hc]['Comment'] + "\n"+
-                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
-                            ),
-                        "SuggestedComponentBlockSize": "1 EA",
-                        "RoundUpToIntegerQuantity": "True",
-                        "LimitStates": {}
-                    }
-                else:
-                    cmp_meta = {
-                        "Description": (
-                            frag_meta['Meta']['Collections']['LF']['Description']+", "+
-                            frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
-                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
-                            ),
-                        "Comments": (
-                            frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
-                            frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
-                            frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
-                            ),
-                        "SuggestedComponentBlockSize": "1 EA",
-                        "RoundUpToIntegerQuantity": "True",
-                        "LimitStates": {}
-                    }
-
-                # store the Limit State parameters
-                ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
-                for LS_i in range(1, 5):
-
-                    df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
-                    df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
-                        LF_data['EDP_limits'][dl][bt][LS_i - 1]
-                    df_db.loc[counter, f'LS{LS_i}-Theta_1'] = \
-                        LF_data['Fragility_beta'][dl]
-
-                    if LS_i == 4:
-                        p_coll = LF_data['P_collapse'][bt]
-                        df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
-                            f'{1.0 - p_coll} | {p_coll}')
-
-                        cmp_meta["LimitStates"].update({"LS4": {
-                            "DS4": {"Description": ds_meta['DS4']},
-                            "DS5": {"Description": ds_meta['DS5']}
-                        }})
-
+                    # add a dot in bt between structure and height labels, if needed
+                    if ((len(bt)>2) and (bt[-1] in ['L','M','H'])):
+                        bt_exp = f'{bt[:-1]}.{bt[-1]}'
+                        st = bt[:-1]
+                        hc = bt[-1]
                     else:
-                        cmp_meta["LimitStates"].update({f"LS{LS_i}": {
-                            f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
-                        }})
+                        bt_exp = bt
+                        st = bt
+                        hc = None
 
-                # store metadata
-                meta_dict.update({cmp_id:cmp_meta})
+                    # create the component id
+                    cmp_id = f'LF.{bt_exp}.{convert_design_level[dl]}'
+                    df_db.loc[counter, 'ID'] = cmp_id
 
-                counter += 1
+                    # store demand specifications
+                    df_db.loc[counter, 'Demand-Type'] = "Peak Ground Acceleration"
+                    df_db.loc[counter, 'Demand-Unit'] = "g"
+                    df_db.loc[counter, 'Demand-Offset'] = 0
+
+                    # add metadata
+                    if hc != None:
+                        cmp_meta = {
+                            "Description": (
+                                frag_meta['Meta']['Collections']['LF']['Description']+", "+
+                                frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
+                                frag_meta['Meta']['HeightClasses'][hc]['Description'] + ", "+
+                                frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
+                                ),
+                            "Comments": (
+                                frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
+                                frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
+                                frag_meta['Meta']['HeightClasses'][hc]['Comment'] + "\n"+
+                                frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                                ),
+                            "SuggestedComponentBlockSize": "1 EA",
+                            "RoundUpToIntegerQuantity": "True",
+                            "LimitStates": {}
+                        }
+                    else:
+                        cmp_meta = {
+                            "Description": (
+                                frag_meta['Meta']['Collections']['LF']['Description']+", "+
+                                frag_meta['Meta']['StructuralSystems'][st]['Description']+", "+
+                                frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Description']
+                                ),
+                            "Comments": (
+                                frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
+                                frag_meta['Meta']['StructuralSystems'][st]['Comment']+"\n"+
+                                frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                                ),
+                            "SuggestedComponentBlockSize": "1 EA",
+                            "RoundUpToIntegerQuantity": "True",
+                            "LimitStates": {}
+                        }
+
+                    # store the Limit State parameters
+                    ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
+                    for LS_i in range(1, 5):
+
+                        df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
+                        df_db.loc[counter, f'LS{LS_i}-Theta_0'] = \
+                            LF_data['EDP_limits'][dl][bt][LS_i - 1]
+                        df_db.loc[counter, f'LS{LS_i}-Theta_1'] = \
+                            LF_data['Fragility_beta'][dl]
+
+                        if LS_i == 4:
+                            p_coll = LF_data['P_collapse'][bt]
+                            df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
+                                f'{1.0 - p_coll} | {p_coll}')
+
+                            cmp_meta["LimitStates"].update({"LS4": {
+                                "DS4": {"Description": ds_meta['DS4']},
+                                "DS5": {"Description": ds_meta['DS5']}
+                            }})
+
+                        else:
+                            cmp_meta["LimitStates"].update({f"LS{LS_i}": {
+                                f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
+                            }})
+
+                    # store metadata
+                    meta_dict.update({cmp_id:cmp_meta})
+
+                    counter += 1
 
     # Fifth, the ground failure fragilities
     GF_data = raw_data['Ground_Failure']
@@ -2186,7 +2212,8 @@ def create_Hazus_EQ_fragility_db(source_file,
 def create_Hazus_EQ_bldg_repair_db(source_file,
                                    meta_file='',
                                    target_data_file='loss_repair_DB_Hazus_EQ_bldg.csv',
-                                   target_meta_file='loss_repair_DB_Hazus_EQ_bldg.json'):
+                                   target_meta_file='loss_repair_DB_Hazus_EQ_bldg.json',
+                                   resolution='building'):
     """
     Create a database file based on the HAZUS EQ Technical Manual
 
@@ -2206,8 +2233,17 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
     target_meta_file: string
         Path where the repair DB metadata should be saved. A json file is
         expected.
+    resoltuion: string
+        If building, the function produces the conventional Hazus 
+        fragilities. If story, the function produces story-level 
+        fragilities.
 
     """
+
+    # adjust the target filenames if needed
+    if resolution == 'story':
+        target_data_file = target_data_file.replace('bldg', 'story')
+        target_meta_file = target_meta_file.replace('bldg', 'story')
 
     # parse the source file
     with open(source_file, 'r', encoding='utf-8') as f:
@@ -2385,51 +2421,52 @@ def create_Hazus_EQ_bldg_repair_db(source_file,
         # store metadata
         meta_dict.update({cmp_id:cmp_meta})
 
-    # Fourth, the lifeline facilities
-    LF_data = raw_data['Lifeline_Facilities']
+    # Fourth, the lifeline facilities - only at the building-level resolution
+    if resolution == 'building':
+        LF_data = raw_data['Lifeline_Facilities']
 
-    for occ_type in occupancies:
+        for occ_type in occupancies:
 
-        # create the component id
-        cmp_id = f'LF.{occ_type}'
+            # create the component id
+            cmp_id = f'LF.{occ_type}'
 
-        cmp_meta = {
-            "Description": (
-                frag_meta['Meta']['Collections']['LF']['Description']+", "+
-                frag_meta['Meta']['OccupancyTypes'][occ_type]['Description']
-                ),
-            "Comments": (
-                frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
-                frag_meta['Meta']['OccupancyTypes'][occ_type]['Comment']                
-                ),
-            "SuggestedComponentBlockSize": "1 EA",
-            "RoundUpToIntegerQuantity": "True",
-            "DamageStates": {}
-        }
+            cmp_meta = {
+                "Description": (
+                    frag_meta['Meta']['Collections']['LF']['Description']+", "+
+                    frag_meta['Meta']['OccupancyTypes'][occ_type]['Description']
+                    ),
+                "Comments": (
+                    frag_meta['Meta']['Collections']['LF']['Comment']+"\n"+
+                    frag_meta['Meta']['OccupancyTypes'][occ_type]['Comment']                
+                    ),
+                "SuggestedComponentBlockSize": "1 EA",
+                "RoundUpToIntegerQuantity": "True",
+                "DamageStates": {}
+            }
 
-        # store the consequence values for each Damage State
-        ds_meta = frag_meta['Meta']['Collections']['LF']['DamageStates']
-        for DS_i in range(1, 6):
+            # store the consequence values for each Damage State
+            ds_meta = frag_meta['Meta']['Collections']['LF']['DamageStates']
+            for DS_i in range(1, 6):
 
-            # DS4 and DS5 have identical repair consequences
-            if DS_i == 5:
-                ds_i = 4
-            else:
-                ds_i = DS_i
+                # DS4 and DS5 have identical repair consequences
+                if DS_i == 5:
+                    ds_i = 4
+                else:
+                    ds_i = DS_i
 
-            cmp_meta["DamageStates"].update({f"DS{DS_i}": 
-                {"Description": ds_meta[f"DS{DS_i}"]}})
+                cmp_meta["DamageStates"].update({f"DS{DS_i}": 
+                    {"Description": ds_meta[f"DS{DS_i}"]}})
 
-            df_db.loc[
-                (cmp_id, 'Cost'),
-                f'DS{DS_i}-Theta_0'] = LF_data['Repair_cost'][occ_type][ds_i - 1]
+                df_db.loc[
+                    (cmp_id, 'Cost'),
+                    f'DS{DS_i}-Theta_0'] = LF_data['Repair_cost'][occ_type][ds_i - 1]
 
-            df_db.loc[
-                (cmp_id, 'Time'),
-                f'DS{DS_i}-Theta_0'] = LF_data['Repair_time'][occ_type][ds_i - 1]
+                df_db.loc[
+                    (cmp_id, 'Time'),
+                    f'DS{DS_i}-Theta_0'] = LF_data['Repair_time'][occ_type][ds_i - 1]
 
-        # store metadata
-        meta_dict.update({cmp_id:cmp_meta})
+            # store metadata
+            meta_dict.update({cmp_id:cmp_meta})
 
     # remove empty rows (from the end)
     df_db.dropna(how='all', inplace=True)
