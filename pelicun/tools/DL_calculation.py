@@ -117,7 +117,10 @@ damage_processes = {
         "5_excessiveRID": {
             "DS1": "irreparable_DS1"
         }
+    },
+    'Hazus Hurricane': {
     }
+
 }
 
 default_DBs = {
@@ -125,13 +128,15 @@ default_DBs = {
         'FEMA P-58': 'damage_DB_FEMA_P58_2nd.csv',
         'Hazus Earthquake - Buildings': 'damage_DB_Hazus_EQ_bldg.csv',
         'Hazus Earthquake - Stories': 'damage_DB_Hazus_EQ_story.csv',
-        'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv'
+        'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv',
+        'Hazus Hurricane': 'damage_DB_SimCenter_Hazus_HU_bldg.csv'
     },
     'repair': {
         'FEMA P-58': 'loss_repair_DB_FEMA_P58_2nd.csv',
         'Hazus Earthquake - Buildings': 'loss_repair_DB_Hazus_EQ_bldg.csv',
         'Hazus Earthquake - Stories': 'loss_repair_DB_Hazus_EQ_story.csv',
-        'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv'
+        'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv',
+        'Hazus Hurricane': 'loss_repair_DB_SimCenter_Hazus_HU_bldg.csv'
     }
 
 }
@@ -1340,8 +1345,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     adf.loc[rc, ('DV', 'Unit')] = 'USD_2011'
                     adf.loc[rc, ('DS1', 'Theta_0')] = 0
 
-                # for Hazus EQ, use 1.0 as a loss_ratio
-                elif DL_method == 'Hazus Earthquake':
+                # for Hazus EQ and HU, use 1.0 as a loss_ratio
+                elif DL_method in ['Hazus Earthquake', 'Hazus Hurricane']:
                     adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
 
@@ -1471,9 +1476,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 drivers = []
                 loss_models = []
 
-                if DL_method == 'FEMA P-58':
+                if DL_method in ['FEMA P-58', 'Hazus Hurricane']:
 
-                    # with FEMA P-58 we assume fragility and consequence data
+                    # with these methods, we assume fragility and consequence data
                     # have the same IDs
 
                     for dmg_cmp in dmg_cmps:
