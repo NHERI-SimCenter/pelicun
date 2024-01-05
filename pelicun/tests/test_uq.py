@@ -46,11 +46,11 @@ reset from the `reset_all_test_data` function of the test_util.py
 file.
 """
 
+import warnings
 import pytest
 import numpy as np
 from scipy.stats import norm
 from scipy.stats import lognorm
-import warnings
 from tests.test_util import import_pickle
 from tests.test_util import export_pickle
 from pelicun import uq

@@ -92,7 +92,7 @@ def test_PelicunModel_convert_marginal_params():
         columns=['Theta_0'],
         index=pd.MultiIndex.from_tuples(
             (('A', '0', '1'),),
-            names = ('cmp', 'loc','dir'))
+            names=('cmp', 'loc', 'dir'))
     )
     units = pd.Series(
         ['ea'],
@@ -105,7 +105,7 @@ def test_PelicunModel_convert_marginal_params():
     # res:
 
     #             Theta_0
-    # cmp loc dir        
+    # cmp loc dir
     # A   0   1       1.0
 
     assert 'Theta_0' in res.columns
@@ -148,11 +148,11 @@ def test_PelicunModel_convert_marginal_params():
             'TruncateUpper': [np.nan, 0.1524, 0.0381, np.nan]
         },
         index=pd.MultiIndex.from_tuples((
-                ('A', '0', '1'),
-                ('B', '0', '1'),
-                ('C', '0', '1'),
-                ('D', '0', '1'),
-            ),names=('cmp', 'loc', 'dir')))
+            ('A', '0', '1'),
+            ('B', '0', '1'),
+            ('C', '0', '1'),
+            ('D', '0', '1'),
+        ), names=('cmp', 'loc', 'dir')))
 
     pd.testing.assert_frame_equal(expected_df, res)
 
@@ -215,7 +215,7 @@ def test_DemandModel_load_sample():
 
     pd.testing.assert_frame_equal(obtained_sample, obtained_sample_2)
     pd.testing.assert_series_equal(obtained_units, obtained_units_2)
-    
+
     # compare against the expected values for the sample
     expected_sample = pd.DataFrame(
         [[4.029069, 10.084915, 0.02672, 8.690585], ],
@@ -286,8 +286,8 @@ def test_DemandModel_save_sample():
             ',PFA-0-1,PFA-1-1,PID-1-1,SA_0.23-0-1\n'
             'Units,inps2,inps2,rad,inps2\n'
             '0,158.62478,397.04389,0.02672,342.149\n'
-            )
         )
+    )
     res = mdl.save_sample(save_units=False)
     assert (
         res.to_dict() == {
@@ -664,9 +664,9 @@ def test_DamageModel_load_damage_model():
 
     expected_contents = np.array(
         [1.0, 0.0, 'Peak Interstory Drift Ratio', 'unitless', 0.0,
-        '0.950000 | 0.050000', 'lognormal', 0.04, 0.4, None, 'lognormal',
-        0.08, 0.4, None, 'lognormal', 0.11, 0.4, np.nan, None, np.nan, np.nan],
-      dtype=object)
+         '0.950000 | 0.050000', 'lognormal', 0.04, 0.4, None, 'lognormal',
+         0.08, 0.4, None, 'lognormal', 0.11, 0.4, np.nan, None, np.nan, np.nan],
+        dtype=object)
 
     # this comparison was tricky
     for x, y in zip(contents, expected_contents):
