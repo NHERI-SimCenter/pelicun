@@ -91,7 +91,8 @@ def reset_all_test_data(restore=True, purge=False):
     if cwd != 'pelicun':
         raise OSError(
             'Wrong directory. '
-            'See the docstring of `reset_all_test_data`. Aborting')
+            'See the docstring of `reset_all_test_data`. Aborting'
+        )
 
     # where the test result data are stored
     testdir = os.path.join(*('tests', 'data'))
@@ -128,8 +129,9 @@ def reset_all_test_data(restore=True, purge=False):
                     if 'reset' in arguments:
                         # we want to import it and run it with reset=True
                         # construct a module name, like 'tests.test_uq'
-                        module_name = 'tests.' + os.path.basename(
-                            test_file).replace('.py', '')
+                        module_name = 'tests.' + os.path.basename(test_file).replace(
+                            '.py', ''
+                        )
                         # import the module
                         module = importlib.import_module(module_name)
                         # get the function

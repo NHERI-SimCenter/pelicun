@@ -140,11 +140,15 @@ def test_assessment_calc_unit_scale_factor():
     assert asmt.calc_unit_scale_factor('2 in') == 2.00 * 0.0254
 
     # when a custom unit file is specified, changing the base units
-    asmt = create_assessment_obj({
-        'UnitsFile': ('tests/data/assessment/'
-                      'test_assessment_calc_unit_scale_factor/'
-                      'custom_units.json')
-    })
+    asmt = create_assessment_obj(
+        {
+            'UnitsFile': (
+                'tests/data/assessment/'
+                'test_assessment_calc_unit_scale_factor/'
+                'custom_units.json'
+            )
+        }
+    )
 
     assert asmt.calc_unit_scale_factor('in') == 1.00
     assert asmt.calc_unit_scale_factor('m') == 39.3701
@@ -169,11 +173,15 @@ def test_assessment_scale_factor():
     assert asmt.scale_factor('in') == 0.0254
 
     # when a custom unit file is specified, changing the base units
-    asmt = create_assessment_obj({
-        'UnitsFile': ('tests/data/assessment/'
-                      'test_assessment_calc_unit_scale_factor/'
-                      'custom_units.json')
-    })
+    asmt = create_assessment_obj(
+        {
+            'UnitsFile': (
+                'tests/data/assessment/'
+                'test_assessment_calc_unit_scale_factor/'
+                'custom_units.json'
+            )
+        }
+    )
 
     assert asmt.scale_factor('in') == 1.00
     assert asmt.scale_factor('m') == 39.3701

@@ -91,16 +91,12 @@ def test_PelicunModel_convert_marginal_params():
         [['1.0']],
         columns=['Theta_0'],
         index=pd.MultiIndex.from_tuples(
-            (('A', '0', '1'),),
-            names=('cmp', 'loc', 'dir'))
+            (('A', '0', '1'),), names=('cmp', 'loc', 'dir')
+        ),
     )
-    units = pd.Series(
-        ['ea'],
-        index=marginal_params.index
-    )
+    units = pd.Series(['ea'], index=marginal_params.index)
     arg_units = None
-    res = mdl.convert_marginal_params(
-        marginal_params, units, arg_units)
+    res = mdl.convert_marginal_params(marginal_params, units, arg_units)
 
     # res:
 
@@ -113,13 +109,20 @@ def test_PelicunModel_convert_marginal_params():
 
     # many rows, with conversions
     marginal_params = pd.DataFrame(
-        [[np.nan, 1.0, np.nan, np.nan, np.nan, np.nan],
-         ['normal', np.nan, 1.0, np.nan, -0.50, 0.50],
-         ['lognormal', 1.0, 0.5, np.nan, 0.50, 1.50],
-         ['uniform', 0.0, 10.0, np.nan, np.nan, np.nan],
-         ],
-        columns=['Family', 'Theta_0', 'Theta_1', 'Theta_2',
-                 'TruncateLower', 'TruncateUpper'],
+        [
+            [np.nan, 1.0, np.nan, np.nan, np.nan, np.nan],
+            ['normal', np.nan, 1.0, np.nan, -0.50, 0.50],
+            ['lognormal', 1.0, 0.5, np.nan, 0.50, 1.50],
+            ['uniform', 0.0, 10.0, np.nan, np.nan, np.nan],
+        ],
+        columns=[
+            'Family',
+            'Theta_0',
+            'Theta_1',
+            'Theta_2',
+            'TruncateLower',
+            'TruncateUpper',
+        ],
         index=pd.MultiIndex.from_tuples(
             (
                 ('A', '0', '1'),
@@ -127,16 +130,12 @@ def test_PelicunModel_convert_marginal_params():
                 ('C', '0', '1'),
                 ('D', '0', '1'),
             ),
-            names=('cmp', 'loc', 'dir')
-        )
+            names=('cmp', 'loc', 'dir'),
+        ),
     )
-    units = pd.Series(
-        ['ea', 'ft', 'in', 'in2'],
-        index=marginal_params.index
-    )
+    units = pd.Series(['ea', 'ft', 'in', 'in2'], index=marginal_params.index)
     arg_units = None
-    res = mdl.convert_marginal_params(
-        marginal_params, units, arg_units)
+    res = mdl.convert_marginal_params(marginal_params, units, arg_units)
 
     expected_df = pd.DataFrame(
         {
@@ -145,14 +144,18 @@ def test_PelicunModel_convert_marginal_params():
             'Theta_1': [np.nan, 1.000000, 0.500000, 0.0064516],
             'Theta_2': [np.nan, np.nan, np.nan, np.nan],
             'TruncateLower': [np.nan, -0.1524, 0.0127, np.nan],
-            'TruncateUpper': [np.nan, 0.1524, 0.0381, np.nan]
+            'TruncateUpper': [np.nan, 0.1524, 0.0381, np.nan],
         },
-        index=pd.MultiIndex.from_tuples((
-            ('A', '0', '1'),
-            ('B', '0', '1'),
-            ('C', '0', '1'),
-            ('D', '0', '1'),
-        ), names=('cmp', 'loc', 'dir')))
+        index=pd.MultiIndex.from_tuples(
+            (
+                ('A', '0', '1'),
+                ('B', '0', '1'),
+                ('C', '0', '1'),
+                ('D', '0', '1'),
+            ),
+            names=('cmp', 'loc', 'dir'),
+        ),
+    )
 
     pd.testing.assert_frame_equal(expected_df, res)
 
@@ -200,16 +203,16 @@ def test_DemandModel_load_sample():
 
     # get a DemandModel in which the sample has been loaded
     mdl = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_'
-        'load_sample/demand_sample_A.csv')
+        'tests/data/model/test_DemandModel_' 'load_sample/demand_sample_A.csv'
+    )
 
     # retrieve the loaded sample and units
     obtained_sample = mdl._sample
     obtained_units = mdl.units
 
     mdl_2 = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_'
-        'load_sample/demand_sample_B.csv')
+        'tests/data/model/test_DemandModel_' 'load_sample/demand_sample_B.csv'
+    )
     obtained_sample_2 = mdl_2._sample
     obtained_units_2 = mdl_2.units
 
@@ -218,7 +221,9 @@ def test_DemandModel_load_sample():
 
     # compare against the expected values for the sample
     expected_sample = pd.DataFrame(
-        [[4.029069, 10.084915, 0.02672, 8.690585], ],
+        [
+            [4.029069, 10.084915, 0.02672, 8.690585],
+        ],
         columns=pd.MultiIndex.from_tuples(
             (
                 ('PFA', '0', '1'),
@@ -226,9 +231,9 @@ def test_DemandModel_load_sample():
                 ('PID', '1', '1'),
                 ('SA_0.23', '0', '1'),
             ),
-            names=('type', 'loc', 'dir')
+            names=('type', 'loc', 'dir'),
         ),
-        index=[0]
+        index=[0],
     )
     pd.testing.assert_frame_equal(expected_sample, obtained_sample)
 
@@ -240,9 +245,11 @@ def test_DemandModel_load_sample():
                 ('PFA', '0', '1'),
                 ('PFA', '1', '1'),
                 ('PID', '1', '1'),
-                ('SA_0.23', '0', '1')),
-            names=['type', 'loc', 'dir']),
-        name='Units'
+                ('SA_0.23', '0', '1'),
+            ),
+            names=['type', 'loc', 'dir'],
+        ),
+        name='Units',
     )
     pd.testing.assert_series_equal(expected_units, obtained_units)
 
@@ -254,8 +261,8 @@ def test_DemandModel_estimate_RID():
     """
 
     mdl = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_'
-        'estimate_RID/demand_sample_A.csv')
+        'tests/data/model/test_DemandModel_' 'estimate_RID/demand_sample_A.csv'
+    )
 
     demands = mdl.sample['PID']
     params = {'yield_drift': 0.01}
@@ -272,8 +279,8 @@ def test_DemandModel_save_sample():
 
     # get a DemandModel in which the sample has been loaded
     mdl = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_'
-        'load_sample/demand_sample_A.csv')
+        'tests/data/model/test_DemandModel_' 'load_sample/demand_sample_A.csv'
+    )
 
     # instantiate a temporary directory in memory
     temp_dir = tempfile.mkdtemp()
@@ -281,22 +288,18 @@ def test_DemandModel_save_sample():
     mdl.save_sample(f'{temp_dir}/temp.csv')
     with open(f'{temp_dir}/temp.csv', 'r', encoding='utf-8') as f:
         contents = f.read()
-    assert (
-        contents == (
-            ',PFA-0-1,PFA-1-1,PID-1-1,SA_0.23-0-1\n'
-            'Units,inps2,inps2,rad,inps2\n'
-            '0,158.62478,397.04389,0.02672,342.149\n'
-        )
+    assert contents == (
+        ',PFA-0-1,PFA-1-1,PID-1-1,SA_0.23-0-1\n'
+        'Units,inps2,inps2,rad,inps2\n'
+        '0,158.62478,397.04389,0.02672,342.149\n'
     )
     res = mdl.save_sample(save_units=False)
-    assert (
-        res.to_dict() == {
-            ('PFA', '0', '1'): {0: 158.62478},
-            ('PFA', '1', '1'): {0: 397.04389},
-            ('PID', '1', '1'): {0: 0.02672},
-            ('SA_0.23', '0', '1'): {0: 342.149}
-        }
-    )
+    assert res.to_dict() == {
+        ('PFA', '0', '1'): {0: 158.62478},
+        ('PFA', '1', '1'): {0: 397.04389},
+        ('PID', '1', '1'): {0: 0.02672},
+        ('SA_0.23', '0', '1'): {0: 342.149},
+    }
 
 
 def get_calibrated_model(path, config):
@@ -328,13 +331,12 @@ def test_DemandModel_calibrate_model():
         "PID": {
             "DistributionFamily": "lognormal",
             "TruncateLower": "",
-            "TruncateUpper": "0.06"
+            "TruncateUpper": "0.06",
         },
     }
 
     mdl = get_calibrated_model(
-        'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
-        config
+        'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv', config
     )
 
     assert mdl is not None
@@ -349,15 +351,13 @@ def test_DemandModel_save_load_model():
     mdl = get_calibrated_model(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
         {
-            "ALL": {
-                "DistributionFamily": "lognormal"
-            },
+            "ALL": {"DistributionFamily": "lognormal"},
             "PID": {
                 "DistributionFamily": "lognormal",
                 "TruncateLower": "",
-                "TruncateUpper": "0.06"
-            }
-        }
+                "TruncateUpper": "0.06",
+            },
+        },
     )
 
     # instantiate a temporary directory in memory
@@ -378,21 +378,16 @@ def test_DemandModel_generate_sample():
     mdl = get_calibrated_model(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
         {
-            "ALL": {
-                "DistributionFamily": "lognormal"
-            },
+            "ALL": {"DistributionFamily": "lognormal"},
             "PID": {
                 "DistributionFamily": "lognormal",
                 "TruncateLower": "",
-                "TruncateUpper": "0.06"
-            }
-        }
+                "TruncateUpper": "0.06",
+            },
+        },
     )
 
-    mdl.generate_sample({
-        "SampleSize": 3,
-        'PreserveRawOrder': False
-    })
+    mdl.generate_sample({"SampleSize": 3, 'PreserveRawOrder': False})
 
     # get the generated demand sample
     res = mdl.save_sample(save_units=True)
@@ -414,12 +409,13 @@ def test_DemandModel_generate_sample():
                 ('PID', '1', '1'),
                 ('SA_0.23', '0', '1'),
             ),
-            names=('type', 'loc', 'dir')
+            names=('type', 'loc', 'dir'),
         ),
-        index=pd.Index((0, 1, 2), dtype='object')
+        index=pd.Index((0, 1, 2), dtype='object'),
     )
     pd.testing.assert_frame_equal(
-        expected_sample, obtained_sample, check_exact=False)
+        expected_sample, obtained_sample, check_exact=False
+    )
 
     # compare against the expected values for the units
     expected_units = pd.Series(
@@ -429,9 +425,11 @@ def test_DemandModel_generate_sample():
                 ('PFA', '0', '1'),
                 ('PFA', '1', '1'),
                 ('PID', '1', '1'),
-                ('SA_0.23', '0', '1')),
-            names=('type', 'loc', 'dir')),
-        name='Units'
+                ('SA_0.23', '0', '1'),
+            ),
+            names=('type', 'loc', 'dir'),
+        ),
+        name='Units',
     )
     pd.testing.assert_series_equal(expected_units, obtained_units)
 
@@ -462,14 +460,12 @@ def test_AssetModel_load_cmp_model():
     asmt = assessment.Assessment()
     mdl = asmt.asset
     cmp_marginals = pd.read_csv(
-        'tests/data/model/test_AssetModel/CMP_marginals.csv', index_col=0)
+        'tests/data/model/test_AssetModel/CMP_marginals.csv', index_col=0
+    )
     mdl.load_cmp_model({'marginals': cmp_marginals})
 
     expected_cmp_marginal_params = pd.DataFrame(
-        {
-            'Theta_0': (8.0, 8.0, 8.0, 8.0, 8.0, 8.0),
-            'Blocks': (1, 1, 1, 1, 1, 1)
-        },
+        {'Theta_0': (8.0, 8.0, 8.0, 8.0, 8.0, 8.0), 'Blocks': (1, 1, 1, 1, 1, 1)},
         index=pd.MultiIndex.from_tuples(
             (
                 ('component_a', '0', '1', '0'),
@@ -477,17 +473,17 @@ def test_AssetModel_load_cmp_model():
                 ('component_a', '1', '1', '0'),
                 ('component_a', '1', '2', '0'),
                 ('component_a', '2', '1', '0'),
-                ('component_a', '2', '2', '0')
+                ('component_a', '2', '2', '0'),
             ),
-            names=('cmp', 'loc', 'dir', 'uid')))
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
+    )
 
     pd.testing.assert_frame_equal(
-        expected_cmp_marginal_params,
-        mdl.cmp_marginal_params)
+        expected_cmp_marginal_params, mdl.cmp_marginal_params
+    )
 
-    expected_cmp_units = pd.Series(
-        data=['ea'], index=['component_a'],
-        name='Units')
+    expected_cmp_units = pd.Series(data=['ea'], index=['component_a'], name='Units')
 
     pd.testing.assert_series_equal(expected_cmp_units, mdl.cmp_units)
 
@@ -502,22 +498,19 @@ def test_AssetModel_generate_cmp_sample():
     mdl = asmt.asset
 
     mdl.cmp_marginal_params = pd.DataFrame(
-        {
-            'Theta_0': (8.0, 8.0, 8.0, 8.0),
-            'Blocks': (1.0, 1.0, 1.0, 1.0)
-        },
+        {'Theta_0': (8.0, 8.0, 8.0, 8.0), 'Blocks': (1.0, 1.0, 1.0, 1.0)},
         index=pd.MultiIndex.from_tuples(
             (
                 ('component_a', '1', '1', '0'),
                 ('component_a', '1', '2', '0'),
                 ('component_a', '2', '1', '0'),
-                ('component_a', '2', '2', '0')
+                ('component_a', '2', '2', '0'),
             ),
-            names=('cmp', 'loc', 'dir', 'uid')))
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
+    )
 
-    mdl.cmp_units = pd.Series(
-        data=['ea'], index=['component_a'],
-        name='Units')
+    mdl.cmp_units = pd.Series(data=['ea'], index=['component_a'], name='Units')
 
     mdl.generate_cmp_sample(sample_size=10)
 
@@ -526,21 +519,21 @@ def test_AssetModel_generate_cmp_sample():
     expected_cmp_sample = pd.DataFrame(
         {
             ('component_a', f'{i}', f'{j}'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('component_a', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
-    pd.testing.assert_frame_equal(
-        expected_cmp_sample,
-        mdl.cmp_sample)
+    pd.testing.assert_frame_equal(expected_cmp_sample, mdl.cmp_sample)
 
     #
     # exceptions
@@ -569,21 +562,21 @@ def test_AssetModel_save_cmp_sample():
     mdl._cmp_sample = pd.DataFrame(
         {
             ('component_a', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('component_a', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
-    mdl.cmp_units = pd.Series(
-        data=['ea'], index=['component_a'],
-        name='Units')
+    mdl.cmp_units = pd.Series(data=['ea'], index=['component_a'], name='Units')
 
     res = mdl.save_cmp_sample()
     assert isinstance(res, pd.DataFrame)
@@ -629,16 +622,18 @@ def test_DamageModel_load_damage_model():
     asmt.asset._cmp_sample = pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
     mdl.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
@@ -647,26 +642,59 @@ def test_DamageModel_load_damage_model():
     assert mdl.damage_params is not None
 
     assert list(mdl.damage_params.columns) == [
-        ("Demand", "Directional"), ("Demand", "Offset"),
-        ("Demand", "Type"), ("Demand", "Unit"),
-        ("Incomplete", ""), ("LS1", "DamageStateWeights"),
-        ("LS1", "Family"), ("LS1", "Theta_0"),
-        ("LS1", "Theta_1"), ("LS2", "DamageStateWeights"),
-        ("LS2", "Family"), ("LS2", "Theta_0"), ("LS2", "Theta_1"),
+        ("Demand", "Directional"),
+        ("Demand", "Offset"),
+        ("Demand", "Type"),
+        ("Demand", "Unit"),
+        ("Incomplete", ""),
+        ("LS1", "DamageStateWeights"),
+        ("LS1", "Family"),
+        ("LS1", "Theta_0"),
+        ("LS1", "Theta_1"),
+        ("LS2", "DamageStateWeights"),
+        ("LS2", "Family"),
+        ("LS2", "Theta_0"),
+        ("LS2", "Theta_1"),
         ("LS3", "DamageStateWeights"),
-        ("LS3", "Family"), ("LS3", "Theta_0"), ("LS3", "Theta_1"),
+        ("LS3", "Family"),
+        ("LS3", "Theta_0"),
+        ("LS3", "Theta_1"),
         ("LS4", "DamageStateWeights"),
-        ("LS4", "Family"), ("LS4", "Theta_0"), ("LS4", "Theta_1")]
+        ("LS4", "Family"),
+        ("LS4", "Theta_0"),
+        ("LS4", "Theta_1"),
+    ]
 
     assert list(mdl.damage_params.index) == ['B.10.31.001']
 
     contents = mdl.damage_params.to_numpy().reshape(-1)
 
     expected_contents = np.array(
-        [1.0, 0.0, 'Peak Interstory Drift Ratio', 'unitless', 0.0,
-         '0.950000 | 0.050000', 'lognormal', 0.04, 0.4, None, 'lognormal',
-         0.08, 0.4, None, 'lognormal', 0.11, 0.4, np.nan, None, np.nan, np.nan],
-        dtype=object)
+        [
+            1.0,
+            0.0,
+            'Peak Interstory Drift Ratio',
+            'unitless',
+            0.0,
+            '0.950000 | 0.050000',
+            'lognormal',
+            0.04,
+            0.4,
+            None,
+            'lognormal',
+            0.08,
+            0.4,
+            None,
+            'lognormal',
+            0.11,
+            0.4,
+            np.nan,
+            None,
+            np.nan,
+            np.nan,
+        ],
+        dtype=object,
+    )
 
     # this comparison was tricky
     for x, y in zip(contents, expected_contents):
@@ -693,16 +721,18 @@ def test_DamageModel_get_pg_batches():
     asset_model._cmp_sample = pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
@@ -720,15 +750,14 @@ def test_DamageModel_get_pg_batches():
                 (1, 'B.10.31.001', '1', '1', '0'),
                 (2, 'B.10.31.001', '1', '2', '0'),
                 (3, 'B.10.31.001', '2', '1', '0'),
-                (4, 'B.10.31.001', '2', '2', '0')),
-            names=('Batch', 'cmp', 'loc', 'dir', 'uid')
+                (4, 'B.10.31.001', '2', '2', '0'),
+            ),
+            names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
         ),
-        columns=('Blocks', )
+        columns=('Blocks',),
     ).astype('Int64')
 
-    pd.testing.assert_frame_equal(
-        expected_res,
-        res)
+    pd.testing.assert_frame_equal(expected_res, res)
 
     res = damage_model._get_pg_batches(block_batch_size=1000)
     expected_res = pd.DataFrame(
@@ -738,15 +767,14 @@ def test_DamageModel_get_pg_batches():
                 (1, 'B.10.31.001', '1', '1', '0'),
                 (1, 'B.10.31.001', '1', '2', '0'),
                 (1, 'B.10.31.001', '2', '1', '0'),
-                (1, 'B.10.31.001', '2', '2', '0')),
-            names=('Batch', 'cmp', 'loc', 'dir', 'uid')
+                (1, 'B.10.31.001', '2', '2', '0'),
+            ),
+            names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
         ),
-        columns=('Blocks', )
+        columns=('Blocks',),
     ).astype('Int64')
 
-    pd.testing.assert_frame_equal(
-        expected_res,
-        res)
+    pd.testing.assert_frame_equal(expected_res, res)
 
 
 def test_DamageModel_create_dmg_RVs():
@@ -764,16 +792,18 @@ def test_DamageModel_create_dmg_RVs():
     asset_model._cmp_sample = pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
@@ -793,17 +823,19 @@ def test_DamageModel_create_dmg_RVs():
     assert capacity_RV_reg is not None
     assert lsds_RV_reg is not None
 
-    assert (
-        list(capacity_RV_reg._variables.keys()) == [
-            'FRG-B.10.31.001-2-2-0-1-1', 'FRG-B.10.31.001-2-2-0-1-2',
-            'FRG-B.10.31.001-2-2-0-1-3'])
+    assert list(capacity_RV_reg._variables.keys()) == [
+        'FRG-B.10.31.001-2-2-0-1-1',
+        'FRG-B.10.31.001-2-2-0-1-2',
+        'FRG-B.10.31.001-2-2-0-1-3',
+    ]
 
     assert not capacity_RV_reg._sets
 
-    assert (
-        list(lsds_RV_reg._variables.keys()) == [
-            'LSDS-B.10.31.001-2-2-0-1-1', 'LSDS-B.10.31.001-2-2-0-1-2',
-            'LSDS-B.10.31.001-2-2-0-1-3'])
+    assert list(lsds_RV_reg._variables.keys()) == [
+        'LSDS-B.10.31.001-2-2-0-1-1',
+        'LSDS-B.10.31.001-2-2-0-1-2',
+        'LSDS-B.10.31.001-2-2-0-1-3',
+    ]
 
     assert not lsds_RV_reg._sets
 
@@ -823,16 +855,18 @@ def test_DamageModel_generate_dmg_sample():
     asset_model._cmp_sample = pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
@@ -844,7 +878,8 @@ def test_DamageModel_generate_dmg_sample():
 
     # test the _generate_dmg_sample method
     capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-        sample_size, PGB)
+        sample_size, PGB
+    )
 
     # run a few checks on the results of the method
 
@@ -860,10 +895,10 @@ def test_DamageModel_generate_dmg_sample():
         assert list(res.columns) == [
             ('B.10.31.001', '2', '2', '0', '1', '1'),
             ('B.10.31.001', '2', '2', '0', '1', '2'),
-            ('B.10.31.001', '2', '2', '0', '1', '3')]
+            ('B.10.31.001', '2', '2', '0', '1', '3'),
+        ]
 
-        assert (
-            list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        assert list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     assert capacity_sample.to_numpy().dtype == np.dtype('float64')
     assert lsds_sample.to_numpy().dtype == np.dtype('int64')
@@ -884,16 +919,18 @@ def test_DamageModel_get_required_demand_type():
     asset_model._cmp_sample = pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
@@ -922,19 +959,18 @@ def test_DamageModel_assemble_required_demand_data():
     demand_model.load_sample(
         'tests/data/model/'
         'test_DamageModel_assemble_'
-        'required_demand_data/demand_sample.csv')
+        'required_demand_data/demand_sample.csv'
+    )
 
     # calibrate the model
     demand_model.calibrate_model(
         {
-            "ALL": {
-                "DistributionFamily": "lognormal"
-            },
+            "ALL": {"DistributionFamily": "lognormal"},
             "PID": {
                 "DistributionFamily": "lognormal",
                 "TruncateLower": "",
-                "TruncateUpper": "0.06"
-            }
+                "TruncateUpper": "0.06",
+            },
         }
     )
 
@@ -943,16 +979,18 @@ def test_DamageModel_assemble_required_demand_data():
     asset_model._cmp_sample = pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
@@ -964,7 +1002,7 @@ def test_DamageModel_assemble_required_demand_data():
         {'PID-1-1': np.array([0.02672])},
         {'PID-1-2': np.array([0.02672])},
         {'PID-2-1': np.array([0.02672])},
-        {'PID-2-2': np.array([0.02672])}
+        {'PID-2-2': np.array([0.02672])},
     ]
 
     for i, PGB_i in enumerate(batches):
@@ -989,19 +1027,18 @@ def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
     demand_model.load_sample(
         'tests/data/model/'
         'test_DamageModel_assemble_'
-        'required_demand_data/demand_sample.csv')
+        'required_demand_data/demand_sample.csv'
+    )
 
     # calibrate the model
     demand_model.calibrate_model(
         {
-            "ALL": {
-                "DistributionFamily": "lognormal"
-            },
+            "ALL": {"DistributionFamily": "lognormal"},
             "PID": {
                 "DistributionFamily": "lognormal",
                 "TruncateLower": "",
-                "TruncateUpper": "0.06"
-            }
+                "TruncateUpper": "0.06",
+            },
         }
     )
 
@@ -1010,16 +1047,18 @@ def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
     asset_model._cmp_sample = pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3) for j in range(1, 3)
+            for i in range(1, 3)
+            for j in range(1, 3)
         },
         index=range(10),
         columns=pd.MultiIndex.from_tuples(
             (
                 ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3) for j in range(1, 3)
+                for i in range(1, 3)
+                for j in range(1, 3)
             ),
-            names=('cmp', 'loc', 'dir', 'uid')
-        )
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
     )
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
@@ -1034,25 +1073,23 @@ def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
 
     sample_size = 10
     capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-        sample_size, PGB)
+        sample_size, PGB
+    )
 
     ds_sample = damage_model._evaluate_damage_state(
-        demand_dict, EDP_req,
-        capacity_sample, lsds_sample)
+        demand_dict, EDP_req, capacity_sample, lsds_sample
+    )
 
     qnt_sample = damage_model._prepare_dmg_quantities(
-        PGB, ds_sample,
-        dropzero=False,
-        dropempty=False)
+        PGB, ds_sample, dropzero=False, dropempty=False
+    )
 
     # note: the realized number of damage states is random, limiting
     # our assertions
     assert ds_sample.shape[0] == 10
     assert qnt_sample.shape[0] == 10
-    assert (
-        list(qnt_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    assert (
-        list(ds_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    assert list(qnt_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    assert list(ds_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     assert list(ds_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '1')
     assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '0')
@@ -1075,17 +1112,10 @@ def test_DamageModel_perform_dmg_task():
     ]
 
     index = pd.MultiIndex.from_tuples(
-        (
-            ('PID', '1', '1'),
-            ('PID', '1', '2')
-        ),
-        names=['type', 'loc', 'dir']
+        (('PID', '1', '1'), ('PID', '1', '2')), names=['type', 'loc', 'dir']
     )
 
-    demand_marginals = pd.DataFrame(
-        data, index,
-        columns=['Units', 'Theta_0']
-    )
+    demand_marginals = pd.DataFrame(data, index, columns=['Units', 'Theta_0'])
 
     demand_model.load_model({'marginals': demand_marginals})
 
@@ -1093,14 +1123,16 @@ def test_DamageModel_perform_dmg_task():
     demand_model.generate_sample({"SampleSize": sample_size})
 
     cmp_marginals = pd.read_csv(
-        'tests/data/model/test_DamageModel_'
-        'perform_dmg_task/CMP_marginals.csv', index_col=0)
+        'tests/data/model/test_DamageModel_' 'perform_dmg_task/CMP_marginals.csv',
+        index_col=0,
+    )
     asset_model.load_cmp_model({'marginals': cmp_marginals})
 
     asset_model.generate_cmp_sample(sample_size)
 
     damage_model.load_damage_model(
-        ['tests/data/model/test_DamageModel_perform_dmg_task/fragility_DB_test.csv'])
+        ['tests/data/model/test_DamageModel_perform_dmg_task/fragility_DB_test.csv']
+    )
 
     block_batch_size = 5
     qnt_samples = []
@@ -1109,26 +1141,22 @@ def test_DamageModel_perform_dmg_task():
     for PGB_i in batches:
         PGB = pg_batch.loc[PGB_i]
         capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-            sample_size, PGB)
+            sample_size, PGB
+        )
         EDP_req = damage_model._get_required_demand_type(PGB)
         demand_dict = damage_model._assemble_required_demand_data(EDP_req)
         ds_sample = damage_model._evaluate_damage_state(
-            demand_dict, EDP_req,
-            capacity_sample, lsds_sample)
+            demand_dict, EDP_req, capacity_sample, lsds_sample
+        )
         qnt_sample = damage_model._prepare_dmg_quantities(
-            PGB, ds_sample,
-            dropzero=False,
-            dropempty=False)
+            PGB, ds_sample, dropzero=False, dropempty=False
+        )
         qnt_samples.append(qnt_sample)
     qnt_sample = pd.concat(qnt_samples, axis=1)
     qnt_sample.sort_index(axis=1, inplace=True)
     before = qnt_sample.copy()
 
-    dmg_process = {
-        "1_CMP.B": {
-            "DS1": "CMP.A_DS1"
-        }
-    }
+    dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS1"}}
     dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
     for task in dmg_process.items():
         damage_model._perform_dmg_task(task, qnt_sample)
@@ -1154,19 +1182,19 @@ def test_DamageModel__get_pg_batches():
     asset_model.cmp_marginal_params = pd.DataFrame(
         np.full((4, 2), 2.00),
         index=pd.MultiIndex.from_tuples(
-            (('cmp_1', '1', '1', '0'),
-             ('cmp_1', '1', '2', '0'),
-             ('cmp_2', '1', '1', '0'),
-             ('cmp_2', '1', '2', '0')),
-            names=['cmp', 'loc', 'dir', 'uid']
+            (
+                ('cmp_1', '1', '1', '0'),
+                ('cmp_1', '1', '2', '0'),
+                ('cmp_2', '1', '1', '0'),
+                ('cmp_2', '1', '2', '0'),
+            ),
+            names=['cmp', 'loc', 'dir', 'uid'],
         ),
-        columns=('Theta_0', 'Blocks')
+        columns=('Theta_0', 'Blocks'),
     )
 
     damage_model.damage_params = pd.DataFrame(
-        np.empty(2),
-        index=('cmp_1', 'cmp_2'),
-        columns=['ID']
+        np.empty(2), index=('cmp_1', 'cmp_2'), columns=['ID']
     )
 
     df_1 = damage_model._get_pg_batches(1)
@@ -1188,50 +1216,88 @@ def test_DamageModel_calculate():
     asmt = assessment.Assessment()
     dmg_process = None
     asmt.demand._sample = pd.DataFrame(
-        np.column_stack((
-            np.array((4.94, 2.73, 4.26, 2.79)),
-            np.array((4.74, 2.23, 4.14, 2.28)),
-            np.array((0.02, 0.022, 0.021, 0.02)),
-            np.array((0.02, 0.022, 0.021, 0.02)),
-        )),
-        columns=pd.MultiIndex.from_tuples(
-            (('PFA', '1', '1'),
-             ('PFA', '1', '2'),
-             ('PID', '1', '1'),
-             ('PID', '1', '2')),
-            names=['type', 'loc', 'dir']
+        np.column_stack(
+            (
+                np.array((4.94, 2.73, 4.26, 2.79)),
+                np.array((4.74, 2.23, 4.14, 2.28)),
+                np.array((0.02, 0.022, 0.021, 0.02)),
+                np.array((0.02, 0.022, 0.021, 0.02)),
+            )
         ),
-        index=range(4)
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('PFA', '1', '1'),
+                ('PFA', '1', '2'),
+                ('PID', '1', '1'),
+                ('PID', '1', '2'),
+            ),
+            names=['type', 'loc', 'dir'],
+        ),
+        index=range(4),
     )
     asmt.asset.cmp_marginal_params = pd.DataFrame(
         np.full((4, 2), 2.00),
         index=pd.MultiIndex.from_tuples(
-            (('cmp_1', '1', '1', '0'),
-             ('cmp_1', '1', '2', '0'),
-             ('cmp_2', '1', '1', '0'),
-             ('cmp_2', '1', '2', '0')),
-            names=['cmp', 'loc', 'dir', 'uid']
+            (
+                ('cmp_1', '1', '1', '0'),
+                ('cmp_1', '1', '2', '0'),
+                ('cmp_2', '1', '1', '0'),
+                ('cmp_2', '1', '2', '0'),
+            ),
+            names=['cmp', 'loc', 'dir', 'uid'],
         ),
-        columns=('Theta_0', 'Blocks')
+        columns=('Theta_0', 'Blocks'),
     )
     asmt.asset.generate_cmp_sample(sample_size=4)
     asmt.damage.damage_params = pd.DataFrame(
         np.array(
             (
                 (
-                    1.0, 0.0, 'Peak Interstory Drift Ratio', 'ea', 0.0,
-                    None, 'lognormal', 1e-2, 0.40,
-                    None, 'lognormal', 2e-2, 0.40,
-                    None, 'lognormal', 3e-2, 0.40,
-                    None, 'lognormal', 4e-2, 0.40
+                    1.0,
+                    0.0,
+                    'Peak Interstory Drift Ratio',
+                    'ea',
+                    0.0,
+                    None,
+                    'lognormal',
+                    1e-2,
+                    0.40,
+                    None,
+                    'lognormal',
+                    2e-2,
+                    0.40,
+                    None,
+                    'lognormal',
+                    3e-2,
+                    0.40,
+                    None,
+                    'lognormal',
+                    4e-2,
+                    0.40,
                 ),
                 (
-                    1.0, 0.0, 'Peak Interstory Drift Ratio', 'ea', 0.0,
-                    None, 'lognormal', 1e-2, 0.40,
-                    None, 'lognormal', 2e-2, 0.40,
-                    None, 'lognormal', 3e-2, 0.40,
-                    None, 'lognormal', 4e-2, 0.40
-                )
+                    1.0,
+                    0.0,
+                    'Peak Interstory Drift Ratio',
+                    'ea',
+                    0.0,
+                    None,
+                    'lognormal',
+                    1e-2,
+                    0.40,
+                    None,
+                    'lognormal',
+                    2e-2,
+                    0.40,
+                    None,
+                    'lognormal',
+                    3e-2,
+                    0.40,
+                    None,
+                    'lognormal',
+                    4e-2,
+                    0.40,
+                ),
             )
         ),
         index=['cmp_1', 'cmp_2'],
@@ -1257,9 +1323,9 @@ def test_DamageModel_calculate():
                 ('LS4', 'DamageStateWeights'),
                 ('LS4', 'Family'),
                 ('LS4', 'Theta_0'),
-                ('LS4', 'Theta_1')
+                ('LS4', 'Theta_1'),
             )
-        )
+        ),
     )
     asmt.damage.calculate(dmg_process=dmg_process)
     assert asmt.damage._dmg_function_scale_factors is None
@@ -1296,10 +1362,8 @@ def test_LossModel_load_sample_save_sample():
 
     mdl.loss_params = pd.DataFrame(
         (
-            ("normal", None, "25704,17136|5,20",
-             0.390923, "USD_2011", 0.0, "1 EA"),
-            ("normal", 0.0, "22.68,15.12|5,20",
-             0.464027, "worker_day", 0.0, "1 EA"),
+            ("normal", None, "25704,17136|5,20", 0.390923, "USD_2011", 0.0, "1 EA"),
+            ("normal", 0.0, "22.68,15.12|5,20", 0.464027, "worker_day", 0.0, "1 EA"),
         ),
         index=pd.MultiIndex.from_tuples(
             (("B.10.41.001a", "Cost"), ("B.10.41.001a", "Time"))
@@ -1334,16 +1398,12 @@ def test_LossModel_load_sample_save_sample():
 
     mdl.load_sample(sample)
 
-    pd.testing.assert_frame_equal(
-        sample,
-        mdl._sample)
+    pd.testing.assert_frame_equal(sample, mdl._sample)
 
     output = mdl.save_sample(None)
     output.index = output.index.astype('int64')
 
-    pd.testing.assert_frame_equal(
-        sample,
-        output)
+    pd.testing.assert_frame_equal(sample, output)
 
 
 def test_LossModel_load_model():
@@ -1534,10 +1594,22 @@ def test_BldgRepairModel_aggregate_losses():
         ((100.00, 1.00),),
         columns=pd.MultiIndex.from_tuples(
             (
-                ("Cost", "some.test.component",
-                 "some.test.component", "1", "1", "1"),
-                ("Time", "some.test.component",
-                 "some.test.component", "1", "1", "1"),
+                (
+                    "Cost",
+                    "some.test.component",
+                    "some.test.component",
+                    "1",
+                    "1",
+                    "1",
+                ),
+                (
+                    "Time",
+                    "some.test.component",
+                    "some.test.component",
+                    "1",
+                    "1",
+                    "1",
+                ),
             ),
             names=("dv", "loss", "dmg", "ds", "loc", "dir"),
         ),
@@ -1608,8 +1680,15 @@ def test_BldgRepairModel__generate_DV_sample():
 
         mdl.loss_params = pd.DataFrame(
             (
-                ("normal", None, "25704,17136|5,20",
-                 0.390923, "USD_2011", 0.0, "1 EA"),
+                (
+                    "normal",
+                    None,
+                    "25704,17136|5,20",
+                    0.390923,
+                    "USD_2011",
+                    0.0,
+                    "1 EA",
+                ),
                 (
                     "normal",
                     0.0,

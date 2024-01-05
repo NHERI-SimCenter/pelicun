@@ -74,19 +74,11 @@ def test_options_init():
         "LogShowMS": False,
         "LogFile": 'test_log_file',
         "PrintLog": False,
-        "DemandOffset": {
-            "PFA": -1,
-            "PFV": -1
-        },
+        "DemandOffset": {"PFA": -1, "PFV": -1},
         "SamplingMethod": "MonteCarlo",
-        "NonDirectionalMultipliers": {
-            "ALL": 1.2
-        },
-        "EconomiesOfScale": {
-            "AcrossFloors": True,
-            "AcrossDamageStates": True
-        },
-        "RepairCostAndTimeCorrelation": 0.7
+        "NonDirectionalMultipliers": {"ALL": 1.2},
+        "EconomiesOfScale": {"AcrossFloors": True, "AcrossDamageStates": True},
+        "RepairCostAndTimeCorrelation": 0.7,
     }
 
     # Create an Options object using the user_config_options
@@ -162,8 +154,12 @@ def test_logger_init():
     """
     # Test that the Logger object is initialized with the correct
     # attributes based on the input configuration
-    log_config = {'verbose': True, 'log_show_ms': False,
-                  'log_file': 'log.txt', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': False,
+        'log_file': 'log.txt',
+        'print_log': True,
+    }
     log = base.Logger(**log_config)
     assert log.verbose is True
     assert log.log_show_ms is False
@@ -172,11 +168,14 @@ def test_logger_init():
     os.remove('log.txt')
 
     # test exceptions
-    log_config = {'verbose': True, 'log_show_ms': False,
-                  'log_file': '/', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': False,
+        'log_file': '/',
+        'print_log': True,
+    }
     with pytest.raises((IsADirectoryError, FileExistsError)):
         log = base.Logger(**log_config)
-
 
 
 def test_logger_msg():
@@ -187,8 +186,12 @@ def test_logger_msg():
 
     # Test that the msg method prints the correct message to the
     # console and log file
-    log_config = {'verbose': True, 'log_show_ms': True,
-                  'log_file': 'log.txt', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': True,
+        'log_file': 'log.txt',
+        'print_log': True,
+    }
     log = base.Logger(**log_config)
     # Check that the message is printed to the console
     with io.StringIO() as buf, redirect_stdout(buf):
@@ -217,8 +220,12 @@ def test_logger_div():
     for case, pattern_str in zip(prepend_timestamp_args, patterns):
         pattern = re.compile(pattern_str)
         # Test that the div method adds a divider as intended
-        log_config = {'verbose': True, 'log_show_ms': True,
-                      'log_file': 'log.txt', 'print_log': True}
+        log_config = {
+            'verbose': True,
+            'log_show_ms': True,
+            'log_file': 'log.txt',
+            'print_log': True,
+        }
         log = base.Logger(**log_config)
 
         # check console output
@@ -241,8 +248,12 @@ def test_print_system_info():
     """
 
     # create a logger object
-    log_config = {'verbose': True, 'log_show_ms': True,
-                  'log_file': 'log.txt', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': True,
+        'log_file': 'log.txt',
+        'print_log': True,
+    }
     log = base.Logger(**log_config)
 
     # run print_system_info and get the console output
@@ -312,7 +323,8 @@ def test_convert_to_MultiIndex():
 
     # Test a case where the index is already a MultiIndex
     data_converted = base.convert_to_MultiIndex(
-        data_converted, axis=0, inplace=False)
+        data_converted, axis=0, inplace=False
+    )
     assert data_converted.index.equals(expected_index)
 
     # Test a case where the columns need to be converted to a MultiIndex
@@ -325,7 +337,8 @@ def test_convert_to_MultiIndex():
 
     # Test a case where the columns are already a MultiIndex
     data_converted = base.convert_to_MultiIndex(
-        data_converted, axis=1, inplace=False)
+        data_converted, axis=1, inplace=False
+    )
     assert data_converted.columns.equals(expected_columns)
 
     # Test an invalid axis parameter
@@ -368,13 +381,22 @@ def test__warning(capsys):
     category = 'undefined'
     base._warning(msg, category, '{path to a file}', '{line number}')
     captured = capsys.readouterr()
-    assert captured.out == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
+    assert (
+        captured.out
+        == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
+    )
     base._warning(msg, category, 'some\\file', '{line number}')
     captured = capsys.readouterr()
-    assert captured.out == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    assert (
+        captured.out
+        == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    )
     base._warning(msg, category, 'some/file', '{line number}')
     captured = capsys.readouterr()
-    assert captured.out == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    assert (
+        captured.out
+        == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    )
 
 
 def test_describe():
@@ -383,57 +405,57 @@ def test_describe():
     """
 
     expected_idx = pd.Index(
-        ('count', 'mean', 'std', 'log_std', 'min',
-         '0.1%', '2.3%', '10%', '15.9%', '50%',
-         '84.1%', '90%', '97.7%', '99.9%',
-         'max'), dtype='object')
+        (
+            'count',
+            'mean',
+            'std',
+            'log_std',
+            'min',
+            '0.1%',
+            '2.3%',
+            '10%',
+            '15.9%',
+            '50%',
+            '84.1%',
+            '90%',
+            '97.7%',
+            '99.9%',
+            'max',
+        ),
+        dtype='object',
+    )
 
     # case 1:
     # passing a dataframe
 
     df = pd.DataFrame(
-        ((1.00, 2.00, 3.00),
-         (4.00, 5.00, 6.00)),
-        columns=['A', 'B', 'C'])
+        ((1.00, 2.00, 3.00), (4.00, 5.00, 6.00)), columns=['A', 'B', 'C']
+    )
     desc = base.describe(df)
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            ('A', 'B', 'C'), dtype='object'))
+    assert np.all(desc.columns == pd.Index(('A', 'B', 'C'), dtype='object'))
 
     # case 2:
     # passing a series
 
-    sr = pd.Series(
-        (1.00, 2.00, 3.00),
-        name='A')
+    sr = pd.Series((1.00, 2.00, 3.00), name='A')
     desc = base.describe(sr)
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            ('A',), dtype='object'))
+    assert np.all(desc.columns == pd.Index(('A',), dtype='object'))
 
     # case 3:
     # passing a 2D numpy array
 
-    desc = base.describe(
-        np.array((
-            (1.00, 2.00, 3.00),
-            (4.00, 5.00, 6.00))))
+    desc = base.describe(np.array(((1.00, 2.00, 3.00), (4.00, 5.00, 6.00))))
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            (0, 1, 2), dtype='object'))
+    assert np.all(desc.columns == pd.Index((0, 1, 2), dtype='object'))
 
     # case 4:
     # passing a 1D numpy array
 
-    desc = base.describe(
-        np.array((1.00, 2.00, 3.00)))
+    desc = base.describe(np.array((1.00, 2.00, 3.00)))
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            (0,), dtype='object'))
+    assert np.all(desc.columns == pd.Index((0,), dtype='object'))
 
 
 def test_str2bool():
@@ -499,7 +521,9 @@ def test_process_loc():
     """
 
     # Test when string can be converted to an int
-    assert base.process_loc('5', 10) == [5, ]
+    assert base.process_loc('5', 10) == [
+        5,
+    ]
 
     # Test when string is in the form 'low-high'
     assert base.process_loc('2-5', 10) == [2, 3, 4, 5]
@@ -508,10 +532,14 @@ def test_process_loc():
     assert base.process_loc('all', 10) == list(range(1, 11))
 
     # Test when string is 'top'
-    assert base.process_loc('top', 10) == [10, ]
+    assert base.process_loc('top', 10) == [
+        10,
+    ]
 
     # Test when string is 'roof'
-    assert base.process_loc('roof', 10) == [10, ]
+    assert base.process_loc('roof', 10) == [
+        10,
+    ]
 
     # Test when string cannot be converted to an int or recognized
     assert base.process_loc('abc', 10) is None
@@ -521,5 +549,4 @@ def test_run_input_specs():
     """
     Just for the shake of coverage ^_^
     """
-    assert (
-        os.path.basename(base.pelicun_path) == 'pelicun')
+    assert os.path.basename(base.pelicun_path) == 'pelicun'

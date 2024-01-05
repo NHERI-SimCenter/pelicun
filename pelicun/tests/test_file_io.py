@@ -58,6 +58,7 @@ from pelicun import file_io
 
 # The tests maintain the order of definitions of the `file_io.py` file.
 
+
 def test_dict_raise_on_duplicates():
     """
     Tests the functionality of the dict_raise_on_duplicates function.
@@ -213,8 +214,9 @@ def test_parse_units():
         assert value == expect[thing]
 
     # Test that additional units are parsed correctly
-    additional_units_file = \
+    additional_units_file = (
         'tests/data/file_io/test_parse_units/additional_units_a.json'
+    )
     units = file_io.parse_units(additional_units_file)
     assert isinstance(units, dict)
     assert 'year' in units
@@ -254,58 +256,49 @@ def test_save_to_csv():
     """
 
     # Test saving with orientation 0
-    data = pd.DataFrame(
-        {"A": [1e-3, 2e-3, 3e-3],
-         "B": [4e-3, 5e-3, 6e-3]})
-    units = pd.Series(
-        ["meters", "meters"], index=["A", "B"])
+    data = pd.DataFrame({"A": [1e-3, 2e-3, 3e-3], "B": [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(["meters", "meters"], index=["A", "B"])
     unit_conversion_factors = {"meters": 0.001}
 
     # Save to a temporary file
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = os.path.join(tmpdir, 'foo.csv')
         file_io.save_to_csv(
-            data, filepath,
-            units, unit_conversion_factors, orientation=0)
+            data, filepath, units, unit_conversion_factors, orientation=0
+        )
         assert os.path.isfile(filepath)
         # Check that the file contains the expected data
         with open(filepath, 'r', encoding='utf-8') as f:
             contents = f.read()
             assert contents == (
-                ',A,B\n0,meters,meters\n0,1.0,4.0'
-                '\n1,2.0,5.0\n2,3.0,6.0\n')
+                ',A,B\n0,meters,meters\n0,1.0,4.0' '\n1,2.0,5.0\n2,3.0,6.0\n'
+            )
 
     # Test saving with orientation 1
-    data = pd.DataFrame(
-        {"A": [1e-3, 2e-3, 3e-3],
-         "B": [4e-3, 5e-3, 6e-3]})
-    units = pd.Series(
-        ["meters", "meters"], index=["A", "B"])
+    data = pd.DataFrame({"A": [1e-3, 2e-3, 3e-3], "B": [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(["meters", "meters"], index=["A", "B"])
     unit_conversion_factors = {"meters": 0.001}
 
     # Save to a temporary file
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = os.path.join(tmpdir, 'bar.csv')
         file_io.save_to_csv(
-            data, filepath,
-            units, unit_conversion_factors, orientation=1)
+            data, filepath, units, unit_conversion_factors, orientation=1
+        )
         assert os.path.isfile(filepath)
         # Check that the file contains the expected data
         with open(filepath, 'r', encoding='utf-8') as f:
             contents = f.read()
             assert contents == (
-                ',0,A,B\n0,,0.001,0.004\n1,,0.002,'
-                '0.005\n2,,0.003,0.006\n')
+                ',0,A,B\n0,,0.001,0.004\n1,,0.002,' '0.005\n2,,0.003,0.006\n'
+            )
 
     #
     # edge cases
     #
 
-    data = pd.DataFrame(
-        {"A": [1e-3, 2e-3, 3e-3],
-         "B": [4e-3, 5e-3, 6e-3]})
-    units = pd.Series(
-        ["meters", "meters"], index=["A", "B"])
+    data = pd.DataFrame({"A": [1e-3, 2e-3, 3e-3], "B": [4e-3, 5e-3, 6e-3]})
+    units = pd.Series(["meters", "meters"], index=["A", "B"])
 
     # units given, without unit conversion factors
     unit_conversion_factors = None
@@ -313,8 +306,8 @@ def test_save_to_csv():
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, 'foo.csv')
             file_io.save_to_csv(
-                data, filepath,
-                units, unit_conversion_factors, orientation=0)
+                data, filepath, units, unit_conversion_factors, orientation=0
+            )
 
     unit_conversion_factors = {"meters": 0.001}
 
@@ -323,8 +316,8 @@ def test_save_to_csv():
         with tempfile.TemporaryDirectory() as tmpdir:
             filepath = os.path.join(tmpdir, 'foo.xyz')
             file_io.save_to_csv(
-                data, filepath,
-                units, unit_conversion_factors, orientation=0)
+                data, filepath, units, unit_conversion_factors, orientation=0
+            )
 
     # no data, log a complaint
     class Logger:
@@ -346,9 +339,13 @@ def test_save_to_csv():
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = os.path.join(tmpdir, 'foo.csv')
         file_io.save_to_csv(
-            data, filepath,
-            units, unit_conversion_factors, orientation=0,
-            log=mylogger)
+            data,
+            filepath,
+            units,
+            unit_conversion_factors,
+            orientation=0,
+            log=mylogger,
+        )
     assert mylogger.logs[-1][0] == 'WARNING: Data was empty, no file saved.'
 
 
@@ -360,8 +357,8 @@ def test_load_data():
     # test loading data with orientation 0
 
     filepath = os.path.join(
-        'tests', 'data', 'file_io',
-        'test_load_data', 'units.csv')
+        'tests', 'data', 'file_io', 'test_load_data', 'units.csv'
+    )
     unit_conversion_factors = {"inps2": 0.0254, "rad": 1.00}
 
     data = file_io.load_data(filepath, unit_conversion_factors)
@@ -371,44 +368,45 @@ def test_load_data():
     assert data.columns.nlevels == 4
 
     _, units = file_io.load_data(
-        filepath, unit_conversion_factors, return_units=True)
+        filepath, unit_conversion_factors, return_units=True
+    )
 
     for item in unit_conversion_factors:
         assert item in units.unique()
 
     filepath = os.path.join(
-        'tests', 'data', 'file_io',
-        'test_load_data', 'no_units.csv')
+        'tests', 'data', 'file_io', 'test_load_data', 'no_units.csv'
+    )
     data_nounits = file_io.load_data(filepath, {})
     assert isinstance(data_nounits, pd.DataFrame)
 
     # test loading data with orientation 1
     filepath = os.path.join(
-        'tests', 'data', 'file_io',
-        'test_load_data', 'orient_1.csv')
+        'tests', 'data', 'file_io', 'test_load_data', 'orient_1.csv'
+    )
     data = file_io.load_data(
-        filepath, unit_conversion_factors,
-        orientation=1, reindex=False)
+        filepath, unit_conversion_factors, orientation=1, reindex=False
+    )
     assert isinstance(data.index, pd.core.indexes.multi.MultiIndex)
     assert data.shape == (10, 2)
     assert data.index.nlevels == 4
 
     # with convert=None
     filepath = os.path.join(
-        'tests', 'data', 'file_io',
-        'test_load_data', 'orient_1_units.csv')
+        'tests', 'data', 'file_io', 'test_load_data', 'orient_1_units.csv'
+    )
     unit_conversion_factors = {"g": 1.00, "rad": 1.00}
     data = file_io.load_data(
-        filepath, unit_conversion_factors,
-        orientation=1, reindex=False)
+        filepath, unit_conversion_factors, orientation=1, reindex=False
+    )
     assert isinstance(data.index, pd.core.indexes.multi.MultiIndex)
     assert data.shape == (10, 3)
     assert data.index.nlevels == 4
 
     # try with reindexing
     data = file_io.load_data(
-        filepath, unit_conversion_factors,
-        orientation=1, reindex=True)
+        filepath, unit_conversion_factors, orientation=1, reindex=True
+    )
     assert np.array_equal(data.index.values, np.array(range(10)))
 
     #
@@ -421,8 +419,8 @@ def test_load_data():
     # exception: not a .csv file
     with pytest.raises(ValueError):
         file_io.load_from_file('db.py')
-    
-    
+
+
 
 
 if __name__ == '__main__':
