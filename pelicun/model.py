@@ -2376,13 +2376,9 @@ class DamageModel(PelicunModel):
               `['CMP_B', 'CMP_C']`.
         qnt_sample : pandas DataFrame
             A DataFrame representing the quantities of the components
-            in the damage sample.
-
-        Returns
-        -------
-        pandas DataFrame
-            A DataFrame representing the quantities of the components
-            in the damage sample after the task has been performed.
+            in the damage sample. It is modified in place to represent
+            the quantities of the components in the damage sample
+            after the task has been performed.
 
         Raises
         ------
@@ -2421,8 +2417,6 @@ class DamageModel(PelicunModel):
                 "damage process not found among components in the damage "
                 "sample. The corresponding part of the damage process is "
                 "skipped.", prepend_timestamp=False)
-
-            return qnt_sample
 
         # get the damage quantities for the source component
         source_cmp_df = qnt_sample.loc[:, source_cmp]
@@ -2541,8 +2535,6 @@ class DamageModel(PelicunModel):
         if self._asmnt.log.verbose:
             self.log_msg('Damage process task successfully applied.',
                          prepend_timestamp=False)
-
-        return qnt_sample
 
     def _apply_damage_functions(self, CMP_to_EDP, demands, qnt_sample):
         """
@@ -2919,7 +2911,7 @@ class DamageModel(PelicunModel):
 
             for task in dmg_process.items():
 
-                qnt_sample = self._perform_dmg_task(task, qnt_sample)
+                self._perform_dmg_task(task, qnt_sample)
 
             self.log_msg("Damage processes successfully applied.",
                          prepend_timestamp=False)
