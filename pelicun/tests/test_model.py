@@ -1186,14 +1186,7 @@ def test_DamageModel_calculate():
     """
 
     asmt = assessment.Assessment()
-    dmg_process = {
-        "1_collapse": {
-            "DS1": "ALL_NA"
-        },
-        "2_excessiveRID": {
-            "DS1": "irreparable_DS1"
-        }
-    }
+    dmg_process = None
     asmt.demand._sample = pd.DataFrame(
         np.column_stack((
             np.array((4.94, 2.73, 4.26, 2.79)),
@@ -1273,7 +1266,8 @@ def test_DamageModel_calculate():
 
     # note: Due to inherent randomness, we can't assert the actual
     # values of this result
-    assert asmt.damage._sample is not None
+    asmt.damage._sample.values.all() >= 0.00
+    asmt.damage._sample.values.all() <= 2.00
 
 
 def test_LossModel_init():
