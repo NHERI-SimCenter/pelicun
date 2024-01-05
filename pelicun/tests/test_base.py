@@ -213,9 +213,8 @@ def test_logger_div():
     # We test the divider with and without the timestamp
     prepend_timestamp_args = (True, False)
     patterns = (
-        r'[0-9][0-9]:[0-9][0-9]:[0-9][0-9]'
-        r':[0-9][0-9][0-9][0-9][0-9][0-9]\s-+',
-        r'\s+-+'
+        r'[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:[0-9][0-9][0-9][0-9][0-9][0-9]\s-+',
+        r'\s+-+',
     )
     for case, pattern_str in zip(prepend_timestamp_args, patterns):
         pattern = re.compile(pattern_str)

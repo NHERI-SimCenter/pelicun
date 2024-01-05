@@ -421,7 +421,5 @@ def test_load_data():
         file_io.load_from_file('db.py')
 
 
-
-
 if __name__ == '__main__':
     pass
