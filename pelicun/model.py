@@ -2954,6 +2954,7 @@ class LossModel(PelicunModel):
         super().__init__(assessment)
 
         self._sample = None
+        self.loss_map = None
         self.loss_params = None
         self.loss_type = 'Generic'
 
