@@ -1068,7 +1068,7 @@ def test_DamageModel_perform_dmg_task():
 
     demand_model.load_model({'marginals': demand_marginals})
 
-    sample_size = 10
+    sample_size = 5
     demand_model.generate_sample({"SampleSize": sample_size})
 
     cmp_marginals = pd.read_csv(
@@ -1081,7 +1081,7 @@ def test_DamageModel_perform_dmg_task():
     damage_model.load_damage_model(
         ['tests/data/model/test_DamageModel_perform_dmg_task/fragility_DB_test.csv'])
 
-    block_batch_size = 1
+    block_batch_size = 5
     qnt_samples = []
     pg_batch = damage_model._get_pg_batches(block_batch_size)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -1101,6 +1101,7 @@ def test_DamageModel_perform_dmg_task():
         qnt_samples.append(qnt_sample)
     qnt_sample = pd.concat(qnt_samples, axis=1)
     qnt_sample.sort_index(axis=1, inplace=True)
+    before = qnt_sample.copy()
 
     dmg_process = {
         "1_CMP.B": {
@@ -1109,7 +1110,14 @@ def test_DamageModel_perform_dmg_task():
     }
     dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
     for task in dmg_process.items():
-        qnt_sample = damage_model._perform_dmg_task(task, qnt_sample)
+        damage_model._perform_dmg_task(task, qnt_sample)
+    after = qnt_sample
+
+    assert ('CMP.A', '1', '1', '0', '1') not in before.columns
+    assert ('CMP.A', '1', '1', '0', '1') in after.columns
+    assert all(before[('CMP.A', '1', '1', '0', '0')].values == 1.00)
+    assert all(after[('CMP.A', '1', '1', '0', '0')].values == 0.00)
+    assert all(after[('CMP.A', '1', '1', '0', '1')].values == 1.00)
 
 
 def test_DamageModel__get_pg_batches():
