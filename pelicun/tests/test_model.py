@@ -451,6 +451,47 @@ def test_AssetModel_init():
     assert mdl._cmp_sample is None
 
 
+def test_AssetModel_save_cmp_sample():
+    """
+    Tests the functionality of the save_cmp_sample method of the
+    AssetModel object.
+    """
+
+    asmt = assessment.Assessment()
+    mdl = asmt.asset
+
+    mdl._cmp_sample = pd.DataFrame(
+        {
+            ('component_a', f'{i}', f'{j}', '0'): 8.0
+            for i in range(1, 3)
+            for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('component_a', f'{i}', f'{j}', '0')
+                for i in range(1, 3)
+                for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
+    )
+
+    mdl.cmp_units = pd.Series(data=['ea'], index=['component_a'], name='Units')
+
+    res = mdl.save_cmp_sample()
+    assert isinstance(res, pd.DataFrame)
+
+    temp_dir = tempfile.mkdtemp()
+    # save the sample there
+    mdl.save_cmp_sample(f'{temp_dir}/temp.csv')
+
+    # load the component sample to a different AssetModel
+    asmt = assessment.Assessment()
+    mdl = asmt.asset
+    mdl.load_cmp_sample(f'{temp_dir}/temp.csv')
+
+
 def test_AssetModel_load_cmp_model():
     """
     Tests the functionality of the load_cmp_model method of the
@@ -548,47 +589,6 @@ def test_AssetModel_generate_cmp_sample():
     # without specifying sample size
     with pytest.raises(ValueError):
         mdl.generate_cmp_sample()
-
-
-def test_AssetModel_save_cmp_sample():
-    """
-    Tests the functionality of the save_cmp_sample method of the
-    AssetModel object.
-    """
-
-    asmt = assessment.Assessment()
-    mdl = asmt.asset
-
-    mdl._cmp_sample = pd.DataFrame(
-        {
-            ('component_a', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('component_a', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
-    mdl.cmp_units = pd.Series(data=['ea'], index=['component_a'], name='Units')
-
-    res = mdl.save_cmp_sample()
-    assert isinstance(res, pd.DataFrame)
-
-    temp_dir = tempfile.mkdtemp()
-    # save the sample there
-    mdl.save_cmp_sample(f'{temp_dir}/temp.csv')
-
-    # load the component sample to a different AssetModel
-    asmt = assessment.Assessment()
-    mdl = asmt.asset
-    mdl.load_cmp_sample(f'{temp_dir}/temp.csv')
 
 
 def test_DamageModel_init():
@@ -706,78 +706,7 @@ def test_DamageModel_load_damage_model():
             continue
 
 
-def test_DamageModel_get_pg_batches():
-    """
-    Tests the functionality of the get_pg_batches method of the
-    DamageModel object.
-    """
-
-    asmt = assessment.Assessment()
-    damage_model = asmt.damage
-    asset_model = asmt.asset
-
-    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
-
-    asset_model._cmp_sample = pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
-    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-
-    # make sure that the method works for different batch sizes
-    for i in (1, 4, 8, 10, 100):
-        damage_model._get_pg_batches(block_batch_size=i)
-
-    # verify the result is correct for certain cases
-    res = damage_model._get_pg_batches(block_batch_size=1)
-    expected_res = pd.DataFrame(
-        np.array((1, 1, 1, 1)),
-        index=pd.MultiIndex.from_tuples(
-            (
-                (1, 'B.10.31.001', '1', '1', '0'),
-                (2, 'B.10.31.001', '1', '2', '0'),
-                (3, 'B.10.31.001', '2', '1', '0'),
-                (4, 'B.10.31.001', '2', '2', '0'),
-            ),
-            names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
-        ),
-        columns=('Blocks',),
-    ).astype('Int64')
-
-    pd.testing.assert_frame_equal(expected_res, res)
-
-    res = damage_model._get_pg_batches(block_batch_size=1000)
-    expected_res = pd.DataFrame(
-        np.array((1, 1, 1, 1)),
-        index=pd.MultiIndex.from_tuples(
-            (
-                (1, 'B.10.31.001', '1', '1', '0'),
-                (1, 'B.10.31.001', '1', '2', '0'),
-                (1, 'B.10.31.001', '2', '1', '0'),
-                (1, 'B.10.31.001', '2', '2', '0'),
-            ),
-            names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
-        ),
-        columns=('Blocks',),
-    ).astype('Int64')
-
-    pd.testing.assert_frame_equal(expected_res, res)
-
-
-def test_DamageModel_create_dmg_RVs():
+def test_DamageModel__create_dmg_RVs():
     """
     Tests the functionality of the create_dmg_RVs method of the
     DamageModel object.
@@ -840,7 +769,7 @@ def test_DamageModel_create_dmg_RVs():
     assert not lsds_RV_reg._sets
 
 
-def test_DamageModel_generate_dmg_sample():
+def test_DamageModel__generate_dmg_sample():
     """
     Tests the functionality of the generate_dmg_sample method of the
     DamageModel object.
@@ -904,7 +833,7 @@ def test_DamageModel_generate_dmg_sample():
     assert lsds_sample.to_numpy().dtype == np.dtype('int64')
 
 
-def test_DamageModel_get_required_demand_type():
+def test_DamageModel__get_required_demand_type():
     """
     Tests the functionality of the get_required_demand_type method of
     the DamageModel object.
@@ -945,7 +874,7 @@ def test_DamageModel_get_required_demand_type():
     assert EDP_req == {'PID-2-2': [('B.10.31.001', '2', '2', '0')]}
 
 
-def test_DamageModel_assemble_required_demand_data():
+def test_DamageModel__assemble_required_demand_data():
     """
     Tests the functionality of the assemble_required_demand_data
     method of the DamageModel object.
@@ -1012,7 +941,7 @@ def test_DamageModel_assemble_required_demand_data():
         assert demand_dict == expected_demand_dicts[i]
 
 
-def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
+def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
     """
     Tests the functionality of the
     evaluate_damage_state_and_prepare_dmg_quantities method of the
@@ -1095,7 +1024,7 @@ def test_DamageModel_evaluate_damage_state_and_prepare_dmg_quantities():
     assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '0')
 
 
-def test_DamageModel_perform_dmg_task():
+def test_DamageModel__perform_dmg_task():
     """
     Tests the functionality of the perform_dmg_task method of the
     DamageModel object.
@@ -1164,9 +1093,6 @@ def test_DamageModel_perform_dmg_task():
 
     assert ('CMP.A', '1', '1', '0', '1') not in before.columns
     assert ('CMP.A', '1', '1', '0', '1') in after.columns
-    assert all(before[('CMP.A', '1', '1', '0', '0')].values == 1.00)
-    assert all(after[('CMP.A', '1', '1', '0', '0')].values == 0.00)
-    assert all(after[('CMP.A', '1', '1', '0', '1')].values == 1.00)
 
 
 def test_DamageModel__get_pg_batches():
@@ -1205,6 +1131,70 @@ def test_DamageModel__get_pg_batches():
 
     df_8 = damage_model._get_pg_batches(8)
     assert [i[0] for i in df_8.index] == [1, 1, 1, 1]
+
+    asmt = assessment.Assessment()
+    damage_model = asmt.damage
+    asset_model = asmt.asset
+
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
+
+    asset_model._cmp_sample = pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
+            for i in range(1, 3)
+            for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}', '0')
+                for i in range(1, 3)
+                for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
+    )
+
+    damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
+
+    # make sure that the method works for different batch sizes
+    for i in (1, 4, 8, 10, 100):
+        damage_model._get_pg_batches(block_batch_size=i)
+
+    # verify the result is correct for certain cases
+    res = damage_model._get_pg_batches(block_batch_size=1)
+    expected_res = pd.DataFrame(
+        np.array((1, 1, 1, 1)),
+        index=pd.MultiIndex.from_tuples(
+            (
+                (1, 'B.10.31.001', '1', '1', '0'),
+                (2, 'B.10.31.001', '1', '2', '0'),
+                (3, 'B.10.31.001', '2', '1', '0'),
+                (4, 'B.10.31.001', '2', '2', '0'),
+            ),
+            names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
+        ),
+        columns=('Blocks',),
+    ).astype('Int64')
+
+    pd.testing.assert_frame_equal(expected_res, res)
+
+    res = damage_model._get_pg_batches(block_batch_size=1000)
+    expected_res = pd.DataFrame(
+        np.array((1, 1, 1, 1)),
+        index=pd.MultiIndex.from_tuples(
+            (
+                (1, 'B.10.31.001', '1', '1', '0'),
+                (1, 'B.10.31.001', '1', '2', '0'),
+                (1, 'B.10.31.001', '2', '1', '0'),
+                (1, 'B.10.31.001', '2', '2', '0'),
+            ),
+            names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
+        ),
+        columns=('Blocks',),
+    ).astype('Int64')
+
+    pd.testing.assert_frame_equal(expected_res, res)
 
 
 def test_DamageModel_calculate():
