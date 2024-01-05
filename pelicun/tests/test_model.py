@@ -203,7 +203,7 @@ def test_DemandModel_load_sample():
 
     # get a DemandModel in which the sample has been loaded
     mdl = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_' 'load_sample/demand_sample_A.csv'
+        'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
     )
 
     # retrieve the loaded sample and units
@@ -211,7 +211,7 @@ def test_DemandModel_load_sample():
     obtained_units = mdl.units
 
     mdl_2 = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_' 'load_sample/demand_sample_B.csv'
+        'tests/data/model/test_DemandModel_load_sample/demand_sample_B.csv'
     )
     obtained_sample_2 = mdl_2._sample
     obtained_units_2 = mdl_2.units
@@ -261,7 +261,7 @@ def test_DemandModel_estimate_RID():
     """
 
     mdl = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_' 'estimate_RID/demand_sample_A.csv'
+        'tests/data/model/test_DemandModel_estimate_RID/demand_sample_A.csv'
     )
 
     demands = mdl.sample['PID']
@@ -279,7 +279,7 @@ def test_DemandModel_save_sample():
 
     # get a DemandModel in which the sample has been loaded
     mdl = DemandModel_load_sample(
-        'tests/data/model/test_DemandModel_' 'load_sample/demand_sample_A.csv'
+        'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
     )
 
     # instantiate a temporary directory in memory
@@ -1123,7 +1123,7 @@ def test_DamageModel_perform_dmg_task():
     demand_model.generate_sample({"SampleSize": sample_size})
 
     cmp_marginals = pd.read_csv(
-        'tests/data/model/test_DamageModel_' 'perform_dmg_task/CMP_marginals.csv',
+        'tests/data/model/test_DamageModel_perform_dmg_task/CMP_marginals.csv',
         index_col=0,
     )
     asset_model.load_cmp_model({'marginals': cmp_marginals})
