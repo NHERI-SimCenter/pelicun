@@ -1430,7 +1430,18 @@ def test_LossModel_load_model():
         index=["DMG-cmp_1", "DMG-cmp_2"],
     )
 
+    assert mdl.loss_map is None
+    assert mdl.loss_params is None
+
     mdl.load_model([data_path_1, data_path_2], mapping_path)
+
+    assert mdl.loss_map.to_dict() == {
+        'Driver': {0: ('DMG', 'cmp_1'), 1: ('DMG', 'cmp_2')},
+        'Consequence': {0: 'B.10.31.001', 1: 'D.50.92.033k'},
+    }
+    cmp_ids = mdl.loss_params.index.get_level_values(0).unique()
+    assert "B.10.31.001" in cmp_ids
+    assert "D.50.92.033k" in cmp_ids
 
 
 def test_LossModel_aggregate_losses():
@@ -1519,7 +1530,21 @@ def test_BldgRepairModel__create_DV_RVs():
         names=("cmp", "loc", "dir", "uid", "ds"),
     )
 
-    mdl._create_DV_RVs(case_list)
+    rv_reg = mdl._create_DV_RVs(case_list)
+    assert list(rv_reg.RV.keys()) == [
+        'Cost-0-1-2-2-0',
+        'Time-0-1-2-2-0',
+        'Cost-0-1-3-1-0',
+        'Time-0-1-3-1-0',
+    ]
+    rvs = list(rv_reg.RV.values())
+    for rv in rvs:
+        print(rv.theta)
+        assert rv.distribution == 'normal'
+    np.testing.assert_array_equal(rvs[0].theta, np.array((1.00, 0.390923, np.nan)))
+    np.testing.assert_array_equal(rvs[1].theta, np.array((1.00, 0.464027, np.nan)))
+    np.testing.assert_array_equal(rvs[2].theta, np.array((1.00, 0.390923, np.nan)))
+    np.testing.assert_array_equal(rvs[3].theta, np.array((1.00, 0.464027, np.nan)))
 
 
 def test_BldgRepairModel__calc_median_consequence():
@@ -1568,7 +1593,9 @@ def test_BldgRepairModel__calc_median_consequence():
         ),
     )
 
-    mdl._calc_median_consequence(eco_qnt)
+    medians = mdl._calc_median_consequence(eco_qnt)
+    assert medians['Cost'].to_dict() == {(0, '1'): {0: 25704.0, 1: 22848.0}}
+    assert medians['Time'].to_dict() == {(0, '1'): {0: 22.68, 1: 20.16}}
 
 
 def test_BldgRepairModel_aggregate_losses():
@@ -1626,7 +1653,13 @@ def test_BldgRepairModel_aggregate_losses():
         ),
     )
 
-    mdl.aggregate_losses()
+    df_agg = mdl.aggregate_losses()
+
+    assert df_agg.to_dict() == {
+        ('repair_cost', ''): {0: 100.0},
+        ('repair_time', 'parallel'): {0: 1.0},
+        ('repair_time', 'sequential'): {0: 1.0},
+    }
 
 
 def test_BldgRepairModel__generate_DV_sample():
@@ -1634,6 +1667,85 @@ def test_BldgRepairModel__generate_DV_sample():
     Tests the functionality of the _generate_DV_sample method of the
     BldgRepairModel object.
     """
+
+    expected_sample = {
+        (True, True): {
+            (
+                'Cost',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '2',
+                '2',
+                '0',
+            ): {0: 25704, 1: 0, 2: 25704, 3: 0},
+            (
+                'Cost',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '3',
+                '1',
+                '0',
+            ): {0: 0, 1: 0, 2: 0, 3: 25704},
+            (
+                'Time',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '2',
+                '2',
+                '0',
+            ): {0: 22.68, 1: 0.0, 2: 22.68, 3: 0.0},
+            (
+                'Time',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '3',
+                '1',
+                '0',
+            ): {0: 0.0, 1: 0.0, 2: 0.0, 3: 22.68},
+        },
+        (True, False): {
+            (
+                'Cost',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '2',
+                '2',
+                '0',
+            ): {0: 25704, 1: 0, 2: 25704, 3: 0},
+            (
+                'Cost',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '3',
+                '1',
+                '0',
+            ): {0: 0, 1: 0, 2: 0, 3: 25704},
+            (
+                'Time',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '2',
+                '2',
+                '0',
+            ): {0: 22.68, 1: 0.0, 2: 22.68, 3: 0.0},
+            (
+                'Time',
+                'some.test.component',
+                'some.test.component',
+                '1',
+                '3',
+                '1',
+                '0',
+            ): {0: 0.0, 1: 0.0, 2: 0.0, 3: 22.68},
+        },
+    }
 
     for ecods, ecofl in (
         (True, True),
@@ -1671,7 +1783,7 @@ def test_BldgRepairModel__generate_DV_sample():
         mdl.loss_params = pd.DataFrame(
             (
                 (
-                    "normal",
+                    None,
                     None,
                     "25704,17136|5,20",
                     0.390923,
@@ -1680,7 +1792,7 @@ def test_BldgRepairModel__generate_DV_sample():
                     "1 EA",
                 ),
                 (
-                    "normal",
+                    None,
                     0.0,
                     "22.68,15.12|5,20",
                     0.464027,
@@ -1706,6 +1818,8 @@ def test_BldgRepairModel__generate_DV_sample():
         )
 
         mdl._generate_DV_sample(dmg_quantities, 4)
+
+        assert mdl._sample.to_dict() == expected_sample[(ecods, ecofl)]
 
 
 #  _____                 _   _
