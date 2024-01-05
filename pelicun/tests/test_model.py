@@ -41,6 +41,7 @@
 These are unit and integration tests on the model module of pelicun.
 """
 
+import os
 import tempfile
 import pytest
 import numpy as np
@@ -278,7 +279,24 @@ def test_DemandModel_save_sample():
     temp_dir = tempfile.mkdtemp()
     # save the sample there
     mdl.save_sample(f'{temp_dir}/temp.csv')
-    mdl.save_sample(save_units=False)
+    with open(f'{temp_dir}/temp.csv', 'r', encoding='utf-8') as f:
+        contents = f.read()
+    assert (
+        contents == (
+            ',PFA-0-1,PFA-1-1,PID-1-1,SA_0.23-0-1\n'
+            'Units,inps2,inps2,rad,inps2\n'
+            '0,158.62478,397.04389,0.02672,342.149\n'
+            )
+        )
+    res = mdl.save_sample(save_units=False)
+    assert (
+        res.to_dict() == {
+            ('PFA', '0', '1'): {0: 158.62478},
+            ('PFA', '1', '1'): {0: 397.04389},
+            ('PID', '1', '1'): {0: 0.02672},
+            ('SA_0.23', '0', '1'): {0: 342.149}
+        }
+    )
 
 
 def get_calibrated_model(path, config):
@@ -346,6 +364,9 @@ def test_DemandModel_save_load_model():
     temp_dir = tempfile.mkdtemp()
     # save the model there
     mdl.save_model(f'{temp_dir}/temp')
+    assert os.path.exists(f'{temp_dir}/temp_marginals.csv')
+    assert os.path.exists(f'{temp_dir}/temp_empirical.csv')
+    assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
 
 
 def test_DemandModel_generate_sample():
@@ -375,7 +396,7 @@ def test_DemandModel_generate_sample():
 
     # get the generated demand sample
     res = mdl.save_sample(save_units=True)
-    assert res
+    assert isinstance(res, tuple)
 
     obtained_sample, obtained_units = res
 

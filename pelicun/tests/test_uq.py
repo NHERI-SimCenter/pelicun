@@ -947,6 +947,7 @@ def test__OLS_percentiles():
     values = norm.ppf(perc, loc=20, scale=10)
     family = 'normal'
     res = uq._OLS_percentiles(params, values, perc, family)
+    assert res == 10000000000.0
 
     # lognormal: negative median
     params = np.array((-1.00, 0.40))
@@ -954,7 +955,7 @@ def test__OLS_percentiles():
     values = lognorm.ppf(perc, s=0.40, scale=20.00)
     family = 'lognormal'
     res = uq._OLS_percentiles(params, values, perc, family)
-
+    assert res == 10000000000.0
 
 #  __  __      _   _               _
 # |  \/  | ___| |_| |__   ___   __| |___
