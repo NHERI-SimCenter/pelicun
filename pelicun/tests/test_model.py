@@ -1266,8 +1266,8 @@ def test_DamageModel_calculate():
 
     # note: Due to inherent randomness, we can't assert the actual
     # values of this result
-    asmt.damage._sample.values.all() >= 0.00
-    asmt.damage._sample.values.all() <= 2.00
+    assert asmt.damage._sample.values.all() >= 0.00
+    assert asmt.damage._sample.values.all() <= 2.00
 
 
 def test_LossModel_init():
