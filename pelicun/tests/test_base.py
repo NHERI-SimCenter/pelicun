@@ -51,22 +51,12 @@ import pandas as pd
 import numpy as np
 from pelicun import base
 
-# for tests, we sometimes create things or call them just to see if
-# things would work, so the following are irrelevant:
-
-# pylint: disable=useless-suppression
-# pylint: disable=unused-variable
-
+# pylint: disable=missing-function-docstring
 
 # The tests maintain the order of definitions of the `base.py` file.
 
 
 def test_options_init():
-    """
-    Test that the Options object is initialized with the correct
-    attributes based on the input user configuration
-    """
-
     # Create a sample user_config_options dictionary
     user_config_options = {
         "Verbose": False,
@@ -113,14 +103,12 @@ def test_options_init():
 
 
 def test_nondir_multi():
-    """
-    Tests that the nondir_multi method of the Options class returns
-    the correct value for the specified EDP type. Tests that the
-    method uses the value associated with the 'ALL' key if the EDP
-    type is not present in the nondir_multi_dict attribute. Tests
-    that a ValueError is raised if the 'ALL' key is not present in the
-    nondir_multi_dict attribute.
-    """
+    # Tests that the nondir_multi method of the Options class returns
+    # the correct value for the specified EDP type. Tests that the
+    # method uses the value associated with the 'ALL' key if the EDP
+    # type is not present in the nondir_multi_dict attribute. Tests
+    # that a ValueError is raised if the 'ALL' key is not present in the
+    # nondir_multi_dict attribute.
 
     # Create an instance of the Options class with default values for all options,
     # except for the nondir_multi_dict attribute
@@ -148,10 +136,6 @@ def test_nondir_multi():
 
 
 def test_logger_init():
-    """
-    Tests that the Logger object is initialized with the correct
-    attributes based on the input configuration dictionary.
-    """
     # Test that the Logger object is initialized with the correct
     # attributes based on the input configuration
     log_config = {
@@ -179,11 +163,6 @@ def test_logger_init():
 
 
 def test_logger_msg():
-    """
-    Tests the functionality of the msg method of the Logger
-    object.
-    """
-
     # Test that the msg method prints the correct message to the
     # console and log file
     log_config = {
@@ -205,11 +184,6 @@ def test_logger_msg():
 
 
 def test_logger_div():
-    """
-    Tests the functionality of the div method of the Logger
-    object.
-    """
-
     # We test the divider with and without the timestamp
     prepend_timestamp_args = (True, False)
     patterns = (
@@ -242,10 +216,6 @@ def test_logger_div():
 
 
 def test_print_system_info():
-    """
-    Tests that the system information is retrieved correctly
-    """
-
     # create a logger object
     log_config = {
         'verbose': True,
@@ -268,10 +238,6 @@ def test_print_system_info():
 
 
 def test_convert_to_SimpleIndex():
-    """
-    Tests the functionality of the convert_to_SimpleIndex function.
-    """
-
     # Test conversion of a multiindex to a simple index following the
     # SimCenter dash convention
     index = pd.MultiIndex.from_tuples((('a', 'b'), ('c', 'd')))
@@ -307,10 +273,6 @@ def test_convert_to_SimpleIndex():
 
 
 def test_convert_to_MultiIndex():
-    """
-    Tests the functionality of the convert_to_MultiIndex function.
-    """
-
     # Test a case where the index needs to be converted to a MultiIndex
     data = pd.DataFrame({'A': (1, 2, 3), 'B': (4, 5, 6)})
     data.index = ('A-1', 'B-1', 'C-1')
@@ -353,10 +315,6 @@ def test_convert_to_MultiIndex():
 
 
 def test_show_matrix():
-    """
-    Tests the functionality of the show_matrix function.
-    """
-
     # Test with a simple 2D array
     arr = ((1, 2, 3), (4, 5, 6))
     base.show_matrix(arr)
@@ -373,9 +331,6 @@ def test_show_matrix():
 
 
 def test__warning(capsys):
-    """
-    Tests the functionality of the _warning function.
-    """
     msg = 'This is a test.'
     category = 'undefined'
     base._warning(msg, category, '{path to a file}', '{line number}')
@@ -399,10 +354,6 @@ def test__warning(capsys):
 
 
 def test_describe():
-    """
-    Tests the functionality of the describe function.
-    """
-
     expected_idx = pd.Index(
         (
             'count',
@@ -458,9 +409,6 @@ def test_describe():
 
 
 def test_str2bool():
-    """
-    Tests the functionality of the test_str2bool function.
-    """
     assert base.str2bool('True') is True
     assert base.str2bool('False') is False
     assert base.str2bool('yes') is True
@@ -476,10 +424,6 @@ def test_str2bool():
 
 
 def test_float_or_None():
-    """
-    Tests the functionality of the float_or_None function.
-    """
-
     # Test with a string that can be converted to a float
     assert base.float_or_None('3.14') == 3.14
 
@@ -497,10 +441,6 @@ def test_float_or_None():
 
 
 def test_int_or_None():
-    """
-    Tests the functionality of the int_or_None function.
-    """
-
     # Test the case when the string can be converted to int
     assert base.int_or_None('123') == 123
     assert base.int_or_None('-456') == -456
@@ -515,10 +455,6 @@ def test_int_or_None():
 
 
 def test_process_loc():
-    """
-    Tests the functionality of the process_loc function.
-    """
-
     # Test when string can be converted to an int
     assert base.process_loc('5', 10) == [
         5,
@@ -545,7 +481,4 @@ def test_process_loc():
 
 
 def test_run_input_specs():
-    """
-    Just for the shake of coverage ^_^
-    """
     assert os.path.basename(base.pelicun_path) == 'pelicun'

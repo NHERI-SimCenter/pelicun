@@ -46,21 +46,10 @@ from pelicun import base
 from pelicun import model
 from pelicun import assessment
 
-
-# for tests, we sometimes create things or call them just to see if
-# things would work, so the following are irrelevant:
-
-# pylint: disable=useless-suppression
-# pylint: disable=unused-variable
-# pylint: disable=pointless-statement
-
-# The tests maintain the order of definitions of the `assessment.py` file.
+# pylint: disable=missing-function-docstring
 
 
 def create_assessment_obj(config=None):
-    """
-    Creates an assessment object.
-    """
     if config:
         asmt = assessment.Assessment(config)
     else:
@@ -69,11 +58,6 @@ def create_assessment_obj(config=None):
 
 
 def test_Assessment_init():
-    """
-    Tests the functionality of the init method of the Assessment
-    object.
-    """
-
     asmt = create_assessment_obj()
 
     assert asmt.stories is None
@@ -99,11 +83,6 @@ def test_Assessment_init():
 
 
 def test_assessment_get_default_metadata():
-    """
-    Tests the functionality of the get_default_metadata method of the
-    Assessment object.
-    """
-
     asmt = create_assessment_obj()
 
     data_sources = (
@@ -123,11 +102,6 @@ def test_assessment_get_default_metadata():
 
 
 def test_assessment_calc_unit_scale_factor():
-    """
-    Tests the functionality of the calc_unit_scale_factor method of
-    the Assessment object.
-    """
-
     # default unit file
     asmt = create_assessment_obj()
 
@@ -162,11 +136,6 @@ def test_assessment_calc_unit_scale_factor():
 
 
 def test_assessment_scale_factor():
-    """
-    Tests the functionality of the assessment_scale_factor method of
-    the Assessment object.
-    """
-
     # default unit file
     asmt = create_assessment_obj()
     assert asmt.scale_factor('m') == 1.00

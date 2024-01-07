@@ -48,21 +48,13 @@ import numpy as np
 import pandas as pd
 from pelicun import file_io
 
-# for tests, we sometimes create things or call them just to see if
-# things would work, so the following are irrelevant:
-
-# pylint: disable=useless-suppression
-# pylint: disable=unused-variable
-# pylint: disable=pointless-statement
-
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
 
 # The tests maintain the order of definitions of the `file_io.py` file.
 
 
 def test_dict_raise_on_duplicates():
-    """
-    Tests the functionality of the dict_raise_on_duplicates function.
-    """
     res = file_io.dict_raise_on_duplicates([('A', '1'), ('B', '2')])
     assert res == {'A': '1', 'B': '2'}
     with pytest.raises(ValueError):
@@ -70,10 +62,6 @@ def test_dict_raise_on_duplicates():
 
 
 def test_update_vals():
-    """
-    Tests the functionality of the update_vals function.
-    """
-
     primary = {'b': {'c': 4, 'd': 5}, 'g': 7}
     update = {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6}
     file_io.update_vals(update, primary, 'update', 'primary')
@@ -99,10 +87,6 @@ def test_update_vals():
 
 
 def test_merge_default_config():
-    """
-    Tests the functionality of the merge_default_config function.
-    """
-
     # Test merging an empty user config with the default config
     user_config = {}
     merged_config = file_io.merge_default_config(user_config)
@@ -130,10 +114,6 @@ def test_merge_default_config():
 
 
 def test_parse_units():
-    """
-    Tests the functionality of the parse_units function.
-    """
-
     # Test the default units are parsed correctly
     units = file_io.parse_units()
     assert isinstance(units, dict)
@@ -251,10 +231,6 @@ def test_parse_units():
 
 
 def test_save_to_csv():
-    """
-    Tests the functionality of the save_to_csv function.
-    """
-
     # Test saving with orientation 0
     data = pd.DataFrame({"A": [1e-3, 2e-3, 3e-3], "B": [4e-3, 5e-3, 6e-3]})
     units = pd.Series(["meters", "meters"], index=["A", "B"])
@@ -320,18 +296,13 @@ def test_save_to_csv():
             )
 
     # no data, log a complaint
+    # Logger object used for a single test
     class Logger:
-        """
-        Logger object used for a single test
-        """
-
         def __init__(self):
             self.logs = []
 
         def msg(self, text, **kwargs):
-            """
-            Keep track of the contents of the logging calls
-            """
+            # Keep track of the contents of the logging calls
             self.logs.append((text, kwargs))
 
     mylogger = Logger()
@@ -350,10 +321,6 @@ def test_save_to_csv():
 
 
 def test_load_data():
-    """
-    Tests the functionality of the load_data function.
-    """
-
     # test loading data with orientation 0
 
     filepath = os.path.join(

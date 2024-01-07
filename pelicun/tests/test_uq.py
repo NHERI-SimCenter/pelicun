@@ -42,8 +42,7 @@ These are unit and integration tests on the uq module of pelicun.
 
 Note: Test functions that require reading the expected test results
 from a file should include a reset=False argument to enable automatic
-reset from the `reset_all_test_data` function of the test_util.py
-file.
+reset from the `reset_all_test_data` function in `reset_tests.py`.
 """
 
 import warnings
@@ -52,16 +51,10 @@ import numpy as np
 from scipy.stats import norm
 from scipy.stats import lognorm
 from pelicun import uq
-from tests.test_util import import_pickle
-from tests.test_util import export_pickle
+from tests.util import import_pickle
+from tests.util import export_pickle
 
-
-# for tests, we sometimes create things or call them just to see if
-# things would work, so the following are irrelevant:
-
-# pylint: disable=unused-variable
-# pylint: disable=pointless-statement
-
+# pylint: disable=missing-function-docstring
 
 # The tests maintain the order of definitions of the `uq.py` file.
 
@@ -75,10 +68,6 @@ from tests.test_util import export_pickle
 
 
 def test_scale_distribution():
-    """
-    Tests the functionality of the scale_distribution function.
-    """
-
     # used in all cases
     theta = np.array((-1.00, 1.00))
     trunc = np.array((-2.00, 2.00))
@@ -107,10 +96,6 @@ def test_scale_distribution():
 
 
 def test_mvn_orthotope_density():
-    """
-    Tests the functionality of the mvn_orthotope_density function.
-    """
-
     # case 1:
     # zero-width slice should result in a value of zero.
     mu_val = 0.00
@@ -169,10 +154,6 @@ def test_mvn_orthotope_density():
 
 
 def test__get_theta():
-    """
-    Tests the functionality of the _get_theta utility function.
-    """
-
     # evaluate uq._get_theta() for some valid inputs
     res = uq._get_theta(
         np.array(((1.00, 1.00), (1.00, 0.5))),
@@ -191,10 +172,6 @@ def test__get_theta():
 
 
 def test__get_limit_probs():
-    """
-    Tests the functionality of the _get_limit_probs function.
-    """
-
     # verify that it works for valid inputs
 
     res = uq._get_limit_probs(
@@ -248,10 +225,6 @@ def test__get_limit_probs():
 
 
 def test__get_std_samples():
-    """
-    Tests the functionality of the _get_std_samples utility function.
-    """
-
     # test that it works with valid inputs
 
     # case 1:
@@ -311,11 +284,6 @@ def test__get_std_samples():
 
 
 def test__get_std_corr_matrix():
-    """
-    Tests the functionality of the _get_std_corr_matrix utility
-    function.
-    """
-
     # test that it works with valid inputs
 
     # case 1:
@@ -352,10 +320,6 @@ def test__get_std_corr_matrix():
 
 
 def test__mvn_scale():
-    """
-    Tests the functionality of the _mvn_scale utility function.
-    """
-
     # case 1:
     np.random.seed(40)
     sample = np.random.normal(0.00, 1.00, size=(2, 5)).T
@@ -372,12 +336,6 @@ def test__mvn_scale():
 
 
 def test__neg_log_likelihood():
-    """
-    Tests the functionality of the _neg_log_likelihood function, only
-    considering certain edge cases. Normal inputs are tested by
-    test_fit_distribution_to_sample_univariate.
-    """
-
     # Parameters not whithin the pre-defined bounds should yield a
     # large value to discourage the optimization algorithm from going
     # in that direction.
@@ -424,12 +382,6 @@ def test__neg_log_likelihood():
 
 
 def test_fit_distribution_to_sample_univariate():
-    """
-    Tests the functionality of the
-    fit_distribution_to_sample_univariate function, only considering
-    univariate input cases.
-    """
-
     # a single value in the sample
     sample_vec = np.array((1.00,))
     res = uq.fit_distribution_to_sample(sample_vec, 'normal')
@@ -648,12 +600,6 @@ def test_fit_distribution_to_sample_univariate():
 
 
 def test_fit_distribution_to_sample_multivariate():
-    """
-    Tests the functionality of the
-    fit_distribution_to_sample_univariate function, only considering
-    multivariate input cases.
-    """
-
     # uncorrelated, normal
     np.random.seed(40)
     sample = np.random.multivariate_normal(
@@ -791,11 +737,6 @@ def test_fit_distribution_to_sample_multivariate():
 
 
 def test_fit_distribution_to_percentiles():
-    """
-    Tests the functionality of the fit_distribution_to_percentiles
-    function.
-    """
-
     # normal, mean of 20 and standard deviation of 10
     percentiles = np.linspace(0.01, 0.99, num=10000)
     values = norm.ppf(percentiles, loc=20, scale=10)
@@ -823,12 +764,6 @@ def test_fit_distribution_to_percentiles():
 
 
 def test__OLS_percentiles():
-    """
-    Tests the functionality of the _OLS_percentiles function for
-    certain edge cases. Ordinary cases are covered by
-    test_fit_distribution_to_percentiles.
-    """
-
     # normal: negative standard deviation
     params = np.array((2.50, -0.10))
     perc = np.linspace(1e-2, 1.00 - 1e-2, num=5)
@@ -856,11 +791,6 @@ def test__OLS_percentiles():
 
 
 def test_RandomVariable():
-    """
-    Tests the instantiation and basic functionality of the
-    `RandomVariable` class.
-    """
-
     # instantiate a random variable with default attributes
     rv_1 = uq.RandomVariable('rv_1', 'empirical')
     # verify that the attributes have been assigned as expected
@@ -886,7 +816,7 @@ def test_RandomVariable():
     )
     for distribution in distributions:
         with pytest.raises(ValueError):
-            rv_err = uq.RandomVariable(  # noqa: F841
+            uq.RandomVariable(
                 "won't see the light of day", distribution
             )
 
@@ -911,10 +841,6 @@ def test_RandomVariable():
 
 
 def test_RandomVariable_cdf():
-    """
-    Tests the functionality of the `cdf` method of the
-    `RandomVariable` class.
-    """
     # create a normal random variable
     rv = uq.RandomVariable(
         'test_rv',
@@ -1021,11 +947,6 @@ def test_RandomVariable_cdf():
 
 
 def test_RandomVariable_inverse_transform():
-    """
-    Tests the functionality of the `inverse_transform` method of the
-    `RandomVariable` class.
-    """
-
     #
     # uniform
     #
@@ -1227,11 +1148,6 @@ def test_RandomVariable_inverse_transform():
 
 
 def test_RandomVariable_Set():
-    """
-    Tests the instantiation and basic functionality of the
-    `RandomVariable_Set` class.
-    """
-
     # a set of two random variables
     rv_1 = uq.RandomVariable('rv1', 'normal', theta=(1.0, 1.0))
     rv_2 = uq.RandomVariable('rv2', 'normal', theta=(1.0, 1.0))
@@ -1250,11 +1166,6 @@ def test_RandomVariable_Set():
 
 
 def test_RandomVariable_Set_apply_correlation(reset=False):
-    """
-    Tests the functionality of the `apply_correlation` method of the
-    `RandomVariable_Set` class.
-    """
-
     data_dir = 'tests/data/uq/test_random_variable_set_apply_correlation'
     file_incr = 0
 
@@ -1292,14 +1203,13 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
 
 
 def test_RandomVariable_Set_apply_correlation_special():
-    """ "
-    This function tests the apply_correlation method of the
-    RandomVariableSet class when given special input conditions.
-    The first test checks that the method works when given a non
-    positive semidefinite correlation matrix.
-    The second test checks that the method works when given a non full
-    rank matrix.
-    """
+    # This function tests the apply_correlation method of the
+    # RandomVariableSet class when given special input conditions.
+    # The first test checks that the method works when given a non
+    # positive semidefinite correlation matrix.
+    # The second test checks that the method works when given a non full
+    # rank matrix.
+
     # inputs that cause `apply_correlation` to use the SVD
 
     # note: The inputs passed to this function may not be valid
@@ -1329,11 +1239,6 @@ def test_RandomVariable_Set_apply_correlation_special():
 
 
 def test_RandomVariable_Set_orthotope_density(reset=False):
-    """
-    Tests the functionality of the `orthotope_density` method of the
-    `RandomVariable_Set` class.
-    """
-
     data_dir = 'tests/data/uq/test_random_variable_set_orthotope_density'
 
     # create some random variables
@@ -1392,16 +1297,10 @@ def test_RandomVariable_Set_orthotope_density(reset=False):
 
 
 def test_RandomVariableRegistry_generate_sample(reset=False):
-    """
-    Tests the functionality of the `generate_sample` method of the
-    `RandomVariableRegistry` class.
-    """
-
     data_dir = 'tests/data/uq/test_RandomVariableRegistry_generate_sample'
     file_incr = 0
 
     for method in ('LHS_midpoint', 'LHS', 'MonteCarlo'):
-
         #
         # Random variable registry with a single random variable
         #
@@ -1477,7 +1376,7 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         assert 'rv1' in rv_dictionary
         assert 'rv2' in rv_dictionary
         with pytest.raises(KeyError):
-            rv_dictionary['rv3']
+            rv_dictionary['rv3'] = None
 
 
 if __name__ == '__main__':

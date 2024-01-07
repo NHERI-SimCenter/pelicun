@@ -49,12 +49,7 @@ import pandas as pd
 from pelicun import model
 from pelicun import assessment
 
-# for tests, we sometimes create things or call them just to see if
-# things would work, so the following are irrelevant:
-
-# pylint: disable=useless-suppression
-# pylint: disable=unused-variable
-# pylint: disable=pointless-statement
+# pylint: disable=missing-function-docstring
 
 #  __  __      _   _               _
 # |  \/  | ___| |_| |__   ___   __| |___
@@ -66,10 +61,6 @@ from pelicun import assessment
 
 
 def get_Assessment():
-    """
-    Initialize an assessment object
-    """
-
     x = assessment.Assessment()
 
     x.log.verbose = True
@@ -77,21 +68,12 @@ def get_Assessment():
 
 
 def get_PelicunModel():
-    """
-    Initialize a PelicunModel object
-    """
-
     asmt = get_Assessment()
 
     return model.PelicunModel(asmt)
 
 
 def test_PelicunModel_init():
-    """
-    Tests the functionality of the init method of the PelicunModel
-    object.
-    """
-
     pelicun_model = get_PelicunModel()
 
     assert pelicun_model.log_msg
@@ -99,11 +81,6 @@ def test_PelicunModel_init():
 
 
 def test_PelicunModel_convert_marginal_params():
-    """
-    Tests the functionality of the convert_marginal_params method of
-    the PelicunModel object.
-    """
-
     pelicun_model = get_PelicunModel()
 
     # one row, only Theta_0, no conversion
@@ -181,20 +158,12 @@ def test_PelicunModel_convert_marginal_params():
 
 
 def get_DemandModel():
-    """
-    Initialize a DemandModel object
-    """
-
     asmt = get_Assessment()
 
     return asmt.demand
 
 
 def test_DemandModel_init():
-    """
-    Tests the init method of the DemandModel object.
-    """
-
     demand_model = get_DemandModel()
 
     assert demand_model.log_msg
@@ -209,10 +178,6 @@ def test_DemandModel_init():
 
 
 def get_DemandModel_with_sample(path):
-    """
-    Utilizes the load_sample method.
-    """
-
     demand_model = get_DemandModel()
 
     # load the sample from the specified path
@@ -223,11 +188,6 @@ def get_DemandModel_with_sample(path):
 
 
 def test_DemandModel_load_sample():
-    """
-    Tests the functionality of the load_sample method of
-    the DemandModel object.
-    """
-
     # get a DemandModel in which the sample has been loaded
     mdl = get_DemandModel_with_sample(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
@@ -282,11 +242,6 @@ def test_DemandModel_load_sample():
 
 
 def test_DemandModel_estimate_RID():
-    """
-    Tests the functionality of the estimate_RID method of the
-    DemandModel object.
-    """
-
     mdl = get_DemandModel_with_sample(
         'tests/data/model/test_DemandModel_estimate_RID/demand_sample_A.csv'
     )
@@ -299,11 +254,6 @@ def test_DemandModel_estimate_RID():
 
 
 def test_DemandModel_save_sample():
-    """
-    Tests the functionality of the load_sample method of
-    the DemandModel object.
-    """
-
     # get a DemandModel in which the sample has been loaded
     mdl = get_DemandModel_with_sample(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
@@ -330,10 +280,6 @@ def test_DemandModel_save_sample():
 
 
 def get_calibrated_DemandModel(path, config):
-    """
-    Returns a calibrated model with a specified path and config.
-    """
-
     # get a DemandModel in which the sample has been loaded
     mdl = get_DemandModel_with_sample(path)
 
@@ -345,11 +291,6 @@ def get_calibrated_DemandModel(path, config):
 
 
 def test_DemandModel_calibrate_model():
-    """
-    Tests the functionality of the calibrate_model method of the
-    DemandModel object.
-    """
-
     config = {
         "ALL": {
             "DistributionFamily": "normal",
@@ -370,11 +311,6 @@ def test_DemandModel_calibrate_model():
 
 
 def test_DemandModel_save_load_model():
-    """
-    Tests the functionality of the save_model and load_model methods
-    of the DemandModel object.
-    """
-
     mdl = get_calibrated_DemandModel(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
         {
@@ -397,11 +333,6 @@ def test_DemandModel_save_load_model():
 
 
 def test_DemandModel_generate_sample():
-    """
-    Tests the functionality of the generate_sample method of the
-    DemandModel object.
-    """
-
     mdl = get_calibrated_DemandModel(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
         {
@@ -462,11 +393,6 @@ def test_DemandModel_generate_sample():
 
 
 def test_AssetModel_init():
-    """
-    Tests the functionality of the init method of the
-    AssetModel object.
-    """
-
     asmt = assessment.Assessment()
     mdl = asmt.asset
     assert mdl.log_msg
@@ -479,11 +405,6 @@ def test_AssetModel_init():
 
 
 def test_AssetModel_save_cmp_sample():
-    """
-    Tests the functionality of the save_cmp_sample method of the
-    AssetModel object.
-    """
-
     asmt = assessment.Assessment()
     mdl = asmt.asset
 
@@ -520,11 +441,6 @@ def test_AssetModel_save_cmp_sample():
 
 
 def test_AssetModel_load_cmp_model():
-    """
-    Tests the functionality of the load_cmp_model method of the
-    AssetModel object.
-    """
-
     asmt = assessment.Assessment()
     mdl = asmt.asset
     cmp_marginals = pd.read_csv(
@@ -563,11 +479,6 @@ def get_AssetModel():
 
 
 def test_AssetModel_generate_cmp_sample():
-    """
-    Tests the functionality of the generate_cmp_sample method of the
-    AssetModel object.
-    """
-
     mdl = get_AssetModel()
 
     mdl.cmp_marginal_params = pd.DataFrame(
@@ -629,11 +540,6 @@ def get_DamageModel():
 
 
 def test_DamageModel_init():
-    """
-    Tests the functionality of the init method of the
-    DamageModel object.
-    """
-
     mdl = get_DamageModel()
 
     assert mdl.log_msg
@@ -665,11 +571,6 @@ def cmp_sample_A():
 
 
 def test_DamageModel_load_damage_model():
-    """
-    Tests the functionality of the load_damage_model method of the
-    DamageModel object.
-    """
-
     mdl = get_DamageModel()
     asmt = mdl._asmnt
 
@@ -748,11 +649,6 @@ def test_DamageModel_load_damage_model():
 
 
 def test_DamageModel__create_dmg_RVs():
-    """
-    Tests the functionality of the create_dmg_RVs method of the
-    DamageModel object.
-    """
-
     asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
@@ -795,11 +691,6 @@ def test_DamageModel__create_dmg_RVs():
 
 
 def test_DamageModel__generate_dmg_sample():
-    """
-    Tests the functionality of the generate_dmg_sample method of the
-    DamageModel object.
-    """
-
     asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
@@ -843,11 +734,6 @@ def test_DamageModel__generate_dmg_sample():
 
 
 def test_DamageModel__get_required_demand_type():
-    """
-    Tests the functionality of the get_required_demand_type method of
-    the DamageModel object.
-    """
-
     asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
@@ -878,20 +764,15 @@ def calibration_config_A():
     }
 
 
-
-
 def test_DamageModel__assemble_required_demand_data():
-    """
-    Tests the functionality of the assemble_required_demand_data
-    method of the DamageModel object.
-    """
-
     demand_model = get_calibrated_DemandModel(
-        ('tests/data/model/'
-        'test_DamageModel_assemble_'
-        'required_demand_data/demand_sample.csv'),
-        calibration_config_A()
-        )
+        (
+            'tests/data/model/'
+            'test_DamageModel_assemble_'
+            'required_demand_data/demand_sample.csv'
+        ),
+        calibration_config_A(),
+    )
 
     asmt = demand_model._asmnt
     damage_model = asmt.damage
@@ -920,12 +801,6 @@ def test_DamageModel__assemble_required_demand_data():
 
 
 def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
-    """
-    Tests the functionality of the
-    evaluate_damage_state_and_prepare_dmg_quantities method of the
-    DamageModel object.
-    """
-
     asmt = get_Assessment()
     damage_model = asmt.damage
     demand_model = asmt.demand
@@ -978,11 +853,6 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
 
 
 def test_DamageModel__perform_dmg_task():
-    """
-    Tests the functionality of the perform_dmg_task method of the
-    DamageModel object.
-    """
-
     asmt = get_Assessment()
     damage_model = asmt.damage
     demand_model = asmt.demand
@@ -1049,11 +919,6 @@ def test_DamageModel__perform_dmg_task():
 
 
 def test_DamageModel__get_pg_batches():
-    """
-    Tests the functionality of the _get_pg_batches method of the
-    DamageModel object.
-    """
-
     asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
@@ -1136,11 +1001,6 @@ def test_DamageModel__get_pg_batches():
 
 
 def test_DamageModel_calculate():
-    """
-    Tests the functionality of the calculate method of the
-    DamageModel object.
-    """
-
     asmt = get_Assessment()
     dmg_process = None
     asmt.demand._sample = pd.DataFrame(
@@ -1271,11 +1131,6 @@ def get_LossModel():
 
 
 def test_LossModel_init():
-    """
-    Tests the functionality of the init method of the LossModel
-    object.
-    """
-
     mdl = get_LossModel()
 
     assert mdl.log_msg
@@ -1286,11 +1141,6 @@ def test_LossModel_init():
 
 
 def test_LossModel_load_sample_save_sample():
-    """
-    Tests the functionality of the load_sample and save_sample methods
-    of the LossModel object.
-    """
-
     mdl = get_LossModel()
 
     mdl.loss_params = pd.DataFrame(
@@ -1340,11 +1190,6 @@ def test_LossModel_load_sample_save_sample():
 
 
 def test_LossModel_load_model():
-    """
-    Tests the functionality of the load_model method of the LossModel
-    object.
-    """
-
     mdl = get_LossModel()
 
     data_path_1 = pd.DataFrame(
@@ -1387,11 +1232,6 @@ def test_LossModel_load_model():
 
 
 def test_LossModel_aggregate_losses():
-    """
-    Tests the functionality of the aggregate_losses method of the
-    LossModel object.
-    """
-
     mdl = get_LossModel()
 
     with pytest.raises(NotImplementedError):
@@ -1399,11 +1239,6 @@ def test_LossModel_aggregate_losses():
 
 
 def test_LossModel__generate_DV_sample():
-    """
-    Tests the functionality of the _generate_DV_sample method of the
-    LossModel object.
-    """
-
     mdl = get_LossModel()
 
     with pytest.raises(NotImplementedError):
@@ -1417,11 +1252,6 @@ def get_BldgRepairModel():
 
 
 def test_BldgRepairModel_init():
-    """
-    Tests the functionality of the init method of the
-    BldgRepairModel object.
-    """
-
     mdl = get_BldgRepairModel()
 
     assert mdl.log_msg
@@ -1455,11 +1285,6 @@ def loss_params_A():
 
 
 def test_BldgRepairModel__create_DV_RVs():
-    """
-    Tests the functionality of the _create_DV_RVs method of the
-    BldgRepairModel object.
-    """
-
     mdl = get_BldgRepairModel()
 
     mdl.loss_params = loss_params_A()
@@ -1496,11 +1321,6 @@ def test_BldgRepairModel__create_DV_RVs():
 
 
 def test_BldgRepairModel__calc_median_consequence():
-    """
-    Tests the functionality of the _calc_median_consequence method of
-    the BldgRepairModel object.
-    """
-
     mdl = get_BldgRepairModel()
 
     mdl.loss_params = loss_params_A()
@@ -1527,11 +1347,6 @@ def test_BldgRepairModel__calc_median_consequence():
 
 
 def test_BldgRepairModel_aggregate_losses():
-    """
-    Tests the functionality of the aggregate_losses method of the
-    BldgRepairModel object.
-    """
-
     mdl = get_BldgRepairModel()
 
     mdl._sample = pd.DataFrame(
@@ -1571,11 +1386,6 @@ def test_BldgRepairModel_aggregate_losses():
 
 
 def test_BldgRepairModel__generate_DV_sample():
-    """
-    Tests the functionality of the _generate_DV_sample method of the
-    BldgRepairModel object.
-    """
-
     expected_sample = {
         (True, True): {
             (
@@ -1739,21 +1549,12 @@ def test_BldgRepairModel__generate_DV_sample():
 
 
 def test_prep_constant_median_DV():
-    """
-    Tests the functionality of the prep_constant_median_DV function.
-    """
-
     median = 10.00
     constant_median_DV = model.prep_constant_median_DV(median)
     assert constant_median_DV() == median
 
 
 def test_prep_bounded_multilinear_median_DV():
-    """
-    Tests the functionality of the prep_bounded_multilinear_median_DV
-    function.
-    """
-
     medians = np.array((1.00, 2.00, 3.00, 4.00, 5.00))
     quantities = np.array((0.00, 1.00, 2.00, 3.00, 4.00))
     f = model.prep_bounded_multilinear_median_DV(medians, quantities)
