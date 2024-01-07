@@ -2893,11 +2893,11 @@ class DamageModel(PelicunModel):
             qnt_samples.append(qnt_sample)
 
         qnt_sample = pd.concat(qnt_samples, axis=1)
-        qnt_sample.sort_index(axis=1, inplace=True)
 
         # Create a comprehensive table with all possible DSs to have a robust 
         # input for the damage processes evaluation below
         qnt_sample = self._complete_ds_cols(qnt_sample)
+        qnt_sample.sort_index(axis=1, inplace=True)
 
         self.log_msg("Raw damage calculation successful.",
                      prepend_timestamp=False)
