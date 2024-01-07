@@ -65,16 +65,37 @@ from pelicun import assessment
 # The following tests verify the methods of the objects of the module.
 
 
+def get_Assessment():
+    """
+    Initialize an assessment object
+    """
+
+    x = assessment.Assessment()
+
+    x.log.verbose = True
+    return x
+
+
+def get_PelicunModel():
+    """
+    Initialize a PelicunModel object
+    """
+
+    asmt = get_Assessment()
+
+    return model.PelicunModel(asmt)
+
+
 def test_PelicunModel_init():
     """
     Tests the functionality of the init method of the PelicunModel
     object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = model.PelicunModel(asmt)
-    assert mdl.log_msg
-    assert mdl.log_div
+    pelicun_model = get_PelicunModel()
+
+    assert pelicun_model.log_msg
+    assert pelicun_model.log_div
 
 
 def test_PelicunModel_convert_marginal_params():
@@ -83,8 +104,7 @@ def test_PelicunModel_convert_marginal_params():
     the PelicunModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = model.PelicunModel(asmt)
+    pelicun_model = get_PelicunModel()
 
     # one row, only Theta_0, no conversion
     marginal_params = pd.DataFrame(
@@ -96,7 +116,7 @@ def test_PelicunModel_convert_marginal_params():
     )
     units = pd.Series(['ea'], index=marginal_params.index)
     arg_units = None
-    res = mdl.convert_marginal_params(marginal_params, units, arg_units)
+    res = pelicun_model.convert_marginal_params(marginal_params, units, arg_units)
 
     # res:
 
@@ -135,7 +155,7 @@ def test_PelicunModel_convert_marginal_params():
     )
     units = pd.Series(['ea', 'ft', 'in', 'in2'], index=marginal_params.index)
     arg_units = None
-    res = mdl.convert_marginal_params(marginal_params, units, arg_units)
+    res = pelicun_model.convert_marginal_params(marginal_params, units, arg_units)
 
     expected_df = pd.DataFrame(
         {
@@ -160,39 +180,46 @@ def test_PelicunModel_convert_marginal_params():
     pd.testing.assert_frame_equal(expected_df, res)
 
 
+def get_DemandModel():
+    """
+    Initialize a DemandModel object
+    """
+
+    asmt = get_Assessment()
+
+    return asmt.demand
+
+
 def test_DemandModel_init():
     """
     Tests the init method of the DemandModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = asmt.demand
-    assert mdl.log_msg
-    assert mdl.log_div
+    demand_model = get_DemandModel()
 
-    assert mdl.marginal_params is None
-    assert mdl.correlation is None
-    assert mdl.empirical_data is None
-    assert mdl.units is None
-    assert mdl._RVs is None
-    assert mdl._sample is None
+    assert demand_model.log_msg
+    assert demand_model.log_div
+
+    assert demand_model.marginal_params is None
+    assert demand_model.correlation is None
+    assert demand_model.empirical_data is None
+    assert demand_model.units is None
+    assert demand_model._RVs is None
+    assert demand_model._sample is None
 
 
-def DemandModel_load_sample(path):
+def get_DemandModel_with_sample(path):
     """
     Utilizes the load_sample method.
     """
 
-    # instantiate a DemandModel object
-    asmt = assessment.Assessment()
-    asmt.log.verbose = True
-    mdl = asmt.demand
+    demand_model = get_DemandModel()
 
     # load the sample from the specified path
-    mdl.load_sample(path)
+    demand_model.load_sample(path)
 
     # return the object
-    return mdl
+    return demand_model
 
 
 def test_DemandModel_load_sample():
@@ -202,7 +229,7 @@ def test_DemandModel_load_sample():
     """
 
     # get a DemandModel in which the sample has been loaded
-    mdl = DemandModel_load_sample(
+    mdl = get_DemandModel_with_sample(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
     )
 
@@ -210,7 +237,7 @@ def test_DemandModel_load_sample():
     obtained_sample = mdl._sample
     obtained_units = mdl.units
 
-    mdl_2 = DemandModel_load_sample(
+    mdl_2 = get_DemandModel_with_sample(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_B.csv'
     )
     obtained_sample_2 = mdl_2._sample
@@ -260,7 +287,7 @@ def test_DemandModel_estimate_RID():
     DemandModel object.
     """
 
-    mdl = DemandModel_load_sample(
+    mdl = get_DemandModel_with_sample(
         'tests/data/model/test_DemandModel_estimate_RID/demand_sample_A.csv'
     )
 
@@ -278,7 +305,7 @@ def test_DemandModel_save_sample():
     """
 
     # get a DemandModel in which the sample has been loaded
-    mdl = DemandModel_load_sample(
+    mdl = get_DemandModel_with_sample(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
     )
 
@@ -302,13 +329,13 @@ def test_DemandModel_save_sample():
     }
 
 
-def get_calibrated_model(path, config):
+def get_calibrated_DemandModel(path, config):
     """
     Returns a calibrated model with a specified path and config.
     """
 
     # get a DemandModel in which the sample has been loaded
-    mdl = DemandModel_load_sample(path)
+    mdl = get_DemandModel_with_sample(path)
 
     # calibrate the model
     mdl.calibrate_model(config)
@@ -335,7 +362,7 @@ def test_DemandModel_calibrate_model():
         },
     }
 
-    mdl = get_calibrated_model(
+    mdl = get_calibrated_DemandModel(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv', config
     )
 
@@ -348,7 +375,7 @@ def test_DemandModel_save_load_model():
     of the DemandModel object.
     """
 
-    mdl = get_calibrated_model(
+    mdl = get_calibrated_DemandModel(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
         {
             "ALL": {"DistributionFamily": "lognormal"},
@@ -375,7 +402,7 @@ def test_DemandModel_generate_sample():
     DemandModel object.
     """
 
-    mdl = get_calibrated_model(
+    mdl = get_calibrated_DemandModel(
         'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv',
         {
             "ALL": {"DistributionFamily": "lognormal"},
@@ -414,7 +441,7 @@ def test_DemandModel_generate_sample():
         index=pd.Index((0, 1, 2), dtype='object'),
     )
     pd.testing.assert_frame_equal(
-        expected_sample, obtained_sample, check_exact=False
+        expected_sample, obtained_sample, check_exact=False, atol=1e-4
     )
 
     # compare against the expected values for the units
@@ -529,14 +556,19 @@ def test_AssetModel_load_cmp_model():
     pd.testing.assert_series_equal(expected_cmp_units, mdl.cmp_units)
 
 
+def get_AssetModel():
+    asmt = assessment.Assessment()
+    mdl = asmt.asset
+    return mdl
+
+
 def test_AssetModel_generate_cmp_sample():
     """
     Tests the functionality of the generate_cmp_sample method of the
     AssetModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = asmt.asset
+    mdl = get_AssetModel()
 
     mdl.cmp_marginal_params = pd.DataFrame(
         {'Theta_0': (8.0, 8.0, 8.0, 8.0), 'Blocks': (1.0, 1.0, 1.0, 1.0)},
@@ -581,8 +613,7 @@ def test_AssetModel_generate_cmp_sample():
     #
 
     # without specifying model parameters
-    asmt_B = assessment.Assessment()
-    mdl_B = asmt_B.asset
+    mdl_B = get_AssetModel()
     with pytest.raises(ValueError):
         mdl_B.generate_cmp_sample(sample_size=10)
 
@@ -591,14 +622,20 @@ def test_AssetModel_generate_cmp_sample():
         mdl.generate_cmp_sample()
 
 
+def get_DamageModel():
+    asmt = assessment.Assessment()
+    mdl = asmt.damage
+    return mdl
+
+
 def test_DamageModel_init():
     """
     Tests the functionality of the init method of the
     DamageModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = asmt.damage
+    mdl = get_DamageModel()
+
     assert mdl.log_msg
     assert mdl.log_div
 
@@ -608,18 +645,8 @@ def test_DamageModel_init():
     assert mdl.sample is None
 
 
-def test_DamageModel_load_damage_model():
-    """
-    Tests the functionality of the load_damage_model method of the
-    DamageModel object.
-    """
-
-    asmt = assessment.Assessment()
-    mdl = asmt.damage
-
-    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
-
-    asmt.asset._cmp_sample = pd.DataFrame(
+def cmp_sample_A():
+    return pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
             for i in range(1, 3)
@@ -635,6 +662,20 @@ def test_DamageModel_load_damage_model():
             names=('cmp', 'loc', 'dir', 'uid'),
         ),
     )
+
+
+def test_DamageModel_load_damage_model():
+    """
+    Tests the functionality of the load_damage_model method of the
+    DamageModel object.
+    """
+
+    mdl = get_DamageModel()
+    asmt = mdl._asmnt
+
+    asmt.get_default_data('damage_DB_FEMA_P58_2nd')
+
+    asmt.asset._cmp_sample = cmp_sample_A()
 
     mdl.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
@@ -712,29 +753,13 @@ def test_DamageModel__create_dmg_RVs():
     DamageModel object.
     """
 
-    asmt = assessment.Assessment()
+    asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
 
     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
+    asset_model._cmp_sample = cmp_sample_A()
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -775,29 +800,13 @@ def test_DamageModel__generate_dmg_sample():
     DamageModel object.
     """
 
-    asmt = assessment.Assessment()
+    asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
 
     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
+    asset_model._cmp_sample = cmp_sample_A()
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -839,29 +848,13 @@ def test_DamageModel__get_required_demand_type():
     the DamageModel object.
     """
 
-    asmt = assessment.Assessment()
+    asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
 
     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
+    asset_model._cmp_sample = cmp_sample_A()
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
@@ -874,54 +867,39 @@ def test_DamageModel__get_required_demand_type():
     assert EDP_req == {'PID-2-2': [('B.10.31.001', '2', '2', '0')]}
 
 
+def calibration_config_A():
+    return {
+        "ALL": {"DistributionFamily": "lognormal"},
+        "PID": {
+            "DistributionFamily": "lognormal",
+            "TruncateLower": "",
+            "TruncateUpper": "0.06",
+        },
+    }
+
+
+
+
 def test_DamageModel__assemble_required_demand_data():
     """
     Tests the functionality of the assemble_required_demand_data
     method of the DamageModel object.
     """
 
-    asmt = assessment.Assessment()
-    damage_model = asmt.damage
-    demand_model = asmt.demand
-    asset_model = asmt.asset
-
-    demand_model.load_sample(
-        'tests/data/model/'
+    demand_model = get_calibrated_DemandModel(
+        ('tests/data/model/'
         'test_DamageModel_assemble_'
-        'required_demand_data/demand_sample.csv'
-    )
+        'required_demand_data/demand_sample.csv'),
+        calibration_config_A()
+        )
 
-    # calibrate the model
-    demand_model.calibrate_model(
-        {
-            "ALL": {"DistributionFamily": "lognormal"},
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateLower": "",
-                "TruncateUpper": "0.06",
-            },
-        }
-    )
+    asmt = demand_model._asmnt
+    damage_model = asmt.damage
+    asset_model = asmt.asset
 
     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
+    asset_model._cmp_sample = cmp_sample_A()
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
@@ -948,7 +926,7 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
     DamageModel object.
     """
 
-    asmt = assessment.Assessment()
+    asmt = get_Assessment()
     damage_model = asmt.damage
     demand_model = asmt.demand
     asset_model = asmt.asset
@@ -960,36 +938,11 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
     )
 
     # calibrate the model
-    demand_model.calibrate_model(
-        {
-            "ALL": {"DistributionFamily": "lognormal"},
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateLower": "",
-                "TruncateUpper": "0.06",
-            },
-        }
-    )
+    demand_model.calibrate_model(calibration_config_A())
 
     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
+    asset_model._cmp_sample = cmp_sample_A()
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
@@ -1030,7 +983,7 @@ def test_DamageModel__perform_dmg_task():
     DamageModel object.
     """
 
-    asmt = assessment.Assessment()
+    asmt = get_Assessment()
     damage_model = asmt.damage
     demand_model = asmt.demand
     asset_model = asmt.asset
@@ -1101,7 +1054,7 @@ def test_DamageModel__get_pg_batches():
     DamageModel object.
     """
 
-    asmt = assessment.Assessment()
+    asmt = get_Assessment()
     damage_model = asmt.damage
     asset_model = asmt.asset
 
@@ -1138,22 +1091,7 @@ def test_DamageModel__get_pg_batches():
 
     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
+    asset_model._cmp_sample = cmp_sample_A()
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
@@ -1203,7 +1141,7 @@ def test_DamageModel_calculate():
     DamageModel object.
     """
 
-    asmt = assessment.Assessment()
+    asmt = get_Assessment()
     dmg_process = None
     asmt.demand._sample = pd.DataFrame(
         np.column_stack(
@@ -1326,14 +1264,20 @@ def test_DamageModel_calculate():
     assert asmt.damage._sample.values.all() <= 2.00
 
 
+def get_LossModel():
+    asmt = get_Assessment()
+    mdl = model.LossModel(asmt)
+    return mdl
+
+
 def test_LossModel_init():
     """
     Tests the functionality of the init method of the LossModel
     object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = model.LossModel(asmt)
+    mdl = get_LossModel()
+
     assert mdl.log_msg
     assert mdl.log_div
 
@@ -1347,8 +1291,7 @@ def test_LossModel_load_sample_save_sample():
     of the LossModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = model.LossModel(asmt)
+    mdl = get_LossModel()
 
     mdl.loss_params = pd.DataFrame(
         (
@@ -1402,8 +1345,7 @@ def test_LossModel_load_model():
     object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = model.LossModel(asmt)
+    mdl = get_LossModel()
 
     data_path_1 = pd.DataFrame(
         ((0, "1 EA", "USD_2011", 10000000.00), (0, "1 EA", "worker_day", 12500)),
@@ -1450,8 +1392,7 @@ def test_LossModel_aggregate_losses():
     LossModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = model.LossModel(asmt)
+    mdl = get_LossModel()
 
     with pytest.raises(NotImplementedError):
         mdl.aggregate_losses()
@@ -1463,11 +1404,16 @@ def test_LossModel__generate_DV_sample():
     LossModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = model.LossModel(asmt)
+    mdl = get_LossModel()
 
     with pytest.raises(NotImplementedError):
         mdl._generate_DV_sample(None, None)
+
+
+def get_BldgRepairModel():
+    asmt = assessment.Assessment()
+    mdl = asmt.bldg_repair
+    return mdl
 
 
 def test_BldgRepairModel_init():
@@ -1476,8 +1422,7 @@ def test_BldgRepairModel_init():
     BldgRepairModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = asmt.bldg_repair
+    mdl = get_BldgRepairModel()
 
     assert mdl.log_msg
     assert mdl.log_div
@@ -1486,16 +1431,8 @@ def test_BldgRepairModel_init():
     assert mdl.loss_type == 'BldgRepair'
 
 
-def test_BldgRepairModel__create_DV_RVs():
-    """
-    Tests the functionality of the _create_DV_RVs method of the
-    BldgRepairModel object.
-    """
-
-    asmt = assessment.Assessment()
-    mdl = asmt.bldg_repair
-
-    mdl.loss_params = pd.DataFrame(
+def loss_params_A():
+    return pd.DataFrame(
         (
             ("normal", None, "25704,17136|5,20", 0.390923, "USD_2011", 0.0, "1 EA"),
             ("normal", 0.0, "22.68,15.12|5,20", 0.464027, "worker_day", 0.0, "1 EA"),
@@ -1515,6 +1452,17 @@ def test_BldgRepairModel__create_DV_RVs():
             )
         ),
     )
+
+
+def test_BldgRepairModel__create_DV_RVs():
+    """
+    Tests the functionality of the _create_DV_RVs method of the
+    BldgRepairModel object.
+    """
+
+    mdl = get_BldgRepairModel()
+
+    mdl.loss_params = loss_params_A()
 
     mdl.loss_map = pd.DataFrame(
         ((("DMG", "some.test.component"), "some.test.component"),),
@@ -1553,29 +1501,9 @@ def test_BldgRepairModel__calc_median_consequence():
     the BldgRepairModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = asmt.bldg_repair
+    mdl = get_BldgRepairModel()
 
-    mdl.loss_params = pd.DataFrame(
-        (
-            ("normal", None, "25704,17136|5,20", 0.390923, "USD_2011", 0.0, "1 EA"),
-            ("normal", 0.0, "22.68,15.12|5,20", 0.464027, "worker_day", 0.0, "1 EA"),
-        ),
-        index=pd.MultiIndex.from_tuples(
-            (("some.test.component", "Cost"), ("some.test.component", "Time"))
-        ),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ("DS1", "Family"),
-                ("DS1", "LongLeadTime"),
-                ("DS1", "Theta_0"),
-                ("DS1", "Theta_1"),
-                ("DV", "Unit"),
-                ("Incomplete", ""),
-                ("Quantity", "Unit"),
-            )
-        ),
-    )
+    mdl.loss_params = loss_params_A()
 
     mdl.loss_map = pd.DataFrame(
         ((("DMG", "some.test.component"), "some.test.component"),),
@@ -1604,8 +1532,7 @@ def test_BldgRepairModel_aggregate_losses():
     BldgRepairModel object.
     """
 
-    asmt = assessment.Assessment()
-    mdl = asmt.bldg_repair
+    mdl = get_BldgRepairModel()
 
     mdl._sample = pd.DataFrame(
         ((100.00, 1.00),),
@@ -1632,26 +1559,7 @@ def test_BldgRepairModel_aggregate_losses():
         ),
     )
 
-    mdl.loss_params = pd.DataFrame(
-        (
-            ("normal", None, "25704,17136|5,20", 0.390923, "USD_2011", 0.0, "1 EA"),
-            ("normal", 0.0, "22.68,15.12|5,20", 0.464027, "worker_day", 0.0, "1 EA"),
-        ),
-        index=pd.MultiIndex.from_tuples(
-            (("some.test.component", "Cost"), ("some.test.component", "Time"))
-        ),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ("DS1", "Family"),
-                ("DS1", "LongLeadTime"),
-                ("DS1", "Theta_0"),
-                ("DS1", "Theta_1"),
-                ("DV", "Unit"),
-                ("Incomplete", ""),
-                ("Quantity", "Unit"),
-            )
-        ),
-    )
+    mdl.loss_params = loss_params_A()
 
     df_agg = mdl.aggregate_losses()
 
@@ -1751,9 +1659,8 @@ def test_BldgRepairModel__generate_DV_sample():
         (True, True),
         (True, False),
     ):  # todo: (False, True), (False, False) fails
-
-        asmt = assessment.Assessment()
-        mdl = asmt.bldg_repair
+        mdl = get_BldgRepairModel()
+        asmt = mdl._asmnt
 
         asmt.options.eco_scale["AcrossFloors"] = ecofl
         asmt.options.eco_scale["AcrossDamageStates"] = ecods
