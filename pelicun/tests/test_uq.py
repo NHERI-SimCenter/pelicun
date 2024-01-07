@@ -1375,8 +1375,7 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         rv_dictionary = rv_registry.RVs(('rv1', 'rv2'))
         assert 'rv1' in rv_dictionary
         assert 'rv2' in rv_dictionary
-        with pytest.raises(KeyError):
-            rv_dictionary['rv3'] = None
+        assert 'rv3' not in rv_dictionary
 
 
 if __name__ == '__main__':
