@@ -816,9 +816,7 @@ def test_RandomVariable():
     )
     for distribution in distributions:
         with pytest.raises(ValueError):
-            uq.RandomVariable(
-                "won't see the light of day", distribution
-            )
+            uq.RandomVariable("won't see the light of day", distribution)
 
     # define a distribution with a given theta
     rv_3 = uq.RandomVariable('rv_3', 'normal', np.array((1.00, 0.20)))
