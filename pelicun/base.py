@@ -46,19 +46,16 @@ This module defines constants, basic classes and methods for pelicun.
 
     convert_to_SimpleIndex
     convert_to_MultiIndex
-    convert_unit
     show_matrix
-    show_warning
-    print_system_info
-    log_div
-    log_msg
     describe
+    str2bool
     float_or_None
     int_or_None
     process_loc
-    str2bool
+    dedupe_index
 
     Options
+    Logger
 
 """
 

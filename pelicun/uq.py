@@ -45,6 +45,7 @@ quantification in pelicun.
 
 .. autosummary::
 
+    scale_distribution
     mvn_orthotope_density
     fit_distribution_to_sample
     fit_distribution_to_percentiles

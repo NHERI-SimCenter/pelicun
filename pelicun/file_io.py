@@ -46,11 +46,15 @@ This module has classes and methods that handle file input and output.
 
 .. autosummary::
 
+    dict_raise_on_duplicates
     get_required_resources
     load_default_options
+    update_vals
     merge_default_config
     save_to_csv
     load_data
+    load_from_file
+    parse_units
 
 """
 
