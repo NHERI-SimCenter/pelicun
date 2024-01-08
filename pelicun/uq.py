@@ -284,7 +284,7 @@ def _get_limit_probs(limits, distribution, theta):
 
     """
 
-    if distribution in {'normal', 'lognormal'}:
+    if distribution in {'normal', 'normal-stdev', 'lognormal'}:
 
         a, b = limits
         mu = theta[0]
@@ -340,7 +340,7 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
     for i, (samples_i, theta_i, tr_lim_i, dist_i) in enumerate(
             zip(samples, theta, tr_limits, dist_list)):
 
-        if dist_i in {'normal', 'lognormal'}:
+        if dist_i in {'normal', 'normal-stdev', 'lognormal'}:
 
             lim_low = tr_lim_i[0]
             lim_high = tr_lim_i[1]
@@ -698,7 +698,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
         Estimates of the parameters of the fitted probability distribution in
         each dimension. The following parameters are returned for the supported
         distributions:
-        normal - mean, standard deviation;
+        normal - mean, coefficient of variation;
         lognormal - median, log standard deviation;
     Rho: float 2D ndarray, optional
         In the multivariate case, returns the estimate of the correlation
@@ -747,7 +747,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
 
     for d_i, distr in enumerate(dist_list):
 
-        if distr in {'normal', 'lognormal'}:
+        if distr in {'normal', 'normal-stdev', 'lognormal'}:
             # use the first two moments
             mu_init[d_i] = np.mean(samples[d_i])
 
@@ -894,6 +894,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
             # theta = theta_mod.T
         # Convert the std to cov if the distribution is normal
         elif distr == 'normal':
+            # replace standard deviation with coefficient of variation
             # note: this results in cov=inf if the mean is zero.
             if np.abs(theta[d_i][0]) < 1.0e-40:
                 theta[d_i][1] = np.inf
