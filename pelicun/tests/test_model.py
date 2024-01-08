@@ -768,8 +768,8 @@ def test_DamageModel__assemble_required_demand_data():
     demand_model = get_calibrated_DemandModel(
         (
             'tests/data/model/'
-            'test_DamageModel_assemble_'
-            'required_demand_data/demand_sample.csv'
+            'test_DamageModel_assemble_required_demand_data/'
+            'demand_sample.csv'
         ),
         calibration_config_A(),
     )
@@ -808,8 +808,8 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
 
     demand_model.load_sample(
         'tests/data/model/'
-        'test_DamageModel_assemble_'
-        'required_demand_data/demand_sample.csv'
+        'test_DamageModel_assemble_required_demand_data/'
+        'demand_sample.csv'
     )
 
     # calibrate the model
