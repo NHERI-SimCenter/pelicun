@@ -552,6 +552,8 @@ def test_DamageModel_init():
 
 
 def cmp_sample_A():
+    # This sample contains 8 units of B.10.31.001 assigned to
+    # locations 1, 2 and directions 1, 2
     return pd.DataFrame(
         {
             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
