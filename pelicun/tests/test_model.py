@@ -810,7 +810,7 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
 
     demand_model.load_sample(
         'tests/data/model/'
-        'test_DamageModel_assemble_required_demand_data/'
+        'test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities/'
         'demand_sample.csv'
     )
 
