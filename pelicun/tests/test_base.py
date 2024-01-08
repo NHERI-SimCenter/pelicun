@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 These are unit and integration tests on the base module of pelicun.

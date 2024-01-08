@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 This module defines constants, basic classes and methods for pelicun.

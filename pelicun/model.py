@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 This module has classes and methods that define and access the model used for

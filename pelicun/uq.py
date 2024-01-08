@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 This module defines constants, classes and methods for uncertainty

@@ -38,6 +38,7 @@
 # Adam Zsarnóczay
 # Pouria Kourehpaz
 # Kuanshi Zhong
+# John Vouvakis Manousakis
 
 """
 This module has classes and methods that handle file input and output.
