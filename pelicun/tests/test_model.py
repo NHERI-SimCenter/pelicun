@@ -204,6 +204,11 @@ def test_DemandModel_load_sample():
     obtained_sample_2 = mdl_2._sample
     obtained_units_2 = mdl_2.units
 
+    # demand_sample_A.csv and demand_sample_B.csv only differ in the
+    # headers, where the first includes a tag for the hazard
+    # level. Therefore, the two files are expected to result to the
+    # same `obtained_sample`
+
     pd.testing.assert_frame_equal(obtained_sample, obtained_sample_2)
     pd.testing.assert_series_equal(obtained_units, obtained_units_2)
 
