@@ -50,6 +50,7 @@ from pelicun import model
 from pelicun import assessment
 
 # pylint: disable=missing-function-docstring
+# pylint: disable=use-implicit-booleaness-not-comparison
 
 #  __  __      _   _               _
 # |  \/  | ___| |_| |__   ___   __| |___
@@ -681,7 +682,7 @@ def test_DamageModel__create_dmg_RVs():
         'FRG-B.10.31.001-2-2-0-1-3',
     ]
 
-    assert not capacity_RV_reg._sets
+    assert capacity_RV_reg._sets == {}
 
     assert list(lsds_RV_reg._variables.keys()) == [
         'LSDS-B.10.31.001-2-2-0-1-1',
@@ -689,7 +690,7 @@ def test_DamageModel__create_dmg_RVs():
         'LSDS-B.10.31.001-2-2-0-1-3',
     ]
 
-    assert not lsds_RV_reg._sets
+    assert lsds_RV_reg._sets == {}
 
 
 def test_DamageModel__generate_dmg_sample():
