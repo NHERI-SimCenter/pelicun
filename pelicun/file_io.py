@@ -516,6 +516,8 @@ def load_data(data_source, unit_conversion_factors,
     else:
         # otherwise, load the data from a file
         data = load_from_file(data_source)
+        if data.empty:
+            return data
 
     # if there is information about units, perform the conversion to SI
     if ('Units' in data.index) or ('Units' in data.columns):

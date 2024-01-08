@@ -337,6 +337,13 @@ def test_DemandModel_save_load_model():
     assert os.path.exists(f'{temp_dir}/temp_empirical.csv')
     assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
 
+    # load back to the same object
+    mdl.load_model(f'{temp_dir}/temp')
+
+    # load to a different DemandModel
+    mdl2 = get_DemandModel()
+    mdl2.load_model(f'{temp_dir}/temp')
+
 
 def test_DemandModel_generate_sample():
     mdl = get_calibrated_DemandModel(

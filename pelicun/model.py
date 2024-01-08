@@ -827,10 +827,16 @@ class DemandModel(PelicunModel):
 
         if empirical_data_source is not None:
             self.empirical_data = load_data(
-                empirical_data_source, self._asmnt.unit_conversion_factors,
-                log=self._asmnt.log)
-            self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
-                                                  inplace=True)
+                empirical_data_source,
+                self._asmnt.unit_conversion_factors,
+                log=self._asmnt.log,
+            )
+            if not self.empirical_data.empty:
+                self.empirical_data.columns.set_names(
+                    ['type', 'loc', 'dir'], inplace=True
+                )
+            else:
+                self.empirical_data = None
         else:
             self.empirical_data = None
 
