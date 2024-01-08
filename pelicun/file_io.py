@@ -523,12 +523,12 @@ def load_data(data_source, unit_conversion_factors,
         if log: log.msg('Converting units...', prepend_timestamp=False)
 
         if orientation == 0:
-            units = data.loc['Units', :].copy().dropna()
+            units = data.loc['Units', :].copy()
             data.drop('Units', inplace=True)
             data = data.astype(float)
 
         else:  # elif orientation==1:
-            units = data.loc[:, 'Units'].copy().dropna()
+            units = data.loc[:, 'Units'].copy()
             data.drop('Units', axis=1, inplace=True)
 
             if convert is None:
@@ -546,11 +546,15 @@ def load_data(data_source, unit_conversion_factors,
 
         for unit_name in unique_unit_names:
 
+            if type(unit_name) == np.float64 and np.isnan(unit_name):
+                continue
+
             unit_factor = unit_conversion_factors[unit_name]
             unit_labels = units.loc[units == unit_name].index
 
             if orientation == 0:
-                data.loc[:, unit_labels] *= unit_factor
+                # data.loc[:, unit_labels] *= unit_factor
+                data.values[:, units == unit_name] *= unit_factor
 
             else:  # elif orientation==1:
                 data.loc[unit_labels, cols_to_scale] *= unit_factor
@@ -594,7 +598,7 @@ def load_data(data_source, unit_conversion_factors,
     if return_units:
 
         # convert index in units Series to MultiIndex if needed
-        units = base.convert_to_MultiIndex(units, axis=0)
+        units = base.convert_to_MultiIndex(units, axis=0).dropna()
 
         units.sort_index(inplace=True)
 
