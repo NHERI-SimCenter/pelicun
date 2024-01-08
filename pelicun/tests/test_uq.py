@@ -968,12 +968,12 @@ def test_RandomVariable_inverse_transform():
         rv = uq.RandomVariable('test_rv', 'uniform', theta=(np.nan, 1.0))
         samples = np.array((0.10, 0.20, 0.30))
         rv.uni_sample = samples
-        rv.inverse_transform_sampling(samples)
+        rv.inverse_transform_sampling(len(samples))
         inverse_transform = rv.sample
         assert np.all(np.isnan(inverse_transform))
         rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.00, np.nan))
         rv.uni_sample = samples
-        rv.inverse_transform_sampling(samples)
+        rv.inverse_transform_sampling(len(samples))
         inverse_transform = rv.sample
         assert np.all(np.isinf(inverse_transform))
     rv = uq.RandomVariable(
@@ -983,7 +983,7 @@ def test_RandomVariable_inverse_transform():
         truncation_limits=np.array((0.20, 0.80)),
     )
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(samples)
+    rv.inverse_transform_sampling(len(samples))
     inverse_transform = rv.sample
     assert np.allclose(inverse_transform, np.array((0.26, 0.32, 0.38)), rtol=1e-5)
 
