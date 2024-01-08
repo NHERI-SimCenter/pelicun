@@ -396,7 +396,11 @@ def test_fit_distribution_to_sample_univariate():
     )
     res = uq.fit_distribution_to_sample(sample_vec, 'normal')
     assert np.isclose(res[0][0, 0], np.mean(sample_vec))
-    assert np.isclose(res[0][0, 1], np.inf)  # we know...
+    assert np.isclose(res[0][0, 1], np.inf)
+    assert np.isclose(res[1][0, 0], 1.00)
+    res = uq.fit_distribution_to_sample(sample_vec, 'normal-stdev')
+    assert np.isclose(res[0][0, 0], np.mean(sample_vec))
+    assert np.isclose(res[0][0, 1], 2.0)
     assert np.isclose(res[1][0, 0], 1.00)
 
     # baseline case where the cov=mu/sigma is defined
@@ -404,6 +408,10 @@ def test_fit_distribution_to_sample_univariate():
     res = uq.fit_distribution_to_sample(sample_vec, 'normal')
     assert np.isclose(res[0][0, 0], np.mean(sample_vec))
     assert np.isclose(res[0][0, 1], np.std(sample_vec) / np.mean(sample_vec))
+    assert np.isclose(res[1][0, 0], 1.00)
+    res = uq.fit_distribution_to_sample(sample_vec, 'normal-stdev')
+    assert np.isclose(res[0][0, 0], np.mean(sample_vec))
+    assert np.isclose(res[0][0, 1], np.std(sample_vec))
     assert np.isclose(res[1][0, 0], 1.00)
 
     # lognormal
