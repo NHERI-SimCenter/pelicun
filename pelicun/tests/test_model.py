@@ -789,10 +789,10 @@ def test_DamageModel__assemble_required_demand_data():
     batches = pg_batch.index.get_level_values(0).unique()
 
     expected_demand_dicts = [
-        {'PID-1-1': np.array([0.02672])},
-        {'PID-1-2': np.array([0.02672])},
-        {'PID-2-1': np.array([0.02672])},
-        {'PID-2-2': np.array([0.02672])},
+        {'PID-1-1': np.array([0.001])},
+        {'PID-1-2': np.array([0.002])},
+        {'PID-2-1': np.array([0.003])},
+        {'PID-2-2': np.array([0.004])},
     ]
 
     for i, PGB_i in enumerate(batches):
