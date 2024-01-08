@@ -340,20 +340,20 @@ def test__neg_log_likelihood():
     # large value to discourage the optimization algorithm from going
     # in that direction.
     res = uq._neg_log_likelihood(
-        np.array((1e8, 0.20)),
-        np.array((1.00, 0.20)),
-        np.array((0.00, 0.00)),
-        np.array((20.00, 1.00)),
-        np.array(
+        params=np.array((1e8, 0.20)),
+        inits=np.array((1.00, 0.20)),
+        bnd_lower=np.array((0.00, 0.00)),
+        bnd_upper=np.array((20.00, 1.00)),
+        samples=np.array(
             (
                 (0.90, 0.10),
                 (1.10, 0.30),
             ),
         ),
-        ['normal', 'normal'],
-        [None, None],
-        [None, None],
-        0,
+        dist_list=['normal', 'normal'],
+        tr_limits=[None, None],
+        det_limits=[None, None],
+        censored_count=0,
         enforce_bounds=True,
     )
 
