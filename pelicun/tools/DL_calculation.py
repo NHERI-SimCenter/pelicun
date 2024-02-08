@@ -117,19 +117,26 @@ damage_processes = {
         "5_excessiveRID": {
             "DS1": "irreparable_DS1"
         }
+    },
+    'Hazus Hurricane': {
     }
+
 }
 
 default_DBs = {
     'fragility': {
         'FEMA P-58': 'damage_DB_FEMA_P58_2nd.csv',
         'Hazus Earthquake - Buildings': 'damage_DB_Hazus_EQ_bldg.csv',
-        'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv'
+        'Hazus Earthquake - Stories': 'damage_DB_Hazus_EQ_story.csv',
+        'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv',
+        'Hazus Hurricane': 'damage_DB_SimCenter_Hazus_HU_bldg.csv'
     },
     'repair': {
         'FEMA P-58': 'loss_repair_DB_FEMA_P58_2nd.csv',
         'Hazus Earthquake - Buildings': 'loss_repair_DB_Hazus_EQ_bldg.csv',
-        'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv'
+        'Hazus Earthquake - Stories': 'loss_repair_DB_Hazus_EQ_story.csv',
+        'Hazus Earthquake - Transportation': 'loss_repair_DB_Hazus_EQ_trnsp.csv',
+        'Hazus Hurricane': 'loss_repair_DB_SimCenter_Hazus_HU_bldg.csv'
     }
 
 }
@@ -263,7 +270,8 @@ def convert_df_to_dict(df, axis=1):
         if skip_sub == True:
             
             if np.all(sub_df.index.astype(str).str.isnumeric()) == True:
-                out_dict[label] = df_in[label].tolist()
+                out_dict_label = df_in[label].astype(float)
+                out_dict[label] = out_dict_label.tolist()
             else:
                 out_dict[label] = {key:sub_df.loc[key] for key in sub_df.index}
                 
@@ -1146,29 +1154,59 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     if out_config['Settings'].get(
                         'AggregateColocatedComponentResults', False) == True:
                         
-                        damage_groupby = damage_sample.groupby(level=[0,3], axis=1)
+                        damage_groupby = damage_sample.groupby(level=[0,1,3], axis=1)
 
                         damage_units = damage_units.groupby(
-                            level=[0,3], axis=1).first()
+                            level=[0,1,3], axis=1).first()
 
                     else:
 
-                        damage_groupby = damage_sample.groupby(level=[0,4], axis=1)
+                        damage_groupby = damage_sample.groupby(level=[0,1,4], axis=1)
 
                         damage_units = damage_units.groupby(
-                            level=[0,4], axis=1).first()
+                            level=[0,1,4], axis=1).first()
 
                     grp_damage = damage_groupby.sum().mask(
                         damage_groupby.count()==0, np.nan)  
 
-                    # if requested, condense DS output to a single column
+                    # if requested, condense DS output
                     if out_config['Settings'].get('CondenseDS', False) == True:
-                        ds_list = grp_damage.columns.get_level_values(1).astype(int)
-                    
-                        grp_damage = grp_damage.mul(ds_list, axis=1).groupby(
-                            level=0, axis=1).sum().astype(int)
 
-                        damage_units = damage_units.gropuby(
+                        # replace non-zero values with 1
+                        grp_damage = grp_damage.mask(
+                            grp_damage.astype(np.float64).values>0, 1)
+
+                        # get the corresponding DS for each column
+                        ds_list = grp_damage.columns.get_level_values(2).astype(int)
+                
+                        # replace ones with the corresponding DS in each cell
+                        grp_damage = grp_damage.mul(ds_list, axis=1)
+
+                        # aggregate across damage state indices
+                        damage_groupby_2 = grp_damage.groupby(
+                            level=[0,1], axis=1)
+
+                        # choose the max value
+                        # i.e., the governing DS for each comp-loc pair
+                        grp_damage = damage_groupby_2.max().mask(
+                            damage_groupby_2.count()==0, np.nan)
+
+                        # aggregate units to the same format
+                        # assume identical units across locations for each comp
+                        damage_units = damage_units.groupby(
+                            level=[0,1], axis=1).first()
+
+                    else:
+                        # otherwise, aggregate damage quantities for each comp
+                        damage_groupby_2 = grp_damage.groupby(
+                            level=0, axis=1)
+
+                        # preserve NaNs
+                        grp_damage = damage_groupby_2.sum().mask(
+                            damage_groupby_2.count()==0, np.nan)
+
+                        # and aggregate units to the same format
+                        damage_units = damage_units.groupby(
                             level=0, axis=1).first()
 
                     if 'GroupedSample' in out_reqs:
@@ -1307,8 +1345,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                     adf.loc[rc, ('DV', 'Unit')] = 'USD_2011'
                     adf.loc[rc, ('DS1', 'Theta_0')] = 0
 
-                # for Hazus EQ, use 1.0 as a loss_ratio
-                elif DL_method == 'Hazus Earthquake':
+                # for Hazus EQ and HU, use 1.0 as a loss_ratio
+                elif DL_method in ['Hazus Earthquake', 'Hazus Hurricane']:
                     adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
 
@@ -1438,9 +1476,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 drivers = []
                 loss_models = []
 
-                if DL_method == 'FEMA P-58':
+                if DL_method in ['FEMA P-58', 'Hazus Hurricane']:
 
-                    # with FEMA P-58 we assume fragility and consequence data
+                    # with these methods, we assume fragility and consequence data
                     # have the same IDs
 
                     for dmg_cmp in dmg_cmps:
@@ -1452,7 +1490,8 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                             drivers.append(f'DMG-{dmg_cmp}')
                             loss_models.append(dmg_cmp)
 
-                elif DL_method in ['Hazus Earthquake', 'Hazus Earthquake Transportation']:
+                elif DL_method in ['Hazus Earthquake', 
+                                   'Hazus Earthquake Transportation']:
 
                     # with Hazus Earthquake we assume that consequence
                     # archetypes are only differentiated by occupancy type
@@ -1668,8 +1707,19 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             else:
                 df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
 
-            out_dict = convert_df_to_dict(df)
-            
+            if "Units" in df.index:
+                df_units = df.loc['Units',:].to_frame().T
+                df.drop("Units", axis=0, inplace=True)
+
+                out_dict = convert_df_to_dict(df)
+
+                out_dict.update({"Units": 
+                    {col: df_units.loc["Units", col] for col in df_units.columns}})
+
+            else:
+
+                out_dict = convert_df_to_dict(df)
+                
             with open(output_path/filename_json, 'w') as f:
                 json.dump(out_dict, f, indent=2)
 

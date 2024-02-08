@@ -1,0 +1,2053 @@
+{
+  "_GeneralInformation": {
+    "ShortName": "Hazus Earthquake Methodology - Buildings",
+    "Description": "The models in this dataset are based on version 5.1 of the Hazus Earthquake Model Technical Manual",
+    "Version": "1.0",
+    "ComponentGroups": {
+      "GF - Geotechnical Failure": [
+        "GF.H - Horizontal Spreading",
+        "GF.V - Vertical Settlement"
+      ],
+      "LF - Lifeline Facilities": [
+        "LF.W1 - Wood, Light Frame",
+        "LF.W2 - Wood, Commercial & Industrial",
+        "LF.S1 - Steel Moment Frame",
+        "LF.S2 - Steel Braced Frame",
+        "LF.S3 - Steel Light Frame",
+        "LF.S4 - Steel Frame with Cast-in-Place Concrete Shear Walls",
+        "LF.S5 - Steel Frame with Unreinforced Masonry Infill Walls",
+        "LF.C1 - Concrete Moment Frame",
+        "LF.C2 - Concrete Shear Walls",
+        "LF.C3 - Concrete Frame with Unreinforced Masonry Infill Walls",
+        "LF.PC1 - Precast Concrete Tilt-Up Walls",
+        "LF.PC2 - Precast Concrete Frames with Concrete Shear Walls",
+        "LF.RM1 - Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms",
+        "LF.RM2 - Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms",
+        "LF.URM - Unreinforced Masonry Bearing Walls",
+        "LF.MH - Mobile Homes"
+      ],
+      "NSA - Non-Structural Acceleration-Sensitive": [],
+      "NSD - Non-Structural Drift-Sensitive": [],
+      "STR - Structural": [
+        "STR.W1 - Wood, Light Frame",
+        "STR.W2 - Wood, Commercial & Industrial",
+        "STR.S1 - Steel Moment Frame",
+        "STR.S2 - Steel Braced Frame",
+        "STR.S3 - Steel Light Frame",
+        "STR.S4 - Steel Frame with Cast-in-Place Concrete Shear Walls",
+        "STR.S5 - Steel Frame with Unreinforced Masonry Infill Walls",
+        "STR.C1 - Concrete Moment Frame",
+        "STR.C2 - Concrete Shear Walls",
+        "STR.C3 - Concrete Frame with Unreinforced Masonry Infill Walls",
+        "STR.PC1 - Precast Concrete Tilt-Up Walls",
+        "STR.PC2 - Precast Concrete Frames with Concrete Shear Walls",
+        "STR.RM1 - Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms",
+        "STR.RM2 - Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms",
+        "STR.URM - Unreinforced Masonry Bearing Walls",
+        "STR.MH - Mobile Homes"
+      ]
+    }
+  },
+  "STR.W1.HC": {
+    "Description": "Structural, Wood, Light Frame, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are typically single-family or small, multi-family dwellings of not more than 5,000 square feet of floor area and 1-2 stories. The essential structural feature of these buildings is repetitive framing by wood rafters or joists on wood stud walls. Loads are light and spans are small. These buildings may have relatively heavy masonry chimneys and may be partially or fully covered with masonry veneer. Most of these buildings, especially the single-family residences, are not engineered but constructed in accordance with \u201cconventional construction\u201d provisions of building codes. Hence, they usually have the components of a lateral-force-resisting system even though it may be incomplete. Lateral loads are transferred by diaphragms to shear walls. The diaphragms are roof panels and floors that may be sheathed with sawn lumber, plywood or fiberboard sheathing. Shear walls are sheathed with boards, stucco, plaster, plywood, gypsum board, particle board, or fiberboard, or interior partition walls sheathed with plaster or gypsum board.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small plaster or gypsum-board cracks at corners of door and window openings and wall-ceiling intersections; small cracks in masonry chimneys and masonry veneer."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Large plaster or gypsum-board cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by small cracks in stucco and gypsum wall panels; large cracks in brick chimneys; toppling of tall masonry chimneys."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels or large cracks at plywood joints; permanent lateral movement of floors and roof; toppling of most brick chimneys; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201croom-over-garage\u201d or other \u201csoft-story\u201d configurations; small foundations cracks."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse, or be in imminent danger of collapse due to cripple wall failure or the failure of the lateral load-resisting system; some structures may slip and fall off the foundations; large foundation cracks."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.W1.MC": {
+    "Description": "Structural, Wood, Light Frame, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are typically single-family or small, multi-family dwellings of not more than 5,000 square feet of floor area and 1-2 stories. The essential structural feature of these buildings is repetitive framing by wood rafters or joists on wood stud walls. Loads are light and spans are small. These buildings may have relatively heavy masonry chimneys and may be partially or fully covered with masonry veneer. Most of these buildings, especially the single-family residences, are not engineered but constructed in accordance with \u201cconventional construction\u201d provisions of building codes. Hence, they usually have the components of a lateral-force-resisting system even though it may be incomplete. Lateral loads are transferred by diaphragms to shear walls. The diaphragms are roof panels and floors that may be sheathed with sawn lumber, plywood or fiberboard sheathing. Shear walls are sheathed with boards, stucco, plaster, plywood, gypsum board, particle board, or fiberboard, or interior partition walls sheathed with plaster or gypsum board.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small plaster or gypsum-board cracks at corners of door and window openings and wall-ceiling intersections; small cracks in masonry chimneys and masonry veneer."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Large plaster or gypsum-board cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by small cracks in stucco and gypsum wall panels; large cracks in brick chimneys; toppling of tall masonry chimneys."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels or large cracks at plywood joints; permanent lateral movement of floors and roof; toppling of most brick chimneys; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201croom-over-garage\u201d or other \u201csoft-story\u201d configurations; small foundations cracks."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse, or be in imminent danger of collapse due to cripple wall failure or the failure of the lateral load-resisting system; some structures may slip and fall off the foundations; large foundation cracks."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.W1.LC": {
+    "Description": "Structural, Wood, Light Frame, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are typically single-family or small, multi-family dwellings of not more than 5,000 square feet of floor area and 1-2 stories. The essential structural feature of these buildings is repetitive framing by wood rafters or joists on wood stud walls. Loads are light and spans are small. These buildings may have relatively heavy masonry chimneys and may be partially or fully covered with masonry veneer. Most of these buildings, especially the single-family residences, are not engineered but constructed in accordance with \u201cconventional construction\u201d provisions of building codes. Hence, they usually have the components of a lateral-force-resisting system even though it may be incomplete. Lateral loads are transferred by diaphragms to shear walls. The diaphragms are roof panels and floors that may be sheathed with sawn lumber, plywood or fiberboard sheathing. Shear walls are sheathed with boards, stucco, plaster, plywood, gypsum board, particle board, or fiberboard, or interior partition walls sheathed with plaster or gypsum board.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small plaster or gypsum-board cracks at corners of door and window openings and wall-ceiling intersections; small cracks in masonry chimneys and masonry veneer."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Large plaster or gypsum-board cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by small cracks in stucco and gypsum wall panels; large cracks in brick chimneys; toppling of tall masonry chimneys."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels or large cracks at plywood joints; permanent lateral movement of floors and roof; toppling of most brick chimneys; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201croom-over-garage\u201d or other \u201csoft-story\u201d configurations; small foundations cracks."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse, or be in imminent danger of collapse due to cripple wall failure or the failure of the lateral load-resisting system; some structures may slip and fall off the foundations; large foundation cracks."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.W1.PC": {
+    "Description": "Structural, Wood, Light Frame, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are typically single-family or small, multi-family dwellings of not more than 5,000 square feet of floor area and 1-2 stories. The essential structural feature of these buildings is repetitive framing by wood rafters or joists on wood stud walls. Loads are light and spans are small. These buildings may have relatively heavy masonry chimneys and may be partially or fully covered with masonry veneer. Most of these buildings, especially the single-family residences, are not engineered but constructed in accordance with \u201cconventional construction\u201d provisions of building codes. Hence, they usually have the components of a lateral-force-resisting system even though it may be incomplete. Lateral loads are transferred by diaphragms to shear walls. The diaphragms are roof panels and floors that may be sheathed with sawn lumber, plywood or fiberboard sheathing. Shear walls are sheathed with boards, stucco, plaster, plywood, gypsum board, particle board, or fiberboard, or interior partition walls sheathed with plaster or gypsum board.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small plaster or gypsum-board cracks at corners of door and window openings and wall-ceiling intersections; small cracks in masonry chimneys and masonry veneer."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Large plaster or gypsum-board cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by small cracks in stucco and gypsum wall panels; large cracks in brick chimneys; toppling of tall masonry chimneys."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels or large cracks at plywood joints; permanent lateral movement of floors and roof; toppling of most brick chimneys; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201croom-over-garage\u201d or other \u201csoft-story\u201d configurations; small foundations cracks."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse, or be in imminent danger of collapse due to cripple wall failure or the failure of the lateral load-resisting system; some structures may slip and fall off the foundations; large foundation cracks."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.W2.HC": {
+    "Description": "Structural, Wood, Greater than 5,000 Sq. Ft., High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are typically commercial or industrial buildings, or multi-family residential buildings with a floor area greater than 5,000 square feet. These buildings include structural systems framed by beams or major horizontally spanning members over columns. These horizontal members may be glue- laminated (glu-lam) wood, solid-sawn wood beams, or wood trusses, or steel beams or trusses. Lateral loads usually are resisted by wood diaphragms and exterior walls sheathed with plywood, stucco, plaster, or other paneling. The walls may have diagonal rod bracing. Large openings for stores and garages often require post-and-beam framing. Lateral load resistance on those lines may be achieved with steel rigid frames (moment frames) or diagonal bracing.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small cracks at corners of door and window openings and wall-ceiling intersections; small cracks on stucco and plaster walls. Some slippage may be observed at bolted connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Larger cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by cracks in stucco and gypsum wall panels; minor slack (less than 1/8-inch extension) in diagonal rod bracing requiring re-tightening; minor lateral offset at store fronts and other large openings; small cracks or wood splitting may be observed at bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels; large slack in diagonal rod braces and/or broken braces; permanent lateral movement of floors and roof; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201csoft-story\u201d configurations; bolt slippage and wood splitting at bolted connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse or be in imminent danger of collapse due to failed shear walls, broken brace rods or failed framing connections; it may fall off its foundations; large cracks in the foundations. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.W2.MC": {
+    "Description": "Structural, Wood, Greater than 5,000 Sq. Ft., Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are typically commercial or industrial buildings, or multi-family residential buildings with a floor area greater than 5,000 square feet. These buildings include structural systems framed by beams or major horizontally spanning members over columns. These horizontal members may be glue- laminated (glu-lam) wood, solid-sawn wood beams, or wood trusses, or steel beams or trusses. Lateral loads usually are resisted by wood diaphragms and exterior walls sheathed with plywood, stucco, plaster, or other paneling. The walls may have diagonal rod bracing. Large openings for stores and garages often require post-and-beam framing. Lateral load resistance on those lines may be achieved with steel rigid frames (moment frames) or diagonal bracing.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small cracks at corners of door and window openings and wall-ceiling intersections; small cracks on stucco and plaster walls. Some slippage may be observed at bolted connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Larger cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by cracks in stucco and gypsum wall panels; minor slack (less than 1/8-inch extension) in diagonal rod bracing requiring re-tightening; minor lateral offset at store fronts and other large openings; small cracks or wood splitting may be observed at bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels; large slack in diagonal rod braces and/or broken braces; permanent lateral movement of floors and roof; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201csoft-story\u201d configurations; bolt slippage and wood splitting at bolted connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse or be in imminent danger of collapse due to failed shear walls, broken brace rods or failed framing connections; it may fall off its foundations; large cracks in the foundations. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.W2.LC": {
+    "Description": "Structural, Wood, Greater than 5,000 Sq. Ft., Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are typically commercial or industrial buildings, or multi-family residential buildings with a floor area greater than 5,000 square feet. These buildings include structural systems framed by beams or major horizontally spanning members over columns. These horizontal members may be glue- laminated (glu-lam) wood, solid-sawn wood beams, or wood trusses, or steel beams or trusses. Lateral loads usually are resisted by wood diaphragms and exterior walls sheathed with plywood, stucco, plaster, or other paneling. The walls may have diagonal rod bracing. Large openings for stores and garages often require post-and-beam framing. Lateral load resistance on those lines may be achieved with steel rigid frames (moment frames) or diagonal bracing.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small cracks at corners of door and window openings and wall-ceiling intersections; small cracks on stucco and plaster walls. Some slippage may be observed at bolted connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Larger cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by cracks in stucco and gypsum wall panels; minor slack (less than 1/8-inch extension) in diagonal rod bracing requiring re-tightening; minor lateral offset at store fronts and other large openings; small cracks or wood splitting may be observed at bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels; large slack in diagonal rod braces and/or broken braces; permanent lateral movement of floors and roof; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201csoft-story\u201d configurations; bolt slippage and wood splitting at bolted connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse or be in imminent danger of collapse due to failed shear walls, broken brace rods or failed framing connections; it may fall off its foundations; large cracks in the foundations. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.W2.PC": {
+    "Description": "Structural, Wood, Greater than 5,000 Sq. Ft., Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are typically commercial or industrial buildings, or multi-family residential buildings with a floor area greater than 5,000 square feet. These buildings include structural systems framed by beams or major horizontally spanning members over columns. These horizontal members may be glue- laminated (glu-lam) wood, solid-sawn wood beams, or wood trusses, or steel beams or trusses. Lateral loads usually are resisted by wood diaphragms and exterior walls sheathed with plywood, stucco, plaster, or other paneling. The walls may have diagonal rod bracing. Large openings for stores and garages often require post-and-beam framing. Lateral load resistance on those lines may be achieved with steel rigid frames (moment frames) or diagonal bracing.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Small cracks at corners of door and window openings and wall-ceiling intersections; small cracks on stucco and plaster walls. Some slippage may be observed at bolted connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Larger cracks at corners of door and window openings; small diagonal cracks across shear wall panels exhibited by cracks in stucco and gypsum wall panels; minor slack (less than 1/8-inch extension) in diagonal rod bracing requiring re-tightening; minor lateral offset at store fronts and other large openings; small cracks or wood splitting may be observed at bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Large diagonal cracks across shear wall panels; large slack in diagonal rod braces and/or broken braces; permanent lateral movement of floors and roof; cracks in foundations; splitting of wood sill plates and/or slippage of structure over foundations; partial collapse of \u201csoft-story\u201d configurations; bolt slippage and wood splitting at bolted connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may have large permanent lateral displacement, may collapse or be in imminent danger of collapse due to failed shear walls, broken brace rods or failed framing connections; it may fall off its foundations; large cracks in the foundations. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S1.HC": {
+    "Description": "Structural, Steel Moment Frame, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a frame of steel columns and beams. In some cases, the beam-column connections have very small moment resisting capacity but, in other cases, some of the beams and columns are fully developed as moment frames to resist lateral forces. Usually, the structure is concealed on the outside by exterior nonstructural walls, which can be of almost any material (curtain walls, brick masonry, or precast concrete panels), and on the inside by ceilings and column furring. Diaphragms transfer lateral loads to moment-resisting frames. The diaphragms can be almost any material. The frames develop their stiffness by full or partial moment connections. The frames can be located almost anywhere in the building. Usually, the columns have their strong directions oriented so that some columns act primarily in one direction while the others act in the other direction. Steel moment frame buildings are typically more flexible than shear wall buildings. This low stiffness can result in large inter-story drifts that may lead to relatively greater nonstructural damage.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Minor deformations in connections or hairline cracks in a few welds."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel members have yielded, exhibiting observable permanent rotations at connections; a few welded connections may exhibit major cracks through welds, or a few bolted connections may exhibit broken bolts or enlarged bolt holes."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some of the structural members or connections may have exceeded their ultimate capacity, exhibited by major permanent member rotations at connections, buckled flanges, and failed connections. Partial collapse of portions of structure is possible due to failed critical elements and/or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: A significant portion of the structural elements have exceeded their ultimate capacities, or some critical structural elements or connections have failed, resulting in dangerous permanent lateral displacement, partial collapse or collapse of the building. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S1.MC": {
+    "Description": "Structural, Steel Moment Frame, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a frame of steel columns and beams. In some cases, the beam-column connections have very small moment resisting capacity but, in other cases, some of the beams and columns are fully developed as moment frames to resist lateral forces. Usually, the structure is concealed on the outside by exterior nonstructural walls, which can be of almost any material (curtain walls, brick masonry, or precast concrete panels), and on the inside by ceilings and column furring. Diaphragms transfer lateral loads to moment-resisting frames. The diaphragms can be almost any material. The frames develop their stiffness by full or partial moment connections. The frames can be located almost anywhere in the building. Usually, the columns have their strong directions oriented so that some columns act primarily in one direction while the others act in the other direction. Steel moment frame buildings are typically more flexible than shear wall buildings. This low stiffness can result in large inter-story drifts that may lead to relatively greater nonstructural damage.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Minor deformations in connections or hairline cracks in a few welds."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel members have yielded, exhibiting observable permanent rotations at connections; a few welded connections may exhibit major cracks through welds, or a few bolted connections may exhibit broken bolts or enlarged bolt holes."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some of the structural members or connections may have exceeded their ultimate capacity, exhibited by major permanent member rotations at connections, buckled flanges, and failed connections. Partial collapse of portions of structure is possible due to failed critical elements and/or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: A significant portion of the structural elements have exceeded their ultimate capacities, or some critical structural elements or connections have failed, resulting in dangerous permanent lateral displacement, partial collapse or collapse of the building. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S1.LC": {
+    "Description": "Structural, Steel Moment Frame, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a frame of steel columns and beams. In some cases, the beam-column connections have very small moment resisting capacity but, in other cases, some of the beams and columns are fully developed as moment frames to resist lateral forces. Usually, the structure is concealed on the outside by exterior nonstructural walls, which can be of almost any material (curtain walls, brick masonry, or precast concrete panels), and on the inside by ceilings and column furring. Diaphragms transfer lateral loads to moment-resisting frames. The diaphragms can be almost any material. The frames develop their stiffness by full or partial moment connections. The frames can be located almost anywhere in the building. Usually, the columns have their strong directions oriented so that some columns act primarily in one direction while the others act in the other direction. Steel moment frame buildings are typically more flexible than shear wall buildings. This low stiffness can result in large inter-story drifts that may lead to relatively greater nonstructural damage.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Minor deformations in connections or hairline cracks in a few welds."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel members have yielded, exhibiting observable permanent rotations at connections; a few welded connections may exhibit major cracks through welds, or a few bolted connections may exhibit broken bolts or enlarged bolt holes."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some of the structural members or connections may have exceeded their ultimate capacity, exhibited by major permanent member rotations at connections, buckled flanges, and failed connections. Partial collapse of portions of structure is possible due to failed critical elements and/or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: A significant portion of the structural elements have exceeded their ultimate capacities, or some critical structural elements or connections have failed, resulting in dangerous permanent lateral displacement, partial collapse or collapse of the building. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S1.PC": {
+    "Description": "Structural, Steel Moment Frame, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a frame of steel columns and beams. In some cases, the beam-column connections have very small moment resisting capacity but, in other cases, some of the beams and columns are fully developed as moment frames to resist lateral forces. Usually, the structure is concealed on the outside by exterior nonstructural walls, which can be of almost any material (curtain walls, brick masonry, or precast concrete panels), and on the inside by ceilings and column furring. Diaphragms transfer lateral loads to moment-resisting frames. The diaphragms can be almost any material. The frames develop their stiffness by full or partial moment connections. The frames can be located almost anywhere in the building. Usually, the columns have their strong directions oriented so that some columns act primarily in one direction while the others act in the other direction. Steel moment frame buildings are typically more flexible than shear wall buildings. This low stiffness can result in large inter-story drifts that may lead to relatively greater nonstructural damage.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Minor deformations in connections or hairline cracks in a few welds."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel members have yielded, exhibiting observable permanent rotations at connections; a few welded connections may exhibit major cracks through welds, or a few bolted connections may exhibit broken bolts or enlarged bolt holes."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some of the structural members or connections may have exceeded their ultimate capacity, exhibited by major permanent member rotations at connections, buckled flanges, and failed connections. Partial collapse of portions of structure is possible due to failed critical elements and/or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: A significant portion of the structural elements have exceeded their ultimate capacities, or some critical structural elements or connections have failed, resulting in dangerous permanent lateral displacement, partial collapse or collapse of the building. "
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S2.HC": {
+    "Description": "Structural, Steel Braced Frame, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the vertical components of the lateral force-resisting system are braced frames rather than moment frames.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel braces have yielded, which may be indicated by minor stretching and/or buckling of slender brace members; minor cracks in welded connections; minor deformations in bolted brace connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel braces have yielded, exhibiting observable stretching and/or buckling of braces; a few braces, other members or connections have indications of reaching their ultimate capacity, exhibited by buckled braces, cracked welds, or failed bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel brace and other members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some structural members or connections have exceeded their ultimate capacity, exhibited by buckled or broken braces, flange buckling, broken welds, or failed bolted connections. Anchor bolts at columns may be stretched. Partial collapse of portions of the structure is possible due to failure of critical elements or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Most of the structural elements have reached their ultimate capacities or some critical members or connections have failed, resulting in dangerous permanent lateral deflection, partial collapse or collapse of the building."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S2.MC": {
+    "Description": "Structural, Steel Braced Frame, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the vertical components of the lateral force-resisting system are braced frames rather than moment frames.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel braces have yielded, which may be indicated by minor stretching and/or buckling of slender brace members; minor cracks in welded connections; minor deformations in bolted brace connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel braces have yielded, exhibiting observable stretching and/or buckling of braces; a few braces, other members or connections have indications of reaching their ultimate capacity, exhibited by buckled braces, cracked welds, or failed bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel brace and other members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some structural members or connections have exceeded their ultimate capacity, exhibited by buckled or broken braces, flange buckling, broken welds, or failed bolted connections. Anchor bolts at columns may be stretched. Partial collapse of portions of the structure is possible due to failure of critical elements or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Most of the structural elements have reached their ultimate capacities or some critical members or connections have failed, resulting in dangerous permanent lateral deflection, partial collapse or collapse of the building."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S2.LC": {
+    "Description": "Structural, Steel Braced Frame, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the vertical components of the lateral force-resisting system are braced frames rather than moment frames.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel braces have yielded, which may be indicated by minor stretching and/or buckling of slender brace members; minor cracks in welded connections; minor deformations in bolted brace connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel braces have yielded, exhibiting observable stretching and/or buckling of braces; a few braces, other members or connections have indications of reaching their ultimate capacity, exhibited by buckled braces, cracked welds, or failed bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel brace and other members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some structural members or connections have exceeded their ultimate capacity, exhibited by buckled or broken braces, flange buckling, broken welds, or failed bolted connections. Anchor bolts at columns may be stretched. Partial collapse of portions of the structure is possible due to failure of critical elements or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Most of the structural elements have reached their ultimate capacities or some critical members or connections have failed, resulting in dangerous permanent lateral deflection, partial collapse or collapse of the building."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S2.PC": {
+    "Description": "Structural, Steel Braced Frame, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the vertical components of the lateral force-resisting system are braced frames rather than moment frames.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel braces have yielded, which may be indicated by minor stretching and/or buckling of slender brace members; minor cracks in welded connections; minor deformations in bolted brace connections."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Some steel braces have yielded, exhibiting observable stretching and/or buckling of braces; a few braces, other members or connections have indications of reaching their ultimate capacity, exhibited by buckled braces, cracked welds, or failed bolted connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most steel brace and other members have exceeded their yield capacity, resulting in significant permanent lateral deformation of the structure. Some structural members or connections have exceeded their ultimate capacity, exhibited by buckled or broken braces, flange buckling, broken welds, or failed bolted connections. Anchor bolts at columns may be stretched. Partial collapse of portions of the structure is possible due to failure of critical elements or connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Most of the structural elements have reached their ultimate capacities or some critical members or connections have failed, resulting in dangerous permanent lateral deflection, partial collapse or collapse of the building."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S3.HC": {
+    "Description": "Structural, Steel Light Frame, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are pre-engineered and prefabricated with transverse rigid frames. The roof and walls consist of lightweight panels, usually corrugated metal. The frames are designed for maximum efficiency, often with tapered beam and column sections built up of light steel plates. The frames are built in segments and assembled in the field with bolted joints. Lateral loads in the transverse direction are resisted by the rigid frames with loads distributed to them by diaphragm elements, typically rod- braced steel roof framing bays. Tension rod bracing typically resists loads in the longitudinal direction.\nThese structures are mostly single-story structures combining rod-braced frames in one direction and moment frames in the other. Due to repetitive nature of the structural systems, the type of damage to structural members is expected to be rather uniform throughout the structure.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel rod braces have yielded, which may be indicated by minor sagging of rod braces. Minor cracking at welded connections or minor deformations at bolted connections of moment frames may be observed."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most steel rod braces have yielded, exhibiting observable significantly sagging rod braces; a few brace connections may be broken. Some weld cracking may be observed in the moment frame connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Significant permanent lateral deformation of the structure due to broken brace rods, stretched anchor bolts, and permanent deformations at moment frame members. Some screw or welded attachments of roof and wall siding to steel framing may be broken. Some purlin and girt connections may be broken."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to broken rod bracing, failed anchor bolts or failed structural members or connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S3.MC": {
+    "Description": "Structural, Steel Light Frame, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are pre-engineered and prefabricated with transverse rigid frames. The roof and walls consist of lightweight panels, usually corrugated metal. The frames are designed for maximum efficiency, often with tapered beam and column sections built up of light steel plates. The frames are built in segments and assembled in the field with bolted joints. Lateral loads in the transverse direction are resisted by the rigid frames with loads distributed to them by diaphragm elements, typically rod- braced steel roof framing bays. Tension rod bracing typically resists loads in the longitudinal direction.\nThese structures are mostly single-story structures combining rod-braced frames in one direction and moment frames in the other. Due to repetitive nature of the structural systems, the type of damage to structural members is expected to be rather uniform throughout the structure.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel rod braces have yielded, which may be indicated by minor sagging of rod braces. Minor cracking at welded connections or minor deformations at bolted connections of moment frames may be observed."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most steel rod braces have yielded, exhibiting observable significantly sagging rod braces; a few brace connections may be broken. Some weld cracking may be observed in the moment frame connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Significant permanent lateral deformation of the structure due to broken brace rods, stretched anchor bolts, and permanent deformations at moment frame members. Some screw or welded attachments of roof and wall siding to steel framing may be broken. Some purlin and girt connections may be broken."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to broken rod bracing, failed anchor bolts or failed structural members or connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S3.LC": {
+    "Description": "Structural, Steel Light Frame, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are pre-engineered and prefabricated with transverse rigid frames. The roof and walls consist of lightweight panels, usually corrugated metal. The frames are designed for maximum efficiency, often with tapered beam and column sections built up of light steel plates. The frames are built in segments and assembled in the field with bolted joints. Lateral loads in the transverse direction are resisted by the rigid frames with loads distributed to them by diaphragm elements, typically rod- braced steel roof framing bays. Tension rod bracing typically resists loads in the longitudinal direction.\nThese structures are mostly single-story structures combining rod-braced frames in one direction and moment frames in the other. Due to repetitive nature of the structural systems, the type of damage to structural members is expected to be rather uniform throughout the structure.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel rod braces have yielded, which may be indicated by minor sagging of rod braces. Minor cracking at welded connections or minor deformations at bolted connections of moment frames may be observed."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most steel rod braces have yielded, exhibiting observable significantly sagging rod braces; a few brace connections may be broken. Some weld cracking may be observed in the moment frame connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Significant permanent lateral deformation of the structure due to broken brace rods, stretched anchor bolts, and permanent deformations at moment frame members. Some screw or welded attachments of roof and wall siding to steel framing may be broken. Some purlin and girt connections may be broken."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to broken rod bracing, failed anchor bolts or failed structural members or connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S3.PC": {
+    "Description": "Structural, Steel Light Frame, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are pre-engineered and prefabricated with transverse rigid frames. The roof and walls consist of lightweight panels, usually corrugated metal. The frames are designed for maximum efficiency, often with tapered beam and column sections built up of light steel plates. The frames are built in segments and assembled in the field with bolted joints. Lateral loads in the transverse direction are resisted by the rigid frames with loads distributed to them by diaphragm elements, typically rod- braced steel roof framing bays. Tension rod bracing typically resists loads in the longitudinal direction.\nThese structures are mostly single-story structures combining rod-braced frames in one direction and moment frames in the other. Due to repetitive nature of the structural systems, the type of damage to structural members is expected to be rather uniform throughout the structure.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: A few steel rod braces have yielded, which may be indicated by minor sagging of rod braces. Minor cracking at welded connections or minor deformations at bolted connections of moment frames may be observed."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most steel rod braces have yielded, exhibiting observable significantly sagging rod braces; a few brace connections may be broken. Some weld cracking may be observed in the moment frame connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Significant permanent lateral deformation of the structure due to broken brace rods, stretched anchor bolts, and permanent deformations at moment frame members. Some screw or welded attachments of roof and wall siding to steel framing may be broken. Some purlin and girt connections may be broken."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to broken rod bracing, failed anchor bolts or failed structural members or connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S4.HC": {
+    "Description": "Structural, Steel Frame with Cast-In-Place Concrete Shear Walls, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The shear walls in these buildings are cast-in-place concrete and may be bearing walls. The steel frame is designed for vertical loads only. Diaphragms of almost any material transfer lateral loads to the shear walls. The steel frame may provide a secondary lateral-force-resisting system depending on the stiffness of the frame and the moment capacity of the beam-column connections. In modern \u201cdual\u201d systems, the steel moment frames are designed to work together with the concrete shear walls.\nThis is a \u201ccomposite\u201d structural system where the concrete shear walls are the primary lateral force- resisting system. Hence, Slight, Moderate, and Extensive damage states are likely to be determined by damage to the shear walls, while the Complete damage state would be determined by the failure of the structural frame.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as exhibited by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; a few walls have reached or exceeded their ultimate capacity, as exhibited by large through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. Partial collapse may occur due to failed connections of steel framing to concrete walls. Some damage may be observed in steel frame connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may be collapsed or in danger of collapse due to total failure of shear walls and loss of stability of the steel frames."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S4.MC": {
+    "Description": "Structural, Steel Frame with Cast-In-Place Concrete Shear Walls, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The shear walls in these buildings are cast-in-place concrete and may be bearing walls. The steel frame is designed for vertical loads only. Diaphragms of almost any material transfer lateral loads to the shear walls. The steel frame may provide a secondary lateral-force-resisting system depending on the stiffness of the frame and the moment capacity of the beam-column connections. In modern \u201cdual\u201d systems, the steel moment frames are designed to work together with the concrete shear walls.\nThis is a \u201ccomposite\u201d structural system where the concrete shear walls are the primary lateral force- resisting system. Hence, Slight, Moderate, and Extensive damage states are likely to be determined by damage to the shear walls, while the Complete damage state would be determined by the failure of the structural frame.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as exhibited by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; a few walls have reached or exceeded their ultimate capacity, as exhibited by large through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. Partial collapse may occur due to failed connections of steel framing to concrete walls. Some damage may be observed in steel frame connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may be collapsed or in danger of collapse due to total failure of shear walls and loss of stability of the steel frames."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S4.LC": {
+    "Description": "Structural, Steel Frame with Cast-In-Place Concrete Shear Walls, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The shear walls in these buildings are cast-in-place concrete and may be bearing walls. The steel frame is designed for vertical loads only. Diaphragms of almost any material transfer lateral loads to the shear walls. The steel frame may provide a secondary lateral-force-resisting system depending on the stiffness of the frame and the moment capacity of the beam-column connections. In modern \u201cdual\u201d systems, the steel moment frames are designed to work together with the concrete shear walls.\nThis is a \u201ccomposite\u201d structural system where the concrete shear walls are the primary lateral force- resisting system. Hence, Slight, Moderate, and Extensive damage states are likely to be determined by damage to the shear walls, while the Complete damage state would be determined by the failure of the structural frame.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as exhibited by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; a few walls have reached or exceeded their ultimate capacity, as exhibited by large through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. Partial collapse may occur due to failed connections of steel framing to concrete walls. Some damage may be observed in steel frame connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may be collapsed or in danger of collapse due to total failure of shear walls and loss of stability of the steel frames."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S4.PC": {
+    "Description": "Structural, Steel Frame with Cast-In-Place Concrete Shear Walls, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The shear walls in these buildings are cast-in-place concrete and may be bearing walls. The steel frame is designed for vertical loads only. Diaphragms of almost any material transfer lateral loads to the shear walls. The steel frame may provide a secondary lateral-force-resisting system depending on the stiffness of the frame and the moment capacity of the beam-column connections. In modern \u201cdual\u201d systems, the steel moment frames are designed to work together with the concrete shear walls.\nThis is a \u201ccomposite\u201d structural system where the concrete shear walls are the primary lateral force- resisting system. Hence, Slight, Moderate, and Extensive damage states are likely to be determined by damage to the shear walls, while the Complete damage state would be determined by the failure of the structural frame.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as exhibited by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; a few walls have reached or exceeded their ultimate capacity, as exhibited by large through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. Partial collapse may occur due to failed connections of steel framing to concrete walls. Some damage may be observed in steel frame connections."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure may be collapsed or in danger of collapse due to total failure of shear walls and loss of stability of the steel frames."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S5.LC": {
+    "Description": "Structural, Steel Frame with Unreinforced Masonry Infill Walls, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: This is one of the older types of buildings. The infill walls usually are offset from the exterior frame members, wrap around them, and present a smooth masonry exterior with no indication of the frame. Solidly infilled masonry panels, when they fully engage the surrounding frame members (i.e., lie in the same plane), may provide stiffness and lateral load resistance to the structure.\nThis is a \u201ccomposite\u201d structural system where the initial lateral resistance is provided by the infill walls. Upon cracking of the infills, further lateral resistance is provided by the steel frames \u201cbraced\u201d by the infill walls acting as diagonal compression struts. Collapse of the structure results when the infill walls disintegrate (due to compression failure of the masonry \u201cstruts\u201d) and the steel frame loses its stability.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal (sometimes horizontal) hairline cracks on most infill walls; cracks at frame-infill interfaces."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most infill wall surfaces exhibit larger diagonal or horizontal cracks; some walls exhibit crushing of brick around beam-column connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most infill walls exhibit large cracks; some bricks may be dislodged and fall; some infill walls may bulge out-of-plane; a few walls may fall off partially or fully; some steel frame connections may have failed. Structure may exhibit permanent lateral deformation or partial collapse due to failure of some critical members."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in danger of imminent collapse due to total failure of many infill walls and loss of stability of the steel frames."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.S5.PC": {
+    "Description": "Structural, Steel Frame with Unreinforced Masonry Infill Walls, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: This is one of the older types of buildings. The infill walls usually are offset from the exterior frame members, wrap around them, and present a smooth masonry exterior with no indication of the frame. Solidly infilled masonry panels, when they fully engage the surrounding frame members (i.e., lie in the same plane), may provide stiffness and lateral load resistance to the structure.\nThis is a \u201ccomposite\u201d structural system where the initial lateral resistance is provided by the infill walls. Upon cracking of the infills, further lateral resistance is provided by the steel frames \u201cbraced\u201d by the infill walls acting as diagonal compression struts. Collapse of the structure results when the infill walls disintegrate (due to compression failure of the masonry \u201cstruts\u201d) and the steel frame loses its stability.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal (sometimes horizontal) hairline cracks on most infill walls; cracks at frame-infill interfaces."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most infill wall surfaces exhibit larger diagonal or horizontal cracks; some walls exhibit crushing of brick around beam-column connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most infill walls exhibit large cracks; some bricks may be dislodged and fall; some infill walls may bulge out-of-plane; a few walls may fall off partially or fully; some steel frame connections may have failed. Structure may exhibit permanent lateral deformation or partial collapse due to failure of some critical members."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in danger of imminent collapse due to total failure of many infill walls and loss of stability of the steel frames."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C1.HC": {
+    "Description": "Structural, Reinforced Concrete Moment Resisting Frames, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the frames are reinforced concrete. There are a large variety of frame systems. Some older concrete frames may be proportioned and detailed such that brittle failure of the frame members can occur in earthquakes, leading to partial or full collapse of the buildings. Modern frames in zones of high seismicity are proportioned and detailed for ductile behavior and are likely to undergo large deformations during an earthquake without brittle failure of frame members or collapse.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Flexural or shear type hairline cracks in some beams and columns near joints or within joints."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most beams and columns exhibit hairline cracks. In ductile frames, some of the frame elements have reached yield capacity, as indicated by larger flexural cracks and some concrete spalling. Nonductile frames may exhibit larger shear cracks and spalling."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Some of the frame elements have reached their ultimate capacity, as indicated in ductile frames by large flexural cracks, spalled concrete, and buckled main reinforcement; nonductile frame elements may have suffered shear failures or bond failures at reinforcement splices, broken ties or buckled main reinforcement in columns which may result in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to brittle failure of nonductile frame elements or loss of frame stability."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C1.MC": {
+    "Description": "Structural, Reinforced Concrete Moment Resisting Frames, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the frames are reinforced concrete. There are a large variety of frame systems. Some older concrete frames may be proportioned and detailed such that brittle failure of the frame members can occur in earthquakes, leading to partial or full collapse of the buildings. Modern frames in zones of high seismicity are proportioned and detailed for ductile behavior and are likely to undergo large deformations during an earthquake without brittle failure of frame members or collapse.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Flexural or shear type hairline cracks in some beams and columns near joints or within joints."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most beams and columns exhibit hairline cracks. In ductile frames, some of the frame elements have reached yield capacity, as indicated by larger flexural cracks and some concrete spalling. Nonductile frames may exhibit larger shear cracks and spalling."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Some of the frame elements have reached their ultimate capacity, as indicated in ductile frames by large flexural cracks, spalled concrete, and buckled main reinforcement; nonductile frame elements may have suffered shear failures or bond failures at reinforcement splices, broken ties or buckled main reinforcement in columns which may result in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to brittle failure of nonductile frame elements or loss of frame stability."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C1.LC": {
+    "Description": "Structural, Reinforced Concrete Moment Resisting Frames, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the frames are reinforced concrete. There are a large variety of frame systems. Some older concrete frames may be proportioned and detailed such that brittle failure of the frame members can occur in earthquakes, leading to partial or full collapse of the buildings. Modern frames in zones of high seismicity are proportioned and detailed for ductile behavior and are likely to undergo large deformations during an earthquake without brittle failure of frame members or collapse.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Flexural or shear type hairline cracks in some beams and columns near joints or within joints."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most beams and columns exhibit hairline cracks. In ductile frames, some of the frame elements have reached yield capacity, as indicated by larger flexural cracks and some concrete spalling. Nonductile frames may exhibit larger shear cracks and spalling."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Some of the frame elements have reached their ultimate capacity, as indicated in ductile frames by large flexural cracks, spalled concrete, and buckled main reinforcement; nonductile frame elements may have suffered shear failures or bond failures at reinforcement splices, broken ties or buckled main reinforcement in columns which may result in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to brittle failure of nonductile frame elements or loss of frame stability."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C1.PC": {
+    "Description": "Structural, Reinforced Concrete Moment Resisting Frames, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel moment frame buildings except that the frames are reinforced concrete. There are a large variety of frame systems. Some older concrete frames may be proportioned and detailed such that brittle failure of the frame members can occur in earthquakes, leading to partial or full collapse of the buildings. Modern frames in zones of high seismicity are proportioned and detailed for ductile behavior and are likely to undergo large deformations during an earthquake without brittle failure of frame members or collapse.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Flexural or shear type hairline cracks in some beams and columns near joints or within joints."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most beams and columns exhibit hairline cracks. In ductile frames, some of the frame elements have reached yield capacity, as indicated by larger flexural cracks and some concrete spalling. Nonductile frames may exhibit larger shear cracks and spalling."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Some of the frame elements have reached their ultimate capacity, as indicated in ductile frames by large flexural cracks, spalled concrete, and buckled main reinforcement; nonductile frame elements may have suffered shear failures or bond failures at reinforcement splices, broken ties or buckled main reinforcement in columns which may result in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or in imminent danger of collapse due to brittle failure of nonductile frame elements or loss of frame stability."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C2.HC": {
+    "Description": "Structural, Concrete Shear Walls, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The vertical components of the lateral force-resisting system in these buildings are concrete shear walls that are usually bearing walls. In older buildings, the walls often are quite extensive, and the wall stresses are low, but reinforcing is light. In newer buildings, the shear walls often are limited in extent, generating concerns about boundary members and overturning forces.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded yield capacity, as indicated by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls have exceeded their ultimate capacities, as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement or rotation of narrow walls with inadequate foundations. Partial collapse may occur due to failure of nonductile columns not designed to resist lateral loads."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of most of the shear walls and failure of some critical beams or columns."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C2.MC": {
+    "Description": "Structural, Concrete Shear Walls, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The vertical components of the lateral force-resisting system in these buildings are concrete shear walls that are usually bearing walls. In older buildings, the walls often are quite extensive, and the wall stresses are low, but reinforcing is light. In newer buildings, the shear walls often are limited in extent, generating concerns about boundary members and overturning forces.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded yield capacity, as indicated by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls have exceeded their ultimate capacities, as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement or rotation of narrow walls with inadequate foundations. Partial collapse may occur due to failure of nonductile columns not designed to resist lateral loads."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of most of the shear walls and failure of some critical beams or columns."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C2.LC": {
+    "Description": "Structural, Concrete Shear Walls, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The vertical components of the lateral force-resisting system in these buildings are concrete shear walls that are usually bearing walls. In older buildings, the walls often are quite extensive, and the wall stresses are low, but reinforcing is light. In newer buildings, the shear walls often are limited in extent, generating concerns about boundary members and overturning forces.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded yield capacity, as indicated by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls have exceeded their ultimate capacities, as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement or rotation of narrow walls with inadequate foundations. Partial collapse may occur due to failure of nonductile columns not designed to resist lateral loads."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of most of the shear walls and failure of some critical beams or columns."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C2.PC": {
+    "Description": "Structural, Concrete Shear Walls, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: The vertical components of the lateral force-resisting system in these buildings are concrete shear walls that are usually bearing walls. In older buildings, the walls often are quite extensive, and the wall stresses are low, but reinforcing is light. In newer buildings, the shear walls often are limited in extent, generating concerns about boundary members and overturning forces.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most concrete shear wall surfaces; minor concrete spalling at a few locations."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded yield capacity, as indicated by larger diagonal cracks and concrete spalling at wall ends."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls have exceeded their ultimate capacities, as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement or rotation of narrow walls with inadequate foundations. Partial collapse may occur due to failure of nonductile columns not designed to resist lateral loads."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of most of the shear walls and failure of some critical beams or columns."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C3.LC": {
+    "Description": "Structural, Concrete Frame Buildings with Unreinforced Masonry Infill Walls, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel frame buildings with unreinforced masonry infill walls except that the frame is of reinforced concrete. In these buildings, the shear strength of the columns, after cracking of the infill, may limit the semi-ductile behavior of the system.\nThis is a \u201ccomposite\u201d structural system where the initial lateral resistance is provided by the infill walls. Upon cracking of the infills, further lateral resistance is provided by the concrete frame, \u201cbraced\u201d by the infill, acting as diagonal compression struts. Collapse of the structure results when the infill walls disintegrate (due to compression failure of the masonry \u201cstruts\u201d) and the frame loses stability, or when the concrete columns suffer shear failures due to reduced effective height and the high shear forces imposed on them by the masonry compression struts.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal (sometimes horizontal) hairline cracks on most infill walls; cracks at frame-infill interfaces."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most infill wall surfaces exhibit larger diagonal or horizontal cracks; some walls exhibit crushing of brick around beam-column connections. Diagonal shear cracks may be observed in concrete beams or columns."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most infill walls exhibit large cracks; some bricks may dislodge and fall; some infill walls may bulge out-of-plane; a few walls may fall partially or fully; a few concrete columns or beams may fail in shear resulting in partial collapse. Structure may exhibit permanent lateral deformation."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to a combination of total failure of the infill walls and nonductile failure of the concrete beams and columns."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.C3.PC": {
+    "Description": "Structural, Concrete Frame Buildings with Unreinforced Masonry Infill Walls, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings are similar to steel frame buildings with unreinforced masonry infill walls except that the frame is of reinforced concrete. In these buildings, the shear strength of the columns, after cracking of the infill, may limit the semi-ductile behavior of the system.\nThis is a \u201ccomposite\u201d structural system where the initial lateral resistance is provided by the infill walls. Upon cracking of the infills, further lateral resistance is provided by the concrete frame, \u201cbraced\u201d by the infill, acting as diagonal compression struts. Collapse of the structure results when the infill walls disintegrate (due to compression failure of the masonry \u201cstruts\u201d) and the frame loses stability, or when the concrete columns suffer shear failures due to reduced effective height and the high shear forces imposed on them by the masonry compression struts.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal (sometimes horizontal) hairline cracks on most infill walls; cracks at frame-infill interfaces."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most infill wall surfaces exhibit larger diagonal or horizontal cracks; some walls exhibit crushing of brick around beam-column connections. Diagonal shear cracks may be observed in concrete beams or columns."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most infill walls exhibit large cracks; some bricks may dislodge and fall; some infill walls may bulge out-of-plane; a few walls may fall partially or fully; a few concrete columns or beams may fail in shear resulting in partial collapse. Structure may exhibit permanent lateral deformation."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to a combination of total failure of the infill walls and nonductile failure of the concrete beams and columns."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC1.HC": {
+    "Description": "Structural, Precast Concrete Tilt-Up Walls, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a wood or metal deck roof diaphragm, which often is very large, that distributes lateral forces to precast concrete shear walls. The walls are thin but relatively heavy, while the roofs are relatively light. Older or non-seismic-code buildings often have inadequate connections for anchorage of the walls to the roof for out-of-plane forces, and the panel connections are often brittle. Tilt-up buildings are usually one or two stories in height. Walls can have numerous openings for doors and windows of such size that the wall looks more like a frame than a shear wall.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on concrete shear wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor concrete spalling at a few locations; minor separation of walls from the floor and roof diaphragms; hairline cracks around metal connectors between wall panels and at connections of beams to walls."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; larger cracks in walls with door or window openings; a few shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks and concrete spalling. Cracks may appear at top of walls near panel intersections, indicating \u201cchord\u201d yielding. Some walls may have visibly pulled away from the roof. Some welded panel connections may have been broken, as indicated by spalled concrete around connections. Some spalling may be observed at the connections of beams to walls."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with relatively large area of wall openings, most concrete shear walls have exceeded their yield capacities, and some have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from the failure of the wall-to-diaphragm anchorages sometimes with falling of wall panels."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the wall-to-roof anchorages, splitting of ledgers, or failure of plywood-to-ledger nailing, failure of beam connections at walls, failure of roof or floor diaphragms, or failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC1.MC": {
+    "Description": "Structural, Precast Concrete Tilt-Up Walls, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a wood or metal deck roof diaphragm, which often is very large, that distributes lateral forces to precast concrete shear walls. The walls are thin but relatively heavy, while the roofs are relatively light. Older or non-seismic-code buildings often have inadequate connections for anchorage of the walls to the roof for out-of-plane forces, and the panel connections are often brittle. Tilt-up buildings are usually one or two stories in height. Walls can have numerous openings for doors and windows of such size that the wall looks more like a frame than a shear wall.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on concrete shear wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor concrete spalling at a few locations; minor separation of walls from the floor and roof diaphragms; hairline cracks around metal connectors between wall panels and at connections of beams to walls."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; larger cracks in walls with door or window openings; a few shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks and concrete spalling. Cracks may appear at top of walls near panel intersections, indicating \u201cchord\u201d yielding. Some walls may have visibly pulled away from the roof. Some welded panel connections may have been broken, as indicated by spalled concrete around connections. Some spalling may be observed at the connections of beams to walls."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with relatively large area of wall openings, most concrete shear walls have exceeded their yield capacities, and some have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from the failure of the wall-to-diaphragm anchorages sometimes with falling of wall panels."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the wall-to-roof anchorages, splitting of ledgers, or failure of plywood-to-ledger nailing, failure of beam connections at walls, failure of roof or floor diaphragms, or failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC1.LC": {
+    "Description": "Structural, Precast Concrete Tilt-Up Walls, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a wood or metal deck roof diaphragm, which often is very large, that distributes lateral forces to precast concrete shear walls. The walls are thin but relatively heavy, while the roofs are relatively light. Older or non-seismic-code buildings often have inadequate connections for anchorage of the walls to the roof for out-of-plane forces, and the panel connections are often brittle. Tilt-up buildings are usually one or two stories in height. Walls can have numerous openings for doors and windows of such size that the wall looks more like a frame than a shear wall.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on concrete shear wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor concrete spalling at a few locations; minor separation of walls from the floor and roof diaphragms; hairline cracks around metal connectors between wall panels and at connections of beams to walls."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; larger cracks in walls with door or window openings; a few shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks and concrete spalling. Cracks may appear at top of walls near panel intersections, indicating \u201cchord\u201d yielding. Some walls may have visibly pulled away from the roof. Some welded panel connections may have been broken, as indicated by spalled concrete around connections. Some spalling may be observed at the connections of beams to walls."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with relatively large area of wall openings, most concrete shear walls have exceeded their yield capacities, and some have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from the failure of the wall-to-diaphragm anchorages sometimes with falling of wall panels."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the wall-to-roof anchorages, splitting of ledgers, or failure of plywood-to-ledger nailing, failure of beam connections at walls, failure of roof or floor diaphragms, or failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC1.PC": {
+    "Description": "Structural, Precast Concrete Tilt-Up Walls, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have a wood or metal deck roof diaphragm, which often is very large, that distributes lateral forces to precast concrete shear walls. The walls are thin but relatively heavy, while the roofs are relatively light. Older or non-seismic-code buildings often have inadequate connections for anchorage of the walls to the roof for out-of-plane forces, and the panel connections are often brittle. Tilt-up buildings are usually one or two stories in height. Walls can have numerous openings for doors and windows of such size that the wall looks more like a frame than a shear wall.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on concrete shear wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor concrete spalling at a few locations; minor separation of walls from the floor and roof diaphragms; hairline cracks around metal connectors between wall panels and at connections of beams to walls."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; larger cracks in walls with door or window openings; a few shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks and concrete spalling. Cracks may appear at top of walls near panel intersections, indicating \u201cchord\u201d yielding. Some walls may have visibly pulled away from the roof. Some welded panel connections may have been broken, as indicated by spalled concrete around connections. Some spalling may be observed at the connections of beams to walls."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with relatively large area of wall openings, most concrete shear walls have exceeded their yield capacities, and some have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks, and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from the failure of the wall-to-diaphragm anchorages sometimes with falling of wall panels."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the wall-to-roof anchorages, splitting of ledgers, or failure of plywood-to-ledger nailing, failure of beam connections at walls, failure of roof or floor diaphragms, or failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC2.HC": {
+    "Description": "Structural, Precast Concrete Frames with Concrete Shear Walls, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings contain floor and roof diaphragms, typically composed of precast concrete elements with or without cast-in-place concrete topping slabs. Precast concrete girders and columns support the diaphragms. The girders often bear on column corbels. Closure strips between precast floor elements and beam-column joints are usually cast-in-place concrete. Welded steel inserts are often used to interconnect precast elements. Precast or cast-in-place concrete shear walls resist lateral loads. For buildings with precast frames and concrete shear walls to perform well, the details used to connect the structural elements must have sufficient strength and displacement capacity; however, in some cases, the connection details between the precast elements have negligible ductility.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most shear wall surfaces; minor concrete spalling at a few connections of precast members."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded their yield capacities, as indicated by larger cracks and concrete spalling at wall ends; observable distress or movement at connections of precast frame connections, some failures at metal inserts and welded connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls may have reached their ultimate capacities indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks and visibly buckled wall reinforcement. Some critical precast frame connections may have failed, resulting in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the shear walls and/or failures at precast frame connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC2.MC": {
+    "Description": "Structural, Precast Concrete Frames with Concrete Shear Walls, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings contain floor and roof diaphragms, typically composed of precast concrete elements with or without cast-in-place concrete topping slabs. Precast concrete girders and columns support the diaphragms. The girders often bear on column corbels. Closure strips between precast floor elements and beam-column joints are usually cast-in-place concrete. Welded steel inserts are often used to interconnect precast elements. Precast or cast-in-place concrete shear walls resist lateral loads. For buildings with precast frames and concrete shear walls to perform well, the details used to connect the structural elements must have sufficient strength and displacement capacity; however, in some cases, the connection details between the precast elements have negligible ductility.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most shear wall surfaces; minor concrete spalling at a few connections of precast members."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded their yield capacities, as indicated by larger cracks and concrete spalling at wall ends; observable distress or movement at connections of precast frame connections, some failures at metal inserts and welded connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls may have reached their ultimate capacities indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks and visibly buckled wall reinforcement. Some critical precast frame connections may have failed, resulting in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the shear walls and/or failures at precast frame connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC2.LC": {
+    "Description": "Structural, Precast Concrete Frames with Concrete Shear Walls, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings contain floor and roof diaphragms, typically composed of precast concrete elements with or without cast-in-place concrete topping slabs. Precast concrete girders and columns support the diaphragms. The girders often bear on column corbels. Closure strips between precast floor elements and beam-column joints are usually cast-in-place concrete. Welded steel inserts are often used to interconnect precast elements. Precast or cast-in-place concrete shear walls resist lateral loads. For buildings with precast frames and concrete shear walls to perform well, the details used to connect the structural elements must have sufficient strength and displacement capacity; however, in some cases, the connection details between the precast elements have negligible ductility.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most shear wall surfaces; minor concrete spalling at a few connections of precast members."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded their yield capacities, as indicated by larger cracks and concrete spalling at wall ends; observable distress or movement at connections of precast frame connections, some failures at metal inserts and welded connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls may have reached their ultimate capacities indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks and visibly buckled wall reinforcement. Some critical precast frame connections may have failed, resulting in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the shear walls and/or failures at precast frame connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.PC2.PC": {
+    "Description": "Structural, Precast Concrete Frames with Concrete Shear Walls, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings contain floor and roof diaphragms, typically composed of precast concrete elements with or without cast-in-place concrete topping slabs. Precast concrete girders and columns support the diaphragms. The girders often bear on column corbels. Closure strips between precast floor elements and beam-column joints are usually cast-in-place concrete. Welded steel inserts are often used to interconnect precast elements. Precast or cast-in-place concrete shear walls resist lateral loads. For buildings with precast frames and concrete shear walls to perform well, the details used to connect the structural elements must have sufficient strength and displacement capacity; however, in some cases, the connection details between the precast elements have negligible ductility.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on most shear wall surfaces; minor concrete spalling at a few connections of precast members."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most shear wall surfaces exhibit diagonal cracks; some shear walls have exceeded their yield capacities, as indicated by larger cracks and concrete spalling at wall ends; observable distress or movement at connections of precast frame connections, some failures at metal inserts and welded connections."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Most concrete shear walls have exceeded their yield capacities; some walls may have reached their ultimate capacities indicated by large, through-the-wall diagonal cracks, extensive spalling around the cracks and visibly buckled wall reinforcement. Some critical precast frame connections may have failed, resulting in partial collapse."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the shear walls and/or failures at precast frame connections."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM1.HC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have perimeter bearing walls of reinforced brick or concrete-block masonry. These walls are the vertical elements in the lateral force-resisting system. The floors and roof are framed with wood joists and beams either with plywood or braced sheathing, the latter either straight or diagonally sheathed, or with steel beams with metal deck with or without concrete fill. Interior wood posts or steel columns support wood floor framing; steel columns support steel beams.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor separation of walls from the floor and roof diaphragms."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks. Some walls may have visibly pulled away from the roof."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from failure of the wall-to-diaphragm anchorages or the connections of beams to walls."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the wall anchorages or due to failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM1.MC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have perimeter bearing walls of reinforced brick or concrete-block masonry. These walls are the vertical elements in the lateral force-resisting system. The floors and roof are framed with wood joists and beams either with plywood or braced sheathing, the latter either straight or diagonally sheathed, or with steel beams with metal deck with or without concrete fill. Interior wood posts or steel columns support wood floor framing; steel columns support steel beams.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor separation of walls from the floor and roof diaphragms."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks. Some walls may have visibly pulled away from the roof."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from failure of the wall-to-diaphragm anchorages or the connections of beams to walls."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the wall anchorages or due to failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM1.LC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have perimeter bearing walls of reinforced brick or concrete-block masonry. These walls are the vertical elements in the lateral force-resisting system. The floors and roof are framed with wood joists and beams either with plywood or braced sheathing, the latter either straight or diagonally sheathed, or with steel beams with metal deck with or without concrete fill. Interior wood posts or steel columns support wood floor framing; steel columns support steel beams.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor separation of walls from the floor and roof diaphragms."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks. Some walls may have visibly pulled away from the roof."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from failure of the wall-to-diaphragm anchorages or the connections of beams to walls."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the wall anchorages or due to failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM1.PC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have perimeter bearing walls of reinforced brick or concrete-block masonry. These walls are the vertical elements in the lateral force-resisting system. The floors and roof are framed with wood joists and beams either with plywood or braced sheathing, the latter either straight or diagonally sheathed, or with steel beams with metal deck with or without concrete fill. Interior wood posts or steel columns support wood floor framing; steel columns support steel beams.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; minor separation of walls from the floor and roof diaphragms."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger diagonal cracks. Some walls may have visibly pulled away from the roof."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities as indicated by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The plywood diaphragms may exhibit cracking and separation along plywood joints. Partial collapse of the roof may result from failure of the wall-to-diaphragm anchorages or the connections of beams to walls."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to failure of the wall anchorages or due to failure of the wall panels."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM2.HC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms, Low-Rise, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have bearing walls similar to those of reinforced masonry bearing wall structures with wood or metal deck diaphragms, but the roof and floors are composed of precast concrete elements such as planks or tee-beams and the precast roof and floor elements are supported on interior beams and columns of steel or concrete (cast-in-place or precast). The precast horizontal elements often have a cast-in-place topping.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with large proportion of openings."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger cracks."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities, as exhibited by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The diaphragms may also exhibit cracking."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the walls."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM2.MC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms, Low-Rise, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have bearing walls similar to those of reinforced masonry bearing wall structures with wood or metal deck diaphragms, but the roof and floors are composed of precast concrete elements such as planks or tee-beams and the precast roof and floor elements are supported on interior beams and columns of steel or concrete (cast-in-place or precast). The precast horizontal elements often have a cast-in-place topping.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with large proportion of openings."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger cracks."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities, as exhibited by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The diaphragms may also exhibit cracking."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the walls."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM2.LC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have bearing walls similar to those of reinforced masonry bearing wall structures with wood or metal deck diaphragms, but the roof and floors are composed of precast concrete elements such as planks or tee-beams and the precast roof and floor elements are supported on interior beams and columns of steel or concrete (cast-in-place or precast). The precast horizontal elements often have a cast-in-place topping.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with large proportion of openings."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger cracks."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities, as exhibited by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The diaphragms may also exhibit cracking."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the walls."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.RM2.PC": {
+    "Description": "Structural, Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings have bearing walls similar to those of reinforced masonry bearing wall structures with wood or metal deck diaphragms, but the roof and floors are composed of precast concrete elements such as planks or tee-beams and the precast roof and floor elements are supported on interior beams and columns of steel or concrete (cast-in-place or precast). The precast horizontal elements often have a cast-in-place topping.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with large proportion of openings."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the shear walls have exceeded their yield capacities, as indicated by larger cracks."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most shear walls have exceeded their yield capacities and some of the walls have exceeded their ultimate capacities, as exhibited by large, through-the-wall diagonal cracks and visibly buckled wall reinforcement. The diaphragms may also exhibit cracking."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure is collapsed or is in imminent danger of collapse due to failure of the walls."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.URM.LC": {
+    "Description": "Structural, Unreinforced Masonry Bearing Walls, Low-Rise, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings include structural elements that vary depending on the building\u2019s age and, to a lesser extent, its geographic location. In buildings built before 1900, the majority of floor and roof construction consists of wood sheathing supported by wood framing. In large multistory buildings, the floors are cast- in-place concrete supported by the unreinforced masonry walls and/or steel or concrete interior framing. In unreinforced masonry constructed built after 1950 outside California, wood floors usually have plywood rather than board sheathing. In regions of lower seismicity, buildings of this type constructed more recently can include floor and roof framing that consists of metal deck and concrete fill supported by steel framing elements. The perimeter walls, and possibly some interior walls, are unreinforced masonry. The walls may or may not be anchored to the diaphragms. Ties between the walls and diaphragms are more common for the bearing walls than for walls that are parallel to the floor framing. Roof ties are usually less common and more erratically spaced than those at the floor levels. Interior partitions that interconnect the floors and roof can reduce diaphragm displacements.\nLow-Rise Building with 1-3 stories.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal, stair-step hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; movements of lintels; cracks at the base of parapets."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the walls exhibit larger diagonal cracks; masonry walls may have visible separation from diaphragms; significant cracking of parapets; some masonry may fall from walls or parapets."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most walls have suffered extensive cracking. Some parapets and gable end walls have fallen. Beams or trusses may have moved relative to their supports."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to in-plane or out-of-plane failure of the walls."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.URM.PC": {
+    "Description": "Structural, Unreinforced Masonry Bearing Walls, Low-Rise, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These buildings include structural elements that vary depending on the building\u2019s age and, to a lesser extent, its geographic location. In buildings built before 1900, the majority of floor and roof construction consists of wood sheathing supported by wood framing. In large multistory buildings, the floors are cast- in-place concrete supported by the unreinforced masonry walls and/or steel or concrete interior framing. In unreinforced masonry constructed built after 1950 outside California, wood floors usually have plywood rather than board sheathing. In regions of lower seismicity, buildings of this type constructed more recently can include floor and roof framing that consists of metal deck and concrete fill supported by steel framing elements. The perimeter walls, and possibly some interior walls, are unreinforced masonry. The walls may or may not be anchored to the diaphragms. Ties between the walls and diaphragms are more common for the bearing walls than for walls that are parallel to the floor framing. Roof ties are usually less common and more erratically spaced than those at the floor levels. Interior partitions that interconnect the floors and roof can reduce diaphragm displacements.\nLow-Rise Building with 1-3 stories.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Diagonal, stair-step hairline cracks on masonry wall surfaces; larger cracks around door and window openings in walls with a large proportion of openings; movements of lintels; cracks at the base of parapets."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Most wall surfaces exhibit diagonal cracks; some of the walls exhibit larger diagonal cracks; masonry walls may have visible separation from diaphragms; significant cracking of parapets; some masonry may fall from walls or parapets."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: In buildings with a relatively large area of wall openings, most walls have suffered extensive cracking. Some parapets and gable end walls have fallen. Beams or trusses may have moved relative to their supports."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Structure has collapsed or is in imminent danger of collapse due to in-plane or out-of-plane failure of the walls."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.MH.HC": {
+    "Description": "Structural, Mobile Homes, High-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are prefabricated housing units that are trucked to the site and then placed on isolated piers, jack stands, or masonry block foundations (usually without any positive anchorage). Floors and roofs of mobile homes are usually constructed with plywood and outside surfaces are covered with sheet metal.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Damage to some porches, stairs or other attached components."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Major movement of the mobile home over its supports, resulting in some damage to metal siding and stairs and requiring resetting of the mobile home on its supports."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Mobile home has fallen partially off its supports, often severing utility lines."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Mobile home has totally fallen off its supports; usually severing utility lines, with steep jack stands penetrating through the floor."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.MH.MC": {
+    "Description": "Structural, Mobile Homes, Moderate-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are prefabricated housing units that are trucked to the site and then placed on isolated piers, jack stands, or masonry block foundations (usually without any positive anchorage). Floors and roofs of mobile homes are usually constructed with plywood and outside surfaces are covered with sheet metal.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Damage to some porches, stairs or other attached components."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Major movement of the mobile home over its supports, resulting in some damage to metal siding and stairs and requiring resetting of the mobile home on its supports."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Mobile home has fallen partially off its supports, often severing utility lines."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Mobile home has totally fallen off its supports; usually severing utility lines, with steep jack stands penetrating through the floor."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.MH.LC": {
+    "Description": "Structural, Mobile Homes, Low-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are prefabricated housing units that are trucked to the site and then placed on isolated piers, jack stands, or masonry block foundations (usually without any positive anchorage). Floors and roofs of mobile homes are usually constructed with plywood and outside surfaces are covered with sheet metal.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Damage to some porches, stairs or other attached components."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Major movement of the mobile home over its supports, resulting in some damage to metal siding and stairs and requiring resetting of the mobile home on its supports."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Mobile home has fallen partially off its supports, often severing utility lines."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Mobile home has totally fallen off its supports; usually severing utility lines, with steep jack stands penetrating through the floor."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "STR.MH.PC": {
+    "Description": "Structural, Mobile Homes, Pre-Code",
+    "Comments": "Structural components represent the structural system in the building.\nStructural System: These are prefabricated housing units that are trucked to the site and then placed on isolated piers, jack stands, or masonry block foundations (usually without any positive anchorage). Floors and roofs of mobile homes are usually constructed with plywood and outside surfaces are covered with sheet metal.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Structural Damage: Damage to some porches, stairs or other attached components."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Structural Damage: Major movement of the mobile home over its supports, resulting in some damage to metal siding and stairs and requiring resetting of the mobile home on its supports."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Structural Damage: Mobile home has fallen partially off its supports, often severing utility lines."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Structural Damage: Mobile home has totally fallen off its supports; usually severing utility lines, with steep jack stands penetrating through the floor."
+        },
+        "DS5": {
+          "Description": "Collapse."
+        }
+      }
+    }
+  },
+  "NSD": {
+    "Description": "Drift-Sensitive Nonstructural",
+    "Comments": "Drift-Sensitive Nonstructural components primarily include architectural components, but drift demands shall also be considered as a secondary cause of damage for certain mechanical, and electrical components. Typical examples (based on Table 5.2 in the Hazus Earthquake Model Technical Manual): Nonbearing walls and partitions, Exterior wall panels, Veneer and finishes, Penthouses, Piping systems, HVAC systems, Elevators, and General electrical components. Anchorage/bracing of nonstructural components improves earthquake performance of most components although routine or typical anchorage/bracing provides only limited damage protection. It is assumed that typical nonstructural components and building contents have limited anchorage/bracing.\nDamage to drift-sensitive nonstructural components (e.g., full-height drywall partitions) is primarily a function of inter-story drift. The damage functions estimated for each group are assumed to be \u201ctypical\u201d of its sub-components. However, that damage depends on the anchorage/bracing provided to the nonstructural components.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Nonstructural Damage:\nPartition Walls: A few cracks are observed at intersections of walls and ceilings and at corners of door openings.\nExterior Wall Panels: Slight movement of the panels, requiring realignment."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Nonstructural Damage:\nPartition Walls: Larger and more extensive cracks requiring repair and repainting; some partitions may require replacement of gypsum board or other finishes.\nExterior Wall Panels: The movements are more extensive; connections of panels to structural frame are damaged requiring further inspection and repairs; some window frames may need realignment."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Nonstructural Damage:\nPartition Walls: Most of the partitions are cracked and a significant portion may require replacement of finishes; some door frames in the partitions are also damaged and require re-setting.\nExterior Wall Panels: Most of the panels are cracked or otherwise damaged and misaligned, and most panel connections to the structural frame are damaged requiring thorough review and repairs; a few panels fall or are in imminent danger of falling; some windowpanes are broken and some pieces of glass have fallen."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Nonstructural Damage:\nPartition Walls: Most partition finish materials and framing may have to be removed and replaced, damaged studs repaired, and walls refinished. Most door frames may also have to be repaired and replaced.\nExterior Wall Panels: Most panels are severely damaged, most connections are broken or severely damaged, some panels have fallen, and most are in imminent danger of falling; extensive glass breakage and falling."
+        }
+      }
+    }
+  },
+  "NSA.HC": {
+    "Description": "Acceleration-Sensitive Nonstructural, High-Code",
+    "Comments": "Acceleration-Sensitive Nonstructural components include a large variety of different architectural, mechanical, and electrical components. Typical examples (based on Table 5.2 in the Hazus Earthquake Model Technical Manual): Cantilever elements and parapets, Racks and caibnets, Access floors, General mechanical, Manufacturing and process machinery, Piping systems, Storage tanks and spheres, HVAC systems, Elevators, Trussed towers, General electrical, and Lighting fixtures. Anchorage/bracing of nonstructural components improves earthquake performance of most components although routine or typical anchorage/bracing provides only limited damage protection. It is assumed that typical nonstructural components and building contents have limited anchorage/bracing.\nDamage to acceleration-sensitive components (e.g., mechanical equipment) is a function of the floor acceleration. The damage functions estimated for each group are assumed to be \u201ctypical\u201d of its sub-components. However, that damage depends on the anchorage/bracing provided to the nonstructural components.\nDesign Level Approximate Basis:\nPost-1975 construction in UBC Seismic Zone 4, NEHRP Map Area 7.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Nonstructural Damage:\nSuspended Ceilings: A few ceiling tiles have moved or fallen down.\nElectrical-Mechanical Equipment, Piping, Ducts: The most vulnerable equipment (e.g., unanchored or mounted on spring isolators) moves and damages attached piping or ducts."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Nonstructural Damage:\nSuspended Ceilings: Falling of tiles is more extensive; in addition, the ceiling support framing (T-bars) has disconnected and/or buckled at a few locations; lenses have fallen off some light fixtures and a few fixtures have fallen; localized repairs are necessary.\nElectrical-Mechanical Equipment, Piping, Ducts: Movements are larger, and damage is more extensive; piping leaks occur at a few locations; elevator machinery and rails may require realignment."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Nonstructural Damage:\nSuspended Ceilings: The ceiling system exhibits extensive buckling, disconnected T- bars and falling ceiling tiles; ceiling partially collapses at a few locations and some light fixtures fall; repair typically involves removal of most or all ceiling tiles.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment on spring isolators topples and falls; other unanchored equipment slides or falls, breaking connections to piping and ducts; leaks develop at many locations; anchored equipment indicate stretched bolts or strain at anchorages."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Nonstructural Damage:\nSuspended Ceilings: The ceiling system is buckled throughout and/or fallen and requires complete replacement; many light fixtures fall.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment is damaged by sliding, overturning or failure of their supports and is not operable; piping is leaking at many locations; some pipe and duct supports have failed, causing pipes and ducts to fall or hang down; elevator rails are buckled or have broken supports and/or counterweights have derailed."
+        }
+      }
+    }
+  },
+  "NSA.MC": {
+    "Description": "Acceleration-Sensitive Nonstructural, Moderate-Code",
+    "Comments": "Acceleration-Sensitive Nonstructural components include a large variety of different architectural, mechanical, and electrical components. Typical examples (based on Table 5.2 in the Hazus Earthquake Model Technical Manual): Cantilever elements and parapets, Racks and caibnets, Access floors, General mechanical, Manufacturing and process machinery, Piping systems, Storage tanks and spheres, HVAC systems, Elevators, Trussed towers, General electrical, and Lighting fixtures. Anchorage/bracing of nonstructural components improves earthquake performance of most components although routine or typical anchorage/bracing provides only limited damage protection. It is assumed that typical nonstructural components and building contents have limited anchorage/bracing.\nDamage to acceleration-sensitive components (e.g., mechanical equipment) is a function of the floor acceleration. The damage functions estimated for each group are assumed to be \u201ctypical\u201d of its sub-components. However, that damage depends on the anchorage/bracing provided to the nonstructural components.\nDesign Level Approximate Basis:\nPost-1941 construction in UBC Seismic Zone 3, NEHRP Map Area 6\nPost-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Nonstructural Damage:\nSuspended Ceilings: A few ceiling tiles have moved or fallen down.\nElectrical-Mechanical Equipment, Piping, Ducts: The most vulnerable equipment (e.g., unanchored or mounted on spring isolators) moves and damages attached piping or ducts."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Nonstructural Damage:\nSuspended Ceilings: Falling of tiles is more extensive; in addition, the ceiling support framing (T-bars) has disconnected and/or buckled at a few locations; lenses have fallen off some light fixtures and a few fixtures have fallen; localized repairs are necessary.\nElectrical-Mechanical Equipment, Piping, Ducts: Movements are larger, and damage is more extensive; piping leaks occur at a few locations; elevator machinery and rails may require realignment."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Nonstructural Damage:\nSuspended Ceilings: The ceiling system exhibits extensive buckling, disconnected T- bars and falling ceiling tiles; ceiling partially collapses at a few locations and some light fixtures fall; repair typically involves removal of most or all ceiling tiles.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment on spring isolators topples and falls; other unanchored equipment slides or falls, breaking connections to piping and ducts; leaks develop at many locations; anchored equipment indicate stretched bolts or strain at anchorages."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Nonstructural Damage:\nSuspended Ceilings: The ceiling system is buckled throughout and/or fallen and requires complete replacement; many light fixtures fall.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment is damaged by sliding, overturning or failure of their supports and is not operable; piping is leaking at many locations; some pipe and duct supports have failed, causing pipes and ducts to fall or hang down; elevator rails are buckled or have broken supports and/or counterweights have derailed."
+        }
+      }
+    }
+  },
+  "NSA.LC": {
+    "Description": "Acceleration-Sensitive Nonstructural, Low-Code",
+    "Comments": "Acceleration-Sensitive Nonstructural components include a large variety of different architectural, mechanical, and electrical components. Typical examples (based on Table 5.2 in the Hazus Earthquake Model Technical Manual): Cantilever elements and parapets, Racks and caibnets, Access floors, General mechanical, Manufacturing and process machinery, Piping systems, Storage tanks and spheres, HVAC systems, Elevators, Trussed towers, General electrical, and Lighting fixtures. Anchorage/bracing of nonstructural components improves earthquake performance of most components although routine or typical anchorage/bracing provides only limited damage protection. It is assumed that typical nonstructural components and building contents have limited anchorage/bracing.\nDamage to acceleration-sensitive components (e.g., mechanical equipment) is a function of the floor acceleration. The damage functions estimated for each group are assumed to be \u201ctypical\u201d of its sub-components. However, that damage depends on the anchorage/bracing provided to the nonstructural components.\nDesign Level Approximate Basis:\n1941-1975 construction in UBC Seismic Zone 2B, NEHRP Map Area 5\nPost-1941 construction in UBC Seismic Zone 2A, NEHRP Map Area 4\nPost-1975 construction in UBC Seismic Zone 1, NEHRP Map Area 2/3",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Nonstructural Damage:\nSuspended Ceilings: A few ceiling tiles have moved or fallen down.\nElectrical-Mechanical Equipment, Piping, Ducts: The most vulnerable equipment (e.g., unanchored or mounted on spring isolators) moves and damages attached piping or ducts."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Nonstructural Damage:\nSuspended Ceilings: Falling of tiles is more extensive; in addition, the ceiling support framing (T-bars) has disconnected and/or buckled at a few locations; lenses have fallen off some light fixtures and a few fixtures have fallen; localized repairs are necessary.\nElectrical-Mechanical Equipment, Piping, Ducts: Movements are larger, and damage is more extensive; piping leaks occur at a few locations; elevator machinery and rails may require realignment."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Nonstructural Damage:\nSuspended Ceilings: The ceiling system exhibits extensive buckling, disconnected T- bars and falling ceiling tiles; ceiling partially collapses at a few locations and some light fixtures fall; repair typically involves removal of most or all ceiling tiles.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment on spring isolators topples and falls; other unanchored equipment slides or falls, breaking connections to piping and ducts; leaks develop at many locations; anchored equipment indicate stretched bolts or strain at anchorages."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Nonstructural Damage:\nSuspended Ceilings: The ceiling system is buckled throughout and/or fallen and requires complete replacement; many light fixtures fall.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment is damaged by sliding, overturning or failure of their supports and is not operable; piping is leaking at many locations; some pipe and duct supports have failed, causing pipes and ducts to fall or hang down; elevator rails are buckled or have broken supports and/or counterweights have derailed."
+        }
+      }
+    }
+  },
+  "NSA.PC": {
+    "Description": "Acceleration-Sensitive Nonstructural, Pre-Code",
+    "Comments": "Acceleration-Sensitive Nonstructural components include a large variety of different architectural, mechanical, and electrical components. Typical examples (based on Table 5.2 in the Hazus Earthquake Model Technical Manual): Cantilever elements and parapets, Racks and caibnets, Access floors, General mechanical, Manufacturing and process machinery, Piping systems, Storage tanks and spheres, HVAC systems, Elevators, Trussed towers, General electrical, and Lighting fixtures. Anchorage/bracing of nonstructural components improves earthquake performance of most components although routine or typical anchorage/bracing provides only limited damage protection. It is assumed that typical nonstructural components and building contents have limited anchorage/bracing.\nDamage to acceleration-sensitive components (e.g., mechanical equipment) is a function of the floor acceleration. The damage functions estimated for each group are assumed to be \u201ctypical\u201d of its sub-components. However, that damage depends on the anchorage/bracing provided to the nonstructural components.\nDesign Level: Approximate Basis: UBC Seismic Zone 0, NEHRP Map Area 1.\nPre-1941 construction in all other UBC and NEHRP areas.\nPre-Code damage functions are appropriate for modeling older buildings that were not designed for earthquake load, regardless of where they are located in the United States.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Slight Nonstructural Damage:\nSuspended Ceilings: A few ceiling tiles have moved or fallen down.\nElectrical-Mechanical Equipment, Piping, Ducts: The most vulnerable equipment (e.g., unanchored or mounted on spring isolators) moves and damages attached piping or ducts."
+        }
+      },
+      "LS2": {
+        "DS2": {
+          "Description": "Moderate Nonstructural Damage:\nSuspended Ceilings: Falling of tiles is more extensive; in addition, the ceiling support framing (T-bars) has disconnected and/or buckled at a few locations; lenses have fallen off some light fixtures and a few fixtures have fallen; localized repairs are necessary.\nElectrical-Mechanical Equipment, Piping, Ducts: Movements are larger, and damage is more extensive; piping leaks occur at a few locations; elevator machinery and rails may require realignment."
+        }
+      },
+      "LS3": {
+        "DS3": {
+          "Description": "Extensive Nonstructural Damage:\nSuspended Ceilings: The ceiling system exhibits extensive buckling, disconnected T- bars and falling ceiling tiles; ceiling partially collapses at a few locations and some light fixtures fall; repair typically involves removal of most or all ceiling tiles.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment on spring isolators topples and falls; other unanchored equipment slides or falls, breaking connections to piping and ducts; leaks develop at many locations; anchored equipment indicate stretched bolts or strain at anchorages."
+        }
+      },
+      "LS4": {
+        "DS4": {
+          "Description": "Complete Nonstructural Damage:\nSuspended Ceilings: The ceiling system is buckled throughout and/or fallen and requires complete replacement; many light fixtures fall.\nElectrical-Mechanical Equipment, Piping, Ducts: Equipment is damaged by sliding, overturning or failure of their supports and is not operable; piping is leaking at many locations; some pipe and duct supports have failed, causing pipes and ducts to fall or hang down; elevator rails are buckled or have broken supports and/or counterweights have derailed."
+        }
+      }
+    }
+  },
+  "GF.H.S": {
+    "Description": "Ground Failure, Horizontal Direction, Shallow Foundation",
+    "Comments": "Under Ground Failure, separate fragility curves distinguish between damages due to lateral spreading and ground settlement. Only Extensive and Complete damage states are considered. In essence, buildings are assumed to be either undamaged or severely damaged due to ground failure. In fact, Slight or Moderate damage can occur due to ground failure, but the likelihood of this damage is considered to be small (relative to ground shaking damage) and tacitly included in predictions of Slight or Moderate damage due to ground shaking by STR or LF components. There is no available relationship between the likelihood of Extensive/Complete damage to buildings and PGD. Engineering judgment has been used to develop a set of assumptions which define building fragility.\nNo attempt is made to distinguish damage based on building type, since model building descriptions do not include foundation type. Foundation type is critical to PGD performance and buildings on deep foundations (e.g., piles) perform much better than buildings on spread footings, if the ground settles. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 10 from that predicted for settlement-induced damage of the same building on a shallow foundation. Deep foundations will improve building performance by only a limited amount if the ground spreads laterally. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 2 from that predicted for spread-induced damage of the same building on a shallow foundation.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Extensive structural damage due to ground failure."
+        },
+        "DS2": {
+          "Description": "Complete structural damage due to ground failure."
+        }
+      }
+    }
+  },
+  "GF.H.D": {
+    "Description": "Ground Failure, Horizontal Direction, Deep Foundation",
+    "Comments": "Under Ground Failure, separate fragility curves distinguish between damages due to lateral spreading and ground settlement. Only Extensive and Complete damage states are considered. In essence, buildings are assumed to be either undamaged or severely damaged due to ground failure. In fact, Slight or Moderate damage can occur due to ground failure, but the likelihood of this damage is considered to be small (relative to ground shaking damage) and tacitly included in predictions of Slight or Moderate damage due to ground shaking by STR or LF components. There is no available relationship between the likelihood of Extensive/Complete damage to buildings and PGD. Engineering judgment has been used to develop a set of assumptions which define building fragility.\nNo attempt is made to distinguish damage based on building type, since model building descriptions do not include foundation type. Foundation type is critical to PGD performance and buildings on deep foundations (e.g., piles) perform much better than buildings on spread footings, if the ground settles. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 10 from that predicted for settlement-induced damage of the same building on a shallow foundation. Deep foundations will improve building performance by only a limited amount if the ground spreads laterally. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 2 from that predicted for spread-induced damage of the same building on a shallow foundation.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Extensive structural damage due to ground failure."
+        },
+        "DS2": {
+          "Description": "Complete structural damage due to ground failure."
+        }
+      }
+    }
+  },
+  "GF.V.S": {
+    "Description": "Ground Failure, Vertical Direction, Shallow Foundation",
+    "Comments": "Under Ground Failure, separate fragility curves distinguish between damages due to lateral spreading and ground settlement. Only Extensive and Complete damage states are considered. In essence, buildings are assumed to be either undamaged or severely damaged due to ground failure. In fact, Slight or Moderate damage can occur due to ground failure, but the likelihood of this damage is considered to be small (relative to ground shaking damage) and tacitly included in predictions of Slight or Moderate damage due to ground shaking by STR or LF components. There is no available relationship between the likelihood of Extensive/Complete damage to buildings and PGD. Engineering judgment has been used to develop a set of assumptions which define building fragility.\nNo attempt is made to distinguish damage based on building type, since model building descriptions do not include foundation type. Foundation type is critical to PGD performance and buildings on deep foundations (e.g., piles) perform much better than buildings on spread footings, if the ground settles. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 10 from that predicted for settlement-induced damage of the same building on a shallow foundation. Deep foundations will improve building performance by only a limited amount if the ground spreads laterally. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 2 from that predicted for spread-induced damage of the same building on a shallow foundation.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Extensive structural damage due to ground failure."
+        },
+        "DS2": {
+          "Description": "Complete structural damage due to ground failure."
+        }
+      }
+    }
+  },
+  "GF.V.D": {
+    "Description": "Ground Failure, Vertical Direction, Deep Foundation",
+    "Comments": "Under Ground Failure, separate fragility curves distinguish between damages due to lateral spreading and ground settlement. Only Extensive and Complete damage states are considered. In essence, buildings are assumed to be either undamaged or severely damaged due to ground failure. In fact, Slight or Moderate damage can occur due to ground failure, but the likelihood of this damage is considered to be small (relative to ground shaking damage) and tacitly included in predictions of Slight or Moderate damage due to ground shaking by STR or LF components. There is no available relationship between the likelihood of Extensive/Complete damage to buildings and PGD. Engineering judgment has been used to develop a set of assumptions which define building fragility.\nNo attempt is made to distinguish damage based on building type, since model building descriptions do not include foundation type. Foundation type is critical to PGD performance and buildings on deep foundations (e.g., piles) perform much better than buildings on spread footings, if the ground settles. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 10 from that predicted for settlement-induced damage of the same building on a shallow foundation. Deep foundations will improve building performance by only a limited amount if the ground spreads laterally. When the building is known to be supported by a deep foundation, the probability of Extensive or Complete damage is reduced by a factor of 2 from that predicted for spread-induced damage of the same building on a shallow foundation.",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "LimitStates": {
+      "LS1": {
+        "DS1": {
+          "Description": "Extensive structural damage due to ground failure."
+        },
+        "DS2": {
+          "Description": "Complete structural damage due to ground failure."
+        }
+      }
+    }
+  }
+}
