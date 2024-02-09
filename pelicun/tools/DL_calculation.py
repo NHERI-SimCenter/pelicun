@@ -1757,7 +1757,9 @@ def run_pelicun(
     return 0
 
 
-def main(args=None):
+def main():
+
+    args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--filenameDL')
@@ -1791,7 +1793,7 @@ def main(args=None):
     # parser.add_argument('--outputDM', default='DM.csv')
     # parser.add_argument('--outputDV', default='DV.csv')
 
-    if args is None:
+    if not args:
         print(f'Welcome. This is pelicun version {pelicun.__version__}')
         print('To access the documentation visit https://nheri-simcenter.github.io/pelicun/index.html')
         print()
@@ -1827,4 +1829,4 @@ def main(args=None):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
