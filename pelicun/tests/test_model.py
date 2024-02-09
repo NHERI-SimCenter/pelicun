@@ -853,7 +853,7 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
     )
 
     qnt_sample = damage_model._prepare_dmg_quantities(
-        PGB, ds_sample, dropzero=False, dropempty=False
+        PGB, ds_sample, dropzero=False
     )
 
     # note: the realized number of damage states is random, limiting
@@ -916,7 +916,7 @@ def test_DamageModel__perform_dmg_task():
             demand_dict, EDP_req, capacity_sample, lsds_sample
         )
         qnt_sample = damage_model._prepare_dmg_quantities(
-            PGB, ds_sample, dropzero=False, dropempty=False
+            PGB, ds_sample, dropzero=False
         )
         qnt_samples.append(qnt_sample)
     qnt_sample = pd.concat(qnt_samples, axis=1)

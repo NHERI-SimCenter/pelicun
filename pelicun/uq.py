@@ -92,7 +92,7 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
     ------
     ValueError
         If the specified distribution family is unsupported.
-    
+
     """
 
     if truncation_limits is not None:
@@ -357,8 +357,8 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
             uni_samples = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
 
             # replace 0 and 1 values with the nearest float
-            uni_samples[uni_samples==0] = np.nextafter(0,1)
-            uni_samples[uni_samples==1] = np.nextafter(1,-1)
+            uni_samples[uni_samples == 0] = np.nextafter(0, 1)
+            uni_samples[uni_samples == 1] = np.nextafter(1, -1)
 
             # consider truncation if needed
             p_a, p_b = _get_limit_probs(tr_lim_i, dist_i, theta_i)
@@ -518,7 +518,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # First, check if the parameters are within the pre-defined bounds
     # TODO: check if it is more efficient to use a bounded minimization algo
     if enforce_bounds:
-        if ((params > bnd_lower) & (params < bnd_upper)).all(0) == False:
+        if not ((params > bnd_lower) & (params < bnd_upper)).all(0):
             # if they are not, then return a large value to discourage the
             # optimization algorithm from going in that direction
             return 1e10
@@ -603,10 +603,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
         cen_likelihood = 1.0
 
     # take the product of likelihoods calculated in each dimension
-    try:
-        scale = _mvn_scale(std_samples.T, rho_hat)
-    except:
-        return 1e10
+    scale = _mvn_scale(std_samples.T, rho_hat)
     # TODO: We can almost surely replace the product of likelihoods with a call
     # to mvn()
     likelihoods = np.prod(likelihoods, axis=0) * scale
@@ -623,7 +620,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
     # normalize the NLL with the sample count
     NLL = NLL / samples.size
 
-    #print(theta[0], params, NLL)
+    # print(theta[0], params, NLL)
 
     return NLL
 
@@ -631,7 +628,7 @@ def _neg_log_likelihood(params, inits, bnd_lower, bnd_upper, samples,
 def fit_distribution_to_sample(raw_samples, distribution,
                                truncation_limits=(np.nan, np.nan),
                                censored_count=0, detection_limits=(np.nan, np.nan),
-                               multi_fit=False, alpha_lim=1e-4,
+                               multi_fit=False,
                                logger_object=None):
     """
     Fit a distribution to sample using maximum likelihood estimation.
@@ -680,16 +677,6 @@ def fit_distribution_to_sample(raw_samples, distribution,
         if the correlation in the data is not Gaussian. It leads to
         substantially longer calculation time and does not always produce
         better results, especially when the number of dimensions is large.
-    alpha_lim: float, optional, default:None
-        Introduces a lower limit to the probability density within the
-        n-orthotope defined by the truncation limits. Assigning a reasonable
-        minimum (such as 1e-4) can be useful when the mean of the distribution
-        is several standard deviations from the truncation limits and the
-        sample size is small. Such cases without a limit often converge to
-        distant means with inflated variances. Besides being incorrect
-        estimates, those solutions only offer negligible reduction in the
-        negative log likelihood, while making subsequent sampling of the
-        truncated normal distribution very challenging.
     logger_object:
         Logging object to be used. If no object is specified, no
         logging is performed.
@@ -828,7 +815,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
                                      [np.nan, np.nan],
                                      0, True,),
                                method='BFGS',
-                               options=dict(maxiter=50)
+                               options={'maxiter': 50}
                                )
 
             out = out_m_i.x.reshape(inits_i.shape)
@@ -849,7 +836,7 @@ def fit_distribution_to_sample(raw_samples, distribution,
                                    dist_list, tr_limits, det_limits,
                                    censored_count, True,),
                              method='BFGS',
-                             options=dict(maxiter=50)
+                             options={'maxiter': 50}
                              )
 
             out = out_m.x.reshape(inits.shape)

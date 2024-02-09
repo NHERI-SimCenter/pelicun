@@ -238,6 +238,58 @@ def test_print_system_info():
     os.remove('log.txt')
 
 
+def test_update_vals():
+    primary = {'b': {'c': 4, 'd': 5}, 'g': 7}
+    update = {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6}
+    base.update_vals(update, primary, 'update', 'primary')
+    assert primary == {'b': {'c': 4, 'd': 5}, 'g': 7}  # unchanged
+    assert update == {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6, 'g': 7}  # updated
+    # note: key 'g' created, 'f' left there, 'c', 'd' updated, as intended
+
+    primary = {'a': {'b': {'c': 4}}}
+    update = {'a': {'b': {'c': 3}}}
+    base.update_vals(update, primary, 'update', 'primary')
+    assert primary == {'a': {'b': {'c': 4}}}  # unchanged
+    assert update == {'a': {'b': {'c': 3}}}  # updated
+
+    primary = {'a': {'b': 4}}
+    update = {'a': {'b': {'c': 3}}}
+    with pytest.raises(ValueError):
+        base.update_vals(update, primary, 'update', 'primary')
+
+    primary = {'a': {'b': 3}}
+    update = {'a': 1, 'b': 2}
+    with pytest.raises(ValueError):
+        base.update_vals(update, primary, 'update', 'primary')
+
+
+def test_merge_default_config():
+    # Test merging an empty user config with the default config
+    user_config = {}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == base.load_default_options()
+
+    # Test merging a user config with a single option set
+    user_config = {'Verbose': True}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+    # Test merging a user config with multiple options set
+    user_config = {'Verbose': True, 'Seed': 12345}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+    # Test merging a user config with a nested option set
+    user_config = {'NonDirectionalMultipliers': {'PFA': 1.5}}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+    # Test merging a user config with a nested option set and a top-level option set
+    user_config = {'Verbose': True, 'NonDirectionalMultipliers': {'PFA': 1.5}}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+
 def test_convert_to_SimpleIndex():
     # Test conversion of a multiindex to a simple index following the
     # SimCenter dash convention

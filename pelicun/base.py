@@ -45,6 +45,9 @@ This module defines constants, basic classes and methods for pelicun.
 
 .. autosummary::
 
+    load_default_options
+    update_vals
+    merge_default_config
     convert_to_SimpleIndex
     convert_to_MultiIndex
     show_matrix
@@ -63,13 +66,13 @@ This module defines constants, basic classes and methods for pelicun.
 import os
 import sys
 from datetime import datetime
+import json
 import warnings
 from pathlib import Path
 import argparse
 import pprint
 import numpy as np
 import pandas as pd
-from . import file_io
 
 
 # set printing options
@@ -186,7 +189,7 @@ class Options:
         self._seed = None
 
         self._rng = np.random.default_rng()
-        merged_config_options = file_io.merge_default_config(
+        merged_config_options = merge_default_config(
             user_config_options)
 
         self._seed = merged_config_options['Seed']
@@ -275,6 +278,7 @@ class Options:
         units file property setter
         """
         self._units_file = value
+
 
 class Logger:
 
@@ -512,8 +516,140 @@ class Logger:
             f'pandas: {pd.__version__}\n',
             prepend_timestamp=False)
 
+
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
+
+
+def load_default_options():
+    """
+    Load the default_config.json file to set options to default values
+    """
+
+    with open(pelicun_path / "settings/default_config.json",
+              'r', encoding='utf-8') as f:
+        default_config = json.load(f)
+
+    default_options = default_config['Options']
+    return default_options
+
+
+def update_vals(
+        update, primary,
+        update_path, primary_path
+):
+    """
+    Updates the values of the `update` nested dictionary with
+    those provided in the `primary` nested dictionary. If a key
+    already exists in update, and does not map to another
+    dictionary, the value is left unchanged.
+
+    Parameters
+    ----------
+    update: dict
+        Dictionary -which can contain nested dictionaries- to be
+        updated based on the values of `primary`. New keys existing
+        in `primary` are added to `update`. Values of which keys
+        already exist in `primary` are left unchanged.
+    primary: dict
+        Dictionary -which can contain nested dictionaries- to
+        be used to update the values of `update`.
+    update_path: str
+        Identifier for the update dictionary. Used to make error
+        messages more meaningful.
+    primary_path: str
+        Identifier for the update dictionary. Used to make error
+        messages more meaningful.
+
+    Raises
+    ------
+    ValueError
+      If primary[key] is dict but update[key] is not.
+    ValueError
+      If update[key] is dict but primary[key] is not.
+    """
+
+    # pylint: disable=else-if-used
+    # (`consider using elif`)
+
+    # we go over the keys of `primary`
+    for key in primary:
+        # if `primary[key]` is a dictionary:
+        if isinstance(primary[key], dict):
+            # if the same `key` does not exist in update,
+            # we associate it with an empty dictionary.
+            if key not in update:
+                update[key] = {}
+            # if it exists already, it should map to
+            # a dictionary.
+            elif not isinstance(update[key], dict):
+                raise ValueError(
+                    f'{update_path}["{key}"] '
+                    'should map to a dictionary. '
+                    'The specified value is '
+                    f'{update_path}["{key}"] = {update[key]}, but '
+                    f'the default value is '
+                    f'{primary_path}["{key}"] = {primary[key]}. '
+                    f'Please revise {update_path}["{key}"].'
+                )
+            # With both being dictionaries, we recurse.
+            update_vals(
+                update[key], primary[key],
+                f'{update_path}["{key}"]', f'{primary_path}["{key}"]')
+        # if `primary[key]` is NOT a dictionary:
+        else:
+            # if `key` does not exist in `update`, we add it, with
+            # its corresponding value.
+            if key not in update:
+                update[key] = primary[key]
+            else:
+                # key exists in update and should be left alone,
+                # but we must check that it's not a dict here:
+                if isinstance(update[key], dict):
+                    raise ValueError(
+                        f'{update_path}["{key}"] '
+                        'should not map to a dictionary. '
+                        f'The specified value is '
+                        f'{update_path}["{key}"] = {update[key]}, but '
+                        f'the default value is '
+                        f'{primary_path}["{key}"] = {primary[key]}. '
+                        f'Please revise {update_path}["{key}"].'
+                    )
+    # pylint: enable=else-if-used
+
+
+def merge_default_config(user_config):
+    """
+    Merge the user-specified config with the configuration defined in
+    the default_config.json file. If the user-specified config does
+    not include some option available in the default options, then the
+    default option is used in the merged config.
+
+    Parameters.
+    ----------
+    user_config: dict
+        User-specified configuration dictionary
+
+    Returns
+    -------
+    user_config: dict
+        Merged configuration dictionary
+    """
+
+    config = user_config  # start from the user's config
+    default_config = load_default_options()
+
+    if config is None:
+        config = {}
+
+    # We fill out the user's config with the values available in the
+    # default config that were not set.
+    # We use a recursive function to handle nesting.
+    update_vals(
+        config, default_config,
+        'user_settings', 'default_settings')
+
+    return config
 
 
 def convert_to_SimpleIndex(data, axis=0, inplace=False):
