@@ -846,6 +846,60 @@ def test_RandomVariable():
             'rv_invalid', 'multinomial', np.array((0.20, 0.70, 0.10, 42.00))
         )
 
+    # multilinear CDF: cases that should fail
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (100.00, 0.20, 0.20, 0.80, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'test_rv',
+            'multilinear_CDF',
+            theta=values
+        )
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.20, 0.20, 0.80, 0.80)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'test_rv',
+            'multilinear_CDF',
+            theta=values
+        )
+
+    x_values = (0.00, 3.00, 1.00, 2.00, 4.00)
+    y_values = (0.00, 0.25, 0.50, 0.75, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'test_rv',
+            'multilinear_CDF',
+            theta=values
+        )
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.75, 0.50, 0.25, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'test_rv',
+            'multilinear_CDF',
+            theta=values
+        )
+
+    # truncation limits not supported
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.25, 0.50, 0.75, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'test_rv',
+            'multilinear_CDF',
+            theta=values,
+            truncation_limits=np.array((0.20, 0.80))
+        )
+
 
 def test_RandomVariable_cdf():
     # create a normal random variable
@@ -952,6 +1006,24 @@ def test_RandomVariable_cdf():
 
     assert np.allclose(cdf, (0.0, 0.0, 0.5, 1.0, 1.0), rtol=1e-5)
 
+    # multilinear CDF
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.20, 0.20, 0.80, 1.00)
+    values = np.column_stack((x_values, y_values))
+    rv = uq.RandomVariable(
+        'test_rv',
+        'multilinear_CDF',
+        theta=values
+    )
+    x = (-100.00, 0.00, 0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 100.00)
+    cdf = rv.cdf(x)
+
+    assert np.allclose(
+        cdf,
+        (0.00, 0.00, 0.10, 0.20, 0.20, 0.20, 0.50, 0.80, 0.90, 1.00, 1.00),
+        rtol=1e-5,
+    )
+
 
 def test_RandomVariable_inverse_transform():
     #
@@ -963,7 +1035,7 @@ def test_RandomVariable_inverse_transform():
     samples = np.array((0.10, 0.20, 0.30))
 
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
 
     assert np.allclose(inverse_transform, samples, rtol=1e-5)
@@ -977,12 +1049,12 @@ def test_RandomVariable_inverse_transform():
         rv = uq.RandomVariable('test_rv', 'uniform', theta=(np.nan, 1.0))
         samples = np.array((0.10, 0.20, 0.30))
         rv.uni_sample = samples
-        rv.inverse_transform_sampling(len(samples))
+        rv.inverse_transform_sampling()
         inverse_transform = rv.sample
         assert np.all(np.isnan(inverse_transform))
         rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.00, np.nan))
         rv.uni_sample = samples
-        rv.inverse_transform_sampling(len(samples))
+        rv.inverse_transform_sampling()
         inverse_transform = rv.sample
         assert np.all(np.isinf(inverse_transform))
     rv = uq.RandomVariable(
@@ -992,7 +1064,7 @@ def test_RandomVariable_inverse_transform():
         truncation_limits=np.array((0.20, 0.80)),
     )
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
     assert np.allclose(inverse_transform, np.array((0.26, 0.32, 0.38)), rtol=1e-5)
 
@@ -1011,7 +1083,7 @@ def test_RandomVariable_inverse_transform():
     rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
 
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
 
     assert np.allclose(
@@ -1029,7 +1101,7 @@ def test_RandomVariable_inverse_transform():
         truncation_limits=np.array((0.50, np.nan)),
     )
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
     assert np.allclose(
         inverse_transform, np.array((0.62614292, 0.73192471, 0.83365823)), rtol=1e-5
@@ -1042,7 +1114,7 @@ def test_RandomVariable_inverse_transform():
     rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
 
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
 
     assert np.allclose(
@@ -1051,7 +1123,7 @@ def test_RandomVariable_inverse_transform():
 
     rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
     with pytest.raises(ValueError):
-        rv.inverse_transform_sampling(100)
+        rv.inverse_transform_sampling()
 
     #
     # normal with truncation limits
@@ -1061,7 +1133,7 @@ def test_RandomVariable_inverse_transform():
         'test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(np.nan, 1.20)
     )
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
     assert np.allclose(
         inverse_transform, np.array((0.24508018, 0.43936, 0.57313359)), rtol=1e-5
@@ -1070,7 +1142,7 @@ def test_RandomVariable_inverse_transform():
         'test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, np.nan)
     )
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
     assert np.allclose(
         inverse_transform, np.array((0.8863824, 0.96947866, 1.0517347)), rtol=1e-5
@@ -1079,7 +1151,7 @@ def test_RandomVariable_inverse_transform():
         'test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, 1.20)
     )
     rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
     assert np.allclose(
         inverse_transform, np.array((0.84155378, 0.88203946, 0.92176503)), rtol=1e-5
@@ -1113,6 +1185,24 @@ def test_RandomVariable_inverse_transform():
         inverse_transform, np.array((1.00, 2.00, 3.00, 4.00, 1.00, 2.00)), rtol=1e-5
     )
 
+    # multilinear CDF
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.20, 0.20, 0.80, 1.00)
+    values = np.column_stack((x_values, y_values))
+    rv = uq.RandomVariable('test_rv', 'multilinear_CDF', theta=values)
+
+    rv.uni_sample = np.array(
+        (0.00, 0.1, 0.2 - 1e-8, 0.2 + 1e-8, 0.5, 0.8, 0.9, 1.00)
+    )
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform,
+        np.array((0.00, 0.50, 1.00, 2.00, 2.50, 3.00, 3.50, 4.00)),
+        rtol=1e-5,
+    )
+
     #
     # edge cases
     #
@@ -1123,17 +1213,17 @@ def test_RandomVariable_inverse_transform():
     )
     rv.uni_sample = samples
     with pytest.raises(ValueError):
-        rv.inverse_transform_sampling(len(samples))
+        rv.inverse_transform_sampling()
 
     # lognormal without values to sample from
     rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
     with pytest.raises(ValueError):
-        rv.inverse_transform_sampling(len(samples))
+        rv.inverse_transform_sampling()
 
     # uniform without values to sample from
     rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.0, 1.0))
     with pytest.raises(ValueError):
-        rv.inverse_transform_sampling(len(samples))
+        rv.inverse_transform_sampling()
 
     # empirical, coupled_empirical without values to sample from
     for distr in ('empirical', 'coupled_empirical'):

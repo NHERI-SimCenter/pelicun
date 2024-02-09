@@ -63,6 +63,7 @@ from scipy.stats import multivariate_normal as mvn
 from scipy.stats._mvn import mvndst  # pylint: disable=no-name-in-module
 from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
+from scipy.interpolate import interp1d
 import numpy as np
 import pandas as pd
 
@@ -1012,13 +1013,16 @@ class RandomVariable:
     ----------
     name: string
         A unique string that identifies the random variable.
-    distribution: {'normal', 'lognormal', 'multinomial', 'custom', 'empirical',
-        'coupled_empirical', 'uniform', 'deterministic'}, optional
-        Defines the type of probability distribution for the random variable.
+    distribution: {'normal', 'lognormal', 'multinomial', 'custom',
+        'empirical', 'coupled_empirical', 'uniform', 'deterministic',
+        'multilinear_CDF'}, optional
+        Defines the type of probability distribution for the random
+        variable.
     theta: float scalar or ndarray, optional
-        Set of parameters that define the cumulative distribution function of
-        the variable given its distribution type. The following parameters are
-        expected currently for the supported distribution types:
+        Set of parameters that define the Cumulative Distribution
+        Function (CDF) of the variable given its distribution
+        type. The following parameters are expected currently for the
+        supported distribution types:
         normal - mean, standard deviation;
         lognormal - median, log standard deviation;
         uniform - a, b, the lower and upper bounds of the distribution;
@@ -1028,11 +1032,17 @@ class RandomVariable:
         custom - according to the custom expression provided;
         empirical and coupled_empirical - N/A;
         deterministic - the deterministic value assigned to the variable.
+        multilinear_CDF - a Nx2 numpy array defining the
+        vertices of a multilinear CDF curve in the form ((X_0, 0.00),
+        (X_1, Y_1), ..., (X_n, 1.00)). The first Y value has to be
+        0.00 and the last 1.00 for a valid CDF, and the X_i's as well
+        as the Y_i's should be in increasing order, otherwise an error
+        is raised.
     truncation_limits: float ndarray, optional
         Defines the np.array((a, b)) truncation limits for the
         distribution. Use np.nan to assign no limit in one direction,
         like so: np.array((a, np.nan)), or np.array((np.nan, b)).
-    bounded: float ndarray, optional
+    bounds: float ndarray, optional
         Defines the [P_a, P_b] probability bounds for the distribution. Use None
         to assign no lower or upper bound.
     custom_expr: string, optional
@@ -1073,8 +1083,9 @@ class RandomVariable:
         if pd.isna(distribution):
             distribution = 'deterministic'
 
-        if ((distribution not in ['empirical', 'coupled_empirical']) and (
-                np.all(np.isnan(theta)))):
+        if (
+            distribution not in ['empirical', 'coupled_empirical']
+        ) and (np.all(np.isnan(theta))):
 
             raise ValueError(
                 f"A random variable that follows a {distribution} distribution "
@@ -1089,6 +1100,45 @@ class RandomVariable:
                     f"distribution shall sum up to less than or equal to 1.0. "
                     f"The provided values sum up to {np.sum(theta)}. p = "
                     f"{theta} ."
+                )
+
+        if distribution == 'multilinear_CDF':
+            y_1 = theta[0, 1]
+            if y_1 != 0.00:
+                raise ValueError(
+                    "For multilinear CDF random variables, "
+                    "y_1 should be set to 0.00"
+                )
+            y_n = theta[-1, 1]
+            if y_n != 1.00:
+                raise ValueError(
+                    "For multilinear CDF random variables, "
+                    "y_n should be set to 1.00"
+                )
+
+            x_s = theta[:, 0]
+            if not np.array_equal(np.sort(x_s), x_s):
+                raise ValueError(
+                    "For multilinear CDF random variables, "
+                    "Xs should be specified in ascending order"
+                )
+            if np.any(np.isclose(np.diff(x_s), 0.00)):
+                raise ValueError(
+                    "For multilinear CDF random variables, "
+                    "Xs should be specified in strictly ascending order"
+                )
+
+            y_s = theta[:, 1]
+            if not np.array_equal(np.sort(y_s), y_s):
+                raise ValueError(
+                    "For multilinear CDF random variables, "
+                    "Ys should be specified in ascending order"
+                )
+
+            if np.any(~np.isnan(truncation_limits)):
+                raise ValueError(
+                    "Truncation limits not supported "
+                    "for multilinear CDF random variables."
                 )
 
         # save the other parameters internally
@@ -1302,6 +1352,15 @@ class RandomVariable:
 
             result = uniform.cdf(values, loc=a, scale=(b - a))
 
+        elif self.distribution == 'multilinear_CDF':
+
+            x_i = [-np.inf] + [x[0] for x in self.theta] + [np.inf]
+            y_i = [0.00] + [x[1] for x in self.theta] + [1.00]
+
+            ifun = interp1d(x_i, y_i, kind='linear')
+
+            result = ifun(values)
+
         return result
 
     def inverse_transform(self, values=None, sample_size=None):
@@ -1458,6 +1517,32 @@ class RandomVariable:
             samples[samples <= 1.0] = 10 + len(p_cum)
 
             result = samples - 10
+
+        elif self.distribution == 'multilinear_CDF':
+
+            x_i = [x[0] for x in self.theta]
+            y_i = [x[1] for x in self.theta]
+
+            # handle regions with zero slope. Inverse is undefined
+            # there. A simple approach to overcome this is to modify
+            # them so that they have a very small slope.
+
+            zero_slope_locs = list(
+                np.argwhere(np.isclose(np.diff(y_i), 0.00)).reshape(1)
+            )
+            for loc in zero_slope_locs:
+                print(loc)
+                y_i[loc] -= 1e-8
+                y_i[loc + 1] += 1e-8
+
+            # define the inverse CDF
+            ifun = interp1d(y_i, x_i, kind='linear')
+            # note: by definition, y_i /has/ to include the values
+            # 0.00 and 1.00, and `values` have to be in the range
+            # [0.00, 1.00], so there is no need to handle edge cases
+            # here (i.e., extrapolate).
+
+            result = ifun(values)
 
         return result
 
