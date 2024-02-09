@@ -27,7 +27,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     #packages=['pelicun'],
-    packages = find_packages(),
+    packages=find_packages(),
     include_package_data=True,
     platforms='any',
     install_requires=[
@@ -56,5 +56,10 @@ setup(
         ],
     extras_require={
         'testing': ['pytest'],
+    },
+    entry_points={
+        'console_scripts': [
+            'pelicun = pelicun.tools.DL_calculation:main',
+        ]
     }
 )

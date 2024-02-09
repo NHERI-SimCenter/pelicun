@@ -49,6 +49,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import pelicun
 from pelicun.auto import auto_populate
 from pelicun.base import str2bool
 from pelicun.base import convert_to_MultiIndex
@@ -78,8 +79,6 @@ def log_msg(msg):
 
     print(formatted_msg)
 
-
-log_msg('First line of DL_calculation')
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
@@ -338,6 +337,8 @@ def run_pelicun(
         If False, only the main statistics are saved.
 
     """
+
+    log_msg('First line of DL_calculation')
 
     # Initial setup -----------------------------------------------------------
 
@@ -1756,7 +1757,8 @@ def run_pelicun(
     return 0
 
 
-def main(args):
+def main(args=None):
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--filenameDL')
     parser.add_argument('-d', '--demandFile', default=None)
@@ -1788,6 +1790,14 @@ def main(args):
     # parser.add_argument('--outputEDP', default='EDP.csv')
     # parser.add_argument('--outputDM', default='DM.csv')
     # parser.add_argument('--outputDV', default='DV.csv')
+
+    if args is None:
+        print(f'Welcome. This is pelicun version {pelicun.__version__}')
+        print('To access the documentation visit https://nheri-simcenter.github.io/pelicun/index.html')
+        print()
+        parser.print_help()
+        return
+
     args = parser.parse_args(args)
 
     log_msg('Initializing pelicun calculation...')
