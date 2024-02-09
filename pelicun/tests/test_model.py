@@ -560,7 +560,6 @@ def test_DamageModel_init():
     assert mdl.log_div
 
     assert mdl.damage_params is None
-    assert mdl._dmg_function_scale_factors is None
     assert mdl._sample is None
     assert mdl.sample is None
 
@@ -1132,7 +1131,6 @@ def test_DamageModel_calculate():
         ),
     )
     asmt.damage.calculate(dmg_process=dmg_process)
-    assert asmt.damage._dmg_function_scale_factors is None
 
     # note: Due to inherent randomness, we can't assert the actual
     # values of this result

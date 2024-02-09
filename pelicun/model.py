@@ -1366,7 +1366,6 @@ class DamageModel(PelicunModel):
         super().__init__(assessment)
 
         self.damage_params = None
-        self._dmg_function_scale_factors = None
         self._sample = None
 
     @property
@@ -1436,9 +1435,6 @@ class DamageModel(PelicunModel):
         """
         Load limit state damage model parameters and damage state assignments
 
-        A damage model can be a single damage function or a set of fragility
-        functions.
-
         Parameters
         ----------
         data_paths: list of string
@@ -1505,29 +1501,6 @@ class DamageModel(PelicunModel):
                     damage_params[('Demand', 'Unit')]
                 ).values
 
-                # For damage functions, save the scale factor for later use
-                # Make sure only one scale factor is saved per component
-                if LS_i == 'LS1':
-
-                    function_ids = damage_params.loc[
-                        damage_params[(LS_i, 'Family')] == 'function'].index
-
-                    if len(function_ids) > 0:
-                        f_df = pd.DataFrame(
-                            columns=['scale_factor', ],
-                            index=function_ids
-                        )
-                        f_df['scale_factor'] = [
-                            self._asmnt.calc_unit_scale_factor(unit_name)
-                            for unit_name
-                            in damage_params.loc[function_ids,
-                                                 ('Demand', 'Unit')]]
-
-                        self._dmg_function_scale_factors = f_df
-
-                    else:
-                        self._dmg_function_scale_factors = None
-
         # check for components with incomplete damage model information
         cmp_incomplete_list = damage_params.loc[
             damage_params[('Incomplete', '')] == 1].index
@@ -1556,15 +1529,11 @@ class DamageModel(PelicunModel):
         component sample and blocks and checks if the limit state is
         defined for the component. If the limit state is defined, the
         method gets the list of limit states and the parameters for
-        each limit state. If the family of the limit state parameters
-        is "function", the method generates samples of yes/no damage
-        and adds limit-state-to-damage-state (LSDS) assignments to the
-        lsds_RV_reg registry. If the family is not "function", the
-        method assigns correlation between limit state random
-        variables, adds the limit state random variables to the
-        capacity_RV_reg registry, and adds LSDS assignments to the
-        lsds_RV_reg registry. After looping through all performance
-        groups, the method returns the two registries.
+        each limit state. The method assigns correlation between limit
+        state random variables, adds the limit state random variables
+        to the capacity_RV_reg registry, and adds LSDS assignments to
+        the lsds_RV_reg registry. After looping through all
+        performance groups, the method returns the two registries.
 
         """
 
@@ -1580,43 +1549,44 @@ class DamageModel(PelicunModel):
 
                 ds_id += 1
 
-                lsds_RV_reg.add_RV(uq.RandomVariable(
-                    name=lsds_rv_tag,
-                    distribution='deterministic',
-                    theta=ds_id,
-                ))
+                lsds_RV_reg.add_RV(
+                    uq.RandomVariable(
+                        name=lsds_rv_tag,
+                        distribution='deterministic',
+                        theta=ds_id,
+                    )
+                )
 
             # Otherwise, we create a multinomial random variable
             else:
 
                 # parse the DS weights
                 ds_weights = np.array(
-                    ds_weights.replace(" ", "").split('|'),
-                    dtype=float)
+                    ds_weights.replace(" ", "").split('|'), dtype=float
+                )
 
                 def map_ds(values, offset=int(ds_id + 1)):
                     return values + offset
 
-                lsds_RV_reg.add_RV(uq.RandomVariable(
-                    name=lsds_rv_tag,
-                    distribution='multinomial',
-                    theta=ds_weights,
-                    f_map=map_ds
-                ))
+                lsds_RV_reg.add_RV(
+                    uq.RandomVariable(
+                        name=lsds_rv_tag,
+                        distribution='multinomial',
+                        theta=ds_weights,
+                        f_map=map_ds,
+                    )
+                )
 
                 ds_id += len(ds_weights)
 
             return ds_id
 
         if self._asmnt.log.verbose:
-            self.log_msg('Generating capacity variables ...',
-                         prepend_timestamp=True)
+            self.log_msg('Generating capacity variables ...', prepend_timestamp=True)
 
         # initialize the registry
         capacity_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
         lsds_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
-
-        rv_count = 0
 
         # get the component sample and blocks from the asset model
         for PG in PGB.index:
@@ -1624,23 +1594,13 @@ class DamageModel(PelicunModel):
             cmp_id = PG[0]
             cmp_sample = self._asmnt.asset.cmp_sample.loc[:, PG]
             blocks = PGB.loc[PG, 'Blocks']
-            # try:
-            #    blocks = self._asmnt.asset.cmp_marginal_params.loc[
-            #        PG.index,'Blocks']
-            # except:
-            #    blocks = 1
 
             # if the number of blocks is provided, calculate the weights
             if np.atleast_1d(blocks).shape[0] == 1:
-                blocks = np.full(int(blocks), 1. / blocks)
+                blocks = np.full(int(blocks), 1.0 / blocks)
             # otherwise, assume that the list contains the weights
 
             # initialize the damaged quantity sample variable
-            # if there are damage functions used, we need more than a simple pointer
-            if self._dmg_function_scale_factors is not None:
-                qnt_sample = cmp_sample.copy()
-                qnt_list = [qnt_sample, ]
-                self.qnt_units = self._asmnt.asset.cmp_units.copy()
 
             assert self.damage_params is not None
             if cmp_id in self.damage_params.index:
@@ -1653,8 +1613,6 @@ class DamageModel(PelicunModel):
                 for val in frg_params.index.get_level_values(0).unique():
                     if 'LS' in val:
                         limit_states.append(val[2:])
-
-                ls_count = len(limit_states)
 
                 ds_id = 0
 
@@ -1670,160 +1628,85 @@ class DamageModel(PelicunModel):
                     ds_weights = frg_params_LS.get('DamageStateWeights', np.nan)
 
                     # check if the limit state is defined for the component
-                    if not pd.isna(theta_0):
+                    if pd.isna(theta_0):
+                        continue
 
-                        # Start with the limit state capacities...
+                    theta = [
+                        frg_params_LS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
+                    ]
+                    tr_lims = [
+                        frg_params_LS.get(f"Truncate{side}", np.nan)
+                        for side in ("Lower", "Upper")
+                    ]
 
-                        # If the family is 'function', we are not using a limit
-                        # damage functions to determine the damaged quantities
-                        # in each damage state. Damage is triggered every time
-                        # for every component block in every limit state. This
-                        # has a couple of consequences for the calculation:
-                        # * One component block can yield multiple damage blocks
-                        # This is handled by replacing each component block with
-                        # a LS_count number of blocks.
-                        # * The capacity of each damage block needs to be -inf
-                        # up to a corresponding limit state and infinite in all
-                        # higher ones so that damage can be triggered every time
-                        # in a particular limit state in that block.
-                        # Note that rather than assigning inf to these capacities
-                        # we assign the nearest number that can be represented
-                        # using a float
+                    for block_i, _ in enumerate(blocks):
 
-                        if family == 'function':
+                        frg_rv_tag = (
+                            'FRG-'
+                            f'{PG[0]}-'  # cmp_id
+                            f'{PG[1]}-'  # loc
+                            f'{PG[2]}-'  # dir
+                            f'{PG[3]}-'  # uid
+                            f'{block_i+1}-'  # block
+                            f'{ls_id}'
+                        )
 
-                            for block_i, _ in enumerate(blocks):
-
-                                qnt_columns = []
-
-                                for ls_i in range(ls_count):
-
-                                    block_id = int(block_i) * ls_count + ls_i + 1
-
-                                    frg_rv_tag = (
-                                        'FRG-'
-                                        f'{PG[0]}-'     # cmp_id
-                                        f'{PG[1]}-'     # loc
-                                        f'{PG[2]}-'     # dir
-                                        f'{PG[3]}-'     # uid
-                                        f'{block_id}-'  # block
-                                        f'{ls_id}')
-
-                                    # generate samples of almost surely yes/no damage
-                                    if int(ls_id) <= ls_i + 1:
-                                        target_value = np.nextafter(-np.inf, 1)
-                                    else:
-                                        target_value = np.nextafter(np.inf, -1)
-
-                                    capacity_RV_reg.add_RV(uq.RandomVariable(
-                                        name=frg_rv_tag,
-                                        distribution='deterministic',
-                                        theta=target_value
-                                    ))
-
-                                    # Now add the LS->DS assignments
-                                    lsds_rv_tag = (
-                                        'LSDS-'
-                                        f'{PG[0]}-'          # cmp_id
-                                        f'{PG[1]}-'          # loc
-                                        f'{PG[2]}-'          # dir
-                                        f'{PG[3]}-'          # uid
-                                        f'{str(block_id)}-'  # block
-                                        f'{ls_id}')
-
-                                    ds_id_post = assign_lsds(
-                                        ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
-
-                                    rv_count += 1
-
-                                    if ls_id == '1':
-                                        qnt_columns.append(
-                                            f'{PG[0]}-{PG[1]}-{PG[2]}-{PG[3]}-{block_id}')
-
-                                ds_id = ds_id_post
-
-                                if ls_id == '1':
-                                    qnt_i = pd.DataFrame(columns=qnt_columns,
-                                                         index=qnt_sample.index)
-                                    qnt_i = qnt_i.apply(
-                                        lambda x: qnt_sample.loc[:, PG].values,
-                                        axis=0, result_type='broadcast')
-                                    qnt_list.append(qnt_i)
-                                    qnt_sample.drop(PG, axis=1, inplace=True)
-
-                        # Otherwise, we are dealing with fragility functions
+                        # Assign correlation between limit state random
+                        # variables
+                        # Note that we assume perfectly correlated limit
+                        # state random variables here. This approach is in
+                        # line with how mainstream PBE calculations are
+                        # performed. Assigning more sophisticated
+                        # correlations between limit state RVs is possible,
+                        # if needed. Please let us know through the
+                        # SimCenter Message Board if you are interested in
+                        # such a feature.
+                        # Anchor all other limit state random variables to
+                        # the first one to consider the perfect correlation
+                        # between capacities in each LS
+                        if ls_id == limit_states[0]:
+                            anchor = None
                         else:
+                            anchor = anchor_RVs[block_i]
 
-                            theta = [frg_params_LS.get(f"Theta_{t_i}", np.nan)
-                                     for t_i in range(3)]
-                            tr_lims = [
-                                frg_params_LS.get(f"Truncate{side}", np.nan)
-                                for side in ("Lower", "Upper")]
+                        RV = uq.RandomVariable(
+                            name=frg_rv_tag,
+                            distribution=family,
+                            theta=theta,
+                            truncation_limits=tr_lims,
+                            anchor=anchor,
+                        )
 
-                            for block_i, _ in enumerate(blocks):
+                        capacity_RV_reg.add_RV(RV)
 
-                                frg_rv_tag = (
-                                    'FRG-'
-                                    f'{PG[0]}-'      # cmp_id
-                                    f'{PG[1]}-'      # loc
-                                    f'{PG[2]}-'      # dir
-                                    f'{PG[3]}-'      # uid
-                                    f'{block_i+1}-'  # block
-                                    f'{ls_id}')
+                        # add the RV to the set of correlated variables
+                        frg_rv_set_tags[block_i].append(frg_rv_tag)
 
-                                # Assign correlation between limit state random
-                                # variables
-                                # Note that we assume perfectly correlated limit
-                                # state random variables here. This approach is in
-                                # line with how mainstream PBE calculations are
-                                # performed. Assigning more sophisticated
-                                # correlations between limit state RVs is possible,
-                                # if needed. Please let us know through the
-                                # SimCenter Message Board if you are interested in
-                                # such a feature.
-                                # Anchor all other limit state random variables to
-                                # the first one to consider the perfect correlation
-                                # between capacities in each LS
-                                if ls_id == limit_states[0]:
-                                    anchor = None
-                                else:
-                                    anchor = anchor_RVs[block_i]
+                        if ls_id == limit_states[0]:
+                            anchor_RVs.append(RV)
 
-                                RV = uq.RandomVariable(
-                                    name=frg_rv_tag,
-                                    distribution=family,
-                                    theta=theta,
-                                    truncation_limits=tr_lims,
-                                    anchor=anchor)
+                        # Now add the LS->DS assignments
+                        lsds_rv_tag = (
+                            'LSDS-'
+                            f'{PG[0]}-'  # cmp_id
+                            f'{PG[1]}-'  # loc
+                            f'{PG[2]}-'  # dir
+                            f'{PG[3]}-'  # uid
+                            f'{block_i+1}-'  # block
+                            f'{ls_id}'
+                        )
 
-                                capacity_RV_reg.add_RV(RV)
+                        ds_id_next = assign_lsds(
+                            ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag
+                        )
 
-                                # add the RV to the set of correlated variables
-                                frg_rv_set_tags[block_i].append(frg_rv_tag)
-
-                                if ls_id == limit_states[0]:
-                                    anchor_RVs.append(RV)
-
-                                # Now add the LS->DS assignments
-                                lsds_rv_tag = (
-                                    'LSDS-'
-                                    f'{PG[0]}-'      # cmp_id
-                                    f'{PG[1]}-'      # loc
-                                    f'{PG[2]}-'      # dir
-                                    f'{PG[3]}-'      # uid
-                                    f'{block_i+1}-'  # block
-                                    f'{ls_id}')
-
-                                ds_id_next = assign_lsds(
-                                    ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
-
-                                rv_count += 1
-
-                            ds_id = ds_id_next
+                    ds_id = ds_id_next
 
         if self._asmnt.log.verbose:
-            self.log_msg(f"2x{rv_count} random variables created.",
-                         prepend_timestamp=False)
+            rv_count = len(lsds_RV_reg.RV)
+            self.log_msg(
+                f"2x{rv_count} random variables created.", prepend_timestamp=False
+            )
 
         return capacity_RV_reg, lsds_RV_reg
 
@@ -2543,100 +2426,6 @@ class DamageModel(PelicunModel):
             self.log_msg('Damage process task successfully applied.',
                          prepend_timestamp=False)
 
-    def _apply_damage_functions(self, CMP_to_EDP, demands, qnt_sample):
-        """
-        Use prescribed damage functions to modify damaged quantities
-
-        """
-
-        def parse_f_elem(elem):
-
-            if elem == 'D':
-                return elem
-            # else:
-            return str(float(elem.strip('()')))
-
-        def parse_f_signature(f_signature):
-
-            elems = [
-                [[parse_f_elem(exp_elem)
-                  for exp_elem in multi_elem.split('^')]
-                 for multi_elem in add_elem.split('*')]
-                for add_elem in f_signature.split('+')]
-
-            add_list = []
-            for add_elem in elems:
-
-                multi_list = []
-                for exp_list in add_elem:
-                    multi_list.append("**".join(exp_list))
-
-                add_list.append("*".join(multi_list))
-
-            f_str = "+".join(add_list)
-
-            return f_str
-
-        self.log_msg('Applying damage functions...',
-                     prepend_timestamp=False)
-
-        demands = base.convert_to_SimpleIndex(demands, axis=1)
-
-        # for each component with a damage function
-        for cmp_id in self._dmg_function_scale_factors.index:
-
-            loc_dir_list = qnt_sample.groupby(
-                level=[0, 1, 2], axis=1).first()[cmp_id].columns
-
-            # Load the corresponding EDPs and scale them to match to the inputs
-            # expected by the damage function
-            dem_i = (demands[CMP_to_EDP[cmp_id].loc[loc_dir_list]].values /
-                     self._dmg_function_scale_factors.loc[cmp_id, 'scale_factor'])
-
-            # Get the units and scale factor for quantity conversion
-            cmp_qnt_unit_name = self.damage_params.loc[
-                cmp_id, ('Component', 'Unit')]
-            cmp_qnt_scale_factor = (
-                self._asmnt.calc_unit_scale_factor(cmp_qnt_unit_name))
-
-            dmg_qnt_unit_name = self.damage_params.loc[
-                cmp_id, ('Damage', 'Unit')]
-            dmg_qnt_scale_factor = (
-                self._asmnt.calc_unit_scale_factor(dmg_qnt_unit_name))
-
-            qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
-
-            # for each limit state
-            for ls_i in qnt_sample[
-                    cmp_id].columns.get_level_values(2).unique().values:
-
-                # create the damage function
-                f_signature = parse_f_signature(
-                    self.damage_params.loc[cmp_id, (f'LS{ls_i}', 'Theta_0')])
-
-                f_signature = f_signature.replace("D", "dem_i")
-
-                # apply the damage function to get the damage rate
-                dmg_rate = eval(f_signature)
-
-                # load the damaged quantities
-                qnt_i = qnt_sample.loc[:, idx[cmp_id, :, :, ls_i]].values
-
-                # convert the units to match the inputs expected by the damage
-                # function
-                qnt_i = qnt_i * qnt_scale_factor
-
-                # update the damaged quantities
-                qnt_sample.loc[:, idx[cmp_id, :, :, ls_i]] = qnt_i * dmg_rate
-
-            # update the damage quantity units
-            self.qnt_units.loc[cmp_id] = dmg_qnt_unit_name
-
-        self.log_msg('Damage functions successfully applied.',
-                     prepend_timestamp=False)
-
-        return qnt_sample
-
     def _get_pg_batches(self, block_batch_size):
         """
         Group performance groups into batches for efficient damage assessment.
@@ -2921,19 +2710,6 @@ class DamageModel(PelicunModel):
                 self._perform_dmg_task(task, qnt_sample)
 
             self.log_msg("Damage processes successfully applied.",
-                         prepend_timestamp=False)
-
-        # Apply damage functions, if any
-        # The scale factors are a good proxy to show that damage functions are
-        # used in the analysis
-        if self._dmg_function_scale_factors is not None:
-
-            self.log_msg("Applying damage functions...")
-
-            qnt_sample = self._apply_damage_functions(
-                EDP_req, demand, qnt_sample)
-
-            self.log_msg("Damage functions successfully applied.",
                          prepend_timestamp=False)
 
         # If requested, remove columns with no damage from the sample
