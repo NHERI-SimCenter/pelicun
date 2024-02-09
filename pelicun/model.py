@@ -770,10 +770,13 @@ class DemandModel(PelicunModel):
 
         # save the correlation and empirical data
         file_io.save_to_csv(self.correlation, file_prefix + '_correlation.csv')
-        file_io.save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
-                    units=self.units,
-                    unit_conversion_factors=self._asmnt.unit_conversion_factors,
-                    log=self._asmnt.log)
+        file_io.save_to_csv(
+            self.empirical_data,
+            file_prefix + '_empirical.csv',
+            units=self.units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            log=self._asmnt.log,
+        )
 
         # the log standard deviations in the marginal parameters need to be
         # scaled up before feeding to the saving method where they will be
@@ -792,11 +795,14 @@ class DemandModel(PelicunModel):
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
-        file_io.save_to_csv(marginal_params, file_prefix + '_marginals.csv',
-                    units=self.units,
-                    unit_conversion_factors=self._asmnt.unit_conversion_factors,
-                    orientation=1,
-                    log=self._asmnt.log)
+        file_io.save_to_csv(
+            marginal_params,
+            file_prefix + '_marginals.csv',
+            units=self.units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            orientation=1,
+            log=self._asmnt.log,
+        )
 
         self.log_msg('Demand model successfully saved.', prepend_timestamp=False)
 
