@@ -73,6 +73,124 @@ def pelicun_model(assessment_instance):
     return model.PelicunModel(assessment_instance)
 
 
+@pytest.fixture
+def demand_model(assessment_instance):
+    return assessment_instance.demand
+
+
+@pytest.fixture
+def demand_model_with_sample(assessment_instance):
+    mdl = assessment_instance.demand
+    mdl.load_sample(
+        'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
+    )
+    return mdl
+
+
+@pytest.fixture
+def demand_model_with_sample_B(assessment_instance):
+    mdl = assessment_instance.demand
+    mdl.load_sample(
+        'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_B.csv'
+    )
+    return mdl
+
+
+@pytest.fixture
+def calibrated_demand_model(demand_model_with_sample):
+    config = {
+        "ALL": {
+            "DistributionFamily": "normal",
+            "AddUncertainty": 0.00,
+        },
+        "PID": {
+            "DistributionFamily": "lognormal",
+            "TruncateLower": "",
+            "TruncateUpper": "0.06",
+        },
+    }
+    demand_model_with_sample.calibrate_model(config)
+    return demand_model_with_sample
+
+
+@pytest.fixture
+def asset_model(assessment_instance):
+    return assessment_instance.asset
+
+
+@pytest.fixture
+def damage_model(assessment_instance):
+    return assessment_instance.damage
+
+
+@pytest.fixture
+def loss_model(assessment_instance):
+    return model.LossModel(assessment_instance)
+
+
+@pytest.fixture
+def bldg_repair_model(assessment_instance):
+    return assessment_instance.bldg_repair
+
+
+@pytest.fixture
+def cmp_sample_A():
+    # This sample contains 8 units of B.10.31.001 assigned to
+    # locations 1, 2 and directions 1, 2
+    return pd.DataFrame(
+        {
+            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
+            for i in range(1, 3)
+            for j in range(1, 3)
+        },
+        index=range(10),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ('B.10.31.001', f'{i}', f'{j}', '0')
+                for i in range(1, 3)
+                for j in range(1, 3)
+            ),
+            names=('cmp', 'loc', 'dir', 'uid'),
+        ),
+    )
+
+
+@pytest.fixture
+def calibration_config_A():
+    return {
+        "ALL": {"DistributionFamily": "lognormal"},
+        "PID": {
+            "DistributionFamily": "lognormal",
+            "TruncateLower": "",
+            "TruncateUpper": "0.06",
+        },
+    }
+
+
+@pytest.fixture
+def loss_params_A():
+    return pd.DataFrame(
+        (
+            ("normal", None, "25704,17136|5,20", 0.390923, "USD_2011", 0.0, "1 EA"),
+            ("normal", 0.0, "22.68,15.12|5,20", 0.464027, "worker_day", 0.0, "1 EA"),
+        ),
+        index=pd.MultiIndex.from_tuples(
+            (("some.test.component", "Cost"), ("some.test.component", "Time"))
+        ),
+        columns=pd.MultiIndex.from_tuples(
+            (
+                ("DS1", "Family"),
+                ("DS1", "LongLeadTime"),
+                ("DS1", "Theta_0"),
+                ("DS1", "Theta_1"),
+                ("DV", "Unit"),
+                ("Incomplete", ""),
+                ("Quantity", "Unit"),
+            )
+        ),
+    )
+
+
 def test_PelicunModel_init(pelicun_model):
     assert pelicun_model.log_msg
     assert pelicun_model.log_div
@@ -183,11 +301,6 @@ def test_PelicunModel_convert_marginal_params(pelicun_model):
     pd.testing.assert_frame_equal(expected_df, res)
 
 
-@pytest.fixture
-def demand_model(assessment_instance):
-    return assessment_instance.demand
-
-
 def test_DemandModel_init(demand_model):
     assert demand_model.log_msg
     assert demand_model.log_div
@@ -198,24 +311,6 @@ def test_DemandModel_init(demand_model):
     assert demand_model.units is None
     assert demand_model._RVs is None
     assert demand_model._sample is None
-
-
-@pytest.fixture
-def demand_model_with_sample(assessment_instance):
-    mdl = assessment_instance.demand
-    mdl.load_sample(
-        'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
-    )
-    return mdl
-
-
-@pytest.fixture
-def demand_model_with_sample_B(assessment_instance):
-    mdl = assessment_instance.demand
-    mdl.load_sample(
-        'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_B.csv'
-    )
-    return mdl
 
 
 def test_DemandModel_save_sample(demand_model_with_sample):
@@ -302,23 +397,6 @@ def test_DemandModel_estimate_RID(demand_model_with_sample):
     )
 
 
-@pytest.fixture
-def calibrated_demand_model(demand_model_with_sample):
-    config = {
-        "ALL": {
-            "DistributionFamily": "normal",
-            "AddUncertainty": 0.00,
-        },
-        "PID": {
-            "DistributionFamily": "lognormal",
-            "TruncateLower": "",
-            "TruncateUpper": "0.06",
-        },
-    }
-    demand_model_with_sample.calibrate_model(config)
-    return demand_model_with_sample
-
-
 def test_DemandModel_calibrate_model():
     assert calibrated_demand_model is not None
 
@@ -383,11 +461,6 @@ def test_DemandModel_generate_sample(calibrated_demand_model):
         name='Units',
     )
     pd.testing.assert_series_equal(expected_units, obtained_units)
-
-
-@pytest.fixture
-def asset_model(assessment_instance):
-    return assessment_instance.asset
 
 
 def test_AssetModel_init(asset_model):
@@ -516,11 +589,6 @@ def test_AssetModel_generate_cmp_sample_exceptions(asset_model):
         asset_model.generate_cmp_sample()
 
 
-@pytest.fixture
-def damage_model(assessment_instance):
-    return assessment_instance.damage
-
-
 def test_DamageModel_init(damage_model):
     assert damage_model.log_msg
     assert damage_model.log_div
@@ -530,33 +598,12 @@ def test_DamageModel_init(damage_model):
     assert damage_model.sample is None
 
 
-def cmp_sample_A():
-    # This sample contains 8 units of B.10.31.001 assigned to
-    # locations 1, 2 and directions 1, 2
-    return pd.DataFrame(
-        {
-            ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-            for i in range(1, 3)
-            for j in range(1, 3)
-        },
-        index=range(10),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ('B.10.31.001', f'{i}', f'{j}', '0')
-                for i in range(1, 3)
-                for j in range(1, 3)
-            ),
-            names=('cmp', 'loc', 'dir', 'uid'),
-        ),
-    )
-
-
-def test_DamageModel_load_damage_model(damage_model):
+def test_DamageModel_load_damage_model(damage_model, cmp_sample_A):
     asmt = damage_model._asmnt
 
     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asmt.asset._cmp_sample = cmp_sample_A()
+    asmt.asset._cmp_sample = cmp_sample_A
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
@@ -628,13 +675,13 @@ def test_DamageModel_load_damage_model(damage_model):
             continue
 
 
-def test_DamageModel__create_dmg_RVs(assessment_instance):
+def test_DamageModel__create_dmg_RVs(assessment_instance, cmp_sample_A):
     damage_model = assessment_instance.damage
     asset_model = assessment_instance.asset
 
     assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = cmp_sample_A()
+    asset_model._cmp_sample = cmp_sample_A
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -669,13 +716,13 @@ def test_DamageModel__create_dmg_RVs(assessment_instance):
     assert lsds_RV_reg._sets == {}
 
 
-def test_DamageModel__generate_dmg_sample(assessment_instance):
+def test_DamageModel__generate_dmg_sample(assessment_instance, cmp_sample_A):
     damage_model = assessment_instance.damage
     asset_model = assessment_instance.asset
 
     assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = cmp_sample_A()
+    asset_model._cmp_sample = cmp_sample_A
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
     batches = pg_batch.index.get_level_values(0).unique()
@@ -711,13 +758,13 @@ def test_DamageModel__generate_dmg_sample(assessment_instance):
     assert lsds_sample.to_numpy().dtype == np.dtype('int64')
 
 
-def test_DamageModel__get_required_demand_type(assessment_instance):
+def test_DamageModel__get_required_demand_type(assessment_instance, cmp_sample_A):
     damage_model = assessment_instance.damage
     asset_model = assessment_instance.asset
 
     assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = cmp_sample_A()
+    asset_model._cmp_sample = cmp_sample_A
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
@@ -730,32 +777,23 @@ def test_DamageModel__get_required_demand_type(assessment_instance):
     assert EDP_req == {'PID-2-2': [('B.10.31.001', '2', '2', '0')]}
 
 
-def calibration_config_A():
-    return {
-        "ALL": {"DistributionFamily": "lognormal"},
-        "PID": {
-            "DistributionFamily": "lognormal",
-            "TruncateLower": "",
-            "TruncateUpper": "0.06",
-        },
-    }
-
-
-def test_DamageModel__assemble_required_demand_data(assessment_instance):
+def test_DamageModel__assemble_required_demand_data(
+    assessment_instance, cmp_sample_A, calibration_config_A
+):
     demand_model = assessment_instance.demand
     demand_model.load_sample(
         'pelicun/tests/data/model/'
         'test_DamageModel_assemble_required_demand_data/'
         'demand_sample.csv'
     )
-    demand_model.calibrate_model(calibration_config_A())
+    demand_model.calibrate_model(calibration_config_A)
 
     damage_model = assessment_instance.damage
     asset_model = assessment_instance.asset
 
     assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = cmp_sample_A()
+    asset_model._cmp_sample = cmp_sample_A
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
@@ -776,7 +814,7 @@ def test_DamageModel__assemble_required_demand_data(assessment_instance):
 
 
 def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities(
-    assessment_instance,
+    assessment_instance, cmp_sample_A, calibration_config_A
 ):
     damage_model = assessment_instance.damage
     demand_model = assessment_instance.demand
@@ -789,11 +827,11 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities(
     )
 
     # calibrate the model
-    demand_model.calibrate_model(calibration_config_A())
+    demand_model.calibrate_model(calibration_config_A)
 
     assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = cmp_sample_A()
+    asset_model._cmp_sample = cmp_sample_A
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
     pg_batch = damage_model._get_pg_batches(block_batch_size=1)
@@ -893,7 +931,7 @@ def test_DamageModel__perform_dmg_task(assessment_instance):
     assert ('CMP.A', '1', '1', '0', '1') in after.columns
 
 
-def test_DamageModel__get_pg_batches(assessment_instance):
+def test_DamageModel__get_pg_batches(assessment_instance, cmp_sample_A):
     damage_model = assessment_instance.damage
     asset_model = assessment_instance.asset
 
@@ -930,7 +968,7 @@ def test_DamageModel__get_pg_batches(assessment_instance):
 
     assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
 
-    asset_model._cmp_sample = cmp_sample_A()
+    asset_model._cmp_sample = cmp_sample_A
 
     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
 
@@ -1096,11 +1134,6 @@ def test_DamageModel_calculate(assessment_instance):
     assert assessment_instance.damage._sample.values.all() <= 2.00
 
 
-@pytest.fixture
-def loss_model(assessment_instance):
-    return model.LossModel(assessment_instance)
-
-
 def test_LossModel_init(loss_model):
     assert loss_model.log_msg
     assert loss_model.log_div
@@ -1206,11 +1239,6 @@ def test_LossModel__generate_DV_sample(loss_model):
         loss_model._generate_DV_sample(None, None)
 
 
-@pytest.fixture
-def bldg_repair_model(assessment_instance):
-    return assessment_instance.bldg_repair
-
-
 def test_BldgRepairModel_init(bldg_repair_model):
     assert bldg_repair_model.log_msg
     assert bldg_repair_model.log_div
@@ -1219,31 +1247,8 @@ def test_BldgRepairModel_init(bldg_repair_model):
     assert bldg_repair_model.loss_type == 'BldgRepair'
 
 
-def loss_params_A():
-    return pd.DataFrame(
-        (
-            ("normal", None, "25704,17136|5,20", 0.390923, "USD_2011", 0.0, "1 EA"),
-            ("normal", 0.0, "22.68,15.12|5,20", 0.464027, "worker_day", 0.0, "1 EA"),
-        ),
-        index=pd.MultiIndex.from_tuples(
-            (("some.test.component", "Cost"), ("some.test.component", "Time"))
-        ),
-        columns=pd.MultiIndex.from_tuples(
-            (
-                ("DS1", "Family"),
-                ("DS1", "LongLeadTime"),
-                ("DS1", "Theta_0"),
-                ("DS1", "Theta_1"),
-                ("DV", "Unit"),
-                ("Incomplete", ""),
-                ("Quantity", "Unit"),
-            )
-        ),
-    )
-
-
-def test_BldgRepairModel__create_DV_RVs(bldg_repair_model):
-    bldg_repair_model.loss_params = loss_params_A()
+def test_BldgRepairModel__create_DV_RVs(bldg_repair_model, loss_params_A):
+    bldg_repair_model.loss_params = loss_params_A
 
     bldg_repair_model.loss_map = pd.DataFrame(
         ((("DMG", "some.test.component"), "some.test.component"),),
@@ -1276,8 +1281,8 @@ def test_BldgRepairModel__create_DV_RVs(bldg_repair_model):
     np.testing.assert_array_equal(rvs[3].theta, np.array((1.00, 0.464027, np.nan)))
 
 
-def test_BldgRepairModel__calc_median_consequence(bldg_repair_model):
-    bldg_repair_model.loss_params = loss_params_A()
+def test_BldgRepairModel__calc_median_consequence(bldg_repair_model, loss_params_A):
+    bldg_repair_model.loss_params = loss_params_A
 
     bldg_repair_model.loss_map = pd.DataFrame(
         ((("DMG", "some.test.component"), "some.test.component"),),
@@ -1300,7 +1305,7 @@ def test_BldgRepairModel__calc_median_consequence(bldg_repair_model):
     assert medians['Time'].to_dict() == {(0, '1'): {0: 22.68, 1: 20.16}}
 
 
-def test_BldgRepairModel_aggregate_losses(bldg_repair_model):
+def test_BldgRepairModel_aggregate_losses(bldg_repair_model, loss_params_A):
     bldg_repair_model._sample = pd.DataFrame(
         ((100.00, 1.00),),
         columns=pd.MultiIndex.from_tuples(
@@ -1326,7 +1331,7 @@ def test_BldgRepairModel_aggregate_losses(bldg_repair_model):
         ),
     )
 
-    bldg_repair_model.loss_params = loss_params_A()
+    bldg_repair_model.loss_params = loss_params_A
 
     df_agg = bldg_repair_model.aggregate_losses()
 
