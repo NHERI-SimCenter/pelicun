@@ -188,6 +188,8 @@ def test_parse_units():
         "KV": 1000.0,
         "J": 1.0,
         "MJ": 1000000.0,
+        "test_two": 2.00,
+        "test_three": 3.00,
     }
     for thing, value in units.items():
         assert thing in expect

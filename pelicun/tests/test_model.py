@@ -96,8 +96,7 @@ def test_PelicunModel_convert_marginal_params():
     arg_units = None
     res = pelicun_model.convert_marginal_params(marginal_params, units, arg_units)
 
-    # res:
-
+    # >>> res
     #             Theta_0
     # cmp loc dir
     # A   0   1       1.0
@@ -155,6 +154,37 @@ def test_PelicunModel_convert_marginal_params():
         ),
     )
 
+    pd.testing.assert_frame_equal(expected_df, res)
+
+    # a case with arg_units
+    marginal_params = pd.DataFrame(
+        [['500.0,400.00|20,10']],
+        columns=['Theta_0'],
+        index=pd.MultiIndex.from_tuples(
+            (('A', '0', '1'),), names=('cmp', 'loc', 'dir')
+        ),
+    )
+    units = pd.Series(['test_three'], index=marginal_params.index)
+    arg_units = pd.Series(['test_two'], index=marginal_params.index)
+    res = pelicun_model.convert_marginal_params(marginal_params, units, arg_units)
+
+    # >>> res
+    #                              Theta_0
+    # cmp loc dir
+    # A   0   1    750,600|40,20
+
+    # note: '40,20' = '20,10' * 2.00 (test_two)
+    # note: '750,600' = '500,400' * 3.00 / 2.00 (test_three/test_two)
+
+    expected_df = pd.DataFrame(
+        {
+            'Theta_0': ['750,600|40,20'],
+        },
+        index=pd.MultiIndex.from_tuples(
+            (('A', '0', '1'),),
+            names=('cmp', 'loc', 'dir'),
+        ),
+    )
     pd.testing.assert_frame_equal(expected_df, res)
 
 
