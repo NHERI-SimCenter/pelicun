@@ -14,8 +14,6 @@ install:
 # run tests
 script:
     - python setup.py install
-    - cd pelicun
-    - cd tests
     - pytest --cov-config .coveragerc --cov=pelicun
 
 # check for coverage
