@@ -63,11 +63,18 @@ from pelicun import assessment
 
 
 class TestModelModule:
+
     @pytest.fixture
-    def assessment_instance(self):
-        x = assessment.Assessment()
-        x.log.verbose = True
-        return x
+    def assessment_factory(self):
+        def create_instance(verbose):
+            x = assessment.Assessment()
+            x.log.verbose = verbose
+            return x
+        return create_instance
+
+    @pytest.fixture(params=[True, False])
+    def assessment_instance(self, request, assessment_factory):
+        return assessment_factory(request.param)
 
     @pytest.fixture
     def demand_model(self, assessment_instance):
