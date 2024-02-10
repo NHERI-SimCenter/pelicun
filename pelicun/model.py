@@ -301,33 +301,7 @@ class DemandModel(PelicunModel):
         self.units = None
 
         self._RVs = None
-        self._sample = None
-
-    @property
-    def sample(self):
-        """
-        Assigns the ._sample attribute if it is None and returns the
-        random variable sample.
-        """
-
-        if self._sample is None:
-
-            assert self._RVs is not None
-            assert self._RVs.RV_sample is not None
-            sample = pd.DataFrame(self._RVs.RV_sample)
-            sample.sort_index(axis=0, inplace=True)
-            sample.sort_index(axis=1, inplace=True)
-
-            sample = base.convert_to_MultiIndex(sample, axis=1)['EDP']
-
-            sample.columns.names = ['type', 'loc', 'dir']
-
-            self._sample = sample
-
-        else:
-            sample = self._sample
-
-        return sample
+        self.sample = None
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -439,7 +413,7 @@ class DemandModel(PelicunModel):
                          f"{np.sum(error_list)} demand samples were removed.\n",
                          prepend_timestamp=False)
 
-        self._sample = parsed_data
+        self.sample = parsed_data
 
         self.log_msg('Demand data successfully parsed.', prepend_timestamp=False)
 
@@ -962,7 +936,17 @@ class DemandModel(PelicunModel):
             method=self._asmnt.options.sampling_method)
 
         # replace the potentially existing raw sample with the generated one
-        self._sample = None
+        assert self._RVs is not None
+        assert self._RVs.RV_sample is not None
+        sample = pd.DataFrame(self._RVs.RV_sample)
+        sample.sort_index(axis=0, inplace=True)
+        sample.sort_index(axis=1, inplace=True)
+
+        sample = base.convert_to_MultiIndex(sample, axis=1)['EDP']
+
+        sample.columns.names = ['type', 'loc', 'dir']
+        self.sample = sample
+
 
         self.log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                      prepend_timestamp=False)
@@ -1322,13 +1306,13 @@ class AssetModel(PelicunModel):
         self.log_msg('Generating sample from component quantity variables...')
 
         if sample_size is None:
-            try:
-                sample_size = self._asmnt.demand.sample.shape[0]
-            except AssertionError as exc:
+            if not self._asmnt.demand.sample:
                 raise ValueError(
                     'Sample size was not specified, '
                     'and it cannot be determined from '
-                    'the demand model.') from exc
+                    'the demand model.')
+            else:
+                sample_size = self._asmnt.demand.sample.shape[0]
 
         self._create_cmp_RVs()
 

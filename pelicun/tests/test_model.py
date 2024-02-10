@@ -123,7 +123,7 @@ class TestDemandModel(TestModelModule):
         assert demand_model.empirical_data is None
         assert demand_model.units is None
         assert demand_model._RVs is None
-        assert demand_model._sample is None
+        assert demand_model.sample is None
 
     def test_save_sample(self, demand_model_with_sample):
         # instantiate a temporary directory in memory
@@ -147,10 +147,10 @@ class TestDemandModel(TestModelModule):
 
     def test_load_sample(self, demand_model_with_sample, demand_model_with_sample_B):
         # retrieve the loaded sample and units
-        obtained_sample = demand_model_with_sample._sample
+        obtained_sample = demand_model_with_sample.sample
         obtained_units = demand_model_with_sample.units
 
-        obtained_sample_2 = demand_model_with_sample_B._sample
+        obtained_sample_2 = demand_model_with_sample_B.sample
         obtained_units_2 = demand_model_with_sample_B.units
 
         # demand_sample_A.csv and demand_sample_B.csv only differ in the
@@ -976,7 +976,7 @@ class TestDamageModel(TestPelicunModel):
 
     def test_calculate(self, assessment_instance):
         dmg_process = None
-        assessment_instance.demand._sample = pd.DataFrame(
+        assessment_instance.demand.sample = pd.DataFrame(
             np.column_stack(
                 (
                     np.array((4.94, 2.73, 4.26, 2.79)),
