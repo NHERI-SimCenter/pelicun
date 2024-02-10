@@ -52,8 +52,8 @@ import numpy as np
 from scipy.stats import norm
 from scipy.stats import lognorm
 from pelicun import uq
-from tests.util import import_pickle
-from tests.util import export_pickle
+from pelicun.tests.util import import_pickle
+from pelicun.tests.util import export_pickle
 
 # pylint: disable=missing-function-docstring
 
@@ -1263,7 +1263,7 @@ def test_RandomVariable_Set():
 
 
 def test_RandomVariable_Set_apply_correlation(reset=False):
-    data_dir = 'tests/data/uq/test_random_variable_set_apply_correlation'
+    data_dir = 'pelicun/tests/data/uq/test_random_variable_set_apply_correlation'
     file_incr = 0
 
     # correlated, uniform
@@ -1336,7 +1336,7 @@ def test_RandomVariable_Set_apply_correlation_special():
 
 
 def test_RandomVariable_Set_orthotope_density(reset=False):
-    data_dir = 'tests/data/uq/test_random_variable_set_orthotope_density'
+    data_dir = 'pelicun/tests/data/uq/test_random_variable_set_orthotope_density'
 
     # create some random variables
     rv_1 = uq.RandomVariable(
@@ -1394,7 +1394,7 @@ def test_RandomVariable_Set_orthotope_density(reset=False):
 
 
 def test_RandomVariableRegistry_generate_sample(reset=False):
-    data_dir = 'tests/data/uq/test_RandomVariableRegistry_generate_sample'
+    data_dir = 'pelicun/tests/data/uq/test_RandomVariableRegistry_generate_sample'
     file_incr = 0
 
     for method in ('LHS_midpoint', 'LHS', 'MonteCarlo'):

@@ -65,7 +65,7 @@ def reset_all_test_data(restore=True, purge=False):
     directory is the package root directory (`pelicun`). The code
     assumes that the test data directory exists.
     Data deletion only involves `.pcl` files that begin with `test_` and
-    reside in /tests/data.
+    reside in /pelicun/tests/data.
 
     Parameters
     ----------
@@ -98,7 +98,7 @@ def reset_all_test_data(restore=True, purge=False):
     # where the test result data are stored
     testdir = os.path.join(*('tests', 'data'))
     if not os.path.exists(testdir):
-        raise ValueError('tests/data directory not found.')
+        raise ValueError('pelicun/tests/data directory not found.')
 
     # clean up existing test result data
     # only remove .pcl files that start with `test_`

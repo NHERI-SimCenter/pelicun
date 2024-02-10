@@ -146,7 +146,7 @@ def test_parse_units():
 
     # Test that additional units are parsed correctly
     additional_units_file = (
-        'tests/data/file_io/test_parse_units/additional_units_a.json'
+        'pelicun/tests/data/file_io/test_parse_units/additional_units_a.json'
     )
     units = file_io.parse_units(additional_units_file)
     assert isinstance(units, dict)
@@ -159,24 +159,26 @@ def test_parse_units():
 
     # Test that an exception is raised if the additional units file is
     # not a valid JSON file
-    invalid_json_file = 'tests/data/file_io/test_parse_units/invalid.json'
+    invalid_json_file = 'pelicun/tests/data/file_io/test_parse_units/invalid.json'
     with pytest.raises(Exception):
         units = file_io.parse_units(invalid_json_file)
 
     # Test that an exception is raised if a unit is defined twice in
     # the additional units file
-    duplicate_units_file = 'tests/data/file_io/test_parse_units/duplicate2.json'
+    duplicate_units_file = (
+        'pelicun/tests/data/file_io/test_parse_units/duplicate2.json'
+    )
     with pytest.raises(ValueError):
         units = file_io.parse_units(duplicate_units_file)
 
     # Test that an exception is raised if a unit conversion factor is not a float
-    invalid_units_file = 'tests/data/file_io/test_parse_units/not_float.json'
+    invalid_units_file = 'pelicun/tests/data/file_io/test_parse_units/not_float.json'
     with pytest.raises(TypeError):
         units = file_io.parse_units(invalid_units_file)
 
     # Test that we get an error if some first-level key does not point
     # to a dictionary
-    invalid_units_file = 'tests/data/file_io/test_parse_units/not_dict.json'
+    invalid_units_file = 'pelicun/tests/data/file_io/test_parse_units/not_dict.json'
     with pytest.raises(ValueError):
         units = file_io.parse_units(invalid_units_file)
 
@@ -274,9 +276,7 @@ def test_save_to_csv():
 def test_load_data():
     # test loading data with orientation 0
 
-    filepath = os.path.join(
-        'tests', 'data', 'file_io', 'test_load_data', 'units.csv'
-    )
+    filepath = 'pelicun/tests/data/file_io/test_load_data/units.csv'
     unit_conversion_factors = {"inps2": 0.0254, "rad": 1.00}
 
     data = file_io.load_data(filepath, unit_conversion_factors)
@@ -292,16 +292,12 @@ def test_load_data():
     for item in unit_conversion_factors:
         assert item in units.unique()
 
-    filepath = os.path.join(
-        'tests', 'data', 'file_io', 'test_load_data', 'no_units.csv'
-    )
+    filepath = 'pelicun/tests/data/file_io/test_load_data/no_units.csv'
     data_nounits = file_io.load_data(filepath, {})
     assert isinstance(data_nounits, pd.DataFrame)
 
     # test loading data with orientation 1
-    filepath = os.path.join(
-        'tests', 'data', 'file_io', 'test_load_data', 'orient_1.csv'
-    )
+    filepath = 'pelicun/tests/data/file_io/test_load_data/orient_1.csv'
     data = file_io.load_data(
         filepath, unit_conversion_factors, orientation=1, reindex=False
     )
@@ -310,9 +306,7 @@ def test_load_data():
     assert data.index.nlevels == 4
 
     # with convert=None
-    filepath = os.path.join(
-        'tests', 'data', 'file_io', 'test_load_data', 'orient_1_units.csv'
-    )
+    filepath = 'pelicun/tests/data/file_io/test_load_data/orient_1_units.csv'
     unit_conversion_factors = {"g": 1.00, "rad": 1.00}
     data = file_io.load_data(
         filepath, unit_conversion_factors, orientation=1, reindex=False
@@ -336,7 +330,7 @@ def test_load_data():
         file_io.load_from_file('/')
     # exception: not a .csv file
     with pytest.raises(ValueError):
-        file_io.load_from_file('db.py')
+        file_io.load_from_file('pelicun/db.py')
 
 
 if __name__ == '__main__':

@@ -118,7 +118,7 @@ def test_assessment_calc_unit_scale_factor():
     asmt = create_assessment_obj(
         {
             'UnitsFile': (
-                'tests/data/assessment/'
+                'pelicun/tests/data/assessment/'
                 'test_assessment_calc_unit_scale_factor/'
                 'custom_units.json'
             )
@@ -146,7 +146,7 @@ def test_assessment_scale_factor():
     asmt = create_assessment_obj(
         {
             'UnitsFile': (
-                'tests/data/assessment/'
+                'pelicun/tests/data/assessment/'
                 'test_assessment_calc_unit_scale_factor/'
                 'custom_units.json'
             )
