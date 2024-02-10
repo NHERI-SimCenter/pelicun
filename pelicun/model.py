@@ -170,10 +170,6 @@ class PelicunModel:
 
                     except ValueError:
 
-                        if pd.isna(theta_i):
-                            args.append([])
-                            continue
-
                         # otherwise, we assume it is a string using SimCenter
                         # array notation to identify coordinates of a
                         # multilinear function
