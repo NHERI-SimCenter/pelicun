@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 These are unit and integration tests on the model module of pelicun.
@@ -589,7 +590,6 @@ def test_DamageModel_init():
     assert mdl.log_div
 
     assert mdl.damage_params is None
-    assert mdl._dmg_function_scale_factors is None
     assert mdl._sample is None
     assert mdl.sample is None
 
@@ -883,7 +883,7 @@ def test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities():
     )
 
     qnt_sample = damage_model._prepare_dmg_quantities(
-        PGB, ds_sample, dropzero=False, dropempty=False
+        PGB, ds_sample, dropzero=False
     )
 
     # note: the realized number of damage states is random, limiting
@@ -946,7 +946,7 @@ def test_DamageModel__perform_dmg_task():
             demand_dict, EDP_req, capacity_sample, lsds_sample
         )
         qnt_sample = damage_model._prepare_dmg_quantities(
-            PGB, ds_sample, dropzero=False, dropempty=False
+            PGB, ds_sample, dropzero=False
         )
         qnt_samples.append(qnt_sample)
     qnt_sample = pd.concat(qnt_samples, axis=1)
@@ -1161,7 +1161,6 @@ def test_DamageModel_calculate():
         ),
     )
     asmt.damage.calculate(dmg_process=dmg_process)
-    assert asmt.damage._dmg_function_scale_factors is None
 
     # note: Due to inherent randomness, we can't assert the actual
     # values of this result

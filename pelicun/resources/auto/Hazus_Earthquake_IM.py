@@ -52,6 +52,23 @@ ap_DesignLevel_W1 = {
     1975: 'MC',
     2100: 'HC'
 }
+
+ap_Occupancy = {
+    'Other/Unknown': 'RES3',
+    'Residential - Single-Family': 'RES1',
+    'Residential - Town-Home': 'RES3',
+    'Residential - Multi-Family': 'RES3',
+    'Residential - Mixed Use': 'RES3',
+    'Office': 'COM4',
+    'Hotel': 'RES4',
+    'School': 'EDU1',
+    'Industrial - Light': 'IND2',
+    'Industrial - Warehouse': 'IND2',
+    'Industrial - Heavy': 'IND1',
+    'Retail': 'COM1',
+    'Parking' : 'COM10'
+}
+
 def convertBridgeToHAZUSclass(AIM):
 
     #TODO: replace labels in AIM with standard CamelCase versions
@@ -239,6 +256,54 @@ def convertRoadToHAZUSclass(AIM):
         # many unclassified roads are urban roads
         return "HRD2" 
 
+def convert_story_rise(structureType, stories):
+
+
+    if structureType in ['W1', 'W2', 'S3', 'PC1', 'MH']:
+
+        # These archetypes have no rise information in their IDs
+        rise = None
+
+    else:
+
+        # First, check if we have valid story information
+        try:
+
+            stories = int(stories)
+
+        except:
+
+            raise ValueError('Missing "NumberOfStories" information, '
+                             'cannot infer rise attribute of archetype')
+
+        if structureType == 'RM1':
+
+            if stories <= 3:
+                rise = "L"
+
+            else:
+                rise = "M"
+
+        elif structureType == 'URM':
+            if stories <= 2:
+                rise = "L"
+
+            else:
+                rise = "M"
+
+        elif structureType in ['S1', 'S2', 'S4', 'S5', 'C1', 'C2', 'C3', \
+                               'PC2', 'RM2']:
+            if stories <=3:
+                rise = "L"
+
+            elif stories <= 7:
+                rise = "M"
+
+            else:
+                rise = "H"
+            
+    return rise
+
 def auto_populate(AIM):
     """
     Automatically creates a performance model for PGA-based Hazus EQ analysis.
@@ -283,33 +348,6 @@ def auto_populate(AIM):
         # get the building parameters
         bt = GI['StructureType'] #building type
 
-        # get the number of stories / height
-        stories = GI.get('NumberOfStories', None)
-
-        if stories!=None:
-            # We assume that the structure type does not include height information
-            # and we append it here based on the number of story information
-
-            if bt not in ['W1', 'W2', 'S3', 'PC1', 'MH']:
-                if bt not in ['URM']:
-                    if stories <= 3:
-                        bt += 'L'
-                    elif stories <= 7:
-                        bt += 'M'
-                    else:
-                        if bt in ['RM']:
-                            bt += 'M'
-                        else:
-                            bt += 'H'
-                else:
-                    if stories <= 2:
-                        bt += 'L'
-                    else:
-                        bt += 'M'
-
-            stories = 1
-            GI_ap['BuildingType'] = bt
-
         # get the design level
         dl = GI.get('DesignLevel', None)
 
@@ -330,11 +368,22 @@ def auto_populate(AIM):
 
             GI_ap['DesignLevel'] = dl
 
-        # get the occupancy class
-        ot = GI['OccupancyClass']
+        # get the number of stories / height
+        stories = GI.get('NumberOfStories', None)
+
+        # We assume that the structure type does not include height information
+        # and we append it here based on the number of story information
+        rise = convert_story_rise(bt, stories)
+
+        if rise is not None:
+            LF = f'LF.{bt}.{rise}.{dl}'
+            GI_ap['BuildingRise'] = rise
+        else:
+            LF = f'LF.{bt}.{dl}'
+
 
         CMP = pd.DataFrame(
-                {f'LF.{bt}.{dl}': [  'ea',         1,          1,        1,   'N/A']},
+                {f'{LF}': [  'ea',         1,          1,        1,   'N/A']},
                 index = [         'Units','Location','Direction','Theta_0','Family']
             ).T
 
@@ -353,6 +402,16 @@ def auto_populate(AIM):
             ).T
 
             CMP = pd.concat([CMP, CMP_GF], axis=0)
+
+        # set the number of stories to 1
+        # there is only one component in a building-level resolution
+        stories = 1
+
+        # get the occupancy class
+        if GI['OccupancyClass'] in ap_Occupancy.keys():
+            ot = ap_Occupancy[GI['OccupancyClass']]
+        else:
+            ot = GI['OccupancyClass']
         
         DL_ap = {
             "Asset": {
