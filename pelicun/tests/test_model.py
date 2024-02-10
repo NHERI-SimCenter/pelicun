@@ -63,127 +63,30 @@ from pelicun import assessment
 
 
 class TestModelModule:
-
     @pytest.fixture
     def assessment_factory(self):
         def create_instance(verbose):
             x = assessment.Assessment()
             x.log.verbose = verbose
             return x
+
         return create_instance
 
     @pytest.fixture(params=[True, False])
     def assessment_instance(self, request, assessment_factory):
         return assessment_factory(request.param)
 
+
+class TestDemandModel(TestModelModule):
     @pytest.fixture
     def demand_model(self, assessment_instance):
         return assessment_instance.demand
-
-    @pytest.fixture
-    def pelicun_model(self, assessment_instance):
-        return model.PelicunModel(assessment_instance)
-
-    @pytest.fixture
-    def asset_model(self, assessment_instance):
-        return assessment_instance.asset
-
-    @pytest.fixture
-    def damage_model(self, assessment_instance):
-        return assessment_instance.damage
-
-    @pytest.fixture
-    def loss_model(self, assessment_instance):
-        return model.LossModel(assessment_instance)
-
-    @pytest.fixture
-    def bldg_repair_model(self, assessment_instance):
-        return assessment_instance.bldg_repair
-
-    @pytest.fixture
-    def cmp_sample_A(self):
-        # This sample contains 8 units of B.10.31.001 assigned to
-        # locations 1, 2 and directions 1, 2
-        return pd.DataFrame(
-            {
-                ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-                for i in range(1, 3)
-                for j in range(1, 3)
-            },
-            index=range(10),
-            columns=pd.MultiIndex.from_tuples(
-                (
-                    ('B.10.31.001', f'{i}', f'{j}', '0')
-                    for i in range(1, 3)
-                    for j in range(1, 3)
-                ),
-                names=('cmp', 'loc', 'dir', 'uid'),
-            ),
-        )
-
-    @pytest.fixture
-    def calibration_config_A(self):
-        return {
-            "ALL": {"DistributionFamily": "lognormal"},
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateLower": "",
-                "TruncateUpper": "0.06",
-            },
-        }
-
-    @pytest.fixture
-    def loss_params_A(self):
-        return pd.DataFrame(
-            (
-                (
-                    "normal",
-                    None,
-                    "25704,17136|5,20",
-                    0.390923,
-                    "USD_2011",
-                    0.0,
-                    "1 EA",
-                ),
-                (
-                    "normal",
-                    0.0,
-                    "22.68,15.12|5,20",
-                    0.464027,
-                    "worker_day",
-                    0.0,
-                    "1 EA",
-                ),
-            ),
-            index=pd.MultiIndex.from_tuples(
-                (("some.test.component", "Cost"), ("some.test.component", "Time"))
-            ),
-            columns=pd.MultiIndex.from_tuples(
-                (
-                    ("DS1", "Family"),
-                    ("DS1", "LongLeadTime"),
-                    ("DS1", "Theta_0"),
-                    ("DS1", "Theta_1"),
-                    ("DV", "Unit"),
-                    ("Incomplete", ""),
-                    ("Quantity", "Unit"),
-                )
-            ),
-        )
 
     @pytest.fixture
     def demand_model_with_sample(self, assessment_instance):
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
-        )
-        return mdl
-
-    @pytest.fixture
-    def demand_model_with_sample_B(self, assessment_instance):
-        mdl = assessment_instance.demand
-        mdl.load_sample(
-            'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_B.csv'
         )
         return mdl
 
@@ -203,8 +106,14 @@ class TestModelModule:
         demand_model_with_sample.calibrate_model(config)
         return demand_model_with_sample
 
+    @pytest.fixture
+    def demand_model_with_sample_B(self, assessment_instance):
+        mdl = assessment_instance.demand
+        mdl.load_sample(
+            'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_B.csv'
+        )
+        return mdl
 
-class TestDemandModel(TestModelModule):
     def test_init(self, demand_model):
         assert demand_model.log_msg
         assert demand_model.log_div
@@ -361,6 +270,10 @@ class TestDemandModel(TestModelModule):
 
 
 class TestPelicunModel(TestModelModule):
+    @pytest.fixture
+    def pelicun_model(self, assessment_instance):
+        return model.PelicunModel(assessment_instance)
+
     def test_init(self, pelicun_model):
         assert pelicun_model.log_msg
         assert pelicun_model.log_div
@@ -477,6 +390,10 @@ class TestPelicunModel(TestModelModule):
 
 
 class TestAssetModel(TestPelicunModel):
+    @pytest.fixture
+    def asset_model(self, assessment_instance):
+        return assessment_instance.asset
+
     def test_init(self, asset_model):
         assert asset_model.log_msg
         assert asset_model.log_div
@@ -605,6 +522,42 @@ class TestAssetModel(TestPelicunModel):
 
 
 class TestDamageModel(TestPelicunModel):
+    @pytest.fixture
+    def cmp_sample_A(self):
+        # This sample contains 8 units of B.10.31.001 assigned to
+        # locations 1, 2 and directions 1, 2
+        return pd.DataFrame(
+            {
+                ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
+                for i in range(1, 3)
+                for j in range(1, 3)
+            },
+            index=range(10),
+            columns=pd.MultiIndex.from_tuples(
+                (
+                    ('B.10.31.001', f'{i}', f'{j}', '0')
+                    for i in range(1, 3)
+                    for j in range(1, 3)
+                ),
+                names=('cmp', 'loc', 'dir', 'uid'),
+            ),
+        )
+
+    @pytest.fixture
+    def calibration_config_A(self):
+        return {
+            "ALL": {"DistributionFamily": "lognormal"},
+            "PID": {
+                "DistributionFamily": "lognormal",
+                "TruncateLower": "",
+                "TruncateUpper": "0.06",
+            },
+        }
+
+    @pytest.fixture
+    def damage_model(self, assessment_instance):
+        return assessment_instance.damage
+
     def test_init(self, damage_model):
         assert damage_model.log_msg
         assert damage_model.log_div
@@ -1144,6 +1097,10 @@ class TestDamageModel(TestPelicunModel):
 
 
 class TestLossModel(TestPelicunModel):
+    @pytest.fixture
+    def loss_model(self, assessment_instance):
+        return model.LossModel(assessment_instance)
+
     def test_init(self, loss_model):
         assert loss_model.log_msg
         assert loss_model.log_div
@@ -1262,6 +1219,49 @@ class TestLossModel(TestPelicunModel):
 
 
 class TestBldgRepairModel(TestPelicunModel):
+    @pytest.fixture
+    def bldg_repair_model(self, assessment_instance):
+        return assessment_instance.bldg_repair
+
+    @pytest.fixture
+    def loss_params_A(self):
+        return pd.DataFrame(
+            (
+                (
+                    "normal",
+                    None,
+                    "25704,17136|5,20",
+                    0.390923,
+                    "USD_2011",
+                    0.0,
+                    "1 EA",
+                ),
+                (
+                    "normal",
+                    0.0,
+                    "22.68,15.12|5,20",
+                    0.464027,
+                    "worker_day",
+                    0.0,
+                    "1 EA",
+                ),
+            ),
+            index=pd.MultiIndex.from_tuples(
+                (("some.test.component", "Cost"), ("some.test.component", "Time"))
+            ),
+            columns=pd.MultiIndex.from_tuples(
+                (
+                    ("DS1", "Family"),
+                    ("DS1", "LongLeadTime"),
+                    ("DS1", "Theta_0"),
+                    ("DS1", "Theta_1"),
+                    ("DV", "Unit"),
+                    ("Incomplete", ""),
+                    ("Quantity", "Unit"),
+                )
+            ),
+        )
+
     def test_init(self, bldg_repair_model):
         assert bldg_repair_model.log_msg
         assert bldg_repair_model.log_div
