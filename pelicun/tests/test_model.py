@@ -188,6 +188,32 @@ def get_DemandModel_with_sample(path):
     return demand_model
 
 
+def test_DemandModel_save_sample():
+    # get a DemandModel in which the sample has been loaded
+    mdl = get_DemandModel_with_sample(
+        'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
+    )
+
+    # instantiate a temporary directory in memory
+    temp_dir = tempfile.mkdtemp()
+    # save the sample there
+    mdl.save_sample(f'{temp_dir}/temp.csv')
+    with open(f'{temp_dir}/temp.csv', 'r', encoding='utf-8') as f:
+        contents = f.read()
+    assert contents == (
+        ',PFA-0-1,PFA-1-1,PID-1-1,SA_0.23-0-1\n'
+        'Units,inps2,inps2,rad,inps2\n'
+        '0,158.62478,397.04389,0.02672,342.149\n'
+    )
+    res = mdl.save_sample(save_units=False)
+    assert res.to_dict() == {
+        ('PFA', '0', '1'): {0: 158.62478},
+        ('PFA', '1', '1'): {0: 397.04389},
+        ('PID', '1', '1'): {0: 0.02672},
+        ('SA_0.23', '0', '1'): {0: 342.149},
+    }
+
+
 def test_DemandModel_load_sample():
     # get a DemandModel in which the sample has been loaded
     mdl = get_DemandModel_with_sample(
@@ -257,32 +283,6 @@ def test_DemandModel_estimate_RID():
     res = mdl.estimate_RID(demands, params)
     assert list(res.columns) == [('RID', '1', '1')]
     assert mdl.estimate_RID(demands, params, method='xyz') is None
-
-
-def test_DemandModel_save_sample():
-    # get a DemandModel in which the sample has been loaded
-    mdl = get_DemandModel_with_sample(
-        'tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
-    )
-
-    # instantiate a temporary directory in memory
-    temp_dir = tempfile.mkdtemp()
-    # save the sample there
-    mdl.save_sample(f'{temp_dir}/temp.csv')
-    with open(f'{temp_dir}/temp.csv', 'r', encoding='utf-8') as f:
-        contents = f.read()
-    assert contents == (
-        ',PFA-0-1,PFA-1-1,PID-1-1,SA_0.23-0-1\n'
-        'Units,inps2,inps2,rad,inps2\n'
-        '0,158.62478,397.04389,0.02672,342.149\n'
-    )
-    res = mdl.save_sample(save_units=False)
-    assert res.to_dict() == {
-        ('PFA', '0', '1'): {0: 158.62478},
-        ('PFA', '1', '1'): {0: 397.04389},
-        ('PID', '1', '1'): {0: 0.02672},
-        ('SA_0.23', '0', '1'): {0: 342.149},
-    }
 
 
 def get_calibrated_DemandModel(path, config):
