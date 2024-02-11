@@ -2,7 +2,6 @@ autopep8
 black
 flake8
 pylint
-pylint-pytest
 yapf
 pytest
 pytest-cov
