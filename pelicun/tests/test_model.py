@@ -52,6 +52,7 @@ from pelicun import assessment
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
+# pylint: disable=arguments-renamed
 
 #  __  __      _   _               _
 # |  \/  | ___| |_| |__   ___   __| |___
@@ -86,7 +87,8 @@ class TestDemandModel(TestModelModule):
     def demand_model_with_sample(self, assessment_instance):
         mdl = assessment_instance.demand
         mdl.load_sample(
-            'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_A.csv'
+            'pelicun/tests/data/model/'
+            'test_DemandModel_load_sample/demand_sample_A.csv'
         )
         return mdl
 
@@ -99,8 +101,10 @@ class TestDemandModel(TestModelModule):
             },
             "PID": {
                 "DistributionFamily": "lognormal",
-                "TruncateLower": "",
                 "TruncateUpper": "0.06",
+            },
+            "SA": {
+                "DistributionFamily": "empirical",
             },
         }
         demand_model_with_sample.calibrate_model(config)
@@ -110,7 +114,26 @@ class TestDemandModel(TestModelModule):
     def demand_model_with_sample_B(self, assessment_instance):
         mdl = assessment_instance.demand
         mdl.load_sample(
-            'pelicun/tests/data/model/test_DemandModel_load_sample/demand_sample_B.csv'
+            'pelicun/tests/data/model/'
+            'test_DemandModel_load_sample/demand_sample_B.csv'
+        )
+        return mdl
+
+    @pytest.fixture
+    def demand_model_with_sample_C(self, assessment_instance):
+        mdl = assessment_instance.demand
+        mdl.load_sample(
+            'pelicun/tests/data/model/'
+            'test_DemandModel_load_sample/demand_sample_C.csv'
+        )
+        return mdl
+
+    @pytest.fixture
+    def demand_model_with_sample_D(self, assessment_instance):
+        mdl = assessment_instance.demand
+        mdl.load_sample(
+            'pelicun/tests/data/model/'
+            'test_DemandModel_load_sample/demand_sample_D.csv'
         )
         return mdl
 
@@ -205,10 +228,53 @@ class TestDemandModel(TestModelModule):
             is None
         )
 
-    def test_calibrate_model(self, calibrated_demand_model):
-        assert calibrated_demand_model is not None
+    def test_calibrate_model(
+        self, calibrated_demand_model, demand_model_with_sample_C
+    ):
+        assert calibrated_demand_model.marginal_params['Family'].to_list() == [
+            'normal',
+            'normal',
+            'lognormal',
+            'empirical',
+        ]
+        assert (
+            calibrated_demand_model.marginal_params.at[
+                ('PID', '1', '1'), 'TruncateUpper'
+            ]
+            == 0.06
+        )
 
-    def test_save_load_model(self, calibrated_demand_model):
+        # with a config featuring censoring the RIDs
+        config = {
+            "ALL": {
+                "DistributionFamily": "normal",
+                "AddUncertainty": 0.00,
+            },
+            "PID": {
+                "DistributionFamily": "lognormal",
+                "CensorUpper": "0.05",
+            },
+        }
+        demand_model_with_sample_C.calibrate_model(config)
+
+        # with a config that specifies a truncation limit smaller than
+        # the samples
+        config = {
+            "ALL": {
+                "DistributionFamily": "normal",
+                "AddUncertainty": 0.00,
+            },
+            "PID": {
+                "DistributionFamily": "lognormal",
+                "TruncateUpper": "0.04",
+            },
+        }
+        demand_model_with_sample_C.calibrate_model(config)
+
+    def test_save_load_model_with_empirical(
+        self, calibrated_demand_model, assessment_instance
+    ):
+        # a model that has empirical marginal parameters
         temp_dir = tempfile.mkdtemp()
         calibrated_demand_model.save_model(f'{temp_dir}/temp')
         assert os.path.exists(f'{temp_dir}/temp_marginals.csv')
@@ -216,8 +282,62 @@ class TestDemandModel(TestModelModule):
         assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
 
         # Load model to a different DemandModel instance to verify
-        new_demand_model = calibrated_demand_model._asmnt.demand
+        new_demand_model = assessment_instance.demand
         new_demand_model.load_model(f'{temp_dir}/temp')
+        pd.testing.assert_frame_equal(
+            calibrated_demand_model.marginal_params, new_demand_model.marginal_params
+        )
+        pd.testing.assert_frame_equal(
+            calibrated_demand_model.correlation, new_demand_model.correlation
+        )
+        pd.testing.assert_frame_equal(
+            calibrated_demand_model.empirical_data, new_demand_model.empirical_data
+        )
+
+    # # todo: this currently fails
+    # def test_save_load_model_without_empirical(
+    #     self, demand_model_with_sample_C, assessment_instance
+    # ):
+    #     # a model that does not have empirical marginal parameters
+    #     temp_dir = tempfile.mkdtemp()
+    #     config = {
+    #         "ALL": {
+    #             "DistributionFamily": "normal",
+    #             "AddUncertainty": 0.00,
+    #         },
+    #         "PID": {
+    #             "DistributionFamily": "lognormal",
+    #             "TruncateUpper": "0.04",
+    #         },
+    #     }
+    #     demand_model_with_sample_C.calibrate_model(config)
+    #     demand_model_with_sample_C.save_model(f'{temp_dir}/temp')
+    #     assert os.path.exists(f'{temp_dir}/temp_marginals.csv')
+    #     assert os.path.exists(f'{temp_dir}/temp_empirical.csv')
+    #     assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
+
+    #     # Load model to a different DemandModel instance to verify
+    #     new_demand_model = assessment_instance.demand
+    #     new_demand_model.load_model(f'{temp_dir}/temp')
+    #     pd.testing.assert_frame_equal(
+    #         demand_model_with_sample_C.marginal_params,
+    #         new_demand_model.marginal_params,
+    #     )
+    #     pd.testing.assert_frame_equal(
+    #         demand_model_with_sample_C.correlation,
+    #         new_demand_model.correlation
+    #     )
+    #     pd.testing.assert_frame_equal(
+    #         demand_model_with_sample_C.empirical_data,
+    #         new_demand_model.empirical_data,
+    #     )
+
+    def test_generate_sample_exceptions(self, demand_model):
+        # generating a sample from a non calibrated model should fail
+        with pytest.raises(ValueError):
+            demand_model.generate_sample(
+                {"SampleSize": 3, 'PreserveRawOrder': False}
+            )
 
     def test_generate_sample(self, calibrated_demand_model):
         calibrated_demand_model.generate_sample(
@@ -436,9 +556,15 @@ class TestAssetModel(TestPelicunModel):
         asset_model = asmt.asset
         asset_model.load_cmp_sample(f'{temp_dir}/temp.csv')
 
-    def test_load_cmp_model(self, asset_model):
+        # also test loading sample to variables
+        # (but we don't inspect them)
+        _ = asset_model.save_cmp_sample(save_units=False)
+        _, _ = asset_model.save_cmp_sample(save_units=True)
+
+    def test_load_cmp_model_1(self, asset_model):
         cmp_marginals = pd.read_csv(
-            'pelicun/tests/data/model/test_AssetModel/CMP_marginals.csv', index_col=0
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals.csv',
+            index_col=0,
         )
         asset_model.load_cmp_model({'marginals': cmp_marginals})
 
@@ -469,6 +595,86 @@ class TestAssetModel(TestPelicunModel):
         )
 
         pd.testing.assert_series_equal(expected_cmp_units, asset_model.cmp_units)
+
+    def test_load_cmp_model_2(self, asset_model):
+        # component marginals utilizing the keywords '--', 'all', 'top', 'roof'
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals_2.csv',
+            index_col=0,
+        )
+        asset_model._asmnt.stories = 4
+        asset_model.load_cmp_model({'marginals': cmp_marginals})
+
+        assert asset_model.cmp_marginal_params.to_dict() == {
+            'Theta_0': {
+                ('component_a', '0', '1', '0'): 1.0,
+                ('component_a', '0', '2', '0'): 1.0,
+                ('component_a', '1', '1', '0'): 1.0,
+                ('component_a', '1', '2', '0'): 1.0,
+                ('component_a', '2', '1', '0'): 1.0,
+                ('component_a', '2', '2', '0'): 1.0,
+                ('component_a', '3', '1', '0'): 1.0,
+                ('component_a', '3', '2', '0'): 1.0,
+                ('component_b', '1', '1', '0'): 1.0,
+                ('component_b', '2', '1', '0'): 1.0,
+                ('component_b', '3', '1', '0'): 1.0,
+                ('component_b', '4', '1', '0'): 1.0,
+                ('component_c', '0', '1', '0'): 1.0,
+                ('component_c', '1', '1', '0'): 1.0,
+                ('component_c', '2', '1', '0'): 1.0,
+                ('component_d', '4', '1', '0'): 1.0,
+                ('component_e', '5', '1', '0'): 1.0,
+            },
+            'Blocks': {
+                ('component_a', '0', '1', '0'): 1,
+                ('component_a', '0', '2', '0'): 1,
+                ('component_a', '1', '1', '0'): 1,
+                ('component_a', '1', '2', '0'): 1,
+                ('component_a', '2', '1', '0'): 1,
+                ('component_a', '2', '2', '0'): 1,
+                ('component_a', '3', '1', '0'): 1,
+                ('component_a', '3', '2', '0'): 1,
+                ('component_b', '1', '1', '0'): 1,
+                ('component_b', '2', '1', '0'): 1,
+                ('component_b', '3', '1', '0'): 1,
+                ('component_b', '4', '1', '0'): 1,
+                ('component_c', '0', '1', '0'): 1,
+                ('component_c', '1', '1', '0'): 1,
+                ('component_c', '2', '1', '0'): 1,
+                ('component_d', '4', '1', '0'): 1,
+                ('component_e', '5', '1', '0'): 1,
+            },
+        }
+
+        expected_cmp_units = pd.Series(
+            data=['ea'] * 5,
+            index=[f'component_{x}' for x in ('a', 'b', 'c', 'd', 'e')],
+            name='Units',
+        )
+
+        pd.testing.assert_series_equal(expected_cmp_units, asset_model.cmp_units)
+
+    def test_load_cmp_model_csv(self, asset_model):
+        # load by directly specifying the csv file
+        cmp_marginals = 'pelicun/tests/data/model/test_AssetModel/CMP'
+        asset_model.load_cmp_model(cmp_marginals)
+
+    def test_load_cmp_model_exceptions(self, asset_model):
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals_invalid_loc.csv',
+            index_col=0,
+        )
+        asset_model._asmnt.stories = 4
+        with pytest.raises(ValueError):
+            asset_model.load_cmp_model({'marginals': cmp_marginals})
+
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals_invalid_dir.csv',
+            index_col=0,
+        )
+        asset_model._asmnt.stories = 4
+        with pytest.raises(ValueError):
+            asset_model.load_cmp_model({'marginals': cmp_marginals})
 
     def test_generate_cmp_sample(self, asset_model):
         asset_model.cmp_marginal_params = pd.DataFrame(
@@ -511,14 +717,31 @@ class TestAssetModel(TestPelicunModel):
 
         pd.testing.assert_frame_equal(expected_cmp_sample, asset_model.cmp_sample)
 
-    def test_generate_cmp_sample_exceptions(self, asset_model):
-        # without specifying model parameters
+    # currently this is not working
+    # def test_load_cmp_model_block_weights(self, asset_model):
+    #     cmp_marginals = pd.read_csv(
+    #         'pelicun/tests/data/model/test_AssetModel/CMP_marginals_block_weights.csv',
+    #         index_col=0,
+    #     )
+    #     asset_model.load_cmp_model({'marginals': cmp_marginals})
+
+    def test_generate_cmp_sample_exceptions_1(self, asset_model):
+        # without marginal parameters
         with pytest.raises(ValueError):
             asset_model.generate_cmp_sample(sample_size=10)
 
+    def test_generate_cmp_sample_exceptions_2(self, asset_model):
         # without specifying sample size
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals.csv',
+            index_col=0,
+        )
+        asset_model.load_cmp_model({'marginals': cmp_marginals})
         with pytest.raises(ValueError):
             asset_model.generate_cmp_sample()
+        # but it should work if a demand sample is available
+        asset_model._asmnt.demand.sample = np.empty(shape=(10, 2))
+        asset_model.generate_cmp_sample()
 
 
 class TestDamageModel(TestPelicunModel):
@@ -850,7 +1073,8 @@ class TestDamageModel(TestPelicunModel):
         demand_model.generate_sample({"SampleSize": sample_size})
 
         cmp_marginals = pd.read_csv(
-            'pelicun/tests/data/model/test_DamageModel_perform_dmg_task/CMP_marginals.csv',
+            'pelicun/tests/data/model/'
+            'test_DamageModel_perform_dmg_task/CMP_marginals.csv',
             index_col=0,
         )
         asset_model.load_cmp_model({'marginals': cmp_marginals})
@@ -859,7 +1083,8 @@ class TestDamageModel(TestPelicunModel):
 
         damage_model.load_damage_model(
             [
-                'pelicun/tests/data/model/test_DamageModel_perform_dmg_task/fragility_DB_test.csv'
+                'pelicun/tests/data/model/'
+                'test_DamageModel_perform_dmg_task/fragility_DB_test.csv'
             ]
         )
 

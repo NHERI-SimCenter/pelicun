@@ -151,6 +151,9 @@ class PelicunModel:
                 # pull the parameters of the marginal distribution
                 family = marginal_params.at[row_id, 'Family']
 
+                if family == 'empirical':
+                    continue
+
                 # load the theta values
                 theta = marginal_params.loc[
                     row_id, ['Theta_0', 'Theta_1', 'Theta_2']].values
@@ -1306,7 +1309,7 @@ class AssetModel(PelicunModel):
         self.log_msg('Generating sample from component quantity variables...')
 
         if sample_size is None:
-            if not self._asmnt.demand.sample:
+            if self._asmnt.demand.sample is None:
                 raise ValueError(
                     'Sample size was not specified, '
                     'and it cannot be determined from '

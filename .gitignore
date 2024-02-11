@@ -34,3 +34,4 @@ __pycache__
 /.emacs.desktop
 /.emacs.desktop.lock
 /pelicun/coverage.xml
+.cov2emacs.log
