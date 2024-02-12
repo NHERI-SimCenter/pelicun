@@ -786,7 +786,6 @@ class TestDamageModel(TestPelicunModel):
         assert damage_model.log_div
 
         assert damage_model.damage_params is None
-        assert damage_model._sample is None
         assert damage_model.sample is None
 
     def test_load_damage_model(self, damage_model, cmp_sample_A):
@@ -1317,8 +1316,8 @@ class TestDamageModel(TestPelicunModel):
 
         # note: Due to inherent randomness, we can't assert the actual
         # values of this result
-        assert assessment_instance.damage._sample.values.all() >= 0.00
-        assert assessment_instance.damage._sample.values.all() <= 2.00
+        assert assessment_instance.damage.sample.values.all() >= 0.00
+        assert assessment_instance.damage.sample.values.all() <= 2.00
 
 
 class TestLossModel(TestPelicunModel):

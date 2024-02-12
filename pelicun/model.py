@@ -1360,20 +1360,7 @@ class DamageModel(PelicunModel):
         super().__init__(assessment)
 
         self.damage_params = None
-        self._sample = None
-
-    @property
-    def sample(self):
-        """
-        Returns the damage sample.
-        """
-
-        smpl = self._sample
-
-        if smpl is not None:
-            smpl.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
-
-        return self._sample
+        self.sample = None
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -1418,9 +1405,11 @@ class DamageModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading damage sample...')
 
-        self._sample = file_io.load_data(
+        self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors,
             log=self._asmnt.log)
+        # todo
+        assert self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage sample successfully loaded.',
                      prepend_timestamp=False)
@@ -2739,7 +2728,9 @@ class DamageModel(PelicunModel):
         if self._asmnt.options.list_all_ds is False:
             qnt_sample = qnt_sample.iloc[:, np.where(qnt_sample.sum(axis=0) != 0)[0]]
 
-        self._sample = qnt_sample
+        self.sample = qnt_sample
+        # todo
+        assert self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage calculation successfully completed.')
 
