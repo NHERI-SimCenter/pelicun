@@ -1708,7 +1708,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
                 df = convert_to_MultiIndex(pd.read_csv(output_path/filename, index_col=0),axis=1)
 
             if "Units" in df.index:
-                df_units = df.loc['Units',:].to_frame().T
+                df_units = convert_to_SimpleIndex(df.loc['Units',:].to_frame().T, axis=1)
                 df.drop("Units", axis=0, inplace=True)
 
                 out_dict = convert_df_to_dict(df)
