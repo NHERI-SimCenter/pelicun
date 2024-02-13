@@ -170,11 +170,6 @@ class Options:
 
         self._asmnt = assessment
 
-        self._verbose = False
-        self._log_show_ms = False
-        self._print_log = False
-        self._log_file = None
-
         self.defaults = None
         self.sampling_method = None
         self.list_all_ds = None
