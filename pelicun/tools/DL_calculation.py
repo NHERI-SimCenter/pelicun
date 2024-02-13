@@ -66,11 +66,6 @@ from pelicun.assessment import Assessment
 
 #pd.set_option('display.max_rows', None)
 
-# suppress FutureWarnings by default - credit: ioannis_vm
-if not sys.warnoptions:
-    warnings.filterwarnings(
-        category=FutureWarning, action='ignore')
-
 def log_msg(msg):
 
     formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
@@ -1718,7 +1713,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
             else:
 
-                out_dict = convert_df_to_dict(df)
+                out_dict = convert_df_to_dict(df)            
                 
             with open(output_path/filename_json, 'w') as f:
                 json.dump(out_dict, f, indent=2)

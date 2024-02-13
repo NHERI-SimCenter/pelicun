@@ -6,6 +6,7 @@
 	"LogFile": null,
 	"UnitsFile": null,
 	"PrintLog": false,
+	"ShowWarnings": false,
 	"DemandOffset": {
 	    "PFA": -1,
 	    "PFV": -1

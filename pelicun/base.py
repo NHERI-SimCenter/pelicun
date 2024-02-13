@@ -84,12 +84,6 @@ pd.options.display.width = 300
 
 idx = pd.IndexSlice
 
-# don't show FutureWarnings by default
-if not sys.warnoptions:
-    warnings.filterwarnings(
-        category=FutureWarning, action='ignore')
-
-
 class Options:
 
     """
@@ -204,6 +198,7 @@ class Options:
         # instantiate a Logger object with the finalized configuration
         self.log = Logger(
             merged_config_options['Verbose'],
+            merged_config_options['ShowWarnings'],
             merged_config_options['LogShowMS'],
             merged_config_options['LogFile'],
             merged_config_options['PrintLog'])
@@ -292,6 +287,12 @@ class Logger:
         value is specified in the user's configuration dictionary,
         otherwise left as provided in the default configuration file
         (see settings/default_config.json in the pelicun source code).
+    show_warnings: bool
+        If True, future, deprecation, and performance warnings from python 
+        packages such as numpy and pandas are printed to the log file 
+        (and also to the standard output). Otherwise, they are 
+        suppressed. This setting does not affect warnings defined within
+        pelicun that are specific to the damage and loss calculation.
     log_show_ms: bool
         If True, the timestamps in the log file are in microsecond
         precision. The value is specified in the user's configuration
@@ -312,7 +313,8 @@ class Logger:
     """
     # TODO: finalize docstring
 
-    def __init__(self, verbose, log_show_ms, log_file, print_log):
+    def __init__(self, verbose, show_warnings, log_show_ms, log_file, 
+        print_log):
         """
         Initializes a Logger object.
 
@@ -322,6 +324,7 @@ class Logger:
 
         """
         self.verbose = verbose
+        self.show_warnings = show_warnings
         self.log_show_ms = log_show_ms
         self.log_file = log_file
         self.print_log = print_log
@@ -340,12 +343,22 @@ class Logger:
         verbose property setter
         """
         self._verbose = bool(value)
-        # display FutureWarnings
-        if self._verbose is True:
-            if not sys.warnoptions:
-                warnings.filterwarnings(
-                    category=FutureWarning,
-                    action='default')
+
+    @property
+    def show_warnings(self):
+        """
+        show_warnings property
+        """
+        return self._show_warnings
+    
+    @show_warnings.setter
+    def show_warnings(self, value):
+        """
+        show_warnings property setter
+        """
+        self._show_warnings = bool(value)
+        # control warnings according to the desired setting
+        control_warnings(show=self._show_warnings)
 
     @property
     def log_show_ms(self):
@@ -517,6 +530,32 @@ class Logger:
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
+def control_warnings(show):
+
+    """
+    Convenience function to turn warnings on/off
+
+    Parameters
+    ----------
+    suppress: bool
+        If True, warnings are set to be suppressed. If False, warnings are set
+        to be shown.
+
+    """
+    if show:
+        action = 'default'
+    else:
+        action = 'ignore'
+
+    if not sys.warnoptions:
+        warnings.filterwarnings(
+            category=FutureWarning, action=action)
+
+        warnings.filterwarnings(
+            category=DeprecationWarning, action=action)
+
+        warnings.filterwarnings(
+            category=pd.errors.PerformanceWarning, action=action)
 
 def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
