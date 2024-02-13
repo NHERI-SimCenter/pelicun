@@ -549,9 +549,9 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
 
         if 'Units' in raw_demands.index:
             raw_units = raw_demands.loc['Units',:]
+            raw_demands.drop('Units', axis=0, inplace=True)
         else:
             raw_units = None
-        raw_demands.drop('Units', axis=0, inplace=True)
 
         DEM_to_drop = np.full(raw_demands.shape[0], False)
 
