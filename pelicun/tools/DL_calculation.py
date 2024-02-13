@@ -1282,7 +1282,7 @@ def run_pelicun(config_path, demand_file, output_path, coupled_EDP,
             else:
                 consequence_db = []
 
-                conseq_df = None
+                conseq_df = pd.DataFrame()
 
             if bldg_repair_config.get('ConsequenceDatabasePath', False) != False:
 
