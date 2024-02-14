@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 This module has classes and methods that define and access the model used for
@@ -62,7 +63,7 @@ import numpy as np
 import pandas as pd
 from . import base
 from . import uq
-from .file_io import save_to_csv, load_data
+from . import file_io
 
 
 idx = base.idx
@@ -99,13 +100,13 @@ class PelicunModel:
             identical to the index of the marginal_params argument. The values
             are strings that correspond to the units listed in base.py.
         arg_units: Series
-            Identifies the size of a reference entity for the marginal 
+            Identifies the size of a reference entity for the marginal
             parameters. For example, when the parameters refer to a component
-            repair cost, the reference size is the component block size the 
+            repair cost, the reference size is the component block size the
             repair cost corresponds to. When the parameters refer to a capacity,
-            demand, or component quantity, the reference size can be omitted 
+            demand, or component quantity, the reference size can be omitted
             and the default value will ensure that the corresponding scaling is
-            skipped. This Series provides the units of the reference entities 
+            skipped. This Series provides the units of the reference entities
             for each component. Use '1 EA' if you want to skip such scaling for
             select components but provide arg units for others.
 
@@ -150,6 +151,9 @@ class PelicunModel:
                 # pull the parameters of the marginal distribution
                 family = marginal_params.at[row_id, 'Family']
 
+                if family == 'empirical':
+                    continue
+
                 # load the theta values
                 theta = marginal_params.loc[
                     row_id, ['Theta_0', 'Theta_1', 'Theta_2']].values
@@ -169,10 +173,6 @@ class PelicunModel:
                         args.append([])
 
                     except ValueError:
-
-                        if pd.isna(theta_i):
-                            args.append([])
-                            continue
 
                         # otherwise, we assume it is a string using SimCenter
                         # array notation to identify coordinates of a
@@ -202,7 +202,9 @@ class PelicunModel:
                     if arg_unit != '1 EA':
 
                         # get the scale factor
-                        arg_unit_factor = self._asmnt.calc_unit_scale_factor(arg_unit)
+                        arg_unit_factor = self._asmnt.calc_unit_scale_factor(
+                            arg_unit
+                        )
 
                         # scale arguments, if needed
                         for a_i, arg in enumerate(args):
@@ -212,7 +214,7 @@ class PelicunModel:
 
                 # convert the distribution parameters to SI
                 theta, tr_limits = uq.scale_distribution(
-                    unit_factor/arg_unit_factor, family, theta, tr_limits)
+                    unit_factor / arg_unit_factor, family, theta, tr_limits)
 
                 # convert multilinear function parameters back into strings
                 for a_i, arg in enumerate(args):
@@ -302,33 +304,7 @@ class DemandModel(PelicunModel):
         self.units = None
 
         self._RVs = None
-        self._sample = None
-
-    @property
-    def sample(self):
-        """
-        Assigns the ._sample attribute if it is None and returns the
-        random variable sample.
-        """
-
-        if self._sample is None:
-
-            assert self._RVs is not None
-            assert self._RVs.RV_sample is not None
-            sample = pd.DataFrame(self._RVs.RV_sample)
-            sample.sort_index(axis=0, inplace=True)
-            sample.sort_index(axis=1, inplace=True)
-
-            sample = base.convert_to_MultiIndex(sample, axis=1)['EDP']
-
-            sample.columns.names = ['type', 'loc', 'dir']
-
-            self._sample = sample
-
-        else:
-            sample = self._sample
-
-        return sample
+        self.sample = None
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -340,7 +316,7 @@ class DemandModel(PelicunModel):
         if filepath is not None:
             self.log_msg('Saving demand sample...')
 
-        res = save_to_csv(
+        res = file_io.save_to_csv(
             self.sample, filepath, units=self.units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=(filepath is not None),
@@ -415,7 +391,7 @@ class DemandModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading demand data...')
 
-        demand_data, units = load_data(
+        demand_data, units = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors,
             return_units=True, log=self._asmnt.log)
 
@@ -440,7 +416,7 @@ class DemandModel(PelicunModel):
                          f"{np.sum(error_list)} demand samples were removed.\n",
                          prepend_timestamp=False)
 
-        self._sample = parsed_data
+        self.sample = parsed_data
 
         self.log_msg('Demand data successfully parsed.', prepend_timestamp=False)
 
@@ -766,11 +742,14 @@ class DemandModel(PelicunModel):
         self.log_msg('Saving demand model...')
 
         # save the correlation and empirical data
-        save_to_csv(self.correlation, file_prefix + '_correlation.csv')
-        save_to_csv(self.empirical_data, file_prefix + '_empirical.csv',
-                    units=self.units,
-                    unit_conversion_factors=self._asmnt.unit_conversion_factors,
-                    log=self._asmnt.log)
+        file_io.save_to_csv(self.correlation, file_prefix + '_correlation.csv')
+        file_io.save_to_csv(
+            self.empirical_data,
+            file_prefix + '_empirical.csv',
+            units=self.units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            log=self._asmnt.log,
+        )
 
         # the log standard deviations in the marginal parameters need to be
         # scaled up before feeding to the saving method where they will be
@@ -789,11 +768,14 @@ class DemandModel(PelicunModel):
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
-        save_to_csv(marginal_params, file_prefix + '_marginals.csv',
-                    units=self.units,
-                    unit_conversion_factors=self._asmnt.unit_conversion_factors,
-                    orientation=1,
-                    log=self._asmnt.log)
+        file_io.save_to_csv(
+            marginal_params,
+            file_prefix + '_marginals.csv',
+            units=self.units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            orientation=1,
+            log=self._asmnt.log,
+        )
 
         self.log_msg('Demand model successfully saved.', prepend_timestamp=False)
 
@@ -826,16 +808,22 @@ class DemandModel(PelicunModel):
             correlation_data_source = data_source + '_correlation.csv'
 
         if empirical_data_source is not None:
-            self.empirical_data = load_data(
-                empirical_data_source, self._asmnt.unit_conversion_factors,
-                log=self._asmnt.log)
-            self.empirical_data.columns.set_names(['type', 'loc', 'dir'],
-                                                  inplace=True)
+            self.empirical_data = file_io.load_data(
+                empirical_data_source,
+                self._asmnt.unit_conversion_factors,
+                log=self._asmnt.log,
+            )
+            if not self.empirical_data.empty:
+                self.empirical_data.columns.set_names(
+                    ['type', 'loc', 'dir'], inplace=True
+                )
+            else:
+                self.empirical_data = None
         else:
             self.empirical_data = None
 
         if correlation_data_source is not None:
-            self.correlation = load_data(
+            self.correlation = file_io.load_data(
                 correlation_data_source,
                 self._asmnt.unit_conversion_factors,
                 reindex=False, log=self._asmnt.log)
@@ -849,7 +837,7 @@ class DemandModel(PelicunModel):
         # were scaled according to the units of the corresponding variable
 
         # Note that a data source without marginal information is not valid
-        marginal_params, units = load_data(
+        marginal_params, units = file_io.load_data(
             marginal_data_source,
             self._asmnt.unit_conversion_factors,
             orientation=1, reindex=False,
@@ -951,7 +939,17 @@ class DemandModel(PelicunModel):
             method=self._asmnt.options.sampling_method)
 
         # replace the potentially existing raw sample with the generated one
-        self._sample = None
+        assert self._RVs is not None
+        assert self._RVs.RV_sample is not None
+        sample = pd.DataFrame(self._RVs.RV_sample)
+        sample.sort_index(axis=0, inplace=True)
+        sample.sort_index(axis=1, inplace=True)
+
+        sample = base.convert_to_MultiIndex(sample, axis=1)['EDP']
+
+        sample.columns.names = ['type', 'loc', 'dir']
+        self.sample = sample
+
 
         self.log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                      prepend_timestamp=False)
@@ -1018,7 +1016,7 @@ class AssetModel(PelicunModel):
         for cmp_id, unit_name in self.cmp_units.items():
             units.loc[cmp_id, :] = unit_name
 
-        res = save_to_csv(
+        res = file_io.save_to_csv(
             sample, filepath, units=units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=(filepath is not None),
@@ -1031,11 +1029,10 @@ class AssetModel(PelicunModel):
         # else:
         units = res.loc["Units"]
         res.drop("Units", inplace=True)
-        
+
         if save_units:
             return res.astype(float), units
 
-        #else:
         return res.astype(float)
 
     def load_cmp_sample(self, filepath):
@@ -1047,7 +1044,7 @@ class AssetModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading asset components sample...')
 
-        sample, units = load_data(
+        sample, units = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors,
             return_units=True, log=self._asmnt.log)
 
@@ -1170,7 +1167,7 @@ class AssetModel(PelicunModel):
         else:
             marginal_data_source = data_source + '_marginals.csv'
 
-        marginal_params, units = load_data(
+        marginal_params, units = file_io.load_data(
             marginal_data_source,
             self._asmnt.unit_conversion_factors,
             orientation=1,
@@ -1188,43 +1185,48 @@ class AssetModel(PelicunModel):
             'TruncateLower': [], 'TruncateUpper': [], 'Blocks': [],
             'Units': []
         }
-        index = []
+        index_list = []
         for row in marginal_params.itertuples():
             locs = get_locations(row.Location)
             dirs = get_directions(row.Direction)
-            idx = list(product((row.Index, ), locs, dirs))
-            num_vals = len(idx)
-            for col in cmp_marginal_param_dct:
+            indices = list(product((row.Index, ), locs, dirs))
+            num_vals = len(indices)
+            for col, cmp_marginal_param in cmp_marginal_param_dct.items():
                 if col == 'Blocks':
-                    cmp_marginal_param_dct[col].extend([
-                        get_attribute(
-                            getattr(row, 'Blocks', np.nan),
-                            dtype=int, default=1.0)
-                    ]*num_vals)
+                    cmp_marginal_param.extend(
+                        [
+                            get_attribute(
+                                getattr(row, 'Blocks', np.nan),
+                                dtype=int,
+                                default=1.0,
+                            )
+                        ]
+                        * num_vals
+                    )
                 elif col == 'Units':
-                    cmp_marginal_param_dct[col].extend([
-                        self.cmp_units[row.Index]
-                    ]*num_vals)
+                    cmp_marginal_param.extend(
+                        [self.cmp_units[row.Index]] * num_vals
+                    )
                 elif col == 'Family':
-                    cmp_marginal_param_dct[col].extend([
-                        getattr(row, col, np.nan)
-                    ]*num_vals)
+                    cmp_marginal_param.extend(
+                        [getattr(row, col, np.nan)] * num_vals
+                    )
                 else:
-                    cmp_marginal_param_dct[col].extend([
-                        get_attribute(getattr(row, col, np.nan))
-                    ]*num_vals)
-            index.extend(idx)
-        index = pd.MultiIndex.from_tuples(index, names=['cmp', 'loc', 'dir'])
+                    cmp_marginal_param.extend(
+                        [get_attribute(getattr(row, col, np.nan))] * num_vals
+                    )
+            index_list.extend(indices)
+        index = pd.MultiIndex.from_tuples(index_list, names=['cmp', 'loc', 'dir'])
         dtypes = {
             'Family': object, 'Theta_0': float, 'Theta_1': float,
             'Theta_2': float, 'TruncateLower': float,
             'TruncateUpper': float, 'Blocks': int, 'Units': object
         }
         cmp_marginal_param_series = []
-        for col in cmp_marginal_param_dct:
+        for col, cmp_marginal_param in cmp_marginal_param_dct.items():
             cmp_marginal_param_series.append(
                 pd.Series(
-                    cmp_marginal_param_dct[col],
+                    cmp_marginal_param,
                     dtype=dtypes[col], name=col, index=index))
 
         cmp_marginal_params = pd.concat(
@@ -1252,7 +1254,6 @@ class AssetModel(PelicunModel):
         )
 
         self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
-
 
         self.log_msg("Model parameters successfully loaded.",
                      prepend_timestamp=False)
@@ -1308,13 +1309,13 @@ class AssetModel(PelicunModel):
         self.log_msg('Generating sample from component quantity variables...')
 
         if sample_size is None:
-            try:
-                sample_size = self._asmnt.demand.sample.shape[0]
-            except AssertionError as exc:
+            if self._asmnt.demand.sample is None:
                 raise ValueError(
                     'Sample size was not specified, '
                     'and it cannot be determined from '
-                    'the demand model.') from exc
+                    'the demand model.')
+            else:
+                sample_size = self._asmnt.demand.sample.shape[0]
 
         self._create_cmp_RVs()
 
@@ -1359,21 +1360,7 @@ class DamageModel(PelicunModel):
         super().__init__(assessment)
 
         self.damage_params = None
-        self._dmg_function_scale_factors = None
-        self._sample = None
-
-    @property
-    def sample(self):
-        """
-        Returns the damage sample.
-        """
-
-        smpl = self._sample
-
-        if smpl is not None:
-            smpl.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
-
-        return self._sample
+        self.sample = None
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -1389,7 +1376,7 @@ class DamageModel(PelicunModel):
         for cmp in cmp_units.index:
             qnt_units.loc[cmp] = cmp_units.loc[cmp]
 
-        res = save_to_csv(
+        res = file_io.save_to_csv(
             self.sample, filepath,
             units=qnt_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
@@ -1418,9 +1405,11 @@ class DamageModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading damage sample...')
 
-        self._sample = load_data(
+        self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors,
             log=self._asmnt.log)
+        # todo
+        assert self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage sample successfully loaded.',
                      prepend_timestamp=False)
@@ -1428,9 +1417,6 @@ class DamageModel(PelicunModel):
     def load_damage_model(self, data_paths):
         """
         Load limit state damage model parameters and damage state assignments
-
-        A damage model can be a single damage function or a set of fragility
-        functions.
 
         Parameters
         ----------
@@ -1447,13 +1433,15 @@ class DamageModel(PelicunModel):
 
             if 'PelicunDefault/' in data_path:
                 data_paths[d_i] = data_path.replace(
-                    'PelicunDefault/', f'{base.pelicun_path}/resources/SimCenterDBDL/')
+                    'PelicunDefault/',
+                    f'{base.pelicun_path}/resources/SimCenterDBDL/',
+                )
 
         data_list = []
         # load the data files one by one
         for data_path in data_paths:
 
-            data = load_data(
+            data = file_io.load_data(
                 data_path,
                 self._asmnt.unit_conversion_factors,
                 orientation=1, reindex=False, convert=[],
@@ -1462,7 +1450,7 @@ class DamageModel(PelicunModel):
 
             data_list.append(data)
 
-        damage_params = pd.concat(data_list, axis=0)     
+        damage_params = pd.concat(data_list, axis=0)
 
         # drop redefinitions of components
         damage_params = damage_params.groupby(damage_params.index).first()
@@ -1498,29 +1486,6 @@ class DamageModel(PelicunModel):
                     damage_params[('Demand', 'Unit')]
                 ).values
 
-                # For damage functions, save the scale factor for later use
-                # Make sure only one scale factor is saved per component
-                if LS_i == 'LS1':
-
-                    function_ids = damage_params.loc[
-                        damage_params[(LS_i, 'Family')] == 'function'].index
-
-                    if len(function_ids) > 0:
-                        f_df = pd.DataFrame(
-                            columns=['scale_factor', ],
-                            index=function_ids
-                        )
-                        f_df['scale_factor'] = [
-                            self._asmnt.calc_unit_scale_factor(unit_name)
-                            for unit_name
-                            in damage_params.loc[function_ids,
-                                                 ('Demand', 'Unit')]]
-
-                        self._dmg_function_scale_factors = f_df
-
-                    else:
-                        self._dmg_function_scale_factors = None
-
         # check for components with incomplete damage model information
         cmp_incomplete_list = damage_params.loc[
             damage_params[('Incomplete', '')] == 1].index
@@ -1549,15 +1514,11 @@ class DamageModel(PelicunModel):
         component sample and blocks and checks if the limit state is
         defined for the component. If the limit state is defined, the
         method gets the list of limit states and the parameters for
-        each limit state. If the family of the limit state parameters
-        is "function", the method generates samples of yes/no damage
-        and adds limit-state-to-damage-state (LSDS) assignments to the
-        lsds_RV_reg registry. If the family is not "function", the
-        method assigns correlation between limit state random
-        variables, adds the limit state random variables to the
-        capacity_RV_reg registry, and adds LSDS assignments to the
-        lsds_RV_reg registry. After looping through all performance
-        groups, the method returns the two registries.
+        each limit state. The method assigns correlation between limit
+        state random variables, adds the limit state random variables
+        to the capacity_RV_reg registry, and adds LSDS assignments to
+        the lsds_RV_reg registry. After looping through all
+        performance groups, the method returns the two registries.
 
         """
 
@@ -1573,67 +1534,57 @@ class DamageModel(PelicunModel):
 
                 ds_id += 1
 
-                lsds_RV_reg.add_RV(uq.RandomVariable(
-                    name=lsds_rv_tag,
-                    distribution='deterministic',
-                    theta=ds_id,
-                ))
+                lsds_RV_reg.add_RV(
+                    uq.RandomVariable(
+                        name=lsds_rv_tag,
+                        distribution='deterministic',
+                        theta=ds_id,
+                    )
+                )
 
             # Otherwise, we create a multinomial random variable
             else:
 
                 # parse the DS weights
                 ds_weights = np.array(
-                    ds_weights.replace(" ", "").split('|'),
-                    dtype=float)
+                    ds_weights.replace(" ", "").split('|'), dtype=float
+                )
 
                 def map_ds(values, offset=int(ds_id + 1)):
                     return values + offset
 
-                lsds_RV_reg.add_RV(uq.RandomVariable(
-                    name=lsds_rv_tag,
-                    distribution='multinomial',
-                    theta=ds_weights,
-                    f_map=map_ds
-                ))
+                lsds_RV_reg.add_RV(
+                    uq.RandomVariable(
+                        name=lsds_rv_tag,
+                        distribution='multinomial',
+                        theta=ds_weights,
+                        f_map=map_ds,
+                    )
+                )
 
                 ds_id += len(ds_weights)
 
             return ds_id
 
         if self._asmnt.log.verbose:
-            self.log_msg('Generating capacity variables ...',
-                         prepend_timestamp=True)
+            self.log_msg('Generating capacity variables ...', prepend_timestamp=True)
 
         # initialize the registry
         capacity_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
         lsds_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
-        rv_count = 0
-
         # get the component sample and blocks from the asset model
         for PG in PGB.index:
 
             cmp_id = PG[0]
-            cmp_sample = self._asmnt.asset.cmp_sample.loc[:, PG]
             blocks = PGB.loc[PG, 'Blocks']
-            # try:
-            #    blocks = self._asmnt.asset.cmp_marginal_params.loc[
-            #        PG.index,'Blocks']
-            # except:
-            #    blocks = 1
 
             # if the number of blocks is provided, calculate the weights
             if np.atleast_1d(blocks).shape[0] == 1:
-                blocks = np.full(int(blocks), 1. / blocks)
+                blocks = np.full(int(blocks), 1.0 / blocks)
             # otherwise, assume that the list contains the weights
 
             # initialize the damaged quantity sample variable
-            # if there are damage functions used, we need more than a simple pointer
-            if self._dmg_function_scale_factors is not None:
-                qnt_sample = cmp_sample.copy()
-                qnt_list = [qnt_sample, ]
-                self.qnt_units = self._asmnt.asset.cmp_units.copy()
 
             assert self.damage_params is not None
             if cmp_id in self.damage_params.index:
@@ -1646,8 +1597,6 @@ class DamageModel(PelicunModel):
                 for val in frg_params.index.get_level_values(0).unique():
                     if 'LS' in val:
                         limit_states.append(val[2:])
-
-                ls_count = len(limit_states)
 
                 ds_id = 0
 
@@ -1663,160 +1612,85 @@ class DamageModel(PelicunModel):
                     ds_weights = frg_params_LS.get('DamageStateWeights', np.nan)
 
                     # check if the limit state is defined for the component
-                    if not pd.isna(theta_0):
+                    if pd.isna(theta_0):
+                        continue
 
-                        # Start with the limit state capacities...
+                    theta = [
+                        frg_params_LS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
+                    ]
+                    tr_lims = [
+                        frg_params_LS.get(f"Truncate{side}", np.nan)
+                        for side in ("Lower", "Upper")
+                    ]
 
-                        # If the family is 'function', we are not using a limit
-                        # damage functions to determine the damaged quantities
-                        # in each damage state. Damage is triggered every time
-                        # for every component block in every limit state. This
-                        # has a couple of consequences for the calculation:
-                        # * One component block can yield multiple damage blocks
-                        # This is handled by replacing each component block with
-                        # a LS_count number of blocks.
-                        # * The capacity of each damage block needs to be -inf
-                        # up to a corresponding limit state and infinite in all
-                        # higher ones so that damage can be triggered every time
-                        # in a particular limit state in that block.
-                        # Note that rather than assigning inf to these capacities
-                        # we assign the nearest number that can be represented
-                        # using a float
+                    for block_i, _ in enumerate(blocks):
 
-                        if family == 'function':
+                        frg_rv_tag = (
+                            'FRG-'
+                            f'{PG[0]}-'  # cmp_id
+                            f'{PG[1]}-'  # loc
+                            f'{PG[2]}-'  # dir
+                            f'{PG[3]}-'  # uid
+                            f'{block_i+1}-'  # block
+                            f'{ls_id}'
+                        )
 
-                            for block_i, _ in enumerate(blocks):
-
-                                qnt_columns = []
-
-                                for ls_i in range(ls_count):
-
-                                    block_id = int(block_i) * ls_count + ls_i + 1
-
-                                    frg_rv_tag = (
-                                        'FRG-'
-                                        f'{PG[0]}-'     # cmp_id
-                                        f'{PG[1]}-'     # loc
-                                        f'{PG[2]}-'     # dir
-                                        f'{PG[3]}-'     # uid
-                                        f'{block_id}-'  # block
-                                        f'{ls_id}')
-
-                                    # generate samples of almost surely yes/no damage
-                                    if int(ls_id) <= ls_i + 1:
-                                        target_value = np.nextafter(-np.inf, 1)
-                                    else:
-                                        target_value = np.nextafter(np.inf, -1)
-
-                                    capacity_RV_reg.add_RV(uq.RandomVariable(
-                                        name=frg_rv_tag,
-                                        distribution='deterministic',
-                                        theta=target_value
-                                    ))
-
-                                    # Now add the LS->DS assignments
-                                    lsds_rv_tag = (
-                                        'LSDS-'
-                                        f'{PG[0]}-'          # cmp_id
-                                        f'{PG[1]}-'          # loc
-                                        f'{PG[2]}-'          # dir
-                                        f'{PG[3]}-'          # uid
-                                        f'{str(block_id)}-'  # block
-                                        f'{ls_id}')
-
-                                    ds_id_post = assign_lsds(
-                                        ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
-
-                                    rv_count += 1
-
-                                    if ls_id == '1':
-                                        qnt_columns.append(
-                                            f'{PG[0]}-{PG[1]}-{PG[2]}-{PG[3]}-{block_id}')
-
-                                ds_id = ds_id_post
-
-                                if ls_id == '1':
-                                    qnt_i = pd.DataFrame(columns=qnt_columns,
-                                                         index=qnt_sample.index)
-                                    qnt_i = qnt_i.apply(
-                                        lambda x: qnt_sample.loc[:, PG].values,
-                                        axis=0, result_type='broadcast')
-                                    qnt_list.append(qnt_i)
-                                    qnt_sample.drop(PG, axis=1, inplace=True)
-
-                        # Otherwise, we are dealing with fragility functions
+                        # Assign correlation between limit state random
+                        # variables
+                        # Note that we assume perfectly correlated limit
+                        # state random variables here. This approach is in
+                        # line with how mainstream PBE calculations are
+                        # performed. Assigning more sophisticated
+                        # correlations between limit state RVs is possible,
+                        # if needed. Please let us know through the
+                        # SimCenter Message Board if you are interested in
+                        # such a feature.
+                        # Anchor all other limit state random variables to
+                        # the first one to consider the perfect correlation
+                        # between capacities in each LS
+                        if ls_id == limit_states[0]:
+                            anchor = None
                         else:
+                            anchor = anchor_RVs[block_i]
 
-                            theta = [frg_params_LS.get(f"Theta_{t_i}", np.nan)
-                                     for t_i in range(3)]
-                            tr_lims = [
-                                frg_params_LS.get(f"Truncate{side}", np.nan)
-                                for side in ("Lower", "Upper")]
+                        RV = uq.RandomVariable(
+                            name=frg_rv_tag,
+                            distribution=family,
+                            theta=theta,
+                            truncation_limits=tr_lims,
+                            anchor=anchor,
+                        )
 
-                            for block_i, _ in enumerate(blocks):
+                        capacity_RV_reg.add_RV(RV)
 
-                                frg_rv_tag = (
-                                    'FRG-'
-                                    f'{PG[0]}-'      # cmp_id
-                                    f'{PG[1]}-'      # loc
-                                    f'{PG[2]}-'      # dir
-                                    f'{PG[3]}-'      # uid
-                                    f'{block_i+1}-'  # block
-                                    f'{ls_id}')
+                        # add the RV to the set of correlated variables
+                        frg_rv_set_tags[block_i].append(frg_rv_tag)
 
-                                # Assign correlation between limit state random
-                                # variables
-                                # Note that we assume perfectly correlated limit
-                                # state random variables here. This approach is in
-                                # line with how mainstream PBE calculations are
-                                # performed. Assigning more sophisticated
-                                # correlations between limit state RVs is possible,
-                                # if needed. Please let us know through the
-                                # SimCenter Message Board if you are interested in
-                                # such a feature.
-                                # Anchor all other limit state random variables to
-                                # the first one to consider the perfect correlation
-                                # between capacities in each LS
-                                if ls_id == limit_states[0]:
-                                    anchor = None
-                                else:
-                                    anchor = anchor_RVs[block_i]
+                        if ls_id == limit_states[0]:
+                            anchor_RVs.append(RV)
 
-                                RV = uq.RandomVariable(
-                                    name=frg_rv_tag,
-                                    distribution=family,
-                                    theta=theta,
-                                    truncation_limits=tr_lims,
-                                    anchor=anchor)
+                        # Now add the LS->DS assignments
+                        lsds_rv_tag = (
+                            'LSDS-'
+                            f'{PG[0]}-'  # cmp_id
+                            f'{PG[1]}-'  # loc
+                            f'{PG[2]}-'  # dir
+                            f'{PG[3]}-'  # uid
+                            f'{block_i+1}-'  # block
+                            f'{ls_id}'
+                        )
 
-                                capacity_RV_reg.add_RV(RV)
+                        ds_id_next = assign_lsds(
+                            ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag
+                        )
 
-                                # add the RV to the set of correlated variables
-                                frg_rv_set_tags[block_i].append(frg_rv_tag)
-
-                                if ls_id == limit_states[0]:
-                                    anchor_RVs.append(RV)
-
-                                # Now add the LS->DS assignments
-                                lsds_rv_tag = (
-                                    'LSDS-'
-                                    f'{PG[0]}-'      # cmp_id
-                                    f'{PG[1]}-'      # loc
-                                    f'{PG[2]}-'      # dir
-                                    f'{PG[3]}-'      # uid
-                                    f'{block_i+1}-'  # block
-                                    f'{ls_id}')
-
-                                ds_id_next = assign_lsds(
-                                    ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag)
-
-                                rv_count += 1
-
-                            ds_id = ds_id_next
+                    ds_id = ds_id_next
 
         if self._asmnt.log.verbose:
-            self.log_msg(f"2x{rv_count} random variables created.",
-                         prepend_timestamp=False)
+            rv_count = len(lsds_RV_reg.RV)
+            self.log_msg(
+                f"2x{rv_count} random variables created.", prepend_timestamp=False
+            )
 
         return capacity_RV_reg, lsds_RV_reg
 
@@ -2206,8 +2080,7 @@ class DamageModel(PelicunModel):
 
         return ds_sample
 
-    def _prepare_dmg_quantities(self, PGB, ds_sample,
-                                dropzero=True, dropempty=True):
+    def _prepare_dmg_quantities(self, PGB, ds_sample, dropzero=True):
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -2227,9 +2100,6 @@ class DamageModel(PelicunModel):
         dropzero: bool, optional, default: True
             If True, the quantity of non-damaged components is not
             saved.
-        dropempty: bool, optional, default: True
-            If True, the blocks with no damaged quantities are
-            dropped.
 
         Returns
         -------
@@ -2335,7 +2205,7 @@ class DamageModel(PelicunModel):
             res_df = res_df.groupby(level=[0, 1, 2, 3, 4], axis=1).sum()
 
             # The damage states with no damaged quantities are dropped
-            # Note that some of these are not even valid DSs at the given PG            
+            # Note that some of these are not even valid DSs at the given PG
             res_df = res_df.iloc[:, np.where(res_df.sum(axis=0) != 0)[0]]
 
         return res_df
@@ -2376,13 +2246,9 @@ class DamageModel(PelicunModel):
               `['CMP_B', 'CMP_C']`.
         qnt_sample : pandas DataFrame
             A DataFrame representing the quantities of the components
-            in the damage sample.
-
-        Returns
-        -------
-        pandas DataFrame
-            A DataFrame representing the quantities of the components
-            in the damage sample after the task has been performed.
+            in the damage sample. It is modified in place to represent
+            the quantities of the components in the damage sample
+            after the task has been performed.
 
         Raises
         ------
@@ -2421,8 +2287,6 @@ class DamageModel(PelicunModel):
                 "damage process not found among components in the damage "
                 "sample. The corresponding part of the damage process is "
                 "skipped.", prepend_timestamp=False)
-
-            return qnt_sample
 
         # get the damage quantities for the source component
         source_cmp_df = qnt_sample.loc[:, source_cmp]
@@ -2541,102 +2405,6 @@ class DamageModel(PelicunModel):
         if self._asmnt.log.verbose:
             self.log_msg('Damage process task successfully applied.',
                          prepend_timestamp=False)
-
-        return qnt_sample
-
-    def _apply_damage_functions(self, CMP_to_EDP, demands, qnt_sample):
-        """
-        Use prescribed damage functions to modify damaged quantities
-
-        """
-
-        def parse_f_elem(elem):
-
-            if elem == 'D':
-                return elem
-            # else:
-            return str(float(elem.strip('()')))
-
-        def parse_f_signature(f_signature):
-
-            elems = [
-                [[parse_f_elem(exp_elem)
-                  for exp_elem in multi_elem.split('^')]
-                 for multi_elem in add_elem.split('*')]
-                for add_elem in f_signature.split('+')]
-
-            add_list = []
-            for add_elem in elems:
-
-                multi_list = []
-                for exp_list in add_elem:
-                    multi_list.append("**".join(exp_list))
-
-                add_list.append("*".join(multi_list))
-
-            f_str = "+".join(add_list)
-
-            return f_str
-
-        self.log_msg('Applying damage functions...',
-                     prepend_timestamp=False)
-
-        demands = base.convert_to_SimpleIndex(demands, axis=1)
-
-        # for each component with a damage function
-        for cmp_id in self._dmg_function_scale_factors.index:
-
-            loc_dir_list = qnt_sample.groupby(
-                level=[0, 1, 2], axis=1).first()[cmp_id].columns
-
-            # Load the corresponding EDPs and scale them to match to the inputs
-            # expected by the damage function
-            dem_i = (demands[CMP_to_EDP[cmp_id].loc[loc_dir_list]].values /
-                     self._dmg_function_scale_factors.loc[cmp_id, 'scale_factor'])
-
-            # Get the units and scale factor for quantity conversion
-            cmp_qnt_unit_name = self.damage_params.loc[
-                cmp_id, ('Component', 'Unit')]
-            cmp_qnt_scale_factor = (
-                self._asmnt.calc_unit_scale_factor(cmp_qnt_unit_name))
-
-            dmg_qnt_unit_name = self.damage_params.loc[
-                cmp_id, ('Damage', 'Unit')]
-            dmg_qnt_scale_factor = (
-                self._asmnt.calc_unit_scale_factor(dmg_qnt_unit_name))
-
-            qnt_scale_factor = dmg_qnt_scale_factor / cmp_qnt_scale_factor
-
-            # for each limit state
-            for ls_i in qnt_sample[
-                    cmp_id].columns.get_level_values(2).unique().values:
-
-                # create the damage function
-                f_signature = parse_f_signature(
-                    self.damage_params.loc[cmp_id, (f'LS{ls_i}', 'Theta_0')])
-
-                f_signature = f_signature.replace("D", "dem_i")
-
-                # apply the damage function to get the damage rate
-                dmg_rate = eval(f_signature)
-
-                # load the damaged quantities
-                qnt_i = qnt_sample.loc[:, idx[cmp_id, :, :, ls_i]].values
-
-                # convert the units to match the inputs expected by the damage
-                # function
-                qnt_i = qnt_i * qnt_scale_factor
-
-                # update the damaged quantities
-                qnt_sample.loc[:, idx[cmp_id, :, :, ls_i]] = qnt_i * dmg_rate
-
-            # update the damage quantity units
-            self.qnt_units.loc[cmp_id] = dmg_qnt_unit_name
-
-        self.log_msg('Damage functions successfully applied.',
-                     prepend_timestamp=False)
-
-        return qnt_sample
 
     def _get_pg_batches(self, block_batch_size):
         """
@@ -2768,14 +2536,45 @@ class DamageModel(PelicunModel):
         return pg_batch
 
     def _complete_ds_cols(self, dmg_sample):
+        """
+        Completes the damage sample dataframe with all possible damage
+        states for each component.
 
+        Parameters
+        ----------
+        dmg_sample : DataFrame
+            A DataFrame containing the damage state information for
+            each component block in the asset model. The columns are
+            MultiIndexed with levels corresponding to component
+            information ('cmp', 'loc', 'dir', 'uid') and the damage
+            state ('ds').
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame similar to `dmg_sample` but with additional
+            columns for missing damage states for each component,
+            ensuring that all possible damage states are
+            represented. The new columns are filled with zeros,
+            indicating no occurrence of those damage states in the
+            sample.
+
+        Notes
+        -----
+        - The method assumes that the damage model parameters
+          (`self.damage_params`) are available and contain the
+          necessary information to determine the total number of
+          damage states for each component.
+
+        """
         # get a shortcut for the damage model parameters
         DP = self.damage_params
 
         # Get the header for the results that we can use to identify
         # cmp-loc-dir-uid sets
-        dmg_header = dmg_sample.groupby(
-            level=[0,1,2,3], axis=1).first().iloc[:2,:]
+        dmg_header = (
+            dmg_sample.groupby(level=[0, 1, 2, 3], axis=1).first().iloc[:2, :]
+        )
 
         # get the number of possible limit states
         ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
@@ -2785,53 +2584,55 @@ class DamageModel(PelicunModel):
 
         # walk through all components that have damage parameters provided
         for cmp_id in DP.index:
-            
+
             # get the component-specific parameters
             cmp_data = DP.loc[cmp_id]
 
             # and initialize the damage state counter
             ds_count = 0
-            
+
             # walk through all limit states for the component
             for ls in ls_list:
-                
+
                 # check if the given limit state is defined
-                if pd.isna(cmp_data[(ls, 'Theta_0')]) == False:
-                    
+                if not pd.isna(cmp_data[(ls, 'Theta_0')]):
+
                     # check if there is only one damage state
-                    if pd.isna(cmp_data[(ls, 'DamageStateWeights')]) == True:
-                        
+                    if pd.isna(cmp_data[(ls, 'DamageStateWeights')]):
+
                         ds_count += 1
-                        
+
                     else:
 
                         # or if there are more than one, how many
                         ds_count += len(
                             cmp_data[(ls, 'DamageStateWeights')].split('|'))
-                        
+
             # get the list of valid cmp-loc-dir-uid sets
-            cmp_header = dmg_header.loc[:,[cmp_id,]]
-            
-            # Create a dataframe where they are repeated ds_count times in the 
-            # columns. The keys put the DS id in the first level of the 
+            cmp_header = dmg_header.loc[:, [cmp_id, ]]
+
+            # Create a dataframe where they are repeated ds_count times in the
+            # columns. The keys put the DS id in the first level of the
             # multiindexed column
             cmp_headers = pd.concat(
-                [cmp_header for ds_i in range(ds_count+1)], 
-                keys=[str(r) for r in range(0,ds_count+1)], 
+                [cmp_header for ds_i in range(ds_count + 1)],
+                keys=[str(r) for r in range(0, ds_count + 1)],
                 axis=1)
             cmp_headers.columns.names = ['ds', *cmp_headers.columns.names[1::]]
-            
+
             # add these new columns to the result dataframe
-            res = pd.concat([res,cmp_headers], axis=1)
-                
+            res = pd.concat([res, cmp_headers], axis=1)
+
         # Fill the result dataframe with zeros and reorder its columns to have
         # the damage states at the lowest like - matching the dmg_sample input
-        res = pd.DataFrame(0.,
-            columns = res.columns.reorder_levels([1,2,3,4,0]), 
-            index = dmg_sample.index)
+        res = pd.DataFrame(
+            0.0,
+            columns=res.columns.reorder_levels([1, 2, 3, 4, 0]),
+            index=dmg_sample.index,
+        )
 
-        # replace zeros wherever the dmg_sample has results    
-        res.loc[:,dmg_sample.columns.to_list()] = dmg_sample
+        # replace zeros wherever the dmg_sample has results
+        res.loc[:, dmg_sample.columns.to_list()] = dmg_sample
 
         return res
 
@@ -2895,17 +2696,16 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(
                 demand_dict, EDP_req,
                 capacity_sample, lsds_sample)
-            qnt_sample = self._prepare_dmg_quantities(
-                PGB, ds_sample, dropzero=False, dropempty=False)
+            qnt_sample = self._prepare_dmg_quantities(PGB, ds_sample, dropzero=False)
 
             qnt_samples.append(qnt_sample)
 
         qnt_sample = pd.concat(qnt_samples, axis=1)
-        qnt_sample.sort_index(axis=1, inplace=True)
 
-        # Create a comprehensive table with all possible DSs to have a robust 
+        # Create a comprehensive table with all possible DSs to have a robust
         # input for the damage processes evaluation below
         qnt_sample = self._complete_ds_cols(qnt_sample)
+        qnt_sample.sort_index(axis=1, inplace=True)
 
         self.log_msg("Raw damage calculation successful.",
                      prepend_timestamp=False)
@@ -2919,29 +2719,18 @@ class DamageModel(PelicunModel):
 
             for task in dmg_process.items():
 
-                qnt_sample = self._perform_dmg_task(task, qnt_sample)
+                self._perform_dmg_task(task, qnt_sample)
 
             self.log_msg("Damage processes successfully applied.",
                          prepend_timestamp=False)
 
-        # Apply damage functions, if any
-        # The scale factors are a good proxy to show that damage functions are
-        # used in the analysis
-        if self._dmg_function_scale_factors is not None:
-
-            self.log_msg("Applying damage functions...")
-
-            qnt_sample = self._apply_damage_functions(
-                EDP_req, demand, qnt_sample)
-
-            self.log_msg("Damage functions successfully applied.",
-                         prepend_timestamp=False)
-
         # If requested, remove columns with no damage from the sample
-        if self._asmnt.options.list_all_ds == False:
+        if self._asmnt.options.list_all_ds is False:
             qnt_sample = qnt_sample.iloc[:, np.where(qnt_sample.sum(axis=0) != 0)[0]]
 
-        self._sample = qnt_sample
+        self.sample = qnt_sample
+        # todo
+        assert self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage calculation successfully completed.')
 
@@ -2962,6 +2751,7 @@ class LossModel(PelicunModel):
         super().__init__(assessment)
 
         self._sample = None
+        self.loss_map = None
         self.loss_params = None
         self.loss_type = 'Generic'
 
@@ -2988,7 +2778,7 @@ class LossModel(PelicunModel):
         for cmp_id, dv_type in cmp_units.index:
             dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
 
-        res = save_to_csv(
+        res = file_io.save_to_csv(
             self.sample, filepath, units=dv_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=(filepath is not None),
@@ -3016,7 +2806,7 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading loss sample...')
 
-        self._sample = load_data(
+        self._sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log)
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
@@ -3036,7 +2826,7 @@ class LossModel(PelicunModel):
             Path to a csv file that maps drivers (i.e., damage or edp data) to
             loss models.
         decision_variables: list of string, optional
-            List of decision variables to include in the analysis. If None, 
+            List of decision variables to include in the analysis. If None,
             all variables provided in the consequence models are included. When
             a list is provided, only variables in the list will be included.
         """
@@ -3044,7 +2834,7 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg(f'Loading loss map for {self.loss_type}...')
 
-        loss_map = load_data(
+        loss_map = file_io.load_data(
             mapping_path, self._asmnt.unit_conversion_factors,
             orientation=1, reindex=False, convert=[], log=self._asmnt.log)
 
@@ -3072,7 +2862,7 @@ class LossModel(PelicunModel):
         data_list = []
         # load the data files one by one
         for data_path in data_paths:
-            data = load_data(
+            data = file_io.load_data(
                 data_path,
                 self._asmnt.unit_conversion_factors,
                 orientation=1,
@@ -3146,19 +2936,19 @@ class LossModel(PelicunModel):
                 prepend_timestamp=False)
 
         # filter decision variables, if needed
-        if decision_variables != None:
+        if decision_variables is not None:
 
-            loss_params = loss_params.reorder_levels([1,0])
+            loss_params = loss_params.reorder_levels([1, 0])
 
             available_DVs = loss_params.index.unique(level=0)
             filtered_DVs = []
-            
+
             for DV_i in decision_variables:
 
                 if DV_i in available_DVs:
                     filtered_DVs.append(DV_i)
 
-            loss_params = loss_params.loc[filtered_DVs, :].reorder_levels([1,0])
+            loss_params = loss_params.loc[filtered_DVs, :].reorder_levels([1, 0])
 
         self.loss_params = loss_params.sort_index(axis=1)
 
@@ -3323,7 +3113,7 @@ class BldgRepairModel(LossModel):
                     # 1.0 in its place and will scale the results in a later
                     # step
                     if '|' in str(cost_theta[0]):
-                        #if isinstance(cost_theta[0], str):
+                        # if isinstance(cost_theta[0], str):
                         cost_theta[0] = 1.0
 
                 else:
@@ -3352,8 +3142,10 @@ class BldgRepairModel(LossModel):
                     carbon_params_DS = carbon_params[f'DS{ds}']
 
                     carbon_family = carbon_params_DS.get('Family', np.nan)
-                    carbon_theta = [carbon_params_DS.get(f"Theta_{t_i}", np.nan)
-                                  for t_i in range(3)]
+                    carbon_theta = [
+                        carbon_params_DS.get(f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
+                    ]
 
                     # If the first parameter is controlled by a function, we use
                     # 1.0 in its place and will scale the results in a later
@@ -3370,8 +3162,10 @@ class BldgRepairModel(LossModel):
                     energy_params_DS = energy_params[f'DS{ds}']
 
                     energy_family = energy_params_DS.get('Family', np.nan)
-                    energy_theta = [energy_params_DS.get(f"Theta_{t_i}", np.nan)
-                                  for t_i in range(3)]
+                    energy_theta = [
+                        energy_params_DS.get(f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
+                    ]
 
                     # If the first parameter is controlled by a function, we use
                     # 1.0 in its place and will scale the results in a later
@@ -3385,10 +3179,12 @@ class BldgRepairModel(LossModel):
 
                 # If neither of the DV_types has a stochastic model assigned,
                 # we do not need random variables for this DS
-                if ((pd.isna(cost_family) == True) and (
-                    pd.isna(time_family) == True) and (
-                    pd.isna(carbon_family) == True) and (
-                    pd.isna(energy_family) == True)):
+                if (
+                    (pd.isna(cost_family))
+                    and (pd.isna(time_family))
+                    and (pd.isna(carbon_family))
+                    and (pd.isna(energy_family))
+                ):
                     continue
 
                 # Otherwise, load the loc-dir cases
@@ -3399,7 +3195,9 @@ class BldgRepairModel(LossModel):
                     # assign cost RV
                     if pd.isna(cost_family) is False:
 
-                        cost_rv_tag = f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        cost_rv_tag = (
+                            f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        )
 
                         RV_reg.add_RV(
                             uq.RandomVariable(
@@ -3413,7 +3211,9 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(time_family) is False:
-                        time_rv_tag = f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        time_rv_tag = (
+                            f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        )
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=time_rv_tag,
@@ -3425,7 +3225,9 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(carbon_family) is False:
-                        carbon_rv_tag = f'Carbon-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        carbon_rv_tag = (
+                            f'Carbon-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        )
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=carbon_rv_tag,
@@ -3437,7 +3239,9 @@ class BldgRepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(energy_family) is False:
-                        energy_rv_tag = f'Energy-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        energy_rv_tag = (
+                            f'Energy-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        )
 
                         RV_reg.add_RV(uq.RandomVariable(
                             name=energy_rv_tag,
@@ -3448,7 +3252,7 @@ class BldgRepairModel(LossModel):
                         rv_count += 1
 
                     # assign correlation between RVs across DV_types
-                    # TODO: add more DV_types and handle cases with only a 
+                    # TODO: add more DV_types and handle cases with only a
                     # subset of them being defined
                     if ((pd.isna(cost_family) is False) and (
                             pd.isna(time_family) is False) and (
@@ -3479,7 +3283,7 @@ class BldgRepairModel(LossModel):
 
         DV_types = self.loss_params.index.unique(level=1)
 
-        #for DV_type, DV_type_scase in zip(['COST', 'TIME'], ['Cost', 'Time']):
+        # for DV_type, DV_type_scase in zip(['COST', 'TIME'], ['Cost', 'Time']):
         for DV_type in DV_types:
 
             cmp_list = []
@@ -3524,7 +3328,7 @@ class BldgRepairModel(LossModel):
                     # check if theta_0 is defined
                     theta_0 = loss_params_DS.get('Theta_0', np.nan)
 
-                    if pd.isna(theta_0) == True:
+                    if pd.isna(theta_0):
                         continue
 
                     # check if the distribution type is supported
@@ -3540,7 +3344,7 @@ class BldgRepairModel(LossModel):
                     try:
                         theta_0 = float(theta_0)
 
-                        if pd.isna(loss_params_DS.get('Family', np.nan)) == True:
+                        if pd.isna(loss_params_DS.get('Family', np.nan)):
 
                             # if theta_0 is constant, then use it directly
                             f_median = prep_constant_median_DV(theta_0)
@@ -3686,9 +3490,9 @@ class BldgRepairModel(LossModel):
             dv_units['repair_carbon'] = cmp_units['Carbon']
 
         if 'Energy' in DVG.columns:
-            dv_units['repair_energy'] = cmp_units['Energy']        
+            dv_units['repair_energy'] = cmp_units['Energy']
 
-        df_agg = save_to_csv(
+        df_agg = file_io.save_to_csv(
             df_agg, None, units=dv_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=False,
@@ -3728,9 +3532,9 @@ class BldgRepairModel(LossModel):
         self.log_msg("\nAggregating damage quantities...",
                      prepend_timestamp=False)
 
-        if self._asmnt.options.eco_scale["AcrossFloors"] == True:
+        if self._asmnt.options.eco_scale["AcrossFloors"]:
 
-            if self._asmnt.options.eco_scale["AcrossDamageStates"] == True:
+            if self._asmnt.options.eco_scale["AcrossDamageStates"]:
 
                 eco_levels = [0, ]
                 eco_columns = ['cmp', ]
@@ -3740,7 +3544,7 @@ class BldgRepairModel(LossModel):
                 eco_levels = [0, 4]
                 eco_columns = ['cmp', 'ds']
 
-        elif self._asmnt.options.eco_scale["AcrossDamageStates"] == True:
+        elif self._asmnt.options.eco_scale["AcrossDamageStates"]:
 
             eco_levels = [0, 1]
             eco_columns = ['cmp', 'loc']
@@ -3751,7 +3555,7 @@ class BldgRepairModel(LossModel):
             eco_columns = ['cmp', 'loc', 'ds']
 
         eco_group = dmg_quantities.groupby(level=eco_levels, axis=1)
-        eco_qnt = eco_group.sum().mask(eco_group.count()==0, np.nan)
+        eco_qnt = eco_group.sum().mask(eco_group.count() == 0, np.nan)
         assert eco_qnt.columns.names == eco_columns
 
         self.log_msg("Successfully aggregated damage quantities.",
@@ -3781,7 +3585,7 @@ class BldgRepairModel(LossModel):
                 sample_size=sample_size, method=self._asmnt.options.sampling_method)
 
             std_sample = base.convert_to_MultiIndex(
-                pd.DataFrame(RV_reg.RV_sample),axis=1).sort_index(axis=1)
+                pd.DataFrame(RV_reg.RV_sample), axis=1).sort_index(axis=1)
             std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'uid']
 
             # convert column names to int
@@ -3810,7 +3614,9 @@ class BldgRepairModel(LossModel):
         res_list = []
         key_list = []
 
-        dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0, 4, 1, 2, 3])
+        dmg_quantities.columns = dmg_quantities.columns.reorder_levels(
+            [0, 4, 1, 2, 3]
+        )
         dmg_quantities.sort_index(axis=1, inplace=True)
 
         DV_types = self.loss_params.index.unique(level=1)
@@ -3820,7 +3626,7 @@ class BldgRepairModel(LossModel):
         else:
             std_DV_types = []
 
-        #for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
+        # for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
         for DV_type in DV_types:
 
             if DV_type in std_DV_types:
@@ -3878,7 +3684,7 @@ class BldgRepairModel(LossModel):
                             if cmp_i in prob_cmp_list:
                                 std_i = std_sample.loc[:, (DV_type, cmp_i, ds, loc)]
                             else:
-                                std_i = None                        
+                                std_i = None
 
                         if std_i is not None:
                             res_list.append(dmg_i.mul(median_i, axis=0) * std_i)

@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 These are unit and integration tests on the base module of pelicun.
@@ -50,24 +51,13 @@ import pytest
 import pandas as pd
 import numpy as np
 from pelicun import base
-import numpy as np
 
-# for tests, we sometimes create things or call them just to see if
-# things would work, so the following are irrelevant:
-
-# pylint: disable=useless-suppression
-# pylint: disable=unused-variable
-
+# pylint: disable=missing-function-docstring
 
 # The tests maintain the order of definitions of the `base.py` file.
 
 
 def test_options_init():
-    """
-    Test that the Options object is initialized with the correct
-    attributes based on the input user configuration
-    """
-
     # Create a sample user_config_options dictionary
     user_config_options = {
         "Verbose": False,
@@ -75,19 +65,11 @@ def test_options_init():
         "LogShowMS": False,
         "LogFile": 'test_log_file',
         "PrintLog": False,
-        "DemandOffset": {
-            "PFA": -1,
-            "PFV": -1
-        },
+        "DemandOffset": {"PFA": -1, "PFV": -1},
         "SamplingMethod": "MonteCarlo",
-        "NonDirectionalMultipliers": {
-            "ALL": 1.2
-        },
-        "EconomiesOfScale": {
-            "AcrossFloors": True,
-            "AcrossDamageStates": True
-        },
-        "RepairCostAndTimeCorrelation": 0.7
+        "NonDirectionalMultipliers": {"ALL": 1.2},
+        "EconomiesOfScale": {"AcrossFloors": True, "AcrossDamageStates": True},
+        "RepairCostAndTimeCorrelation": 0.7,
     }
 
     # Create an Options object using the user_config_options
@@ -122,14 +104,12 @@ def test_options_init():
 
 
 def test_nondir_multi():
-    """
-    Tests that the nondir_multi method of the Options class returns
-    the correct value for the specified EDP type. Tests that the
-    method uses the value associated with the 'ALL' key if the EDP
-    type is not present in the nondir_multi_dict attribute. Tests
-    that a ValueError is raised if the 'ALL' key is not present in the
-    nondir_multi_dict attribute.
-    """
+    # Tests that the nondir_multi method of the Options class returns
+    # the correct value for the specified EDP type. Tests that the
+    # method uses the value associated with the 'ALL' key if the EDP
+    # type is not present in the nondir_multi_dict attribute. Tests
+    # that a ValueError is raised if the 'ALL' key is not present in the
+    # nondir_multi_dict attribute.
 
     # Create an instance of the Options class with default values for all options,
     # except for the nondir_multi_dict attribute
@@ -157,14 +137,14 @@ def test_nondir_multi():
 
 
 def test_logger_init():
-    """
-    Tests that the Logger object is initialized with the correct
-    attributes based on the input configuration dictionary.
-    """
     # Test that the Logger object is initialized with the correct
     # attributes based on the input configuration
-    log_config = {'verbose': True, 'log_show_ms': False,
-                  'log_file': 'log.txt', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': False,
+        'log_file': 'log.txt',
+        'print_log': True,
+    }
     log = base.Logger(**log_config)
     assert log.verbose is True
     assert log.log_show_ms is False
@@ -173,23 +153,25 @@ def test_logger_init():
     os.remove('log.txt')
 
     # test exceptions
-    log_config = {'verbose': True, 'log_show_ms': False,
-                  'log_file': '/', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': False,
+        'log_file': '/',
+        'print_log': True,
+    }
     with pytest.raises((IsADirectoryError, FileExistsError)):
         log = base.Logger(**log_config)
 
 
-
 def test_logger_msg():
-    """
-    Tests the functionality of the msg method of the Logger
-    object.
-    """
-
     # Test that the msg method prints the correct message to the
     # console and log file
-    log_config = {'verbose': True, 'log_show_ms': True,
-                  'log_file': 'log.txt', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': True,
+        'log_file': 'log.txt',
+        'print_log': True,
+    }
     log = base.Logger(**log_config)
     # Check that the message is printed to the console
     with io.StringIO() as buf, redirect_stdout(buf):
@@ -203,23 +185,21 @@ def test_logger_msg():
 
 
 def test_logger_div():
-    """
-    Tests the functionality of the div method of the Logger
-    object.
-    """
-
     # We test the divider with and without the timestamp
     prepend_timestamp_args = (True, False)
     patterns = (
-        r'[0-9][0-9]:[0-9][0-9]:[0-9][0-9]'
-        r':[0-9][0-9][0-9][0-9][0-9][0-9]\s-+',
-        r'\s+-+'
+        r'[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:[0-9][0-9][0-9][0-9][0-9][0-9]\s-+',
+        r'\s+-+',
     )
     for case, pattern_str in zip(prepend_timestamp_args, patterns):
         pattern = re.compile(pattern_str)
         # Test that the div method adds a divider as intended
-        log_config = {'verbose': True, 'log_show_ms': True,
-                      'log_file': 'log.txt', 'print_log': True}
+        log_config = {
+            'verbose': True,
+            'log_show_ms': True,
+            'log_file': 'log.txt',
+            'print_log': True,
+        }
         log = base.Logger(**log_config)
 
         # check console output
@@ -237,13 +217,13 @@ def test_logger_div():
 
 
 def test_print_system_info():
-    """
-    Tests that the system information is retrieved correctly
-    """
-
     # create a logger object
-    log_config = {'verbose': True, 'log_show_ms': True,
-                  'log_file': 'log.txt', 'print_log': True}
+    log_config = {
+        'verbose': True,
+        'log_show_ms': True,
+        'log_file': 'log.txt',
+        'print_log': True,
+    }
     log = base.Logger(**log_config)
 
     # run print_system_info and get the console output
@@ -258,11 +238,59 @@ def test_print_system_info():
     os.remove('log.txt')
 
 
-def test_convert_to_SimpleIndex():
-    """
-    Tests the functionality of the convert_to_SimpleIndex function.
-    """
+def test_update_vals():
+    primary = {'b': {'c': 4, 'd': 5}, 'g': 7}
+    update = {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6}
+    base.update_vals(update, primary, 'update', 'primary')
+    assert primary == {'b': {'c': 4, 'd': 5}, 'g': 7}  # unchanged
+    assert update == {'a': 1, 'b': {'c': 3, 'd': 5}, 'f': 6, 'g': 7}  # updated
+    # note: key 'g' created, 'f' left there, 'c', 'd' updated, as intended
 
+    primary = {'a': {'b': {'c': 4}}}
+    update = {'a': {'b': {'c': 3}}}
+    base.update_vals(update, primary, 'update', 'primary')
+    assert primary == {'a': {'b': {'c': 4}}}  # unchanged
+    assert update == {'a': {'b': {'c': 3}}}  # updated
+
+    primary = {'a': {'b': 4}}
+    update = {'a': {'b': {'c': 3}}}
+    with pytest.raises(ValueError):
+        base.update_vals(update, primary, 'update', 'primary')
+
+    primary = {'a': {'b': 3}}
+    update = {'a': 1, 'b': 2}
+    with pytest.raises(ValueError):
+        base.update_vals(update, primary, 'update', 'primary')
+
+
+def test_merge_default_config():
+    # Test merging an empty user config with the default config
+    user_config = {}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == base.load_default_options()
+
+    # Test merging a user config with a single option set
+    user_config = {'Verbose': True}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+    # Test merging a user config with multiple options set
+    user_config = {'Verbose': True, 'Seed': 12345}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+    # Test merging a user config with a nested option set
+    user_config = {'NonDirectionalMultipliers': {'PFA': 1.5}}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+    # Test merging a user config with a nested option set and a top-level option set
+    user_config = {'Verbose': True, 'NonDirectionalMultipliers': {'PFA': 1.5}}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == {**base.load_default_options(), **user_config}
+
+
+def test_convert_to_SimpleIndex():
     # Test conversion of a multiindex to a simple index following the
     # SimCenter dash convention
     index = pd.MultiIndex.from_tuples((('a', 'b'), ('c', 'd')))
@@ -298,10 +326,6 @@ def test_convert_to_SimpleIndex():
 
 
 def test_convert_to_MultiIndex():
-    """
-    Tests the functionality of the convert_to_MultiIndex function.
-    """
-
     # Test a case where the index needs to be converted to a MultiIndex
     data = pd.DataFrame({'A': (1, 2, 3), 'B': (4, 5, 6)})
     data.index = ('A-1', 'B-1', 'C-1')
@@ -313,7 +337,8 @@ def test_convert_to_MultiIndex():
 
     # Test a case where the index is already a MultiIndex
     data_converted = base.convert_to_MultiIndex(
-        data_converted, axis=0, inplace=False)
+        data_converted, axis=0, inplace=False
+    )
     assert data_converted.index.equals(expected_index)
 
     # Test a case where the columns need to be converted to a MultiIndex
@@ -326,7 +351,8 @@ def test_convert_to_MultiIndex():
 
     # Test a case where the columns are already a MultiIndex
     data_converted = base.convert_to_MultiIndex(
-        data_converted, axis=1, inplace=False)
+        data_converted, axis=1, inplace=False
+    )
     assert data_converted.columns.equals(expected_columns)
 
     # Test an invalid axis parameter
@@ -342,10 +368,6 @@ def test_convert_to_MultiIndex():
 
 
 def test_show_matrix():
-    """
-    Tests the functionality of the show_matrix function.
-    """
-
     # Test with a simple 2D array
     arr = ((1, 2, 3), (4, 5, 6))
     base.show_matrix(arr)
@@ -362,85 +384,84 @@ def test_show_matrix():
 
 
 def test__warning(capsys):
-    """
-    Tests the functionality of the _warning function.
-    """
     msg = 'This is a test.'
     category = 'undefined'
     base._warning(msg, category, '{path to a file}', '{line number}')
     captured = capsys.readouterr()
-    assert captured.out == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
+    assert (
+        captured.out
+        == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
+    )
     base._warning(msg, category, 'some\\file', '{line number}')
     captured = capsys.readouterr()
-    assert captured.out == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    assert (
+        captured.out
+        == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    )
     base._warning(msg, category, 'some/file', '{line number}')
     captured = capsys.readouterr()
-    assert captured.out == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    assert (
+        captured.out
+        == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+    )
 
 
 def test_describe():
-    """
-    Tests the functionality of the describe function.
-    """
-
     expected_idx = pd.Index(
-        ('count', 'mean', 'std', 'log_std', 'min',
-         '0.1%', '2.3%', '10%', '15.9%', '50%',
-         '84.1%', '90%', '97.7%', '99.9%',
-         'max'), dtype='object')
+        (
+            'count',
+            'mean',
+            'std',
+            'log_std',
+            'min',
+            '0.1%',
+            '2.3%',
+            '10%',
+            '15.9%',
+            '50%',
+            '84.1%',
+            '90%',
+            '97.7%',
+            '99.9%',
+            'max',
+        ),
+        dtype='object',
+    )
 
     # case 1:
     # passing a dataframe
 
     df = pd.DataFrame(
-        ((1.00, 2.00, 3.00),
-         (4.00, 5.00, 6.00)),
-        columns=['A', 'B', 'C'])
+        ((1.00, 2.00, 3.00), (4.00, 5.00, 6.00)), columns=['A', 'B', 'C']
+    )
     desc = base.describe(df)
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            ('A', 'B', 'C'), dtype='object'))
+    assert np.all(desc.columns == pd.Index(('A', 'B', 'C'), dtype='object'))
 
     # case 2:
     # passing a series
 
-    sr = pd.Series(
-        (1.00, 2.00, 3.00),
-        name='A')
+    sr = pd.Series((1.00, 2.00, 3.00), name='A')
     desc = base.describe(sr)
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            ('A',), dtype='object'))
+    assert np.all(desc.columns == pd.Index(('A',), dtype='object'))
 
     # case 3:
     # passing a 2D numpy array
 
-    desc = base.describe(
-        np.array((
-            (1.00, 2.00, 3.00),
-            (4.00, 5.00, 6.00))))
+    desc = base.describe(np.array(((1.00, 2.00, 3.00), (4.00, 5.00, 6.00))))
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            (0, 1, 2), dtype='object'))
+    assert np.all(desc.columns == pd.Index((0, 1, 2), dtype='object'))
 
     # case 4:
     # passing a 1D numpy array
 
-    desc = base.describe(
-        np.array((1.00, 2.00, 3.00)))
+    desc = base.describe(np.array((1.00, 2.00, 3.00)))
     assert np.all(desc.index == expected_idx)
-    assert np.all(
-        desc.columns == pd.Index(
-            (0,), dtype='object'))
+    assert np.all(desc.columns == pd.Index((0,), dtype='object'))
 
 
 def test_str2bool():
-    """
-    Tests the functionality of the test_str2bool function.
-    """
     assert base.str2bool('True') is True
     assert base.str2bool('False') is False
     assert base.str2bool('yes') is True
@@ -456,10 +477,6 @@ def test_str2bool():
 
 
 def test_float_or_None():
-    """
-    Tests the functionality of the float_or_None function.
-    """
-
     # Test with a string that can be converted to a float
     assert base.float_or_None('3.14') == 3.14
 
@@ -477,10 +494,6 @@ def test_float_or_None():
 
 
 def test_int_or_None():
-    """
-    Tests the functionality of the int_or_None function.
-    """
-
     # Test the case when the string can be converted to int
     assert base.int_or_None('123') == 123
     assert base.int_or_None('-456') == -456
@@ -495,12 +508,10 @@ def test_int_or_None():
 
 
 def test_process_loc():
-    """
-    Tests the functionality of the process_loc function.
-    """
-
     # Test when string can be converted to an int
-    assert base.process_loc('5', 10) == [5, ]
+    assert base.process_loc('5', 10) == [
+        5,
+    ]
 
     # Test when string is in the form 'low-high'
     assert base.process_loc('2-5', 10) == [2, 3, 4, 5]
@@ -509,18 +520,18 @@ def test_process_loc():
     assert base.process_loc('all', 10) == list(range(1, 11))
 
     # Test when string is 'top'
-    assert base.process_loc('top', 10) == [10, ]
+    assert base.process_loc('top', 10) == [
+        10,
+    ]
 
     # Test when string is 'roof'
-    assert base.process_loc('roof', 10) == [10, ]
+    assert base.process_loc('roof', 10) == [
+        10,
+    ]
 
     # Test when string cannot be converted to an int or recognized
     assert base.process_loc('abc', 10) is None
 
 
 def test_run_input_specs():
-    """
-    Just for the shake of coverage ^_^
-    """
-    assert (
-        os.path.basename(base.pelicun_path) == 'pelicun')
+    assert os.path.basename(base.pelicun_path) == 'pelicun'

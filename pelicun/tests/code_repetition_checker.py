@@ -36,61 +36,53 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
-These are utility functions for the unit and integration tests.
+A utility script for detecting duplicated blocks of lines across
+Python test files.
 """
 
-import pickle
-import os
-
-# pylint: disable=useless-suppression
-# pylint: disable=unused-variable
-# pylint: disable=pointless-statement
+from glob2 import glob
 
 
-def export_pickle(filepath, obj, makedirs=True):
+def main(file):
     """
-    Auxiliary function to export a pickle object.
-    Parameters
-    ----------
-    filepath: str
-      The path of the file to be exported,
-      including any subdirectories.
-    obj: object
-      The object to be pickled
-    makedirs: bool
-      If True, then the directories preceding the filename
-      will be created if they do not exist.
+    Identifies and displays repeated consecutive line blocks within a
+    file, including their line numbers.
+
+    Args:
+    file: Path to the file to be checked for duplicates.
     """
-    # extract the directory name
-    dirname = os.path.dirname(filepath)
-    # if making directories is requested,
-    if makedirs:
-        # and the path does not exist
-        if not os.path.exists(dirname):
-            # create the directory
-            os.makedirs(dirname)
-    # open the file with the given filepath
-    with open(filepath, 'wb') as f:
-        # and store the object in the file
-        pickle.dump(obj, f)
+    # file = 'tests/test_uq.py'
+    group = 15  # find repeated blocks this many lines
+
+    with open(file, 'r', encoding='utf-8') as f:
+        contents = f.readlines()
+    num_lines = len(contents)
+    for i in range(0, num_lines, group):
+        glines = contents[i : i + group]
+        for j in range(i + 1, num_lines):
+            jlines = contents[j : j + group]
+            if glines == jlines:
+                print(f'{i, j}: ')
+                for k in range(group):
+                    print(f'    {jlines[k]}', end='')
+                print()
 
 
-def import_pickle(filepath):
+def all_test_files():
     """
-    Auxiliary function to import a pickle object.
-    Parameters
-    ----------
-    filepath: str
-      The path of the file to be imported.
-
-    Returns
-    -------
-    The pickled object.
-
+    Searches for all Python test files in the 'tests' directory and
+    runs the main function to find and print repeated line blocks in each file.
     """
-    # open the file with the given filepath
-    with open(filepath, 'rb') as f:
-        # and retrieve the pickled object
-        return pickle.load(f)
+    test_files = glob('tests/*.py')
+    for file in test_files:
+        print()
+        print(file)
+        print()
+        main(file)
+
+
+if __name__ == '__main__':
+    all_test_files()

@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 This file is used to reset all expected test result data.
@@ -64,7 +65,7 @@ def reset_all_test_data(restore=True, purge=False):
     directory is the package root directory (`pelicun`). The code
     assumes that the test data directory exists.
     Data deletion only involves `.pcl` files that begin with `test_` and
-    reside in /tests/data.
+    reside in /pelicun/tests/data.
 
     Parameters
     ----------
@@ -91,12 +92,13 @@ def reset_all_test_data(restore=True, purge=False):
     if cwd != 'pelicun':
         raise OSError(
             'Wrong directory. '
-            'See the docstring of `reset_all_test_data`. Aborting')
+            'See the docstring of `reset_all_test_data`. Aborting'
+        )
 
     # where the test result data are stored
     testdir = os.path.join(*('tests', 'data'))
     if not os.path.exists(testdir):
-        raise ValueError('tests/data directory not found.')
+        raise ValueError('pelicun/tests/data directory not found.')
 
     # clean up existing test result data
     # only remove .pcl files that start with `test_`
@@ -128,8 +130,9 @@ def reset_all_test_data(restore=True, purge=False):
                     if 'reset' in arguments:
                         # we want to import it and run it with reset=True
                         # construct a module name, like 'tests.test_uq'
-                        module_name = 'tests.' + os.path.basename(
-                            test_file).replace('.py', '')
+                        module_name = 'tests.' + os.path.basename(test_file).replace(
+                            '.py', ''
+                        )
                         # import the module
                         module = importlib.import_module(module_name)
                         # get the function

@@ -2,11 +2,11 @@
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
-init-hook='import sys; sys.path.append(".")'
+init-hook='import sys; sys.path.append("."); sys.path.append("../"); sys.path.append("../../")'
 
 # Files or directories to be skipped. They should be base names, not
 # paths.
-ignore=auto.py
+ignore=auto.py,db.py,flycheck_*.py
 
 # Add files or directories matching the regex patterns to the ignore-list. The
 # regex matches against paths and can be in Posix or Windows format.
@@ -31,7 +31,7 @@ load-plugins=
     pylint.extensions.typing,
     pylint.extensions.redefined_variable_type,
     pylint.extensions.comparison_placement,
-    pylint.extensions.docparams,
+    pylint.extensions.docparams
 
 # Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
 # number of processors available to use.
@@ -511,7 +511,7 @@ preferred-modules=
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception"
-overgeneral-exceptions=Exception
+overgeneral-exceptions=builtins.Exception
 
 
 [TYPING]

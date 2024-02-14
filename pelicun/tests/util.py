@@ -36,36 +36,62 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
-import pandas as pd
-import sys
-import argparse
-from pathlib import Path
+"""
+These are utility functions for the unit and integration tests.
+"""
 
+import pickle
+import os
 
-def convert_HDF(HDF_path):
-
-    HDF_ext = HDF_path.split('.')[-1]
-    CSV_base = HDF_path[:-len(HDF_ext) - 1]
-
-    HDF_path = Path(HDF_path).resolve()
-
-    store = pd.HDFStore(HDF_path)
-
-    for key in store.keys():
-
-        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/","_")}.csv')
-
-    store.close()
+# pylint: disable=useless-suppression
+# pylint: disable=unused-variable
+# pylint: disable=pointless-statement
 
 
-if __name__ == '__main__':
+def export_pickle(filepath, obj, makedirs=True):
+    """
+    Auxiliary function to export a pickle object.
+    Parameters
+    ----------
+    filepath: str
+      The path of the file to be exported,
+      including any subdirectories.
+    obj: object
+      The object to be pickled
+    makedirs: bool
+      If True, then the directories preceding the filename
+      will be created if they do not exist.
+    """
+    # extract the directory name
+    dirname = os.path.dirname(filepath)
+    # if making directories is requested,
+    if makedirs:
+        # and the path does not exist
+        if not os.path.exists(dirname):
+            # create the directory
+            os.makedirs(dirname)
+    # open the file with the given filepath
+    with open(filepath, 'wb') as f:
+        # and store the object in the file
+        pickle.dump(obj, f)
 
-    args = sys.argv[1:]
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('HDF_path')
+def import_pickle(filepath):
+    """
+    Auxiliary function to import a pickle object.
+    Parameters
+    ----------
+    filepath: str
+      The path of the file to be imported.
 
-    args = parser.parse_args(args)
+    Returns
+    -------
+    The pickled object.
 
-    convert_HDF(args.HDF_path)
+    """
+    # open the file with the given filepath
+    with open(filepath, 'rb') as f:
+        # and retrieve the pickled object
+        return pickle.load(f)
