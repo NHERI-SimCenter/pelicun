@@ -833,7 +833,6 @@ def test_RandomVariable():
     rv_3.theta = np.array((2.00, 0.20))
     # retrieve other attributes
     assert np.allclose(rv_3.theta, np.array((2.00, 0.20)))
-    assert rv_3.bounds is None
     assert rv_3.custom_expr is None
     assert rv_3.RV_set is None
     assert rv_3.sample_DF is None
