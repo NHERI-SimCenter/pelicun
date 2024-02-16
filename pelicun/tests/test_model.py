@@ -781,424 +781,16 @@ class TestDamageModel(TestPelicunModel):
     def damage_model(self, assessment_instance):
         return assessment_instance.damage
 
-    def test_init(self, damage_model):
-        assert damage_model.log_msg
-        assert damage_model.log_div
-
-        assert damage_model.damage_params is None
-        assert damage_model.sample is None
-
-    def test_load_damage_model(self, damage_model, cmp_sample_A):
+    @pytest.fixture
+    def damage_model_model_loaded(self, damage_model, cmp_sample_A):
         asmt = damage_model._asmnt
-
         asmt.get_default_data('damage_DB_FEMA_P58_2nd')
-
         asmt.asset._cmp_sample = cmp_sample_A
-
         damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
+        return damage_model
 
-        # should no longer be None
-        assert damage_model.damage_params is not None
-
-        assert list(damage_model.damage_params.columns) == [
-            ("Demand", "Directional"),
-            ("Demand", "Offset"),
-            ("Demand", "Type"),
-            ("Demand", "Unit"),
-            ("Incomplete", ""),
-            ("LS1", "DamageStateWeights"),
-            ("LS1", "Family"),
-            ("LS1", "Theta_0"),
-            ("LS1", "Theta_1"),
-            ("LS2", "DamageStateWeights"),
-            ("LS2", "Family"),
-            ("LS2", "Theta_0"),
-            ("LS2", "Theta_1"),
-            ("LS3", "DamageStateWeights"),
-            ("LS3", "Family"),
-            ("LS3", "Theta_0"),
-            ("LS3", "Theta_1"),
-            ("LS4", "DamageStateWeights"),
-            ("LS4", "Family"),
-            ("LS4", "Theta_0"),
-            ("LS4", "Theta_1"),
-        ]
-
-        assert list(damage_model.damage_params.index) == ['B.10.31.001']
-
-        contents = damage_model.damage_params.to_numpy().reshape(-1)
-
-        expected_contents = np.array(
-            [
-                1.0,
-                0.0,
-                'Peak Interstory Drift Ratio',
-                'unitless',
-                0.0,
-                '0.950000 | 0.050000',
-                'lognormal',
-                0.04,
-                0.4,
-                None,
-                'lognormal',
-                0.08,
-                0.4,
-                None,
-                'lognormal',
-                0.11,
-                0.4,
-                np.nan,
-                None,
-                np.nan,
-                np.nan,
-            ],
-            dtype=object,
-        )
-
-        # this comparison was tricky
-        for x, y in zip(contents, expected_contents):
-            if isinstance(x, str):
-                assert x == y
-            elif x is None:
-                continue
-            elif np.isnan(x):
-                continue
-
-    def test__create_dmg_RVs(self, assessment_instance, cmp_sample_A):
-        damage_model = assessment_instance.damage
-        asset_model = assessment_instance.asset
-
-        assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
-
-        asset_model._cmp_sample = cmp_sample_A
-        damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-        pg_batch = damage_model._get_pg_batches(block_batch_size=1)
-        batches = pg_batch.index.get_level_values(0).unique()
-        for PGB_i in batches:
-            PGB = pg_batch.loc[PGB_i]
-            # ensure the following works in each case
-            damage_model._create_dmg_RVs(PGB)
-
-        # check the output for a single case
-        PGB_i = batches[-1]
-        PGB = pg_batch.loc[PGB_i]
-
-        capacity_RV_reg, lsds_RV_reg = damage_model._create_dmg_RVs(PGB)
-
-        assert capacity_RV_reg is not None
-        assert lsds_RV_reg is not None
-
-        assert list(capacity_RV_reg._variables.keys()) == [
-            'FRG-B.10.31.001-2-2-0-1-1',
-            'FRG-B.10.31.001-2-2-0-1-2',
-            'FRG-B.10.31.001-2-2-0-1-3',
-        ]
-
-        assert capacity_RV_reg._sets == {}
-
-        assert list(lsds_RV_reg._variables.keys()) == [
-            'LSDS-B.10.31.001-2-2-0-1-1',
-            'LSDS-B.10.31.001-2-2-0-1-2',
-            'LSDS-B.10.31.001-2-2-0-1-3',
-        ]
-
-        assert lsds_RV_reg._sets == {}
-
-    def test__generate_dmg_sample(self, assessment_instance, cmp_sample_A):
-        damage_model = assessment_instance.damage
-        asset_model = assessment_instance.asset
-
-        assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
-
-        asset_model._cmp_sample = cmp_sample_A
-        damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-        pg_batch = damage_model._get_pg_batches(block_batch_size=1)
-        batches = pg_batch.index.get_level_values(0).unique()
-        PGB_i = batches[-1]
-        PGB = pg_batch.loc[PGB_i]
-        sample_size = 10
-
-        # test the _generate_dmg_sample method
-        capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-            sample_size, PGB
-        )
-
-        # run a few checks on the results of the method
-
-        # note: the method generates random results. We avoid checking
-        # those for equality, because subsequent changes in the code might
-        # break the tests. The functionality of the uq module, which is
-        # used to generate the random samples, is tested with a dedicated
-        # test suite.
-
-        for res in (capacity_sample, lsds_sample):
-            assert res.shape == (10, 3)
-
-            assert list(res.columns) == [
-                ('B.10.31.001', '2', '2', '0', '1', '1'),
-                ('B.10.31.001', '2', '2', '0', '1', '2'),
-                ('B.10.31.001', '2', '2', '0', '1', '3'),
-            ]
-
-            assert list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-        assert capacity_sample.to_numpy().dtype == np.dtype('float64')
-        assert lsds_sample.to_numpy().dtype == np.dtype('int64')
-
-    def test__get_required_demand_type(self, assessment_instance, cmp_sample_A):
-        damage_model = assessment_instance.damage
-        asset_model = assessment_instance.asset
-
-        assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
-
-        asset_model._cmp_sample = cmp_sample_A
-        damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-
-        pg_batch = damage_model._get_pg_batches(block_batch_size=1)
-        batches = pg_batch.index.get_level_values(0).unique()
-        PGB_i = batches[-1]
-        PGB = pg_batch.loc[PGB_i]
-
-        EDP_req = damage_model._get_required_demand_type(PGB)
-
-        assert EDP_req == {'PID-2-2': [('B.10.31.001', '2', '2', '0')]}
-
-    def test__assemble_required_demand_data(
-        self, assessment_instance, cmp_sample_A, calibration_config_A
-    ):
-        demand_model = assessment_instance.demand
-        demand_model.load_sample(
-            'pelicun/tests/data/model/'
-            'test_DamageModel_assemble_required_demand_data/'
-            'demand_sample.csv'
-        )
-        demand_model.calibrate_model(calibration_config_A)
-
-        damage_model = assessment_instance.damage
-        asset_model = assessment_instance.asset
-
-        assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
-
-        asset_model._cmp_sample = cmp_sample_A
-        damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-
-        pg_batch = damage_model._get_pg_batches(block_batch_size=1)
-        batches = pg_batch.index.get_level_values(0).unique()
-
-        expected_demand_dicts = [
-            {'PID-1-1': np.array([0.001])},
-            {'PID-1-2': np.array([0.002])},
-            {'PID-2-1': np.array([0.003])},
-            {'PID-2-2': np.array([0.004])},
-        ]
-
-        for i, PGB_i in enumerate(batches):
-            PGB = pg_batch.loc[PGB_i]
-            EDP_req = damage_model._get_required_demand_type(PGB)
-            demand_dict = damage_model._assemble_required_demand_data(EDP_req)
-            assert demand_dict == expected_demand_dicts[i]
-
-    def test__evaluate_damage_state_and_prepare_dmg_quantities(
-        self, assessment_instance, cmp_sample_A, calibration_config_A
-    ):
-        damage_model = assessment_instance.damage
-        demand_model = assessment_instance.demand
-        asset_model = assessment_instance.asset
-
-        demand_model.load_sample(
-            'pelicun/tests/data/model/'
-            'test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities/'
-            'demand_sample.csv'
-        )
-
-        # calibrate the model
-        demand_model.calibrate_model(calibration_config_A)
-
-        assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
-
-        asset_model._cmp_sample = cmp_sample_A
-        damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-
-        pg_batch = damage_model._get_pg_batches(block_batch_size=1)
-        batches = pg_batch.index.get_level_values(0).unique()
-
-        PGB_i = batches[-1]
-        PGB = pg_batch.loc[PGB_i]
-        EDP_req = damage_model._get_required_demand_type(PGB)
-        demand_dict = damage_model._assemble_required_demand_data(EDP_req)
-
-        sample_size = 10
-        capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-            sample_size, PGB
-        )
-
-        ds_sample = damage_model._evaluate_damage_state(
-            demand_dict, EDP_req, capacity_sample, lsds_sample
-        )
-
-        qnt_sample = damage_model._prepare_dmg_quantities(
-            PGB, ds_sample, dropzero=False
-        )
-
-        # note: the realized number of damage states is random, limiting
-        # our assertions
-        assert ds_sample.shape[0] == 10
-        assert qnt_sample.shape[0] == 10
-        assert list(qnt_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        assert list(ds_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-        assert list(ds_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '1')
-        assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '0')
-
-    def test__perform_dmg_task(self, assessment_instance):
-        damage_model = assessment_instance.damage
-        demand_model = assessment_instance.demand
-        asset_model = assessment_instance.asset
-
-        data = [
-            ['rad', 1e-11],
-            ['rad', 1e11],
-        ]
-
-        index = pd.MultiIndex.from_tuples(
-            (('PID', '1', '1'), ('PID', '1', '2')), names=['type', 'loc', 'dir']
-        )
-
-        demand_marginals = pd.DataFrame(data, index, columns=['Units', 'Theta_0'])
-
-        demand_model.load_model({'marginals': demand_marginals})
-
-        sample_size = 5
-        demand_model.generate_sample({"SampleSize": sample_size})
-
-        cmp_marginals = pd.read_csv(
-            'pelicun/tests/data/model/'
-            'test_DamageModel_perform_dmg_task/CMP_marginals.csv',
-            index_col=0,
-        )
-        asset_model.load_cmp_model({'marginals': cmp_marginals})
-
-        asset_model.generate_cmp_sample(sample_size)
-
-        damage_model.load_damage_model(
-            [
-                'pelicun/tests/data/model/'
-                'test_DamageModel_perform_dmg_task/fragility_DB_test.csv'
-            ]
-        )
-
-        block_batch_size = 5
-        qnt_samples = []
-        pg_batch = damage_model._get_pg_batches(block_batch_size)
-        batches = pg_batch.index.get_level_values(0).unique()
-        for PGB_i in batches:
-            PGB = pg_batch.loc[PGB_i]
-            capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-                sample_size, PGB
-            )
-            EDP_req = damage_model._get_required_demand_type(PGB)
-            demand_dict = damage_model._assemble_required_demand_data(EDP_req)
-            ds_sample = damage_model._evaluate_damage_state(
-                demand_dict, EDP_req, capacity_sample, lsds_sample
-            )
-            qnt_sample = damage_model._prepare_dmg_quantities(
-                PGB, ds_sample, dropzero=False
-            )
-            qnt_samples.append(qnt_sample)
-        qnt_sample = pd.concat(qnt_samples, axis=1)
-        qnt_sample.sort_index(axis=1, inplace=True)
-        before = qnt_sample.copy()
-
-        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS1"}}
-        dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
-        for task in dmg_process.items():
-            damage_model._perform_dmg_task(task, qnt_sample)
-        after = qnt_sample
-
-        assert ('CMP.A', '1', '1', '0', '1') not in before.columns
-        assert ('CMP.A', '1', '1', '0', '1') in after.columns
-
-    def test__get_pg_batches(self, assessment_instance, cmp_sample_A):
-        damage_model = assessment_instance.damage
-        asset_model = assessment_instance.asset
-
-        asset_model.cmp_marginal_params = pd.DataFrame(
-            np.full((4, 2), 2.00),
-            index=pd.MultiIndex.from_tuples(
-                (
-                    ('cmp_1', '1', '1', '0'),
-                    ('cmp_1', '1', '2', '0'),
-                    ('cmp_2', '1', '1', '0'),
-                    ('cmp_2', '1', '2', '0'),
-                ),
-                names=['cmp', 'loc', 'dir', 'uid'],
-            ),
-            columns=('Theta_0', 'Blocks'),
-        )
-
-        damage_model.damage_params = pd.DataFrame(
-            np.empty(2), index=('cmp_1', 'cmp_2'), columns=['ID']
-        )
-
-        df_1 = damage_model._get_pg_batches(1)
-        assert [i[0] for i in df_1.index] == [1, 2, 3, 4]
-
-        df_4 = damage_model._get_pg_batches(4)
-        assert [i[0] for i in df_4.index] == [1, 1, 2, 2]
-
-        df_8 = damage_model._get_pg_batches(8)
-        assert [i[0] for i in df_8.index] == [1, 1, 1, 1]
-
-        assessment_instance = assessment.Assessment()
-        damage_model = assessment_instance.damage
-        asset_model = assessment_instance.asset
-
-        assessment_instance.get_default_data('damage_DB_FEMA_P58_2nd')
-
-        asset_model._cmp_sample = cmp_sample_A
-
-        damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-
-        # make sure that the method works for different batch sizes
-        for i in (1, 4, 8, 10, 100):
-            damage_model._get_pg_batches(block_batch_size=i)
-
-        # verify the result is correct for certain cases
-        res = damage_model._get_pg_batches(block_batch_size=1)
-        expected_res = pd.DataFrame(
-            np.array((1, 1, 1, 1)),
-            index=pd.MultiIndex.from_tuples(
-                (
-                    (1, 'B.10.31.001', '1', '1', '0'),
-                    (2, 'B.10.31.001', '1', '2', '0'),
-                    (3, 'B.10.31.001', '2', '1', '0'),
-                    (4, 'B.10.31.001', '2', '2', '0'),
-                ),
-                names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
-            ),
-            columns=('Blocks',),
-        ).astype('Int64')
-
-        pd.testing.assert_frame_equal(expected_res, res)
-
-        res = damage_model._get_pg_batches(block_batch_size=1000)
-        expected_res = pd.DataFrame(
-            np.array((1, 1, 1, 1)),
-            index=pd.MultiIndex.from_tuples(
-                (
-                    (1, 'B.10.31.001', '1', '1', '0'),
-                    (1, 'B.10.31.001', '1', '2', '0'),
-                    (1, 'B.10.31.001', '2', '1', '0'),
-                    (1, 'B.10.31.001', '2', '2', '0'),
-                ),
-                names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
-            ),
-            columns=('Blocks',),
-        ).astype('Int64')
-
-        pd.testing.assert_frame_equal(expected_res, res)
-
-    def test_calculate(self, assessment_instance):
+    @pytest.fixture
+    def damage_model_with_sample(self, assessment_instance):
         dmg_process = None
         assessment_instance.demand.sample = pd.DataFrame(
             np.column_stack(
@@ -1313,11 +905,406 @@ class TestDamageModel(TestPelicunModel):
             ),
         )
         assessment_instance.damage.calculate(dmg_process=dmg_process)
+        assessment_instance.asset.cmp_units = pd.Series(
+            ['ea'] * len(assessment_instance.damage.sample.columns),
+            index=assessment_instance.damage.sample.columns,
+            name='Units',
+            dtype='object',
+        )
+        return assessment_instance.damage
 
+    def test_init(self, damage_model):
+        assert damage_model.log_msg
+        assert damage_model.log_div
+
+        assert damage_model.damage_params is None
+        assert damage_model.sample is None
+
+    def test_save_load_sample(self, damage_model_with_sample, assessment_instance):
+        # saving to a file
+        temp_dir = tempfile.mkdtemp()
+        # convert the sample's index from RangeIndex to int64 (to
+        # match the datatype when it is loaded back; the contents are
+        # the same)
+        damage_model_with_sample.sample.index = (
+            damage_model_with_sample.sample.index.astype('int64')
+        )
+        damage_model_with_sample.save_sample(f'{temp_dir}/damage_model_sample.csv')
+        # loading from the file
+        assessment_instance.damage.load_sample(f'{temp_dir}/damage_model_sample.csv')
+        sample_from_file = assessment_instance.damage.sample
+
+        # saving to a variable
+        sample_from_variable = damage_model_with_sample.save_sample(save_units=False)
+        pd.testing.assert_frame_equal(sample_from_file, sample_from_variable)
+        _, units_from_variable = damage_model_with_sample.save_sample(
+            save_units=True
+        )
+        assert units_from_variable.to_list() == ['ea'] * 20
+
+    def test_load_damage_model(self, damage_model_model_loaded):
+        # should no longer be None
+        assert damage_model_model_loaded.damage_params is not None
+
+        assert list(damage_model_model_loaded.damage_params.columns) == [
+            ("Demand", "Directional"),
+            ("Demand", "Offset"),
+            ("Demand", "Type"),
+            ("Demand", "Unit"),
+            ("Incomplete", ""),
+            ("LS1", "DamageStateWeights"),
+            ("LS1", "Family"),
+            ("LS1", "Theta_0"),
+            ("LS1", "Theta_1"),
+            ("LS2", "DamageStateWeights"),
+            ("LS2", "Family"),
+            ("LS2", "Theta_0"),
+            ("LS2", "Theta_1"),
+            ("LS3", "DamageStateWeights"),
+            ("LS3", "Family"),
+            ("LS3", "Theta_0"),
+            ("LS3", "Theta_1"),
+            ("LS4", "DamageStateWeights"),
+            ("LS4", "Family"),
+            ("LS4", "Theta_0"),
+            ("LS4", "Theta_1"),
+        ]
+
+        assert list(damage_model_model_loaded.damage_params.index) == ['B.10.31.001']
+
+        contents = damage_model_model_loaded.damage_params.to_numpy().reshape(-1)
+
+        expected_contents = np.array(
+            [
+                1.0,
+                0.0,
+                'Peak Interstory Drift Ratio',
+                'unitless',
+                0.0,
+                '0.950000 | 0.050000',
+                'lognormal',
+                0.04,
+                0.4,
+                None,
+                'lognormal',
+                0.08,
+                0.4,
+                None,
+                'lognormal',
+                0.11,
+                0.4,
+                np.nan,
+                None,
+                np.nan,
+                np.nan,
+            ],
+            dtype=object,
+        )
+
+        # this comparison was tricky
+        for x, y in zip(contents, expected_contents):
+            if isinstance(x, str):
+                assert x == y
+            elif x is None:
+                continue
+            elif np.isnan(x):
+                continue
+
+    def test__create_dmg_RVs(self, damage_model_model_loaded):
+        pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
+        batches = pg_batch.index.get_level_values(0).unique()
+        for PGB_i in batches:
+            PGB = pg_batch.loc[PGB_i]
+            # ensure the following works in each case
+            damage_model_model_loaded._create_dmg_RVs(PGB)
+
+        # check the output for a single case
+        PGB_i = batches[-1]
+        PGB = pg_batch.loc[PGB_i]
+
+        capacity_RV_reg, lsds_RV_reg = damage_model_model_loaded._create_dmg_RVs(PGB)
+
+        assert capacity_RV_reg is not None
+        assert lsds_RV_reg is not None
+
+        assert list(capacity_RV_reg._variables.keys()) == [
+            'FRG-B.10.31.001-2-2-0-1-1',
+            'FRG-B.10.31.001-2-2-0-1-2',
+            'FRG-B.10.31.001-2-2-0-1-3',
+        ]
+
+        assert capacity_RV_reg._sets == {}
+
+        assert list(lsds_RV_reg._variables.keys()) == [
+            'LSDS-B.10.31.001-2-2-0-1-1',
+            'LSDS-B.10.31.001-2-2-0-1-2',
+            'LSDS-B.10.31.001-2-2-0-1-3',
+        ]
+
+        assert lsds_RV_reg._sets == {}
+
+    def test__generate_dmg_sample(self, damage_model_model_loaded):
+        pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
+        batches = pg_batch.index.get_level_values(0).unique()
+        PGB_i = batches[-1]
+        PGB = pg_batch.loc[PGB_i]
+        sample_size = 10
+
+        # test the _generate_dmg_sample method
+        (
+            capacity_sample,
+            lsds_sample,
+        ) = damage_model_model_loaded._generate_dmg_sample(sample_size, PGB)
+
+        # run a few checks on the results of the method
+
+        # note: the method generates random results. We avoid checking
+        # those for equality, because subsequent changes in the code might
+        # break the tests. The functionality of the uq module, which is
+        # used to generate the random samples, is tested with a dedicated
+        # test suite.
+
+        for res in (capacity_sample, lsds_sample):
+            assert res.shape == (10, 3)
+
+            assert list(res.columns) == [
+                ('B.10.31.001', '2', '2', '0', '1', '1'),
+                ('B.10.31.001', '2', '2', '0', '1', '2'),
+                ('B.10.31.001', '2', '2', '0', '1', '3'),
+            ]
+
+            assert list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        assert capacity_sample.to_numpy().dtype == np.dtype('float64')
+        assert lsds_sample.to_numpy().dtype == np.dtype('int64')
+
+    def test__get_required_demand_type(self, damage_model_model_loaded):
+        pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
+        batches = pg_batch.index.get_level_values(0).unique()
+        PGB_i = batches[-1]
+        PGB = pg_batch.loc[PGB_i]
+
+        EDP_req = damage_model_model_loaded._get_required_demand_type(PGB)
+
+        assert EDP_req == {'PID-2-2': [('B.10.31.001', '2', '2', '0')]}
+
+    def test__assemble_required_demand_data(
+        self, damage_model_model_loaded, calibration_config_A
+    ):
+        demand_model = damage_model_model_loaded._asmnt.demand
+        demand_model.load_sample(
+            'pelicun/tests/data/model/'
+            'test_DamageModel_assemble_required_demand_data/'
+            'demand_sample.csv'
+        )
+        demand_model.calibrate_model(calibration_config_A)
+
+        pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
+        batches = pg_batch.index.get_level_values(0).unique()
+
+        expected_demand_dicts = [
+            {'PID-1-1': np.array([0.001])},
+            {'PID-1-2': np.array([0.002])},
+            {'PID-2-1': np.array([0.003])},
+            {'PID-2-2': np.array([0.004])},
+        ]
+
+        for i, PGB_i in enumerate(batches):
+            PGB = pg_batch.loc[PGB_i]
+            EDP_req = damage_model_model_loaded._get_required_demand_type(PGB)
+            demand_dict = damage_model_model_loaded._assemble_required_demand_data(
+                EDP_req
+            )
+            assert demand_dict == expected_demand_dicts[i]
+
+    def test__evaluate_damage_state_and_prepare_dmg_quantities(
+        self,
+        damage_model_model_loaded,
+        calibration_config_A,
+    ):
+        damage_model = damage_model_model_loaded
+        demand_model = damage_model_model_loaded._asmnt.demand
+
+        demand_model.load_sample(
+            'pelicun/tests/data/model/'
+            'test_DamageModel__evaluate_damage_state_and_prepare_dmg_quantities/'
+            'demand_sample.csv'
+        )
+        # calibrate the model
+        demand_model.calibrate_model(calibration_config_A)
+
+        pg_batch = damage_model._get_pg_batches(block_batch_size=1)
+        batches = pg_batch.index.get_level_values(0).unique()
+
+        PGB_i = batches[-1]
+        PGB = pg_batch.loc[PGB_i]
+        EDP_req = damage_model._get_required_demand_type(PGB)
+        demand_dict = damage_model._assemble_required_demand_data(EDP_req)
+
+        sample_size = 10
+        capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
+            sample_size, PGB
+        )
+
+        ds_sample = damage_model._evaluate_damage_state(
+            demand_dict, EDP_req, capacity_sample, lsds_sample
+        )
+
+        qnt_sample = damage_model._prepare_dmg_quantities(
+            PGB, ds_sample, dropzero=False
+        )
+
+        # note: the realized number of damage states is random, limiting
+        # our assertions
+        assert ds_sample.shape[0] == 10
+        assert qnt_sample.shape[0] == 10
+        assert list(qnt_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        assert list(ds_sample.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        assert list(ds_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '1')
+        assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '0')
+
+    def test__perform_dmg_task(self, assessment_instance):
+        damage_model = assessment_instance.damage
+        demand_model = assessment_instance.demand
+        asset_model = assessment_instance.asset
+
+        data = [
+            ['rad', 1e-11],
+            ['rad', 1e11],
+        ]
+
+        index = pd.MultiIndex.from_tuples(
+            (('PID', '1', '1'), ('PID', '1', '2')), names=['type', 'loc', 'dir']
+        )
+
+        demand_marginals = pd.DataFrame(data, index, columns=['Units', 'Theta_0'])
+        demand_model.load_model({'marginals': demand_marginals})
+        sample_size = 5
+        demand_model.generate_sample({"SampleSize": sample_size})
+
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/'
+            'test_DamageModel_perform_dmg_task/CMP_marginals.csv',
+            index_col=0,
+        )
+        asset_model.load_cmp_model({'marginals': cmp_marginals})
+        asset_model.generate_cmp_sample(sample_size)
+
+        damage_model.load_damage_model(
+            [
+                'pelicun/tests/data/model/'
+                'test_DamageModel_perform_dmg_task/fragility_DB_test.csv'
+            ]
+        )
+
+        block_batch_size = 5
+        qnt_samples = []
+        pg_batch = damage_model._get_pg_batches(block_batch_size)
+        batches = pg_batch.index.get_level_values(0).unique()
+        for PGB_i in batches:
+            PGB = pg_batch.loc[PGB_i]
+            capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
+                sample_size, PGB
+            )
+            EDP_req = damage_model._get_required_demand_type(PGB)
+            demand_dict = damage_model._assemble_required_demand_data(EDP_req)
+            ds_sample = damage_model._evaluate_damage_state(
+                demand_dict, EDP_req, capacity_sample, lsds_sample
+            )
+            qnt_sample = damage_model._prepare_dmg_quantities(
+                PGB, ds_sample, dropzero=False
+            )
+            qnt_samples.append(qnt_sample)
+        qnt_sample = pd.concat(qnt_samples, axis=1)
+        qnt_sample.sort_index(axis=1, inplace=True)
+        before = qnt_sample.copy()
+
+        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS1"}}
+        dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, qnt_sample)
+        after = qnt_sample
+
+        assert ('CMP.A', '1', '1', '0', '1') not in before.columns
+        assert ('CMP.A', '1', '1', '0', '1') in after.columns
+
+    def test__get_pg_batches_1(self, assessment_instance, cmp_sample_A):
+        damage_model = assessment_instance.damage
+        asset_model = assessment_instance.asset
+
+        asset_model.cmp_marginal_params = pd.DataFrame(
+            np.full((4, 2), 2.00),
+            index=pd.MultiIndex.from_tuples(
+                (
+                    ('cmp_1', '1', '1', '0'),
+                    ('cmp_1', '1', '2', '0'),
+                    ('cmp_2', '1', '1', '0'),
+                    ('cmp_2', '1', '2', '0'),
+                ),
+                names=['cmp', 'loc', 'dir', 'uid'],
+            ),
+            columns=('Theta_0', 'Blocks'),
+        )
+
+        damage_model.damage_params = pd.DataFrame(
+            np.empty(2), index=('cmp_1', 'cmp_2'), columns=['ID']
+        )
+
+        df_1 = damage_model._get_pg_batches(1)
+        assert [i[0] for i in df_1.index] == [1, 2, 3, 4]
+
+        df_4 = damage_model._get_pg_batches(4)
+        assert [i[0] for i in df_4.index] == [1, 1, 2, 2]
+
+        df_8 = damage_model._get_pg_batches(8)
+        assert [i[0] for i in df_8.index] == [1, 1, 1, 1]
+
+    def test__get_pg_batches_2(self, damage_model_model_loaded):
+        # make sure that the method works for different batch sizes
+        for i in (1, 4, 8, 10, 100):
+            damage_model_model_loaded._get_pg_batches(block_batch_size=i)
+
+        # verify the result is correct for certain cases
+        res = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
+        expected_res = pd.DataFrame(
+            np.array((1, 1, 1, 1)),
+            index=pd.MultiIndex.from_tuples(
+                (
+                    (1, 'B.10.31.001', '1', '1', '0'),
+                    (2, 'B.10.31.001', '1', '2', '0'),
+                    (3, 'B.10.31.001', '2', '1', '0'),
+                    (4, 'B.10.31.001', '2', '2', '0'),
+                ),
+                names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
+            ),
+            columns=('Blocks',),
+        ).astype('Int64')
+
+        pd.testing.assert_frame_equal(expected_res, res)
+
+        res = damage_model_model_loaded._get_pg_batches(block_batch_size=1000)
+        expected_res = pd.DataFrame(
+            np.array((1, 1, 1, 1)),
+            index=pd.MultiIndex.from_tuples(
+                (
+                    (1, 'B.10.31.001', '1', '1', '0'),
+                    (1, 'B.10.31.001', '1', '2', '0'),
+                    (1, 'B.10.31.001', '2', '1', '0'),
+                    (1, 'B.10.31.001', '2', '2', '0'),
+                ),
+                names=('Batch', 'cmp', 'loc', 'dir', 'uid'),
+            ),
+            columns=('Blocks',),
+        ).astype('Int64')
+
+        pd.testing.assert_frame_equal(expected_res, res)
+
+    def test_calculate(self, damage_model_with_sample):
         # note: Due to inherent randomness, we can't assert the actual
         # values of this result
-        assert assessment_instance.damage.sample.values.all() >= 0.00
-        assert assessment_instance.damage.sample.values.all() <= 2.00
+        assert damage_model_with_sample.sample.values.all() >= 0.00
+        assert damage_model_with_sample.sample.values.all() <= 2.00
 
 
 class TestLossModel(TestPelicunModel):

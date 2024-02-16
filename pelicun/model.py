@@ -1391,6 +1391,7 @@ class DamageModel(PelicunModel):
         # else:
         units = res.loc["Units"]
         res.drop("Units", inplace=True)
+        res.index = res.index.astype('int64')
 
         if save_units:
             return res.astype(float), units
@@ -1408,8 +1409,9 @@ class DamageModel(PelicunModel):
         self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors,
             log=self._asmnt.log)
-        # todo
-        assert self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
+
+        # set the names of the columns
+        self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage sample successfully loaded.',
                      prepend_timestamp=False)

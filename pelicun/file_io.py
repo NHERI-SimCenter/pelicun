@@ -158,6 +158,8 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
         If units is not None but unit_conversion_factors is None
     ValueError
         If writing to a file fails.
+    ValueError
+        If the provided file name does not have the `.csv` suffix.
     """
 
     if filepath is None:
