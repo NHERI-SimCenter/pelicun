@@ -350,7 +350,7 @@ def load_data(data_source, unit_conversion_factors,
 
         for unit_name in unique_unit_names:
 
-            if not isinstance(unit_name, str) and np.isnan(unit_name):
+            if pd.isna(unit_name):
                 continue
 
             unit_factor = unit_conversion_factors[unit_name]
