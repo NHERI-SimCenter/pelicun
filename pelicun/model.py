@@ -2290,6 +2290,8 @@ class DamageModel(PelicunModel):
                 "sample. The corresponding part of the damage process is "
                 "skipped.", prepend_timestamp=False)
 
+            return
+
         # get the damage quantities for the source component
         source_cmp_df = qnt_sample.loc[:, source_cmp]
 
