@@ -1042,9 +1042,6 @@ class RandomVariable:
         Defines the np.array((a, b)) truncation limits for the
         distribution. Use np.nan to assign no limit in one direction,
         like so: np.array((a, np.nan)), or np.array((np.nan, b)).
-    bounds: float ndarray, optional
-        Defines the [P_a, P_b] probability bounds for the distribution. Use None
-        to assign no lower or upper bound.
     custom_expr: string, optional
         Provide an expression that is a Python syntax for a custom CDF. The
         controlling variable shall be "x" and the parameters shall be "p1",
@@ -1059,10 +1056,17 @@ class RandomVariable:
         identical.
     """
 
-    def __init__(self, name, distribution, theta=np.nan,
-                 truncation_limits=np.nan,
-                 bounds=None, custom_expr=None, raw_samples=None,
-                 f_map=None, anchor=None):
+    def __init__(
+        self,
+        name,
+        distribution,
+        theta=np.nan,
+        truncation_limits=np.nan,
+        custom_expr=None,
+        raw_samples=None,
+        f_map=None,
+        anchor=None,
+    ):
         """
         Initializes a RandomVariable object.
 
@@ -1145,7 +1149,6 @@ class RandomVariable:
         self._distribution = distribution
         self._theta = np.atleast_1d(theta)
         self._truncation_limits = truncation_limits
-        self._bounds = bounds
         self._custom_expr = custom_expr
         self._f_map = f_map
         self._raw_samples = np.atleast_1d(raw_samples)
@@ -1185,13 +1188,6 @@ class RandomVariable:
         Return the assigned truncation limits.
         """
         return self._truncation_limits
-
-    @property
-    def bounds(self):
-        """
-        Return the assigned probability bounds.
-        """
-        return self._bounds
 
     @property
     def custom_expr(self):
