@@ -1753,9 +1753,9 @@ class TestModelFunctions:
         median = 10.00
         constant_median_DV = model.prep_constant_median_DV(median)
         assert constant_median_DV() == median
-        medians = (1.0, 2.0, 3.0, 4.0, 5.0)
-        for median in medians:
-            assert constant_median_DV(median) == 10.00
+        values = (1.0, 2.0, 3.0, 4.0, 5.0)
+        for value in values:
+            assert constant_median_DV(value) == 10.00
 
     def test_prep_bounded_multilinear_median_DV(self):
         medians = np.array((1.00, 2.00, 3.00, 4.00, 5.00))
