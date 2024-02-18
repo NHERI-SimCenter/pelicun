@@ -85,6 +85,7 @@ pd.options.display.width = 300
 
 idx = pd.IndexSlice
 
+
 class Options:
 
     """
@@ -285,9 +286,9 @@ class Logger:
         otherwise left as provided in the default configuration file
         (see settings/default_config.json in the pelicun source code).
     show_warnings: bool
-        If True, future, deprecation, and performance warnings from python 
-        packages such as numpy and pandas are printed to the log file 
-        (and also to the standard output). Otherwise, they are 
+        If True, future, deprecation, and performance warnings from python
+        packages such as numpy and pandas are printed to the log file
+        (and also to the standard output). Otherwise, they are
         suppressed. This setting does not affect warnings defined within
         pelicun that are specific to the damage and loss calculation.
     log_show_ms: bool
@@ -310,8 +311,7 @@ class Logger:
     """
     # TODO: finalize docstring
 
-    def __init__(self, verbose, show_warnings, log_show_ms, log_file, 
-        print_log):
+    def __init__(self, verbose, show_warnings, log_show_ms, log_file, print_log):
         """
         Initializes a Logger object.
 
@@ -347,7 +347,7 @@ class Logger:
         show_warnings property
         """
         return self._show_warnings
-    
+
     @show_warnings.setter
     def show_warnings(self, value):
         """
@@ -528,6 +528,7 @@ class Logger:
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
+
 def control_warnings(show):
 
     """
@@ -535,9 +536,9 @@ def control_warnings(show):
 
     Parameters
     ----------
-    suppress: bool
-        If True, warnings are set to be suppressed. If False, warnings are set
-        to be shown.
+    show: bool
+        If True, warnings are set to the default level. If False,
+        warnings are ignored.
 
     """
     if show:
@@ -554,6 +555,7 @@ def control_warnings(show):
 
         warnings.filterwarnings(
             category=pd.errors.PerformanceWarning, action=action)
+
 
 def load_default_options():
     """

@@ -42,7 +42,6 @@ from time import strftime
 import sys
 import os
 import json
-import warnings
 import argparse
 from pathlib import Path
 
@@ -496,7 +495,7 @@ def run_pelicun(
         raw_demands = convert_to_MultiIndex(raw_demands, axis=1)
 
         if 'Units' in raw_demands.index:
-            raw_units = raw_demands.loc['Units',:]
+            raw_units = raw_demands.loc['Units', :]
             raw_demands.drop('Units', axis=0, inplace=True)
 
         else:
@@ -1722,7 +1721,9 @@ def run_pelicun(
                 )
 
             if "Units" in df.index:
-                df_units = convert_to_SimpleIndex(df.loc['Units',:].to_frame().T, axis=1)
+                df_units = convert_to_SimpleIndex(
+                    df.loc['Units', :].to_frame().T, axis=1
+                )
 
                 df.drop("Units", axis=0, inplace=True)
 
@@ -1738,8 +1739,8 @@ def run_pelicun(
                 )
 
             else:
-                out_dict = convert_df_to_dict(df)            
-                
+                out_dict = convert_df_to_dict(df)
+
             with open(output_path / filename_json, 'w') as f:
                 json.dump(out_dict, f, indent=2)
 
