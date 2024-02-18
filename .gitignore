@@ -35,3 +35,4 @@ __pycache__
 /.emacs.desktop.lock
 /pelicun/coverage.xml
 .cov2emacs.log
+flycheck*.py
