@@ -63,7 +63,6 @@ from pelicun import assessment
 # The following tests verify the methods of the objects of the module.
 
 
-
 class TestModelModule:
     @pytest.fixture
     def assessment_factory(self):
@@ -1275,7 +1274,7 @@ class TestDamageModel(TestPelicunModel):
         assert ('CMP.A', '1', '1', '0', '1') not in before.columns
         assert ('CMP.A', '1', '1', '0', '1') in after.columns
 
-    def test__get_pg_batches_1(self, assessment_instance, cmp_sample_A):
+    def test__get_pg_batches_1(self, assessment_instance):
         damage_model = assessment_instance.damage
         asset_model = assessment_instance.asset
 
@@ -1370,7 +1369,7 @@ class TestDamageModel(TestPelicunModel):
         conversion_factor = assessment_instance.unit_conversion_factors['inps2']
         demand_model.sample = pd.DataFrame(
             np.full(num_realizations, 0.50 * conversion_factor),
-            columns=(('PGV', '0', '1'),)
+            columns=(('PGV', '0', '1'),),
         )
 
         # Define the component in the asset model
@@ -1380,9 +1379,7 @@ class TestDamageModel(TestPelicunModel):
                 'Blocks': (1,),
             },
             index=pd.MultiIndex.from_tuples(
-                (
-                    ('test_component', '0', '1', '0'),
-                ),
+                (('test_component', '0', '1', '0'),),
                 names=('cmp', 'loc', 'dir', 'uid'),
             ),
         )

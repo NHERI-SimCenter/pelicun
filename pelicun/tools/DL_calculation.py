@@ -1796,7 +1796,10 @@ def main():
 
     if not args:
         print(f'Welcome. This is pelicun version {pelicun.__version__}')
-        print('To access the documentation visit https://nheri-simcenter.github.io/pelicun/index.html')
+        print(
+            'To access the documentation visit '
+            'https://nheri-simcenter.github.io/pelicun/index.html'
+        )
         print()
         parser.print_help()
         return

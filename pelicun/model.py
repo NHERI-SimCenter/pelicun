@@ -958,8 +958,8 @@ class DemandModel(PelicunModel):
             flat_list.extend(new_columns)
         if len(set(flat_list)) != len(flat_list):
             raise ValueError(
-                f'Duplicate entries in demand propagation '
-                f'configuration.'
+                'Duplicate entries in demand propagation '
+                'configuration.'
             )
 
         # turn the config entries to tuples
@@ -1409,8 +1409,7 @@ class AssetModel(PelicunModel):
                     'Sample size was not specified, '
                     'and it cannot be determined from '
                     'the demand model.')
-            else:
-                sample_size = self._asmnt.demand.sample.shape[0]
+            sample_size = self._asmnt.demand.sample.shape[0]
 
         self._create_cmp_RVs()
 
