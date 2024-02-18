@@ -63,6 +63,7 @@ from pelicun import assessment
 # The following tests verify the methods of the objects of the module.
 
 
+
 class TestModelModule:
     @pytest.fixture
     def assessment_factory(self):
@@ -1305,6 +1306,56 @@ class TestDamageModel(TestPelicunModel):
         # values of this result
         assert damage_model_with_sample.sample.values.all() >= 0.00
         assert damage_model_with_sample.sample.values.all() <= 2.00
+
+    def test_calculate_multilinear_CDF(self, damage_model):
+
+        assessment_instance = assessment.Assessment()
+        damage_model = assessment_instance.damage
+        demand_model = damage_model._asmnt.demand
+        asset_model = damage_model._asmnt.asset
+
+        # A damage calculation test utilizing a multilinear CDF RV for
+        # the capcity.
+
+        num_realizations = 1000
+
+        # define the demand
+        conversion_factor = assessment_instance.unit_conversion_factors['inps2']
+        demand_model.sample = pd.DataFrame(
+            np.full(num_realizations, 0.50 * conversion_factor),
+            columns=(('PGV', '0', '1'),)
+        )
+
+        # Define the component in the asset model
+        asset_model.cmp_marginal_params = pd.DataFrame(
+            {
+                'Theta_0': (1.0,),
+                'Blocks': (1,),
+            },
+            index=pd.MultiIndex.from_tuples(
+                (
+                    ('test_component', '0', '1', '0'),
+                ),
+                names=('cmp', 'loc', 'dir', 'uid'),
+            ),
+        )
+        # generate component samples
+        asset_model.generate_cmp_sample()
+
+        # define fragility curve with multilinear_CDF
+        damage_model.load_damage_model(
+            [
+                'pelicun/tests/data/model/'
+                'test_DamageModel_calculate_multilinear_CDF/'
+                'damage_model.csv'
+            ]
+        )
+
+        # calculate damage
+        damage_model.calculate()
+
+        res = damage_model.sample.value_counts()
+        assert res.to_dict() == {(1.0, 0.0): 750, (0.0, 1.0): 250}
 
 
 class TestLossModel(TestPelicunModel):

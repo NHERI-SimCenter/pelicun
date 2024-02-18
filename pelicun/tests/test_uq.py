@@ -887,6 +887,16 @@ def test_RandomVariable():
             theta=values
         )
 
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.50, 0.50, 0.50, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'test_rv',
+            'multilinear_CDF',
+            theta=values
+        )
+
     # truncation limits not supported
     x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
     y_values = (0.00, 0.25, 0.50, 0.75, 1.00)
@@ -1007,7 +1017,7 @@ def test_RandomVariable_cdf():
 
     # multilinear CDF
     x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.20, 0.20, 0.80, 1.00)
+    y_values = (0.00, 0.20, 0.30, 0.80, 1.00)
     values = np.column_stack((x_values, y_values))
     rv = uq.RandomVariable(
         'test_rv',
@@ -1019,7 +1029,7 @@ def test_RandomVariable_cdf():
 
     assert np.allclose(
         cdf,
-        (0.00, 0.00, 0.10, 0.20, 0.20, 0.20, 0.50, 0.80, 0.90, 1.00, 1.00),
+        (0.00, 0.00, 0.10, 0.20, 0.25, 0.30, 0.55, 0.80, 0.90, 1.00, 1.0),
         rtol=1e-5,
     )
 
@@ -1187,18 +1197,18 @@ def test_RandomVariable_inverse_transform():
     # multilinear CDF
 
     x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.20, 0.20, 0.80, 1.00)
+    y_values = (0.00, 0.20, 0.30, 0.80, 1.00)
     values = np.column_stack((x_values, y_values))
     rv = uq.RandomVariable('test_rv', 'multilinear_CDF', theta=values)
 
     rv.uni_sample = np.array(
-        (0.00, 0.1, 0.2 - 1e-8, 0.2 + 1e-8, 0.5, 0.8, 0.9, 1.00)
+        (0.00, 0.1, 0.2, 0.5, 0.8, 0.9, 1.00)
     )
     rv.inverse_transform_sampling()
     inverse_transform = rv.sample
     assert np.allclose(
         inverse_transform,
-        np.array((0.00, 0.50, 1.00, 2.00, 2.50, 3.00, 3.50, 4.00)),
+        np.array((0.00, 0.50, 1.00, 2.40, 3.00, 3.50, 4.00)),
         rtol=1e-5,
     )
 

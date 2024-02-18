@@ -1485,7 +1485,7 @@ class DamageModel(PelicunModel):
 
                 damage_params.loc[:, LS_i] = self.convert_marginal_params(
                     damage_params.loc[:, LS_i].copy(),
-                    damage_params[('Demand', 'Unit')]
+                    damage_params[('Demand', 'Unit')],
                 ).values
 
         # check for components with incomplete damage model information
@@ -1654,6 +1654,21 @@ class DamageModel(PelicunModel):
                             anchor = None
                         else:
                             anchor = anchor_RVs[block_i]
+
+                        # parse theta values for multilinear_CDF
+                        if family == 'multilinear_CDF':
+                            theta = np.column_stack(
+                                (
+                                    np.array(
+                                        theta[0].split('|')[0].split(','),
+                                        dtype=float,
+                                    ),
+                                    np.array(
+                                        theta[0].split('|')[1].split(','),
+                                        dtype=float,
+                                    ),
+                                )
+                            )
 
                         RV = uq.RandomVariable(
                             name=frg_rv_tag,

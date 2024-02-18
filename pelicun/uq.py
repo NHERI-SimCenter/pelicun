@@ -119,6 +119,9 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
     elif family == 'deterministic':
         theta_new[0] = theta[0] * scale_factor
 
+    elif family == 'multilinear_CDF':
+        theta_new[0] = theta[0] * scale_factor
+
     else:
         raise ValueError(f'Unsupported distribution: {family}')
 
@@ -1139,6 +1142,11 @@ class RandomVariable:
                     "Ys should be specified in ascending order"
                 )
 
+            if np.any(np.isclose(np.diff(y_s), 0.00)):
+                raise ValueError(
+                    "For multilinear CDF random variables, "
+                    "Ys should be specified in strictly ascending order"
+                )
             if np.any(~np.isnan(truncation_limits)):
                 raise ValueError(
                     "Truncation limits not supported "
@@ -1518,18 +1526,6 @@ class RandomVariable:
 
             x_i = [x[0] for x in self.theta]
             y_i = [x[1] for x in self.theta]
-
-            # handle regions with zero slope. Inverse is undefined
-            # there. A simple approach to overcome this is to modify
-            # them so that they have a very small slope.
-
-            zero_slope_locs = list(
-                np.argwhere(np.isclose(np.diff(y_i), 0.00)).reshape(1)
-            )
-            for loc in zero_slope_locs:
-                print(loc)
-                y_i[loc] -= 1e-8
-                y_i[loc + 1] += 1e-8
 
             # define the inverse CDF
             ifun = interp1d(y_i, x_i, kind='linear')
