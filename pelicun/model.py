@@ -1505,7 +1505,7 @@ class DamageModel(PelicunModel):
             log=self._asmnt.log)
 
         # set the names of the columns
-        self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
+        self.sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage sample successfully loaded.',
                      prepend_timestamp=False)
