@@ -897,6 +897,16 @@ def test_RandomVariable():
             theta=values
         )
 
+    x_values = (0.00, 2.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.20, 0.40, 0.50, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.RandomVariable(
+            'test_rv',
+            'multilinear_CDF',
+            theta=values
+        )
+
     # truncation limits not supported
     x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
     y_values = (0.00, 0.25, 0.50, 0.75, 1.00)

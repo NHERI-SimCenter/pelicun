@@ -395,6 +395,8 @@ class TestDemandModel(TestModelModule):
         demand_model = assessment_instance.demand
 
         mdl = assessment_instance.demand
+        # contains PGV-0-1, PGV-1-1, PGV-2-1, and PGA-0-1
+        # PGA-0-1 is not propagated.
         mdl.load_sample(
             'pelicun/tests/data/model/'
             'test_DemandModel_generate_sample_with_demand_propagation/sample.csv'
@@ -413,10 +415,13 @@ class TestDemandModel(TestModelModule):
                     'PGV-0-1': ['PGV-0-1', 'PGV-0-2', 'PGV-0-3'],
                     'PGV-1-1': ['PGV-1-1', 'PGV-1-2', 'PGV-1-3'],
                     'PGV-2-1': ['PGV-2-1', 'PGV-2-2', 'PGV-2-3'],
+                    'not_present': ['X-0-0', 'Y-0-0', 'Z-0-0'],
                 },
             }
         )
+        # we'll just get a warning for the `not_present` entry
         assert demand_model.sample.columns.to_list() == [
+            ('PGA', '0', '1'),
             ('PGV', '0', '1'),
             ('PGV', '0', '2'),
             ('PGV', '0', '3'),
@@ -431,6 +436,19 @@ class TestDemandModel(TestModelModule):
             demand_model.sample[('PGV', '0', '1')].values,
             demand_model.sample[('PGV', '0', '3')].values,
         )
+        # exceptions
+        # Duplicate entries in demand propagation configuration
+        with pytest.raises(ValueError):
+            demand_model.generate_sample(
+                {
+                    'SampleSize': 1000,
+                    'DemandPropagation': {
+                        'PGV-0-1': ['PGV-0-1', 'PGV-0-2', 'PGV-0-3'],
+                        'PGV-1-1': ['PGV-0-1', 'PGV-1-2', 'PGV-1-3'],
+                        'PGV-2-1': ['PGV-0-1', 'PGV-2-2', 'PGV-2-3'],
+                    },
+                }
+            )
 
 
 class TestPelicunModel(TestModelModule):

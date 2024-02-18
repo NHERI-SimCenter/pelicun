@@ -906,7 +906,12 @@ class DemandModel(PelicunModel):
         demand_propagation : dict
             Keys correspond to the columns of the original sample to
             be copied over and the values correspond to the intended
-            names for the copies.
+            names for the copies. Caution: It's possible to define a
+            dictionary with duplicate keys, and Python will just keep
+            the last entry without warning. Users need to be careful
+            enough to avoid duplicate keys, because we can't validate
+            them.
+            E.g.: x = {'1': 1.00, '1': 2.00} results in x={'1': 2.00}.
 
         Raises
         ------
@@ -915,11 +920,8 @@ class DemandModel(PelicunModel):
 
         """
 
-        initial_column_list = demand_propagation.keys()
-        if not len(set(initial_column_list)) == len(initial_column_list):
-            raise ValueError(
-                f'Duplicate entries in initial demands: {initial_column_list}'
-            )
+        # it's impossible to have duplicate keys, because
+        # demand_propagation is a dictionary.
         new_columns_list = demand_propagation.values()
         # The following prevents duplicate entries in the values
         # corresponding to a single propagated demand (1), but
