@@ -225,31 +225,6 @@ class PelicunModel:
                             [','.join([f'{val:g}' for val in vals])
                              for vals in (theta[a_i], args[a_i])])
 
-                """
-                # TODO: remove this after merging with test branch from John
-                # for each theta, check if there is a need to scale arguments
-                for a_i, arg in enumerate(args):
-
-                    if len(arg) > 0:
-
-                        # we need to scale both ordinates and abscissae for the
-                        # given parameter
-
-                        # get the scale factor
-                        arg_unit = arg_units.get(row_id)
-                        arg_unit_factor = (
-                            self._asmnt.calc_unit_scale_factor(arg_unit))
-
-                        # perform the scaling
-                        theta[a_i] = theta[a_i] / arg_unit_factor
-                        args[a_i] = arg * arg_unit_factor
-
-                        # and convert the data back to a string
-                        theta[a_i] = '|'.join(
-                            [','.join([f'{val:g}' for val in vals])
-                             for vals in (theta[a_i], args[a_i])])
-                """
-
                 # and update the values in the DF
                 marginal_params.loc[
                     row_id, ['Theta_0', 'Theta_1', 'Theta_2']] = theta
