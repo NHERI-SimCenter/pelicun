@@ -389,7 +389,6 @@ class TestDemandModel(TestModelModule):
         pd.testing.assert_series_equal(expected_units, obtained_units)
 
     def test_generate_sample_with_demand_propagation(self, assessment_instance):
-
         # # used for debugging
         # assessment_instance = assessment.Assessment()
 
@@ -1056,7 +1055,9 @@ class TestDamageModel(TestPelicunModel):
                 continue
 
     def test__create_dmg_RVs(self, damage_model_model_loaded):
+
         pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
+
         batches = pg_batch.index.get_level_values(0).unique()
         for PGB_i in batches:
             PGB = pg_batch.loc[PGB_i]
@@ -1078,7 +1079,7 @@ class TestDamageModel(TestPelicunModel):
             'FRG-B.10.31.001-2-2-0-1-3',
         ]
 
-        assert capacity_RV_reg._sets == {}
+        assert not capacity_RV_reg._sets
 
         assert list(lsds_RV_reg._variables.keys()) == [
             'LSDS-B.10.31.001-2-2-0-1-1',
@@ -1086,7 +1087,80 @@ class TestDamageModel(TestPelicunModel):
             'LSDS-B.10.31.001-2-2-0-1-3',
         ]
 
-        assert lsds_RV_reg._sets == {}
+        assert not lsds_RV_reg._sets
+
+        # test capacity scaling: *1.20
+        scaling_specification = {'B.10.31.001-2-2': '*1.20'}
+        (
+            scaled_capacity_RV_reg,
+            lsds_RV_reg,
+        ) = damage_model_model_loaded._create_dmg_RVs(PGB, scaling_specification)
+        for limit_state in ('1', '2', '3'):
+            val_initial = capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            val_scaling = scaled_capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            assert val_scaling[0] == val_initial[0] * 1.20
+            assert val_scaling[1] == val_initial[1]
+            assert pd.isna(val_scaling[2]) and pd.isna(val_scaling[2])
+
+        # test capacity scaling: /1.20
+        scaling_specification = {'B.10.31.001-2-2': '/1.20'}
+        (
+            scaled_capacity_RV_reg,
+            lsds_RV_reg,
+        ) = damage_model_model_loaded._create_dmg_RVs(PGB, scaling_specification)
+        for limit_state in ('1', '2', '3'):
+            val_initial = capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            val_scaling = scaled_capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            assert val_scaling[0] == val_initial[0] / 1.20
+            assert val_scaling[1] == val_initial[1]
+            assert pd.isna(val_scaling[2]) and pd.isna(val_scaling[2])
+
+        # test capacity scaling: +0.50
+        scaling_specification = {'B.10.31.001-2-2': '+0.50'}
+        (
+            scaled_capacity_RV_reg,
+            lsds_RV_reg,
+        ) = damage_model_model_loaded._create_dmg_RVs(PGB, scaling_specification)
+        for limit_state in ('1', '2', '3'):
+            val_initial = capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            val_scaling = scaled_capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            assert val_scaling[0] == val_initial[0] + 0.50
+            assert val_scaling[1] == val_initial[1]
+            assert pd.isna(val_scaling[2]) and pd.isna(val_scaling[2])
+
+        # test capacity scaling: -0.05
+        scaling_specification = {'B.10.31.001-2-2': '-0.05'}
+        (
+            scaled_capacity_RV_reg,
+            lsds_RV_reg,
+        ) = damage_model_model_loaded._create_dmg_RVs(PGB, scaling_specification)
+        for limit_state in ('1', '2', '3'):
+            val_initial = capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            val_scaling = scaled_capacity_RV_reg.RV[
+                f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
+            ].theta
+            assert val_scaling[0] == val_initial[0] - 0.05
+            assert val_scaling[1] == val_initial[1]
+            assert pd.isna(val_scaling[2]) and pd.isna(val_scaling[2])
+
+        # edge cases: invalid capacity scaling
+        scaling_specification = {'B.10.31.001-2-2': 'import os; do_malicious_things'}
+        with pytest.raises(ValueError):
+            damage_model_model_loaded._create_dmg_RVs(PGB, scaling_specification)
 
     def test__generate_dmg_sample(self, damage_model_model_loaded):
         pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)

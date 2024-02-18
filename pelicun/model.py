@@ -1599,7 +1599,38 @@ class DamageModel(PelicunModel):
         self.log_msg("Damage model parameters successfully parsed.",
                      prepend_timestamp=False)
 
-    def _create_dmg_RVs(self, PGB):
+    def _handle_operation(self, initial_value, operation, other_value):
+        """
+        This method is used in `_create_dmg_RVs` to apply capacity
+        scaling operations whenever required. It is defined as a safer
+        alternative to directly using `eval`.
+
+        Parameters
+        ----------
+        initial_value: float
+          Value before operation
+        operation: str
+          Any of +, -, *, /
+        other_value: float
+          Value used to apply the operation
+
+        Returns
+        -------
+        result: float
+          The result of the operation
+
+        """
+        if operation == '+':
+            return initial_value + other_value
+        if operation == '-':
+            return initial_value - other_value
+        if operation == '*':
+            return initial_value * other_value
+        if operation == '/':
+            return initial_value / other_value
+        raise ValueError(f'Invalid operation: {operation}')
+
+    def _create_dmg_RVs(self, PGB, scaling_specification=None):
         """
         Creates random variables required later for the damage calculation.
 
@@ -1615,6 +1646,20 @@ class DamageModel(PelicunModel):
         to the capacity_RV_reg registry, and adds LSDS assignments to
         the lsds_RV_reg registry. After looping through all
         performance groups, the method returns the two registries.
+
+        Parameters
+        ----------
+        PGB : DataFrame
+            A DataFrame that groups performance groups into batches
+            for efficient damage assessment.
+        scaling_specification: dict, optional
+            A dictionary defining the shift in median.
+            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
+            The keys are individual components that should be present
+            in the `capacity_sample`.  The values should be strings
+            containing an operation followed by the value formatted as
+            a float.  The operation can be '+' for addition, '-' for
+            subtraction, '*' for multiplication, and '/' for division.
 
         """
 
@@ -1669,8 +1714,43 @@ class DamageModel(PelicunModel):
         capacity_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
         lsds_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
+        # capacity scaling:
+        # ensure the scaling_specification is a dictionary
+        if not scaling_specification:
+            scaling_specification = {}
+        else:
+            # if there are contents, ensure they are valid.
+            # See docstring for an example of what is expected.
+            parsed_scaling_specification = {}
+            # validate contents
+            for key, value in scaling_specification.items():
+                css = 'capacity scaling specification'
+                if not isinstance(value, str):
+                    raise ValueError(
+                        f'Invalud entry in {css}: {value}. It has to be a string. '
+                        f'See docstring of DamageModel._create_dmg_RVs.'
+                    )
+                capacity_scaling_operation = value[0]
+                number = value[1::]
+                if capacity_scaling_operation not in ('+', '-', '*', '/'):
+                    raise ValueError(
+                        f'Invalid operation in {css}: {capacity_scaling_operation}'
+                    )
+                fnumber = base.float_or_None(number)
+                if fnumber is None:
+                    raise ValueError(f'Invalid number in {css}: {number}')
+                parsed_scaling_specification[key] = (
+                    capacity_scaling_operation,
+                    fnumber,
+                )
+                scaling_specification = parsed_scaling_specification
+
         # get the component sample and blocks from the asset model
         for PG in PGB.index:
+
+            # determine demand capacity scaling operation, if required
+            cmp_loc_dir = '-'.join(PG[0:3])
+            capacity_scaling_operation = scaling_specification.get(cmp_loc_dir, None)
 
             cmp_id = PG[0]
             blocks = PGB.loc[PG, 'Blocks']
@@ -1714,6 +1794,22 @@ class DamageModel(PelicunModel):
                     theta = [
                         frg_params_LS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
                     ]
+
+                    if capacity_scaling_operation:
+                        if family in {'normal', 'lognormal'}:
+                            theta[0] = self._handle_operation(
+                                theta[0],
+                                capacity_scaling_operation[0],
+                                capacity_scaling_operation[1],
+                            )
+                        else:
+                            self.log_msg(
+                                f'\nWARNING: Capacity scaling is only supported '
+                                f'for `normal` or `lognormal` distributions. '
+                                f'Ignoring: {cmp_loc_dir}, which is {family}',
+                                prepend_timestamp=False,
+                            )
+
                     tr_lims = [
                         frg_params_LS.get(f"Truncate{side}", np.nan)
                         for side in ("Lower", "Upper")
@@ -1805,7 +1901,7 @@ class DamageModel(PelicunModel):
 
         return capacity_RV_reg, lsds_RV_reg
 
-    def _generate_dmg_sample(self, sample_size, PGB):
+    def _generate_dmg_sample(self, sample_size, PGB, scaling_specification=None):
         """
         This method generates a damage sample by creating random
         variables (RVs) for capacities and limit-state-damage-states
@@ -1820,6 +1916,14 @@ class DamageModel(PelicunModel):
         PGB : DataFrame
             A DataFrame that groups performance groups into batches
             for efficient damage assessment.
+        scaling_specification: dict, optional
+            A dictionary defining the shift in median.
+            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
+            The keys are individual components that should be present
+            in the `capacity_sample`.  The values should be strings
+            containing an operation followed by the value formatted as
+            a float.  The operation can be '+' for addition, '-' for
+            subtraction, '*' for multiplication, and '/' for division.
 
         Returns
         -------
@@ -1843,7 +1947,7 @@ class DamageModel(PelicunModel):
                              'definitions before generating a sample.')
 
         # Create capacity and LSD RVs for each performance group
-        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB)
+        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification)
 
         if self._asmnt.log.verbose:
             self.log_msg('Sampling capacities...',
@@ -2749,7 +2853,9 @@ class DamageModel(PelicunModel):
 
         return res
 
-    def calculate(self, dmg_process=None, block_batch_size=1000):
+    def calculate(
+        self, dmg_process=None, block_batch_size=1000, scaling_specification=None
+    ):
         """
         Calculate the damage state of each component block in the asset.
 
@@ -2797,7 +2903,7 @@ class DamageModel(PelicunModel):
             # each component limit state. The latter is primarily needed to
             # handle limit states with multiple, mutually exclusive DS options
             capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, PGB)
+                sample_size, PGB, scaling_specification)
 
             # Get the required demand types for the analysis
             EDP_req = self._get_required_demand_type(PGB)
