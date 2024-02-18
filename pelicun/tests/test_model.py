@@ -389,6 +389,51 @@ class TestDemandModel(TestModelModule):
         )
         pd.testing.assert_series_equal(expected_units, obtained_units)
 
+    def test_generate_sample_with_demand_propagation(self, assessment_instance):
+
+        # # used for debugging
+        # assessment_instance = assessment.Assessment()
+
+        demand_model = assessment_instance.demand
+
+        mdl = assessment_instance.demand
+        mdl.load_sample(
+            'pelicun/tests/data/model/'
+            'test_DemandModel_generate_sample_with_demand_propagation/sample.csv'
+        )
+        demand_model.calibrate_model(
+            {
+                "ALL": {
+                    "DistributionFamily": "lognormal",
+                },
+            }
+        )
+        demand_model.generate_sample(
+            {
+                'SampleSize': 1000,
+                'DemandPropagation': {
+                    'PGV-0-1': ['PGV-0-1', 'PGV-0-2', 'PGV-0-3'],
+                    'PGV-1-1': ['PGV-1-1', 'PGV-1-2', 'PGV-1-3'],
+                    'PGV-2-1': ['PGV-2-1', 'PGV-2-2', 'PGV-2-3'],
+                },
+            }
+        )
+        assert demand_model.sample.columns.to_list() == [
+            ('PGV', '0', '1'),
+            ('PGV', '0', '2'),
+            ('PGV', '0', '3'),
+            ('PGV', '1', '1'),
+            ('PGV', '1', '2'),
+            ('PGV', '1', '3'),
+            ('PGV', '2', '1'),
+            ('PGV', '2', '2'),
+            ('PGV', '2', '3'),
+        ]
+        assert np.array_equal(
+            demand_model.sample[('PGV', '0', '1')].values,
+            demand_model.sample[('PGV', '0', '3')].values,
+        )
+
 
 class TestPelicunModel(TestModelModule):
     @pytest.fixture
@@ -1308,11 +1353,13 @@ class TestDamageModel(TestPelicunModel):
         assert damage_model_with_sample.sample.values.all() <= 2.00
 
     def test_calculate_multilinear_CDF(self, damage_model):
+        # # used for debugging
+        # assessment_instance = assessment.Assessment()
+        # damage_model = assessment_instance.damage
 
-        assessment_instance = assessment.Assessment()
-        damage_model = assessment_instance.damage
         demand_model = damage_model._asmnt.demand
-        asset_model = damage_model._asmnt.asset
+        assessment_instance = damage_model._asmnt
+        asset_model = assessment_instance.asset
 
         # A damage calculation test utilizing a multilinear CDF RV for
         # the capcity.

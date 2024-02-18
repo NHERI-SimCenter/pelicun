@@ -557,6 +557,7 @@ def run_pelicun(
         {
             "SampleSize": sample_size,
             'PreserveRawOrder': demand_config.get('CoupledDemands', False),
+            # 'DemandPropagation': demand_config.get('DemandPropagation', False)
         }
     )
 
