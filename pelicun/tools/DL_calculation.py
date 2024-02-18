@@ -69,11 +69,6 @@ from pelicun.assessment import Assessment
 
 # pd.set_option('display.max_rows', None)
 
-# suppress FutureWarnings by default - credit: ioannis_vm
-if not sys.warnoptions:
-    warnings.filterwarnings(category=FutureWarning, action='ignore')
-
-
 def log_msg(msg):
     formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
 
@@ -501,10 +496,11 @@ def run_pelicun(
         raw_demands = convert_to_MultiIndex(raw_demands, axis=1)
 
         if 'Units' in raw_demands.index:
-            raw_units = raw_demands.loc['Units', :]
+            raw_units = raw_demands.loc['Units',:]
+            raw_demands.drop('Units', axis=0, inplace=True)
+
         else:
             raw_units = None
-        raw_demands.drop('Units', axis=0, inplace=True)
 
         DEM_to_drop = np.full(raw_demands.shape[0], False)
 
@@ -1271,7 +1267,7 @@ def run_pelicun(
             else:
                 consequence_db = []
 
-                conseq_df = None
+                conseq_df = pd.DataFrame()
 
             if bldg_repair_config.get('ConsequenceDatabasePath', False) is not False:
                 extra_comps = bldg_repair_config['ConsequenceDatabasePath']
@@ -1726,7 +1722,8 @@ def run_pelicun(
                 )
 
             if "Units" in df.index:
-                df_units = df.loc['Units', :].to_frame().T
+                df_units = convert_to_SimpleIndex(df.loc['Units',:].to_frame().T, axis=1)
+
                 df.drop("Units", axis=0, inplace=True)
 
                 out_dict = convert_df_to_dict(df)
@@ -1741,8 +1738,8 @@ def run_pelicun(
                 )
 
             else:
-                out_dict = convert_df_to_dict(df)
-
+                out_dict = convert_df_to_dict(df)            
+                
             with open(output_path / filename_json, 'w') as f:
                 json.dump(out_dict, f, indent=2)
 

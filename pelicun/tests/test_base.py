@@ -91,6 +91,7 @@ def test_options_init():
     # Check that the Logger object attribute of the Options object is
     # initialized with the correct parameters
     assert options.log.verbose is False
+    assert options.log.show_warnings is False
     assert options.log.log_show_ms is False
     assert os.path.basename(options.log.log_file) == 'test_log_file'
     assert options.log.print_log is False
@@ -141,12 +142,14 @@ def test_logger_init():
     # attributes based on the input configuration
     log_config = {
         'verbose': True,
+        'show_warnings': True,
         'log_show_ms': False,
         'log_file': 'log.txt',
         'print_log': True,
     }
     log = base.Logger(**log_config)
     assert log.verbose is True
+    assert log.show_warnings is True
     assert log.log_show_ms is False
     assert os.path.basename(log.log_file) == 'log.txt'
     assert log.print_log is True
@@ -155,6 +158,7 @@ def test_logger_init():
     # test exceptions
     log_config = {
         'verbose': True,
+        'show_warnings': True,
         'log_show_ms': False,
         'log_file': '/',
         'print_log': True,
@@ -168,6 +172,7 @@ def test_logger_msg():
     # console and log file
     log_config = {
         'verbose': True,
+        'show_warnings': True,
         'log_show_ms': True,
         'log_file': 'log.txt',
         'print_log': True,
@@ -196,6 +201,7 @@ def test_logger_div():
         # Test that the div method adds a divider as intended
         log_config = {
             'verbose': True,
+            'show_warnings': True,
             'log_show_ms': True,
             'log_file': 'log.txt',
             'print_log': True,
@@ -220,6 +226,7 @@ def test_print_system_info():
     # create a logger object
     log_config = {
         'verbose': True,
+        'show_warnings': True,
         'log_show_ms': True,
         'log_file': 'log.txt',
         'print_log': True,
