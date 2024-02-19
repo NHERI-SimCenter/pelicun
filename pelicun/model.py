@@ -2925,8 +2925,6 @@ class DamageModel(PelicunModel):
             qnt_sample = qnt_sample.iloc[:, np.where(qnt_sample.sum(axis=0) != 0)[0]]
 
         self.sample = qnt_sample
-        # todo
-        assert self.sample.columns.names == ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage calculation successfully completed.')
 
