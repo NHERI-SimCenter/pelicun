@@ -163,7 +163,7 @@ def test_logger_init():
         'log_file': '/',
         'print_log': True,
     }
-    with pytest.raises((IsADirectoryError, FileExistsError)):
+    with pytest.raises((IsADirectoryError, FileExistsError, FileNotFoundError)):
         log = base.Logger(**log_config)
 
 

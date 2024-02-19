@@ -648,9 +648,17 @@ class TestAssetModel(TestPelicunModel):
             ),
         )
 
-        pd.testing.assert_frame_equal(
-            expected_cmp_marginal_params, asset_model.cmp_marginal_params
-        )
+        if os.name == 'nt':
+            expected_cmp_marginal_params['Blocks'] = expected_cmp_marginal_params[
+                'Blocks'
+            ].astype('int32')
+            pd.testing.assert_frame_equal(
+                expected_cmp_marginal_params, asset_model.cmp_marginal_params
+            )
+        else:
+            pd.testing.assert_frame_equal(
+                expected_cmp_marginal_params, asset_model.cmp_marginal_params
+            )
 
         expected_cmp_units = pd.Series(
             data=['ea'], index=['component_a'], name='Units'
@@ -1073,7 +1081,6 @@ class TestDamageModel(TestPelicunModel):
                 continue
 
     def test__create_dmg_RVs(self, damage_model_model_loaded):
-
         pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
 
         batches = pg_batch.index.get_level_values(0).unique()
@@ -1213,7 +1220,10 @@ class TestDamageModel(TestPelicunModel):
             assert list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
         assert capacity_sample.to_numpy().dtype == np.dtype('float64')
-        assert lsds_sample.to_numpy().dtype == np.dtype('int64')
+        if os.name == 'nt':
+            assert lsds_sample.to_numpy().dtype == np.dtype('int32')
+        else:
+            assert lsds_sample.to_numpy().dtype == np.dtype('int64')
 
     def test__get_required_demand_type(self, damage_model_model_loaded):
         pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
