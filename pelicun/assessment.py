@@ -174,7 +174,7 @@ class Assessment:
 
         return file_io.load_data(
             data_path, self.unit_conversion_factors,
-            orientation=1, reindex=False, convert=[],
+            orientation=1, reindex=False,
             log=self.log)
 
     def get_default_metadata(self, data_name):

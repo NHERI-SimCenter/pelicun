@@ -1280,7 +1280,6 @@ def run_pelicun(
                     unit_conversion_factors={},
                     orientation=1,
                     reindex=False,
-                    convert=[],
                 )
 
                 if isinstance(conseq_df, pd.DataFrame):
