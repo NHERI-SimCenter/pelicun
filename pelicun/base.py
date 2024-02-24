@@ -692,18 +692,20 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a simple, one-level index
 
-    The target index uses standard SimCenter convention to identify different
-    levels: a dash character ('-') is used to separate each level of the index.
+    The target index uses standard SimCenter convention to identify
+    different levels: a dash character ('-') is used to separate each
+    level of the index.
 
     Parameters
     ----------
     data: DataFrame
         The DataFrame that will be modified.
     axis: int, optional, default:0
-        Identifies if the index (0) or the columns (1) shall be edited.
+        Identifies if the index (0) or the columns (1) shall be
+        edited.
     inplace: bool, optional, default:False
-        If yes, the operation is performed directly on the input DataFrame
-        and not on a copy of it.
+        If yes, the operation is performed directly on the input
+        DataFrame and not on a copy of it.
 
     Returns
     -------
@@ -729,9 +731,11 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
             if data.index.nlevels > 1:
 
                 simple_name = '-'.join(
-                    [n if n is not None else "" for n in data.index.names])
-                simple_index = ['-'.join([str(id_i) for id_i in id])
-                                for id in data.index]
+                    [n if n is not None else "" for n in data.index.names]
+                )
+                simple_index = [
+                    '-'.join([str(id_i) for id_i in id]) for id in data.index
+                ]
 
                 data_mod.index = simple_index
                 data_mod.index.name = simple_name
@@ -742,9 +746,11 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
             if data.columns.nlevels > 1:
 
                 simple_name = '-'.join(
-                    [n if n is not None else "" for n in data.columns.names])
-                simple_index = ['-'.join([str(id_i) for id_i in id])
-                                for id in data.columns]
+                    [n if n is not None else "" for n in data.columns.names]
+                )
+                simple_index = [
+                    '-'.join([str(id_i) for id_i in id]) for id in data.columns
+                ]
 
                 data_mod.columns = simple_index
                 data_mod.columns.name = simple_name
@@ -759,19 +765,20 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     """
     Converts the index of a DataFrame to a MultiIndex
 
-    We assume that the index uses standard SimCenter convention to identify
-    different levels: a dash character ('-') is expected to separate each level
-    of the index.
+    We assume that the index uses standard SimCenter convention to
+    identify different levels: a dash character ('-') is expected to
+    separate each level of the index.
 
     Parameters
     ----------
     data: DataFrame
         The DataFrame that will be modified.
     axis: int, optional, default:0
-        Identifies if the index (0) or the columns (1) shall be edited.
+        Identifies if the index (0) or the columns (1) shall be
+        edited.
     inplace: bool, optional, default:False
-        If yes, the operation is performed directly on the input DataFrame
-        and not on a copy of it.
+        If yes, the operation is performed directly on the input
+        DataFrame and not on a copy of it.
 
     Returns
     -------
@@ -785,8 +792,9 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     """
 
     # check if the requested axis is already a MultiIndex
-    if (((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or (
-            (axis == 1) and (isinstance(data.columns, pd.MultiIndex)))):
+    if ((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or (
+        (axis == 1) and (isinstance(data.columns, pd.MultiIndex))
+    ):
 
         # if yes, return the data unchanged
         return data
@@ -805,7 +813,9 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     for l_i, labels in enumerate(index_labels):
 
         if len(labels) != max_lbl_len:
-            labels += ['', ] * (max_lbl_len - len(labels))
+            labels += [
+                '',
+            ] * (max_lbl_len - len(labels))
             index_labels[l_i] = labels
 
     index_labels = np.array(index_labels)
@@ -828,13 +838,36 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     return data
 
 
+def convert_dtypes(dataframe):
+    """
+    Convert columns to a numeric datatype whenever possible. The
+    function replaces None with NA otherwise columns containing None
+    would continue to have the `object` type
+
+    Parameters
+    ----------
+    dataframe: DataFrame
+        The DataFrame that will be modified.
+
+    Returns
+    -------
+    DataFrame
+        The modified DataFrame.
+
+    """
+    dataframe.fillna(value=np.nan, inplace=True)
+    # note: `axis=0` applies the function to the columns
+    return dataframe.apply(lambda x: pd.to_numeric(x, errors='ignore'), axis=0)
+
+
 def show_matrix(data, use_describe=False):
     """
     Print a matrix in a nice way using a DataFrame
     """
     if use_describe:
-        pp.pprint(pd.DataFrame(data).describe(
-            percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
+        pp.pprint(
+            pd.DataFrame(data).describe(percentiles=[0.01, 0.1, 0.5, 0.9, 0.99])
+        )
     else:
         pp.pprint(pd.DataFrame(data))
 

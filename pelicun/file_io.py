@@ -262,9 +262,14 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
     return None
 
 
-def load_data(data_source, unit_conversion_factors,
-              orientation=0, reindex=True, return_units=False,
-              convert=None, log=None):
+def load_data(
+    data_source,
+    unit_conversion_factors,
+    orientation=0,
+    reindex=True,
+    return_units=False,
+    log=None,
+):
     """
     Loads data assuming it follows standard SimCenter tabular schema.
 
@@ -278,10 +283,12 @@ def load_data(data_source, unit_conversion_factors,
         If it is a string, the data_source is assumed to point to the location
         of the source file. If it is a DataFrame, the data_source is assumed to
         hold the raw data.
-    unit_conversion_factors: dict
+    unit_conversion_factors: dict, optional
         Dictionary containing key-value pairs of unit names and their
-        corresponding factors. Conversion factors are defined as the number of
-        times a base unit fits in the alternative unit.
+        corresponding factors. Conversion factors are defined as the
+        number of times a base unit fits in the alternative unit. If
+        no conversion factors are specified, then no unit conversions
+        are made.
     orientation: int, {0, 1}, default: 0
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
@@ -291,9 +298,6 @@ def load_data(data_source, unit_conversion_factors,
     return_units: bool
         If True, returns the units as well as the data to allow for adjustments
         in unit conversion.
-    convert: list of string
-        Specifies the columns (or rows if orientation==1) where unit conversion
-        needs to be applied.
     log: Logger
         Logger object to be used. If no object is specified, no logging
         is performed.
@@ -303,113 +307,98 @@ def load_data(data_source, unit_conversion_factors,
     data: DataFrame
         Parsed data.
     units: Series
-        Labels from the data and corresponding units specified. If no units
-        are specified, this return value is "None". units are only returned if
-        return_units is set to True.
+        Labels from the data and corresponding units specified in the
+        data. Units are only returned if return_units is set to True.
     """
 
-    # if the provided data_source is already a DataFrame...
     if isinstance(data_source, pd.DataFrame):
-
-        # we can just store it at proceed
-        # (copying is needed to avoid changing the original)
+        # store it at proceed (copying is needed to avoid changing the
+        # original)
         data = data_source.copy()
-
-    else:
+    elif isinstance(data_source, str):
         # otherwise, load the data from a file
         data = load_from_file(data_source)
-        if data.empty:
-            return data
+    else:
+        raise TypeError(f'Invalid data_source type: {type(data_source)}')
 
-    # if there is information about units, perform the conversion to SI
-    if ('Units' in data.index) or ('Units' in data.columns):
+    # Define a dictionary to decide the axis based on the orientation
+    axis = {0: 1, 1: 0}
+    the_index = data.columns if orientation == 1 else data.index
 
-        if log: log.msg('Converting units...', prepend_timestamp=False)
+    # if there is information about units, separate that information
+    # and optionally apply conversions to all numeric values
+    if 'Units' in the_index:
 
-        if orientation == 0:
-            units = data.loc['Units', :].copy()
-            data.drop('Units', inplace=True)
-            data = data.astype(float)
+        units = data['Units'] if orientation == 1 else data.loc['Units']
+        data.drop('Units', axis=orientation, inplace=True)
+        data = base.convert_dtypes(data)
 
-        else:  # elif orientation==1:
-            units = data.loc[:, 'Units'].copy()
-            data.drop('Units', axis=1, inplace=True)
+        if unit_conversion_factors is not None:
+            numeric_elements = (
+                (data.select_dtypes(include=[np.number]).index)
+                if orientation == 0
+                else (data.select_dtypes(include=[np.number]).columns)
+            )
 
-            if convert is None:
-                cols_to_scale = []
-                for col in data.columns:
-                    try:
-                        data.loc[:, col] = data.loc[:, col].astype(float)
-                        cols_to_scale.append(col)
-                    except ValueError:
-                        pass
+            if log:
+                log.msg('Converting units...', prepend_timestamp=False)
+
+            # todo lambda
+            def get_conversion_factor(unit):
+                """
+                Utility function to be used in `map`, handling the case
+                where unit is NaN and otherwise pulling values from the
+                `unit_conversion_factors` dictionary.
+                """
+                return (
+                    1.00
+                    if pd.isna(unit)
+                    else unit_conversion_factors.get(unit, 1.00)
+                )
+
+            conversion_factors = units.map(get_conversion_factor)
+
+            if orientation == 1:
+                data.loc[:, numeric_elements] = data.loc[
+                    :, numeric_elements
+                ].multiply(conversion_factors, axis=axis[orientation])
             else:
-                cols_to_scale = convert
+                data.loc[numeric_elements, :] = data.loc[
+                    numeric_elements, :
+                ].multiply(conversion_factors, axis=axis[orientation])
 
-        unique_unit_names = units.unique()
-
-        for unit_name in unique_unit_names:
-
-            if pd.isna(unit_name):
-                continue
-
-            unit_factor = unit_conversion_factors[unit_name]
-            unit_labels = units.loc[units == unit_name].index
-
-            if orientation == 0:
-                # data.loc[:, unit_labels] *= unit_factor
-                data.values[:, units == unit_name] *= unit_factor
-
-            else:  # elif orientation==1:
-                data.loc[unit_labels, cols_to_scale] *= unit_factor
-
-        if log: log.msg('Unit conversion successful.', prepend_timestamp=False)
+        if log:
+            log.msg('Unit conversion successful.', prepend_timestamp=False)
 
     else:
-
-        # data = data.convert_dtypes()
-        # enforcing float datatype is important even if there is no unit
-        # conversion
         units = None
-        if orientation == 0:
-            data = data.astype(float)
+        data = base.convert_dtypes(data)
 
-        else:
-            for col in data.columns:
-                try:
-                    data[col] = data[col].astype(float)
-                except ValueError:
-                    pass
-
-    # convert column to MultiIndex if needed
+    # convert columns or index to MultiIndex if needed
     data = base.convert_to_MultiIndex(data, axis=1)
-
     data.sort_index(axis=1, inplace=True)
 
     # reindex the data, if needed
     if reindex:
-
         data.index = np.arange(data.shape[0])
-
     else:
         # convert index to MultiIndex if needed
         data = base.convert_to_MultiIndex(data, axis=0)
-
         data.sort_index(inplace=True)
 
-    if log: log.msg('Data successfully loaded from file.', prepend_timestamp=False)
+    if log:
+        log.msg('Data successfully loaded from file.', prepend_timestamp=False)
 
     if return_units:
+        if units is not None:
+            # convert index in units Series to MultiIndex if needed
+            units = base.convert_to_MultiIndex(units, axis=0).dropna()
+            units.sort_index(inplace=True)
+        output = data, units
+    else:
+        output = data
 
-        # convert index in units Series to MultiIndex if needed
-        units = base.convert_to_MultiIndex(units, axis=0).dropna()
-
-        units.sort_index(inplace=True)
-
-        return data, units
-
-    # return_units=False
-    return data
+    return output
 
 
 def load_from_file(filepath, log=None):
