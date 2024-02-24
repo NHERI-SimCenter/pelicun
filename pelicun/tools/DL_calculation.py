@@ -1277,7 +1277,7 @@ def run_pelicun(
 
                 extra_conseq_df = load_data(
                     bldg_repair_config['ConsequenceDatabasePath'],
-                    unit_conversion_factors={},
+                    unit_conversion_factors=None,
                     orientation=1,
                     reindex=False,
                 )

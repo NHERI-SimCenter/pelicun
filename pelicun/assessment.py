@@ -173,9 +173,8 @@ class Assessment:
         data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/{data_name}.csv'
 
         return file_io.load_data(
-            data_path, self.unit_conversion_factors,
-            orientation=1, reindex=False,
-            log=self.log)
+            data_path, None, orientation=1, reindex=False, log=self.log
+        )
 
     def get_default_metadata(self, data_name):
         """

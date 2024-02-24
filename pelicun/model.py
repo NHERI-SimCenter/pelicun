@@ -814,10 +814,12 @@ class DemandModel(PelicunModel):
         # Note that a data source without marginal information is not valid
         marginal_params, units = file_io.load_data(
             marginal_data_source,
-            self._asmnt.unit_conversion_factors,
-            orientation=1, reindex=False,
+            None,
+            orientation=1,
+            reindex=False,
             return_units=True,
-            log=self._asmnt.log)
+            log=self._asmnt.log,
+        )
         marginal_params.index.set_names(['type', 'loc', 'dir'], inplace=True)
 
         marginal_params = self.convert_marginal_params(marginal_params.copy(),
@@ -1241,11 +1243,12 @@ class AssetModel(PelicunModel):
 
         marginal_params, units = file_io.load_data(
             marginal_data_source,
-            self._asmnt.unit_conversion_factors,
+            None,
             orientation=1,
             reindex=False,
             return_units=True,
-            log=self._asmnt.log)
+            log=self._asmnt.log,
+        )
 
         # group units by cmp id to avoid redundant entries
         self.cmp_units = units.copy().groupby(level=0).first()
@@ -1515,10 +1518,7 @@ class DamageModel(PelicunModel):
         for data_path in data_paths:
 
             data = file_io.load_data(
-                data_path,
-                self._asmnt.unit_conversion_factors,
-                orientation=1, reindex=False,
-                log=self._asmnt.log
+                data_path, None, orientation=1, reindex=False, log=self._asmnt.log
             )
 
             data_list.append(data)
@@ -3030,8 +3030,8 @@ class LossModel(PelicunModel):
         self.log_msg(f'Loading loss map for {self.loss_type}...')
 
         loss_map = file_io.load_data(
-            mapping_path, self._asmnt.unit_conversion_factors,
-            orientation=1, reindex=False, log=self._asmnt.log)
+            mapping_path, None, orientation=1, reindex=False, log=self._asmnt.log
+        )
 
         loss_map['Driver'] = loss_map.index.values
         loss_map['Consequence'] = loss_map[self.loss_type]
@@ -3058,11 +3058,8 @@ class LossModel(PelicunModel):
         # load the data files one by one
         for data_path in data_paths:
             data = file_io.load_data(
-                data_path,
-                self._asmnt.unit_conversion_factors,
-                orientation=1,
-                reindex=False,
-                log=self._asmnt.log)
+                data_path, None, orientation=1, reindex=False, log=self._asmnt.log
+            )
 
             data_list.append(data)
 

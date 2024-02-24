@@ -262,9 +262,14 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
     return None
 
 
-def load_data(data_source, unit_conversion_factors,
-              orientation=0, reindex=True, return_units=False,
-              log=None):
+def load_data(
+    data_source,
+    unit_conversion_factors,
+    orientation=0,
+    reindex=True,
+    return_units=False,
+    log=None,
+):
     """
     Loads data assuming it follows standard SimCenter tabular schema.
 
@@ -278,10 +283,12 @@ def load_data(data_source, unit_conversion_factors,
         If it is a string, the data_source is assumed to point to the location
         of the source file. If it is a DataFrame, the data_source is assumed to
         hold the raw data.
-    unit_conversion_factors: dict
+    unit_conversion_factors: dict, optional
         Dictionary containing key-value pairs of unit names and their
-        corresponding factors. Conversion factors are defined as the number of
-        times a base unit fits in the alternative unit.
+        corresponding factors. Conversion factors are defined as the
+        number of times a base unit fits in the alternative unit. If
+        no conversion factors are specified, then no unit conversions
+        are made.
     orientation: int, {0, 1}, default: 0
         If 0, variables are organized along columns; otherwise they are along
         the rows. This is important when converting values to follow the
@@ -304,70 +311,70 @@ def load_data(data_source, unit_conversion_factors,
         data. Units are only returned if return_units is set to True.
     """
 
-    # if the provided data_source is already a DataFrame...
     if isinstance(data_source, pd.DataFrame):
-        # we can just store it at proceed
-        # (copying is needed to avoid changing the original)
+        # store it at proceed (copying is needed to avoid changing the
+        # original)
         data = data_source.copy()
-    # otherwise, load the data from a file
     elif isinstance(data_source, str):
+        # otherwise, load the data from a file
         data = load_from_file(data_source)
     else:
-        raise TypeError(
-            f'Invalid data_source type: {type(data_source)}'
-        )
+        raise TypeError(f'Invalid data_source type: {type(data_source)}')
 
-    # if orientation == 0 we transpose the dataframe, perform all
-    # operations, and transpose it back before returning.
+    # Define a dictionary to decide the axis based on the orientation
+    axis = {0: 1, 1: 0}
+    the_index = data.columns if orientation == 1 else data.index
 
-    if orientation == 0:
-        data = data.T
+    # if there is information about units, separate that information
+    # and optionally apply conversions to all numeric values
+    if 'Units' in the_index:
 
-    # if there is information about units, perform the conversion to
-    # base units
-    if 'Units' in data.columns:
+        units = data['Units'] if orientation == 1 else data.loc['Units']
+        data.drop('Units', axis=orientation, inplace=True)
+        data = base.convert_dtypes(data)
 
-        # convert columns to float datatype whenever possible
-        try:
-            data = data.astype(float)
-            float_cols_list = [True] * np.shape(data)[1]
-        except ValueError:
-            float_cols_list = []
-            for col in data:
-                if col == 'Units':
-                    continue
-                try:
-                    data[col] = data[col].astype(float)
-                    float_cols_list.append(True)
-                except ValueError:
-                    float_cols_list.append(False)
-        float_cols = np.array(float_cols_list)
+        if unit_conversion_factors is not None:
+            numeric_elements = (
+                (data.select_dtypes(include=[np.number]).index)
+                if orientation == 0
+                else (data.select_dtypes(include=[np.number]).columns)
+            )
 
-        if log: log.msg('Converting units...', prepend_timestamp=False)
+            if log:
+                log.msg('Converting units...', prepend_timestamp=False)
 
-        units = data['Units']
-        data.drop('Units', axis=1, inplace=True)
+            # todo lambda
+            def get_conversion_factor(unit):
+                """
+                Utility function to be used in `map`, handling the case
+                where unit is NaN and otherwise pulling values from the
+                `unit_conversion_factors` dictionary.
+                """
+                return (
+                    1.00
+                    if pd.isna(unit)
+                    else unit_conversion_factors.get(unit, 1.00)
+                )
 
-        unique_unit_names = units.unique()
+            conversion_factors = units.map(get_conversion_factor)
 
-        for unit_name in unique_unit_names:
+            if orientation == 1:
+                data.loc[:, numeric_elements] = data.loc[
+                    :, numeric_elements
+                ].multiply(conversion_factors, axis=axis[orientation])
+            else:
+                data.loc[numeric_elements, :] = data.loc[
+                    numeric_elements, :
+                ].multiply(conversion_factors, axis=axis[orientation])
 
-            if pd.isna(unit_name):
-                continue
-
-            unit_factor = unit_conversion_factors[unit_name]
-            data.iloc[(units == unit_name).values, float_cols] *= unit_factor
-
-        if log: log.msg('Unit conversion successful.', prepend_timestamp=False)
+        if log:
+            log.msg('Unit conversion successful.', prepend_timestamp=False)
 
     else:
-
         units = None
+        data = base.convert_dtypes(data)
 
-    if orientation == 0:
-        data = data.T
-
-    # convert columns to MultiIndex if needed
+    # convert columns or index to MultiIndex if needed
     data = base.convert_to_MultiIndex(data, axis=1)
     data.sort_index(axis=1, inplace=True)
 
@@ -379,7 +386,8 @@ def load_data(data_source, unit_conversion_factors,
         data = base.convert_to_MultiIndex(data, axis=0)
         data.sort_index(inplace=True)
 
-    if log: log.msg('Data successfully loaded from file.', prepend_timestamp=False)
+    if log:
+        log.msg('Data successfully loaded from file.', prepend_timestamp=False)
 
     if return_units:
         if units is not None:

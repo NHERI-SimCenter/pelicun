@@ -297,6 +297,59 @@ def test_merge_default_config():
     assert merged_config == {**base.load_default_options(), **user_config}
 
 
+def test_convert_dtypes():
+    # All columns able to be converted
+
+    # Input DataFrame
+    df_input = pd.DataFrame({'a': ['1', '2', '3'], 'b': ['4.0', '5.5', '6.75']})
+
+    # Expected DataFrame
+    df_expected = pd.DataFrame({'a': [1, 2, 3], 'b': [4.0, 5.5, 6.75]}).astype(
+        {'a': int, 'b': float}
+    )
+
+    # Convert data types
+    df_result = base.convert_dtypes(df_input)
+
+    # Verify dtypes
+    pd.testing.assert_frame_equal(df_result, df_expected)
+
+    # No columns that can be converted
+
+    df_input = pd.DataFrame(
+        {'a': ['foo', 'bar', 'baz'], 'b': ['2021-01-01', '2021-01-02', '2021-01-03']}
+    )
+    df_expected = df_input.copy()
+    df_result = base.convert_dtypes(df_input)
+    pd.testing.assert_frame_equal(df_result, df_expected)
+
+    # Columns with mixed types
+
+    df_input = pd.DataFrame(
+        {
+            'a': ['1', '2', 'three'],
+            'b': ['4.0', '5.5', 'six'],
+            'c': ['7', 'eight', '9'],
+        }
+    )
+    df_result = base.convert_dtypes(df_input)
+    pd.testing.assert_frame_equal(df_result, df_input)
+
+    # None values present
+
+    df_input = pd.DataFrame({'a': [None, '2', '3'], 'b': ['4.0', None, '6.75']})
+    df_expected = pd.DataFrame({'a': [np.nan, 2, 3], 'b': [4.0, np.nan, 6.75]})
+    df_result = base.convert_dtypes(df_input)
+    pd.testing.assert_frame_equal(df_result, df_expected, check_dtype=False)
+
+    # Empty dataframe
+
+    df_input = pd.DataFrame({})
+    df_expected = pd.DataFrame({})
+    df_result = base.convert_dtypes(df_input)
+    pd.testing.assert_frame_equal(df_result, df_expected)
+
+
 def test_convert_to_SimpleIndex():
     # Test conversion of a multiindex to a simple index following the
     # SimCenter dash convention
