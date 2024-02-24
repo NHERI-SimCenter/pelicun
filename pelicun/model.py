@@ -1579,8 +1579,8 @@ class DamageModel(PelicunModel):
     def _handle_operation(self, initial_value, operation, other_value):
         """
         This method is used in `_create_dmg_RVs` to apply capacity
-        scaling operations whenever required. It is defined as a safer
-        alternative to directly using `eval`.
+        adjustment operations whenever required. It is defined as a
+        safer alternative to directly using `eval`.
 
         Parameters
         ----------
@@ -1691,7 +1691,7 @@ class DamageModel(PelicunModel):
         capacity_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
         lsds_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
-        # capacity scaling:
+        # capacity adjustment:
         # ensure the scaling_specification is a dictionary
         if not scaling_specification:
             scaling_specification = {}
@@ -1701,23 +1701,23 @@ class DamageModel(PelicunModel):
             parsed_scaling_specification = {}
             # validate contents
             for key, value in scaling_specification.items():
-                css = 'capacity scaling specification'
+                css = 'capacity adjustment specification'
                 if not isinstance(value, str):
                     raise ValueError(
                         f'Invalud entry in {css}: {value}. It has to be a string. '
                         f'See docstring of DamageModel._create_dmg_RVs.'
                     )
-                capacity_scaling_operation = value[0]
+                capacity_adjustment_operation = value[0]
                 number = value[1::]
-                if capacity_scaling_operation not in ('+', '-', '*', '/'):
+                if capacity_adjustment_operation not in ('+', '-', '*', '/'):
                     raise ValueError(
-                        f'Invalid operation in {css}: {capacity_scaling_operation}'
+                        f'Invalid operation in {css}: {capacity_adjustment_operation}'
                     )
                 fnumber = base.float_or_None(number)
                 if fnumber is None:
                     raise ValueError(f'Invalid number in {css}: {number}')
                 parsed_scaling_specification[key] = (
-                    capacity_scaling_operation,
+                    capacity_adjustment_operation,
                     fnumber,
                 )
                 scaling_specification = parsed_scaling_specification
@@ -1725,9 +1725,9 @@ class DamageModel(PelicunModel):
         # get the component sample and blocks from the asset model
         for PG in PGB.index:
 
-            # determine demand capacity scaling operation, if required
+            # determine demand capacity adjustment operation, if required
             cmp_loc_dir = '-'.join(PG[0:3])
-            capacity_scaling_operation = scaling_specification.get(cmp_loc_dir, None)
+            capacity_adjustment_operation = scaling_specification.get(cmp_loc_dir, None)
 
             cmp_id = PG[0]
             blocks = PGB.loc[PG, 'Blocks']
@@ -1772,16 +1772,16 @@ class DamageModel(PelicunModel):
                         frg_params_LS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
                     ]
 
-                    if capacity_scaling_operation:
+                    if capacity_adjustment_operation:
                         if family in {'normal', 'lognormal'}:
                             theta[0] = self._handle_operation(
                                 theta[0],
-                                capacity_scaling_operation[0],
-                                capacity_scaling_operation[1],
+                                capacity_adjustment_operation[0],
+                                capacity_adjustment_operation[1],
                             )
                         else:
                             self.log_msg(
-                                f'\nWARNING: Capacity scaling is only supported '
+                                f'\nWARNING: Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: {cmp_loc_dir}, which is {family}',
                                 prepend_timestamp=False,
