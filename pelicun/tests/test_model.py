@@ -1138,7 +1138,7 @@ class TestDamageModel(TestPelicunModel):
             lsds_RV_reg,
         ) = damage_model_model_loaded._create_dmg_RVs(PGB, scaling_specification)
         for limit_state in ('1', '2', '3'):
-            val_initial = adjusted_capacity_RV_reg.RV[
+            val_initial = capacity_RV_reg.RV[
                 f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
             ].theta
             val_scaling = adjusted_capacity_RV_reg.RV[
