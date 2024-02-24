@@ -316,7 +316,7 @@ def test_convert_dtypes():
     if os.name == 'nt':
         # Windows sometimes uses int32 and sometimes int64, breaking
         # our tests.
-        df_expected['a'] = df_expected['a'].astype('int32')
+        df_expected['a'] = df_expected['a'].astype('int64')
 
     pd.testing.assert_frame_equal(df_result, df_expected)
 
