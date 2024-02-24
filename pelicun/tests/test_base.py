@@ -312,6 +312,12 @@ def test_convert_dtypes():
     df_result = base.convert_dtypes(df_input)
 
     # Verify dtypes
+
+    if os.name == 'nt':
+        # Windows sometimes uses int32 and sometimes int64, breaking
+        # our tests.
+        df_expected['a'] = df_expected['a'].astype('int32')
+
     pd.testing.assert_frame_equal(df_result, df_expected)
 
     # No columns that can be converted
