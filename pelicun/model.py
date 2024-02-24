@@ -894,18 +894,18 @@ class DemandModel(PelicunModel):
 
         self._RVs = RV_reg
 
-    def propagate_demands(self, demand_propagation):
+    def clone_demands(self, demand_cloning):
         """
-        Propagates demands. This means copying over columns of the
+        Clones demands. This means copying over columns of the
         original demand sample and assigning given names to them. The
         columns to be copied over and the names to assign to the
         copies are defined as the keys and values of the
-        `demand_propagation` dictionary, respectively.
+        `demand_cloning` dictionary, respectively.
         The method modifies `sample` inplace.
 
         Parameters
         ----------
-        demand_propagation : dict
+        demand_cloning: dict
             Keys correspond to the columns of the original sample to
             be copied over and the values correspond to the intended
             names for the copies. Caution: It's possible to define a
@@ -918,16 +918,16 @@ class DemandModel(PelicunModel):
         Raises
         ------
         ValueError
-            In multiple instances of invalid demand_propagation entries.
+            In multiple instances of invalid demand_cloning entries.
 
         """
 
         # it's impossible to have duplicate keys, because
-        # demand_propagation is a dictionary.
-        new_columns_list = demand_propagation.values()
+        # demand_cloning is a dictionary.
+        new_columns_list = demand_cloning.values()
         # The following prevents duplicate entries in the values
-        # corresponding to a single propagated demand (1), but
-        # also the same column being specified as the propagated
+        # corresponding to a single cloned demand (1), but
+        # also the same column being specified as the cloned
         # entry of multiple demands (2).
         # e.g.
         # (1): {'PGV-0-1': ['PGV-1-1', 'PGV-1-1', ...]}
@@ -937,31 +937,31 @@ class DemandModel(PelicunModel):
             flat_list.extend(new_columns)
         if len(set(flat_list)) != len(flat_list):
             raise ValueError(
-                'Duplicate entries in demand propagation '
+                'Duplicate entries in demand cloning '
                 'configuration.'
             )
 
         # turn the config entries to tuples
-        def turn_to_tuples(demand_propagation):
-            demand_propagation_tuples = {}
-            for key, values in demand_propagation.items():
-                demand_propagation_tuples[tuple(key.split('-'))] = [
+        def turn_to_tuples(demand_cloning):
+            demand_cloning_tuples = {}
+            for key, values in demand_cloning.items():
+                demand_cloning_tuples[tuple(key.split('-'))] = [
                     tuple(x.split('-')) for x in values
                 ]
-            return demand_propagation_tuples
+            return demand_cloning_tuples
 
-        demand_propagation = turn_to_tuples(demand_propagation)
+        demand_cloning = turn_to_tuples(demand_cloning)
 
-        # The demand propagation confuguration should not include
+        # The demand cloning confuguration should not include
         # columns that are not present in the orignal sample.
         warn_columns = []
-        for column in demand_propagation:
+        for column in demand_cloning:
             if column not in self.sample.columns:
                 warn_columns.append(column)
         if warn_columns:
             warn_columns = ['-'.join(x) for x in warn_columns]
             self.log_msg(
-                "\nWARNING: The demand propagation configuration lists "
+                "\nWARNING: The demand cloning configuration lists "
                 "columns that are not present in the original demand sample's "
                 f"columns: {warn_columns}.\n",
                 prepend_timestamp=False,
@@ -969,19 +969,19 @@ class DemandModel(PelicunModel):
 
         # we iterate over the existing columns of the sample and try
         # to locate columns that need to be copied as required by the
-        # demand propagation configuration.  If a column does not need
-        # to be propagated it is left as is.  Otherwise, we keep track
+        # demand cloning configuration.  If a column does not need
+        # to be cloned it is left as is.  Otherwise, we keep track
         # of its initial index location (in `column_index`) and the
         # number of times it needs to be replicated, along with the
         # new names of its copies (in `column_values`).
         column_index = []
         column_values = []
         for i, column in enumerate(self.sample.columns):
-            if column not in demand_propagation:
+            if column not in demand_cloning:
                 column_index.append(i)
                 column_values.append(column)
             else:
-                new_column_values = demand_propagation[column]
+                new_column_values = demand_cloning[column]
                 column_index.extend([i] * len(new_column_values))
                 column_values.extend(new_column_values)
         # copy the columns
@@ -1022,8 +1022,8 @@ class DemandModel(PelicunModel):
         sample.columns.names = ['type', 'loc', 'dir']
         self.sample = sample
 
-        if config.get('DemandPropagation', False):
-            self.propagate_demands(config['DemandPropagation'])
+        if config.get('DemandCloning', False):
+            self.clone_demands(config['DemandCloning'])
 
         self.log_msg(f"\nSuccessfully generated {sample_size} realizations.",
                      prepend_timestamp=False)
@@ -1711,7 +1711,8 @@ class DamageModel(PelicunModel):
                 number = value[1::]
                 if capacity_adjustment_operation not in ('+', '-', '*', '/'):
                     raise ValueError(
-                        f'Invalid operation in {css}: {capacity_adjustment_operation}'
+                        f'Invalid operation in {css}: '
+                        f'{capacity_adjustment_operation}'
                     )
                 fnumber = base.float_or_None(number)
                 if fnumber is None:
@@ -1727,7 +1728,9 @@ class DamageModel(PelicunModel):
 
             # determine demand capacity adjustment operation, if required
             cmp_loc_dir = '-'.join(PG[0:3])
-            capacity_adjustment_operation = scaling_specification.get(cmp_loc_dir, None)
+            capacity_adjustment_operation = scaling_specification.get(
+                cmp_loc_dir, None
+            )
 
             cmp_id = PG[0]
             blocks = PGB.loc[PG, 'Blocks']

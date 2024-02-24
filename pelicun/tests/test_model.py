@@ -388,7 +388,7 @@ class TestDemandModel(TestModelModule):
         )
         pd.testing.assert_series_equal(expected_units, obtained_units)
 
-    def test_generate_sample_with_demand_propagation(self, assessment_instance):
+    def test_generate_sample_with_demand_cloning(self, assessment_instance):
         # # used for debugging
         # assessment_instance = assessment.Assessment()
 
@@ -396,10 +396,10 @@ class TestDemandModel(TestModelModule):
 
         mdl = assessment_instance.demand
         # contains PGV-0-1, PGV-1-1, PGV-2-1, and PGA-0-1
-        # PGA-0-1 is not propagated.
+        # PGA-0-1 is not cloned.
         mdl.load_sample(
             'pelicun/tests/data/model/'
-            'test_DemandModel_generate_sample_with_demand_propagation/sample.csv'
+            'test_DemandModel_generate_sample_with_demand_cloning/sample.csv'
         )
         demand_model.calibrate_model(
             {
@@ -411,7 +411,7 @@ class TestDemandModel(TestModelModule):
         demand_model.generate_sample(
             {
                 'SampleSize': 1000,
-                'DemandPropagation': {
+                'DemandCloning': {
                     'PGV-0-1': ['PGV-0-1', 'PGV-0-2', 'PGV-0-3'],
                     'PGV-1-1': ['PGV-1-1', 'PGV-1-2', 'PGV-1-3'],
                     'PGV-2-1': ['PGV-2-1', 'PGV-2-2', 'PGV-2-3'],
@@ -437,12 +437,12 @@ class TestDemandModel(TestModelModule):
             demand_model.sample[('PGV', '0', '3')].values,
         )
         # exceptions
-        # Duplicate entries in demand propagation configuration
+        # Duplicate entries in demand cloning configuration
         with pytest.raises(ValueError):
             demand_model.generate_sample(
                 {
                     'SampleSize': 1000,
-                    'DemandPropagation': {
+                    'DemandCloning': {
                         'PGV-0-1': ['PGV-0-1', 'PGV-0-2', 'PGV-0-3'],
                         'PGV-1-1': ['PGV-0-1', 'PGV-1-2', 'PGV-1-3'],
                         'PGV-2-1': ['PGV-0-1', 'PGV-2-2', 'PGV-2-3'],
@@ -1138,7 +1138,7 @@ class TestDamageModel(TestPelicunModel):
             lsds_RV_reg,
         ) = damage_model_model_loaded._create_dmg_RVs(PGB, scaling_specification)
         for limit_state in ('1', '2', '3'):
-            val_initial = adjusted_RV_reg.RV[
+            val_initial = adjusted_capacity_RV_reg.RV[
                 f'FRG-B.10.31.001-2-2-0-1-{limit_state}'
             ].theta
             val_scaling = adjusted_capacity_RV_reg.RV[
