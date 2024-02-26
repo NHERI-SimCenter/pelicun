@@ -102,6 +102,8 @@ python -m pytest pelicun/tests --cov=pelicun --cov-report html
 
 ```
 
+Feel free to [open an issue](https://github.com/NHERI-SimCenter/pelicun/issues/new/choose) if you encounter problems setting up the provided development environment.
+
 
 ## Changelog
 
