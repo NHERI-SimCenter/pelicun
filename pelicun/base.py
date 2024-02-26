@@ -857,6 +857,13 @@ def convert_dtypes(dataframe):
     """
     dataframe.fillna(value=np.nan, inplace=True)
     # note: `axis=0` applies the function to the columns
+    # note: ignoring errors is a bad idea and should never be done. In
+    # this case, however, that's not what we do, despite the name of
+    # this parameter. We simply don't convert the dtype of columns
+    # that cannot be interpreted as numeric. That's what
+    # `errors='ignore'` does.
+    # See:
+    # https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html
     return dataframe.apply(lambda x: pd.to_numeric(x, errors='ignore'), axis=0)
 
 
