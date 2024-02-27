@@ -68,6 +68,8 @@ Using a virtual environment is highly recommended.
 # Clone the repository:
 git clone https://github.com/<user>/pelicun
 cd pelicun
+# Switch to the appropriate branch, if needed.
+# git checkout <branch>
 
 # Install pelicun:
 # Note: don't forget to activate the corresponding environment.
