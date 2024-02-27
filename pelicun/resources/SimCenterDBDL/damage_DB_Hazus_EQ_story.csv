@@ -1,0 +1,68 @@
+ID,Incomplete,Demand-Type,Demand-Unit,Demand-Offset,Demand-Directional,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS1-DamageStateWeights,LS2-Family,LS2-Theta_0,LS2-Theta_1,LS2-DamageStateWeights,LS3-Family,LS3-Theta_0,LS3-Theta_1,LS3-DamageStateWeights,LS4-Family,LS4-Theta_0,LS4-Theta_1,LS4-DamageStateWeights
+STR.W1.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.012,0.4,,lognormal,0.04,0.4,,lognormal,0.1,0.4,0.97 | 0.03
+STR.W1.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W1.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W1.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0079,0.4,,lognormal,0.0245,0.4,,lognormal,0.06,0.4,0.97 | 0.03
+STR.W2.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.012,0.4,,lognormal,0.04,0.4,,lognormal,0.1,0.4,0.97 | 0.03
+STR.W2.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W2.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0099,0.4,,lognormal,0.0306,0.4,,lognormal,0.075,0.4,0.97 | 0.03
+STR.W2.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0079,0.4,,lognormal,0.0245,0.4,,lognormal,0.06,0.4,0.97 | 0.03
+STR.S1.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.006,0.4,,lognormal,0.012,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.92 | 0.08
+STR.S1.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.006,0.4,,lognormal,0.0104,0.4,,lognormal,0.0235,0.4,,lognormal,0.06,0.4,0.92 | 0.08
+STR.S1.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.006,0.4,,lognormal,0.0096,0.4,,lognormal,0.0203,0.4,,lognormal,0.05,0.4,0.92 | 0.08
+STR.S1.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0048,0.4,,lognormal,0.0076,0.4,,lognormal,0.0162,0.4,,lognormal,0.04,0.4,0.92 | 0.08
+STR.S2.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.01,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.92 | 0.08
+STR.S2.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.0087,0.4,,lognormal,0.0233,0.4,,lognormal,0.06,0.4,0.92 | 0.08
+STR.S2.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.008,0.4,,lognormal,0.02,0.4,,lognormal,0.05,0.4,0.92 | 0.08
+STR.S2.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.016,0.4,,lognormal,0.04,0.4,0.92 | 0.08
+STR.S3.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.S3.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.007,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.97 | 0.03
+STR.S3.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.97 | 0.03
+STR.S3.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.97 | 0.03
+STR.S4.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.92 | 0.08
+STR.S4.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.92 | 0.08
+STR.S4.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.92 | 0.08
+STR.S4.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.92 | 0.08
+STR.S5.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.006,0.4,,lognormal,0.015,0.4,,lognormal,0.035,0.4,0.92 | 0.08
+STR.S5.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0024,0.4,,lognormal,0.0048,0.4,,lognormal,0.012,0.4,,lognormal,0.028,0.4,0.92 | 0.08
+STR.C1.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.01,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.87 | 0.13
+STR.C1.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.0087,0.4,,lognormal,0.0233,0.4,,lognormal,0.06,0.4,0.87 | 0.13
+STR.C1.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.005,0.4,,lognormal,0.008,0.4,,lognormal,0.02,0.4,,lognormal,0.05,0.4,0.87 | 0.13
+STR.C1.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.016,0.4,,lognormal,0.04,0.4,0.87 | 0.13
+STR.C2.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.01,0.4,,lognormal,0.03,0.4,,lognormal,0.08,0.4,0.87 | 0.13
+STR.C2.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0084,0.4,,lognormal,0.0232,0.4,,lognormal,0.06,0.4,0.87 | 0.13
+STR.C2.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0076,0.4,,lognormal,0.0197,0.4,,lognormal,0.05,0.4,0.87 | 0.13
+STR.C2.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0061,0.4,,lognormal,0.0158,0.4,,lognormal,0.04,0.4,0.87 | 0.13
+STR.C3.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.006,0.4,,lognormal,0.015,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.C3.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0024,0.4,,lognormal,0.0048,0.4,,lognormal,0.012,0.4,,lognormal,0.028,0.4,0.85 | 0.15
+STR.PC1.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.85 | 0.15
+STR.PC1.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.007,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.85 | 0.15
+STR.PC1.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.85 | 0.15
+STR.PC1.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.PC2.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.85 | 0.15
+STR.PC2.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.85 | 0.15
+STR.PC2.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.85 | 0.15
+STR.PC2.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.RM1.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.87 | 0.13
+STR.RM1.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.87 | 0.13
+STR.RM1.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.87 | 0.13
+STR.RM1.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.87 | 0.13
+STR.RM2.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.87 | 0.13
+STR.RM2.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0069,0.4,,lognormal,0.0187,0.4,,lognormal,0.0525,0.4,0.87 | 0.13
+STR.RM2.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.0064,0.4,,lognormal,0.0161,0.4,,lognormal,0.0438,0.4,0.87 | 0.13
+STR.RM2.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0051,0.4,,lognormal,0.0128,0.4,,lognormal,0.035,0.4,0.87 | 0.13
+STR.URM.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.003,0.4,,lognormal,0.006,0.4,,lognormal,0.015,0.4,,lognormal,0.035,0.4,0.85 | 0.15
+STR.URM.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0024,0.4,,lognormal,0.0048,0.4,,lognormal,0.012,0.4,,lognormal,0.028,0.4,0.85 | 0.15
+STR.MH.HC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.MH.MC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.MH.LC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.4,,lognormal,0.008,0.4,,lognormal,0.024,0.4,,lognormal,0.07,0.4,0.97 | 0.03
+STR.MH.PC,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.0032,0.4,,lognormal,0.0064,0.4,,lognormal,0.0192,0.4,,lognormal,0.056,0.4,0.97 | 0.03
+NSD,0,Peak Interstory Drift Ratio,rad,0,0,lognormal,0.004,0.5,,lognormal,0.008,0.5,,lognormal,0.025,0.5,,lognormal,0.05,0.5,
+NSA.HC,0,Peak Floor Acceleration,g,0,0,lognormal,0.3,0.6,,lognormal,0.6,0.6,,lognormal,1.2,0.6,,lognormal,2.4,0.6,
+NSA.MC,0,Peak Floor Acceleration,g,0,0,lognormal,0.25,0.6,,lognormal,0.5,0.6,,lognormal,1.0,0.6,,lognormal,2.0,0.6,
+NSA.LC,0,Peak Floor Acceleration,g,0,0,lognormal,0.2,0.6,,lognormal,0.4,0.6,,lognormal,0.8,0.6,,lognormal,1.6,0.6,
+NSA.PC,0,Peak Floor Acceleration,g,0,0,lognormal,0.2,0.6,,lognormal,0.4,0.6,,lognormal,0.8,0.6,,lognormal,1.6,0.6,
+GF.H.S,0,Permanent Ground Deformation,inch,0,0,lognormal,60.0,1.256,0.8 | 0.2,,,,,,,,,,,,
+GF.H.D,0,Permanent Ground Deformation,inch,0,0,lognormal,184.0,1.659,0.8 | 0.2,,,,,,,,,,,,
+GF.V.S,0,Permanent Ground Deformation,inch,0,0,lognormal,10.0,1.256,0.8 | 0.2,,,,,,,,,,,,
+GF.V.D,0,Permanent Ground Deformation,inch,0,0,lognormal,486.0,2.362,0.8 | 0.2,,,,,,,,,,,,

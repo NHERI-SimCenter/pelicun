@@ -12,6 +12,9 @@
 	<b>Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events</b>
 </p>
 
+![Tests](https://github.com/zsarnoczay/pelicun/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/github/zsarnoczay/pelicun/branch/develop/graph/badge.svg?token=W79M5FGOCG)](https://codecov.io/github/zsarnoczay/pelicun/tree/develop)
+
 ## What is it?
 
 `pelicun` is a Python package that provides tools for assessment of damage and losses due to natural hazard events. It uses a stochastic damage and loss model that is an extension of the high-resolution PEER performance assessment methodology described in FEMA P58 (FEMA, 2012). While FEMA P58 aims to assess the seismic performance of a building, with `pelicun` we provide a more versatile, hazard-agnostic tool to assess the performance of several types of assets in the built environment.
@@ -38,35 +41,70 @@ Detailed documentation of the available methods and their use is available at ht
 4. You can trust it. Every function in `pelicun` is tested after every commit. See the Travis-CI and Coveralls badges at the top for more info.
 5. You can extend it. If you have other methods that you consider better than the ones we already offer, we encourage you to fork the repo, and extend `pelicun` with your approach. You do not need to share your extended version with the community, but if you are interested in doing so, contact us and we are more than happy to merge your version with the official release.
 
-## Requirements
-
-`pelicun` runs under Python 3.8+ . The following packages are required for it to work properly:
-
-- `numpy` >= 1.22.0
-
-- `scipy` >= 1.7.0
-
-- `pandas` >= 1.4.0
-
-- 'tables' >= 3.7.0
-
-We recommend installing each of these using `pip`. For convenience, we also published a nheri_simcenter python package that gets all of these and a few additional dependencies installed to initialize the Python environment for SimCenter tools.
-
 ## Installation
 
-`pelicun` is available at the Python Package Index (PyPI). You can simply install it using `pip` as follows:
+### For users
 
-```
+`pelicun` is available at the [Python Package Index (PyPI)](https://pypi.org/project/pelicun/). You can simply install it using `pip` as follows:
+
+```shell
 pip install pelicun
 ```
 
 If you are interested in using an earlier version, you can install it with the following command: 
 
-```
+```shell
 pip install pelicun==2.6.0
 ```
 
-Note that 2.6.0 is the last minor version before the v3.0 release.
+Note that 2.6.0 is the last minor version before the v3.0 release. Other earlier versions can be found [here](https://pypi.org/project/pelicun/#history).
+
+### For contributors
+
+Developers are expected to fork and clone this repository, and install their copy in development mode.
+Using a virtual environment is highly recommended.
+
+```shell
+# Clone the repository:
+git clone https://github.com/<user>/pelicun
+cd pelicun
+# Switch to the appropriate branch, if needed.
+# git checkout <branch>
+
+# Install pelicun:
+# Note: don't forget to activate the corresponding environment.
+python -m pip install -e .
+
+# Install additional development setup dependencies
+python -m pip install -r requirements_dev.txt
+
+```
+
+Contributions are managed with pull requests.
+It is required that contributed code is [PEP 8](https://peps.python.org/pep-0008/) compliant, does not introduce linter warnings and includes sufficient unit tests so as to avoid reducing the current coverage level.
+
+The following lines implement the aforementioned checks.
+`flake8`, `pylint` and `pytest` can all be configured for use within an IDE.
+```shell
+
+cd <path-to>/pelicun
+export PYTHONPATH=$PYTHONPATH:$(pwd)
+
+# Linting with flake8:
+flake8 pelicun
+
+# Linting with pylint:
+pylint pelicun
+
+# Running the tests:
+python -m pytest pelicun/tests --cov=pelicun --cov-report html
+# Open `htmlcov/index.html`in a browser to see coverage results.
+
+
+```
+
+Feel free to [open an issue](https://github.com/NHERI-SimCenter/pelicun/issues/new/choose) if you encounter problems setting up the provided development environment.
+
 
 ## Changelog
 
@@ -86,7 +124,7 @@ Note that 2.6.0 is the last minor version before the v3.0 release.
 
 * Substantial improvements in coding style using flake8 and pylint to monitor and help enforce PEP8.
 
-* Several performance improvements made calculations more efficient, especially for large problems, such as regional assessements or tall buildings investigated using the FEMA P-58 methodology.
+* Several performance improvements made calculations more efficient, especially for large problems, such as regional assessments or tall buildings investigated using the FEMA P-58 methodology.
 
 * Several bugfixes and a large number of minor changes that make the engine more robust and easier to use.
 
@@ -137,7 +175,7 @@ Note that 2.6.0 is the last minor version before the v3.0 release.
 
 `pelicun` is distributed under the BSD 3-Clause license, see LICENSE.
 
-## Acknowledgement
+## Acknowledgment
 
 This material is based upon work supported by the National Science Foundation under Grants No. 1612843 2131111. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
 
