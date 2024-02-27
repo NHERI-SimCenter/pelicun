@@ -94,7 +94,6 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)
 flake8 pelicun
 
 # Linting with pylint:
-cd <path-to>/pelicun
 pylint pelicun
 
 # Running the tests:
