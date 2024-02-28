@@ -12,8 +12,8 @@
 	<b>Probabilistic Estimation of Losses, Injuries, and Community resilience Under Natural hazard events</b>
 </p>
 
-![Tests](https://github.com/zsarnoczay/pelicun/actions/workflows/tests.yml/badge.svg)
-[![codecov](https://codecov.io/github/zsarnoczay/pelicun/branch/develop/graph/badge.svg?token=W79M5FGOCG)](https://codecov.io/github/zsarnoczay/pelicun/tree/develop)
+![Tests](https://github.com/NHERI-SimCenter/pelicun/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/github/NHERI-SimCenter/pelicun/branch/master/graph/badge.svg?token=W79M5FGOCG)](https://codecov.io/github/NHERI-SimCenter/pelicun/tree/master)
 
 ## What is it?
 
