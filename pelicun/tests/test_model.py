@@ -1948,7 +1948,7 @@ class TestBldgRepairModel(TestPelicunModel):
 class TestModelFunctions:
     def test_prep_constant_median_DV(self):
         median = 10.00
-        constant_median_DV = model.prep_constant_median_DV(median)
+        constant_median_DV = model.loss_model.prep_constant_median_DV(median)
         assert constant_median_DV() == median
         values = (1.0, 2.0, 3.0, 4.0, 5.0)
         for value in values:
@@ -1957,7 +1957,7 @@ class TestModelFunctions:
     def test_prep_bounded_multilinear_median_DV(self):
         medians = np.array((1.00, 2.00, 3.00, 4.00, 5.00))
         quantities = np.array((0.00, 1.00, 2.00, 3.00, 4.00))
-        f = model.prep_bounded_multilinear_median_DV(medians, quantities)
+        f = model.loss_model.prep_bounded_multilinear_median_DV(medians, quantities)
 
         result = f(2.5)
         expected = 3.5
