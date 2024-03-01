@@ -92,7 +92,6 @@ class DemandModel(PelicunModel):
     """
 
     def __init__(self, assessment):
-
         super().__init__(assessment)
 
         self.marginal_params = None
@@ -114,14 +113,18 @@ class DemandModel(PelicunModel):
             self.log_msg('Saving demand sample...')
 
         res = file_io.save_to_csv(
-            self.sample, filepath, units=self.units,
+            self.sample,
+            filepath,
+            units=self.units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=(filepath is not None),
-            log=self._asmnt.log)
+            log=self._asmnt.log,
+        )
 
         if filepath is not None:
-            self.log_msg('Demand sample successfully saved.',
-                         prepend_timestamp=False)
+            self.log_msg(
+                'Demand sample successfully saved.', prepend_timestamp=False
+            )
             return None
 
         # else:
@@ -150,29 +153,31 @@ class DemandModel(PelicunModel):
         """
 
         def parse_header(raw_header):
-
             old_MI = raw_header
 
             # The first number (event_ID) in the demand labels is optional and
             # currently not used. We remove it if it was in the raw data.
             if old_MI.nlevels == 4:
-
                 if self._asmnt.log.verbose:
-                    self.log_msg('Removing event_ID from header...',
-                                 prepend_timestamp=False)
+                    self.log_msg(
+                        'Removing event_ID from header...', prepend_timestamp=False
+                    )
 
                 new_column_index_array = np.array(
-                    [old_MI.get_level_values(i) for i in range(1, 4)])
+                    [old_MI.get_level_values(i) for i in range(1, 4)]
+                )
 
             else:
                 new_column_index_array = np.array(
-                    [old_MI.get_level_values(i) for i in range(3)])
+                    [old_MI.get_level_values(i) for i in range(3)]
+                )
 
             # Remove whitespace to avoid ambiguity
 
             if self._asmnt.log.verbose:
-                self.log_msg('Removing whitespace from header...',
-                             prepend_timestamp=False)
+                self.log_msg(
+                    'Removing whitespace from header...', prepend_timestamp=False
+                )
 
             wspace_remove = np.vectorize(lambda name: str(name).replace(' ', ''))
 
@@ -181,7 +186,8 @@ class DemandModel(PelicunModel):
             # Creating new, cleaned-up header
 
             new_MI = pd.MultiIndex.from_arrays(
-                new_column_index, names=['type', 'loc', 'dir'])
+                new_column_index, names=['type', 'loc', 'dir']
+            )
 
             return new_MI
 
@@ -189,8 +195,11 @@ class DemandModel(PelicunModel):
         self.log_msg('Loading demand data...')
 
         demand_data, units = file_io.load_data(
-            filepath, self._asmnt.unit_conversion_factors,
-            return_units=True, log=self._asmnt.log)
+            filepath,
+            self._asmnt.unit_conversion_factors,
+            return_units=True,
+            log=self._asmnt.log,
+        )
 
         parsed_data = demand_data.copy()
 
@@ -200,18 +209,20 @@ class DemandModel(PelicunModel):
 
         # Remove errors, if needed
         if 'ERROR' in parsed_data.columns.get_level_values(0):
-
-            self.log_msg('Removing errors from the raw data...',
-                         prepend_timestamp=False)
+            self.log_msg(
+                'Removing errors from the raw data...', prepend_timestamp=False
+            )
 
             error_list = parsed_data.loc[:, idx['ERROR', :, :]].values.astype(bool)
 
             parsed_data = parsed_data.loc[~error_list, :].copy()
             parsed_data.drop('ERROR', level=0, axis=1, inplace=True)
 
-            self.log_msg("\nBased on the values in the ERROR column, "
-                         f"{np.sum(error_list)} demand samples were removed.\n",
-                         prepend_timestamp=False)
+            self.log_msg(
+                "\nBased on the values in the ERROR column, "
+                f"{np.sum(error_list)} demand samples were removed.\n",
+                prepend_timestamp=False,
+            )
 
         self.sample = parsed_data
 
@@ -239,7 +250,6 @@ class DemandModel(PelicunModel):
         """
 
         if method == 'FEMA P58':
-
             # method is described in FEMA P-58 Volume 1 Section 5.4 & Appendix C
 
             # the provided demands shall be PID values at various loc-dir pairs
@@ -257,7 +267,7 @@ class DemandModel(PelicunModel):
             RID = PID.copy()
             RID[large] = PID[large] - 3 * yield_drift
             RID[medium] = 0.3 * (PID[medium] - yield_drift)
-            RID[small] = 0.
+            RID[small] = 0.0
 
             # add extra uncertainty to nonzero values
             rng = self._asmnt.options.rng
@@ -268,9 +278,16 @@ class DemandModel(PelicunModel):
             RID = pd.DataFrame(
                 np.minimum(PID.values, RID.values),
                 columns=pd.DataFrame(
-                    1, index=['RID', ],
-                    columns=PID.columns).stack(level=[0, 1]).index,
-                index=PID.index)
+                    1,
+                    index=[
+                        'RID',
+                    ],
+                    columns=PID.columns,
+                )
+                .stack(level=[0, 1])
+                .index,
+                index=PID.index,
+            )
 
         else:
             RID = None
@@ -297,24 +314,22 @@ class DemandModel(PelicunModel):
         """
 
         def parse_settings(settings, demand_type):
-
             def parse_str_to_float(in_str, context_string):
-
                 try:
                     out_float = float(in_str)
 
                 except ValueError:
-
-                    self.log_msg(f"WARNING: Could not parse {in_str} provided as "
-                                 f"{context_string}. Using NaN instead.",
-                                 prepend_timestamp=False)
+                    self.log_msg(
+                        f"WARNING: Could not parse {in_str} provided as "
+                        f"{context_string}. Using NaN instead.",
+                        prepend_timestamp=False,
+                    )
 
                     out_float = np.nan
 
                 return out_float
 
-            active_d_types = (
-                demand_sample.columns.get_level_values('type').unique())
+            active_d_types = demand_sample.columns.get_level_values('type').unique()
 
             if demand_type == 'ALL':
                 cols = tuple(active_d_types)
@@ -332,9 +347,12 @@ class DemandModel(PelicunModel):
             cal_df.loc[idx[cols, :, :], 'Family'] = settings['DistributionFamily']
 
             # load limits
-            for lim in ('CensorLower', 'CensorUpper',
-                        'TruncateLower', 'TruncateUpper'):
-
+            for lim in (
+                'CensorLower',
+                'CensorUpper',
+                'TruncateLower',
+                'TruncateUpper',
+            ):
                 if lim in settings.keys():
                     val = parse_str_to_float(settings[lim], lim)
                     if not pd.isna(val):
@@ -343,15 +361,19 @@ class DemandModel(PelicunModel):
             # scale the censor and truncation limits, if needed
             scale_factor = self._asmnt.scale_factor(settings.get('Unit', None))
 
-            rows_to_scale = ['CensorLower', 'CensorUpper',
-                             'TruncateLower', 'TruncateUpper']
+            rows_to_scale = [
+                'CensorLower',
+                'CensorUpper',
+                'TruncateLower',
+                'TruncateUpper',
+            ]
             cal_df.loc[idx[cols, :, :], rows_to_scale] *= scale_factor
 
             # load the prescribed additional uncertainty
             if 'AddUncertainty' in settings.keys():
-
-                sig_increase = parse_str_to_float(settings['AddUncertainty'],
-                                                  'AddUncertainty')
+                sig_increase = parse_str_to_float(
+                    settings['AddUncertainty'], 'AddUncertainty'
+                )
 
                 # scale the sig value if the target distribution family is normal
                 if settings['DistributionFamily'] == 'normal':
@@ -360,16 +382,13 @@ class DemandModel(PelicunModel):
                 cal_df.loc[idx[cols, :, :], 'SigIncrease'] = sig_increase
 
         def get_filter_mask(lower_lims, upper_lims):
-
             demands_of_interest = demand_sample.iloc[:, pd.notna(upper_lims)]
             limits_of_interest = upper_lims[pd.notna(upper_lims)]
-            upper_mask = np.all(demands_of_interest < limits_of_interest,
-                                axis=1)
+            upper_mask = np.all(demands_of_interest < limits_of_interest, axis=1)
 
             demands_of_interest = demand_sample.iloc[:, pd.notna(lower_lims)]
             limits_of_interest = lower_lims[pd.notna(lower_lims)]
-            lower_mask = np.all(demands_of_interest > limits_of_interest,
-                                axis=1)
+            lower_mask = np.all(demands_of_interest > limits_of_interest, axis=1)
 
             return np.all([lower_mask, upper_mask], axis=0)
 
@@ -380,12 +399,18 @@ class DemandModel(PelicunModel):
 
         # initialize a DataFrame that contains calibration information
         cal_df = pd.DataFrame(
-            columns=['Family',
-                     'CensorLower', 'CensorUpper',
-                     'TruncateLower', 'TruncateUpper',
-                     'SigIncrease', 'Theta_0', 'Theta_1'],
+            columns=[
+                'Family',
+                'CensorLower',
+                'CensorUpper',
+                'TruncateLower',
+                'TruncateUpper',
+                'SigIncrease',
+                'Theta_0',
+                'Theta_1',
+            ],
             index=demand_sample.columns,
-            dtype=float
+            dtype=float,
         )
 
         cal_df['Family'] = cal_df['Family'].astype(str)
@@ -401,11 +426,13 @@ class DemandModel(PelicunModel):
         if self._asmnt.log.verbose:
             self.log_msg(
                 "\nCalibration settings successfully parsed:\n" + str(cal_df),
-                prepend_timestamp=False)
+                prepend_timestamp=False,
+            )
         else:
             self.log_msg(
                 "\nCalibration settings successfully parsed:\n",
-                prepend_timestamp=False)
+                prepend_timestamp=False,
+            )
 
         # save the settings
         model_params = cal_df.copy()
@@ -418,15 +445,16 @@ class DemandModel(PelicunModel):
         lower_lims = cal_df.loc[:, 'CensorLower'].values
 
         if ~np.all(pd.isna(np.array([upper_lims, lower_lims]))):
-
             censor_mask = get_filter_mask(lower_lims, upper_lims)
             censored_count = np.sum(~censor_mask)
 
             demand_sample = demand_sample.loc[censor_mask, :]
 
-            self.log_msg("\nBased on the provided censoring limits, "
-                         f"{censored_count} samples were censored.",
-                         prepend_timestamp=False)
+            self.log_msg(
+                "\nBased on the provided censoring limits, "
+                f"{censored_count} samples were censored.",
+                prepend_timestamp=False,
+            )
         else:
             censored_count = 0
 
@@ -438,18 +466,18 @@ class DemandModel(PelicunModel):
         lower_lims = cal_df.loc[:, 'TruncateLower'].values
 
         if ~np.all(pd.isna(np.array([upper_lims, lower_lims]))):
-
             truncate_mask = get_filter_mask(lower_lims, upper_lims)
             truncated_count = np.sum(~truncate_mask)
 
             if truncated_count > 0:
-
                 demand_sample = demand_sample.loc[truncate_mask, :]
 
-                self.log_msg("\nBased on the provided truncation limits, "
-                             f"{truncated_count} samples were removed before demand "
-                             "calibration.",
-                             prepend_timestamp=False)
+                self.log_msg(
+                    "\nBased on the provided truncation limits, "
+                    f"{truncated_count} samples were removed before demand "
+                    "calibration.",
+                    prepend_timestamp=False,
+                )
 
         # Separate and save the demands that are kept empirical -> i.e., no
         # fitting. Currently, empirical demands are decoupled from those that
@@ -469,65 +497,73 @@ class DemandModel(PelicunModel):
         cal_df = cal_df.drop(empirical_edps, axis=0)
 
         if self._asmnt.log.verbose:
-            self.log_msg(f"\nDemand data used for calibration:\n{demand_sample}",
-                         prepend_timestamp=False)
+            self.log_msg(
+                f"\nDemand data used for calibration:\n{demand_sample}",
+                prepend_timestamp=False,
+            )
 
         # fit the joint distribution
-        self.log_msg("\nFitting the prescribed joint demand distribution...",
-                     prepend_timestamp=False)
+        self.log_msg(
+            "\nFitting the prescribed joint demand distribution...",
+            prepend_timestamp=False,
+        )
 
         demand_theta, demand_rho = uq.fit_distribution_to_sample(
             raw_samples=demand_sample.values.T,
             distribution=cal_df.loc[:, 'Family'].values,
             censored_count=censored_count,
-            detection_limits=cal_df.loc[
-                :, ['CensorLower', 'CensorUpper']].values,
+            detection_limits=cal_df.loc[:, ['CensorLower', 'CensorUpper']].values,
             truncation_limits=cal_df.loc[
-                :, ['TruncateLower', 'TruncateUpper']].values,
+                :, ['TruncateLower', 'TruncateUpper']
+            ].values,
             multi_fit=False,
-            logger_object=self._asmnt.log
+            logger_object=self._asmnt.log,
         )
         # fit the joint distribution
-        self.log_msg("\nCalibration successful, processing results...",
-                     prepend_timestamp=False)
+        self.log_msg(
+            "\nCalibration successful, processing results...",
+            prepend_timestamp=False,
+        )
 
         # save the calibration results
         model_params.loc[cal_df.index, ['Theta_0', 'Theta_1']] = demand_theta
 
         # increase the variance of the marginal distributions, if needed
         if ~np.all(pd.isna(model_params.loc[:, 'SigIncrease'].values)):
-
-            self.log_msg("\nIncreasing demand variance...",
-                         prepend_timestamp=False)
+            self.log_msg("\nIncreasing demand variance...", prepend_timestamp=False)
 
             sig_inc = np.nan_to_num(model_params.loc[:, 'SigIncrease'].values)
             sig_0 = model_params.loc[:, 'Theta_1'].values
 
-            model_params.loc[:, 'Theta_1'] = (
-                np.sqrt(sig_0 ** 2. + sig_inc ** 2.))
+            model_params.loc[:, 'Theta_1'] = np.sqrt(sig_0**2.0 + sig_inc**2.0)
 
         # remove unneeded fields from model_params
         for col in ('SigIncrease', 'CensorLower', 'CensorUpper'):
             model_params = model_params.drop(col, axis=1)
 
         # reorder the remaining fields for clarity
-        model_params = model_params[[
-            'Family', 'Theta_0', 'Theta_1', 'TruncateLower', 'TruncateUpper']]
+        model_params = model_params[
+            ['Family', 'Theta_0', 'Theta_1', 'TruncateLower', 'TruncateUpper']
+        ]
 
         self.marginal_params = model_params
 
-        self.log_msg("\nCalibrated demand model marginal distributions:\n"
-                     + str(model_params),
-                     prepend_timestamp=False)
+        self.log_msg(
+            "\nCalibrated demand model marginal distributions:\n"
+            + str(model_params),
+            prepend_timestamp=False,
+        )
 
         # save the correlation matrix
-        self.correlation = pd.DataFrame(demand_rho,
-                                        columns=cal_df.index,
-                                        index=cal_df.index)
+        self.correlation = pd.DataFrame(
+            demand_rho, columns=cal_df.index, index=cal_df.index
+        )
 
-        self.log_msg("\nCalibrated demand model correlation matrix:\n"
-                     + str(self.correlation),
-                     prepend_timestamp=False)
+        self.log_msg(
+            "\nCalibrated demand model correlation matrix:\n"
+            + str(self.correlation),
+            prepend_timestamp=False,
+        )
 
     def save_model(self, file_prefix):
         """
@@ -558,9 +594,7 @@ class DemandModel(PelicunModel):
         log_demands = marginal_params.loc[log_rows, :]
 
         for label in log_demands.index:
-
             if label in self.units.index:
-
                 unit_factor = self._asmnt.calc_unit_scale_factor(self.units[label])
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
@@ -623,7 +657,9 @@ class DemandModel(PelicunModel):
             self.correlation = file_io.load_data(
                 correlation_data_source,
                 self._asmnt.unit_conversion_factors,
-                reindex=False, log=self._asmnt.log)
+                reindex=False,
+                log=self._asmnt.log,
+            )
             self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
             self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
         else:
@@ -644,8 +680,7 @@ class DemandModel(PelicunModel):
         )
         marginal_params.index.set_names(['type', 'loc', 'dir'], inplace=True)
 
-        marginal_params = self.convert_marginal_params(marginal_params.copy(),
-                                                       units)
+        marginal_params = self.convert_marginal_params(marginal_params.copy(), units)
 
         self.marginal_params = marginal_params
         self.units = units
@@ -663,56 +698,67 @@ class DemandModel(PelicunModel):
 
         # add a random variable for each demand variable
         for rv_params in self.marginal_params.itertuples():
-
             edp = rv_params.Index
             rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
             family = getattr(rv_params, "Family", np.nan)
 
             if family == 'empirical':
-
                 if preserve_order:
                     dist_family = 'coupled_empirical'
                 else:
                     dist_family = 'empirical'
 
                 # empirical RVs need the data points
-                RV_reg.add_RV(uq.RandomVariable(
-                    name=rv_tag,
-                    distribution=dist_family,
-                    raw_samples=self.empirical_data.loc[:, edp].values
-                ))
+                RV_reg.add_RV(
+                    uq.RandomVariable(
+                        name=rv_tag,
+                        distribution=dist_family,
+                        raw_samples=self.empirical_data.loc[:, edp].values,
+                    )
+                )
 
             else:
-
                 # all other RVs need parameters of their distributions
-                RV_reg.add_RV(uq.RandomVariable(
-                    name=rv_tag,
-                    distribution=family,
-                    theta=[getattr(rv_params, f"Theta_{t_i}", np.nan)
-                           for t_i in range(3)],
-                    truncation_limits=[
-                        getattr(rv_params, f"Truncate{side}", np.nan)
-                        for side in ("Lower", "Upper")],
+                RV_reg.add_RV(
+                    uq.RandomVariable(
+                        name=rv_tag,
+                        distribution=family,
+                        theta=[
+                            getattr(rv_params, f"Theta_{t_i}", np.nan)
+                            for t_i in range(3)
+                        ],
+                        truncation_limits=[
+                            getattr(rv_params, f"Truncate{side}", np.nan)
+                            for side in ("Lower", "Upper")
+                        ],
+                    )
+                )
 
-
-                ))
-
-        self.log_msg(f"\n{self.marginal_params.shape[0]} random variables created.",
-                     prepend_timestamp=False)
+        self.log_msg(
+            f"\n{self.marginal_params.shape[0]} random variables created.",
+            prepend_timestamp=False,
+        )
 
         # add an RV set to consider the correlation between demands, if needed
         if self.correlation is not None:
-            rv_set_tags = [f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
-                           for edp in self.correlation.index.values]
+            rv_set_tags = [
+                f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
+                for edp in self.correlation.index.values
+            ]
 
-            RV_reg.add_RV_set(uq.RandomVariableSet(
-                'EDP_set', list(RV_reg.RVs(rv_set_tags).values()),
-                self.correlation.values))
+            RV_reg.add_RV_set(
+                uq.RandomVariableSet(
+                    'EDP_set',
+                    list(RV_reg.RVs(rv_set_tags).values()),
+                    self.correlation.values,
+                )
+            )
 
             self.log_msg(
                 f"\nCorrelations between {len(rv_set_tags)} random variables "
                 "successfully defined.",
-                prepend_timestamp=False)
+                prepend_timestamp=False,
+            )
 
         self._RVs = RV_reg
 
@@ -758,10 +804,7 @@ class DemandModel(PelicunModel):
         for new_columns in new_columns_list:
             flat_list.extend(new_columns)
         if len(set(flat_list)) != len(flat_list):
-            raise ValueError(
-                'Duplicate entries in demand cloning '
-                'configuration.'
-            )
+            raise ValueError('Duplicate entries in demand cloning configuration.')
 
         # turn the config entries to tuples
         def turn_to_tuples(demand_cloning):
@@ -817,20 +860,21 @@ class DemandModel(PelicunModel):
         """
 
         if self.marginal_params is None:
-            raise ValueError('Model parameters have not been specified. Either'
-                             'load parameters from a file or calibrate the '
-                             'model using raw demand data.')
+            raise ValueError(
+                'Model parameters have not been specified. Either'
+                'load parameters from a file or calibrate the '
+                'model using raw demand data.'
+            )
 
         self.log_div()
         self.log_msg('Generating sample from demand variables...')
 
-        self._create_RVs(
-            preserve_order=config.get('PreserveRawOrder', False))
+        self._create_RVs(preserve_order=config.get('PreserveRawOrder', False))
 
         sample_size = config['SampleSize']
         self._RVs.generate_sample(
-            sample_size=sample_size,
-            method=self._asmnt.options.sampling_method)
+            sample_size=sample_size, method=self._asmnt.options.sampling_method
+        )
 
         # replace the potentially existing raw sample with the generated one
         assert self._RVs is not None
@@ -847,5 +891,7 @@ class DemandModel(PelicunModel):
         if config.get('DemandCloning', False):
             self.clone_demands(config['DemandCloning'])
 
-        self.log_msg(f"\nSuccessfully generated {sample_size} realizations.",
-                     prepend_timestamp=False)
+        self.log_msg(
+            f"\nSuccessfully generated {sample_size} realizations.",
+            prepend_timestamp=False,
+        )

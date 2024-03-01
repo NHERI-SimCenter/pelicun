@@ -65,7 +65,6 @@ class PelicunModel:
     """
 
     def __init__(self, assessment):
-
         # link the PelicunModel object to its Assessment object
         self._asmnt = assessment
 
@@ -108,18 +107,21 @@ class PelicunModel:
         """
         assert np.all(marginal_params.index == units.index)
         if arg_units is not None:
-            assert np.all(
-                marginal_params.index == arg_units.index)
+            assert np.all(marginal_params.index == arg_units.index)
 
         # preserve the columns in the input marginal_params
         original_cols = marginal_params.columns
 
         # add extra columns if they are not available in the marginals
-        for col_name in ('Family',
-                         'Theta_0', 'Theta_1', 'Theta_2',
-                         'TruncateLower', 'TruncateUpper'):
+        for col_name in (
+            'Family',
+            'Theta_0',
+            'Theta_1',
+            'Theta_2',
+            'TruncateLower',
+            'TruncateUpper',
+        ):
             if col_name not in marginal_params.columns:
-
                 marginal_params[col_name] = np.nan
 
         # get a list of unique units
@@ -127,7 +129,6 @@ class PelicunModel:
 
         # for each unit
         for unit_name in unique_units:
-
             # get the scale factor for converting from the source unit
             unit_factor = self._asmnt.calc_unit_scale_factor(unit_name)
 
@@ -136,7 +137,6 @@ class PelicunModel:
 
             # for each variable
             for row_id in unit_ids:
-
                 # pull the parameters of the marginal distribution
                 family = marginal_params.at[row_id, 'Family']
 
@@ -145,12 +145,12 @@ class PelicunModel:
 
                 # load the theta values
                 theta = marginal_params.loc[
-                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']].values
+                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']
+                ].values
 
                 # for each theta
                 args = []
                 for t_i, theta_i in enumerate(theta):
-
                     # if theta_i evaluates to NaN, it is considered undefined
                     if pd.isna(theta_i):
                         args.append([])
@@ -162,7 +162,6 @@ class PelicunModel:
                         args.append([])
 
                     except ValueError:
-
                         # otherwise, we assume it is a string using SimCenter
                         # array notation to identify coordinates of a
                         # multilinear function
@@ -178,18 +177,17 @@ class PelicunModel:
 
                 # load the truncation limits
                 tr_limits = marginal_params.loc[
-                    row_id, ['TruncateLower', 'TruncateUpper']]
+                    row_id, ['TruncateLower', 'TruncateUpper']
+                ]
 
                 arg_unit_factor = 1.0
 
                 # check if there is a need to scale due to argument units
                 if not (arg_units is None):
-
                     # get the argument unit for the given marginal
                     arg_unit = arg_units.get(row_id)
 
                     if arg_unit != '1 EA':
-
                         # get the scale factor
                         arg_unit_factor = self._asmnt.calc_unit_scale_factor(
                             arg_unit
@@ -197,29 +195,32 @@ class PelicunModel:
 
                         # scale arguments, if needed
                         for a_i, arg in enumerate(args):
-
                             if isinstance(arg, np.ndarray):
                                 args[a_i] = arg * arg_unit_factor
 
                 # convert the distribution parameters to SI
                 theta, tr_limits = uq.scale_distribution(
-                    unit_factor / arg_unit_factor, family, theta, tr_limits)
+                    unit_factor / arg_unit_factor, family, theta, tr_limits
+                )
 
                 # convert multilinear function parameters back into strings
                 for a_i, arg in enumerate(args):
-
                     if len(arg) > 0:
-
                         theta[a_i] = '|'.join(
-                            [','.join([f'{val:g}' for val in vals])
-                             for vals in (theta[a_i], args[a_i])])
+                            [
+                                ','.join([f'{val:g}' for val in vals])
+                                for vals in (theta[a_i], args[a_i])
+                            ]
+                        )
 
                 # and update the values in the DF
                 marginal_params.loc[
-                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']] = theta
+                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']
+                ] = theta
 
                 marginal_params.loc[
-                    row_id, ['TruncateLower', 'TruncateUpper']] = tr_limits
+                    row_id, ['TruncateLower', 'TruncateUpper']
+                ] = tr_limits
 
         # remove the added columns
         marginal_params = marginal_params[original_cols]
