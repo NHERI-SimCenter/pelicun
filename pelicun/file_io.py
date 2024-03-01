@@ -262,6 +262,64 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
     return None
 
 
+def substitute_default_path(data_paths):
+    """
+    Substitutes the default directory path in a list of data paths
+    with a specified path.
+
+    This function iterates over a list of data paths and replaces
+    occurrences of the 'PelicunDefault/' substring with the path
+    specified by `base.pelicun_path` concatenated with
+    '/resources/SimCenterDBDL/'. This operation is performed to update
+    paths that are using a default location to a user-defined location
+    within the pelicun framework. The updated list of paths is then
+    returned.
+
+    Parameters
+    ----------
+    data_paths : list of str
+        A list containing the paths to data files. These paths may
+        include a placeholder directory 'PelicunDefault/' that needs
+        to be substituted with the actual path specified in
+        `base.pelicun_path`.
+
+    Returns
+    -------
+    list of str
+        The list with updated paths where 'PelicunDefault/' has been
+        replaced with the specified path in `base.pelicun_path`
+        concatenated with '/resources/SimCenterDBDL/'.
+
+    Notes
+    -----
+    - The function assumes that `base.pelicun_path` is properly
+      initialized and points to the correct directory where resources
+      are located.
+    - If a path in the input list does not contain 'PelicunDefault/',
+      it is added to the output list unchanged.
+
+    Example
+    -------
+    >>> data_paths = ['PelicunDefault/data/file1.txt',
+        'data/file2.txt']
+    >>> substitute_default_path(data_paths)
+    ['{base.pelicun_path}/resources/SimCenterDBDL/data/file1.txt',
+    'data/file2.txt']
+
+    """
+    updated_paths = []
+    for data_path in data_paths:
+        if 'PelicunDefault/' in data_path:
+            path = data_path.replace(
+                'PelicunDefault/',
+                f'{base.pelicun_path}/resources/SimCenterDBDL/',
+            )
+            updated_paths.append(path)
+        else:
+            updated_paths.append(data_path)
+    return updated_paths
+
+
 def load_data(
     data_source,
     unit_conversion_factors,

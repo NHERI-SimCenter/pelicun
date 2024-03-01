@@ -182,12 +182,7 @@ class LossModel(PelicunModel):
         self.log_msg(f'Loading loss parameters for {self.loss_type}...')
 
         # replace default flag with default data path
-        for d_i, data_path in enumerate(data_paths):
-            if 'PelicunDefault/' in data_path:
-                data_paths[d_i] = data_path.replace(
-                    'PelicunDefault/',
-                    f'{base.pelicun_path}/resources/SimCenterDBDL/',
-                )
+        data_paths = file_io.substitute_default_path(data_paths)
 
         data_list = []
         # load the data files one by one
