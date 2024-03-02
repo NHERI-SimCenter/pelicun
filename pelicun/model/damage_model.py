@@ -308,9 +308,8 @@ class DamageModel(PelicunModel):
                 ds_id += 1
 
                 lsds_RV_reg.add_RV(
-                    uq.RandomVariable(
+                    uq.DeterministicRandomVariable(
                         name=lsds_rv_tag,
-                        distribution='deterministic',
                         theta=ds_id,
                     )
                 )
@@ -326,9 +325,8 @@ class DamageModel(PelicunModel):
                     return values + offset
 
                 lsds_RV_reg.add_RV(
-                    uq.RandomVariable(
+                    uq.MultinomialRandomVariable(
                         name=lsds_rv_tag,
-                        distribution='multinomial',
                         theta=ds_weights,
                         f_map=map_ds,
                     )
@@ -415,7 +413,7 @@ class DamageModel(PelicunModel):
                     frg_params_LS = frg_params[f'LS{ls_id}']
 
                     theta_0 = frg_params_LS.get('Theta_0', np.nan)
-                    family = frg_params_LS.get('Family', np.nan)
+                    family = frg_params_LS.get('Family', 'deterministic')
                     ds_weights = frg_params_LS.get('DamageStateWeights', np.nan)
 
                     # check if the limit state is defined for the component
@@ -490,13 +488,19 @@ class DamageModel(PelicunModel):
                                 )
                             )
 
-                        RV = uq.RandomVariable(
-                            name=frg_rv_tag,
-                            distribution=family,
-                            theta=theta,
-                            truncation_limits=tr_lims,
-                            anchor=anchor,
-                        )
+                        if family != 'deterministic':
+                            RV = uq.rv_class_map(family)(
+                                name=frg_rv_tag,
+                                theta=theta,
+                                anchor=anchor,
+                            )
+                        else:
+                            RV = uq.rv_class_map(family)(
+                                name=frg_rv_tag,
+                                theta=theta,
+                                truncation_limits=tr_lims,
+                                anchor=anchor,
+                            )
 
                         capacity_RV_reg.add_RV(RV)
 

@@ -523,9 +523,8 @@ class BldgRepairModel(LossModel):
                         )
 
                         RV_reg.add_RV(
-                            uq.RandomVariable(
+                            uq.rv_class_map(cost_family)(
                                 name=cost_rv_tag,
-                                distribution=cost_family,
                                 theta=cost_theta,
                                 truncation_limits=[0.0, np.nan],
                             )
@@ -539,9 +538,8 @@ class BldgRepairModel(LossModel):
                         )
 
                         RV_reg.add_RV(
-                            uq.RandomVariable(
+                            uq.rv_class_map(time_family)(
                                 name=time_rv_tag,
-                                distribution=time_family,
                                 theta=time_theta,
                                 truncation_limits=[0.0, np.nan],
                             )
@@ -555,9 +553,8 @@ class BldgRepairModel(LossModel):
                         )
 
                         RV_reg.add_RV(
-                            uq.RandomVariable(
+                            uq.rv_class_map(carbon_family)(
                                 name=carbon_rv_tag,
-                                distribution=carbon_family,
                                 theta=carbon_theta,
                                 truncation_limits=[0.0, np.nan],
                             )
@@ -571,9 +568,8 @@ class BldgRepairModel(LossModel):
                         )
 
                         RV_reg.add_RV(
-                            uq.RandomVariable(
+                            uq.rv_class_map(energy_family)(
                                 name=energy_rv_tag,
-                                distribution=energy_family,
                                 theta=energy_theta,
                                 truncation_limits=[0.0, np.nan],
                             )

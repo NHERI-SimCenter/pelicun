@@ -700,7 +700,7 @@ class DemandModel(PelicunModel):
         for rv_params in self.marginal_params.itertuples():
             edp = rv_params.Index
             rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
-            family = getattr(rv_params, "Family", np.nan)
+            family = getattr(rv_params, "Family", 'deterministic')
 
             if family == 'empirical':
                 if preserve_order:
@@ -710,19 +710,29 @@ class DemandModel(PelicunModel):
 
                 # empirical RVs need the data points
                 RV_reg.add_RV(
-                    uq.RandomVariable(
+                    uq.rv_class_map(dist_family)(
                         name=rv_tag,
-                        distribution=dist_family,
                         raw_samples=self.empirical_data.loc[:, edp].values,
+                    )
+                )
+
+            elif family == 'deterministic':
+                # all other RVs need parameters of their distributions
+                RV_reg.add_RV(
+                    uq.DeterministicRandomVariable(
+                        name=rv_tag,
+                        theta=[
+                            getattr(rv_params, f"Theta_{t_i}", np.nan)
+                            for t_i in range(3)
+                        ],
                     )
                 )
 
             else:
                 # all other RVs need parameters of their distributions
                 RV_reg.add_RV(
-                    uq.RandomVariable(
+                    uq.rv_class_map(family)(
                         name=rv_tag,
-                        distribution=family,
                         theta=[
                             getattr(rv_params, f"Theta_{t_i}", np.nan)
                             for t_i in range(3)
