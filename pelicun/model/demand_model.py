@@ -88,6 +88,8 @@ class DemandModel(PelicunModel):
     units: Series
         Available after any demand data has been loaded. The index identifies
         the demand variables and the values provide the unit for each variable.
+    calibrated: bool
+        Signifies whether the DemandModel object has been calibrated.
 
     """
 
@@ -98,6 +100,7 @@ class DemandModel(PelicunModel):
         self.correlation = None
         self.empirical_data = None
         self.units = None
+        self.calibrated = False
 
         self._RVs = None
         self.sample = None
@@ -313,6 +316,9 @@ class DemandModel(PelicunModel):
 
         """
 
+        if self.calibrated:
+            raise ValueError('DemandModel has been previously calibrated.')
+
         def parse_settings(settings, demand_type):
             def parse_str_to_float(in_str, context_string):
                 try:
@@ -488,7 +494,8 @@ class DemandModel(PelicunModel):
             if cal_df.loc[edp, 'Family'] == 'empirical':
                 empirical_edps.append(edp)
 
-        self.empirical_data = demand_sample.loc[:, empirical_edps].copy()
+        if empirical_edps:
+            self.empirical_data = demand_sample.loc[:, empirical_edps].copy()
 
         # remove the empirical demands from the samples used for calibration
         demand_sample = demand_sample.drop(empirical_edps, axis=1)
@@ -565,6 +572,8 @@ class DemandModel(PelicunModel):
             prepend_timestamp=False,
         )
 
+        self.calibrated = True
+
     def save_model(self, file_prefix):
         """
         Save parameters of the demand model to a set of csv files
@@ -576,13 +585,14 @@ class DemandModel(PelicunModel):
 
         # save the correlation and empirical data
         file_io.save_to_csv(self.correlation, file_prefix + '_correlation.csv')
-        file_io.save_to_csv(
-            self.empirical_data,
-            file_prefix + '_empirical.csv',
-            units=self.units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            log=self._asmnt.log,
-        )
+        if self.empirical_data is not None:
+            file_io.save_to_csv(
+                self.empirical_data,
+                file_prefix + '_empirical.csv',
+                units=self.units,
+                unit_conversion_factors=self._asmnt.unit_conversion_factors,
+                log=self._asmnt.log,
+            )
 
         # the log standard deviations in the marginal parameters need to be
         # scaled up before feeding to the saving method where they will be
@@ -644,12 +654,7 @@ class DemandModel(PelicunModel):
                 self._asmnt.unit_conversion_factors,
                 log=self._asmnt.log,
             )
-            if not self.empirical_data.empty:
-                self.empirical_data.columns.set_names(
-                    ['type', 'loc', 'dir'], inplace=True
-                )
-            else:
-                self.empirical_data = None
+            self.empirical_data.columns.names = ('type', 'loc', 'dir')
         else:
             self.empirical_data = None
 

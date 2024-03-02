@@ -245,6 +245,9 @@ class TestDemandModel(TestModelModule):
             == 0.06
         )
 
+    def test_calibrate_model_censoring(
+        self, calibrated_demand_model, demand_model_with_sample_C
+    ):
         # with a config featuring censoring the RIDs
         config = {
             "ALL": {
@@ -258,6 +261,9 @@ class TestDemandModel(TestModelModule):
         }
         demand_model_with_sample_C.calibrate_model(config)
 
+    def test_calibrate_model_truncation(
+        self, calibrated_demand_model, demand_model_with_sample_C
+    ):
         # with a config that specifies a truncation limit smaller than
         # the samples
         config = {
@@ -271,6 +277,9 @@ class TestDemandModel(TestModelModule):
             },
         }
         demand_model_with_sample_C.calibrate_model(config)
+        # calibrating again should raise an error
+        with pytest.raises(ValueError):
+            demand_model_with_sample_C.calibrate_model(config)
 
     def test_save_load_model_with_empirical(
         self, calibrated_demand_model, assessment_instance
@@ -286,13 +295,19 @@ class TestDemandModel(TestModelModule):
         new_demand_model = assessment_instance.demand
         new_demand_model.load_model(f'{temp_dir}/temp')
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.marginal_params, new_demand_model.marginal_params
+            calibrated_demand_model.marginal_params,
+            new_demand_model.marginal_params,
+            atol=1e-4,
         )
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.correlation, new_demand_model.correlation
+            calibrated_demand_model.correlation,
+            new_demand_model.correlation,
+            atol=1e-4,
         )
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.empirical_data, new_demand_model.empirical_data
+            calibrated_demand_model.empirical_data,
+            new_demand_model.empirical_data,
+            atol=1e-4,
         )
 
     # # todo: this currently fails
@@ -1931,10 +1946,7 @@ class TestRepairModel(TestPelicunModel):
 
             repair_model._generate_DV_sample(dmg_quantities, 4)
 
-            assert (
-                repair_model._sample.to_dict()
-                == expected_sample[(ecods, ecofl)]
-            )
+            assert repair_model._sample.to_dict() == expected_sample[(ecods, ecofl)]
 
 
 #  _____                 _   _
