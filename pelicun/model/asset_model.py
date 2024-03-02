@@ -258,25 +258,7 @@ class AssetModel(PelicunModel):
         def get_attribute(attribute_str, dtype=float, default=np.nan):
             if pd.isnull(attribute_str):
                 return default
-
-            # else:
-
-            try:
-                res = dtype(attribute_str)
-                return res
-
-            except ValueError as exc:
-                if "," in attribute_str:
-                    # a list of weights
-                    w = np.array(attribute_str.split(','), dtype=float)
-
-                    # return a normalized vector
-                    return w / np.sum(w)
-
-                # else:
-                raise ValueError(
-                    f"Cannot parse Blocks string: {attribute_str}"
-                ) from exc
+            return dtype(attribute_str)
 
         self.log_div()
         self.log_msg('Loading component model...')
