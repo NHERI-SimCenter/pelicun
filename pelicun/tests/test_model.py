@@ -44,6 +44,7 @@ These are unit and integration tests on the model module of pelicun.
 
 import os
 import tempfile
+from copy import deepcopy
 import pytest
 import numpy as np
 import pandas as pd
@@ -75,13 +76,13 @@ class TestModelModule:
 
     @pytest.fixture(params=[True, False])
     def assessment_instance(self, request, assessment_factory):
-        return assessment_factory(request.param)
+        return deepcopy(assessment_factory(request.param))
 
 
 class TestDemandModel(TestModelModule):
     @pytest.fixture
     def demand_model(self, assessment_instance):
-        return assessment_instance.demand
+        return deepcopy(assessment_instance.demand)
 
     @pytest.fixture
     def demand_model_with_sample(self, assessment_instance):
@@ -90,7 +91,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_A.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     @pytest.fixture
     def calibrated_demand_model(self, demand_model_with_sample):
@@ -108,7 +109,7 @@ class TestDemandModel(TestModelModule):
             },
         }
         demand_model_with_sample.calibrate_model(config)
-        return demand_model_with_sample
+        return deepcopy(demand_model_with_sample)
 
     @pytest.fixture
     def demand_model_with_sample_B(self, assessment_instance):
@@ -117,7 +118,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_B.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     @pytest.fixture
     def demand_model_with_sample_C(self, assessment_instance):
@@ -126,7 +127,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_C.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     @pytest.fixture
     def demand_model_with_sample_D(self, assessment_instance):
@@ -135,7 +136,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_D.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     def test_init(self, demand_model):
         assert demand_model.log_msg
@@ -454,7 +455,7 @@ class TestDemandModel(TestModelModule):
 class TestPelicunModel(TestModelModule):
     @pytest.fixture
     def pelicun_model(self, assessment_instance):
-        return model.PelicunModel(assessment_instance)
+        return deepcopy(model.PelicunModel(assessment_instance))
 
     def test_init(self, pelicun_model):
         assert pelicun_model.log_msg
@@ -574,7 +575,7 @@ class TestPelicunModel(TestModelModule):
 class TestAssetModel(TestPelicunModel):
     @pytest.fixture
     def asset_model(self, assessment_instance):
-        return assessment_instance.asset
+        return deepcopy(assessment_instance.asset)
 
     def test_init(self, asset_model):
         assert asset_model.log_msg
@@ -849,7 +850,7 @@ class TestDamageModel(TestPelicunModel):
 
     @pytest.fixture
     def damage_model(self, assessment_instance):
-        return assessment_instance.damage
+        return deepcopy(assessment_instance.damage)
 
     @pytest.fixture
     def damage_model_model_loaded(self, damage_model, cmp_sample_A):
@@ -857,7 +858,7 @@ class TestDamageModel(TestPelicunModel):
         asmt.get_default_data('damage_DB_FEMA_P58_2nd')
         asmt.asset._cmp_sample = cmp_sample_A
         damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-        return damage_model
+        return deepcopy(damage_model)
 
     @pytest.fixture
     def damage_model_with_sample(self, assessment_instance):
@@ -981,7 +982,7 @@ class TestDamageModel(TestPelicunModel):
             name='Units',
             dtype='object',
         )
-        return assessment_instance.damage
+        return deepcopy(assessment_instance.damage)
 
     def test_init(self, damage_model):
         assert damage_model.log_msg
@@ -1507,7 +1508,7 @@ class TestDamageModel(TestPelicunModel):
 class TestLossModel(TestPelicunModel):
     @pytest.fixture
     def loss_model(self, assessment_instance):
-        return model.LossModel(assessment_instance)
+        return deepcopy(model.LossModel(assessment_instance))
 
     def test_init(self, loss_model):
         assert loss_model.log_msg
@@ -1629,7 +1630,7 @@ class TestLossModel(TestPelicunModel):
 class TestRepairModel(TestPelicunModel):
     @pytest.fixture
     def repair_model(self, assessment_instance):
-        return assessment_instance.repair
+        return deepcopy(assessment_instance.repair)
 
     @pytest.fixture
     def loss_params_A(self):
