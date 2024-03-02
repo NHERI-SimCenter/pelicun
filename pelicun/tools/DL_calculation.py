@@ -125,12 +125,12 @@ output_files = [
     "DMG_stats.csv",
     "DMG_grp.zip",
     "DMG_grp_stats.csv",
-    "DV_bldg_repair_sample.zip",
-    "DV_bldg_repair_stats.csv",
-    "DV_bldg_repair_grp.zip",
-    "DV_bldg_repair_grp_stats.csv",
-    "DV_bldg_repair_agg.zip",
-    "DV_bldg_repair_agg_stats.csv",
+    "DV_repair_sample.zip",
+    "DV_repair_stats.csv",
+    "DV_repair_grp.zip",
+    "DV_repair_grp_stats.csv",
+    "DV_repair_agg.zip",
+    "DV_repair_agg_stats.csv",
     "DL_summary.csv",
     "DL_summary_stats.csv",
 ]
@@ -145,7 +145,7 @@ full_out_config = {
         'GroupedStatistics': True,
     },
     'Loss': {
-        'BldgRepair': {
+        'Repair': {
             'Sample': True,
             'Statistics': True,
             'GroupedSample': True,
@@ -167,7 +167,7 @@ regional_out_config = {
         'GroupedStatistics': False,
     },
     'Loss': {
-        'BldgRepair': {
+        'Repair': {
             'Sample': True,
             'Statistics': True,
             'GroupedSample': True,
@@ -1243,23 +1243,23 @@ def run_pelicun(
         out_config_loss = out_config.get('Loss', {})
 
         # if requested, calculate repair consequences
-        if loss_config.get('BldgRepair', False):
-            bldg_repair_config = loss_config['BldgRepair']
+        if loss_config.get('Repair', False):
+            repair_config = loss_config['Repair']
 
             # load the fragility information
             if (
-                bldg_repair_config['ConsequenceDatabase']
+                repair_config['ConsequenceDatabase']
                 in default_DBs['repair'].keys()
             ):
                 consequence_db = [
                     'PelicunDefault/'
                     + default_DBs['repair'][
-                        bldg_repair_config['ConsequenceDatabase']
+                        repair_config['ConsequenceDatabase']
                     ],
                 ]
 
                 conseq_df = PAL.get_default_data(
-                    default_DBs['repair'][bldg_repair_config['ConsequenceDatabase']][
+                    default_DBs['repair'][repair_config['ConsequenceDatabase']][
                         :-4
                     ]
                 )
@@ -1268,15 +1268,15 @@ def run_pelicun(
 
                 conseq_df = pd.DataFrame()
 
-            if bldg_repair_config.get('ConsequenceDatabasePath', False) is not False:
-                extra_comps = bldg_repair_config['ConsequenceDatabasePath']
+            if repair_config.get('ConsequenceDatabasePath', False) is not False:
+                extra_comps = repair_config['ConsequenceDatabasePath']
 
                 consequence_db += [
                     extra_comps,
                 ]
 
                 extra_conseq_df = load_data(
-                    bldg_repair_config['ConsequenceDatabasePath'],
+                    repair_config['ConsequenceDatabasePath'],
                     unit_conversion_factors=None,
                     orientation=1,
                     reindex=False,
@@ -1305,12 +1305,12 @@ def run_pelicun(
                 ),
             )
 
-            # DL_method = bldg_repair_config['ConsequenceDatabase']
+            # DL_method = repair_config['ConsequenceDatabase']
             DL_method = damage_config.get('DamageProcess', 'User Defined')
 
             rc = ('replacement', 'Cost')
-            if 'ReplacementCost' in bldg_repair_config.keys():
-                rCost_config = bldg_repair_config['ReplacementCost']
+            if 'ReplacementCost' in repair_config.keys():
+                rCost_config = repair_config['ReplacementCost']
 
                 adf.loc[rc, ('Quantity', 'Unit')] = "1 EA"
 
@@ -1347,8 +1347,8 @@ def run_pelicun(
                     adf.loc[rc, ('DS1', 'Theta_0')] = 1
 
             rt = ('replacement', 'Time')
-            if 'ReplacementTime' in bldg_repair_config.keys():
-                rTime_config = bldg_repair_config['ReplacementTime']
+            if 'ReplacementTime' in repair_config.keys():
+                rTime_config = repair_config['ReplacementTime']
                 rt = ('replacement', 'Time')
 
                 adf.loc[rt, ('Quantity', 'Unit')] = "1 EA"
@@ -1388,8 +1388,8 @@ def run_pelicun(
                     adf.loc[rt, ('DS1', 'Theta_0')] = 1
 
             rcarb = ('replacement', 'Carbon')
-            if 'ReplacementCarbon' in bldg_repair_config.keys():
-                rCarbon_config = bldg_repair_config['ReplacementCarbon']
+            if 'ReplacementCarbon' in repair_config.keys():
+                rCarbon_config = repair_config['ReplacementCarbon']
                 rcarb = ('replacement', 'Carbon')
 
                 adf.loc[rcarb, ('Quantity', 'Unit')] = "1 EA"
@@ -1418,8 +1418,8 @@ def run_pelicun(
                     adf.drop(rcarb, inplace=True)
 
             ren = ('replacement', 'Energy')
-            if 'ReplacementEnergy' in bldg_repair_config.keys():
-                rEnergy_config = bldg_repair_config['ReplacementEnergy']
+            if 'ReplacementEnergy' in repair_config.keys():
+                rEnergy_config = repair_config['ReplacementEnergy']
                 ren = ('replacement', 'Energy')
 
                 adf.loc[ren, ('Quantity', 'Unit')] = "1 EA"
@@ -1447,7 +1447,7 @@ def run_pelicun(
 
             # prepare the loss map
             loss_map = None
-            if bldg_repair_config['MapApproach'] == "Automatic":
+            if repair_config['MapApproach'] == "Automatic":
                 # get the damage sample
                 dmg_sample = PAL.damage.save_sample()
 
@@ -1494,23 +1494,23 @@ def run_pelicun(
                             loss_models.append(loss_cmp)
 
                 loss_map = pd.DataFrame(
-                    loss_models, columns=['BldgRepair'], index=drivers
+                    loss_models, columns=['Repair'], index=drivers
                 )
 
-            elif bldg_repair_config['MapApproach'] == "User Defined":
+            elif repair_config['MapApproach'] == "User Defined":
                 loss_map = pd.read_csv(
-                    bldg_repair_config['MapFilePath'], index_col=0
+                    repair_config['MapFilePath'], index_col=0
                 )
 
             # prepare additional loss map entries, if needed
             if 'DMG-collapse' not in loss_map.index:
-                loss_map.loc['DMG-collapse', 'BldgRepair'] = 'replacement'
-                loss_map.loc['DMG-irreparable', 'BldgRepair'] = 'replacement'
+                loss_map.loc['DMG-collapse', 'Repair'] = 'replacement'
+                loss_map.loc['DMG-irreparable', 'Repair'] = 'replacement'
 
             # assemble the list of requested decision variables
             DV_list = []
-            if bldg_repair_config.get('DecisionVariables', False) is not False:
-                for DV_i, DV_status in bldg_repair_config[
+            if repair_config.get('DecisionVariables', False) is not False:
+                for DV_i, DV_status in repair_config[
                     'DecisionVariables'
                 ].items():
                     if DV_status is True:
@@ -1519,7 +1519,7 @@ def run_pelicun(
             else:
                 DV_list = None
 
-            PAL.bldg_repair.load_model(
+            PAL.repair.load_model(
                 consequence_db
                 + [
                     adf,
@@ -1528,13 +1528,13 @@ def run_pelicun(
                 decision_variables=DV_list,
             )
 
-            PAL.bldg_repair.calculate()
+            PAL.repair.calculate()
 
-            agg_repair = PAL.bldg_repair.aggregate_losses()
+            agg_repair = PAL.repair.aggregate_losses()
 
             # if requested, save results
-            if out_config_loss.get('BldgRepair', False):
-                repair_sample, repair_units = PAL.bldg_repair.save_sample(
+            if out_config_loss.get('Repair', False):
+                repair_sample, repair_units = PAL.repair.save_sample(
                     save_units=True
                 )
                 repair_units = repair_units.to_frame().T
@@ -1559,7 +1559,7 @@ def run_pelicun(
 
                 out_reqs = [
                     out if val else ""
-                    for out, val in out_config_loss['BldgRepair'].items()
+                    for out, val in out_config_loss['Repair'].items()
                 ]
 
                 if np.any(
@@ -1583,14 +1583,14 @@ def run_pelicun(
                             repair_sample_s, axis=1
                         )
                         repair_sample_s.to_csv(
-                            output_path / "DV_bldg_repair_sample.zip",
+                            output_path / "DV_repair_sample.zip",
                             index_label=repair_sample_s.columns.name,
                             compression=dict(
                                 method='zip',
-                                archive_name='DV_bldg_repair_sample.csv',
+                                archive_name='DV_repair_sample.csv',
                             ),
                         )
-                        output_files.append('DV_bldg_repair_sample.zip')
+                        output_files.append('DV_repair_sample.zip')
 
                     if 'Statistics' in out_reqs:
                         repair_stats = describe(repair_sample)
@@ -1598,10 +1598,10 @@ def run_pelicun(
 
                         repair_stats = convert_to_SimpleIndex(repair_stats, axis=1)
                         repair_stats.to_csv(
-                            output_path / "DV_bldg_repair_stats.csv",
+                            output_path / "DV_repair_stats.csv",
                             index_label=repair_stats.columns.name,
                         )
-                        output_files.append('DV_bldg_repair_stats.csv')
+                        output_files.append('DV_repair_stats.csv')
 
                     if np.any(
                         np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)
@@ -1625,14 +1625,14 @@ def run_pelicun(
                                 grp_repair_s, axis=1
                             )
                             grp_repair_s.to_csv(
-                                output_path / "DV_bldg_repair_grp.zip",
+                                output_path / "DV_repair_grp.zip",
                                 index_label=grp_repair_s.columns.name,
                                 compression=dict(
                                     method='zip',
-                                    archive_name='DV_bldg_repair_grp.csv',
+                                    archive_name='DV_repair_grp.csv',
                                 ),
                             )
-                            output_files.append('DV_bldg_repair_grp.zip')
+                            output_files.append('DV_repair_grp.zip')
 
                         if 'GroupedStatistics' in out_reqs:
                             grp_stats = describe(grp_repair)
@@ -1640,10 +1640,10 @@ def run_pelicun(
 
                             grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
                             grp_stats.to_csv(
-                                output_path / "DV_bldg_repair_grp_stats.csv",
+                                output_path / "DV_repair_grp_stats.csv",
                                 index_label=grp_stats.columns.name,
                             )
-                            output_files.append('DV_bldg_repair_grp_stats.csv')
+                            output_files.append('DV_repair_grp_stats.csv')
 
                     if np.any(
                         np.isin(['AggregateSample', 'AggregateStatistics'], out_reqs)
@@ -1651,24 +1651,24 @@ def run_pelicun(
                         if 'AggregateSample' in out_reqs:
                             agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
                             agg_repair_s.to_csv(
-                                output_path / "DV_bldg_repair_agg.zip",
+                                output_path / "DV_repair_agg.zip",
                                 index_label=agg_repair_s.columns.name,
                                 compression=dict(
                                     method='zip',
-                                    archive_name='DV_bldg_repair_agg.csv',
+                                    archive_name='DV_repair_agg.csv',
                                 ),
                             )
-                            output_files.append('DV_bldg_repair_agg.zip')
+                            output_files.append('DV_repair_agg.zip')
 
                         if 'AggregateStatistics' in out_reqs:
                             agg_stats = convert_to_SimpleIndex(
                                 describe(agg_repair), axis=1
                             )
                             agg_stats.to_csv(
-                                output_path / "DV_bldg_repair_agg_stats.csv",
+                                output_path / "DV_repair_agg_stats.csv",
                                 index_label=agg_stats.columns.name,
                             )
-                            output_files.append('DV_bldg_repair_agg_stats.csv')
+                            output_files.append('DV_repair_agg_stats.csv')
 
     # Result Summary -----------------------------------------------------------
 
@@ -1676,7 +1676,7 @@ def run_pelicun(
         damage_sample = PAL.damage.save_sample()
 
     if 'agg_repair' not in locals():
-        agg_repair = PAL.bldg_repair.aggregate_losses()
+        agg_repair = PAL.repair.aggregate_losses()
 
     damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)

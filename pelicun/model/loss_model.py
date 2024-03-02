@@ -49,7 +49,7 @@ This file defines Loss model objects and their methods.
     prep_bounded_multilinear_median_DV
 
     LossModel
-    BldgRepairModel
+    RepairModel
 
 """
 
@@ -330,7 +330,7 @@ class LossModel(PelicunModel):
         self.log_msg("Loss calculation successful.")
 
 
-class BldgRepairModel(LossModel):
+class RepairModel(LossModel):
     """
     Manages building repair consequence assessments.
 
@@ -342,7 +342,7 @@ class BldgRepairModel(LossModel):
     def __init__(self, assessment):
         super().__init__(assessment)
 
-        self.loss_type = 'BldgRepair'
+        self.loss_type = 'Repair'
 
     # def load_model(self, data_paths, mapping_path):
 

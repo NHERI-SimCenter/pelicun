@@ -45,12 +45,12 @@ This module has classes and methods to manage databases used by pelicun.
 .. autosummary::
 
     create_FEMA_P58_fragility_db
-    create_FEMA_P58_bldg_repair_db
+    create_FEMA_P58_repair_db
     create_FEMA_P58_bldg_injury_db
     create_FEMA_P58_bldg_redtag_db
 
     create_Hazus_EQ_fragility_db
-    create_Hazus_EQ_bldg_repair_db
+    create_Hazus_EQ_repair_db
     create_Hazus_EQ_bldg_injury_db
 
 """
@@ -515,7 +515,7 @@ def create_FEMA_P58_fragility_db(source_file,
     print("Successfully parsed and saved the fragility data from FEMA P58")
 
 
-def create_FEMA_P58_bldg_repair_db(
+def create_FEMA_P58_repair_db(
         source_file,
         meta_file='',
         target_data_file='loss_repair_DB_FEMA_P58_2nd.csv',
@@ -2209,7 +2209,7 @@ def create_Hazus_EQ_fragility_db(source_file,
     print("Successfully parsed and saved the fragility data from Hazus EQ")
 
 
-def create_Hazus_EQ_bldg_repair_db(source_file,
+def create_Hazus_EQ_repair_db(source_file,
                                    meta_file='',
                                    target_data_file='loss_repair_DB_Hazus_EQ_bldg.csv',
                                    target_meta_file='loss_repair_DB_Hazus_EQ_bldg.json',

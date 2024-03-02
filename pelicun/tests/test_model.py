@@ -1626,10 +1626,10 @@ class TestLossModel(TestPelicunModel):
             loss_model._generate_DV_sample(None, None)
 
 
-class TestBldgRepairModel(TestPelicunModel):
+class TestRepairModel(TestPelicunModel):
     @pytest.fixture
-    def bldg_repair_model(self, assessment_instance):
-        return assessment_instance.bldg_repair
+    def repair_model(self, assessment_instance):
+        return assessment_instance.repair
 
     @pytest.fixture
     def loss_params_A(self):
@@ -1670,17 +1670,17 @@ class TestBldgRepairModel(TestPelicunModel):
             ),
         )
 
-    def test_init(self, bldg_repair_model):
-        assert bldg_repair_model.log_msg
-        assert bldg_repair_model.log_div
+    def test_init(self, repair_model):
+        assert repair_model.log_msg
+        assert repair_model.log_div
 
-        assert bldg_repair_model._sample is None
-        assert bldg_repair_model.loss_type == 'BldgRepair'
+        assert repair_model._sample is None
+        assert repair_model.loss_type == 'Repair'
 
-    def test__create_DV_RVs(self, bldg_repair_model, loss_params_A):
-        bldg_repair_model.loss_params = loss_params_A
+    def test__create_DV_RVs(self, repair_model, loss_params_A):
+        repair_model.loss_params = loss_params_A
 
-        bldg_repair_model.loss_map = pd.DataFrame(
+        repair_model.loss_map = pd.DataFrame(
             ((("DMG", "some.test.component"), "some.test.component"),),
             columns=("Driver", "Consequence"),
         )
@@ -1694,7 +1694,7 @@ class TestBldgRepairModel(TestPelicunModel):
             names=("cmp", "loc", "dir", "uid", "ds"),
         )
 
-        rv_reg = bldg_repair_model._create_DV_RVs(case_list)
+        rv_reg = repair_model._create_DV_RVs(case_list)
         assert list(rv_reg.RV.keys()) == [
             'Cost-0-1-2-2-0',
             'Time-0-1-2-2-0',
@@ -1718,10 +1718,10 @@ class TestBldgRepairModel(TestPelicunModel):
             rvs[3].theta, np.array((1.00, 0.464027, np.nan))
         )
 
-    def test__calc_median_consequence(self, bldg_repair_model, loss_params_A):
-        bldg_repair_model.loss_params = loss_params_A
+    def test__calc_median_consequence(self, repair_model, loss_params_A):
+        repair_model.loss_params = loss_params_A
 
-        bldg_repair_model.loss_map = pd.DataFrame(
+        repair_model.loss_map = pd.DataFrame(
             ((("DMG", "some.test.component"), "some.test.component"),),
             columns=("Driver", "Consequence"),
         )
@@ -1737,12 +1737,12 @@ class TestBldgRepairModel(TestPelicunModel):
             ),
         )
 
-        medians = bldg_repair_model._calc_median_consequence(eco_qnt)
+        medians = repair_model._calc_median_consequence(eco_qnt)
         assert medians['Cost'].to_dict() == {(0, '1'): {0: 25704.0, 1: 22848.0}}
         assert medians['Time'].to_dict() == {(0, '1'): {0: 22.68, 1: 20.16}}
 
-    def test_aggregate_losses(self, bldg_repair_model, loss_params_A):
-        bldg_repair_model._sample = pd.DataFrame(
+    def test_aggregate_losses(self, repair_model, loss_params_A):
+        repair_model._sample = pd.DataFrame(
             ((100.00, 1.00),),
             columns=pd.MultiIndex.from_tuples(
                 (
@@ -1767,9 +1767,9 @@ class TestBldgRepairModel(TestPelicunModel):
             ),
         )
 
-        bldg_repair_model.loss_params = loss_params_A
+        repair_model.loss_params = loss_params_A
 
-        df_agg = bldg_repair_model.aggregate_losses()
+        df_agg = repair_model.aggregate_losses()
 
         assert df_agg.to_dict() == {
             ('repair_cost', ''): {0: 100.0},
@@ -1777,7 +1777,7 @@ class TestBldgRepairModel(TestPelicunModel):
             ('repair_time', 'sequential'): {0: 1.0},
         }
 
-    def test__generate_DV_sample(self, bldg_repair_model):
+    def test__generate_DV_sample(self, repair_model):
         expected_sample = {
             (True, True): {
                 (
@@ -1861,7 +1861,7 @@ class TestBldgRepairModel(TestPelicunModel):
             (True, True),
             (True, False),
         ):  # todo: (False, True), (False, False) fails
-            assessment_instance = bldg_repair_model._asmnt
+            assessment_instance = repair_model._asmnt
 
             assessment_instance.options.eco_scale["AcrossFloors"] = ecofl
             assessment_instance.options.eco_scale["AcrossDamageStates"] = ecods
@@ -1883,12 +1883,12 @@ class TestBldgRepairModel(TestPelicunModel):
                 ),
             )
 
-            bldg_repair_model.loss_map = pd.DataFrame(
+            repair_model.loss_map = pd.DataFrame(
                 ((("DMG", "some.test.component"), "some.test.component"),),
                 columns=("Driver", "Consequence"),
             )
 
-            bldg_repair_model.loss_params = pd.DataFrame(
+            repair_model.loss_params = pd.DataFrame(
                 (
                     (
                         None,
@@ -1928,10 +1928,10 @@ class TestBldgRepairModel(TestPelicunModel):
                 ),
             )
 
-            bldg_repair_model._generate_DV_sample(dmg_quantities, 4)
+            repair_model._generate_DV_sample(dmg_quantities, 4)
 
             assert (
-                bldg_repair_model._sample.to_dict()
+                repair_model._sample.to_dict()
                 == expected_sample[(ecods, ecofl)]
             )
 

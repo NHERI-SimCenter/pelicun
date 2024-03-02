@@ -46,4 +46,4 @@ from .demand_model import DemandModel
 from .asset_model import AssetModel
 from .damage_model import DamageModel
 from .loss_model import LossModel
-from .loss_model import BldgRepairModel
+from .loss_model import RepairModel

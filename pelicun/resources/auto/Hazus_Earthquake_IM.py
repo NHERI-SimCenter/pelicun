@@ -427,7 +427,7 @@ def auto_populate(AIM):
             "Demands": {        
             },
             "Losses": {
-                "BldgRepair": {
+                "Repair": {
                     "ConsequenceDatabase": "Hazus Earthquake - Buildings",
                     "MapApproach": "Automatic"
                 }
@@ -463,7 +463,7 @@ def auto_populate(AIM):
                 "Demands": {        
                 },
                 "Losses": {
-                    "BldgRepair": {
+                    "Repair": {
                         "ConsequenceDatabase": "Hazus Earthquake - Transportation",
                         "MapApproach": "Automatic"
                     }
@@ -495,7 +495,7 @@ def auto_populate(AIM):
                 "Demands": {        
                 },
                 "Losses": {
-                    "BldgRepair": {
+                    "Repair": {
                         "ConsequenceDatabase": "Hazus Earthquake - Transportation",
                         "MapApproach": "Automatic"
                     }
@@ -525,7 +525,7 @@ def auto_populate(AIM):
                 "Demands": {        
                 },
                 "Losses": {
-                    "BldgRepair": {
+                    "Repair": {
                         "ConsequenceDatabase": "Hazus Earthquake - Transportation",
                         "MapApproach": "Automatic"
                     }

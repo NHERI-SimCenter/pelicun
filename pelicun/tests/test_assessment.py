@@ -79,8 +79,8 @@ def test_Assessment_init():
     assert isinstance(asmt.asset, model.AssetModel)
     assert asmt.damage
     assert isinstance(asmt.damage, model.DamageModel)
-    assert asmt.bldg_repair
-    assert isinstance(asmt.bldg_repair, model.BldgRepairModel)
+    assert asmt.repair
+    assert isinstance(asmt.repair, model.RepairModel)
 
 
 def test_assessment_get_default_metadata():

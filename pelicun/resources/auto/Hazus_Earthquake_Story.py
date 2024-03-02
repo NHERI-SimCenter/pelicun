@@ -235,7 +235,7 @@ def auto_populate(AIM):
 
         plan_area = GI.get('PlanArea', 1.0)
 
-        bldg_repair_config = {
+        repair_config = {
                     "ConsequenceDatabase": "Hazus Earthquake - Stories",
                     "MapApproach": "Automatic",
                     "DecisionVariables": {
@@ -260,7 +260,7 @@ def auto_populate(AIM):
             "Demands": {        
             },
             "Losses": {
-                "BldgRepair": bldg_repair_config
+                "Repair": repair_config
             }
         }
         
