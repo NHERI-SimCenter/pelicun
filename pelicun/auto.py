@@ -56,9 +56,7 @@ from . import base
 
 
 def auto_populate(
-    config,
-    auto_script_path,
-    **kwargs  # pylint: disable=unused-argument
+    config, auto_script_path, **kwargs  # pylint: disable=unused-argument
 ):
     """
     Automatically populates the DL configuration for a Pelicun
@@ -86,7 +84,8 @@ def auto_populate(
     # replace default keyword with actual path in auto_script location
     if 'PelicunDefault/' in auto_script_path:
         auto_script_path = auto_script_path.replace(
-            'PelicunDefault/', f'{base.pelicun_path}/resources/auto/')
+            'PelicunDefault/', f'{base.pelicun_path}/resources/auto/'
+        )
 
     # load the auto population module
     ASP = Path(auto_script_path).resolve()
