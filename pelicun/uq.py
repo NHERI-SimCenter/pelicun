@@ -64,7 +64,6 @@ from scipy.stats import multivariate_normal as mvn
 from scipy.stats._mvn import mvndst  # pylint: disable=no-name-in-module
 from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
-from scipy.interpolate import interp1d
 import numpy as np
 import pandas as pd
 
@@ -1668,9 +1667,8 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
         x_i = [-np.inf] + [x[0] for x in self.theta] + [np.inf]
         y_i = [0.00] + [x[1] for x in self.theta] + [1.00]
 
-        ifun = interp1d(x_i, y_i, kind='linear')
-
-        result = ifun(values)
+        # Using Numpy's interp for linear interpolation
+        result = np.interp(values, x_i, y_i, left=0.00, right=1.00)
 
         return result
 
@@ -1701,14 +1699,14 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
         x_i = [x[0] for x in self.theta]
         y_i = [x[1] for x in self.theta]
 
-        # define the inverse CDF
-        ifun = interp1d(y_i, x_i, kind='linear')
-        # note: by definition, y_i /has/ to include the values
-        # 0.00 and 1.00, and `values` have to be in the range
-        # [0.00, 1.00], so there is no need to handle edge cases
-        # here (i.e., extrapolate).
-
-        result = ifun(values)
+        # using Numpy's interp for the inverse CDF
+        # note: by definition, y_i /has/ to include the values 0.00
+        # and 1.00, and `values` have to be in the range [0.00, 1.00],
+        # so there is no need to handle edge cases here (i.e.,
+        # extrapolate).
+        # note: swapping the roles of x_i and y_i for inverse
+        # interpolation
+        result = np.interp(values, y_i, x_i)
 
         return result
 
