@@ -1,4 +1,4 @@
 [flake8]
 max-line-length = 85
 ignore = E203, E241, E701, W503
-exclude = db.py,auto.py,flycheck*,Hazus_Earthquake_IM.py,Hazus_Earthquake_Story.py,export_DB.py
+exclude = db.py,flycheck*,Hazus_Earthquake_IM.py,Hazus_Earthquake_Story.py,export_DB.py
