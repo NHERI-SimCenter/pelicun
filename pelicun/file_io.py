@@ -401,20 +401,11 @@ def load_data(
             if log:
                 log.msg('Converting units...', prepend_timestamp=False)
 
-            # todo lambda
-            def get_conversion_factor(unit):
-                """
-                Utility function to be used in `map`, handling the case
-                where unit is NaN and otherwise pulling values from the
-                `unit_conversion_factors` dictionary.
-                """
-                return (
-                    1.00
-                    if pd.isna(unit)
-                    else unit_conversion_factors.get(unit, 1.00)
-                )
-
-            conversion_factors = units.map(get_conversion_factor)
+            conversion_factors = units.map(
+                lambda unit: 1.00
+                if pd.isna(unit)
+                else unit_conversion_factors.get(unit, 1.00)
+            )
 
             if orientation == 1:
                 data.loc[:, numeric_elements] = data.loc[
