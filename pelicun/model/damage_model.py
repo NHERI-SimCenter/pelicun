@@ -386,13 +386,10 @@ class DamageModel(PelicunModel):
             cmp_id = PG[0]
             blocks = PGB.loc[PG, 'Blocks']
 
-            # if the number of blocks is provided, calculate the weights
-            if np.atleast_1d(blocks).shape[0] == 1:
-                blocks = np.full(int(blocks), 1.0 / blocks)
-            # otherwise, assume that the list contains the weights
+            # Calculate the block weights
+            blocks = np.full(int(blocks), 1.0 / blocks)
 
             # initialize the damaged quantity sample variable
-
             assert self.damage_params is not None
             if cmp_id in self.damage_params.index:
                 frg_params = self.damage_params.loc[cmp_id, :]
@@ -969,13 +966,6 @@ class DamageModel(PelicunModel):
             A DataFrame that combines the component quantity and
             damage state information.
 
-        Raises
-        ------
-        ValueError
-            If the number of blocks is not provided or if the list of
-            weights does not contain the same number of elements as
-            the number of blocks.
-
         """
 
         # Log a message indicating that the calculation of damage
@@ -1011,12 +1001,9 @@ class DamageModel(PelicunModel):
                 if 'Blocks' in cmp_params.columns:
                     blocks = cmp_params.loc[PG, 'Blocks']
 
-            # If the number of blocks is specified, calculate the
-            # weights as the reciprocal of the number of blocks
-            if np.atleast_1d(blocks).shape[0] == 1:
-                blocks_array = np.full(int(blocks), 1.0 / blocks)
-
-            # Otherwise, assume that the list contains the weights
+            # Calculate the weights as the reciprocal of the number of
+            # blocks
+            blocks_array = np.full(int(blocks), 1.0 / blocks)
             block_weights += blocks_array.tolist()
 
         # Broadcast the block weights to match the shape of the damage
@@ -1333,13 +1320,6 @@ class DamageModel(PelicunModel):
         for pg_i in pg_batch.index:
             if np.any(np.isin(pg_i, self.damage_params.index)):
                 blocks_i = pg_batch.loc[pg_i, 'Blocks']
-
-                # If the "Blocks" column contains a list of block
-                # weights, get the number of blocks from the shape of
-                # the list.
-                if np.atleast_1d(blocks_i).shape[0] != 1:
-                    blocks_i = np.atleast_1d(blocks_i).shape[0]
-
                 pg_batch.loc[pg_i, 'Blocks'] = blocks_i
 
             else:
