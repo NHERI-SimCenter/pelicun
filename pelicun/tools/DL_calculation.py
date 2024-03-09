@@ -306,6 +306,7 @@ def run_pelicun(
     detailed_results,
     regional,
     output_format,
+    custom_model_dir,
     **kwargs,
 ):
     """
@@ -327,6 +328,9 @@ def run_pelicun(
         Path pointing to the location of a Python script with an auto_populate
         method that automatically creates the performance model using data
         provided in the AIM JSON file.
+    custom_model_dir: string, optional
+        Path pointing to a directory with files that define user-provided model
+        parameters for a customized damage and loss assessment.
     detailed_results: bool, optional
         If False, only the main statistics are saved.
 
@@ -360,6 +364,8 @@ def run_pelicun(
     # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
+
+    custom_dl_file_path = custom_model_dir #f"{config['commonFileDir']}/CustomDLModels/"
 
     DL_config = config.get('DL', None)
     if not DL_config:
@@ -840,6 +846,8 @@ def run_pelicun(
         if asset_config.get('ComponentDatabasePath', False) is not False:
             extra_comps = asset_config['ComponentDatabasePath']
 
+            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_dl_file_path)
+
             component_db += [
                 extra_comps,
             ]
@@ -1271,12 +1279,14 @@ def run_pelicun(
             if bldg_repair_config.get('ConsequenceDatabasePath', False) is not False:
                 extra_comps = bldg_repair_config['ConsequenceDatabasePath']
 
+                extra_comps = extra_comps.replace('CustomDLDataFolder', custom_dl_file_path)
+
                 consequence_db += [
                     extra_comps,
                 ]
 
                 extra_conseq_df = load_data(
-                    bldg_repair_config['ConsequenceDatabasePath'],
+                    extra_comps,
                     unit_conversion_factors=None,
                     orientation=1,
                     reindex=False,
@@ -1498,9 +1508,18 @@ def run_pelicun(
                 )
 
             elif bldg_repair_config['MapApproach'] == "User Defined":
-                loss_map = pd.read_csv(
-                    bldg_repair_config['MapFilePath'], index_col=0
-                )
+
+                if bldg_repair_config.get('MapFilePath', False) is not False:
+                    loss_map_path = bldg_repair_config['MapFilePath']
+
+                    loss_map_path = loss_map_path.replace(
+                        'CustomDLDataFolder', custom_dl_file_path)
+
+                else:
+                    print("User defined loss map path missing. Terminating analysis")
+                    return -1
+
+                loss_map = pd.read_csv(loss_map_path, index_col=0)
 
             # prepare additional loss map entries, if needed
             if 'DMG-collapse' not in loss_map.index:
@@ -1779,7 +1798,7 @@ def main():
     )
     parser.add_argument('--auto_script', default=None)
     parser.add_argument('--resource_dir', default=None)
-    parser.add_argument('--custom_fragility_dir', default=None)
+    parser.add_argument('--custom_model_dir', default=None)
     parser.add_argument(
         '--regional', default=False, type=str2bool, nargs='?', const=False
     )
@@ -1818,7 +1837,7 @@ def main():
         ground_failure=args.ground_failure,
         auto_script_path=args.auto_script,
         resource_dir=args.resource_dir,
-        custom_fragility_dir=args.custom_fragility_dir,
+        custom_model_dir=args.custom_model_dir,
         regional=args.regional,
         output_format=args.output_format,
     )
