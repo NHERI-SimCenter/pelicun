@@ -132,7 +132,7 @@ def create_FEMA_P58_fragility_db(source_file,
 
     # parse the extra metadata file
     if Path(meta_file).is_file():
-        with open(meta_file, 'r') as f:
+        with open(meta_file, 'r', encoding='utf-8') as f:
             frag_meta = json.load(f)
     else:
         frag_meta = {}
@@ -1780,7 +1780,7 @@ def create_Hazus_EQ_fragility_db(source_file,
 
     # parse the extra metadata file
     if Path(meta_file).is_file():
-        with open(meta_file, 'r') as f:
+        with open(meta_file, 'r', encoding='utf-8') as f:
             frag_meta = json.load(f)
     else:
         frag_meta = {}
@@ -2206,7 +2206,7 @@ def create_Hazus_EQ_fragility_db(source_file,
     df_db.to_csv(target_data_file)
 
     # save the metadata
-    with open(target_meta_file, 'w+') as f:
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the fragility data from Hazus EQ")
@@ -2254,7 +2254,7 @@ def create_Hazus_EQ_repair_db(source_file,
 
     # parse the extra metadata file
     if Path(meta_file).is_file():
-        with open(meta_file, 'r') as f:
+        with open(meta_file, 'r', encoding='utf-8') as f:
             frag_meta = json.load(f)
     else:
         frag_meta = {}
@@ -2498,7 +2498,7 @@ def create_Hazus_EQ_repair_db(source_file,
     df_db.to_csv(target_data_file)
 
     # save the metadata - later
-    with open(target_meta_file, 'w+') as f:
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
     print("Successfully parsed and saved the repair consequence data from Hazus "
