@@ -485,19 +485,12 @@ class DamageModel(PelicunModel):
                                 )
                             )
 
-                        if family != 'deterministic':
-                            RV = uq.rv_class_map(family)(
-                                name=frg_rv_tag,
-                                theta=theta,
-                                anchor=anchor,
-                            )
-                        else:
-                            RV = uq.rv_class_map(family)(
-                                name=frg_rv_tag,
-                                theta=theta,
-                                truncation_limits=tr_lims,
-                                anchor=anchor,
-                            )
+                        RV = uq.rv_class_map(family)(
+                            name=frg_rv_tag,
+                            theta=theta,
+                            truncation_limits=tr_lims,
+                            anchor=anchor,
+                        )
 
                         capacity_RV_reg.add_RV(RV)
 

@@ -396,31 +396,19 @@ class AssetModel(PelicunModel):
 
             # create a random variable and add it to the registry
             family = getattr(rv_params, "Family", 'deterministic')
-            if family == 'deterministic':
-                # no truncation limits
-                RV_reg.add_RV(
-                    uq.rv_class_map(family)(
-                        name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
-                        theta=[
-                            getattr(rv_params, f"Theta_{t_i}", np.nan)
-                            for t_i in range(3)
-                        ],
-                    )
+            RV_reg.add_RV(
+                uq.rv_class_map(family)(
+                    name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
+                    theta=[
+                        getattr(rv_params, f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
+                    ],
+                    truncation_limits=[
+                        getattr(rv_params, f"Truncate{side}", np.nan)
+                        for side in ("Lower", "Upper")
+                    ],
                 )
-            else:
-                RV_reg.add_RV(
-                    uq.rv_class_map(family)(
-                        name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
-                        theta=[
-                            getattr(rv_params, f"Theta_{t_i}", np.nan)
-                            for t_i in range(3)
-                        ],
-                        truncation_limits=[
-                            getattr(rv_params, f"Truncate{side}", np.nan)
-                            for side in ("Lower", "Upper")
-                        ],
-                    )
-                )
+            )
 
         self.log_msg(
             f"\n{self.cmp_marginal_params.shape[0]} random variables created.",

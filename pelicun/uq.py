@@ -1586,6 +1586,7 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
         self,
         name,
         theta,
+        truncation_limits=np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1600,6 +1601,9 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
           1.00)). The first Y value has to be 0.00 and the last 1.00
           for a valid CDF, and the X_i's as well as the Y_i's should
           be in increasing order, otherwise an error is raised.
+        truncation_limits: 2D float ndarray
+          Not supported for multilinear CDF.
+          Should be np.array((np.nan, np.nan))
 
         """
         super().__init__(
@@ -1608,6 +1612,11 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
             anchor,
         )
         self.distribution = 'multilinear_CDF'
+
+        if not np.all(np.isnan(truncation_limits)):
+            raise NotImplementedError(
+                f'{self.distribution} RVs do not support truncation'
+            )
 
         y_1 = theta[0, 1]
         if y_1 != 0.00:
@@ -1721,6 +1730,7 @@ class EmpiricalRandomVariable(CommonRandomVariable):
         self,
         name,
         raw_samples,
+        truncation_limits=np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1731,6 +1741,9 @@ class EmpiricalRandomVariable(CommonRandomVariable):
         ----------
         raw_samples: 1D float ndarray
           Samples from which to draw empirical realizations.
+        truncation_limits: 2D float ndarray
+          Not supported for Empirical RVs.
+          Should be np.array((np.nan, np.nan))
 
         """
 
@@ -1740,6 +1753,11 @@ class EmpiricalRandomVariable(CommonRandomVariable):
             anchor,
         )
         self.distribution = 'empirical'
+        if not np.all(np.isnan(truncation_limits)):
+            raise NotImplementedError(
+                f'{self.distribution} RVs do not support truncation'
+            )
+
         self._raw_samples = np.atleast_1d(raw_samples)
 
     def inverse_transform(self, values):
@@ -1778,6 +1796,7 @@ class CoupledEmpiricalRandomVariable(SampleSizeRandomVariable):
         self,
         name,
         raw_samples,
+        truncation_limits=np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1788,6 +1807,9 @@ class CoupledEmpiricalRandomVariable(SampleSizeRandomVariable):
         ----------
         raw_samples: 1D float ndarray
           Samples from which to draw empirical realizations.
+        truncation_limits: 2D float ndarray
+          Not supported for CoupledEmpirical RVs.
+          Should be np.array((np.nan, np.nan))
 
         """
         super().__init__(
@@ -1796,6 +1818,11 @@ class CoupledEmpiricalRandomVariable(SampleSizeRandomVariable):
             anchor,
         )
         self.distribution = 'coupled_empirical'
+        if not np.all(np.isnan(truncation_limits)):
+            raise NotImplementedError(
+                f'{self.distribution} RVs do not support truncation'
+            )
+
         self._raw_samples = np.atleast_1d(raw_samples)
 
     def inverse_transform(self, sample_size):
@@ -1838,6 +1865,7 @@ class DeterministicRandomVariable(SampleSizeRandomVariable):
         self,
         name,
         theta,
+        truncation_limits=np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1850,6 +1878,9 @@ class DeterministicRandomVariable(SampleSizeRandomVariable):
         ----------
         theta: 1-element float ndarray
           The value.
+        truncation_limits: 2D float ndarray
+          Not supported for Deterministic RVs.
+          Should be np.array((np.nan, np.nan))
 
         """
         super().__init__(
@@ -1858,6 +1889,11 @@ class DeterministicRandomVariable(SampleSizeRandomVariable):
             anchor,
         )
         self.distribution = 'deterministic'
+        if not np.all(np.isnan(truncation_limits)):
+            raise NotImplementedError(
+                f'{self.distribution} RVs do not support truncation'
+            )
+
         self.theta = np.atleast_1d(theta)
 
     def inverse_transform(self, sample_size):
@@ -1890,6 +1926,7 @@ class MultinomialRandomVariable(CommonRandomVariable):
         self,
         name,
         theta,
+        truncation_limits=np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1902,6 +1939,9 @@ class MultinomialRandomVariable(CommonRandomVariable):
           Likelihood of each unique event (the last event's likelihood
           is adjusted automatically to ensure the likelihoods sum up
           to one)
+        truncation_limits: 2D float ndarray
+          Not supported for Multinomial RVs.
+          Should be np.array((np.nan, np.nan))
 
         """
         super().__init__(
@@ -1909,8 +1949,11 @@ class MultinomialRandomVariable(CommonRandomVariable):
             f_map,
             anchor,
         )
+        if not np.all(np.isnan(truncation_limits)):
+            raise NotImplementedError(
+                f'{self.distribution} RVs do not support truncation'
+            )
         self.distribution = 'multinomial'
-
         if np.sum(theta) > 1.00:
             raise ValueError(
                 f"The set of p values provided for a multinomial "

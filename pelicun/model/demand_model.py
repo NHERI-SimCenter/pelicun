@@ -721,18 +721,6 @@ class DemandModel(PelicunModel):
                     )
                 )
 
-            elif family == 'deterministic':
-                # all other RVs need parameters of their distributions
-                RV_reg.add_RV(
-                    uq.DeterministicRandomVariable(
-                        name=rv_tag,
-                        theta=[
-                            getattr(rv_params, f"Theta_{t_i}", np.nan)
-                            for t_i in range(3)
-                        ],
-                    )
-                )
-
             else:
                 # all other RVs need parameters of their distributions
                 RV_reg.add_RV(
