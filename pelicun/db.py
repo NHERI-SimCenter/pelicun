@@ -1892,7 +1892,7 @@ def create_Hazus_EQ_fragility_db(source_file,
                 df_db.loc[counter, 'Demand-Offset'] = 0
 
                 # add metadata
-                if hc != None:
+                if hc is not None:
                     cmp_meta = {
                         "Description": (
                             frag_meta['Meta']['Collections']['STR']['Description']+", "+
@@ -2074,7 +2074,7 @@ def create_Hazus_EQ_fragility_db(source_file,
                     df_db.loc[counter, 'Demand-Offset'] = 0
 
                     # add metadata
-                    if hc != None:
+                    if hc is not None:
                         cmp_meta = {
                             "Description": (
                                 frag_meta['Meta']['Collections']['LF']['Description']+", "+
