@@ -386,7 +386,7 @@ def create_FEMA_P58_fragility_db(source_file,
                         ds_id = ds[2]
 
                         repair_action = cmp_meta[f"DS_{ds_id}_Repair_Description"]
-                        if pd.isna(repair_action) == True:
+                        if pd.isna(repair_action):
                             repair_action = "<missing data>"
 
                         ls_meta.update({f"DS{ds_id}": {
@@ -420,8 +420,10 @@ def create_FEMA_P58_fragility_db(source_file,
 
                             ds_pure_id = ds_map[::-1].find('1') + 1
 
-                            repair_action = cmp_meta[f"DS_{ds_pure_id}_Repair_Description"]
-                            if pd.isna(repair_action) == True:
+                            repair_action = cmp_meta[
+                                f"DS_{ds_pure_id}_Repair_Description"
+                            ]
+                            if pd.isna(repair_action):
                                 repair_action = "<missing data>"
 
                             ls_meta.update({f"DS{ds_id}": {
@@ -465,7 +467,7 @@ def create_FEMA_P58_fragility_db(source_file,
                 theta_1 = getattr(cmp, f"DS_{ds_id}_Total_Dispersion_Beta")
 
                 repair_action = cmp_meta[f"DS_{ds_id}_Repair_Description"]
-                if pd.isna(repair_action) == True:
+                if pd.isna(repair_action):
                     repair_action = "<missing data>"
 
                 ls_meta.update({f"DS{ds_id}": {
@@ -925,7 +927,7 @@ def create_FEMA_P58_repair_db(
                     ds_pure_id = ds_map[::-1].find('1') + 1
 
                     repair_action = cmp_meta[f"DS_{ds_pure_id}_Repair_Description"]
-                    if pd.isna(repair_action) == True:
+                    if pd.isna(repair_action):
                         repair_action = "<missing data>"
 
                     meta_data['DamageStates'].update({f"DS{DS_i}": {
@@ -979,7 +981,7 @@ def create_FEMA_P58_repair_db(
                         incomplete_cost = True
 
                     repair_action = cmp_meta[f"DS_{DS_i}_Repair_Description"]
-                    if pd.isna(repair_action) == True:
+                    if pd.isna(repair_action):
                         repair_action = "<missing data>"
 
                     meta_data['DamageStates'].update({
