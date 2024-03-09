@@ -699,7 +699,7 @@ class TestAssetModel(TestPelicunModel):
                 ),
                 names=('cmp', 'loc', 'dir', 'uid'),
             ),
-        )
+        ).astype({'Theta_0': 'float64', 'Blocks': 'int64'})
 
         pd.testing.assert_frame_equal(
             expected_cmp_marginal_params,
