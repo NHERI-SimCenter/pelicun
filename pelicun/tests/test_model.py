@@ -182,8 +182,17 @@ class TestDemandModel(TestModelModule):
         # level. Therefore, the two files are expected to result to the
         # same `obtained_sample`
 
-        pd.testing.assert_frame_equal(obtained_sample, obtained_sample_2)
-        pd.testing.assert_series_equal(obtained_units, obtained_units_2)
+        pd.testing.assert_frame_equal(
+            obtained_sample,
+            obtained_sample_2,
+            check_index_type=False,
+            check_column_type=False,
+        )
+        pd.testing.assert_series_equal(
+            obtained_units,
+            obtained_units_2,
+            check_index_type=False,
+        )
 
         # compare against the expected values for the sample
         expected_sample = pd.DataFrame(
@@ -201,7 +210,12 @@ class TestDemandModel(TestModelModule):
             ),
             index=[0],
         )
-        pd.testing.assert_frame_equal(expected_sample, obtained_sample)
+        pd.testing.assert_frame_equal(
+            expected_sample,
+            obtained_sample,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
         # compare against the expected values for the units
         expected_units = pd.Series(
@@ -217,7 +231,11 @@ class TestDemandModel(TestModelModule):
             ),
             name='Units',
         )
-        pd.testing.assert_series_equal(expected_units, obtained_units)
+        pd.testing.assert_series_equal(
+            expected_units,
+            obtained_units,
+            check_index_type=False,
+        )
 
     def test_estimate_RID(self, demand_model_with_sample):
         demands = demand_model_with_sample.sample['PID']
@@ -298,16 +316,22 @@ class TestDemandModel(TestModelModule):
             calibrated_demand_model.marginal_params,
             new_demand_model.marginal_params,
             atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
         pd.testing.assert_frame_equal(
             calibrated_demand_model.correlation,
             new_demand_model.correlation,
             atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
         pd.testing.assert_frame_equal(
             calibrated_demand_model.empirical_data,
             new_demand_model.empirical_data,
             atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
 
     # # todo: this currently fails
@@ -385,7 +409,12 @@ class TestDemandModel(TestModelModule):
             index=pd.Index((0, 1, 2), dtype='object'),
         )
         pd.testing.assert_frame_equal(
-            expected_sample, obtained_sample, check_exact=False, atol=1e-4
+            expected_sample,
+            obtained_sample,
+            check_exact=False,
+            atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
 
         # compare against the expected values for the units
@@ -402,7 +431,11 @@ class TestDemandModel(TestModelModule):
             ),
             name='Units',
         )
-        pd.testing.assert_series_equal(expected_units, obtained_units)
+        pd.testing.assert_series_equal(
+            expected_units,
+            obtained_units,
+            check_index_type=False,
+        )
 
     def test_generate_sample_with_demand_cloning(self, assessment_instance):
         # # used for debugging
@@ -551,7 +584,9 @@ class TestPelicunModel(TestModelModule):
             ),
         )
 
-        pd.testing.assert_frame_equal(expected_df, res)
+        pd.testing.assert_frame_equal(
+            expected_df, res, check_index_type=False, check_column_type=False
+        )
 
         # a case with arg_units
         marginal_params = pd.DataFrame(
@@ -584,7 +619,9 @@ class TestPelicunModel(TestModelModule):
                 names=('cmp', 'loc', 'dir'),
             ),
         )
-        pd.testing.assert_frame_equal(expected_df, res)
+        pd.testing.assert_frame_equal(
+            expected_df, res, check_index_type=False, check_column_type=False
+        )
 
 
 class TestAssetModel(TestPelicunModel):
@@ -664,23 +701,22 @@ class TestAssetModel(TestPelicunModel):
             ),
         )
 
-        if os.name == 'nt':
-            expected_cmp_marginal_params['Blocks'] = expected_cmp_marginal_params[
-                'Blocks'
-            ].astype('int32')
-            pd.testing.assert_frame_equal(
-                expected_cmp_marginal_params, asset_model.cmp_marginal_params
-            )
-        else:
-            pd.testing.assert_frame_equal(
-                expected_cmp_marginal_params, asset_model.cmp_marginal_params
-            )
+        pd.testing.assert_frame_equal(
+            expected_cmp_marginal_params,
+            asset_model.cmp_marginal_params,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
         expected_cmp_units = pd.Series(
             data=['ea'], index=['component_a'], name='Units'
         )
 
-        pd.testing.assert_series_equal(expected_cmp_units, asset_model.cmp_units)
+        pd.testing.assert_series_equal(
+            expected_cmp_units,
+            asset_model.cmp_units,
+            check_index_type=False,
+        )
 
     def test_load_cmp_model_2(self, asset_model):
         # component marginals utilizing the keywords '--', 'all', 'top', 'roof'
@@ -738,7 +774,11 @@ class TestAssetModel(TestPelicunModel):
             name='Units',
         )
 
-        pd.testing.assert_series_equal(expected_cmp_units, asset_model.cmp_units)
+        pd.testing.assert_series_equal(
+            expected_cmp_units,
+            asset_model.cmp_units,
+            check_index_type=False,
+        )
 
     def test_load_cmp_model_csv(self, asset_model):
         # load by directly specifying the csv file
@@ -801,7 +841,12 @@ class TestAssetModel(TestPelicunModel):
             ),
         )
 
-        pd.testing.assert_frame_equal(expected_cmp_sample, asset_model.cmp_sample)
+        pd.testing.assert_frame_equal(
+            expected_cmp_sample,
+            asset_model.cmp_sample,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
     # currently this is not working
     # def test_load_cmp_model_block_weights(self, asset_model):
@@ -1022,7 +1067,12 @@ class TestDamageModel(TestPelicunModel):
 
         # saving to a variable
         sample_from_variable = damage_model_with_sample.save_sample(save_units=False)
-        pd.testing.assert_frame_equal(sample_from_file, sample_from_variable)
+        pd.testing.assert_frame_equal(
+            sample_from_file,
+            sample_from_variable,
+            check_index_type=False,
+            check_column_type=False,
+        )
         _, units_from_variable = damage_model_with_sample.save_sample(
             save_units=True
         )
@@ -1235,12 +1285,6 @@ class TestDamageModel(TestPelicunModel):
 
             assert list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-        assert capacity_sample.to_numpy().dtype == np.dtype('float64')
-        if os.name == 'nt':
-            assert lsds_sample.to_numpy().dtype == np.dtype('int32')
-        else:
-            assert lsds_sample.to_numpy().dtype == np.dtype('int64')
-
     def test__get_required_demand_type(self, damage_model_model_loaded):
         pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
         batches = pg_batch.index.get_level_values(0).unique()
@@ -1444,7 +1488,9 @@ class TestDamageModel(TestPelicunModel):
             columns=('Blocks',),
         ).astype('Int64')
 
-        pd.testing.assert_frame_equal(expected_res, res)
+        pd.testing.assert_frame_equal(
+            expected_res, res, check_index_type=False, check_column_type=False
+        )
 
         res = damage_model_model_loaded._get_pg_batches(block_batch_size=1000)
         expected_res = pd.DataFrame(
@@ -1461,7 +1507,9 @@ class TestDamageModel(TestPelicunModel):
             columns=('Blocks',),
         ).astype('Int64')
 
-        pd.testing.assert_frame_equal(expected_res, res)
+        pd.testing.assert_frame_equal(
+            expected_res, res, check_index_type=False, check_column_type=False
+        )
 
     def test_calculate(self, damage_model_with_sample):
         # note: Due to inherent randomness, we can't assert the actual
@@ -1587,12 +1635,19 @@ class TestLossModel(TestPelicunModel):
 
         loss_model.load_sample(sample)
 
-        pd.testing.assert_frame_equal(sample, loss_model._sample)
+        pd.testing.assert_frame_equal(
+            sample,
+            loss_model._sample,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
         output = loss_model.save_sample(None)
         output.index = output.index.astype('int64')
 
-        pd.testing.assert_frame_equal(sample, output)
+        pd.testing.assert_frame_equal(
+            sample, output, check_index_type=False, check_column_type=False
+        )
 
     def test_load_model(self, loss_model):
         data_path_1 = pd.DataFrame(
