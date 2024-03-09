@@ -305,7 +305,7 @@ def test_convert_dtypes():
 
     # Expected DataFrame
     df_expected = pd.DataFrame({'a': [1, 2, 3], 'b': [4.0, 5.5, 6.75]}).astype(
-        {'a': int, 'b': float}
+        {'a': 'int64', 'b': 'float64'}
     )
 
     # Convert data types
