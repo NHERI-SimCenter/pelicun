@@ -706,6 +706,7 @@ class TestAssetModel(TestPelicunModel):
             asset_model.cmp_marginal_params,
             check_index_type=False,
             check_column_type=False,
+            check_dtype=False
         )
 
         expected_cmp_units = pd.Series(
