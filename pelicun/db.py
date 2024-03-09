@@ -57,17 +57,20 @@ This module has classes and methods to manage databases used by pelicun.
 
 import re
 import json
+from pathlib import Path
+from copy import deepcopy
 import numpy as np
 from scipy.stats import norm
 import pandas as pd
-from pathlib import Path
-from copy import deepcopy
 
 from . import base
 from .uq import fit_distribution_to_percentiles
 
 idx = base.idx
 
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-locals
 
 def parse_DS_Hierarchy(DSH):
     """
