@@ -69,6 +69,24 @@ ap_Occupancy = {
     'Parking' : 'COM10'
 }
 
+# Convert common length units
+def convertUnits(value, unit_in, unit_out):
+    aval_types = ['m', 'mm', 'cm', 'km', 'inch', 'ft', 'mile']
+    m = 1.
+    mm = 0.001 * m
+    cm = 0.01 * m
+    km = 1000 * m
+    inch = 0.0254 * m
+    ft = 12. * inch
+    mile = 5280. * ft
+    scale_map = {'m':m, 'mm':mm, 'cm':cm, 'km':km, 'inch':inch, 'ft':ft,\
+                  'mile':mile}
+    if (unit_in not in aval_types) or (unit_out not in aval_types):
+        print(f"The unit {unit_in} or {unit_out} are used in auto_population but not supported")
+        return
+    value = value*scale_map[unit_in]/scale_map[unit_out]
+    return value
+
 def convertBridgeToHAZUSclass(AIM):
 
     #TODO: replace labels in AIM with standard CamelCase versions
@@ -78,7 +96,10 @@ def convertBridgeToHAZUSclass(AIM):
     state = AIM["StateCode"]
     yr_built = AIM["YearBuilt"] 
     num_span = AIM["NumOfSpans"]
-    len_max_span = AIM["MaxSpanLength"] 
+    len_max_span = AIM["MaxSpanLength"]
+    len_unit = AIM["units"]["length"]
+    len_max_span = convertUnits(len_max_span, len_unit, "m")
+
 
     seismic = ((int(state)==6 and int(yr_built)>=1975) or 
                (int(state)!=6 and int(yr_built)>=1990))
