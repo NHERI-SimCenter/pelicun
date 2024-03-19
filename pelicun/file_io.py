@@ -47,20 +47,17 @@ This module has classes and methods that handle file input and output.
 
 .. autosummary::
 
-    dict_raise_on_duplicates
     get_required_resources
     save_to_csv
     load_data
     load_from_file
-    parse_units
 
 """
 
-import json
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from . import base
+from pelicun import base
 
 
 convert_dv_name = {
@@ -92,23 +89,6 @@ HAZUS_occ_converter = {
     'IND':  'Industrial',
     'AGR':  'Industrial'
 }
-
-
-def dict_raise_on_duplicates(ordered_pairs):
-    """
-    Reject duplicate keys.
-
-    https://stackoverflow.com/questions/14902299/
-    json-loads-allows-duplicate-keys-
-    in-a-dictionary-overwriting-the-first-value
-
-    """
-    d = {}
-    for k, v in ordered_pairs:
-        if k in d:
-            raise ValueError(f"duplicate key: {k}")
-        d[k] = v
-    return d
 
 
 def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
@@ -453,66 +433,3 @@ def load_from_file(filepath, log=None):
                          f'to load from csv: {filepath}')
 
     return data
-
-
-def parse_units(custom_file=None):
-    """
-    Parse the unit conversion factor JSON file and return a dictionary.
-
-    Parameters
-    ----------
-    custom_file: str, optional
-        If a custom file is provided, only the units specified in the
-        custom file are used.
-
-    Raises
-    ------
-    KeyError
-        If a key is defined twice.
-    ValueError
-        If a unit conversion factor is not a float.
-    FileNotFoundError
-        If a file does not exist.
-    Exception
-        If a file does not have the JSON format.
-    """
-
-    def get_contents(file_path):
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                dictionary = json.load(
-                    f, object_pairs_hook=dict_raise_on_duplicates)
-        except FileNotFoundError as exc:
-            raise FileNotFoundError(
-                f'{file_path} was not found.') from exc
-        except json.decoder.JSONDecodeError as exc:
-            raise ValueError(
-                f'{file_path} is not a valid JSON file.') from exc
-        for category_dict in list(dictionary.values()):
-            # ensure all first-level keys point to a dictionary
-            if not isinstance(category_dict, dict):
-                raise ValueError(
-                    f'{file_path} contains first-level keys '
-                    'that don\'t point to a dictionary')
-            # convert values to float
-            for key, val in category_dict.items():
-                try:
-                    category_dict[key] = float(val)
-                except (ValueError, TypeError) as exc:
-                    raise type(exc)(
-                        f'Unit {key} has a value of {val} '
-                        'which cannot be interpreted as a float') from exc
-
-        flattened = {}
-        for category in dictionary:
-            for unit_name, factor in dictionary[category].items():
-                if unit_name in flattened:
-                    raise ValueError(f'{unit_name} defined twice in {file_path}.')
-                flattened[unit_name] = factor
-
-        return flattened
-
-    if custom_file:
-        return get_contents(custom_file)
-
-    return get_contents(base.pelicun_path / "settings/default_units.json")
