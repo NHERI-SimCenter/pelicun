@@ -105,6 +105,7 @@ default_DBs = {
         'Hazus Earthquake - Buildings': 'damage_DB_Hazus_EQ_bldg.csv',
         'Hazus Earthquake - Stories': 'damage_DB_Hazus_EQ_story.csv',
         'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv',
+        'Hazus Earthquake - Water': 'damage_DB_Hazus_EQ_water.csv',
         'Hazus Hurricane': 'damage_DB_SimCenter_Hazus_HU_bldg.csv',
     },
     'repair': {
@@ -164,7 +165,7 @@ regional_out_config = {
         'Sample': False,
         'Statistics': False,
         'GroupedSample': True,
-        'GroupedStatistics': False,
+        'GroupedStatistics': True,
     },
     'Loss': {
         'BldgRepair': {
@@ -376,6 +377,16 @@ def run_pelicun(
 
             config_ap, CMP = auto_populate(config, auto_script_path)
 
+            if config_ap['DL'] is None:
+
+                log_msg(
+                    "The prescribed auto-population script failed to identify "
+                    "a valid damage and loss configuration for this asset. "
+                    "Terminating analysis."
+                )
+
+                return 0
+
             # add the demand information
             config_ap['DL']['Demands'].update(
                 {'DemandFilePath': f'{demand_file}', 'SampleSize': f'{realizations}'}
@@ -558,7 +569,7 @@ def run_pelicun(
         {
             "SampleSize": sample_size,
             'PreserveRawOrder': demand_config.get('CoupledDemands', False),
-            # 'DemandCloning': demand_config.get('DemandCloning', False)
+            'DemandCloning': demand_config.get('DemandCloning', False)
         }
     )
 
@@ -976,6 +987,18 @@ def run_pelicun(
             adf.loc['irreparable', ('Demand', 'Unit')] = 'unitless'
             adf.loc['irreparable', ('LS1', 'Theta_0')] = 1e10
             adf.loc['irreparable', 'Incomplete'] = 0
+
+        # TODO: we can improve this by creating a water network-specific assessment class
+        if "Water" in asset_config['ComponentDatabase']:
+
+            # add a placeholder aggregate fragility that will never trigger
+            # damage, but allow damage processes to aggregate the various pipeline damages
+            adf.loc['aggregate', ('Demand', 'Directional')] = 1
+            adf.loc['aggregate', ('Demand', 'Offset')] = 0
+            adf.loc['aggregate', ('Demand', 'Type')] = 'Peak Ground Velocity'
+            adf.loc['aggregate', ('Demand', 'Unit')] = 'mps'
+            adf.loc['aggregate', ('LS1', 'Theta_0')] = 1e10
+            adf.loc['aggregate', 'Incomplete'] = 0
 
         PAL.damage.load_damage_model(
             component_db
@@ -1694,9 +1717,6 @@ def run_pelicun(
     if 'damage_sample' not in locals():
         damage_sample = PAL.damage.save_sample()
 
-    if 'agg_repair' not in locals():
-        agg_repair = PAL.bldg_repair.aggregate_losses()
-
     damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
@@ -1710,7 +1730,16 @@ def run_pelicun(
     else:
         damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
 
-    agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+    if loss_config is not None:
+
+        if 'agg_repair' not in locals():
+            agg_repair = PAL.bldg_repair.aggregate_losses()
+
+        agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+
+    else:
+
+        agg_repair_s = pd.DataFrame()
 
     summary = pd.concat(
         [agg_repair_s, damage_sample_s[['collapse', 'irreparable']]], axis=1
