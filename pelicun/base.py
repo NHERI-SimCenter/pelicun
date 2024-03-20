@@ -57,12 +57,16 @@ This module defines constants, basic classes and methods for pelicun.
     int_or_None
     process_loc
     dedupe_index
+    dict_raise_on_duplicates
+    parse_units
+    convert_units
 
     Options
     Logger
 
 """
 
+from __future__ import annotations
 import os
 import sys
 from datetime import datetime
@@ -1076,3 +1080,180 @@ EDP_to_demand_type = {
     # Placeholder for advanced calculations
     'One':                            'ONE'
 }
+
+
+def dict_raise_on_duplicates(ordered_pairs):
+    """
+    Reject duplicate keys.
+
+    https://stackoverflow.com/questions/14902299/
+    json-loads-allows-duplicate-keys-
+    in-a-dictionary-overwriting-the-first-value
+
+    """
+    d = {}
+    for k, v in ordered_pairs:
+        if k in d:
+            raise ValueError(f"duplicate key: {k}")
+        d[k] = v
+    return d
+
+
+def parse_units(custom_file=None, preserve_categories=False):
+    """
+    Parse the unit conversion factor JSON file and return a dictionary.
+
+    Parameters
+    ----------
+    custom_file: str, optional
+        If a custom file is provided, only the units specified in the
+        custom file are used.
+
+    Raises
+    ------
+    KeyError
+        If a key is defined twice.
+    ValueError
+        If a unit conversion factor is not a float.
+    FileNotFoundError
+        If a file does not exist.
+    Exception
+        If a file does not have the JSON format.
+    """
+
+    def get_contents(file_path, preserve_categories=False):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                dictionary = json.load(f, object_pairs_hook=dict_raise_on_duplicates)
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(f'{file_path} was not found.') from exc
+        except json.decoder.JSONDecodeError as exc:
+            raise ValueError(f'{file_path} is not a valid JSON file.') from exc
+        for category_dict in list(dictionary.values()):
+            # ensure all first-level keys point to a dictionary
+            if not isinstance(category_dict, dict):
+                raise ValueError(
+                    f'{file_path} contains first-level keys '
+                    'that don\'t point to a dictionary'
+                )
+            # convert values to float
+            for key, val in category_dict.items():
+                try:
+                    category_dict[key] = float(val)
+                except (ValueError, TypeError) as exc:
+                    raise type(exc)(
+                        f'Unit {key} has a value of {val} '
+                        'which cannot be interpreted as a float'
+                    ) from exc
+
+        if preserve_categories:
+            return dictionary
+
+        flattened = {}
+        for category in dictionary:
+            for unit_name, factor in dictionary[category].items():
+                if unit_name in flattened:
+                    raise ValueError(f'{unit_name} defined twice in {file_path}.')
+                flattened[unit_name] = factor
+
+        return flattened
+
+    if custom_file:
+        return get_contents(custom_file, preserve_categories)
+
+    return get_contents(
+        pelicun_path / "settings/default_units.json", preserve_categories
+    )
+
+
+def convert_units(
+    values: (float | list[float] | np.ndarray),
+    unit: str,
+    to_unit: str,
+    category: (str | None) = None
+) -> (float | list[float] | np.ndarray):
+    """
+    Converts numeric values between different units.
+
+    Supports conversion within a specified category of units and
+    automatically infers the category if not explicitly provided. It
+    maintains the type of the input in the output.
+
+    Parameters
+    ----------
+    values (float | list[float] | np.ndarray):
+      The numeric value(s) to convert.
+    unit (str):
+      The current unit of the values.
+    to_unit (str):
+      The target unit to convert the values into.
+    category (Optional[str]):
+      The category of the units (e.g., 'length', 'pressure'). If not
+      provided, the category will be inferred based on the provided
+      units.
+
+    Returns
+    -------
+    (float | list[float] | np.ndarray):
+      The converted value(s) in the target unit, in the same data type
+      as the input values.
+
+    Raises
+    ------
+    TypeError:
+      If the input `values` are not of type float, list, or
+      np.ndarray.
+    ValueError:
+      If the `unit`, `to_unit`, or `category` is unknown or if `unit`
+      and `to_unit` are not in the same category.
+
+    """
+
+    if isinstance(values, (float, list)):
+        vals = np.atleast_1d(values)
+    elif isinstance(values, np.ndarray):
+        vals = values
+    else:
+        raise TypeError('Invalid input type for `values`')
+
+    # load default units
+    all_units = parse_units(preserve_categories=True)
+
+    # if a category is given use it, otherwise try to determine it
+    if category:
+        if category not in all_units:
+            raise ValueError(f'Unknown category: `{category}`')
+        units = all_units[category]
+        for unt in unit, to_unit:
+            if unt not in units:
+                raise ValueError(
+                    f'Unknown unit: `{unt}`'
+                )
+    else:
+        unit_category: (str | None) = None
+        for key in all_units:
+            units = all_units[key]
+            if unit in units:
+                unit_category = key
+                break
+        if not unit_category:
+            raise ValueError(f'Unknown unit `{unit}`')
+        units = all_units[unit_category]
+        if to_unit not in units:
+            raise ValueError(
+                f'`{unit}` is a `{unit_category}` unit, but `{to_unit}` '
+                f'is not specified in that category.'
+            )
+
+    # convert units
+    from_factor = units[unit]
+    to_factor = units[to_unit]
+    new_values = vals * from_factor / to_factor
+
+    # return the results in the same type as that of the provided
+    # values
+    if isinstance(values, float):
+        return new_values[0]
+    if isinstance(values, list):
+        return new_values.tolist()
+    return new_values
