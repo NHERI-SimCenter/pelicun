@@ -224,13 +224,13 @@ def auto_populate(AIM):
         if ground_failure:
             foundation_type = 'S'
 
-            FG_GF_H = f'GF.H.{foundation_type}'
-            FG_GF_V = f'GF.V.{foundation_type}'
-            CMP_GF = pd.DataFrame(
-                {f'{FG_GF_H}':[  'ea',         1,          1,        1,   'N/A'],
-                 f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']},
-                index = [     'Units','Location','Direction','Theta_0','Family']
-            ).T
+            FG_GF_H = f'GF.H.{foundation_type}'                                        # noqa
+            FG_GF_V = f'GF.V.{foundation_type}'                                        # noqa
+            CMP_GF = pd.DataFrame(                                                     # noqa
+                {f'{FG_GF_H}':[  'ea',         1,          1,        1,   'N/A'],      # noqa
+                 f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']},     # noqa
+                index = [     'Units','Location','Direction','Theta_0','Family']       # noqa
+            ).T                                                                        # noqa
 
             CMP = pd.concat([CMP, CMP_GF], axis=0)
 
