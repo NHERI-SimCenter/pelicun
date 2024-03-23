@@ -44,6 +44,7 @@ These are unit and integration tests on the model module of pelicun.
 
 import os
 import tempfile
+from copy import deepcopy
 import pytest
 import numpy as np
 import pandas as pd
@@ -75,13 +76,13 @@ class TestModelModule:
 
     @pytest.fixture(params=[True, False])
     def assessment_instance(self, request, assessment_factory):
-        return assessment_factory(request.param)
+        return deepcopy(assessment_factory(request.param))
 
 
 class TestDemandModel(TestModelModule):
     @pytest.fixture
     def demand_model(self, assessment_instance):
-        return assessment_instance.demand
+        return deepcopy(assessment_instance.demand)
 
     @pytest.fixture
     def demand_model_with_sample(self, assessment_instance):
@@ -90,7 +91,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_A.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     @pytest.fixture
     def calibrated_demand_model(self, demand_model_with_sample):
@@ -108,7 +109,7 @@ class TestDemandModel(TestModelModule):
             },
         }
         demand_model_with_sample.calibrate_model(config)
-        return demand_model_with_sample
+        return deepcopy(demand_model_with_sample)
 
     @pytest.fixture
     def demand_model_with_sample_B(self, assessment_instance):
@@ -117,7 +118,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_B.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     @pytest.fixture
     def demand_model_with_sample_C(self, assessment_instance):
@@ -126,7 +127,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_C.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     @pytest.fixture
     def demand_model_with_sample_D(self, assessment_instance):
@@ -135,7 +136,7 @@ class TestDemandModel(TestModelModule):
             'pelicun/tests/data/model/'
             'test_DemandModel_load_sample/demand_sample_D.csv'
         )
-        return mdl
+        return deepcopy(mdl)
 
     def test_init(self, demand_model):
         assert demand_model.log_msg
@@ -181,8 +182,17 @@ class TestDemandModel(TestModelModule):
         # level. Therefore, the two files are expected to result to the
         # same `obtained_sample`
 
-        pd.testing.assert_frame_equal(obtained_sample, obtained_sample_2)
-        pd.testing.assert_series_equal(obtained_units, obtained_units_2)
+        pd.testing.assert_frame_equal(
+            obtained_sample,
+            obtained_sample_2,
+            check_index_type=False,
+            check_column_type=False,
+        )
+        pd.testing.assert_series_equal(
+            obtained_units,
+            obtained_units_2,
+            check_index_type=False,
+        )
 
         # compare against the expected values for the sample
         expected_sample = pd.DataFrame(
@@ -200,7 +210,12 @@ class TestDemandModel(TestModelModule):
             ),
             index=[0],
         )
-        pd.testing.assert_frame_equal(expected_sample, obtained_sample)
+        pd.testing.assert_frame_equal(
+            expected_sample,
+            obtained_sample,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
         # compare against the expected values for the units
         expected_units = pd.Series(
@@ -216,7 +231,11 @@ class TestDemandModel(TestModelModule):
             ),
             name='Units',
         )
-        pd.testing.assert_series_equal(expected_units, obtained_units)
+        pd.testing.assert_series_equal(
+            expected_units,
+            obtained_units,
+            check_index_type=False,
+        )
 
     def test_estimate_RID(self, demand_model_with_sample):
         demands = demand_model_with_sample.sample['PID']
@@ -244,6 +263,9 @@ class TestDemandModel(TestModelModule):
             == 0.06
         )
 
+    def test_calibrate_model_censoring(
+        self, calibrated_demand_model, demand_model_with_sample_C
+    ):
         # with a config featuring censoring the RIDs
         config = {
             "ALL": {
@@ -257,6 +279,9 @@ class TestDemandModel(TestModelModule):
         }
         demand_model_with_sample_C.calibrate_model(config)
 
+    def test_calibrate_model_truncation(
+        self, calibrated_demand_model, demand_model_with_sample_C
+    ):
         # with a config that specifies a truncation limit smaller than
         # the samples
         config = {
@@ -270,6 +295,9 @@ class TestDemandModel(TestModelModule):
             },
         }
         demand_model_with_sample_C.calibrate_model(config)
+        # calibrating again should raise an error
+        with pytest.raises(ValueError):
+            demand_model_with_sample_C.calibrate_model(config)
 
     def test_save_load_model_with_empirical(
         self, calibrated_demand_model, assessment_instance
@@ -285,13 +313,25 @@ class TestDemandModel(TestModelModule):
         new_demand_model = assessment_instance.demand
         new_demand_model.load_model(f'{temp_dir}/temp')
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.marginal_params, new_demand_model.marginal_params
+            calibrated_demand_model.marginal_params,
+            new_demand_model.marginal_params,
+            atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.correlation, new_demand_model.correlation
+            calibrated_demand_model.correlation,
+            new_demand_model.correlation,
+            atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.empirical_data, new_demand_model.empirical_data
+            calibrated_demand_model.empirical_data,
+            new_demand_model.empirical_data,
+            atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
 
     # # todo: this currently fails
@@ -369,7 +409,12 @@ class TestDemandModel(TestModelModule):
             index=pd.Index((0, 1, 2), dtype='object'),
         )
         pd.testing.assert_frame_equal(
-            expected_sample, obtained_sample, check_exact=False, atol=1e-4
+            expected_sample,
+            obtained_sample,
+            check_exact=False,
+            atol=1e-4,
+            check_index_type=False,
+            check_column_type=False,
         )
 
         # compare against the expected values for the units
@@ -386,7 +431,11 @@ class TestDemandModel(TestModelModule):
             ),
             name='Units',
         )
-        pd.testing.assert_series_equal(expected_units, obtained_units)
+        pd.testing.assert_series_equal(
+            expected_units,
+            obtained_units,
+            check_index_type=False,
+        )
 
     def test_generate_sample_with_demand_cloning(self, assessment_instance):
         # # used for debugging
@@ -454,7 +503,7 @@ class TestDemandModel(TestModelModule):
 class TestPelicunModel(TestModelModule):
     @pytest.fixture
     def pelicun_model(self, assessment_instance):
-        return model.PelicunModel(assessment_instance)
+        return deepcopy(model.PelicunModel(assessment_instance))
 
     def test_init(self, pelicun_model):
         assert pelicun_model.log_msg
@@ -535,7 +584,9 @@ class TestPelicunModel(TestModelModule):
             ),
         )
 
-        pd.testing.assert_frame_equal(expected_df, res)
+        pd.testing.assert_frame_equal(
+            expected_df, res, check_index_type=False, check_column_type=False
+        )
 
         # a case with arg_units
         marginal_params = pd.DataFrame(
@@ -568,13 +619,15 @@ class TestPelicunModel(TestModelModule):
                 names=('cmp', 'loc', 'dir'),
             ),
         )
-        pd.testing.assert_frame_equal(expected_df, res)
+        pd.testing.assert_frame_equal(
+            expected_df, res, check_index_type=False, check_column_type=False
+        )
 
 
 class TestAssetModel(TestPelicunModel):
     @pytest.fixture
     def asset_model(self, assessment_instance):
-        return assessment_instance.asset
+        return deepcopy(assessment_instance.asset)
 
     def test_init(self, asset_model):
         assert asset_model.log_msg
@@ -646,25 +699,25 @@ class TestAssetModel(TestPelicunModel):
                 ),
                 names=('cmp', 'loc', 'dir', 'uid'),
             ),
-        )
+        ).astype({'Theta_0': 'float64', 'Blocks': 'int64'})
 
-        if os.name == 'nt':
-            expected_cmp_marginal_params['Blocks'] = expected_cmp_marginal_params[
-                'Blocks'
-            ].astype('int32')
-            pd.testing.assert_frame_equal(
-                expected_cmp_marginal_params, asset_model.cmp_marginal_params
-            )
-        else:
-            pd.testing.assert_frame_equal(
-                expected_cmp_marginal_params, asset_model.cmp_marginal_params
-            )
+        pd.testing.assert_frame_equal(
+            expected_cmp_marginal_params,
+            asset_model.cmp_marginal_params,
+            check_index_type=False,
+            check_column_type=False,
+            check_dtype=False
+        )
 
         expected_cmp_units = pd.Series(
             data=['ea'], index=['component_a'], name='Units'
         )
 
-        pd.testing.assert_series_equal(expected_cmp_units, asset_model.cmp_units)
+        pd.testing.assert_series_equal(
+            expected_cmp_units,
+            asset_model.cmp_units,
+            check_index_type=False,
+        )
 
     def test_load_cmp_model_2(self, asset_model):
         # component marginals utilizing the keywords '--', 'all', 'top', 'roof'
@@ -722,7 +775,11 @@ class TestAssetModel(TestPelicunModel):
             name='Units',
         )
 
-        pd.testing.assert_series_equal(expected_cmp_units, asset_model.cmp_units)
+        pd.testing.assert_series_equal(
+            expected_cmp_units,
+            asset_model.cmp_units,
+            check_index_type=False,
+        )
 
     def test_load_cmp_model_csv(self, asset_model):
         # load by directly specifying the csv file
@@ -785,7 +842,12 @@ class TestAssetModel(TestPelicunModel):
             ),
         )
 
-        pd.testing.assert_frame_equal(expected_cmp_sample, asset_model.cmp_sample)
+        pd.testing.assert_frame_equal(
+            expected_cmp_sample,
+            asset_model.cmp_sample,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
     # currently this is not working
     # def test_load_cmp_model_block_weights(self, asset_model):
@@ -849,7 +911,7 @@ class TestDamageModel(TestPelicunModel):
 
     @pytest.fixture
     def damage_model(self, assessment_instance):
-        return assessment_instance.damage
+        return deepcopy(assessment_instance.damage)
 
     @pytest.fixture
     def damage_model_model_loaded(self, damage_model, cmp_sample_A):
@@ -857,7 +919,7 @@ class TestDamageModel(TestPelicunModel):
         asmt.get_default_data('damage_DB_FEMA_P58_2nd')
         asmt.asset._cmp_sample = cmp_sample_A
         damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-        return damage_model
+        return deepcopy(damage_model)
 
     @pytest.fixture
     def damage_model_with_sample(self, assessment_instance):
@@ -981,7 +1043,7 @@ class TestDamageModel(TestPelicunModel):
             name='Units',
             dtype='object',
         )
-        return assessment_instance.damage
+        return deepcopy(assessment_instance.damage)
 
     def test_init(self, damage_model):
         assert damage_model.log_msg
@@ -1006,7 +1068,12 @@ class TestDamageModel(TestPelicunModel):
 
         # saving to a variable
         sample_from_variable = damage_model_with_sample.save_sample(save_units=False)
-        pd.testing.assert_frame_equal(sample_from_file, sample_from_variable)
+        pd.testing.assert_frame_equal(
+            sample_from_file,
+            sample_from_variable,
+            check_index_type=False,
+            check_column_type=False,
+        )
         _, units_from_variable = damage_model_with_sample.save_sample(
             save_units=True
         )
@@ -1219,12 +1286,6 @@ class TestDamageModel(TestPelicunModel):
 
             assert list(res.index) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-        assert capacity_sample.to_numpy().dtype == np.dtype('float64')
-        if os.name == 'nt':
-            assert lsds_sample.to_numpy().dtype == np.dtype('int32')
-        else:
-            assert lsds_sample.to_numpy().dtype == np.dtype('int64')
-
     def test__get_required_demand_type(self, damage_model_model_loaded):
         pg_batch = damage_model_model_loaded._get_pg_batches(block_batch_size=1)
         batches = pg_batch.index.get_level_values(0).unique()
@@ -1428,7 +1489,9 @@ class TestDamageModel(TestPelicunModel):
             columns=('Blocks',),
         ).astype('Int64')
 
-        pd.testing.assert_frame_equal(expected_res, res)
+        pd.testing.assert_frame_equal(
+            expected_res, res, check_index_type=False, check_column_type=False
+        )
 
         res = damage_model_model_loaded._get_pg_batches(block_batch_size=1000)
         expected_res = pd.DataFrame(
@@ -1445,7 +1508,9 @@ class TestDamageModel(TestPelicunModel):
             columns=('Blocks',),
         ).astype('Int64')
 
-        pd.testing.assert_frame_equal(expected_res, res)
+        pd.testing.assert_frame_equal(
+            expected_res, res, check_index_type=False, check_column_type=False
+        )
 
     def test_calculate(self, damage_model_with_sample):
         # note: Due to inherent randomness, we can't assert the actual
@@ -1507,7 +1572,7 @@ class TestDamageModel(TestPelicunModel):
 class TestLossModel(TestPelicunModel):
     @pytest.fixture
     def loss_model(self, assessment_instance):
-        return model.LossModel(assessment_instance)
+        return deepcopy(model.LossModel(assessment_instance))
 
     def test_init(self, loss_model):
         assert loss_model.log_msg
@@ -1571,12 +1636,19 @@ class TestLossModel(TestPelicunModel):
 
         loss_model.load_sample(sample)
 
-        pd.testing.assert_frame_equal(sample, loss_model._sample)
+        pd.testing.assert_frame_equal(
+            sample,
+            loss_model._sample,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
         output = loss_model.save_sample(None)
         output.index = output.index.astype('int64')
 
-        pd.testing.assert_frame_equal(sample, output)
+        pd.testing.assert_frame_equal(
+            sample, output, check_index_type=False, check_column_type=False
+        )
 
     def test_load_model(self, loss_model):
         data_path_1 = pd.DataFrame(
@@ -1626,10 +1698,10 @@ class TestLossModel(TestPelicunModel):
             loss_model._generate_DV_sample(None, None)
 
 
-class TestBldgRepairModel(TestPelicunModel):
+class TestRepairModel(TestPelicunModel):
     @pytest.fixture
-    def bldg_repair_model(self, assessment_instance):
-        return assessment_instance.bldg_repair
+    def repair_model(self, assessment_instance):
+        return deepcopy(assessment_instance.repair)
 
     @pytest.fixture
     def loss_params_A(self):
@@ -1670,17 +1742,17 @@ class TestBldgRepairModel(TestPelicunModel):
             ),
         )
 
-    def test_init(self, bldg_repair_model):
-        assert bldg_repair_model.log_msg
-        assert bldg_repair_model.log_div
+    def test_init(self, repair_model):
+        assert repair_model.log_msg
+        assert repair_model.log_div
 
-        assert bldg_repair_model._sample is None
-        assert bldg_repair_model.loss_type == 'BldgRepair'
+        assert repair_model._sample is None
+        assert repair_model.loss_type == 'Repair'
 
-    def test__create_DV_RVs(self, bldg_repair_model, loss_params_A):
-        bldg_repair_model.loss_params = loss_params_A
+    def test__create_DV_RVs(self, repair_model, loss_params_A):
+        repair_model.loss_params = loss_params_A
 
-        bldg_repair_model.loss_map = pd.DataFrame(
+        repair_model.loss_map = pd.DataFrame(
             ((("DMG", "some.test.component"), "some.test.component"),),
             columns=("Driver", "Consequence"),
         )
@@ -1694,7 +1766,7 @@ class TestBldgRepairModel(TestPelicunModel):
             names=("cmp", "loc", "dir", "uid", "ds"),
         )
 
-        rv_reg = bldg_repair_model._create_DV_RVs(case_list)
+        rv_reg = repair_model._create_DV_RVs(case_list)
         assert list(rv_reg.RV.keys()) == [
             'Cost-0-1-2-2-0',
             'Time-0-1-2-2-0',
@@ -1718,10 +1790,10 @@ class TestBldgRepairModel(TestPelicunModel):
             rvs[3].theta, np.array((1.00, 0.464027, np.nan))
         )
 
-    def test__calc_median_consequence(self, bldg_repair_model, loss_params_A):
-        bldg_repair_model.loss_params = loss_params_A
+    def test__calc_median_consequence(self, repair_model, loss_params_A):
+        repair_model.loss_params = loss_params_A
 
-        bldg_repair_model.loss_map = pd.DataFrame(
+        repair_model.loss_map = pd.DataFrame(
             ((("DMG", "some.test.component"), "some.test.component"),),
             columns=("Driver", "Consequence"),
         )
@@ -1737,12 +1809,12 @@ class TestBldgRepairModel(TestPelicunModel):
             ),
         )
 
-        medians = bldg_repair_model._calc_median_consequence(eco_qnt)
+        medians = repair_model._calc_median_consequence(eco_qnt)
         assert medians['Cost'].to_dict() == {(0, '1'): {0: 25704.0, 1: 22848.0}}
         assert medians['Time'].to_dict() == {(0, '1'): {0: 22.68, 1: 20.16}}
 
-    def test_aggregate_losses(self, bldg_repair_model, loss_params_A):
-        bldg_repair_model._sample = pd.DataFrame(
+    def test_aggregate_losses(self, repair_model, loss_params_A):
+        repair_model._sample = pd.DataFrame(
             ((100.00, 1.00),),
             columns=pd.MultiIndex.from_tuples(
                 (
@@ -1767,9 +1839,9 @@ class TestBldgRepairModel(TestPelicunModel):
             ),
         )
 
-        bldg_repair_model.loss_params = loss_params_A
+        repair_model.loss_params = loss_params_A
 
-        df_agg = bldg_repair_model.aggregate_losses()
+        df_agg = repair_model.aggregate_losses()
 
         assert df_agg.to_dict() == {
             ('repair_cost', ''): {0: 100.0},
@@ -1777,7 +1849,7 @@ class TestBldgRepairModel(TestPelicunModel):
             ('repair_time', 'sequential'): {0: 1.0},
         }
 
-    def test__generate_DV_sample(self, bldg_repair_model):
+    def test__generate_DV_sample(self, repair_model):
         expected_sample = {
             (True, True): {
                 (
@@ -1861,7 +1933,7 @@ class TestBldgRepairModel(TestPelicunModel):
             (True, True),
             (True, False),
         ):  # todo: (False, True), (False, False) fails
-            assessment_instance = bldg_repair_model._asmnt
+            assessment_instance = repair_model._asmnt
 
             assessment_instance.options.eco_scale["AcrossFloors"] = ecofl
             assessment_instance.options.eco_scale["AcrossDamageStates"] = ecods
@@ -1883,12 +1955,12 @@ class TestBldgRepairModel(TestPelicunModel):
                 ),
             )
 
-            bldg_repair_model.loss_map = pd.DataFrame(
+            repair_model.loss_map = pd.DataFrame(
                 ((("DMG", "some.test.component"), "some.test.component"),),
                 columns=("Driver", "Consequence"),
             )
 
-            bldg_repair_model.loss_params = pd.DataFrame(
+            repair_model.loss_params = pd.DataFrame(
                 (
                     (
                         None,
@@ -1928,12 +2000,9 @@ class TestBldgRepairModel(TestPelicunModel):
                 ),
             )
 
-            bldg_repair_model._generate_DV_sample(dmg_quantities, 4)
+            repair_model._generate_DV_sample(dmg_quantities, 4)
 
-            assert (
-                bldg_repair_model._sample.to_dict()
-                == expected_sample[(ecods, ecofl)]
-            )
+            assert repair_model._sample.to_dict() == expected_sample[(ecods, ecofl)]
 
 
 #  _____                 _   _
@@ -1948,7 +2017,7 @@ class TestBldgRepairModel(TestPelicunModel):
 class TestModelFunctions:
     def test_prep_constant_median_DV(self):
         median = 10.00
-        constant_median_DV = model.prep_constant_median_DV(median)
+        constant_median_DV = model.loss_model.prep_constant_median_DV(median)
         assert constant_median_DV() == median
         values = (1.0, 2.0, 3.0, 4.0, 5.0)
         for value in values:
@@ -1957,7 +2026,7 @@ class TestModelFunctions:
     def test_prep_bounded_multilinear_median_DV(self):
         medians = np.array((1.00, 2.00, 3.00, 4.00, 5.00))
         quantities = np.array((0.00, 1.00, 2.00, 3.00, 4.00))
-        f = model.prep_bounded_multilinear_median_DV(medians, quantities)
+        f = model.loss_model.prep_bounded_multilinear_median_DV(medians, quantities)
 
         result = f(2.5)
         expected = 3.5

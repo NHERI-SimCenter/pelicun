@@ -50,29 +50,33 @@ This module has classes and methods that auto-populate DL models.
 
 import sys
 import importlib
-import json
 from pathlib import Path
 
 from . import base
 
-def auto_populate(config, auto_script_path, **kwargs):
+
+def auto_populate(
+    config, auto_script_path, **kwargs  # pylint: disable=unused-argument
+):
     """
-    Automatically prepares the DL configuration for a Pelicun calculation.
+    Automatically populates the DL configuration for a Pelicun
+    calculation.
 
     Parameters
     ----------
     config: dict
-        Configuration dictionary with a GeneralInformation key that holds
-        another dictionary with attributes of the asset of interest.
+        Configuration dictionary with a GeneralInformation key that
+        holds another dictionary with attributes of the asset of
+        interest.
     auto_script_path: string
-        Path pointing to a python script with the auto-population rules. 
-        Built-in scripts can be referenced using the PelicunDefault/XY format
-        where XY is the name of the script.
+        Path pointing to a python script with the auto-population
+        rules.  Built-in scripts can be referenced using the
+        PelicunDefault/XY format where XY is the name of the script.
     """
 
     # try to get the AIM attributes
     AIM = config.get('GeneralInformation', None)
-    if AIM == None:
+    if AIM is None:
         raise ValueError(
             "No Asset Information provided for the auto-population routine."
         )
@@ -80,11 +84,12 @@ def auto_populate(config, auto_script_path, **kwargs):
     # replace default keyword with actual path in auto_script location
     if 'PelicunDefault/' in auto_script_path:
         auto_script_path = auto_script_path.replace(
-            'PelicunDefault/', f'{base.pelicun_path}/resources/auto/')
+            'PelicunDefault/', f'{base.pelicun_path}/resources/auto/'
+        )
 
     # load the auto population module
     ASP = Path(auto_script_path).resolve()
-    sys.path.insert(0, str(ASP.parent)+'/')
+    sys.path.insert(0, str(ASP.parent) + '/')
     auto_script = importlib.__import__(ASP.name[:-3], globals(), locals(), [], 0)
     auto_populate_ext = auto_script.auto_populate
 
@@ -97,4 +102,3 @@ def auto_populate(config, auto_script_path, **kwargs):
 
     # return the extended config data and the component quantities
     return config, CMP
-

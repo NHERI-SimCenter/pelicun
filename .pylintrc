@@ -6,7 +6,7 @@ init-hook='import sys; sys.path.append("."); sys.path.append("../"); sys.path.ap
 
 # Files or directories to be skipped. They should be base names, not
 # paths.
-ignore=auto.py,db.py,flycheck_*.py
+ignore=flycheck_*
 
 # Add files or directories matching the regex patterns to the ignore-list. The
 # regex matches against paths and can be in Posix or Windows format.
@@ -143,7 +143,7 @@ logging-format-style=old
 [MISCELLANEOUS]
 
 # List of note tags to take in consideration, separated by a comma.
-notes=FIXME,XXX,TODO
+notes=FIXME,XXX,TODO,todo,debug
 
 # Regular expression of note tags to take in consideration.
 #notes-rgx=
@@ -152,7 +152,7 @@ notes=FIXME,XXX,TODO
 [SIMILARITIES]
 
 # Minimum lines number of a similarity.
-min-similarity-lines=6
+min-similarity-lines=8
 
 # Ignore comments when computing similarities.
 ignore-comments=yes
@@ -334,6 +334,16 @@ docstring-min-length=-1
 
 # List of decorators that define properties, such as abc.abstractproperty.
 property-classes=abc.abstractproperty
+
+#
+# Docstring parameter documentation:
+# https://pylint.pycqa.org/en/1.7/technical_reference/extensions.html
+#
+
+accept-no-raise-doc = no
+accept-no-param-doc = no
+accept-no-return-doc = no
+accept-no-yields-doc = no
 
 
 [TYPECHECK]
