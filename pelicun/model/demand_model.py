@@ -317,7 +317,12 @@ class DemandModel(PelicunModel):
         """
 
         if self.calibrated:
-            raise ValueError('DemandModel has been previously calibrated.')
+            self.log_msg(
+                'WARNING: DemandModel has been previously calibrated.',
+                prepend_timestamp=False,
+            )
+
+            raise ValueError()
 
         def parse_settings(settings, demand_type):
             def parse_str_to_float(in_str, context_string):
