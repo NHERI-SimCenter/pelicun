@@ -1245,6 +1245,11 @@ class CommonRandomVariable(BaseRandomVariable):
             identical.
 
         """
+        super().__init__(
+            name,
+            f_map,
+            anchor,
+        )
 
     @abstractmethod
     def inverse_transform(self, values):
@@ -1309,6 +1314,11 @@ class SampleSizeRandomVariable(BaseRandomVariable):
             identical.
 
         """
+        super().__init__(
+            name,
+            f_map,
+            anchor,
+        )
 
     @abstractmethod
     def inverse_transform(self, sample_size):
