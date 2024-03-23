@@ -335,6 +335,16 @@ docstring-min-length=-1
 # List of decorators that define properties, such as abc.abstractproperty.
 property-classes=abc.abstractproperty
 
+#
+# Docstring parameter documentation:
+# https://pylint.pycqa.org/en/1.7/technical_reference/extensions.html
+#
+
+accept-no-raise-doc = no
+accept-no-param-doc = no
+accept-no-return-doc = no
+accept-no-yields-doc = no
+
 
 [TYPECHECK]
 

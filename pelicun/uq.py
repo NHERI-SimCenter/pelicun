@@ -89,6 +89,17 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
         Defines the [a,b] truncation limits for the distribution. Use None to
         assign no limit in one direction.
 
+    Returns
+    -------
+    tuple
+        A tuple containing the scaled parameters and truncation
+        limits:
+        - theta_new (float ndarray of length 2): Scaled parameters of
+          the distribution.
+        - truncation_limits (float ndarray of length 2 or None):
+          Scaled truncation limits for the distribution, or None if no
+          truncation is applied.
+
     Raises
     ------
     ValueError
@@ -155,12 +166,14 @@ def mvn_orthotope_density(mu, COV, lower=np.nan, upper=np.nan):
         multivariate cases. If the distribution is non-truncated from above
         in a subset of the dimensions, use either `None` or assign an infinite
         value (i.e. numpy.inf) to those dimensions.
+
     Returns
     -------
-    alpha: float
-        Estimate of the probability density within the hyperrectangle
-    eps_alpha: float
-        Estimate of the error in alpha.
+    tuple
+        alpha: float
+            Estimate of the probability density within the hyperrectangle.
+        eps_alpha: float
+            Estimate of the error in the calculated probability density.
 
     """
 
@@ -232,15 +245,15 @@ def _get_theta(params, inits, dist_list):
     dist_list: list of str
       List of strings containing the names of the distributions.
 
+    Returns
+    -------
+    Theta
+      The estimated parameters.
+
     Raises
     ------
     ValueError
       If any of the distributions is unsupported.
-
-    Returns
-    -------
-    Theta:
-      The estimated parameters.
 
     """
 
@@ -277,14 +290,15 @@ def _get_limit_probs(limits, distribution, theta):
     theta: float ndarray
       The parameters of the specified distribution.
 
+    Returns
+    -------
+    tuple
+      The CDF values.
+
     Raises
     ------
     ValueError
       If any of the distributions is unsupported.
-
-    Returns
-    -------
-    The CDF values.
 
     """
 
@@ -315,26 +329,28 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
 
     Parameters
     ----------
-    samples: float ndarray, DxN
+    samples: float ndarray DxN
       2D array of samples. Each row represents a sample.
-    theta: float ndarray, Dx2
+    theta: float ndarray Dx2
       2D array of theta values that represent each dimension of the
       samples
-    tr_limits: float ndarray, Dx2
+    tr_limits: float ndarray Dx2
       2D array with rows that represent [a, b] pairs of truncation
       limits
     dist_list: str ndarray of length D
       1D array containing the names of the distributions
 
+    Returns
+    -------
+    ndarray
+      float DxN ndarray of the samples transformed to standard normal
+      space, with each row representing a transformed sample in
+      standard normal space.
+
     Raises
     ------
     ValueError
       If any of the distributions is unsupported.
-
-    Returns
-    -------
-    std_samples: float ndarray, DxN
-      The samples transformed to standard normal space.
 
     """
 
@@ -388,15 +404,16 @@ def _get_std_corr_matrix(std_samples):
       Array containing the standard normal samples. Each column is a
       sample. It should not contain Inf or NaN values.
 
+    Returns
+    -------
+    ndarray
+      Correlation matrix. float ndarray, DxD
+
     Raises
     ------
     ValueError
       If any of the elements of std_samples is np.inf or np.nan
 
-    Returns
-    -------
-    rho_hat: float ndarray, DxD
-      Correlation matrix.
     """
 
     if True in np.isinf(std_samples) or True in np.isnan(std_samples):
@@ -452,9 +469,21 @@ def _get_std_corr_matrix(std_samples):
 
 def _mvn_scale(x, rho):
     """
-    Utility function used in _neg_log_likelihood
-    """
+    Scaling utility function
 
+    Parameters
+    ----------
+    x: ndarray
+      Input array
+    rho: ndarray
+      Covariance matrix
+
+    Returns
+    -------
+    ndarray
+      Scaled values
+
+    """
     x = np.atleast_2d(x)
     n_dims = x.shape[1]
 
@@ -699,20 +728,22 @@ def fit_distribution_to_sample(
 
     Returns
     -------
-    theta: float ndarray
-        Estimates of the parameters of the fitted probability distribution in
-        each dimension. The following parameters are returned for the supported
-        distributions:
-        normal - mean, coefficient of variation;
-        lognormal - median, log standard deviation;
-    Rho: float 2D ndarray, optional
-        In the multivariate case, returns the estimate of the correlation
-        matrix.
+    tuple
+        theta: float ndarray
+            Estimates of the parameters of the fitted probability
+            distribution in each dimension. The following parameters
+            are returned for the supported distributions: normal -
+            mean, coefficient of variation; lognormal - median, log
+            standard deviation;
+        Rho: float 2D ndarray, optional
+            In the multivariate case, returns the estimate of the
+            correlation matrix.
 
     Raises
     ------
     ValueError
         If NaN values are produced during standard normal space transformation
+
     """
 
     samples = np.atleast_2d(raw_samples)
@@ -956,6 +987,7 @@ def _OLS_percentiles(params, values, perc, family):
     ------
     ValueError
         If `family` is not 'normal' or 'lognormal'.
+
     """
 
     if family == 'normal':
@@ -1002,10 +1034,13 @@ def fit_distribution_to_percentiles(values, percentiles, families):
 
     Returns
     -------
-    family: string
-        The optimal choice of family among the provided list of families
-    theta: array of float
-        Parameters of the fitted distribution.
+    tuple
+        family: string
+            The optimal choice of family among the provided list of
+            families
+        theta: array of float
+            Parameters of the fitted distribution.
+
     """
 
     out_list = []
@@ -1054,32 +1089,6 @@ class BaseRandomVariable(ABC):
     """
     Base abstract class for different types of random variables.
 
-    Parameters
-    ----------
-    name: string
-        A unique string that identifies the random variable.
-    theta: float scalar or ndarray, optional
-        Set of parameters that define the Cumulative Distribution
-        Function (CDF) of the variable given its distribution
-        type. The following parameters are expected currently for the
-        supported distribution types:
-        normal - mean, standard deviation;
-        lognormal - median, log standard deviation;
-        uniform - a, b, the lower and upper bounds of the distribution;
-        multinomial - ;
-        custom - according to the custom expression provided;
-        empirical and coupled_empirical - N/A;
-        deterministic - the deterministic value assigned to the variable.
-        multilinear_CDF -
-    f_map: function, optional
-        A user-defined function that is applied on the realizations before
-        returning a sample.
-    anchor: RandomVariable, optional
-        Anchors this to another variable. If the anchor is not None, this
-        variable will be perfectly correlated with its anchor. Note that
-        the attributes of this variable and its anchor do not have to be
-        identical.
-
     """
 
     def __init__(
@@ -1093,7 +1102,16 @@ class BaseRandomVariable(ABC):
 
         Parameters
         ----------
-        see the attributes of the RandomVariable class
+        name: string
+            A unique string that identifies the random variable.
+        f_map: function, optional
+            A user-defined function that is applied on the realizations before
+            returning a sample.
+        anchor: RandomVariable, optional
+            Anchors this to another variable. If the anchor is not None, this
+            variable will be perfectly correlated with its anchor. Note that
+            the attributes of this variable and its anchor do not have to be
+            identical.
 
         Raises
         ------
@@ -1105,9 +1123,6 @@ class BaseRandomVariable(ABC):
 
         self.name = name
         self.distribution = None
-        # self.theta = np.atleast_1d(theta)
-        # self.truncation_limits = truncation_limits
-        # self._raw_samples = np.atleast_1d(raw_samples)
         self.f_map = f_map
         self._uni_samples = None
         self.RV_set = None
@@ -1122,6 +1137,12 @@ class BaseRandomVariable(ABC):
     def sample(self):
         """
         Return the empirical or generated sample.
+
+        Returns
+        -------
+        ndarray
+          The empirical or generated sample.
+
         """
         if self.f_map is not None:
             return self.f_map(self._sample)
@@ -1130,7 +1151,13 @@ class BaseRandomVariable(ABC):
     @sample.setter
     def sample(self, value):
         """
-        Assign a sample to the random variable
+        Assign a sample to the random variable.
+
+        Parameters
+        ----------
+        value: ndarray
+          Sample to assign
+
         """
         self._sample = value
         self._sample_DF = pd.Series(value)
@@ -1139,6 +1166,12 @@ class BaseRandomVariable(ABC):
     def sample_DF(self):
         """
         Return the empirical or generated sample in a pandas Series.
+
+        Returns
+        -------
+        ndarray
+          The empirical or generated sample in a pandas Series.
+
         """
         if self.f_map is not None:
             return self._sample_DF.apply(self.f_map)
@@ -1149,6 +1182,12 @@ class BaseRandomVariable(ABC):
     def uni_sample(self):
         """
         Return the sample from the controlling uniform distribution.
+
+        Returns
+        -------
+        ndarray
+          The sample from the controlling uniform distribution.
+
         """
         return self.anchor._uni_samples
 
@@ -1161,6 +1200,7 @@ class BaseRandomVariable(ABC):
         ----------
         value: float ndarray
             An array of floating point values in the [0, 1] domain.
+
         """
         self._uni_samples = value
 
@@ -1169,6 +1209,42 @@ class CommonRandomVariable(BaseRandomVariable):
     """
     Random variable that needs `values` in `inverse_transform`
     """
+
+    # pylint: disable=super-init-not-called
+    @abstractmethod
+    def __init__(
+        self,
+        name,
+        theta,
+        truncation_limits=np.array((np.nan, np.nan)),
+        f_map=None,
+        anchor=None,
+    ):
+        """
+        Instantiates a normal random variable.
+
+        Parameters
+        ----------
+        name: string
+            A unique string that identifies the random variable.
+        theta: 2-element float ndarray
+          Set of parameters that define the Cumulative Distribution
+          Function (CDF) of the variable: Mean, coefficient of
+          variation.
+        truncation_limits: float ndarray, optional
+          Defines the np.array((a, b)) truncation limits for the
+          distribution. Use np.nan to assign no limit in one direction,
+          like so: np.array((a, np.nan)), or np.array((np.nan, b)).
+        f_map: function, optional
+            A user-defined function that is applied on the realizations before
+            returning a sample.
+        anchor: RandomVariable, optional
+            Anchors this to another variable. If the anchor is not None, this
+            variable will be perfectly correlated with its anchor. Note that
+            the attributes of this variable and its anchor do not have to be
+            identical.
+
+        """
 
     @abstractmethod
     def inverse_transform(self, values):
@@ -1182,6 +1258,11 @@ class CommonRandomVariable(BaseRandomVariable):
         """
         Creates a sample using inverse probability integral
         transformation.
+
+        Raises
+        ------
+        ValueError
+          If there is no available uniform sample.
         """
         if self.uni_sample is None:
             raise ValueError('No available uniform sample.')
@@ -1192,6 +1273,42 @@ class SampleSizeRandomVariable(BaseRandomVariable):
     """
     Random variable that needs `sample_size` in `inverse_transform`
     """
+
+    # pylint: disable=super-init-not-called
+    @abstractmethod
+    def __init__(
+        self,
+        name,
+        theta,
+        truncation_limits=np.array((np.nan, np.nan)),
+        f_map=None,
+        anchor=None,
+    ):
+        """
+        Instantiates a normal random variable.
+
+        Parameters
+        ----------
+        name: string
+            A unique string that identifies the random variable.
+        theta: 2-element float ndarray
+          Set of parameters that define the Cumulative Distribution
+          Function (CDF) of the variable: Mean, coefficient of
+          variation.
+        truncation_limits: float ndarray, optional
+          Defines the np.array((a, b)) truncation limits for the
+          distribution. Use np.nan to assign no limit in one direction,
+          like so: np.array((a, np.nan)), or np.array((np.nan, b)).
+        f_map: function, optional
+            A user-defined function that is applied on the realizations before
+            returning a sample.
+        anchor: RandomVariable, optional
+            Anchors this to another variable. If the anchor is not None, this
+            variable will be perfectly correlated with its anchor. Note that
+            the attributes of this variable and its anchor do not have to be
+            identical.
+
+        """
 
     @abstractmethod
     def inverse_transform(self, sample_size):
@@ -1223,21 +1340,6 @@ class NormalRandomVariable(CommonRandomVariable):
         f_map=None,
         anchor=None,
     ):
-        """
-        Instantiates a normal random variable.
-
-        Parameters
-        ----------
-        theta: 2-element float ndarray
-          Set of parameters that define the Cumulative Distribution
-          Function (CDF) of the variable: Mean, coefficient of
-          variation.
-        truncation_limits: float ndarray, optional
-          Defines the np.array((a, b)) truncation limits for the
-          distribution. Use np.nan to assign no limit in one direction,
-          like so: np.array((a, np.nan)), or np.array((np.nan, b)).
-
-        """
         super().__init__(
             name,
             f_map,
@@ -1259,9 +1361,8 @@ class NormalRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-
-        1D float ndarray
-          CDF values
+        ndarray
+          1D float ndarray containing CDF values
 
         """
         mu, cov = self.theta[:2]
@@ -1304,7 +1405,7 @@ class NormalRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-        1D float ndarray
+        ndarray
           Inverse CDF values
 
         Raises
@@ -1359,20 +1460,6 @@ class LogNormalRandomVariable(CommonRandomVariable):
         f_map=None,
         anchor=None,
     ):
-        """
-        Instantiates a lognormal random variable.
-
-        Parameters
-        ----------
-        theta: 2-element float ndarray
-          Set of parameters that define the Cumulative Distribution
-          Function (CDF) of the variable: Median, dispersion.
-        truncation_limits: float ndarray, optional
-          Defines the np.array((a, b)) truncation limits for the
-          distribution. Use np.nan to assign no limit in one direction,
-          like so: np.array((a, np.nan)), or np.array((np.nan, b)).
-
-        """
         super().__init__(
             name,
             f_map,
@@ -1394,8 +1481,7 @@ class LogNormalRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-
-        1D float ndarray
+        ndarray
           CDF values
 
         """
@@ -1442,7 +1528,7 @@ class LogNormalRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-        1D float ndarray
+        ndarray
           Inverse CDF values
 
         """
@@ -1488,20 +1574,6 @@ class UniformRandomVariable(CommonRandomVariable):
         f_map=None,
         anchor=None,
     ):
-        """
-        Instantiates a uniform random variable.
-
-        Parameters
-        ----------
-        theta: 2-element float ndarray
-          Set of parameters that define the Cumulative Distribution
-          Function (CDF) of the variable: min, max.
-        truncation_limits: float ndarray, optional
-          Defines the np.array((a, b)) truncation limits for the
-          distribution. Use np.nan to assign no limit in one direction,
-          like so: np.array((a, np.nan)), or np.array((np.nan, b)).
-
-        """
         super().__init__(
             name,
             f_map,
@@ -1523,8 +1595,7 @@ class UniformRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-
-        1D float ndarray
+        ndarray
           CDF values
 
         """
@@ -1555,7 +1626,7 @@ class UniformRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-        1D float ndarray
+        ndarray
           Inverse CDF values
 
         """
@@ -1590,22 +1661,6 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
         f_map=None,
         anchor=None,
     ):
-        """
-        Instantiates a "multilinear CDF" random variable.
-
-        Parameters
-        ----------
-        theta: 2D float ndarray
-          A Nx2 numpy array defining the vertices of a multilinear CDF
-          curve in the form ((X_0, 0.00), (X_1, Y_1), ..., (X_n,
-          1.00)). The first Y value has to be 0.00 and the last 1.00
-          for a valid CDF, and the X_i's as well as the Y_i's should
-          be in increasing order, otherwise an error is raised.
-        truncation_limits: 2D float ndarray
-          Not supported for multilinear CDF.
-          Should be np.array((np.nan, np.nan))
-
-        """
         super().__init__(
             name,
             f_map,
@@ -1668,8 +1723,7 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-
-        1D float ndarray
+        ndarray
           CDF values
 
         """
@@ -1694,14 +1748,8 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-        1D float ndarray
+        ndarray
           Inverse CDF values
-
-        Raises
-        ------
-        ValueError
-          If the probability massss within the truncation limits is
-          too small
 
         """
 
@@ -1734,19 +1782,6 @@ class EmpiricalRandomVariable(CommonRandomVariable):
         f_map=None,
         anchor=None,
     ):
-        """
-        Instantiates an empirical random variable.
-
-        Parameters
-        ----------
-        raw_samples: 1D float ndarray
-          Samples from which to draw empirical realizations.
-        truncation_limits: 2D float ndarray
-          Not supported for Empirical RVs.
-          Should be np.array((np.nan, np.nan))
-
-        """
-
         super().__init__(
             name,
             f_map,
@@ -1776,7 +1811,7 @@ class EmpiricalRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-        1D float ndarray
+        ndarray
           The empirical data points corresponding to the given
           normalized positions.
 
@@ -1805,11 +1840,26 @@ class CoupledEmpiricalRandomVariable(SampleSizeRandomVariable):
 
         Parameters
         ----------
+        name: string
+            A unique string that identifies the random variable.
         raw_samples: 1D float ndarray
           Samples from which to draw empirical realizations.
         truncation_limits: 2D float ndarray
           Not supported for CoupledEmpirical RVs.
           Should be np.array((np.nan, np.nan))
+        f_map: function, optional
+            A user-defined function that is applied on the realizations before
+            returning a sample.
+        anchor: RandomVariable, optional
+            Anchors this to another variable. If the anchor is not None, this
+            variable will be perfectly correlated with its anchor. Note that
+            the attributes of this variable and its anchor do not have to be
+            identical.
+
+        Raises
+        ------
+        NotImplementedError
+          When truncation limits are provided
 
         """
         super().__init__(
@@ -1841,7 +1891,7 @@ class CoupledEmpiricalRandomVariable(SampleSizeRandomVariable):
 
         Returns
         -------
-        1D float ndarray
+        ndarray
           A new sample array derived from repeating the original
           dataset.
 
@@ -1876,11 +1926,26 @@ class DeterministicRandomVariable(SampleSizeRandomVariable):
 
         Parameters
         ----------
+        name: string
+            A unique string that identifies the random variable.
         theta: 1-element float ndarray
           The value.
         truncation_limits: 2D float ndarray
           Not supported for Deterministic RVs.
           Should be np.array((np.nan, np.nan))
+        f_map: function, optional
+            A user-defined function that is applied on the realizations before
+            returning a sample.
+        anchor: RandomVariable, optional
+            Anchors this to another variable. If the anchor is not None, this
+            variable will be perfectly correlated with its anchor. Note that
+            the attributes of this variable and its anchor do not have to be
+            identical.
+
+        Raises
+        ------
+        NotImplementedError
+          When truncation limits are provided
 
         """
         super().__init__(
@@ -1907,7 +1972,7 @@ class DeterministicRandomVariable(SampleSizeRandomVariable):
 
         Returns
         -------
-        1D float ndarray
+        ndarray
           Sample array containing the deterministic value.
 
         """
@@ -1930,20 +1995,6 @@ class MultinomialRandomVariable(CommonRandomVariable):
         f_map=None,
         anchor=None,
     ):
-        """
-        Instantiates a multinomial random variable.
-
-        Parameters
-        ----------
-        theta: 2-element float ndarray
-          Likelihood of each unique event (the last event's likelihood
-          is adjusted automatically to ensure the likelihoods sum up
-          to one)
-        truncation_limits: 2D float ndarray
-          Not supported for Multinomial RVs.
-          Should be np.array((np.nan, np.nan))
-
-        """
         super().__init__(
             name,
             f_map,
@@ -1979,7 +2030,7 @@ class MultinomialRandomVariable(CommonRandomVariable):
 
         Returns
         -------
-        1D int ndarray
+        ndarray
           Discrete events corresponding to the input values.
 
         """
@@ -2038,27 +2089,51 @@ class RandomVariableSet:
     @property
     def RV(self):
         """
-        Return the random variable(s) assigned to the set
+        Returns the random variable(s) assigned to the set.
+
+        Returns
+        -------
+        ndarray
+          The random variable(s) assigned to the set.
+
         """
         return self._variables
 
     @property
     def size(self):
         """
-        Return the size (i.e., number of variables in the) RV set
+        Returns the size (i.e., number of variables in the) RV set.
+
+        Returns
+        -------
+        ndarray
+          The size (i.e., number of variables in the) RV set.
+
         """
         return len(self._variables)
 
     @property
     def sample(self):
         """
-        Return the sample of the variables in the set
+        Returns the sample of the variables in the set.
+
+        Returns
+        -------
+        ndarray
+          The sample of the variables in the set.
+
         """
         return {name: rv.sample for name, rv in self._variables.items()}
 
     def Rho(self, var_subset=None):
         """
-        Return the (subset of the) correlation matrix.
+        Returns the (subset of the) correlation matrix.
+
+        Returns
+        -------
+        ndarray
+          The (subset of the) correlation matrix.
+
         """
         if var_subset is None:
             return self._Rho
@@ -2134,10 +2209,11 @@ class RandomVariableSet:
 
         Returns
         -------
-        alpha: float
-            Estimate of the probability density within the orthotope.
-        eps_alpha: float
-            Estimate of the error in alpha.
+        tuple
+            alpha: float
+                Estimate of the probability density within the orthotope.
+            eps_alpha: float
+                Estimate of the error in alpha.
 
         """
 
@@ -2206,19 +2282,42 @@ class RandomVariableRegistry:
     @property
     def RV(self):
         """
-        Return all random variable(s) in the registry
+        Returns all random variable(s) in the registry.
+
+        Returns
+        -------
+        dict
+          all random variable(s) in the registry.
+
         """
         return self._variables
 
     def RVs(self, keys):
         """
-        Return a subset of the random variables in the registry
+        Returns a subset of the random variables in the registry
+
+        Parameters
+        ----------
+        keys: list of str
+          Keys that define the subset.
+
+        Returns
+        -------
+        dict
+          A subset random variable(s) in the registry.
+
         """
         return {name: self._variables[name] for name in keys}
 
     def add_RV(self, RV):
         """
         Add a new random variable to the registry.
+
+        Raises
+        ------
+        ValueError
+          When the RV already exists in the registry
+
         """
         if RV.name in self._variables:
             raise ValueError(f'RV {RV.name} already exists in the registry.')
@@ -2228,6 +2327,12 @@ class RandomVariableRegistry:
     def RV_set(self):
         """
         Return the random variable set(s) in the registry.
+
+        Returns
+        -------
+        dict
+          The random variable set(s) in the registry.
+
         """
         return self._sets
 
@@ -2240,7 +2345,13 @@ class RandomVariableRegistry:
     @property
     def RV_sample(self):
         """
-        Return the sample for every random variable in the registry
+        Return the sample for every random variable in the registry.
+
+        Returns
+        -------
+        dict
+          The sample for every random variable in the registry.
+
         """
         return {name: rv.sample for name, rv in self.RV.items()}
 
@@ -2260,6 +2371,12 @@ class RandomVariableRegistry:
             with random sample location within each bin of the hypercube;
             'LHS_midpoint' is like LHS, but the samples are assigned to the
             midpoints of the hypercube bins.
+
+        Raises
+        ------
+        NotImplementedError
+          When the RV parent class is Unknown
+
         """
 
         # Generate a dictionary with IDs of the free (non-anchored and
@@ -2325,11 +2442,12 @@ def rv_class_map(distribution_name):
 
     Returns
     -------
-    RandomVariable ojbect.
+    RandomVariable
+      RandomVariable class.
 
     Raises
     ------
-    ValueError:
+    ValueError
       If the given distribution name does not correspond to a
       distribution class.
 
