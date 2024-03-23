@@ -327,10 +327,12 @@ def auto_populate(AIM):
         else:
             LF = f'LF.{bt}.{dl}'
 
+        # fmt: off
         CMP = pd.DataFrame(
-            {f'{LF}': ['ea', 1, 1, 1, 'N/A']},
-            index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-        ).T
+                {f'{LF}': ['ea',         1,          1,        1,   'N/A']},
+                index = ['Units','Location','Direction','Theta_0','Family']
+            ).T
+        # fmt: on
 
         # if needed, add components to simulate damage from ground failure
         if ground_failure:
@@ -385,13 +387,13 @@ def auto_populate(AIM):
             bt = convertBridgeToHAZUSclass(GI)
             GI_ap['BridgeHazusClass'] = bt
 
+            # fmt: off
             CMP = pd.DataFrame(
-                {
-                    f'HWB.GS.{bt[3:]}': ['ea', 1, 1, 1, 'N/A'],
-                    'HWB.GF': ['ea', 1, 1, 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
+                {f'HWB.GS.{bt[3:]}': [  'ea',         1,          1,        1,   'N/A'],
+                 f'HWB.GF':          [  'ea',         1,          1,        1,   'N/A']},
+                index = [            'Units','Location','Direction','Theta_0','Family']
             ).T
+            # fmt: on
 
             DL_ap = {
                 "Asset": {
@@ -415,13 +417,13 @@ def auto_populate(AIM):
             tt = convertTunnelToHAZUSclass(GI)
             GI_ap['TunnelHazusClass'] = tt
 
+            # fmt: off
             CMP = pd.DataFrame(
-                {
-                    f'HTU.GS.{tt[3:]}': ['ea', 1, 1, 1, 'N/A'],
-                    'HTU.GF': ['ea', 1, 1, 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
+                {f'HTU.GS.{tt[3:]}': [  'ea',         1,          1,        1,   'N/A'],
+                 f'HTU.GF':          [  'ea',         1,          1,        1,   'N/A']},
+                index = [            'Units','Location','Direction','Theta_0','Family']
             ).T
+            # fmt: on
 
             DL_ap = {
                 "Asset": {
@@ -444,10 +446,12 @@ def auto_populate(AIM):
             rt = convertRoadToHAZUSclass(GI)
             GI_ap['RoadHazusClass'] = rt
 
+            # fmt: off
             CMP = pd.DataFrame(
-                {f'HRD.GF.{rt[3:]}': ['ea', 1, 1, 1, 'N/A']},
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
+                {f'HRD.GF.{rt[3:]}':[  'ea',         1,          1,        1,   'N/A']},
+                index = [           'Units','Location','Direction','Theta_0','Family']
             ).T
+            # fmt: on
 
             DL_ap = {
                 "Asset": {

@@ -226,13 +226,10 @@ def auto_populate(AIM):
 
             FG_GF_H = f'GF.H.{foundation_type}'
             FG_GF_V = f'GF.V.{foundation_type}'
-
             CMP_GF = pd.DataFrame(
-                {
-                    f'{FG_GF_H}': ['ea', 1, 1, 1, 'N/A'],
-                    f'{FG_GF_V}': ['ea', 1, 3, 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
+                {f'{FG_GF_H}':[  'ea',         1,          1,        1,   'N/A'],
+                 f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']},
+                index = [     'Units','Location','Direction','Theta_0','Family']
             ).T
 
             CMP = pd.concat([CMP, CMP_GF], axis=0)
