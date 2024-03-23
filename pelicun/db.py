@@ -622,6 +622,7 @@ def create_FEMA_P58_repair_db(
             f"Lower Qty Cutoff, DS{DS_i}",
             f"Upper Qty Cutoff, DS{DS_i}",
             f"CV / Dispersion, DS{DS_i}",
+            # --------------------------
             f"Best Fit, DS{DS_i}.1",
             f"Lower Qty Mean, DS{DS_i}.1",
             f"Upper Qty Mean, DS{DS_i}.1",
@@ -629,6 +630,7 @@ def create_FEMA_P58_repair_db(
             f"Upper Qty Cutoff, DS{DS_i}.1",
             f"CV / Dispersion, DS{DS_i}.2",
             f"DS {DS_i}, Long Lead Time",
+            # --------------------------
             f'Repair Cost, p10, DS{DS_i}',
             f'Repair Cost, p50, DS{DS_i}',
             f'Repair Cost, p90, DS{DS_i}',
@@ -637,11 +639,14 @@ def create_FEMA_P58_repair_db(
             f'Time, p90, DS{DS_i}',
             f'Mean Value, DS{DS_i}',
             f'Mean Value, DS{DS_i}.1',
+            # --------------------------
             # Columns added for the Environmental loss
             f"DS{DS_i} Best Fit",
             f"DS{DS_i} CV or Beta",
+            # --------------------------
             f"DS{DS_i} Best Fit.1",
             f"DS{DS_i} CV or Beta.1",
+            # --------------------------
             f"DS{DS_i} Embodied Carbon (kg CO2eq)",
             f"DS{DS_i} Embodied Energy (MJ)",
         ]
@@ -2779,6 +2784,7 @@ def create_Hazus_EQ_repair_db(
 def create_Hazus_EQ_bldg_injury_db(
     source_file,
     target_data_file='bldg_injury_DB_Hazus_EQ.csv',
+    target_meta_file='bldg_injury_DB_Hazus_EQ.json',
 ):
     """
     Create a database file based on the HAZUS EQ Technical Manual
@@ -2794,12 +2800,22 @@ def create_Hazus_EQ_bldg_injury_db(
     target_data_file: string
         Path where the injury DB file should be saved. A csv file is
         expected.
+    target_meta_file: string
+        Path where the injury DB metadata should be saved. A json file is
+        expected.
 
     """
 
     # parse the source file
     with open(source_file, 'r', encoding='utf-8') as f:
         raw_data = json.load(f)
+
+    # parse the extra metadata file
+    if Path(meta_file).is_file():
+        with open(meta_file, 'r') as f:
+            frag_meta = json.load(f)
+    else:
+        frag_meta = {}
 
     # prepare lists of labels for various building features
     building_types = list(
@@ -2891,6 +2907,9 @@ def create_Hazus_EQ_bldg_injury_db(
     # save the consequence data
     df_db.to_csv(target_data_file)
 
-    print(
-        "Successfully parsed and saved the injury consequence data from Hazus EQ"
-    )
+    # save the metadata - later
+    # with open(target_meta_file, 'w+') as f:
+    #    json.dump(meta_dict, f, indent=2)
+
+    print("Successfully parsed and saved the injury consequence data from Hazus "
+          "EQ")
