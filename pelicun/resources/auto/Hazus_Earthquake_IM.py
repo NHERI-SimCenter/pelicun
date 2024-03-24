@@ -119,7 +119,6 @@ def convertBridgeToHAZUSclass(AIM):
     seismic = (int(state) == 6 and int(yr_built) >= 1975) or (
         int(state) != 6 and int(yr_built) >= 1990
     )
-
     # Use a catch-all, other class by default
     bridge_class = "HWB28"
 
@@ -374,13 +373,13 @@ def auto_populate(AIM):
             FG_GF_H = f'GF.H.{foundation_type}'
             FG_GF_V = f'GF.V.{foundation_type}'
 
-            CMP_GF = pd.DataFrame(
-                {
-                    f'{FG_GF_H}': ['ea', 1, 1, 1, 'N/A'],
-                    f'{FG_GF_V}': ['ea', 1, 3, 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-            ).T
+            # fmt: off
+            CMP_GF = pd.DataFrame(                                                 # noqa
+                {f'{FG_GF_H}':[  'ea',         1,          1,        1,   'N/A'],  # noqa
+                 f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']}, # noqa
+                index = [     'Units','Location','Direction','Theta_0','Family']   # noqa
+            ).T                                                                    # noqa
+            # fmt: on
 
             CMP = pd.concat([CMP, CMP_GF], axis=0)
 
@@ -635,26 +634,14 @@ def auto_populate(AIM):
                 location_string = '1'
 
             # Define performance model
-            CMP = pd.DataFrame(
-                {
-                    f'PWP.{pipe_flexibility}.GS': [
-                        'ea',
-                        location_string,
-                        '0',
-                        1,
-                        'N/A',
-                    ],
-                    f'PWP.{pipe_flexibility}.GF': [
-                        'ea',
-                        location_string,
-                        '0',
-                        1,
-                        'N/A',
-                    ],
-                    'aggregate': ['ea', location_string, '0', 1, 'N/A'],
-                },
-                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
-            ).T
+            # fmt: off
+            CMP = pd.DataFrame(                                                         # noqa
+                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],  # noqa
+                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],  # noqa
+                 f'aggregate':                 ['ea', location_string, '0', 1, 'N/A']}, # noqa
+                index = ['Units','Location','Direction','Theta_0','Family']             # noqa
+            ).T                                                                         # noqa
+            # fmt: on
 
             # Set up the demand cloning configuration for the pipe
             # segments, if required.
@@ -696,8 +683,8 @@ def auto_populate(AIM):
                     "ComponentDatabase": "Hazus Earthquake - Water",
                     "Material Flexibility": pipe_flexibility,
                     "PlanArea": "1",  # Sina: does not make sense for water.
-                                      # Kept it here since itw as also
-                                      # kept here for Transportation
+                    # Kept it here since itw as also
+                    # kept here for Transportation
                 },
                 "Damage": {
                     "DamageProcess": "User Defined",
@@ -705,6 +692,117 @@ def auto_populate(AIM):
                 },
                 "Demands": demand_config,
             }
+
+        elif wdn_element_type == "Tank":
+
+            tank_cmp_lines = {
+                ("OG", "C", 1): {'PST.G.C.A.GS': ['ea', 1, 1, 1, 'N/A']},
+                ("OG", "C", 0): {'PST.G.C.U.GS': ['ea', 1, 1, 1, 'N/A']},
+                ("OG", "S", 1): {'PST.G.S.A.GS': ['ea', 1, 1, 1, 'N/A']},
+                ("OG", "S", 0): {'PST.G.S.U.GS': ['ea', 1, 1, 1, 'N/A']},
+                # Anchored status and Wood is not defined for On Ground tanks
+                ("OG", "W", 0): {'PST.G.W.GS': ['ea', 1, 1, 1, 'N/A']},
+                # Anchored status and Steel is not defined for Above Ground tanks
+                ("AG", "S", 0): {'PST.A.S.GS': ['ea', 1, 1, 1, 'N/A']},
+                # Anchored status and Concrete is not defined for Buried tanks.
+                ("B", "C", 0): {'PST.B.C.GF': ['ea', 1, 1, 1, 'N/A']},
+            }
+
+            # The default values are assumed: material = Concrete (C),
+            # location= On Ground (OG), and Anchored = 1
+            tank_material = GI_ap.get("material", "C")
+            tank_location = GI_ap.get("location", "OG")
+            tank_anchored = GI_ap.get("anchored", int(1))
+
+            tank_material_allowable = {"C", "S"}
+            if tank_material not in tank_material_allowable:
+                raise ValueError(
+                    f"Tank's material = \"{tank_material}\" is \
+                     not allowable in tank {asset_name}. The \
+                     material must be either C for concrete or S \
+                     for steel."
+                )
+
+            tank_location_allowable = {"AG", "OG", "B"}
+            if tank_location not in tank_location_allowable:
+                raise ValueError(
+                    f"Tank's location = \"{tank_location}\" is \
+                     not allowable in tank {asset_name}. The \
+                     location must be either \"AG\" for Above \
+                     ground, \"OG\" for On Ground or \"BG\" for \
+                     Bellow Ground (burried) Tanks."
+                )
+
+            tank_anchored_allowable = {int(0), int(1)}
+            if tank_anchored not in tank_anchored_allowable:
+                raise ValueError(
+                    f"Tank's anchored status = \"{tank_location}\
+                     \" is not allowable in tank {asset_name}. \
+                     The anchored status must be either integer\
+                     value 0 for unachored, or 1 for anchored"
+                )
+
+            if tank_location == "AG" and tank_material == "C":
+                print(
+                    f"The tank {asset_name} is Above Ground (i.e., AG), but \
+                     the material type is Concrete (\"C\"). Tank type \"C\" is not \
+                     defiend for AG tanks. The tank is assumed to be Steel (\"S\")"
+                )
+                tank_material = "S"
+
+            if tank_location == "AG" and tank_material == "W":
+                print(
+                    f"The tank {asset_name} is Above Ground (i.e., AG), but \
+                     the material type is Wood (\"W\"). Tank type \"W\" is not \
+                     defiend for AG tanks. The tank is assumed to be Steel (\"S\")"
+                )
+                tank_material = "S"
+
+            if tank_location == "B" and tank_material == "S":
+                print(
+                    f"The tank {asset_name} is burried (i.e., B), but the\
+                     material type is Steel (\"S\"). \
+                     Tank type \"S\" is not defiend for\
+                     B tanks. The tank is assumed to be Concrete (\"C\")"
+                )
+                tank_material = "C"
+
+            if tank_location == "B" and tank_material == "W":
+                print(
+                    f"The tank {asset_name} is burried (i.e., B), but the\
+                     material type is Wood (\"W\"). Tank type \"W\" is not defiend \
+                     for B tanks. The tank is assumed to be Concrete (\"C\")"
+                )
+                tank_material = "C"
+
+            if tank_anchored == 1:
+                # Since anchore status does nto matter, there is no need to
+                # print a warning
+                tank_anchored = 0
+
+            cur_tank_cmp_line = tank_cmp_lines[
+                (tank_location, tank_material, tank_anchored)
+            ]
+
+            CMP = pd.DataFrame(
+                cur_tank_cmp_line,
+                index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
+            ).T
+
+            DL_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Water",
+                    "Material": tank_material,
+                    "Location": tank_location,
+                    "Anchored": tank_anchored,
+                    "PlanArea": "1",  # Sina: does not make sense for water.
+                    # Kept it here since itw as also kept here for Transportation
+                },
+                "Damage": {"DamageProcess": "Hazus Earthquake"},
+                "Demands": {},
+            }
+
         else:
             print(
                 f"Water Distribution network element type {wdn_element_type} "
