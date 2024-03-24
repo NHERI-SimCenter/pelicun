@@ -1530,10 +1530,10 @@ def run_pelicun(
                     loss_models, columns=['Repair'], index=drivers
                 )
 
-            elif bldg_repair_config['MapApproach'] == "User Defined":
+            elif repair_config['MapApproach'] == "User Defined":
 
-                if bldg_repair_config.get('MapFilePath', False) is not False:
-                    loss_map_path = bldg_repair_config['MapFilePath']
+                if repair_config.get('MapFilePath', False) is not False:
+                    loss_map_path = repair_config['MapFilePath']
 
                     loss_map_path = loss_map_path.replace(
                         'CustomDLDataFolder', custom_dl_file_path)
@@ -1733,7 +1733,7 @@ def run_pelicun(
     if loss_config is not None:
 
         if 'agg_repair' not in locals():
-            agg_repair = PAL.bldg_repair.aggregate_losses()
+            agg_repair = PAL.repair.aggregate_losses()
 
         agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
 
