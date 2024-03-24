@@ -1374,7 +1374,6 @@ class TestDamageModel(TestPelicunModel):
 
     def test__perform_dmg_task(self, assessment_instance):
         damage_model = assessment_instance.damage
-        demand_model = assessment_instance.demand
         asset_model = assessment_instance.asset
 
         sample_size = 3
@@ -1403,7 +1402,6 @@ class TestDamageModel(TestPelicunModel):
             },
         )
         qnt_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
-        before = qnt_sample.copy()
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS1"}}
         dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
