@@ -366,7 +366,8 @@ def run_pelicun(
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
-    custom_dl_file_path = custom_model_dir #f"{config['commonFileDir']}/CustomDLModels/"
+    # f"{config['commonFileDir']}/CustomDLModels/"
+    custom_dl_file_path = custom_model_dir
 
     DL_config = config.get('DL', None)
     if not DL_config:
@@ -857,7 +858,9 @@ def run_pelicun(
         if asset_config.get('ComponentDatabasePath', False) is not False:
             extra_comps = asset_config['ComponentDatabasePath']
 
-            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_dl_file_path)
+            extra_comps = extra_comps.replace(
+                'CustomDLDataFolder', custom_dl_file_path
+            )
 
             component_db += [
                 extra_comps,
@@ -988,11 +991,13 @@ def run_pelicun(
             adf.loc['irreparable', ('LS1', 'Theta_0')] = 1e10
             adf.loc['irreparable', 'Incomplete'] = 0
 
-        # TODO: we can improve this by creating a water network-specific assessment class
+        # TODO: we can improve this by creating a water
+        # network-specific assessment class
         if "Water" in asset_config['ComponentDatabase']:
 
             # add a placeholder aggregate fragility that will never trigger
-            # damage, but allow damage processes to aggregate the various pipeline damages
+            # damage, but allow damage processes to aggregate the
+            # various pipeline damages
             adf.loc['aggregate', ('Demand', 'Directional')] = 1
             adf.loc['aggregate', ('Demand', 'Offset')] = 0
             adf.loc['aggregate', ('Demand', 'Type')] = 'Peak Ground Velocity'
@@ -1302,7 +1307,9 @@ def run_pelicun(
             if repair_config.get('ConsequenceDatabasePath', False) is not False:
                 extra_comps = repair_config['ConsequenceDatabasePath']
 
-                extra_comps = extra_comps.replace('CustomDLDataFolder', custom_dl_file_path)
+                extra_comps = extra_comps.replace(
+                    'CustomDLDataFolder', custom_dl_file_path
+                )
 
                 consequence_db += [
                     extra_comps,
