@@ -1210,7 +1210,6 @@ class CommonRandomVariable(BaseRandomVariable):
     Random variable that needs `values` in `inverse_transform`
     """
 
-    # pylint: disable=super-init-not-called
     @abstractmethod
     def __init__(
         self,
@@ -1279,7 +1278,6 @@ class SampleSizeRandomVariable(BaseRandomVariable):
     Random variable that needs `sample_size` in `inverse_transform`
     """
 
-    # pylint: disable=super-init-not-called
     @abstractmethod
     def __init__(
         self,
