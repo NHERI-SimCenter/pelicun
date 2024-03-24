@@ -706,7 +706,7 @@ class TestAssetModel(TestPelicunModel):
             asset_model.cmp_marginal_params,
             check_index_type=False,
             check_column_type=False,
-            check_dtype=False
+            check_dtype=False,
         )
 
         expected_cmp_units = pd.Series(
@@ -1377,19 +1377,7 @@ class TestDamageModel(TestPelicunModel):
         demand_model = assessment_instance.demand
         asset_model = assessment_instance.asset
 
-        data = [
-            ['rad', 1e-11],
-            ['rad', 1e11],
-        ]
-
-        index = pd.MultiIndex.from_tuples(
-            (('PID', '1', '1'), ('PID', '1', '2')), names=['type', 'loc', 'dir']
-        )
-
-        demand_marginals = pd.DataFrame(data, index, columns=['Units', 'Theta_0'])
-        demand_model.load_model({'marginals': demand_marginals})
-        sample_size = 5
-        demand_model.generate_sample({"SampleSize": sample_size})
+        sample_size = 3
 
         cmp_marginals = pd.read_csv(
             'pelicun/tests/data/model/'
@@ -1406,26 +1394,15 @@ class TestDamageModel(TestPelicunModel):
             ]
         )
 
-        block_batch_size = 5
-        qnt_samples = []
-        pg_batch = damage_model._get_pg_batches(block_batch_size)
-        batches = pg_batch.index.get_level_values(0).unique()
-        for PGB_i in batches:
-            PGB = pg_batch.loc[PGB_i]
-            capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-                sample_size, PGB
-            )
-            EDP_req = damage_model._get_required_demand_type(PGB)
-            demand_dict = damage_model._assemble_required_demand_data(EDP_req)
-            ds_sample = damage_model._evaluate_damage_state(
-                demand_dict, EDP_req, capacity_sample, lsds_sample
-            )
-            qnt_sample = damage_model._prepare_dmg_quantities(
-                PGB, ds_sample, dropzero=False
-            )
-            qnt_samples.append(qnt_sample)
-        qnt_sample = pd.concat(qnt_samples, axis=1)
-        qnt_sample.sort_index(axis=1, inplace=True)
+        qnt_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0', '0'): [1.0, 1.0, 0.0],
+                ('CMP.A', '1', '1', '0', '1'): [0.0, 0.0, 1.0],
+                ('CMP.B', '1', '1', '0', '0'): [0.0, 0.0, 1.0],
+                ('CMP.B', '1', '1', '0', '1'): [1.0, 1.0, 0.0],
+            },
+        )
+        qnt_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
         before = qnt_sample.copy()
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS1"}}
@@ -1434,8 +1411,12 @@ class TestDamageModel(TestPelicunModel):
             damage_model._perform_dmg_task(task, qnt_sample)
         after = qnt_sample
 
-        assert ('CMP.A', '1', '1', '0', '1') not in before.columns
-        assert ('CMP.A', '1', '1', '0', '1') in after.columns
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0', '0'): {0: 0.0, 1: 0.0, 2: 0.0},
+            ('CMP.A', '1', '1', '0', '1'): {0: 1.0, 1: 1.0, 2: 1.0},
+            ('CMP.B', '1', '1', '0', '0'): {0: 0.0, 1: 0.0, 2: 1.0},
+            ('CMP.B', '1', '1', '0', '1'): {0: 1.0, 1: 1.0, 2: 0.0},
+        }
 
     def test__get_pg_batches_1(self, assessment_instance):
         damage_model = assessment_instance.damage
