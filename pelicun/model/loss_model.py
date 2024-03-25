@@ -758,6 +758,9 @@ class RepairModel(LossModel):
 
         DV = self.sample
 
+        if DV is None:
+            return
+
         # group results by DV type and location
         DVG = DV.groupby(level=[0, 4], axis=1).sum()
 
@@ -865,6 +868,15 @@ class RepairModel(LossModel):
 
         # calculate the quantities for economies of scale
         self.log_msg("\nAggregating damage quantities...", prepend_timestamp=False)
+
+        # If everything is undamaged there are no losses
+        if set(dmg_quantities.columns.get_level_values('ds')) == {'0'}:
+            self._sample = None
+            self.log_msg(
+                "There is no damage---DV sample is set to None.",
+                prepend_timestamp=False,
+            )
+            return
 
         if self._asmnt.options.eco_scale["AcrossFloors"]:
             if self._asmnt.options.eco_scale["AcrossDamageStates"]:

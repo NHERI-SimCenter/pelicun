@@ -49,13 +49,12 @@ This file defines the DamageModel object and its methods.
 
 """
 
-from copy import deepcopy
 import numpy as np
 import pandas as pd
-from .pelicun_model import PelicunModel
-from .. import base
-from .. import uq
-from .. import file_io
+from pelicun.model.pelicun_model import PelicunModel
+from pelicun import base
+from pelicun import uq
+from pelicun import file_io
 
 
 idx = base.idx
@@ -894,8 +893,12 @@ class DamageModel(PelicunModel):
 
         # initialize the DataFrames that store the damage states and
         # quantities
-        ds_sample = capacity_sample.groupby(level=[0, 1, 2, 3, 4], axis=1).first()
-        ds_sample.loc[:, :] = np.zeros(ds_sample.shape, dtype=int)
+        ds_sample = pd.DataFrame(
+            0,                  # fill value
+            columns=capacity_sample.columns.droplevel('ls').unique(),
+            index=capacity_sample.index,
+            dtype='int32',
+        )
 
         # get a list of limit state ids among all components in the damage model
         ls_list = dmg_eval.columns.get_level_values(5).unique()
@@ -932,7 +935,7 @@ class DamageModel(PelicunModel):
 
         return ds_sample
 
-    def _prepare_dmg_quantities(self, PGB, ds_sample, dropzero=True):
+    def _prepare_dmg_quantities(self, component_blocks, ds_sample, dropzero=True):
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -943,8 +946,8 @@ class DamageModel(PelicunModel):
 
         Parameters
         ----------
-        PGB: DataFrame
-            A DataFrame that contains the Block identifier for each
+        component_blocks: DataFrame
+            A DataFrame that contains the number of blocks for each
             component.
         ds_sample: DataFrame
             A DataFrame that assigns a damage state to each component
@@ -961,114 +964,88 @@ class DamageModel(PelicunModel):
 
         """
 
-        # Log a message indicating that the calculation of damage
-        # quantities is starting
         if self._asmnt.log.verbose:
             self.log_msg('Calculating damage quantities...', prepend_timestamp=True)
 
-        # Store the damage state sample as a local variable
-        dmg_ds = ds_sample
+        # Retrieve the component quantity information and component
+        # marginal parameters from the asset model
 
-        # Retrieve the component quantity information from the asset
-        # model
-        cmp_qnt = self._asmnt.asset.cmp_sample  # .values
-        # Retrieve the component marginal parameters from the asset
-        # model
-        cmp_params = self._asmnt.asset.cmp_marginal_params
+        # ('cmp', 'loc', 'dir', 'uid') -> component quantity series
+        component_quantities = self._asmnt.asset.cmp_sample.to_dict('series')
+        component_marginal_parameters = self._asmnt.asset.cmp_marginal_params
 
-        # Combine the component quantity information for the columns
-        # in the damage state sample
-        dmg_qnt = pd.concat(
-            [cmp_qnt[PG[:4]] for PG in dmg_ds.columns], axis=1, keys=dmg_ds.columns
+        if (component_marginal_parameters is not None) and (
+            'Blocks' in component_marginal_parameters.columns
+        ):
+            # if this information is available, use it
+
+            # ('cmp', 'loc', 'dir', 'uid) -> number of blocks
+            num_blocks = component_marginal_parameters['Blocks'].to_dict()
+
+            def get_num_blocks(key):
+                return float(num_blocks[key])
+
+        else:
+            # otherwise assume 1 block regardless of
+            # ('cmp', 'loc', 'dir', 'uid) key
+            def get_num_blocks(key):
+                return 1.00
+
+        # ('cmp', 'loc', 'dir', 'uid', 'block') -> damage state series
+        ds_sample_dict = ds_sample.to_dict('series')
+
+        dmg_qnt_series_collection = {}
+        for key, ds_series in ds_sample_dict.items():
+            component, location, direction, uid, block = key
+            ds_set = set(ds_series.values)
+            for ds in ds_set:
+                if ds == -1:
+                    continue
+                if dropzero and ds == 0:
+                    continue
+                else:
+                    dmg_qnt_vals = np.where(
+                        ds_series.values == ds,
+                        component_quantities[
+                            component, location, direction, uid
+                        ].values
+                        / get_num_blocks((component, location, direction, uid)),
+                        0.00,
+                    )
+                    if -1 in ds_set:
+                        dmg_qnt_vals = np.where(
+                            ds_series.values != -1, dmg_qnt_vals, np.nan
+                        )
+                    dmg_qnt_series = pd.Series(dmg_qnt_vals)
+                    dmg_qnt_series_collection[
+                        (component, location, direction, uid, block, str(ds))
+                    ] = dmg_qnt_series
+
+        damage_quantities = pd.concat(
+            dmg_qnt_series_collection.values(),
+            axis=1,
+            keys=dmg_qnt_series_collection.keys(),
         )
+        damage_quantities.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ds']
 
-        # Initialize a list to store the block weights
-        block_weights = []
+        # sum up block quantities
+        damage_quantities = damage_quantities.groupby(
+            ['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
+        ).sum()
 
-        # For each component in the list of PG blocks
-        for PG in PGB.index:
-            # Set the number of blocks to 1, unless specified
-            # otherwise in the component marginal parameters
-            blocks = 1
-            if cmp_params is not None:
-                if 'Blocks' in cmp_params.columns:
-                    blocks = cmp_params.loc[PG, 'Blocks']
+        return damage_quantities
 
-            # Calculate the weights as the reciprocal of the number of
-            # blocks
-            blocks_array = np.full(int(blocks), 1.0 / blocks)
-            block_weights += blocks_array.tolist()
-
-        # Broadcast the block weights to match the shape of the damage
-        # quantity DataFrame
-        block_weights = np.broadcast_to(
-            block_weights, (dmg_qnt.shape[0], len(block_weights))
-        )
-
-        # Multiply the damage quantities by the block weights
-        dmg_qnt *= block_weights
-
-        # Get the unique damage states from the damage state sample
-        # Note that these might be fewer than all possible Damage
-        # States
-        ds_list = np.unique(dmg_ds.values)
-        # Filter out any NaN values from the list of damage states
-        ds_list = ds_list[pd.notna(ds_list)].astype(int)
-
-        # If the dropzero option is True, remove the zero damage state
-        # from the list of damage states
-        if dropzero:
-            ds_list = ds_list[ds_list != 0]
-
-        # Only proceed with the calculation if there is at least one
-        # damage state in the list
-        if len(ds_list) > 0:
-            # Create a list of DataFrames, where each DataFrame stores
-            # the damage quantities for a specific damage state
-            res_list = [
-                pd.DataFrame(
-                    np.where(dmg_ds == ds_i, dmg_qnt, 0),
-                    columns=dmg_ds.columns,
-                    index=dmg_ds.index,
-                )
-                for ds_i in ds_list
-            ]
-
-            # Combine the damage quantity DataFrames into a single
-            # DataFrame
-            res_df = pd.concat(
-                res_list, axis=1, keys=[f'{ds_i:g}' for ds_i in ds_list]
-            )
-            res_df.columns.names = ['ds', *res_df.columns.names[1::]]
-            # remove the block level from the columns
-            res_df.columns = res_df.columns.reorder_levels([1, 2, 3, 4, 0, 5])
-            res_df = res_df.groupby(level=[0, 1, 2, 3, 4], axis=1).sum()
-
-            # The damage states with no damaged quantities are dropped
-            # Note that some of these are not even valid DSs at the given PG
-            res_df = res_df.iloc[:, np.where(res_df.sum(axis=0) != 0)[0]]
-
-        return res_df
-
-    def _perform_dmg_task(self, task, qnt_sample):
+    def _perform_dmg_task(self, task, ds_sample):
         """
         Perform a task from a damage process.
 
         The method performs a task from a damage process on a given
-        quantity sample. The method first checks if the source
-        component specified in the task exists among the available
-        components in the quantity sample. If the source component is
-        not found, a warning message is logged and the method returns
-        the original quantity sample unchanged.  Otherwise, the method
-        executes the events specified in the task. The events can be
-        triggered by a limit state exceedance or a damage state
-        occurrence. If the event is triggered by a damage state, the
-        method moves all quantities of the target component(s) into
-        the target damage state in pre-selected realizations. If the
-        target event is "NA", the method removes quantity information
-        from the target components in the pre-selected
-        realizations. After executing the events, the method returns
-        the updated quantity sample.
+        damage state sample. The events of the task are triggered by a
+        damage state occurrence. The method assigns target
+        component(s) into the target damage state based on the damage
+        state of the source component. If the target event is "NA",
+        the method removes damage state information from the target
+        components.
 
         Parameters
         ----------
@@ -1076,50 +1053,46 @@ class DamageModel(PelicunModel):
             A list representing a task from the damage process. The
             list contains two elements:
             - The first element is a string representing the source
-              component, e.g., `'CMP_A'`.
+              component, e.g., `'1_CMP_A'`. The number in the beginning
+              is used to order the tasks and is not considered here.
             - The second element is a dictionary representing the
               events triggered by the damage state of the source
               component. The keys of the dictionary are strings that
               represent the damage state of the source component,
               e.g., `'DS1'`. The values are lists of strings
               representing the target component(s) and event(s), e.g.,
-              `['CMP_B', 'CMP_C']`.
-        qnt_sample : pandas DataFrame
-            A DataFrame representing the quantities of the components
-            in the damage sample. It is modified in place to represent
-            the quantities of the components in the damage sample
-            after the task has been performed.
-
-        Raises
-        ------
-        ValueError
-            If the source component is not found among the components
-            in the damage sample
-        ValueError
-            If the source event is not a limit state (LS) or damage
-            state (DS)
-        ValueError
-            If the target event is not a limit state (LS), damage
-            state (DS), or not available (NA)
-        ValueError
-            If the target event is a limit state (LS)
+              `['CMP_B.DS1', 'CMP_C.DS1']`. They could also be a
+              single element instead of a list.
+              Examples of a task:
+                ['1_CMP.A', {'DS1': ['CMP.B_DS1', 'CMP.C_DS2']}]
+                ['1_CMP.A', {'DS1': 'CMP.B_DS1', 'DS2': 'CMP.B_DS2'}]
+                ['1_CMP.A-LOC', {'DS1': 'CMP.B_DS1'}]
+        ds_sample : pandas DataFrame
+            A DataFrame representing the damage state of the
+            components. It is modified in place to represent the
+            damage states of the components after the task has been
+            performed.
 
         """
 
         if self._asmnt.log.verbose:
-            self.log_msg('Applying task...', prepend_timestamp=True)
+            self.log_msg(f'Applying task {task}...', prepend_timestamp=True)
 
-        # get the list of available components
-        cmp_list = qnt_sample.columns.get_level_values(0).unique().tolist()
+        # parse task
+        source_cmp = task[0].split('_')[1]  # source component
+        events = task[1]  # prescribed events
 
-        # get the component quantities
-        cmp_qnt = self._asmnt.asset.cmp_sample
+        # check for the `-LOC` suffix. If this is the case, we need to
+        # match locations.
+        if source_cmp.endswith('-LOC'):
+            source_cmp = source_cmp.replace('-LOC', '')
+            match_locations = True
+        else:
+            match_locations = False
 
-        # get the source component
-        source_cmp = task[0].split('_')[1]
-
-        # check if it exists among the available ones
-        if source_cmp not in cmp_list:
+        # check if the source component exists in the damage state
+        # dataframe
+        if source_cmp not in ds_sample.columns.get_level_values('cmp'):
             self.log_msg(
                 f"WARNING: Source component {source_cmp} in the prescribed "
                 "damage process not found among components in the damage "
@@ -1127,119 +1100,58 @@ class DamageModel(PelicunModel):
                 "skipped.",
                 prepend_timestamp=False,
             )
-
             return
 
-        # get the damage quantities for the source component
-        source_cmp_df = qnt_sample.loc[:, source_cmp]
+        # execute the events pres prescribed in the damage task
+        for source_event, target_infos in events.items():
 
-        # execute the prescribed events
-        for source_event, target_infos in task[1].items():
-            # events triggered by limit state exceedance
-            if source_event.startswith('LS'):
-                # ls_i = int(source_event[2:])
-                # TODO: implement source LS support
-                raise ValueError('LS not supported yet.')
-
-            # events triggered by damage state occurrence
-            if source_event.startswith('DS'):
-                # get the ID of the damage state that triggers the event
-                ds_list = [
-                    source_event[2:],
-                ]
-
-                # if we are only looking for a single DS
-                if len(ds_list) == 1:
-                    ds_target = ds_list[0]
-
-                    # get the realizations with non-zero quantity of the target DS
-                    source_ds_vals = source_cmp_df.groupby(level=[3], axis=1).max()
-
-                    if ds_target in source_ds_vals.columns:
-                        source_ds_vals = source_ds_vals[ds_target]
-                        source_mask = source_cmp_df.loc[source_ds_vals > 0.0].index
-                    else:
-                        # if tge source_cmp is not in ds_target in any of the
-                        # realizations, the prescribed event is not triggered
-                        continue
-
-                else:
-                    pass  # TODO: implement multiple DS support
-
-            else:
+            # events can only be triggered by damage state occurrence
+            if not source_event.startswith('DS'):
                 raise ValueError(
                     f"Unable to parse source event in damage "
                     f"process: {source_event}"
                 )
+            # get the ID of the damage state that triggers the event
+            ds_source = int(source_event[2:])
 
-            # get the information about the events
-            target_infos = np.atleast_1d(target_infos)
+            # turn the target_infos into a list if it is a single
+            # argument, for consistency
+            if not isinstance(target_infos, list):
+                target_infos = [target_infos]
 
-            # for each event
             for target_info in target_infos:
+
                 # get the target component and event type
                 target_cmp, target_event = target_info.split('_')
 
-                # ALL means all, but the source component
-                if target_cmp == 'ALL':
-                    # copy the list of available components
-                    target_cmp = deepcopy(cmp_list)
-
-                    # remove the source component
-                    if source_cmp in target_cmp:
-                        target_cmp.remove(source_cmp)
-
-                # otherwise we target a specific component
-                elif target_cmp in cmp_list:
-                    target_cmp = [
-                        target_cmp,
-                    ]
-
-                # trigger a limit state
-                if target_event.startswith('LS'):
-                    # ls_i = int(target_event[2:])
-                    # TODO: implement target LS support
-                    raise ValueError('LS not supported yet.')
+                if (target_cmp != 'ALL') and (
+                    target_cmp not in ds_sample.columns.get_level_values('cmp')
+                ):
+                    self.log_msg(
+                        f"WARNING: Target component {target_cmp} in the prescribed "
+                        "damage process not found among components in the damage "
+                        "sample. The corresponding part of the damage process is "
+                        "skipped.",
+                        prepend_timestamp=False,
+                    )
+                    continue
 
                 # trigger a damage state
                 if target_event.startswith('DS'):
-                    # get the target damage state ID
-                    ds_i = target_event[2:]
 
-                    # move all quantities of the target component(s) into the
-                    # target damage state in the pre-selected realizations
-                    qnt_sample.loc[source_mask, target_cmp] = 0.0
+                    # get the ID of the damage state to switch the target
+                    # components to
+                    ds_target = int(target_event[2:])
 
-                    for target_cmp_i in target_cmp:
-                        locs = cmp_qnt[target_cmp_i].columns.get_level_values(0)
-                        dirs = cmp_qnt[target_cmp_i].columns.get_level_values(1)
-                        uids = cmp_qnt[target_cmp_i].columns.get_level_values(2)
-                        for loc, direction, uid in zip(locs, dirs, uids):
-                            # because we cannot be certain that ds_i had been
-                            # triggered earlier, we have to add this damage
-                            # state manually for each PG of each component, if needed
-                            if (
-                                ds_i
-                                not in qnt_sample[
-                                    (target_cmp_i, loc, direction, uid)
-                                ].columns
-                            ):
-                                qnt_sample[
-                                    (target_cmp_i, loc, direction, uid, ds_i)
-                                ] = 0.0
-
-                            qnt_sample.loc[
-                                source_mask,
-                                (target_cmp_i, loc, direction, uid, ds_i),
-                            ] = cmp_qnt.loc[
-                                source_mask, (target_cmp_i, loc, direction, uid)
-                            ].values
-
-                # clear all damage information
+                # clear damage state information
                 elif target_event == 'NA':
-                    # remove quantity information from the target components
-                    # in the pre-selected realizations
-                    qnt_sample.loc[source_mask, target_cmp] = np.nan
+                    if match_locations:
+                        raise ValueError(
+                            'Invalid damage task configuration. Cannot match '
+                            'locations when the target event is set to NA.'
+                        )
+                    ds_target = -1
+                    # -1 stands for nan (ints don'ts support nan)
 
                 else:
                     raise ValueError(
@@ -1247,10 +1159,78 @@ class DamageModel(PelicunModel):
                         f"process: {target_event}"
                     )
 
+                if match_locations:
+                    self._perform_dmg_event_loc(
+                        ds_sample, source_cmp, ds_source, target_cmp, ds_target
+                    )
+
+                else:
+                    self._perform_dmg_event(
+                        ds_sample, source_cmp, ds_source, target_cmp, ds_target
+                    )
+
         if self._asmnt.log.verbose:
             self.log_msg(
                 'Damage process task successfully applied.', prepend_timestamp=False
             )
+
+    def _perform_dmg_event(
+        self, ds_sample, source_cmp, ds_source, target_cmp, ds_target
+    ):
+        """
+        Perform a damage event.
+        See `_perform_dmg_task`.
+
+        """
+
+        # affected rows
+        row_selection = np.where(
+            # for many instances of source_cmp, we
+            # consider the highest damage state
+            ds_sample[source_cmp].max(axis=1).values
+            == ds_source
+        )[0]
+        # affected columns
+        if target_cmp == 'ALL':
+            column_selection = np.where(
+                ds_sample.columns.get_level_values('cmp') != source_cmp
+            )[0]
+        else:
+            column_selection = np.where(
+                ds_sample.columns.get_level_values('cmp') == target_cmp
+            )[0]
+        ds_sample.iloc[row_selection, column_selection] = ds_target
+
+    def _perform_dmg_event_loc(
+        self, ds_sample, source_cmp, ds_source, target_cmp, ds_target
+    ):
+        """
+        Perform a damage event matching locations.
+        See `_perform_dmg_task`.
+
+        """
+
+        # get locations of source component
+        source_locs = set(ds_sample[source_cmp].columns.get_level_values('loc'))
+        for loc in source_locs:
+            # apply damage task matching locations
+            row_selection = np.where(
+                # for many instances of source_cmp, we
+                # consider the highest damage state
+                ds_sample[source_cmp, loc].max(axis=1).values
+                == ds_source
+            )[0]
+
+            # affected columns
+            if target_cmp == 'ALL':
+                raise ValueError('Cannot combine `-LOC` with `ALL` keywords')
+            column_selection = np.where(
+                np.logical_and(
+                    ds_sample.columns.get_level_values('cmp') == target_cmp,
+                    ds_sample.columns.get_level_values('loc') == loc,
+                )
+            )[0]
+            ds_sample.iloc[row_selection, column_selection] = ds_target
 
     def _get_pg_batches(self, block_batch_size):
         """
@@ -1508,8 +1488,6 @@ class DamageModel(PelicunModel):
         # computing.
 
         # get the list of performance groups
-        qnt_samples = []
-
         self.log_msg(
             f'Number of Performance Groups in Asset Model:'
             f' {self._asmnt.asset.cmp_sample.shape[1]}',
@@ -1531,12 +1509,14 @@ class DamageModel(PelicunModel):
         )
 
         # for PG_i in self._asmnt.asset.cmp_sample.columns:
+        ds_samples = []
         for PGB_i in batches:
-            PGB = pg_batch.loc[PGB_i]
+
+            component_blocks = pg_batch.loc[PGB_i]
 
             self.log_msg(
                 f"Calculating damage for PG batch {PGB_i} with "
-                f"{int(PGB['Blocks'].sum())} blocks"
+                f"{int(component_blocks['Blocks'].sum())} blocks"
             )
 
             # Generate an array with component capacities for each block and
@@ -1544,11 +1524,11 @@ class DamageModel(PelicunModel):
             # each component limit state. The latter is primarily needed to
             # handle limit states with multiple, mutually exclusive DS options
             capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, PGB, scaling_specification
+                sample_size, component_blocks, scaling_specification
             )
 
             # Get the required demand types for the analysis
-            EDP_req = self._get_required_demand_type(PGB)
+            EDP_req = self._get_required_demand_type(component_blocks)
 
             # Create the demand vector
             demand_dict = self._assemble_required_demand_data(EDP_req)
@@ -1557,36 +1537,30 @@ class DamageModel(PelicunModel):
             ds_sample = self._evaluate_damage_state(
                 demand_dict, EDP_req, capacity_sample, lsds_sample
             )
-            qnt_sample = self._prepare_dmg_quantities(PGB, ds_sample, dropzero=False)
 
-            qnt_samples.append(qnt_sample)
+            ds_samples.append(ds_sample)
 
-        qnt_sample = pd.concat(qnt_samples, axis=1)
-
-        # Create a comprehensive table with all possible DSs to have a robust
-        # input for the damage processes evaluation below
-        qnt_sample = self._complete_ds_cols(qnt_sample)
-        qnt_sample.sort_index(axis=1, inplace=True)
-
+        ds_sample = pd.concat(ds_samples, axis=1)
         self.log_msg("Raw damage calculation successful.", prepend_timestamp=False)
 
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
             self.log_msg("Applying damage processes...")
 
-            # sort the processes
+            # Sort the damage processes tasks
             dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
 
+            # Perform damage tasks in the sorted order
             for task in dmg_process.items():
-                self._perform_dmg_task(task, qnt_sample)
+                self._perform_dmg_task(task, ds_sample)
 
             self.log_msg(
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
-        # If requested, remove columns with no damage from the sample
-        if self._asmnt.options.list_all_ds is False:
-            qnt_sample = qnt_sample.iloc[:, np.where(qnt_sample.sum(axis=0) != 0)[0]]
+        qnt_sample = self._prepare_dmg_quantities(
+            pg_batch.reset_index('Batch', drop=True), ds_sample, dropzero=False
+        )
 
         self.sample = qnt_sample
 
