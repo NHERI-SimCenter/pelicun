@@ -36,7 +36,6 @@
 #
 # Contributors:
 # Adam Zsarnóczay
-import os
 import json
 import pandas as pd
 import pelicun
@@ -628,7 +627,7 @@ def auto_populate(AIM):
             CMP = pd.DataFrame(                                                         # noqa
                 {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],  # noqa
                  f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],  # noqa
-                 f'aggregate':                 ['ea', location_string, '0', 1, 'N/A']}, # noqa
+                 'aggregate':                  ['ea', location_string, '0', 1, 'N/A']}, # noqa
                 index = ['Units','Location','Direction','Theta_0','Family']             # noqa
             ).T                                                                         # noqa
             # fmt: on
