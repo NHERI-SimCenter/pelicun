@@ -1374,10 +1374,6 @@ class TestDamageModel(TestPelicunModel):
 
     def test__perform_dmg_task(self, assessment_instance):
 
-        x = assessment.Assessment()
-        x.log.verbose = False
-        assessment_instance = x
-
         damage_model = assessment_instance.damage
 
         #
@@ -1520,6 +1516,64 @@ class TestDamageModel(TestPelicunModel):
             ('CMP.A', '1', '1', '1'): {0: -1, 1: 0, 2: -1},
             ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
             ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
+        }
+
+        #
+        # NA keyword combined with `-LOC`
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 0],
+                ('CMP.A', '2', '1', '0'): [0, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                ('CMP.B', '2', '1', '0'): [1, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_NA"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
+            ('CMP.A', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.B', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
+        }
+
+        #
+        # NA keyword combined with `-LOC` and `ALL`
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 1],
+                ('CMP.A', '2', '1', '0'): [1, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 0],
+                ('CMP.B', '2', '1', '0'): [0, 0, 0],
+                ('CMP.C', '1', '1', '0'): [0, 0, 0],
+                ('CMP.C', '2', '1', '0'): [0, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.A-LOC": {"DS1": "ALL_NA"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.A', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
+            ('CMP.B', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
+            ('CMP.C', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
+            ('CMP.C', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
         }
 
     def test__get_pg_batches_1(self, assessment_instance):
