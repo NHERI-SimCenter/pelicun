@@ -601,3 +601,166 @@ def test_process_loc():
 
 def test_run_input_specs():
     assert os.path.basename(base.pelicun_path) == 'pelicun'
+
+
+def test_dict_raise_on_duplicates():
+    res = base.dict_raise_on_duplicates([('A', '1'), ('B', '2')])
+    assert res == {'A': '1', 'B': '2'}
+    with pytest.raises(ValueError):
+        base.dict_raise_on_duplicates([('A', '1'), ('A', '2')])
+
+
+def test_parse_units():
+    # Test the default units are parsed correctly
+    units = base.parse_units()
+    assert isinstance(units, dict)
+    expect = {
+        "sec": 1.0,
+        "minute": 60.0,
+        "hour": 3600.0,
+        "day": 86400.0,
+        "m": 1.0,
+        "mm": 0.001,
+        "cm": 0.01,
+        "km": 1000.0,
+        "in": 0.0254,
+        "inch": 0.0254,
+        "ft": 0.3048,
+        "mile": 1609.344,
+        "m2": 1.0,
+        "mm2": 1e-06,
+        "cm2": 0.0001,
+        "km2": 1000000.0,
+        "in2": 0.00064516,
+        "inch2": 0.00064516,
+        "ft2": 0.09290304,
+        "mile2": 2589988.110336,
+        "m3": 1.0,
+        "in3": 1.6387064e-05,
+        "inch3": 1.6387064e-05,
+        "ft3": 0.028316846592,
+        "cmps": 0.01,
+        "mps": 1.0,
+        "mph": 0.44704,
+        "inps": 0.0254,
+        "inchps": 0.0254,
+        "ftps": 0.3048,
+        "mps2": 1.0,
+        "inps2": 0.0254,
+        "inchps2": 0.0254,
+        "ftps2": 0.3048,
+        "g": 9.80665,
+        "kg": 1.0,
+        "ton": 1000.0,
+        "lb": 0.453592,
+        "N": 1.0,
+        "kN": 1000.0,
+        "lbf": 4.4482179868,
+        "kip": 4448.2179868,
+        "kips": 4448.2179868,
+        "Pa": 1.0,
+        "kPa": 1000.0,
+        "MPa": 1000000.0,
+        "GPa": 1000000000.0,
+        "psi": 6894.751669043338,
+        "ksi": 6894751.669043338,
+        "Mpsi": 6894751669.043338,
+        "A": 1.0,
+        "V": 1.0,
+        "kV": 1000.0,
+        "ea": 1.0,
+        "unitless": 1.0,
+        "rad": 1.0,
+        "C": 1.0,
+        "USD_2011": 1.0,
+        "USD": 1.0,
+        "loss_ratio": 1.0,
+        "worker_day": 1.0,
+        "EA": 1.0,
+        "SF": 0.09290304,
+        "LF": 0.3048,
+        "TN": 1000.0,
+        "AP": 1.0,
+        "CF": 0.0004719474432,
+        "KV": 1000.0,
+        "J": 1.0,
+        "MJ": 1000000.0,
+        "test_two": 2.00,
+        "test_three": 3.00,
+    }
+    for thing, value in units.items():
+        assert thing in expect
+        assert value == expect[thing]
+
+    # Test that additional units are parsed correctly
+    additional_units_file = (
+        'pelicun/tests/data/base/test_parse_units/additional_units_a.json'
+    )
+    units = base.parse_units(additional_units_file)
+    assert isinstance(units, dict)
+    assert 'year' in units
+    assert units['year'] == 1.00
+
+    # Test that an exception is raised if the additional units file is not found
+    with pytest.raises(FileNotFoundError):
+        units = base.parse_units('invalid/file/path.json')
+
+    # Test that an exception is raised if the additional units file is
+    # not a valid JSON file
+    invalid_json_file = 'pelicun/tests/data/base/test_parse_units/invalid.json'
+    with pytest.raises(Exception):
+        units = base.parse_units(invalid_json_file)
+
+    # Test that an exception is raised if a unit is defined twice in
+    # the additional units file
+    duplicate_units_file = 'pelicun/tests/data/base/test_parse_units/duplicate2.json'
+    with pytest.raises(ValueError):
+        units = base.parse_units(duplicate_units_file)
+
+    # Test that an exception is raised if a unit conversion factor is not a float
+    invalid_units_file = 'pelicun/tests/data/base/test_parse_units/not_float.json'
+    with pytest.raises(TypeError):
+        units = base.parse_units(invalid_units_file)
+
+    # Test that we get an error if some first-level key does not point
+    # to a dictionary
+    invalid_units_file = 'pelicun/tests/data/base/test_parse_units/not_dict.json'
+    with pytest.raises(ValueError):
+        units = base.parse_units(invalid_units_file)
+
+
+def test_unit_conversion():
+    # Test scalar conversion from feet to meters
+    assert base.convert_units(1.00, 'ft', 'm') == 0.3048
+
+    # Test list conversion from feet to meters
+    feet_values = [1.0, 2.0, 3.0]
+    meter_values = [0.3048, 0.6096, 0.9144]
+    np.testing.assert_array_almost_equal(
+        base.convert_units(feet_values, 'ft', 'm'), meter_values
+    )
+
+    # Test numpy array conversion from feet to meters
+    feet_values = np.array([1.0, 2.0, 3.0])
+    meter_values = np.array([0.3048, 0.6096, 0.9144])
+    np.testing.assert_array_almost_equal(
+        base.convert_units(feet_values, 'ft', 'm'), meter_values
+    )
+
+    # Test conversion with explicit category
+    assert base.convert_units(1.00, 'ft', 'm', category='length') == 0.3048
+
+    # Test error handling for invalid input type
+    with pytest.raises(TypeError) as excinfo:
+        base.convert_units("one", 'ft', 'm')
+    assert str(excinfo.value) == 'Invalid input type for `values`'
+
+    # Test error handling for unknown unit
+    with pytest.raises(ValueError) as excinfo:
+        base.convert_units(1.00, 'xyz', 'm')
+    assert str(excinfo.value) == 'Unknown unit `xyz`'
+
+    # Test error handling for mismatched category
+    with pytest.raises(ValueError) as excinfo:
+        base.convert_units(1.00, 'ft', 'm', category='volume')
+    assert str(excinfo.value) == 'Unknown unit: `ft`'

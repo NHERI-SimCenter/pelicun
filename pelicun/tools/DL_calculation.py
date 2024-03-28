@@ -105,6 +105,7 @@ default_DBs = {
         'Hazus Earthquake - Buildings': 'damage_DB_Hazus_EQ_bldg.csv',
         'Hazus Earthquake - Stories': 'damage_DB_Hazus_EQ_story.csv',
         'Hazus Earthquake - Transportation': 'damage_DB_Hazus_EQ_trnsp.csv',
+        'Hazus Earthquake - Water': 'damage_DB_Hazus_EQ_water.csv',
         'Hazus Hurricane': 'damage_DB_SimCenter_Hazus_HU_bldg.csv',
     },
     'repair': {
@@ -164,7 +165,7 @@ regional_out_config = {
         'Sample': False,
         'Statistics': False,
         'GroupedSample': True,
-        'GroupedStatistics': False,
+        'GroupedStatistics': True,
     },
     'Loss': {
         'BldgRepair': {
@@ -306,6 +307,7 @@ def run_pelicun(
     detailed_results,
     regional,
     output_format,
+    custom_model_dir,
     **kwargs,
 ):
     """
@@ -327,6 +329,9 @@ def run_pelicun(
         Path pointing to the location of a Python script with an auto_populate
         method that automatically creates the performance model using data
         provided in the AIM JSON file.
+    custom_model_dir: string, optional
+        Path pointing to a directory with files that define user-provided model
+        parameters for a customized damage and loss assessment.
     detailed_results: bool, optional
         If False, only the main statistics are saved.
 
@@ -361,6 +366,8 @@ def run_pelicun(
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
+    custom_dl_file_path = custom_model_dir #f"{config['commonFileDir']}/CustomDLModels/"
+
     DL_config = config.get('DL', None)
     if not DL_config:
         log_msg("Damage and Loss configuration missing from config file. ")
@@ -369,6 +376,16 @@ def run_pelicun(
             log_msg("Trying to auto-populate")
 
             config_ap, CMP = auto_populate(config, auto_script_path)
+
+            if config_ap['DL'] is None:
+
+                log_msg(
+                    "The prescribed auto-population script failed to identify "
+                    "a valid damage and loss configuration for this asset. "
+                    "Terminating analysis."
+                )
+
+                return 0
 
             # add the demand information
             config_ap['DL']['Demands'].update(
@@ -552,7 +569,7 @@ def run_pelicun(
         {
             "SampleSize": sample_size,
             'PreserveRawOrder': demand_config.get('CoupledDemands', False),
-            # 'DemandCloning': demand_config.get('DemandCloning', False)
+            'DemandCloning': demand_config.get('DemandCloning', False)
         }
     )
 
@@ -840,6 +857,8 @@ def run_pelicun(
         if asset_config.get('ComponentDatabasePath', False) is not False:
             extra_comps = asset_config['ComponentDatabasePath']
 
+            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_dl_file_path)
+
             component_db += [
                 extra_comps,
             ]
@@ -968,6 +987,18 @@ def run_pelicun(
             adf.loc['irreparable', ('Demand', 'Unit')] = 'unitless'
             adf.loc['irreparable', ('LS1', 'Theta_0')] = 1e10
             adf.loc['irreparable', 'Incomplete'] = 0
+
+        # TODO: we can improve this by creating a water network-specific assessment class
+        if "Water" in asset_config['ComponentDatabase']:
+
+            # add a placeholder aggregate fragility that will never trigger
+            # damage, but allow damage processes to aggregate the various pipeline damages
+            adf.loc['aggregate', ('Demand', 'Directional')] = 1
+            adf.loc['aggregate', ('Demand', 'Offset')] = 0
+            adf.loc['aggregate', ('Demand', 'Type')] = 'Peak Ground Velocity'
+            adf.loc['aggregate', ('Demand', 'Unit')] = 'mps'
+            adf.loc['aggregate', ('LS1', 'Theta_0')] = 1e10
+            adf.loc['aggregate', 'Incomplete'] = 0
 
         PAL.damage.load_damage_model(
             component_db
@@ -1271,12 +1302,14 @@ def run_pelicun(
             if bldg_repair_config.get('ConsequenceDatabasePath', False) is not False:
                 extra_comps = bldg_repair_config['ConsequenceDatabasePath']
 
+                extra_comps = extra_comps.replace('CustomDLDataFolder', custom_dl_file_path)
+
                 consequence_db += [
                     extra_comps,
                 ]
 
                 extra_conseq_df = load_data(
-                    bldg_repair_config['ConsequenceDatabasePath'],
+                    extra_comps,
                     unit_conversion_factors=None,
                     orientation=1,
                     reindex=False,
@@ -1498,9 +1531,18 @@ def run_pelicun(
                 )
 
             elif bldg_repair_config['MapApproach'] == "User Defined":
-                loss_map = pd.read_csv(
-                    bldg_repair_config['MapFilePath'], index_col=0
-                )
+
+                if bldg_repair_config.get('MapFilePath', False) is not False:
+                    loss_map_path = bldg_repair_config['MapFilePath']
+
+                    loss_map_path = loss_map_path.replace(
+                        'CustomDLDataFolder', custom_dl_file_path)
+
+                else:
+                    print("User defined loss map path missing. Terminating analysis")
+                    return -1
+
+                loss_map = pd.read_csv(loss_map_path, index_col=0)
 
             # prepare additional loss map entries, if needed
             if 'DMG-collapse' not in loss_map.index:
@@ -1675,9 +1717,6 @@ def run_pelicun(
     if 'damage_sample' not in locals():
         damage_sample = PAL.damage.save_sample()
 
-    if 'agg_repair' not in locals():
-        agg_repair = PAL.bldg_repair.aggregate_losses()
-
     damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
@@ -1691,7 +1730,16 @@ def run_pelicun(
     else:
         damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
 
-    agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+    if loss_config is not None:
+
+        if 'agg_repair' not in locals():
+            agg_repair = PAL.bldg_repair.aggregate_losses()
+
+        agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+
+    else:
+
+        agg_repair_s = pd.DataFrame()
 
     summary = pd.concat(
         [agg_repair_s, damage_sample_s[['collapse', 'irreparable']]], axis=1
@@ -1779,7 +1827,7 @@ def main():
     )
     parser.add_argument('--auto_script', default=None)
     parser.add_argument('--resource_dir', default=None)
-    parser.add_argument('--custom_fragility_dir', default=None)
+    parser.add_argument('--custom_model_dir', default=None)
     parser.add_argument(
         '--regional', default=False, type=str2bool, nargs='?', const=False
     )
@@ -1818,7 +1866,7 @@ def main():
         ground_failure=args.ground_failure,
         auto_script_path=args.auto_script,
         resource_dir=args.resource_dir,
-        custom_fragility_dir=args.custom_fragility_dir,
+        custom_model_dir=args.custom_model_dir,
         regional=args.regional,
         output_format=args.output_format,
     )

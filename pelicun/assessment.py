@@ -90,7 +90,7 @@ class Assessment:
 
         self.options = base.Options(config_options, self)
 
-        self.unit_conversion_factors = file_io.parse_units(
+        self.unit_conversion_factors = base.parse_units(
             self.options.units_file)
 
         self.log = self.options.log

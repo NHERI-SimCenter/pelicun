@@ -37,7 +37,10 @@
 # Contributors:
 # Adam Zsarnóczay
 
+import os
+import json
 import pandas as pd
+import pelicun
 
 ap_DesignLevel = {
     1940: 'PC',
@@ -69,6 +72,24 @@ ap_Occupancy = {
     'Parking' : 'COM10'
 }
 
+# Convert common length units
+def convertUnits(value, unit_in, unit_out):
+    aval_types = ['m', 'mm', 'cm', 'km', 'inch', 'ft', 'mile']
+    m = 1.
+    mm = 0.001 * m
+    cm = 0.01 * m
+    km = 1000 * m
+    inch = 0.0254 * m
+    ft = 12. * inch
+    mile = 5280. * ft
+    scale_map = {'m':m, 'mm':mm, 'cm':cm, 'km':km, 'inch':inch, 'ft':ft,\
+                  'mile':mile}
+    if (unit_in not in aval_types) or (unit_out not in aval_types):
+        print(f"The unit {unit_in} or {unit_out} are used in auto_population but not supported")
+        return
+    value = value*scale_map[unit_in]/scale_map[unit_out]
+    return value
+
 def convertBridgeToHAZUSclass(AIM):
 
     #TODO: replace labels in AIM with standard CamelCase versions
@@ -78,7 +99,10 @@ def convertBridgeToHAZUSclass(AIM):
     state = AIM["StateCode"]
     yr_built = AIM["YearBuilt"] 
     num_span = AIM["NumOfSpans"]
-    len_max_span = AIM["MaxSpanLength"] 
+    len_max_span = AIM["MaxSpanLength"]
+    len_unit = AIM["units"]["length"]
+    len_max_span = convertUnits(len_max_span, len_unit, "m")
+
 
     seismic = ((int(state)==6 and int(yr_built)>=1975) or 
                (int(state)!=6 and int(yr_built)>=1990))
@@ -533,6 +557,272 @@ def auto_populate(AIM):
             }
         else:
             print("subtype not supported in HWY")
+
+    elif assetType == "WaterDistributionNetwork":
+        
+        pipe_material_map ={"CI": "B", "AC": "B", "RCC": "B",
+                            "DI": "D", "PVC": "D",
+                            "DS": "B",
+                            "BS": "D",}
+        
+        #GI = AIM.get("GeneralInformation", None)
+        #if GI==None:
+            
+        
+        # initialize the auto-populated GI
+        wdn_element_type = GI_ap.get("type", "MISSING")
+        asset_name = GI_ap.get("AIM_id", None)
+        
+        
+        if wdn_element_type == "Pipe":
+            pipe_construction_year = GI_ap.get("year", None)
+            pipe_diameter = GI_ap.get("Diam", None)
+            #diamaeter value is a fundamental part of hydraulic performance assessment
+            if pipe_diameter == None:
+                raise ValueError(f"pipe diamater in asset type {assetType}, \
+                                 asset id \"{asset_name}\" has no diameter \
+                                     value.")
+            
+            pipe_length = GI_ap.get("Len", None)
+            #length value is a fundamental part of hydraulic performance assessment
+            if pipe_diameter == None:
+                raise ValueError(f"pipe length in asset type {assetType}, \
+                                 asset id \"{asset_name}\" has no diameter \
+                                     value.")
+            
+            pipe_material = GI_ap.get("material", None)
+            
+            #pipe material can be not available or named "missing" in both case, pipe flexibility will be set to "missing"
+            
+            """
+            The assumed logic (rullset) is that if the material is missing, if the pipe
+            is smaller than or equal to 20 inches, the material is Cast Iron
+            (CI) otherwise the pipe material is steel.
+                If the material is steel (ST), either based on user specified
+            input or the assumption due to the lack of the user-input, the year
+            that the pipe is constructed define the flexibility status per HAZUS
+            instructions. If the pipe is built in 1935 or after, it is, the pipe
+            is Ductile Steel (DS), and otherwise it is Brittle Steel (BS).
+                If the pipe is missing construction year and is built by steel,
+            we assume consevatively that the pipe is brittle (i.e., BS)
+            """
+            if pipe_material == None:
+                if pipe_diameter > 20 * 0.0254: #20 inches in meter
+                    print(f"Asset {asset_name} is missing material. Material is\
+                          assumed to be Cast Iron")
+                    pipe_material = "CI"
+                else:
+                    print(f"Asset {asset_name} is missing material. Material is "
+                          f"assumed to be Steel (ST)")
+                    pipe_material = "ST"
+                          
+            if pipe_material == "ST":
+                if pipe_construction_year != None and pipe_construction_year >= 1935:
+                    print(f"Asset {asset_name} has material of \"ST\" is assumed to be\
+                          Ductile Steel")
+                    pipe_material = "DS"
+                else:
+                    print(f'Asset {asset_name} has material of "ST" is assumed to be '
+                          f'Brittle Steel')
+                    pipe_material = "BS"
+            
+            pipe_flexibility = pipe_material_map.get(pipe_material, "missing")
+            
+            GI_ap["material flexibility"] = pipe_flexibility
+            GI_ap["material"] = pipe_material
+            
+
+            # Pipes are broken into 20ft segments (rounding up) and
+            # each segment is represented by an individual entry in
+            # the performance model, `CMP`. The damage capcity of each
+            # segment is assumed to be independent and driven by the
+            # same EDP. We therefore replicate the EDP associated with
+            # the pipe to the various locations assgined to the
+            # segments.
+
+            # Determine number of segments
+            with open(
+                os.path.join(
+                    os.path.dirname(pelicun.__file__), 'settings/default_units.json'
+                ),
+                'r',
+                encoding='utf-8',
+            ) as f:
+                units = json.load(f)
+            pipe_length_unit = GI_ap['units']['length']
+            pipe_length_unit_factor = units['length'][pipe_length_unit]
+            pipe_length_in_base_unit = pipe_length * pipe_length_unit_factor
+            reference_length_in_base_unit = 20.00 * units['length']['ft']
+            if pipe_length_in_base_unit % reference_length_in_base_unit < 1e-2:
+                # If the lengths are equal, then that's one segment, not two.
+                num_segments = int(pipe_length_in_base_unit / reference_length_in_base_unit)
+            else:
+                # In all other cases, round up.
+                num_segments = int(pipe_length_in_base_unit / reference_length_in_base_unit) + 1
+            if num_segments > 1:
+                location_string = f'1--{num_segments}'
+            else:
+                location_string = '1'
+
+            # Define performance model
+            CMP = pd.DataFrame(
+                {f'PWP.{pipe_flexibility}.GS': ['ea', location_string, '0', 1, 'N/A'],
+                 f'PWP.{pipe_flexibility}.GF': ['ea', location_string, '0', 1, 'N/A'],
+                 f'aggregate':                 ['ea', location_string, '0', 1, 'N/A']},
+                index = ['Units','Location','Direction','Theta_0','Family']
+            ).T
+            
+            # Set up the demand cloning configuration for the pipe
+            # segments, if required.
+            demand_config = {}
+            if num_segments > 1:
+                # determine the EDP tags available for cloning
+                response_data = pelicun.file_io.load_data('response.csv', None)
+                num_header_entries = len(response_data.columns.names)
+                # if 4, assume a hazard level tag is present and remove it
+                if num_header_entries == 4:
+                    response_data.columns = pd.MultiIndex.from_tuples(
+                        [x[1::] for x in response_data.columns]
+                    )
+                demand_cloning_config = {}
+                for edp in response_data.columns:
+                    tag, location, direction = edp
+
+                    demand_cloning_config['-'.join(edp)] = [
+                        f'{tag}-{x}-{direction}'
+                        for x in [f'{i+1}' for i in range(num_segments)]
+                    ]
+                demand_config = {'DemandCloning': demand_cloning_config}
+
+            # Create damage process
+            dmg_process = {
+                f"1_PWP.{pipe_flexibility}.GS": {"DS1": "aggregate_DS1"},
+                f"2_PWP.{pipe_flexibility}.GF": {"DS1": "aggregate_DS1"},
+                f"3_PWP.{pipe_flexibility}.GS": {"DS2": "aggregate_DS2"},
+                f"4_PWP.{pipe_flexibility}.GF": {"DS2": "aggregate_DS2"},                
+            }
+            dmg_process_filename = 'dmg_process.json'
+            with open(dmg_process_filename, 'w', encoding='utf-8') as f:
+                json.dump(dmg_process, f, indent=2)
+
+            # Define the auto-populated config
+            DL_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Water",
+                    "Material Flexibility": pipe_flexibility,
+                    "PlanArea": "1" # Sina: does not make sense for water. Kept it here since itw as also kept here for Transportation
+                },
+                "Damage": {
+                    "DamageProcess": "User Defined",
+                    "DamageProcessFilePath": "dmg_process.json"
+                },
+                "Demands": demand_config
+            }
+        
+        elif wdn_element_type == "Tank":
+            
+            tank_cmp_lines = {
+                ("OG", "C", 1):{'PST.G.C.A.GS': [ 'ea', 1, 1, 1, 'N/A' ]},
+                ("OG", "C", 0):{'PST.G.C.U.GS': [ 'ea', 1, 1, 1, 'N/A' ]},
+                ("OG", "S", 1):{'PST.G.S.A.GS': [ 'ea', 1, 1, 1, 'N/A' ]},
+                ("OG", "S", 0):{'PST.G.S.U.GS': [ 'ea', 1, 1, 1, 'N/A' ]},
+                #Anchored status and Wood is not defined for On Ground tanks
+                ("OG", "W", 0):{'PST.G.W.GS':   [ 'ea', 1, 1, 1, 'N/A' ]},
+                #Anchored status and Steel is not defined for Above Ground tanks
+                ("AG", "S", 0):{'PST.A.S.GS':   [ 'ea', 1, 1, 1, 'N/A' ]},
+                #Anchored status and Concrete is not defined for Buried tanks.
+                ("B", "C", 0):{'PST.B.C.GF':    [ 'ea', 1, 1, 1, 'N/A' ]}
+                }
+                
+            """
+            The default values are assumed: material = Concrete (C),
+            location= On Ground (OG), and Anchored = 1 
+            """
+            tank_material = GI_ap.get("material", "C")
+            tank_location = GI_ap.get("location", "OG")
+            tank_anchored = GI_ap.get("anchored", int(1) )
+            
+            tank_material_allowable = {"C", "S"}
+            if tank_material not in tank_material_allowable:
+                raise ValueError(f"Tank's material = \"{tank_material}\" is \
+                                 not allowable in tank {asset_name}. The \
+                                 material must be either C for concrete or S \
+                                 for steel.")
+            
+            tank_location_allowable = {"AG", "OG", "B"}
+            if tank_location not in tank_location_allowable:
+                raise ValueError(f"Tank's location = \"{tank_location}\" is \
+                                 not allowable in tank {asset_name}. The \
+                                 location must be either \"AG\" for Above \
+                                 ground, \"OG\" for On Ground or \"BG\" for \
+                                 Bellow Ground (burried) Tanks.")
+            
+            tank_anchored_allowable = {int(0), int(1)}
+            if tank_anchored not in tank_anchored_allowable:
+                raise ValueError(f"Tank's anchored status = \"{tank_location}\
+                                 \" is not allowable in tank {asset_name}. \
+                                     The anchored status must be either integer\
+                                     value 0 for unachored, or 1 for anchored")
+            
+            if tank_location == "AG" and tank_material == "C":
+                print(f"The tank {asset_name} is Above Ground (i.e., AG), but \
+                      the material type is Concrete (\"C\"). Tank type \"C\" is not \
+                    defiend for AG tanks. The tank is assumed to be Steel (\"S\")")
+                tank_material = "S"
+            
+            if tank_location == "AG" and tank_material == "W":
+                print(f"The tank {asset_name} is Above Ground (i.e., AG), but \
+                      the material type is Wood (\"W\"). Tank type \"W\" is not \
+                    defiend for AG tanks. The tank is assumed to be Steel (\"S\")")
+                tank_material = "S"
+
+            
+            if tank_location == "B" and tank_material == "S":
+                print(f"The tank {asset_name} is burried (i.e., B), but the\
+                      material type is Steel (\"S\"). Tank type \"S\" is not defiend for\
+                      B tanks. The tank is assumed to be Concrete (\"C\")")
+                tank_material = "C"
+            
+            if tank_location == "B" and tank_material == "W":
+                print(f"The tank {asset_name} is burried (i.e., B), but the\
+                      material type is Wood (\"W\"). Tank type \"W\" is not defiend for\
+                      B tanks. The tank is assumed to be Concrete (\"C\")")
+                tank_material = "C"
+                
+            if tank_anchored == 1:
+                 #Since anchore status does nto matter, there is no need to
+                 #print a warning
+                 tank_anchored = 0
+                
+            cur_tank_cmp_line = tank_cmp_lines[(tank_location, tank_material, tank_anchored)]
+            
+            CMP = pd.DataFrame(
+                cur_tank_cmp_line,
+                index = ['Units','Location','Direction','Theta_0','Family']
+            ).T
+            
+            DL_ap = {
+                "Asset": {
+                    "ComponentAssignmentFile": "CMP_QNT.csv",
+                    "ComponentDatabase": "Hazus Earthquake - Water",
+                    "Material": tank_material,
+                    "Location": tank_location,
+                    "Anchored": tank_anchored,
+                    "PlanArea": "1" # Sina: does not make sense for water. Kept it here since itw as also kept here for Transportation
+                },
+                "Damage": {
+                    "DamageProcess": "Hazus Earthquake"
+                },
+                "Demands": {        
+                }
+            }  
+            
+        else:
+            print(f"Water Distribution network element type {wdn_element_type} is not supported in Hazus Earthquake IM DL method")
+            DL_ap = None
+            CMP = None
+
     else:
         print(f"AssetType: {assetType} is not supported in Hazus Earthquake IM DL method")
 
