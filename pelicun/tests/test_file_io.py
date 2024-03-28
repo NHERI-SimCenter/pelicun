@@ -145,6 +145,19 @@ def test_save_to_csv():
     assert mylogger.logs[-1][0] == 'WARNING: Data was empty, no file saved.'
 
 
+def test_substitute_default_path():
+    prior_path = file_io.base.pelicun_path
+    file_io.base.pelicun_path = 'some_path'
+    input_paths = ['PelicunDefault/data/file1.txt', '/data/file2.txt']
+    expected_paths = [
+        'some_path/resources/SimCenterDBDL/data/file1.txt',
+        '/data/file2.txt',
+    ]
+    result_paths = file_io.substitute_default_path(input_paths)
+    assert result_paths == expected_paths
+    file_io.base.pelicun_path = prior_path
+
+
 def test_load_data():
     # test loading data with orientation 0
 
