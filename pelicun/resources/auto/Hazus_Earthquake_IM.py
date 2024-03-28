@@ -606,28 +606,18 @@ def auto_populate(AIM):
             # segments.
 
             # Determine number of segments
-            with open(
-                os.path.join(
-                    os.path.dirname(pelicun.__file__), 'settings/default_units.json'
-                ),
-                'r',
-                encoding='utf-8',
-            ) as f:
-                units = json.load(f)
+
             pipe_length_unit = GI_ap['units']['length']
-            pipe_length_unit_factor = units['length'][pipe_length_unit]
-            pipe_length_in_base_unit = pipe_length * pipe_length_unit_factor
-            reference_length_in_base_unit = 20.00 * units['length']['ft']
-            if pipe_length_in_base_unit % reference_length_in_base_unit < 1e-2:
+            pipe_length_feet = pelicun.base.convert_units(
+                pipe_length, unit=pipe_length_unit, to_unit='ft', category='length'
+            )
+            reference_length = 20.00  # 20 ft
+            if pipe_length_feet % reference_length < 1e-2:
                 # If the lengths are equal, then that's one segment, not two.
-                num_segments = int(
-                    pipe_length_in_base_unit / reference_length_in_base_unit
-                )
+                num_segments = int(pipe_length_feet / reference_length)
             else:
                 # In all other cases, round up.
-                num_segments = (
-                    int(pipe_length_in_base_unit / reference_length_in_base_unit) + 1
-                )
+                num_segments = int(pipe_length_feet / reference_length) + 1
             if num_segments > 1:
                 location_string = f'1--{num_segments}'
             else:
