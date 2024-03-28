@@ -947,7 +947,7 @@ def run_pelicun(
                 adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
                 adf.loc['collapse', 'Incomplete'] = 0
 
-        else:
+        elif "Water" not in asset_config['ComponentDatabase']:
             # add a placeholder collapse fragility that will never trigger
             # collapse, but allow damage processes to work with collapse
 
