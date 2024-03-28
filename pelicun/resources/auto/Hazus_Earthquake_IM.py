@@ -656,10 +656,10 @@ def auto_populate(AIM):
 
             # Create damage process
             dmg_process = {
-                f"1_PWP.{pipe_flexibility}.GS": {"DS1": "aggregate_DS1"},
-                f"2_PWP.{pipe_flexibility}.GF": {"DS1": "aggregate_DS1"},
-                f"3_PWP.{pipe_flexibility}.GS": {"DS2": "aggregate_DS2"},
-                f"4_PWP.{pipe_flexibility}.GF": {"DS2": "aggregate_DS2"},
+                f"1_PWP.{pipe_flexibility}.GS-LOC": {"DS1": "aggregate_DS1"},
+                f"2_PWP.{pipe_flexibility}.GF-LOC": {"DS1": "aggregate_DS1"},
+                f"3_PWP.{pipe_flexibility}.GS-LOC": {"DS2": "aggregate_DS2"},
+                f"4_PWP.{pipe_flexibility}.GF-LOC": {"DS2": "aggregate_DS2"},
             }
             dmg_process_filename = 'dmg_process.json'
             with open(dmg_process_filename, 'w', encoding='utf-8') as f:
