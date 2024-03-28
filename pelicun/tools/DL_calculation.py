@@ -1005,12 +1005,7 @@ def run_pelicun(
             adf.loc['aggregate', ('LS1', 'Theta_0')] = 1e10
             adf.loc['aggregate', 'Incomplete'] = 0
 
-        PAL.damage.load_damage_model(
-            component_db
-            + [
-                adf,
-            ]
-        )
+        PAL.damage.load_damage_model(component_db + [adf])
 
         # load the damage process if needed
         dmg_process = None
