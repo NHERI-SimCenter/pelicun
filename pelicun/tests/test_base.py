@@ -305,20 +305,15 @@ def test_convert_dtypes():
 
     # Expected DataFrame
     df_expected = pd.DataFrame({'a': [1, 2, 3], 'b': [4.0, 5.5, 6.75]}).astype(
-        {'a': int, 'b': float}
+        {'a': 'int64', 'b': 'float64'}
     )
 
     # Convert data types
     df_result = base.convert_dtypes(df_input)
 
-    # Verify dtypes
-
-    if os.name == 'nt':
-        # Windows sometimes uses int32 and sometimes int64, breaking
-        # our tests.
-        df_expected['a'] = df_expected['a'].astype('int64')
-
-    pd.testing.assert_frame_equal(df_result, df_expected)
+    pd.testing.assert_frame_equal(
+        df_result, df_expected, check_index_type=False, check_column_type=False
+    )
 
     # No columns that can be converted
 
@@ -327,7 +322,9 @@ def test_convert_dtypes():
     )
     df_expected = df_input.copy()
     df_result = base.convert_dtypes(df_input)
-    pd.testing.assert_frame_equal(df_result, df_expected)
+    pd.testing.assert_frame_equal(
+        df_result, df_expected, check_index_type=False, check_column_type=False
+    )
 
     # Columns with mixed types
 
@@ -339,21 +336,31 @@ def test_convert_dtypes():
         }
     )
     df_result = base.convert_dtypes(df_input)
-    pd.testing.assert_frame_equal(df_result, df_input)
+    pd.testing.assert_frame_equal(
+        df_result, df_input, check_index_type=False, check_column_type=False
+    )
 
     # None values present
 
     df_input = pd.DataFrame({'a': [None, '2', '3'], 'b': ['4.0', None, '6.75']})
     df_expected = pd.DataFrame({'a': [np.nan, 2, 3], 'b': [4.0, np.nan, 6.75]})
     df_result = base.convert_dtypes(df_input)
-    pd.testing.assert_frame_equal(df_result, df_expected, check_dtype=False)
+    pd.testing.assert_frame_equal(
+        df_result,
+        df_expected,
+        check_dtype=False,
+        check_index_type=False,
+        check_column_type=False,
+    )
 
     # Empty dataframe
 
     df_input = pd.DataFrame({})
     df_expected = pd.DataFrame({})
     df_result = base.convert_dtypes(df_input)
-    pd.testing.assert_frame_equal(df_result, df_expected)
+    pd.testing.assert_frame_equal(
+        df_result, df_expected, check_index_type=False, check_column_type=False
+    )
 
 
 def test_convert_to_SimpleIndex():

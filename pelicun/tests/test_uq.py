@@ -799,132 +799,19 @@ def test__OLS_percentiles():
 # The following tests verify the methods of the objects of the module.
 
 
-def test_RandomVariable():
-    # instantiate a random variable with default attributes
-    rv_1 = uq.RandomVariable('rv_1', 'empirical')
-    # verify that the attributes have been assigned as expected
-    assert rv_1.name == 'rv_1'
-    assert rv_1._distribution == 'empirical'
-    assert np.isnan(rv_1._theta[0])
-
-    # instantiate a random variable with default attributes
-    rv_2 = uq.RandomVariable('rv_2', 'coupled_empirical')
-    # verify that the attributes have been assigned as expected
-    assert rv_2.name == 'rv_2'
-    assert rv_2._distribution == 'coupled_empirical'
-    assert np.isnan(rv_2._theta[0])
-
-    # verify that other distributions require theta
-    distributions = (
-        'normal',
-        'lognormal',
-        'multinomial',
-        'custom',
-        'uniform',
-        'deterministic',
-    )
-    for distribution in distributions:
-        with pytest.raises(ValueError):
-            uq.RandomVariable("won't see the light of day", distribution)
-
-    # define a distribution with a given theta
-    rv_3 = uq.RandomVariable('rv_3', 'normal', np.array((1.00, 0.20)))
-    # redefine the theta attribute
-    rv_3.theta = np.array((2.00, 0.20))
-    # retrieve other attributes
-    assert np.allclose(rv_3.theta, np.array((2.00, 0.20)))
-    assert rv_3.custom_expr is None
-    assert rv_3.RV_set is None
-    assert rv_3.sample_DF is None
-    # assign an anchor value
-    rv_3.anchor = 2.00
-
-    # multinomial with invalid p values provided in the theta vector
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'rv_invalid', 'multinomial', np.array((0.20, 0.70, 0.10, 42.00))
-        )
-
-    # multilinear CDF: cases that should fail
-
-    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (100.00, 0.20, 0.20, 0.80, 1.00)
-    values = np.column_stack((x_values, y_values))
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'test_rv',
-            'multilinear_CDF',
-            theta=values
-        )
-
-    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.20, 0.20, 0.80, 0.80)
-    values = np.column_stack((x_values, y_values))
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'test_rv',
-            'multilinear_CDF',
-            theta=values
-        )
-
-    x_values = (0.00, 3.00, 1.00, 2.00, 4.00)
-    y_values = (0.00, 0.25, 0.50, 0.75, 1.00)
-    values = np.column_stack((x_values, y_values))
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'test_rv',
-            'multilinear_CDF',
-            theta=values
-        )
-
-    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.75, 0.50, 0.25, 1.00)
-    values = np.column_stack((x_values, y_values))
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'test_rv',
-            'multilinear_CDF',
-            theta=values
-        )
-
-    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.50, 0.50, 0.50, 1.00)
-    values = np.column_stack((x_values, y_values))
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'test_rv',
-            'multilinear_CDF',
-            theta=values
-        )
-
-    x_values = (0.00, 2.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.20, 0.40, 0.50, 1.00)
-    values = np.column_stack((x_values, y_values))
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'test_rv',
-            'multilinear_CDF',
-            theta=values
-        )
-
-    # truncation limits not supported
-    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.25, 0.50, 0.75, 1.00)
-    values = np.column_stack((x_values, y_values))
-    with pytest.raises(ValueError):
-        uq.RandomVariable(
-            'test_rv',
-            'multilinear_CDF',
-            theta=values,
-            truncation_limits=np.array((0.20, 0.80))
-        )
+def test_NormalRandomVariable():
+    rv = uq.NormalRandomVariable('rv_name', theta=np.array((0.00, 1.00)))
+    assert rv.name == 'rv_name'
+    np.testing.assert_allclose(rv.theta, np.array((0.00, 1.00)))
+    assert np.all(np.isnan(rv.truncation_limits))
+    assert rv.RV_set is None
+    assert rv.sample_DF is None
 
 
-def test_RandomVariable_cdf():
-    # create a normal random variable
-    rv = uq.RandomVariable(
+def test_NormalRandomVariable_cdf():
+    # test CDF method
+    rv = uq.NormalRandomVariable(
         'test_rv',
-        'normal',
         theta=(1.0, 1.0),
         truncation_limits=np.array((0.00, np.nan)),
     )
@@ -937,7 +824,7 @@ def test_RandomVariable_cdf():
     assert np.allclose(cdf, (0.0, 0.0, 0.1781461, 0.40571329, 0.81142658), rtol=1e-5)
 
     # repeat without truncation limits
-    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 1.0))
+    rv = uq.NormalRandomVariable('test_rv', theta=(1.0, 1.0))
 
     # evaluate CDF at different points
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
@@ -948,158 +835,102 @@ def test_RandomVariable_cdf():
         cdf, (0.02275013, 0.15865525, 0.30853754, 0.5, 0.84134475), rtol=1e-5
     )
 
-    # lognormal, lower truncation
-    rv = uq.RandomVariable(
+
+def test_NormalRandomVariable_inverse_transform():
+    samples = np.array((0.10, 0.20, 0.30))
+
+    rv = uq.NormalRandomVariable('test_rv', theta=(1.0, 0.5))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform, np.array((0.35922422, 0.57918938, 0.73779974)), rtol=1e-5
+    )
+
+    rv = uq.NormalRandomVariable('test_rv', theta=(1.0, 0.5))
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling()
+
+    # with truncation limits
+
+    rv = uq.NormalRandomVariable(
+        'test_rv', theta=(1.0, 0.5), truncation_limits=(np.nan, 1.20)
+    )
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform, np.array((0.24508018, 0.43936, 0.57313359)), rtol=1e-5
+    )
+
+    rv = uq.NormalRandomVariable(
+        'test_rv', theta=(1.0, 0.5), truncation_limits=(0.80, np.nan)
+    )
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform, np.array((0.8863824, 0.96947866, 1.0517347)), rtol=1e-5
+    )
+
+    rv = uq.NormalRandomVariable(
+        'test_rv', theta=(1.0, 0.5), truncation_limits=(0.80, 1.20)
+    )
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform, np.array((0.84155378, 0.88203946, 0.92176503)), rtol=1e-5
+    )
+
+    #
+    # edge cases
+    #
+
+    # normal with problematic truncation limits
+    rv = uq.NormalRandomVariable(
+        'test_rv', theta=(1.0, 0.5), truncation_limits=(1e8, 2e8)
+    )
+    rv.uni_sample = samples
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling()
+
+
+def test_LogNormalRandomVariable_cdf():
+    # lower truncation
+    rv = uq.LogNormalRandomVariable(
         'test_rv',
-        'lognormal',
         theta=(1.0, 1.0),
         truncation_limits=np.array((0.10, np.nan)),
     )
-
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
-
     assert np.allclose(
         cdf, (0.0, 0.0, 0.23597085, 0.49461712, 0.75326339), rtol=1e-5
     )
 
-    # lognormal, upper truncation
-    rv = uq.RandomVariable(
+    # upper truncation
+    rv = uq.LogNormalRandomVariable(
         'test_rv',
-        'lognormal',
         theta=(1.0, 1.0),
         truncation_limits=np.array((np.nan, 5.00)),
     )
-
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
-
     assert np.allclose(
         cdf, (0.00, 0.00, 0.25797755, 0.52840734, 0.79883714), rtol=1e-5
     )
 
-    # lognormal, no truncation
-    rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 1.0))
-
+    # no truncation
+    rv = uq.LogNormalRandomVariable('test_rv', theta=(1.0, 1.0))
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
-
     assert np.allclose(cdf, (0.0, 0.0, 0.2441086, 0.5, 0.7558914), rtol=1e-5)
 
-    # uniform, both theta values
-    rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.0, 1.0))
 
-    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
-    cdf = rv.cdf(x)
-
-    assert np.allclose(cdf, (0.0, 0.0, 0.5, 1.0, 1.0), rtol=1e-5)
-
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        # uniform, only upper theta value ( -inf implied )
-        rv = uq.RandomVariable('test_rv', 'uniform', theta=(np.nan, 100.00))
-
-        x = (-1.0, 0.0, 0.5, 1.0, 2.0)
-        cdf = rv.cdf(x)
-
-        assert np.all(np.isnan(cdf))
-
-    # uniform, only lower theta value ( +inf implied )
-    rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.00, np.nan))
-
-    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
-    cdf = rv.cdf(x)
-
-    assert np.allclose(cdf, (0.0, 0.0, 0.0, 0.0, 0.0), rtol=1e-5)
-
-    # uniform, with truncation limits
-    rv = uq.RandomVariable(
-        'test_rv',
-        'uniform',
-        theta=(0.0, 10.0),
-        truncation_limits=np.array((0.00, 1.00)),
-    )
-
-    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
-    cdf = rv.cdf(x)
-
-    assert np.allclose(cdf, (0.0, 0.0, 0.5, 1.0, 1.0), rtol=1e-5)
-
-    # multilinear CDF
-    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
-    y_values = (0.00, 0.20, 0.30, 0.80, 1.00)
-    values = np.column_stack((x_values, y_values))
-    rv = uq.RandomVariable(
-        'test_rv',
-        'multilinear_CDF',
-        theta=values
-    )
-    x = (-100.00, 0.00, 0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 100.00)
-    cdf = rv.cdf(x)
-
-    assert np.allclose(
-        cdf,
-        (0.00, 0.00, 0.10, 0.20, 0.25, 0.30, 0.55, 0.80, 0.90, 1.00, 1.0),
-        rtol=1e-5,
-    )
-
-
-def test_RandomVariable_inverse_transform():
-    #
-    # uniform
-    #
-
-    rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.0, 1.0))
-
+def test_LogNormalRandomVariable_inverse_transform():
     samples = np.array((0.10, 0.20, 0.30))
-
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
-
-    assert np.allclose(inverse_transform, samples, rtol=1e-5)
-
-    #
-    # uniform with unspecified bounds
-    #
-
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        rv = uq.RandomVariable('test_rv', 'uniform', theta=(np.nan, 1.0))
-        samples = np.array((0.10, 0.20, 0.30))
-        rv.uni_sample = samples
-        rv.inverse_transform_sampling()
-        inverse_transform = rv.sample
-        assert np.all(np.isnan(inverse_transform))
-        rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.00, np.nan))
-        rv.uni_sample = samples
-        rv.inverse_transform_sampling()
-        inverse_transform = rv.sample
-        assert np.all(np.isinf(inverse_transform))
-    rv = uq.RandomVariable(
-        'test_rv',
-        'uniform',
-        theta=(0.00, 1.00),
-        truncation_limits=np.array((0.20, 0.80)),
-    )
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
-    assert np.allclose(inverse_transform, np.array((0.26, 0.32, 0.38)), rtol=1e-5)
-
-    # sample as a pandas series, with a log() map
-    rv._f_map = np.log
-    assert rv.sample_DF.to_dict() == {
-        0: -1.3470736479666092,
-        1: -1.1394342831883646,
-        2: -0.9675840262617056,
-    }
-
-    #
-    # lognormal
-    #
-
-    rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
+    rv = uq.LogNormalRandomVariable('test_rv', theta=(1.0, 0.5))
 
     rv.uni_sample = samples
     rv.inverse_transform_sampling()
@@ -1113,9 +944,8 @@ def test_RandomVariable_inverse_transform():
     # lognormal with truncation limits
     #
 
-    rv = uq.RandomVariable(
+    rv = uq.LogNormalRandomVariable(
         'test_rv',
-        'lognormal',
         theta=(1.0, 0.5),
         truncation_limits=np.array((0.50, np.nan)),
     )
@@ -1127,93 +957,170 @@ def test_RandomVariable_inverse_transform():
     )
 
     #
-    # normal
+    # edge cases
     #
 
-    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
-
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
-
-    assert np.allclose(
-        inverse_transform, np.array((0.35922422, 0.57918938, 0.73779974)), rtol=1e-5
-    )
-
-    rv = uq.RandomVariable('test_rv', 'normal', theta=(1.0, 0.5))
+    # lognormal without values to sample from
+    rv = uq.LogNormalRandomVariable('test_rv', theta=(1.0, 0.5))
     with pytest.raises(ValueError):
         rv.inverse_transform_sampling()
 
-    #
-    # normal with truncation limits
-    #
 
-    rv = uq.RandomVariable(
-        'test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(np.nan, 1.20)
-    )
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
-    assert np.allclose(
-        inverse_transform, np.array((0.24508018, 0.43936, 0.57313359)), rtol=1e-5
-    )
-    rv = uq.RandomVariable(
-        'test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, np.nan)
-    )
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
-    assert np.allclose(
-        inverse_transform, np.array((0.8863824, 0.96947866, 1.0517347)), rtol=1e-5
-    )
-    rv = uq.RandomVariable(
-        'test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(0.80, 1.20)
-    )
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
-    assert np.allclose(
-        inverse_transform, np.array((0.84155378, 0.88203946, 0.92176503)), rtol=1e-5
-    )
+def test_UniformRandomVariable_cdf():
+    # uniform, both theta values
+    rv = uq.UniformRandomVariable('test_rv', theta=(0.0, 1.0))
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+    assert np.allclose(cdf, (0.0, 0.0, 0.5, 1.0, 1.0), rtol=1e-5)
 
-    #
-    # empirical
-    #
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        # uniform, only upper theta value ( -inf implied )
+        rv = uq.UniformRandomVariable('test_rv', theta=(np.nan, 100.00))
+        x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+        cdf = rv.cdf(x)
+        assert np.all(np.isnan(cdf))
 
-    rv = uq.RandomVariable(
-        'test_rv', 'empirical', raw_samples=(1.00, 2.00, 3.00, 4.00)
-    )
+    # uniform, only lower theta value ( +inf implied )
+    rv = uq.UniformRandomVariable('test_rv', theta=(0.00, np.nan))
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+    assert np.allclose(cdf, (0.0, 0.0, 0.0, 0.0, 0.0), rtol=1e-5)
 
-    samples = np.array((0.10, 0.50, 0.90))
-
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling(len(samples))
-    inverse_transform = rv.sample
-
-    assert np.allclose(inverse_transform, np.array((1.00, 3.00, 4.00)), rtol=1e-5)
-
-    rv = uq.RandomVariable(
+    # uniform, with truncation limits
+    rv = uq.UniformRandomVariable(
         'test_rv',
-        'coupled_empirical',
-        raw_samples=np.array((1.00, 2.00, 3.00, 4.00)),
+        theta=(0.0, 10.0),
+        truncation_limits=np.array((0.00, 1.00)),
     )
-    rv.inverse_transform_sampling(6)
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+    assert np.allclose(cdf, (0.0, 0.0, 0.5, 1.0, 1.0), rtol=1e-5)
+
+
+def test_UniformRandomVariable_inverse_transform():
+    rv = uq.UniformRandomVariable('test_rv', theta=(0.0, 1.0))
+    samples = np.array((0.10, 0.20, 0.30))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
     inverse_transform = rv.sample
+    assert np.allclose(inverse_transform, samples, rtol=1e-5)
 
-    assert np.allclose(
-        inverse_transform, np.array((1.00, 2.00, 3.00, 4.00, 1.00, 2.00)), rtol=1e-5
+    #
+    # uniform with unspecified bounds
+    #
+
+    rv = uq.UniformRandomVariable('test_rv', theta=(np.nan, 1.0))
+    samples = np.array((0.10, 0.20, 0.30))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.all(np.isnan(inverse_transform))
+
+    rv = uq.UniformRandomVariable('test_rv', theta=(0.00, np.nan))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.all(np.isinf(inverse_transform))
+
+    rv = uq.UniformRandomVariable(
+        'test_rv',
+        theta=(0.00, 1.00),
+        truncation_limits=np.array((0.20, 0.80)),
     )
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(inverse_transform, np.array((0.26, 0.32, 0.38)), rtol=1e-5)
 
-    # multilinear CDF
+    # sample as a pandas series, with a log() map
+    rv.f_map = np.log
+    assert rv.sample_DF.to_dict() == {
+        0: -1.3470736479666092,
+        1: -1.1394342831883646,
+        2: -0.9675840262617056,
+    }
 
+    #
+    # edge cases
+    #
+
+    # uniform without values to sample from
+    rv = uq.UniformRandomVariable('test_rv', theta=(0.0, 1.0))
+    with pytest.raises(ValueError):
+        rv.inverse_transform_sampling()
+
+
+def test_MultinomialRandomVariable():
+    # multinomial with invalid p values provided in the theta vector
+    with pytest.raises(ValueError):
+        uq.MultinomialRandomVariable(
+            'rv_invalid', np.array((0.20, 0.70, 0.10, 42.00))
+        )
+
+
+def test_MultilinearCDFRandomVariable():
+    # multilinear CDF: cases that should fail
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (100.00, 0.20, 0.20, 0.80, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.20, 0.20, 0.80, 0.80)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+
+    x_values = (0.00, 3.00, 1.00, 2.00, 4.00)
+    y_values = (0.00, 0.25, 0.50, 0.75, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.75, 0.50, 0.25, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.50, 0.50, 0.50, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+
+    x_values = (0.00, 2.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.20, 0.40, 0.50, 1.00)
+    values = np.column_stack((x_values, y_values))
+    with pytest.raises(ValueError):
+        uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+
+
+def test_MultilinearCDFRandomVariable_cdf():
     x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
     y_values = (0.00, 0.20, 0.30, 0.80, 1.00)
     values = np.column_stack((x_values, y_values))
-    rv = uq.RandomVariable('test_rv', 'multilinear_CDF', theta=values)
+    rv = uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+    x = (-100.00, 0.00, 0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 100.00)
+    cdf = rv.cdf(x)
 
-    rv.uni_sample = np.array(
-        (0.00, 0.1, 0.2, 0.5, 0.8, 0.9, 1.00)
+    assert np.allclose(
+        cdf,
+        (0.00, 0.00, 0.10, 0.20, 0.25, 0.30, 0.55, 0.80, 0.90, 1.00, 1.0),
+        rtol=1e-5,
     )
+
+
+def test_MultilinearCDFRandomVariable_inverse_transform():
+    x_values = (0.00, 1.00, 2.00, 3.00, 4.00)
+    y_values = (0.00, 0.20, 0.30, 0.80, 1.00)
+    values = np.column_stack((x_values, y_values))
+    rv = uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+
+    rv.uni_sample = np.array((0.00, 0.1, 0.2, 0.5, 0.8, 0.9, 1.00))
     rv.inverse_transform_sampling()
     inverse_transform = rv.sample
     assert np.allclose(
@@ -1222,51 +1129,45 @@ def test_RandomVariable_inverse_transform():
         rtol=1e-5,
     )
 
-    #
-    # edge cases
-    #
 
-    # normal with problematic truncation limits
-    rv = uq.RandomVariable(
-        'test_rv', 'normal', theta=(1.0, 0.5), truncation_limits=(1e8, 2e8)
-    )
+def test_EmpiricalRandomVariable_inverse_transform():
+    samples = np.array((0.10, 0.20, 0.30))
+
+    rv = uq.EmpiricalRandomVariable('test_rv', raw_samples=(1.00, 2.00, 3.00, 4.00))
+
+    samples = np.array((0.10, 0.50, 0.90))
+
     rv.uni_sample = samples
-    with pytest.raises(ValueError):
-        rv.inverse_transform_sampling()
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
 
-    # lognormal without values to sample from
-    rv = uq.RandomVariable('test_rv', 'lognormal', theta=(1.0, 0.5))
-    with pytest.raises(ValueError):
-        rv.inverse_transform_sampling()
+    assert np.allclose(inverse_transform, np.array((1.00, 3.00, 4.00)), rtol=1e-5)
 
-    # uniform without values to sample from
-    rv = uq.RandomVariable('test_rv', 'uniform', theta=(0.0, 1.0))
-    with pytest.raises(ValueError):
-        rv.inverse_transform_sampling()
-
-    # empirical, coupled_empirical without values to sample from
-    for distr in ('empirical', 'coupled_empirical'):
-        rv = uq.RandomVariable('test_rv', distr)
-        with pytest.raises(ValueError):
-            rv.inverse_transform_sampling()
-
-    # deterministic
-    rv = uq.RandomVariable('test_rv', 'deterministic', theta=np.array((0.00, 1.00)))
-    with pytest.raises(ValueError):
-        rv.inverse_transform_sampling()
-
-    # multinomial
-    rv = uq.RandomVariable(
-        'test_rv', 'multinomial', theta=np.array((0.20, 0.30, 0.50))
+    rv = uq.CoupledEmpiricalRandomVariable(
+        'test_rv',
+        raw_samples=np.array((1.00, 2.00, 3.00, 4.00)),
     )
-    with pytest.raises(ValueError):
-        rv.inverse_transform_sampling()
+    rv.inverse_transform_sampling(sample_size=6)
+    inverse_transform = rv.sample
+
+    assert np.allclose(
+        inverse_transform, np.array((1.00, 2.00, 3.00, 4.00, 1.00, 2.00)), rtol=1e-5
+    )
+
+
+def test_DeterministicRandomVariable_inverse_transform():
+    rv = uq.DeterministicRandomVariable('test_rv', theta=np.array((0.00,)))
+    rv.inverse_transform_sampling(4)
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform, np.array((0.00, 0.00, 0.00, 0.00)), rtol=1e-5
+    )
 
 
 def test_RandomVariable_Set():
     # a set of two random variables
-    rv_1 = uq.RandomVariable('rv1', 'normal', theta=(1.0, 1.0))
-    rv_2 = uq.RandomVariable('rv2', 'normal', theta=(1.0, 1.0))
+    rv_1 = uq.NormalRandomVariable('rv1', theta=(1.0, 1.0))
+    rv_2 = uq.NormalRandomVariable('rv2', theta=(1.0, 1.0))
     rv_set = uq.RandomVariableSet(  # noqa: F841
         'test_set', (rv_1, rv_2), np.array(((1.0, 0.50), (0.50, 1.0)))
     )
@@ -1275,7 +1176,7 @@ def test_RandomVariable_Set():
     assert rv_set.size == 2
 
     # a set with only one random variable
-    rv_1 = uq.RandomVariable('rv1', 'normal', theta=(1.0, 1.0))
+    rv_1 = uq.NormalRandomVariable('rv1', theta=(1.0, 1.0))
     rv_set = uq.RandomVariableSet(  # noqa: F841
         'test_set', (rv_1,), np.array(((1.0, 0.50),))
     )
@@ -1287,8 +1188,8 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
 
     # correlated, uniform
     np.random.seed(40)
-    rv_1 = uq.RandomVariable(name='rv1', distribution='uniform', theta=(-5.0, 5.0))
-    rv_2 = uq.RandomVariable(name='rv2', distribution='uniform', theta=(-5.0, 5.0))
+    rv_1 = uq.UniformRandomVariable(name='rv1', theta=(-5.0, 5.0))
+    rv_2 = uq.UniformRandomVariable(name='rv2', theta=(-5.0, 5.0))
 
     rv_1.uni_sample = np.random.random(size=100)
     rv_2.uni_sample = np.random.random(size=100)
@@ -1309,8 +1210,8 @@ def test_RandomVariable_Set_apply_correlation(reset=False):
 
     # we also test .sample here
 
-    rv_1.inverse_transform_sampling(10)
-    rv_2.inverse_transform_sampling(10)
+    rv_1.inverse_transform_sampling()
+    rv_2.inverse_transform_sampling()
     rvset_sample = rvs.sample
     assert set(rvset_sample.keys()) == set(('rv1', 'rv2'))
     vals = list(rvset_sample.values())
@@ -1334,8 +1235,8 @@ def test_RandomVariable_Set_apply_correlation_special():
 
     # non positive semidefinite correlation matrix
     rho = np.array(((1.00, 0.50), (0.50, -1.00)))
-    rv_1 = uq.RandomVariable('rv1', 'normal', theta=[5.0, 0.1])
-    rv_2 = uq.RandomVariable('rv2', 'normal', theta=[5.0, 0.1])
+    rv_1 = uq.NormalRandomVariable('rv1', theta=[5.0, 0.1])
+    rv_2 = uq.NormalRandomVariable('rv2', theta=[5.0, 0.1])
     rv_1.uni_sample = np.random.random(size=100)
     rv_2.uni_sample = np.random.random(size=100)
     rv_set = uq.RandomVariableSet('rv_set', [rv_1, rv_2], rho)
@@ -1343,8 +1244,8 @@ def test_RandomVariable_Set_apply_correlation_special():
 
     # non full rank matrix
     rho = np.array(((0.00, 0.00), (0.0, 0.0)))
-    rv_1 = uq.RandomVariable('rv1', 'normal', theta=[5.0, 0.1])
-    rv_2 = uq.RandomVariable('rv2', 'normal', theta=[5.0, 0.1])
+    rv_1 = uq.NormalRandomVariable('rv1', theta=[5.0, 0.1])
+    rv_2 = uq.NormalRandomVariable('rv2', theta=[5.0, 0.1])
     rv_1.uni_sample = np.random.random(size=100)
     rv_2.uni_sample = np.random.random(size=100)
     rv_set = uq.RandomVariableSet('rv_set', [rv_1, rv_2], rho)
@@ -1358,13 +1259,13 @@ def test_RandomVariable_Set_orthotope_density(reset=False):
     data_dir = 'pelicun/tests/data/uq/test_random_variable_set_orthotope_density'
 
     # create some random variables
-    rv_1 = uq.RandomVariable(
-        'rv1', 'normal', theta=[5.0, 0.1], truncation_limits=np.array((np.nan, 10.0))
+    rv_1 = uq.NormalRandomVariable(
+        'rv1', theta=[5.0, 0.1], truncation_limits=np.array((np.nan, 10.0))
     )
-    rv_2 = uq.RandomVariable('rv2', 'lognormal', theta=[10.0, 0.2])
-    rv_3 = uq.RandomVariable('rv3', 'uniform', theta=[13.0, 17.0])
-    rv_4 = uq.RandomVariable('rv4', 'uniform', theta=[0.0, 1.0])
-    rv_5 = uq.RandomVariable('rv5', 'uniform', theta=[0.0, 1.0])
+    rv_2 = uq.LogNormalRandomVariable('rv2', theta=[10.0, 0.2])
+    rv_3 = uq.UniformRandomVariable('rv3', theta=[13.0, 17.0])
+    rv_4 = uq.UniformRandomVariable('rv4', theta=[0.0, 1.0])
+    rv_5 = uq.UniformRandomVariable('rv5', theta=[0.0, 1.0])
 
     # create a random variable set
     rv_set = uq.RandomVariableSet(
@@ -1425,7 +1326,7 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         rng = np.random.default_rng(0)
         rv_registry_single = uq.RandomVariableRegistry(rng)
         # create the random variable and add it to the registry
-        RV = uq.RandomVariable('x', distribution='normal', theta=[1.0, 1.0])
+        RV = uq.NormalRandomVariable('x', theta=[1.0, 1.0])
         rv_registry_single.add_RV(RV)
 
         # Generate a sample
@@ -1454,9 +1355,9 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         # create a random variable registry and add some random variables to it
         rng = np.random.default_rng(4)
         rv_registry = uq.RandomVariableRegistry(rng)
-        rv_1 = uq.RandomVariable('rv1', 'normal', theta=[5.0, 0.1])
-        rv_2 = uq.RandomVariable('rv2', 'lognormal', theta=[10.0, 0.2])
-        rv_3 = uq.RandomVariable('rv3', 'uniform', theta=[13.0, 17.0])
+        rv_1 = uq.NormalRandomVariable('rv1', theta=[5.0, 0.1])
+        rv_2 = uq.LogNormalRandomVariable('rv2', theta=[10.0, 0.2])
+        rv_3 = uq.UniformRandomVariable('rv3', theta=[13.0, 17.0])
         rv_registry.add_RV(rv_1)
         rv_registry.add_RV(rv_2)
         rv_registry.add_RV(rv_3)
@@ -1470,8 +1371,8 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         rv_registry.add_RV_set(rv_set)
 
         # add some more random variables that are not part of the set
-        rv_4 = uq.RandomVariable('rv4', 'normal', theta=[14.0, 0.30])
-        rv_5 = uq.RandomVariable('rv5', 'normal', theta=[15.0, 0.50])
+        rv_4 = uq.NormalRandomVariable('rv4', theta=[14.0, 0.30])
+        rv_5 = uq.NormalRandomVariable('rv5', theta=[15.0, 0.50])
         rv_registry.add_RV(rv_4)
         rv_registry.add_RV(rv_5)
 
@@ -1492,6 +1393,14 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         assert 'rv1' in rv_dictionary
         assert 'rv2' in rv_dictionary
         assert 'rv3' not in rv_dictionary
+
+
+def test_rv_class_map():
+    rv_class = uq.rv_class_map('normal')
+    assert rv_class.__name__ == 'NormalRandomVariable'
+
+    with pytest.raises(ValueError):
+        uq.rv_class_map('<unsupported>')
 
 
 if __name__ == '__main__':

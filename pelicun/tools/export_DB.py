@@ -82,7 +82,7 @@ def export_DB(data_path, target_dir):
                   encoding='utf-8') as f:
             json.dump(pop_dict, f, indent=2)
 
-    except:
+    except (ValueError, NotImplementedError, FileNotFoundError):
         pass
 
 

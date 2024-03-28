@@ -68,7 +68,7 @@ class Assessment:
         ...
     damage: DamageModel
         ...
-    bldg_repair: BldgRepairModel
+    repair: RepairModel
         ...
     stories: int
         Number of stories.
@@ -146,18 +146,18 @@ class Assessment:
         return self.damage
 
     @property
-    def bldg_repair(self):
+    def repair(self):
         """
-        Return an BldgRepairModel object that manages the repair information.
+        Return a RepairModel object that manages the repair information.
 
         """
         # pylint: disable = access-member-before-definition
 
-        if hasattr(self, '_bldg_repair'):
-            return self._bldg_repair
+        if hasattr(self, '_repair'):
+            return self._repair
 
-        self._bldg_repair = model.BldgRepairModel(self)
-        return self.bldg_repair
+        self._repair = model.RepairModel(self)
+        return self.repair
 
     def get_default_data(self, data_name):
         """
