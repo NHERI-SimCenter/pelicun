@@ -1145,11 +1145,6 @@ class DamageModel(PelicunModel):
 
                 # clear damage state information
                 elif target_event == 'NA':
-                    if match_locations:
-                        raise ValueError(
-                            'Invalid damage task configuration. Cannot match '
-                            'locations when the target event is set to NA.'
-                        )
                     ds_target = -1
                     # -1 stands for nan (ints don'ts support nan)
 
@@ -1223,13 +1218,19 @@ class DamageModel(PelicunModel):
 
             # affected columns
             if target_cmp == 'ALL':
-                raise ValueError('Cannot combine `-LOC` with `ALL` keywords')
-            column_selection = np.where(
-                np.logical_and(
-                    ds_sample.columns.get_level_values('cmp') == target_cmp,
-                    ds_sample.columns.get_level_values('loc') == loc,
-                )
-            )[0]
+                column_selection = np.where(
+                    np.logical_and(
+                        ds_sample.columns.get_level_values('cmp') != source_cmp,
+                        ds_sample.columns.get_level_values('loc') == loc,
+                    )
+                )[0]
+            else:
+                column_selection = np.where(
+                    np.logical_and(
+                        ds_sample.columns.get_level_values('cmp') == target_cmp,
+                        ds_sample.columns.get_level_values('loc') == loc,
+                    )
+                )[0]
             ds_sample.iloc[row_selection, column_selection] = ds_target
 
     def _get_pg_batches(self, block_batch_size):
