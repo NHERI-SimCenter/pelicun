@@ -268,7 +268,7 @@ class DamageModel(PelicunModel):
 
         The method initializes two random variable registries,
         capacity_RV_reg and lsds_RV_reg, and loops through each
-        performance group in the input performance group block (PGB)
+        performance group in the input performance group batch (PGB)
         dataframe. For each performance group, it retrieves the
         component sample and blocks and checks if the limit state is
         defined for the component. If the limit state is defined, the
@@ -935,7 +935,7 @@ class DamageModel(PelicunModel):
 
         return ds_sample
 
-    def _prepare_dmg_quantities(self, component_blocks, ds_sample, dropzero=True):
+    def _prepare_dmg_quantities(self, PGB, damage_state_sample, dropzero=True):
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -946,10 +946,10 @@ class DamageModel(PelicunModel):
 
         Parameters
         ----------
-        component_blocks: DataFrame
+        PGB: DataFrame
             A DataFrame that contains the number of blocks for each
             component.
-        ds_sample: DataFrame
+        damage_state_sample: DataFrame
             A DataFrame that assigns a damage state to each component
             block in the asset model.
         dropzero: bool, optional, default: True
@@ -992,29 +992,29 @@ class DamageModel(PelicunModel):
                 return 1.00
 
         # ('cmp', 'loc', 'dir', 'uid', 'block') -> damage state series
-        ds_sample_dict = ds_sample.to_dict('series')
+        damage_state_sample_dict = damage_state_sample.to_dict('series')
 
         dmg_qnt_series_collection = {}
-        for key, ds_series in ds_sample_dict.items():
+        for key, damage_state_series in damage_state_sample_dict.items():
             component, location, direction, uid, block = key
-            ds_set = set(ds_series.values)
-            for ds in ds_set:
+            damage_state_set = set(damage_state_series.values)
+            for ds in damage_state_set:
                 if ds == -1:
                     continue
                 if dropzero and ds == 0:
                     continue
                 else:
                     dmg_qnt_vals = np.where(
-                        ds_series.values == ds,
+                        damage_state_series.values == ds,
                         component_quantities[
                             component, location, direction, uid
                         ].values
                         / get_num_blocks((component, location, direction, uid)),
                         0.00,
                     )
-                    if -1 in ds_set:
+                    if -1 in damage_state_set:
                         dmg_qnt_vals = np.where(
-                            ds_series.values != -1, dmg_qnt_vals, np.nan
+                            damage_state_series.values != -1, dmg_qnt_vals, np.nan
                         )
                     dmg_qnt_series = pd.Series(dmg_qnt_vals)
                     dmg_qnt_series_collection[
@@ -1513,11 +1513,11 @@ class DamageModel(PelicunModel):
         ds_samples = []
         for PGB_i in batches:
 
-            component_blocks = pg_batch.loc[PGB_i]
+            performance_group = pg_batch.loc[PGB_i]
 
             self.log_msg(
                 f"Calculating damage for PG batch {PGB_i} with "
-                f"{int(component_blocks['Blocks'].sum())} blocks"
+                f"{int(performance_group['Blocks'].sum())} blocks"
             )
 
             # Generate an array with component capacities for each block and
@@ -1525,11 +1525,11 @@ class DamageModel(PelicunModel):
             # each component limit state. The latter is primarily needed to
             # handle limit states with multiple, mutually exclusive DS options
             capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, component_blocks, scaling_specification
+                sample_size, performance_group, scaling_specification
             )
 
             # Get the required demand types for the analysis
-            EDP_req = self._get_required_demand_type(component_blocks)
+            EDP_req = self._get_required_demand_type(performance_group)
 
             # Create the demand vector
             demand_dict = self._assemble_required_demand_data(EDP_req)
