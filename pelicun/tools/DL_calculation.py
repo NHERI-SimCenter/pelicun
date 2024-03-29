@@ -1279,6 +1279,12 @@ def run_pelicun(
     if loss_config is not None:
         out_config_loss = out_config.get('Loss', {})
 
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        # backwards-compatibility for v3.2 and earlier | remove after v4.0
+        if loss_config.get('BldgRepair', False):
+            loss_config['Repair'] = loss_config['BldgRepair']
+        # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         # if requested, calculate repair consequences
         if loss_config.get('Repair', False):
             repair_config = loss_config['Repair']
@@ -1581,7 +1587,7 @@ def run_pelicun(
             PAL.repair.calculate()
 
             agg_repair = PAL.repair.aggregate_losses()
-
+    
             # if requested, save results
             if out_config_loss.get('Repair', False):
                 repair_sample, repair_units = PAL.repair.save_sample(
