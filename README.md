@@ -108,6 +108,46 @@ Feel free to [open an issue](https://github.com/NHERI-SimCenter/pelicun/issues/n
 
 ## Changelog
 
+### Changes in v3.3
+
+- Changes affecting backwards compatibility
+
+  - **Remove "bldg" from repair consequence output filenames**: The increasing scope of Pelicun now covers simulations for transportation and water networks. Hence, labeling repair consequence outputs as if they were limited to buildings no longer seems appropriate. The `bldg` label was dropped from the following files: `DV_bldg_repair_sample`,`DV_bldg_repair_stats`,`DV_bldg_repair_grp`, `DV_bldg_repair_grp_stats`, `DV_bldg_repair_agg`, `DV_bldg_repair_agg_stats`.
+
+- Deprecation warnings
+
+  - **Remove `Bldg` from repair settings label in DL configuration file**: Following the changes above, we dropped `Bldg` from `BldgRepair` when defining settings for repair consequence simulation in a configuration file. The previous version (i.e., `BldgRepair`) will keep working until the next major release, but we encourage everyone to adopt the new approach and simply use the `Repair` keyword there.
+
+- New features
+
+  - **Location-specific damage processes**: This new feature is useful when you want damage to a component type to induce damage in another component type at the same location only. For example, damaged water pipes on a specific story can trigger damage in floor covering only on that specific story. Location-matching is performed automatically without you having to define component pairs for every location using the following syntax: `'1_CMP.A-LOC', {'DS1': 'CMP.B_DS1'}` , where DS1 of `CMP.A` at each location triggers DS1 of `CMP.B` at the same location.
+
+  - **New `custom_model_dir` argument for `DL_calculation`**: This argument allows users to prepare custom damage and loss model files in a folder and pass the path to that folder to an auto-population script through `DL_calculation`. Within the auto-population script, they can reference only the name of the files in that folder. This provides portability for simulations that use custom models and auto population, such as some of the advanced regional simualtions in [SimCenter's R2D Tool](https://simcenter.designsafe-ci.org/research-tools/r2dtool/). 
+
+  - **Extend Hazus EQ auto population sripts to include water networks**: Automatically recognize water network assets and map them to archetypes from the Hazus Earthquake technical manual.
+
+  - **Introduce `convert_units` function**: Provide streamlined unit conversion using the pre-defined library of units in Pelicun. Allows you to convert a variable from one unit to another using a single line of simple code, such as 
+  `converted_height = pelicun.base.convert_units(raw_height, unit='m', to_unit='ft')`
+  While not as powerful as some of the Python packages dedicated to unit conversion (e.g., [Pint](https://pint.readthedocs.io/en/stable/)), we believe the convenience this function provides for commonly used units justifies its use in several cases.
+
+- Architectural and code updates
+
+  - **Split `model.py` into subcomponents**: The `model.py` file was too large and its contents were easy to refactor into separate modules. Each model type has its own python file now and they are stored under the `model` folder.
+
+  - **Split the `RandomVariable` class into specific classes**: It seems more straightforward to grow the list of supported random variables by having a specific class for each kind of RV. We split the existing large `RandomVariable` class in `uq.py` leveraging inheritance to minimize redundant code.  
+
+  - **Automatic code formatting**: Further improve consistency in coding style by using [black](https://black.readthedocs.io/en/stable/) to review and format the code when needed.
+
+  - **Remove `bldg` from variable and class names**: Following the changes mentioned earlier, we dropped `bldg` from lables where the functionality is no longer limited to buildings.
+
+  - **Introduce `calibrated` attribute for demand model**: This new attribute will allow users to check if a model has already been calibrated to the provided empirical data.
+
+  - Several other minor improvements; see commit messages for details.
+
+- Dependencies
+
+  - Ceiling raised for `pandas`, supporting version 2.0 and above up until 3.0.
+
 ### Changes in v3.2
 
 * Changes that might affect backwards compatibility:

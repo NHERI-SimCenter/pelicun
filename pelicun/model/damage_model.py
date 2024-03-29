@@ -1030,7 +1030,7 @@ class DamageModel(PelicunModel):
 
         # sum up block quantities
         damage_quantities = damage_quantities.groupby(
-            ['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
+            level=['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
         ).sum()
 
         return damage_quantities
@@ -1562,6 +1562,10 @@ class DamageModel(PelicunModel):
         qnt_sample = self._prepare_dmg_quantities(
             pg_batch.reset_index('Batch', drop=True), ds_sample, dropzero=False
         )
+
+        # If requested, extend the quantity table with all possible DSs
+        if self._asmnt.options.list_all_ds:
+            qnt_sample = self._complete_ds_cols(qnt_sample)
 
         self.sample = qnt_sample
 

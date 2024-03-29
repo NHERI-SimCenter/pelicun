@@ -188,6 +188,7 @@ class Options:
 
         self._seed = merged_config_options['Seed']
         self.sampling_method = merged_config_options['SamplingMethod']
+        self.list_all_ds = merged_config_options['ListAllDamageStates']
 
         self.units_file = merged_config_options['UnitsFile']
 
