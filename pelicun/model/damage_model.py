@@ -1030,7 +1030,7 @@ class DamageModel(PelicunModel):
 
         # sum up block quantities
         damage_quantities = damage_quantities.groupby(
-            ['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
+            level=['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
         ).sum()
 
         return damage_quantities
