@@ -493,6 +493,12 @@ def run_pelicun(
     options = DL_config.get("Options", {})
     options.update({"LogFile": "pelicun_log.txt", "Verbose": True})
 
+    # If the user did not prescribe anything for ListAllDamageStates,
+    # then use True as default for DL_calculations regardless of what 
+    # the Pelicun default is.
+    if "ListAllDamageStates" not in options.keys():
+        options.update({"ListAllDamageStates": True})
+
     PAL = Assessment(options)
 
     # Demand Assessment -----------------------------------------------------------

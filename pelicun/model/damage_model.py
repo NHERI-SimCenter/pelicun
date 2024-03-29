@@ -1563,6 +1563,10 @@ class DamageModel(PelicunModel):
             pg_batch.reset_index('Batch', drop=True), ds_sample, dropzero=False
         )
 
+        # If requested, extend the quantity table with all possible DSs
+        if self._asmnt.options.list_all_ds:
+            qnt_sample = self._complete_ds_cols(qnt_sample)
+
         self.sample = qnt_sample
 
         self.log_msg('Damage calculation successfully completed.')
