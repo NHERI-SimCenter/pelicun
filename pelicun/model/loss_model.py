@@ -102,8 +102,12 @@ class LossModel(PelicunModel):
         cmp_units = self.loss_params[('DV', 'Unit')]
         dv_units = pd.Series(index=self.sample.columns, name='Units', dtype='object')
 
+        valid_dv_types = dv_units.index.unique(level=0)
+        valid_cmp_ids = dv_units.index.unique(level=1)
+
         for cmp_id, dv_type in cmp_units.index:
-            dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
+            if (dv_type in valid_dv_types) and (cmp_id in valid_cmp_ids):
+                dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
 
         res = file_io.save_to_csv(
             self.sample,
