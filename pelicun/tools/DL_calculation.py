@@ -1283,6 +1283,9 @@ def run_pelicun(
         # backwards-compatibility for v3.2 and earlier | remove after v4.0
         if loss_config.get('BldgRepair', False):
             loss_config['Repair'] = loss_config['BldgRepair']
+
+        if out_config_loss.get('BldgRepair', False):
+            out_config_loss['Repair'] = out_config_loss['BldgRepair']
         # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         # if requested, calculate repair consequences
