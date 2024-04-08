@@ -47,6 +47,23 @@ setup(
         'pandas>=1.4.0, <3.0',
         'tables>=3.7.0',
     ],
+    extras_require={
+        'development': [
+            'flake8',
+            'pylint',
+            'black',
+            'pytest',
+            'pytest-cov',
+            'glob2',
+            'jupyter',
+            'jupytext',
+            'sphinx',
+            'sphinx-autoapi',
+            'nbsphinx',
+            'flake8-rst',
+            'flake8-rst-docstrings',
+        ],
+    },
     classifiers=[
         'Programming Language :: Python',
         'Development Status :: 5 - Production/Stable',

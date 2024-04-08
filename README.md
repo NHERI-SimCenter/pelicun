@@ -73,10 +73,7 @@ cd pelicun
 
 # Install pelicun:
 # Note: don't forget to activate the corresponding environment.
-python -m pip install -e .
-
-# Install additional development setup dependencies
-python -m pip install -r requirements_dev.txt
+python -m pip install -e .[development]
 
 ```
 
