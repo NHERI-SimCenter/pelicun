@@ -322,8 +322,6 @@ class DemandModel(PelicunModel):
                 prepend_timestamp=False,
             )
 
-            raise ValueError()
-
         def parse_settings(settings, demand_type):
             def parse_str_to_float(in_str, context_string):
                 try:
