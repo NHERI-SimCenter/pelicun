@@ -82,9 +82,6 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Topic :: Scientific/Engineering',
     ],
-    extras_require={
-        'testing': ['pytest'],
-    },
     entry_points={
         'console_scripts': [
             'pelicun = pelicun.tools.DL_calculation:main',
