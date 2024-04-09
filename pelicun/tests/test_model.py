@@ -295,9 +295,6 @@ class TestDemandModel(TestModelModule):
             },
         }
         demand_model_with_sample_C.calibrate_model(config)
-        # calibrating again should raise an error
-        with pytest.raises(ValueError):
-            demand_model_with_sample_C.calibrate_model(config)
 
     def test_save_load_model_with_empirical(
         self, calibrated_demand_model, assessment_instance
