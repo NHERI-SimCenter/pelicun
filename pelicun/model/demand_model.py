@@ -859,6 +859,9 @@ class DemandModel(PelicunModel):
         self.sample = self.sample.iloc[:, column_index]
         # update the column index
         self.sample.columns = pd.MultiIndex.from_tuples(column_values)
+        # update units
+        self.units = self.units.iloc[column_index]
+        self.units.index = self.sample.columns
 
     def generate_sample(self, config):
         """
