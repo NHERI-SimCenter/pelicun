@@ -1205,7 +1205,7 @@ class BaseRandomVariable(ABC):
         self._uni_samples = value
 
 
-class CommonRandomVariable(BaseRandomVariable):
+class RandomVariable(BaseRandomVariable):
     """
     Random variable that needs `values` in `inverse_transform`
     """
@@ -1273,7 +1273,7 @@ class CommonRandomVariable(BaseRandomVariable):
         self.sample = self.inverse_transform(self.uni_sample)
 
 
-class SampleSizeRandomVariable(BaseRandomVariable):
+class UtilityRandomVariable(BaseRandomVariable):
     """
     Random variable that needs `sample_size` in `inverse_transform`
     """
@@ -1334,7 +1334,7 @@ class SampleSizeRandomVariable(BaseRandomVariable):
         self.sample = self.inverse_transform(sample_size)
 
 
-class NormalRandomVariable(CommonRandomVariable):
+class NormalRandomVariable(RandomVariable):
     """
     Normal random variable.
 
@@ -1454,7 +1454,7 @@ class NormalRandomVariable(CommonRandomVariable):
         return result
 
 
-class LogNormalRandomVariable(CommonRandomVariable):
+class LogNormalRandomVariable(RandomVariable):
     """
     Lognormal random variable.
 
@@ -1568,7 +1568,7 @@ class LogNormalRandomVariable(CommonRandomVariable):
         return result
 
 
-class UniformRandomVariable(CommonRandomVariable):
+class UniformRandomVariable(RandomVariable):
     """
     Uniform random variable.
 
@@ -1653,7 +1653,7 @@ class UniformRandomVariable(CommonRandomVariable):
         return result
 
 
-class MultilinearCDFRandomVariable(CommonRandomVariable):
+class MultilinearCDFRandomVariable(RandomVariable):
     """
     Multilinear CDF random variable. This RV is defined by specifying
     the points that define its Cumulative Density Function (CDF), and
@@ -1776,7 +1776,7 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
         return result
 
 
-class EmpiricalRandomVariable(CommonRandomVariable):
+class EmpiricalRandomVariable(RandomVariable):
     """
     Empirical random variable.
 
@@ -1829,7 +1829,7 @@ class EmpiricalRandomVariable(CommonRandomVariable):
         return result
 
 
-class CoupledEmpiricalRandomVariable(SampleSizeRandomVariable):
+class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
     """
     Coupled empirical random variable.
 
@@ -1913,7 +1913,7 @@ class CoupledEmpiricalRandomVariable(SampleSizeRandomVariable):
         return result
 
 
-class DeterministicRandomVariable(SampleSizeRandomVariable):
+class DeterministicRandomVariable(UtilityRandomVariable):
     """
     Deterministic random variable.
 
@@ -1989,7 +1989,7 @@ class DeterministicRandomVariable(SampleSizeRandomVariable):
         return result
 
 
-class MultinomialRandomVariable(CommonRandomVariable):
+class MultinomialRandomVariable(RandomVariable):
     """
     Multinomial random variable.
 
@@ -2428,11 +2428,11 @@ class RandomVariableRegistry:
 
         # Convert from uniform to the target distribution for every RV
         for RV in self.RV.values():
-            if RV.__class__.__mro__[1] is CommonRandomVariable:
+            if RV.__class__.__mro__[1] is RandomVariable:
                 # no sample size needed, since that information is
                 # available in the uniform sample
                 RV.inverse_transform_sampling()
-            elif RV.__class__.__mro__[1] is SampleSizeRandomVariable:
+            elif RV.__class__.__mro__[1] is UtilityRandomVariable:
                 RV.inverse_transform_sampling(sample_size)
             else:
                 raise NotImplementedError('Unknown RV parent class.')
