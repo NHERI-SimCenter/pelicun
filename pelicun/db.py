@@ -58,6 +58,7 @@ This module has classes and methods to manage databases used by pelicun.
 # todo
 # fmt: off
 
+from __future__ import annotations
 import re
 import json
 from pathlib import Path
@@ -2922,9 +2923,15 @@ def create_Hazus_EQ_bldg_injury_db(
 
 
 def create_Hazus_HU_fragility_db(
-    source_file,
-    target_meta_file='damage_DB_SimCenter_Hazus_HU_bldg.csv',
-):
+    source_file: str = (
+        'pelicun/resources/SimCenterDBDL/' 'damage_DB_SimCenter_Hazus_HU_bldg.csv'
+    ),
+    meta_file: str = (
+        'pelicun/resources/SimCenterDBDL/'
+        'damage_DB_SimCenter_Hazus_HU_bldg_template.json'
+    ),
+    target_meta_file: str = 'damage_DB_SimCenter_Hazus_HU_bldg.json',
+) -> None:
     """
     Create a database metadata file for the HAZUS Hurricane fragilities.
 
@@ -2937,114 +2944,70 @@ def create_Hazus_HU_fragility_db(
     ----------
     source_file: string
         Path to the Hazus Hurricane fragility data.
+    meta_file: string
+        Path to a predefined fragility metadata file.
     target_meta_file: string
         Path where the fragility metadata should be saved. A json file is
         expected.
 
     """
 
-    source_file = 'pelicun/resources/SimCenterDBDL/damage_DB_SimCenter_Hazus_HU_bldg.csv'  # todo
-
-    # general_information: {
-    #     "ShortName": "Hazus Hurricane Methodology",
-    #     "Description": "The models in this dataset are based on version 4.2 of the Hazus Hurricane Model Technical Manual",
-    #     "Version": "1.0",
-    #     # "ComponentGroups": {
-    #     #     "GF - Geotechnical Failure": [
-    #     #         "GF.H - Horizontal Spreading",
-    #     #         "GF.V - Vertical Settlement",
-    #     #     ],
-    #     #     "LF - Lifeline Facilities": [
-    #     #         "LF.W1 - Wood, Light Frame",
-    #     #         "LF.W2 - Wood, Commercial & Industrial",
-    #     #         "LF.S1 - Steel Moment Frame",
-    #     #         "LF.S2 - Steel Braced Frame",
-    #     #         "LF.S3 - Steel Light Frame",
-    #     #         "LF.S4 - Steel Frame with Cast-in-Place Concrete Shear Walls",
-    #     #         "LF.S5 - Steel Frame with Unreinforced Masonry Infill Walls",
-    #     #         "LF.C1 - Concrete Moment Frame",
-    #     #         "LF.C2 - Concrete Shear Walls",
-    #     #         "LF.C3 - Concrete Frame with Unreinforced Masonry Infill Walls",
-    #     #         "LF.PC1 - Precast Concrete Tilt-Up Walls",
-    #     #         "LF.PC2 - Precast Concrete Frames with Concrete Shear Walls",
-    #     #         "LF.RM1 - Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms",
-    #     #         "LF.RM2 - Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms",
-    #     #         "LF.URM - Unreinforced Masonry Bearing Walls",
-    #     #         "LF.MH - Mobile Homes",
-    #     #     ],
-    #     #     "NSA - Non-Structural Acceleration-Sensitive": [],
-    #     #     "NSD - Non-Structural Drift-Sensitive": [],
-    #     #     "STR - Structural": [
-    #     #         "STR.W1 - Wood, Light Frame",
-    #     #         "STR.W2 - Wood, Commercial & Industrial",
-    #     #         "STR.S1 - Steel Moment Frame",
-    #     #         "STR.S2 - Steel Braced Frame",
-    #     #         "STR.S3 - Steel Light Frame",
-    #     #         "STR.S4 - Steel Frame with Cast-in-Place Concrete Shear Walls",
-    #     #         "STR.S5 - Steel Frame with Unreinforced Masonry Infill Walls",
-    #     #         "STR.C1 - Concrete Moment Frame",
-    #     #         "STR.C2 - Concrete Shear Walls",
-    #     #         "STR.C3 - Concrete Frame with Unreinforced Masonry Infill Walls",
-    #     #         "STR.PC1 - Precast Concrete Tilt-Up Walls",
-    #     #         "STR.PC2 - Precast Concrete Frames with Concrete Shear Walls",
-    #     #         "STR.RM1 - Reinforced Masonry Bearing Walls with Wood or Metal Deck Diaphragms",
-    #     #         "STR.RM2 - Reinforced Masonry Bearing Walls with Precast Concrete Diaphragms",
-    #     #         "STR.URM - Unreinforced Masonry Bearing Walls",
-    #     #         "STR.MH - Mobile Homes",
-    #     #     ],
-    #     # },
-    # }
-    # todo: update component groups
-
-    # ds_descriptions = {
-    #     'DS1': (
-    #         'Minor Damage. Maximum of one broken window, door or garage door. '
-    #         'Moderate roof cover loss that can be covered to prevent additional '
-    #         'water entering the building. Marks or dents on walls requiring '
-    #         'painting or patching for repair.'
-    #     ),
-    #     'DS2': (
-    #         'Moderate Damage. Major roof cover damage, moderate window breakage.'
-    #         'Minor roof sheathing failure.  Some resulting damage to interior of'
-    #         'building from water.'
-    #     ),
-    #     'DS3': (
-    #         'Severe Damage. Major window damage or roof sheathing loss. Major roof'
-    #         'cover loss. Extensive damage to interior from water.'
-    #     ),
-    #     'DS4': (
-    #         'Destruction. Complete roof failure and/or, failure of wall frame. Loss'
-    #         'of more than 50% of roof sheathing.'
-    #     ),
-    # }
-
     fragility_data = pd.read_csv(source_file)
-    ids = fragility_data['ID'].str.split('.')
-    code_strings = set([x for y in ids.to_list() for x in y])
+
+    with open(meta_file, 'r', encoding='utf-8') as f:
+        meta_dict = json.load(f)
+
+    # retrieve damage state descriptions and remove that part from
+    # `hazus_hu_metadata`
+    damage_state_classes = meta_dict.pop('DamageStateClasses')
+    damage_state_descriptions = meta_dict.pop('DamageStateDescriptions')
+
+    # Procedure Overview:
+    # (1) We define several dictionaries mapping chunks of the
+    # composite asset ID (the parts between periods) to human-readable
+    # (`-h` for short) representations.
+    # (2) We define -h asset type descriptions and map them to the
+    # first-most relevant ID chunks (`primary chunks`)
+    # (3) We map asset class codes with general asset classes
+    # (4) We define the required dictionaries from (1) that decode the
+    # ID chunks after the `primary chunks` for each general asset
+    # class
+    # (5) We decode:
+    # ID -> asset class -> general asset class -> dictionaries
+    # -> ID turns to -h text by combining the description of the asset class
+    # from the `primary chunks` and the decoded description of the
+    # following chunks using the dictionaries.
+
+    #
+    # (1) Dictionaries
+    #
 
     roof_shape = {
-        'flt': 'Flat roof',
-        'gab': 'Gable roof',
+        'flt': 'Flat roof.',
+        'gab': 'Gable roof.',
         'hip': 'Hip roof.',
     }
 
     secondary_water_resistance = {
         '1': 'Secondary water resistance.',
         '0': 'No secondary water resistance.',
+        'null': 'No information on secondary water resistance.',
     }
 
     roof_deck_attachment = {
-        '6d': '6d roof deck nails',
-        '6s': '6s roof deck nails',
-        '8d': '8d roof deck nails',
-        '8s': '8s roof deck nails',
-        'st': 'Standard roof deck attachment',
-        'su': 'Superior roof deck attachment',
+        '6d': '6d roof deck nails.',
+        '6s': '6s roof deck nails.',
+        '8d': '8d roof deck nails.',
+        '8s': '8s roof deck nails.',
+        'st': 'Standard roof deck attachment.',
+        'su': 'Superior roof deck attachment.',
+        'null': 'Missing roof deck attachment information.',
     }
 
     roof_wall_connection = {
         'tnail': 'Roof-to-wall toe nails.',
         'strap': 'Roof-to-wall straps.',
+        'null': 'Missing roof-to-wall connection information.',
     }
 
     garage_presence = {
@@ -3052,6 +3015,7 @@ def create_Hazus_HU_fragility_db(
         'wkd': 'Weak garage door.',
         'std': 'Standard garage door.',
         'sup': 'Strong garage door.',
+        'null': 'No information on garage.',
     }
 
     shutters = {'1': 'Has Shutters.', '0': 'No shutters.'}
@@ -3061,16 +3025,19 @@ def create_Hazus_HU_fragility_db(
         'spm': 'Single-ply membrane roof cover.',
         'smtl': 'Sheet metal roof cover.',
         'cshl': 'Shingle roof cover.',
+        'null': 'No information on roof cover.',
     }
 
     roof_quality = {
         'god': 'Good roof quality.',
         'por': 'Poor roof quality.',
+        'null': 'No information on roof quality.',
     }
 
     masonry_reinforcing = {
         '1': 'Has masonry reinforcing.',
         '0': 'No masonry reinforcing.',
+        'null': 'Unknown information on masonry reinfocing.',
     }
 
     roof_frame_type = {
@@ -3088,21 +3055,25 @@ def create_Hazus_HU_fragility_db(
     roof_deck_age = {
         'god': 'New or average roof age.',
         'por': 'Old roof age.',
+        'null': 'Missing roof age information.',
     }
 
     roof_metal_deck_attachment_quality = {
         'std': 'Standard metal deck roof attachment.',
         'sup': 'Superior metal deck roof attachment.',
+        'null': 'Missing roof attachment quality information.',
     }
 
     number_of_units = {
         'sgl': 'Single unit.',
         'mlt': 'Multi-unit.',
+        'null': 'Unknown number of units.',
     }
 
     joist_spacing = {
-        '4': '4 ft joist spacing',
-        '6': '6 ft foot joist spacing',
+        '4': '4 ft joist spacing.',
+        '6': '6 ft foot joist spacing.',
+        'null': 'Unknown joist spacing.',
     }
 
     window_area = {
@@ -3111,107 +3082,426 @@ def create_Hazus_HU_fragility_db(
         'hig': 'High window area.',
     }
 
+    tie_downs = {'1': 'Tie downs.', '0': 'No tie downs.'}
 
-class_types = {
-    'W.SF.1': 'Wood, Single-family, One-story',
-    'W.SF.2': 'Wood, Single-family, Two or More Stories',
-    'W.MUH.1': 'Wood, Multi-Unit Housing, One-story',
-    'W.MUH.2': 'Wood, Multi-Unit Housing, Two Stories',
-    'W.MUH.3': 'Wood, Multi-Unit Housing, Three or More Stories',
-    'M.SF.1': 'Masonry, Single-family, One-story',
-    'M.SF.2': 'Masonry, Single-family, Two or More Stories',
-    'M.MUH.1': 'Masonry, Multi-Unit Housing, One-story',
-    'M.MUH.2': 'Masonry, Multi-Unit Housing, Two Stories',
-    'M.MUH.3': 'Masonry, Multi-Unit Housing, Three or More Stories',
-    'M.LRM.1': 'Masonry, Low-Rise Strip Mall, Up to 15 Feet',
-    'M.LRM.2': 'Masonry, Low-Rise Strip Mall, More than 15 Feet',
-    'M.LRI': 'Masonry, Low-Rise Industrial/Warehouse/Factory Buildings',
-    'M.ERB.L': 'Masonry, Engineered Residential Building, Low-Rise (1-2 Stories)',
-    'M.ERB.M': 'Masonry, Engineered Residential Building, Mid-Rise (3-5 Stories)',
-    'M.ERB.H': 'Masonry, Engineered Residential Building, High-Rise (6+ Stories)',
-    'M.ECB.L': 'Masonry, Engineered Commercial Building, Low-Rise (1-2 Stories)',
-    'M.ECB.M': 'Masonry, Engineered Commercial Building, Mid-Rise (3-5 Stories)',
-    'M.ECB.H': 'Masonry, Engineered Commercial Building, High-Rise (6+ Stories)',
-    'C.ERB.L': 'Concrete, Engineered Residential Building, Low-Rise (1-2 Stories)',
-    'C.ERB.M': 'Concrete, Engineered Residential Building, Mid-Rise (3-5 Stories)',
-    'C.ERB.H': 'Concrete, Engineered Residential Building, High-Rise (6+ Stories)',
-    'C.ECB.L': 'Concrete, Engineered Commercial Building, Low-Rise (1-2 Stories)',
-    'C.ECB.M': 'Concrete, Engineered Commercial Building, Mid-Rise (3-5 Stories)',
-    'C.ECB.H': 'Concrete, Engineered Commercial Building, High-Rise (6+ Stories)',
-    'S.PMB.S': 'Steel, Pre-Engineered Metal Building, Small',
-    'S.PMB.M': 'Steel, Pre-Engineered Metal Building, Medium',
-    'S.PMB.L': 'Steel, Pre-Engineered Metal Building, Large',
-    'S.ERB.L': 'Steel, Engineered Residential Building, Low-Rise (1-2 Stories)',
-    'S.ERB.M': 'Steel, Engineered Residential Building, Mid-Rise (3-5 Stories)',
-    'S.ERB.H': 'Steel, Engineered Residential Building, High-Rise (6+ Stories)',
-    'S.ECB.L': 'Steel, Engineered Commercial Building, Low-Rise (1-2 Stories)',
-    'S.ECB.M': 'Steel, Engineered Commercial Building, Mid-Rise (3-5 Stories)',
-    'S.ECB.H': 'Steel, Engineered Commercial Building, High-Rise (6+ Stories)',
-    'MH.PHUD': 'Manufactured Home, Pre-Housing and Urban Development (HUD)',
-    'MH.76HUD': 'Manufactured Home, 1976 HUD',
-    'MH.94HUDI': 'Manufactured Home, 1994 HUD - Wind Zone I',
-    'MH.94HUDII': 'Manufactured Home, 1994 HUD - Wind Zone II',
-    'MH.94HUDIII': 'Manufactured Home, 1994 HUD - Wind Zone III',
-    'HUEF.FS': 'Fire Station',
-    'HUEF.H.S': 'Small Hospital, Hospital with fewer than 50 Beds',
-    'HUEF.H.M': 'Medium Hospital, Hospital with beds between 50 & 150',
-    'HUEF.H.L': 'Large Hospital, Hospital with more than 150 Beds',
-    'HUEF.S.L': '???',
-    'HUEF.S.S': '???',
-    'HUEF.S.M': '???',
-    'HUEF.EO': 'Emergency Operation Centers',
-    'HUEF.PS': 'Police Station',
-}
+    terrain_surface_roughness = {
+        '3': 'Terrain surface roughness: 0.03 m.',
+        '15': 'Terrain surface roughness: 0.15 m.',
+        '35': 'Terrain surface roughness: 0.35 m.',
+        '70': 'Terrain surface roughness: 0.7 m.',
+        '100': 'Terrain surface roughness: 1 m.',
+    }
 
-my_dictionaries = {
-    'roof_shape': roof_shape,
-    'secondary_water_resistance': secondary_water_resistance,
-    'roof_deck_attachment': roof_deck_attachment,
-    'roof_wall_connection': roof_wall_connection,
-    'garage_presence': garage_presence,
-    'shutters': shutters,
-    'roof_cover': roof_cover,
-    'roof_quality': roof_quality,
-    'masonry_reinforcing': masonry_reinforcing,
-    'roof_frame_type': roof_frame_type,
-    'wind_debris_environment': wind_debris_environment,
-    'roof_deck_age': roof_deck_age,
-    'roof_metal_deck_attachment_quality': roof_metal_deck_attachment_quality,
-    'number_of_units': number_of_units,
-    'joist_spacing': joist_spacing,
-    'window_area': window_area,
-}
+    #
+    # (2) Asset type descriptions
+    #
 
+    # maps class type code to -h description
+    class_types = {
+        # ------------------------
+        'W.SF.1': 'Wood, Single-family, One-story.',
+        'W.SF.2': 'Wood, Single-family, Two or More Stories.',
+        # ------------------------
+        'W.MUH.1': 'Wood, Multi-Unit Housing, One-story.',
+        'W.MUH.2': 'Wood, Multi-Unit Housing, Two Stories.',
+        'W.MUH.3': 'Wood, Multi-Unit Housing, Three or More Stories.',
+        # ------------------------
+        'M.SF.1': 'Masonry, Single-family, One-story.',
+        'M.SF.2': 'Masonry, Single-family, Two or More Stories.',
+        # ------------------------
+        'M.MUH.1': 'Masonry, Multi-Unit Housing, One-story.',
+        'M.MUH.2': 'Masonry, Multi-Unit Housing, Two Stories.',
+        'M.MUH.3': 'Masonry, Multi-Unit Housing, Three or More Stories.',
+        # ------------------------
+        'M.LRM.1': 'Masonry, Low-Rise Strip Mall, Up to 15 Feet.',
+        'M.LRM.2': 'Masonry, Low-Rise Strip Mall, More than 15 Feet.',
+        # ------------------------
+        'M.LRI': 'Masonry, Low-Rise Industrial/Warehouse/Factory Buildings.',
+        # ------------------------
+        'M.ERB.L': (
+            'Masonry, Engineered Residential Building, Low-Rise (1-2 Stories).'
+        ),
+        'M.ERB.M': (
+            'Masonry, Engineered Residential Building, Mid-Rise (3-5 Stories).'
+        ),
+        'M.ERB.H': (
+            'Masonry, Engineered Residential Building, High-Rise (6+ Stories).'
+        ),
+        # ------------------------
+        'M.ECB.L': (
+            'Masonry, Engineered Commercial Building, Low-Rise (1-2 Stories).'
+        ),
+        'M.ECB.M': (
+            'Masonry, Engineered Commercial Building, Mid-Rise (3-5 Stories).'
+        ),
+        'M.ECB.H': (
+            'Masonry, Engineered Commercial Building, High-Rise (6+ Stories).'
+        ),
+        # ------------------------
+        'C.ERB.L': (
+            'Concrete, Engineered Residential Building, Low-Rise (1-2 Stories).'
+        ),
+        'C.ERB.M': (
+            'Concrete, Engineered Residential Building, Mid-Rise (3-5 Stories).'
+        ),
+        'C.ERB.H': (
+            'Concrete, Engineered Residential Building, High-Rise (6+ Stories).'
+        ),
+        # ------------------------
+        'C.ECB.L': (
+            'Concrete, Engineered Commercial Building, Low-Rise (1-2 Stories).'
+        ),
+        'C.ECB.M': (
+            'Concrete, Engineered Commercial Building, Mid-Rise (3-5 Stories).'
+        ),
+        'C.ECB.H': (
+            'Concrete, Engineered Commercial Building, High-Rise (6+ Stories).'
+        ),
+        # ------------------------
+        'S.PMB.S': 'Steel, Pre-Engineered Metal Building, Small.',
+        'S.PMB.M': 'Steel, Pre-Engineered Metal Building, Medium.',
+        'S.PMB.L': 'Steel, Pre-Engineered Metal Building, Large.',
+        # ------------------------
+        'S.ERB.L': 'Steel, Engineered Residential Building, Low-Rise (1-2 Stories).',
+        'S.ERB.M': 'Steel, Engineered Residential Building, Mid-Rise (3-5 Stories).',
+        'S.ERB.H': 'Steel, Engineered Residential Building, High-Rise (6+ Stories).',
+        # ------------------------
+        'S.ECB.L': 'Steel, Engineered Commercial Building, Low-Rise (1-2 Stories).',
+        'S.ECB.M': 'Steel, Engineered Commercial Building, Mid-Rise (3-5 Stories).',
+        'S.ECB.H': 'Steel, Engineered Commercial Building, High-Rise (6+ Stories).',
+        # ------------------------
+        'MH.PHUD': 'Manufactured Home, Pre-Housing and Urban Development (HUD).',
+        'MH.76HUD': 'Manufactured Home, 1976 HUD.',
+        'MH.94HUDI': 'Manufactured Home, 1994 HUD - Wind Zone I.',
+        'MH.94HUDII': 'Manufactured Home, 1994 HUD - Wind Zone II.',
+        'MH.94HUDIII': 'Manufactured Home, 1994 HUD - Wind Zone III.',
+        # ------------------------
+        'HUEF.H.S': 'Small Hospital, Hospital with fewer than 50 Beds.',
+        'HUEF.H.M': 'Medium Hospital, Hospital with beds between 50 & 150.',
+        'HUEF.H.L': 'Large Hospital, Hospital with more than 150 Beds.',
+        # ------------------------
+        'HUEF.S.S': 'Elementary School.',
+        'HUEF.S.M': 'High school, two-story.',
+        'HUEF.S.L': 'Large high school, three-story.',
+        # ------------------------
+        'HUEF.EO': 'Emergency Operation Centers.',
+        'HUEF.FS': 'Fire Station.',
+        'HUEF.PS': 'Police Station.',
+        # ------------------------
+    }
 
-def find_class_type(entry):
-    entry_elements = entry.split('.')
-    for nper in range(1, len(entry_elements)):
-        first_parts = '.'.join(entry_elements[:nper])
-        if first_parts in class_types:
-            return first_parts
-    return None
+    def find_class_type(entry: str) -> str | None:
+        """
+        Find the class type code from an entry string based on
+        predefined patterns.
 
+        Parameters
+        ----------
+        entry : str
+            A string representing the entry, consisting of delimited
+            segments that correspond to various attributes of an
+            asset.
 
-all_entry_attr_dcts = {}
-for entry in fragility_data['ID']:
+        Returns
+        -------
+        str or None
+            The class type code if a matching pattern is found;
+            otherwise, None if no pattern matches the input string.
 
-    class_type = find_class_type(entry)
-    assert class_type is not None
+        """
+        entry_elements = entry.split('.')
+        for nper in range(1, len(entry_elements)):
+            first_parts = '.'.join(entry_elements[:nper])
+            if first_parts in class_types:
+                return first_parts
+        return None
 
-    attrs = entry.replace(f'{class_type}.', '').split('.')
-    all_attr_dcts = {}
-    for attr in attrs:
-        attr_dcts = []
-        for dct_name, dct in my_dictionaries.items():
-            if attr in dct:
-                attr_dcts.append(dct_name)
-        all_attr_dcts[attr] = attr_dcts
-    all_entry_attr_dcts[entry] = all_attr_dcts
+    #
+    # (3) General asset class
+    #
 
-ddf = pd.DataFrame(all_entry_attr_dcts.values(), index=all_entry_attr_dcts.keys())
+    # maps class code type to general class code
+    general_classes = {
+        # ------------------------
+        'W.SF.1': 'WSF',
+        'W.SF.2': 'WSF',
+        # ------------------------
+        'W.MUH.1': 'WMUH',
+        'W.MUH.2': 'WMUH',
+        'W.MUH.3': 'WMUH',
+        # ------------------------
+        'M.SF.1': 'MSF',
+        'M.SF.2': 'MSF',
+        # ------------------------
+        'M.MUH.1': 'MMUH',
+        'M.MUH.2': 'MMUH',
+        'M.MUH.3': 'MMUH',
+        # ------------------------
+        'M.LRM.1': 'MLRM1',
+        'M.LRM.2': 'MLRM2',
+        # ------------------------
+        'M.LRI': 'MLRI',
+        # ------------------------
+        'M.ERB.L': 'MERB',
+        'M.ERB.M': 'MERB',
+        'M.ERB.H': 'MERB',
+        # ------------------------
+        'M.ECB.L': 'MECB',
+        'M.ECB.M': 'MECB',
+        'M.ECB.H': 'MECB',
+        # ------------------------
+        'C.ERB.L': 'CERB',
+        'C.ERB.M': 'CERB',
+        'C.ERB.H': 'CERB',
+        # ------------------------
+        'C.ECB.L': 'CECB',
+        'C.ECB.M': 'CECB',
+        'C.ECB.H': 'CECB',
+        # ------------------------
+        'S.PMB.S': 'SPMB',
+        'S.PMB.M': 'SPMB',
+        'S.PMB.L': 'SPMB',
+        # ------------------------
+        'S.ERB.L': 'SERB',
+        'S.ERB.M': 'SERB',
+        'S.ERB.H': 'SERB',
+        # ------------------------
+        'S.ECB.L': 'SECB',
+        'S.ECB.M': 'SECB',
+        'S.ECB.H': 'SECB',
+        # ------------------------
+        'MH.PHUD': 'MH',
+        'MH.76HUD': 'MH',
+        'MH.94HUDI': 'MH',
+        'MH.94HUDII': 'MH',
+        'MH.94HUDIII': 'MH',
+        # ------------------------
+        'HUEF.H.S': 'HUEFH',
+        'HUEF.H.M': 'HUEFH',
+        'HUEF.H.L': 'HUEFH',
+        # ------------------------
+        'HUEF.S.S': 'HUEFS',
+        'HUEF.S.M': 'HUEFS',
+        'HUEF.S.L': 'HUEFS',
+        # ------------------------
+        'HUEF.EO': 'HUEFEO',
+        'HUEF.FS': 'HUEFFS',
+        'HUEF.PS': 'HUEFPS',
+        # ------------------------
+    }
 
-for col in ddf.columns:
-    print(col)
-    print(ddf[col].value_counts())
-    print()
-    print()
+    #
+    # (4) Relevant dictionaries
+    #
+
+    # maps general class code to list of dicts where the -h attribute
+    # descriptions will be pulled from
+    dictionaries_of_interest = {
+        'WSF': [
+            roof_shape,
+            secondary_water_resistance,
+            roof_deck_attachment,
+            roof_wall_connection,
+            garage_presence,
+            shutters,
+            terrain_surface_roughness,
+        ],
+        'WMUH': [
+            roof_shape,
+            roof_cover,
+            roof_quality,
+            secondary_water_resistance,
+            roof_deck_attachment,
+            roof_wall_connection,
+            shutters,
+            terrain_surface_roughness,
+        ],
+        'MSF': [
+            roof_shape,
+            roof_wall_connection,
+            roof_frame_type,
+            roof_deck_attachment,
+            shutters,
+            secondary_water_resistance,
+            garage_presence,
+            masonry_reinforcing,
+            roof_cover,
+            terrain_surface_roughness,
+        ],
+        'MMUH': [
+            roof_shape,
+            secondary_water_resistance,
+            roof_cover,
+            roof_quality,
+            roof_deck_attachment,
+            roof_wall_connection,
+            shutters,
+            masonry_reinforcing,
+            terrain_surface_roughness,
+        ],
+        'MLRM1': [
+            roof_cover,
+            shutters,
+            masonry_reinforcing,
+            wind_debris_environment,
+            roof_frame_type,
+            roof_deck_attachment,
+            roof_wall_connection,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'MLRM2': [
+            roof_cover,
+            shutters,
+            masonry_reinforcing,
+            wind_debris_environment,
+            roof_frame_type,
+            roof_deck_attachment,
+            roof_wall_connection,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            number_of_units,
+            joist_spacing,
+            terrain_surface_roughness,
+        ],
+        'MLRI': [
+            shutters,
+            masonry_reinforcing,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'MERB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'MECB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'CERB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'CECB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'SPMB': [
+            shutters,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'SERB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'SECB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'MH': [shutters, tie_downs, terrain_surface_roughness],
+        'HUEFH': [
+            roof_cover,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            shutters,
+            terrain_surface_roughness,
+        ],
+        'HUEFS': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'HUEFEO': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'HUEFFS': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'HUEFPS': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+    }
+
+    #
+    # (5) Decode IDs and extend metadata with the individual records
+    #
+
+    for fragility_id in fragility_data['ID'].to_list():
+
+        class_type = find_class_type(fragility_id)
+
+        class_type_human_readable = class_types[class_type]
+
+        general_class = general_classes[class_type]
+        dictionaries = dictionaries_of_interest[general_class]
+        remaining_chunks = fragility_id.replace(f'{class_type}.', '').split('.')
+        assert len(remaining_chunks) == len(dictionaries)
+        human_description = [class_type_human_readable]
+        for chunk, dictionary in zip(remaining_chunks, dictionaries):
+            human_description.append(dictionary[chunk])
+        human_description_str = ' '.join(human_description)
+
+        damage_state_class = damage_state_classes[class_type]
+        damage_state_description = damage_state_descriptions[damage_state_class]
+
+        limit_states = {}
+        for damage_state, description in damage_state_description.items():
+            limit_state = damage_state.replace('DS', 'LS')
+            limit_states[limit_state] = {damage_state: description}
+
+        record = {
+            'Description': human_description_str,
+            'SuggestedComponentBlockSize': '1 EA',
+            'RoundUpToIntegerQuantity': 'True',
+            'LimitStates': limit_states,
+        }
+
+        meta_dict[fragility_id] = record
+
+    # save the metadata
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
+        json.dump(meta_dict, f, indent=2)

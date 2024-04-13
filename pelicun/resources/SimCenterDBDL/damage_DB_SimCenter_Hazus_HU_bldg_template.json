@@ -1,0 +1,198 @@
+{
+  "_GeneralInformation": {
+    "ShortName": "Hazus Hurricane Methodology - Buildings",
+    "Description": "The models in this dataset are based on version 4.2 of the Hazus Hurricane Model Technical Manual",
+    "Version": "1.0",
+    "ComponentGroups": {
+      "W - Wood": {
+        "W.SF - Wood, Single-family": [
+          "W.SF.1 - Wood, Single-family, One-story.",
+          "W.SF.2 - Wood, Single-family, Two or More Stories."
+        ],
+        "W.MUH - Wood, Multi-Unit Housing": [
+          "W.MUH.1 - Wood, Multi-Unit Housing, One-story.",
+          "W.MUH.2 - Wood, Multi-Unit Housing, Two Stories.",
+          "W.MUH.3 - Wood, Multi-Unit Housing, Three or More Stories."
+        ]
+      },
+      "M - Masonry": {
+        "M.SF - Masonry, Single-family": [
+          "M.SF.1 - Masonry, Single-family, One-story.",
+          "M.SF.2 - Masonry, Single-family, Two or More Stories."
+        ],
+        "M.MUH - Masonry, Multi-Unit Housing": [
+          "M.MUH.1 - Masonry, Multi-Unit Housing, One-story.",
+          "M.MUH.2 - Masonry, Multi-Unit Housing, Two Stories.",
+          "M.MUH.3 - Masonry, Multi-Unit Housing, Three or More Stories."
+        ],
+        "M.LRM - Masonry, Low-Rise Strip Mall": [
+          "M.LRM.1 - Masonry, Low-Rise Strip Mall, Up to 15 Feet.",
+          "M.LRM.2 - Masonry, Low-Rise Strip Mall, More than 15 Feet."
+        ],
+        "M.LRI - Masonry, Low-Rise Industrial/Warehouse/Factory Buildings": [
+          "M.LRI - Masonry, Low-Rise Industrial/Warehouse/Factory Buildings."
+        ],
+        "M.ERB - Masonry, Engineered Residential Building": [
+          "M.ERB.L - Masonry, Engineered Residential Building, Low-Rise (1-2 Stories).",
+          "M.ERB.M - Masonry, Engineered Residential Building, Mid-Rise (3-5 Stories).",
+          "M.ERB.H - Masonry, Engineered Residential Building, High-Rise (6+ Stories)."
+        ],
+        "M.ECB - Masonry, Engineered Commercial Building": [
+          "M.ECB.L - Masonry, Engineered Commercial Building, Low-Rise (1-2 Stories).",
+          "M.ECB.M - Masonry, Engineered Commercial Building, Mid-Rise (3-5 Stories).",
+          "M.ECB.H - Masonry, Engineered Commercial Building, High-Rise (6+ Stories)."
+        ]
+      },
+      "C - Concrete": {
+        "C.ERB - Concrete, Engineered Residential Building": [
+          "C.ERB.L - Concrete, Engineered Residential Building, Low-Rise (1-2 Stories).",
+          "C.ERB.M - Concrete, Engineered Residential Building, Mid-Rise (3-5 Stories).",
+          "C.ERB.H - Concrete, Engineered Residential Building, High-Rise (6+ Stories)."
+        ],
+        "C.ECB - Concrete, Engineered Commercial Building": [
+          "C.ECB.L - Concrete, Engineered Commercial Building, Low-Rise (1-2 Stories).",
+          "C.ECB.M - Concrete, Engineered Commercial Building, Mid-Rise (3-5 Stories).",
+          "C.ECB.H - Concrete, Engineered Commercial Building, High-Rise (6+ Stories)."
+        ]
+      },
+      "S - Steel": {
+        "S.PMB - Steel, Pre-Engineered Metal Building": [
+          "S.PMB.S - Steel, Pre-Engineered Metal Building, Small.",
+          "S.PMB.M - Steel, Pre-Engineered Metal Building, Medium.",
+          "S.PMB.L - Steel, Pre-Engineered Metal Building, Large."
+        ],
+        "S.ERB - Steel, Engineered Residential Building": [
+          "S.ERB.L - Steel, Engineered Residential Building, Low-Rise (1-2 Stories).",
+          "S.ERB.M - Steel, Engineered Residential Building, Mid-Rise (3-5 Stories).",
+          "S.ERB.H - Steel, Engineered Residential Building, High-Rise (6+ Stories)."
+        ],
+        "S.ECB - Steel, Engineered Commercial Building": [
+          "S.ECB.L - Steel, Engineered Commercial Building, Low-Rise (1-2 Stories).",
+          "S.ECB.M - Steel, Engineered Commercial Building, Mid-Rise (3-5 Stories).",
+          "S.ECB.H - Steel, Engineered Commercial Building, High-Rise (6+ Stories)."
+        ]
+      },
+      "MH - Manufactured Home": [
+        "MH.PHUD - Manufactured Home, Pre-Housing and Urban Development (HUD).",
+        "MH.76HUD - Manufactured Home, 1976 HUD.",
+        "MH.94HUDI - Manufactured Home, 1994 HUD - Wind Zone I.",
+        "MH.94HUDII - Manufactured Home, 1994 HUD - Wind Zone II.",
+        "MH.94HUDIII - Manufactured Home, 1994 HUD - Wind Zone III."
+      ],
+      "HUEF - Health, Utilities, Education, and Fire": {
+        "HUEF.H - Hospital": [
+          "HUEF.H.S - Small Hospital, Hospital with fewer than 50 Beds.",
+          "HUEF.H.M - Medium Hospital, Hospital with beds between 50 & 150.",
+          "HUEF.H.L - Large Hospital, Hospital with more than 150 Beds."
+        ],
+        "HUEF.S - School": [
+          "HUEF.S.S - Elementary School.",
+          "HUEF.S.M - High school, two-story.",
+          "HUEF.S.L - Large high school, three-story."
+        ],
+        "HUEF.EO - Emergency Operation Centers": [
+          "HUEF.EO - Emergency Operation Centers."
+        ],
+        "HUEF.FS - Fire Station": [
+          "HUEF.FS - Fire Station."
+        ],
+        "HUEF.PS - Police Station": [
+          "HUEF.PS - Police Station."
+        ]
+      }
+    }
+  },
+  "DamageStateClasses": {
+    "W.SF.1": "5-175",
+    "W.SF.2": "5-175",
+    "W.MUH.1": "5-175",
+    "W.MUH.2": "5-175",
+    "W.MUH.3": "5-175",
+    "M.SF.1": "5-175",
+    "M.SF.2": "5-175",
+    "M.MUH.1": "5-175",
+    "M.MUH.2": "5-175",
+    "M.MUH.3": "5-175",
+    "M.LRM.1": "5-208",
+    "M.LRM.2": "5-208",
+    "M.LRI": "5-239",
+    "M.ERB.L": "5-230",
+    "M.ERB.M": "5-230",
+    "M.ERB.H": "5-230",
+    "M.ECB.L": "5-230",
+    "M.ECB.M": "5-230",
+    "M.ECB.H": "5-230",
+    "C.ERB.L": "5-230",
+    "C.ERB.M": "5-230",
+    "C.ERB.H": "5-230",
+    "C.ECB.L": "5-230",
+    "C.ECB.M": "5-230",
+    "C.ECB.H": "5-230",
+    "S.PMB.S": "5-227",
+    "S.PMB.M": "5-227",
+    "S.PMB.L": "5-227",
+    "S.ERB.L": "5-230",
+    "S.ERB.M": "5-230",
+    "S.ERB.H": "5-230",
+    "S.ECB.L": "5-230",
+    "S.ECB.M": "5-230",
+    "S.ECB.H": "5-230",
+    "MH.PHUD": "5-195",
+    "MH.76HUD": "5-195",
+    "MH.94HUDI": "5-195",
+    "MH.94HUDII": "5-195",
+    "MH.94HUDIII": "5-195",
+    "HUEF.H.S": "5-208",
+    "HUEF.H.M": "5-208",
+    "HUEF.H.L": "5-208",
+    "HUEF.S.S": "5-208",
+    "HUEF.S.M": "5-208",
+    "HUEF.S.L": "5-208",
+    "HUEF.EO": "5-208",
+    "HUEF.FS": "5-208",
+    "HUEF.PS": "5-208"
+  },
+  "DamageStateDescriptions": {
+    "5-175": {
+      "DS1": "Minor Damage: Maximum of one broken window, door or garage door. Moderate roof cover loss that can be covered to prevent additional water entering the building. Marks or dents on walls requiring painting or patching for repair.",
+      "DS2": "Moderate Damage: Major roof cover damage, moderate window breakage. Minor roof sheathing failure. Some resulting damage to interior of building from water",
+      "DS3": "Severe Damage: Major window damage or roof sheathing loss. Major roof cover loss. Extensive damage to interior from water.",
+      "DS4": "Destruction: Complete roof failure and/or, failure of wall frame. Loss of more than 50% of roof sheathing."
+    },
+    "5-195": {
+      "DS0": "No Damage or Very Minor Damage - Little or no visible damage from the outside Slight shifting on the blocks that would suggest re-leveling, but not off the blocks Some cracked windows, but no resulting water damage.",
+      "DS1": "Minor Damage - Shifting off the blocks or so that blocks press up to the floor; re- leveling required. Walls, doors, etc., buckled slightly, but able to be corrected by re-leveling. Minor eave and upper wall damage, with slight water damage but roof not pulled all the way back. Minor pulling away of siding with slight water damage Minor missile and/or tree damage. Slight window breakage and attendant water damage.",
+      "DS2": "Moderate Damage (Still Livable) - Severe shifting off the blocks with some attendant floor and superstructure damage (punching, racking, etc). Roof removed over a portion or all of the home but the joists remain intact, walls not collapsed Missile and/or tree damage to a section of the wall or roof, including deep dents or punctures. Serious water damage from holes in roof, walls, windows, doors or floors.",
+      "DS3": "Severe Damage (Not Livable, but Repairable) - Unit rolled onto side but frame intact. Extreme shifting causing severe racking and separations in the superstructure. Roof off, joists damaged or removed, walls damaged from lack of lateral support at top. Severe tree damage, including crushing of one wall or roof section. Superstructure partially separated from under frame.",
+      "DS4": "Destruction (Not Livable) - Unit rolled onto top or rolled several times. Unit tossed or vaulted through the air. Superstructure separated from the underframe or collapsed to side of the underframe. Roof off, joists removed, and walls collapsed. Destruction of a major section by a falling tree."
+    },
+    "5-208": {
+      "DS0": "No Damage or Very Minor Damage Little or no visible damage from the outside. No broken windows, or failed roof deck. Minimal loss of roof cover, with no or very limited water penetration.",
+      "DS1": "Minor Damage Maximum of one broken window or door. Moderate roof cover loss that can be covered to prevent additional water entering the building. Marks or dents on walls requiring painting or patching for repair.",
+      "DS2": "Moderate Damage Major roof cover damage, moderate window breakage. Minor roof sheathing failure. Some resulting damage to interior of building from water.",
+      "DS3": "Severe Damage Major window damage or roof sheathing loss. Major roof cover loss. Extensive damage to interior from water. Limited, local joist failures. Failure of one wall.",
+      "DS4": "Destruction Complete roof failure on 1/3 or more of the units and/or failure of more than one wall. Loss of more than 25% of roof sheathing."
+    },
+    "5-227": {
+      "DS0": "No Damage or Very Minor Damage Little or no visible damage from the outside. No broken windows, or failed roof deck. None or very limited water penetration.",
+      "DS1": "Minor Damage Maximum of one broken window or, door or wall panel. Marks or dents on walls requiring painting or patching for repair.",
+      "DS2": "Moderate Damage Moderate fenestration failures. Minor roof panel failures, or wall panel failures. Some resulting damage to interior of building from water.",
+      "DS3": "Severe Damage Major window damage or roof sheathing loss. Extensive damage to the interior from water. Some frame damage likely.",
+      "DS4": "Destruction Significant failures of fenestrations, significant roof and wall panel failures. Significant frame damage likely."
+    },
+    "5-230": {
+      "DS0": "No Damage or Very Minor Damage Little or no visible damage from the outside. No broken windows, or failed roof deck. Minimal loss of roof cover, with no or very limited water penetration.",
+      "DS1": "Minor Damage Maximum of one broken window or door. Moderate roof cover loss that can be covered to prevent additional water entering the building. Marks or dents on walls requiring painting or patching for repair.",
+      "DS2": "Moderate Damage Major roof cover damage, moderate window breakage. Minor roof deck failure. Some resulting damage to interior of building from water.",
+      "DS3": "Severe Damage Major window damage or roof sheathing loss. Major roof cover loss. Extensive damage to interior from water. Limited, local joist failures.",
+      "DS4": "Destruction Essentially complete roof failure and/or of more than 25% of roof sheathing. Significant amount of the wall envelope opened through windows failure. Extensive damage to interior."
+    },
+    "5-239": {
+      "DS0": "No Damage or Very Minor Damage Little or no visible damage from the outside. No failed doors or roof deck. Minimal loss of roof cover, with no or very limited water penetration.",
+      "DS1": "Minor Damage Maximum of one failed door. Moderate roof cover loss that can be covered to prevent additional water entering the building. Marks or dents on walls requiring painting or patching for repair.",
+      "DS2": "Moderate Damage Major roof cover damage, moderate window breakage. Minor roof sheathing failure. Some resulting damage to interior of building from water.",
+      "DS3": "Severe Damage Major window damage or roof sheathing loss. Major roof cover loss. Extensive damage to interior from water. Limited, local joist failures. Failure of one wall.",
+      "DS4": "Destruction Complete roof failure on 1/3 or more of the units and/or failure of more than one wall. Loss of more than 25% of roof sheathing."
+    }
+  }
+}
