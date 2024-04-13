@@ -55,9 +55,6 @@ This module has classes and methods to manage databases used by pelicun.
 
 """
 
-# todo
-# fmt: off
-
 from __future__ import annotations
 import re
 import json
@@ -2915,11 +2912,9 @@ def create_Hazus_EQ_bldg_injury_db(
     # with open(target_meta_file, 'w+') as f:
     #    json.dump(meta_dict, f, indent=2)
 
-    print("Successfully parsed and saved the injury consequence data from Hazus "
-          "EQ")
-
-# todo
-# fmt: on
+    print(
+        "Successfully parsed and saved the injury consequence data from Hazus " "EQ"
+    )
 
 
 def create_Hazus_HU_fragility_db(
