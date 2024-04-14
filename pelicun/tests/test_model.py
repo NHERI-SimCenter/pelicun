@@ -1949,42 +1949,6 @@ class TestRepairModel(TestPelicunModel):
         assert medians['Cost'].to_dict() == {(0, '1'): {0: 25704.0, 1: 22848.0}}
         assert medians['Time'].to_dict() == {(0, '1'): {0: 22.68, 1: 20.16}}
 
-    def test_aggregate_losses(self, repair_model, loss_params_A):
-        repair_model.sample = pd.DataFrame(
-            ((100.00, 1.00),),
-            columns=pd.MultiIndex.from_tuples(
-                (
-                    (
-                        "Cost",
-                        "some.test.component",
-                        "some.test.component",
-                        "1",
-                        "1",
-                        "1",
-                    ),
-                    (
-                        "Time",
-                        "some.test.component",
-                        "some.test.component",
-                        "1",
-                        "1",
-                        "1",
-                    ),
-                ),
-                names=("dv", "loss", "dmg", "ds", "loc", "dir"),
-            ),
-        )
-
-        repair_model.loss_params = loss_params_A
-
-        df_agg = repair_model.aggregate_losses()
-
-        assert df_agg.to_dict() == {
-            ('repair_cost', ''): {0: 100.0},
-            ('repair_time', 'parallel'): {0: 1.0},
-            ('repair_time', 'sequential'): {0: 1.0},
-        }
-
     def test__generate_DV_sample(self, repair_model):
         expected_sample = {
             (True, True): {
@@ -2139,6 +2103,42 @@ class TestRepairModel(TestPelicunModel):
             repair_model._generate_DV_sample(dmg_quantities, 4)
 
             assert repair_model.sample.to_dict() == expected_sample[(ecods, ecofl)]
+
+    def test_aggregate_losses(self, repair_model, loss_params_A):
+        repair_model.sample = pd.DataFrame(
+            ((100.00, 1.00),),
+            columns=pd.MultiIndex.from_tuples(
+                (
+                    (
+                        "Cost",
+                        "some.test.component",
+                        "some.test.component",
+                        "1",
+                        "1",
+                        "1",
+                    ),
+                    (
+                        "Time",
+                        "some.test.component",
+                        "some.test.component",
+                        "1",
+                        "1",
+                        "1",
+                    ),
+                ),
+                names=("dv", "loss", "dmg", "ds", "loc", "dir"),
+            ),
+        )
+
+        repair_model.loss_params = loss_params_A
+
+        df_agg = repair_model.aggregate_losses()
+
+        assert df_agg.to_dict() == {
+            ('repair_cost', ''): {0: 100.0},
+            ('repair_time', 'parallel'): {0: 1.0},
+            ('repair_time', 'sequential'): {0: 1.0},
+        }
 
 
 #  _____                 _   _
