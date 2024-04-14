@@ -1714,7 +1714,7 @@ class TestLossModel(TestPelicunModel):
         assert loss_model.log_msg
         assert loss_model.log_div
 
-        assert loss_model._sample is None
+        assert loss_model.sample is None
         assert loss_model.loss_type == 'Generic'
 
     def test_load_sample_save_sample(self, loss_model):
@@ -1774,7 +1774,7 @@ class TestLossModel(TestPelicunModel):
 
         pd.testing.assert_frame_equal(
             sample,
-            loss_model._sample,
+            loss_model.sample,
             check_index_type=False,
             check_column_type=False,
         )
@@ -1882,7 +1882,7 @@ class TestRepairModel(TestPelicunModel):
         assert repair_model.log_msg
         assert repair_model.log_div
 
-        assert repair_model._sample is None
+        assert repair_model.sample is None
         assert repair_model.loss_type == 'Repair'
 
     def test__create_DV_RVs(self, repair_model, loss_params_A):
@@ -1950,7 +1950,7 @@ class TestRepairModel(TestPelicunModel):
         assert medians['Time'].to_dict() == {(0, '1'): {0: 22.68, 1: 20.16}}
 
     def test_aggregate_losses(self, repair_model, loss_params_A):
-        repair_model._sample = pd.DataFrame(
+        repair_model.sample = pd.DataFrame(
             ((100.00, 1.00),),
             columns=pd.MultiIndex.from_tuples(
                 (
@@ -2138,7 +2138,7 @@ class TestRepairModel(TestPelicunModel):
 
             repair_model._generate_DV_sample(dmg_quantities, 4)
 
-            assert repair_model._sample.to_dict() == expected_sample[(ecods, ecofl)]
+            assert repair_model.sample.to_dict() == expected_sample[(ecods, ecofl)]
 
 
 #  _____                 _   _

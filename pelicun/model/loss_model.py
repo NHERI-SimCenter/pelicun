@@ -78,17 +78,10 @@ class LossModel(PelicunModel):
     def __init__(self, assessment):
         super().__init__(assessment)
 
-        self._sample = None
+        self.sample = None
         self.loss_map = None
         self.loss_params = None
         self.loss_type = 'Generic'
-
-    @property
-    def sample(self):
-        """
-        sample property
-        """
-        return self._sample
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -139,7 +132,7 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading loss sample...')
 
-        self._sample = file_io.load_data(
+        self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
         )
 
@@ -867,7 +860,7 @@ class RepairModel(LossModel):
 
         # If everything is undamaged there are no losses
         if set(dmg_quantities.columns.get_level_values('ds')) == {'0'}:
-            self._sample = None
+            self.sample = None
             self.log_msg(
                 "There is no damage---DV sample is set to None.",
                 prepend_timestamp=False,
@@ -1097,7 +1090,7 @@ class RepairModel(LossModel):
 
             DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
 
-        self._sample = DV_sample
+        self.sample = DV_sample
 
         self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
 
