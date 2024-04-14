@@ -1033,7 +1033,7 @@ class TestDamageModel(TestPelicunModel):
                 )
             ),
         )
-        assessment_instance.damage.calculate(dmg_process=dmg_process)
+        assessment_instance.damage.calculate(sample_size=4, dmg_process=dmg_process)
         assessment_instance.asset.cmp_units = pd.Series(
             ['ea'] * len(assessment_instance.damage.sample.columns),
             index=assessment_instance.damage.sample.columns,
@@ -1666,12 +1666,12 @@ class TestDamageModel(TestPelicunModel):
         # A damage calculation test utilizing a multilinear CDF RV for
         # the capcity.
 
-        num_realizations = 1000
+        sample_size = 1000
 
         # define the demand
         conversion_factor = assessment_instance.unit_conversion_factors['inps2']
         demand_model.sample = pd.DataFrame(
-            np.full(num_realizations, 0.50 * conversion_factor),
+            np.full(sample_size, 0.50 * conversion_factor),
             columns=(('PGV', '0', '1'),),
         )
 
@@ -1699,7 +1699,7 @@ class TestDamageModel(TestPelicunModel):
         )
 
         # calculate damage
-        damage_model.calculate()
+        damage_model.calculate(sample_size)
 
         res = damage_model.sample.value_counts()
         assert res.to_dict() == {(1.0, 0.0): 750, (0.0, 1.0): 250}

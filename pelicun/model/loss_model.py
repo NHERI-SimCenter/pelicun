@@ -296,7 +296,18 @@ class LossModel(PelicunModel):
         """
         raise NotImplementedError
 
-    def calculate(self):
+    def calculate(self, sample_size=None):
+        """
+        Wrapper method around new calculate that requires sample size.
+        Exists for backwards compatibility.
+        """
+        if not sample_size:
+            # todo: deprecation warning
+            sample_size = self._asmnt.demand.sample.shape[0]
+        self.calculate_internal(sample_size)
+        
+
+    def calculate_internal(self, sample_size):
         """
         Calculate the consequences of each component block damage in
         the asset.

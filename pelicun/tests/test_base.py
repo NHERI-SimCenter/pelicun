@@ -66,6 +66,11 @@ def test_options_init():
         "LogFile": 'test_log_file',
         "PrintLog": False,
         "DemandOffset": {"PFA": -1, "PFV": -1},
+        "Sampling": {
+            "SamplingMethod": "MonteCarlo",
+            "SampleSize": 1000,
+            "PreserveRawOrder": False,
+        },
         "SamplingMethod": "MonteCarlo",
         "NonDirectionalMultipliers": {"ALL": 1.2},
         "EconomiesOfScale": {"AcrossFloors": True, "AcrossDamageStates": True},

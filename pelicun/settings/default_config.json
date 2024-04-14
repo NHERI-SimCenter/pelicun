@@ -1,38 +1,38 @@
 {
   "Options": {
-	"Verbose": false,
-	"Seed": null,
-	"LogShowMS": false,
-	"LogFile": null,
-	"UnitsFile": null,
-	"PrintLog": false,
-	"ShowWarnings": false,
-	"DemandOffset": {
-	    "PFA": -1,
-	    "PFV": -1
-	},
-	"SamplingMethod": "LHS",
-	"ListAllDamageStates": false,
-	"NonDirectionalMultipliers": {
-	    "ALL": 1.2
-	},
-	"EconomiesOfScale": {
-	    "AcrossFloors": true,
-	    "AcrossDamageStates": false
-	},
-	"RepairCostAndTimeCorrelation": 0.0
+    "Verbose": false,
+    "Seed": null,
+    "LogShowMS": false,
+    "LogFile": null,
+    "UnitsFile": null,
+    "PrintLog": false,
+    "ShowWarnings": false,
+    "DemandOffset": {
+      "PFA": -1,
+      "PFV": -1
     },
-    "DemandAssessment": {
-	"Calibration": {
-	    "Marginals": {
-			"ALL": {
-			    "DistributionFamily": "lognormal"
-			}
-	    }
-	},
-	"Sampling": {
-	    "SampleSize": 1000,
-	    "PreserveRawOrder": false
-	}
+    "ListAllDamageStates": false,
+    "NonDirectionalMultipliers": {
+      "ALL": 1.2
+    },
+    "EconomiesOfScale": {
+      "AcrossFloors": true,
+      "AcrossDamageStates": false
+    },
+    "Sampling": {
+      "SamplingMethod": "LHS",
+      "SampleSize": 1000,
+      "PreserveRawOrder": false
+    },
+    "RepairCostAndTimeCorrelation": 0.0
+  },
+  "DemandAssessment": {
+    "Calibration": {
+      "Marginals": {
+        "ALL": {
+          "DistributionFamily": "lognormal"
+        }
+      }
+    }
   }
 }
