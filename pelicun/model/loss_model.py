@@ -742,110 +742,6 @@ class RepairModel(LossModel):
 
         return medians
 
-    def aggregate_losses(self):
-        """
-        Aggregates repair consequences across components.
-
-        Repair costs are simply summed up for each realization while repair
-        times are aggregated to provide lower and upper limits of the total
-        repair time using the assumption of parallel and sequential repair of
-        floors, respectively. Repairs within each floor are assumed to occur
-        sequentially.
-        """
-
-        self.log_div()
-        self.log_msg("Aggregating repair consequences...")
-
-        DV = self.sample
-
-        if DV is None:
-            return
-
-        # group results by DV type and location
-        DVG = DV.groupby(level=[0, 4], axis=1).sum()
-
-        # create the summary DF
-        df_agg = pd.DataFrame(
-            index=DV.index,
-            columns=[
-                'repair_cost',
-                'repair_time-parallel',
-                'repair_time-sequential',
-                'repair_carbon',
-                'repair_energy',
-            ],
-        )
-
-        if 'Cost' in DVG.columns:
-            df_agg['repair_cost'] = DVG['Cost'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_cost', axis=1)
-
-        if 'Time' in DVG.columns:
-            df_agg['repair_time-sequential'] = DVG['Time'].sum(axis=1)
-
-            df_agg['repair_time-parallel'] = DVG['Time'].max(axis=1)
-        else:
-            df_agg = df_agg.drop(
-                ['repair_time-parallel', 'repair_time-sequential'], axis=1
-            )
-
-        if 'Carbon' in DVG.columns:
-            df_agg['repair_carbon'] = DVG['Carbon'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_carbon', axis=1)
-
-        if 'Energy' in DVG.columns:
-            df_agg['repair_energy'] = DVG['Energy'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_energy', axis=1)
-
-        # convert units
-
-        cmp_units = (
-            self.loss_params[('DV', 'Unit')]
-            .groupby(
-                level=[
-                    1,
-                ]
-            )
-            .agg(lambda x: x.value_counts().index[0])
-        )
-
-        dv_units = pd.Series(index=df_agg.columns, name='Units', dtype='object')
-
-        if 'Cost' in DVG.columns:
-            dv_units['repair_cost'] = cmp_units['Cost']
-
-        if 'Time' in DVG.columns:
-            dv_units['repair_time-parallel'] = cmp_units['Time']
-            dv_units['repair_time-sequential'] = cmp_units['Time']
-
-        if 'Carbon' in DVG.columns:
-            dv_units['repair_carbon'] = cmp_units['Carbon']
-
-        if 'Energy' in DVG.columns:
-            dv_units['repair_energy'] = cmp_units['Energy']
-
-        df_agg = file_io.save_to_csv(
-            df_agg,
-            None,
-            units=dv_units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=False,
-            log=self._asmnt.log,
-        )
-
-        df_agg.drop("Units", inplace=True)
-
-        # convert header
-
-        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
-
-        self.log_msg("Repair consequences successfully aggregated.")
-
-        return df_agg.astype(float)
-
     def _generate_DV_sample(self, dmg_quantities, sample_size):
         """
         Generate a sample of repair costs and times.
@@ -1104,6 +1000,110 @@ class RepairModel(LossModel):
         self.sample = DV_sample
 
         self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
+
+    def aggregate_losses(self):
+        """
+        Aggregates repair consequences across components.
+
+        Repair costs are simply summed up for each realization while repair
+        times are aggregated to provide lower and upper limits of the total
+        repair time using the assumption of parallel and sequential repair of
+        floors, respectively. Repairs within each floor are assumed to occur
+        sequentially.
+        """
+
+        self.log_div()
+        self.log_msg("Aggregating repair consequences...")
+
+        DV = self.sample
+
+        if DV is None:
+            return
+
+        # group results by DV type and location
+        DVG = DV.groupby(level=[0, 4], axis=1).sum()
+
+        # create the summary DF
+        df_agg = pd.DataFrame(
+            index=DV.index,
+            columns=[
+                'repair_cost',
+                'repair_time-parallel',
+                'repair_time-sequential',
+                'repair_carbon',
+                'repair_energy',
+            ],
+        )
+
+        if 'Cost' in DVG.columns:
+            df_agg['repair_cost'] = DVG['Cost'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_cost', axis=1)
+
+        if 'Time' in DVG.columns:
+            df_agg['repair_time-sequential'] = DVG['Time'].sum(axis=1)
+
+            df_agg['repair_time-parallel'] = DVG['Time'].max(axis=1)
+        else:
+            df_agg = df_agg.drop(
+                ['repair_time-parallel', 'repair_time-sequential'], axis=1
+            )
+
+        if 'Carbon' in DVG.columns:
+            df_agg['repair_carbon'] = DVG['Carbon'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_carbon', axis=1)
+
+        if 'Energy' in DVG.columns:
+            df_agg['repair_energy'] = DVG['Energy'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_energy', axis=1)
+
+        # convert units
+
+        cmp_units = (
+            self.loss_params[('DV', 'Unit')]
+            .groupby(
+                level=[
+                    1,
+                ]
+            )
+            .agg(lambda x: x.value_counts().index[0])
+        )
+
+        dv_units = pd.Series(index=df_agg.columns, name='Units', dtype='object')
+
+        if 'Cost' in DVG.columns:
+            dv_units['repair_cost'] = cmp_units['Cost']
+
+        if 'Time' in DVG.columns:
+            dv_units['repair_time-parallel'] = cmp_units['Time']
+            dv_units['repair_time-sequential'] = cmp_units['Time']
+
+        if 'Carbon' in DVG.columns:
+            dv_units['repair_carbon'] = cmp_units['Carbon']
+
+        if 'Energy' in DVG.columns:
+            dv_units['repair_energy'] = cmp_units['Energy']
+
+        df_agg = file_io.save_to_csv(
+            df_agg,
+            None,
+            units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=False,
+            log=self._asmnt.log,
+        )
+
+        df_agg.drop("Units", inplace=True)
+
+        # convert header
+
+        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
+
+        self.log_msg("Repair consequences successfully aggregated.")
+
+        return df_agg.astype(float)
 
 
 def prep_constant_median_DV(median):
