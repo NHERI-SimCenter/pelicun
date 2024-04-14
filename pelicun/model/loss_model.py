@@ -348,14 +348,6 @@ class RepairModel(LossModel):
 
         self.loss_type = 'Repair'
 
-    # def load_model(self, data_paths, mapping_path):
-
-    #     super().load_model(data_paths, mapping_path)
-
-    # def calculate(self):
-
-    #     super().calculate()
-
     def _create_DV_RVs(self, case_list):
         """
         Prepare the random variables used for repair cost and time simulation.
