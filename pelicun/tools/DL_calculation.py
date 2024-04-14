@@ -69,6 +69,7 @@ from pelicun.assessment import Assessment
 
 # pd.set_option('display.max_rows', None)
 
+
 def log_msg(msg):
     formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
 
@@ -389,9 +390,7 @@ def run_pelicun(
                 return 0
 
             # add the demand information
-            config_ap['DL']['Demands'].update(
-                {'DemandFilePath': f'{demand_file}'}
-            )
+            config_ap['DL']['Demands'].update({'DemandFilePath': f'{demand_file}'})
 
             if coupled_EDP is True:
                 config_ap['DL']['Demands'].update({"CoupledDemands": True})
@@ -440,7 +439,9 @@ def run_pelicun(
     #
     sample_size_str = (
         # expected location
-        config.get('Options', {}).get('Sampling', {}).get('SampleSize', None)
+        config.get('Options', {})
+        .get('Sampling', {})
+        .get('SampleSize', None)
     )
     if not sample_size_str:
         # try previous location
@@ -500,7 +501,7 @@ def run_pelicun(
     options.update({"LogFile": "pelicun_log.txt", "Verbose": True})
 
     # If the user did not prescribe anything for ListAllDamageStates,
-    # then use True as default for DL_calculations regardless of what 
+    # then use True as default for DL_calculations regardless of what
     # the Pelicun default is.
     if "ListAllDamageStates" not in options.keys():
         options.update({"ListAllDamageStates": True})
@@ -580,7 +581,7 @@ def run_pelicun(
         {
             "SampleSize": sample_size,
             'PreserveRawOrder': config['DL']['Demands'].get('CoupledDemands', False),
-            'DemandCloning': config['DL']['Demands'].get('DemandCloning', False)
+            'DemandCloning': config['DL']['Demands'].get('DemandCloning', False),
         }
     )
 
@@ -631,7 +632,10 @@ def run_pelicun(
 
     # save results
     if 'Demand' in config['DL']['Outputs']:
-        out_reqs = [out if val else "" for out, val in config['DL']['Outputs']['Demand'].items()]
+        out_reqs = [
+            out if val else ""
+            for out, val in config['DL']['Outputs']['Demand'].items()
+        ]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
             demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
@@ -784,7 +788,9 @@ def run_pelicun(
         cmp_units = cmp_units.to_frame().T
 
         if (
-            config['DL']['Outputs']['Settings'].get('AggregateColocatedComponentResults', False)
+            config['DL']['Outputs']['Settings'].get(
+                'AggregateColocatedComponentResults', False
+            )
             is True
         ):
             cmp_units = cmp_units.groupby(level=[0, 1, 2], axis=1).first()
@@ -795,7 +801,10 @@ def run_pelicun(
                 cmp_groupby_uid.count() == 0, np.nan
             )
 
-        out_reqs = [out if val else "" for out, val in config['DL']['Outputs']['Asset'].items()]
+        out_reqs = [
+            out if val else ""
+            for out, val in config['DL']['Outputs']['Asset'].items()
+        ]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
             if 'Sample' in out_reqs:
@@ -857,10 +866,15 @@ def run_pelicun(
     # if a damage assessment is requested
     if 'Damage' in config['DL']:
         # load the fragility information
-        if config['DL']['Asset']['ComponentDatabase'] in default_DBs['fragility'].keys():
+        if (
+            config['DL']['Asset']['ComponentDatabase']
+            in default_DBs['fragility'].keys()
+        ):
             component_db = [
                 'PelicunDefault/'
-                + default_DBs['fragility'][config['DL']['Asset']['ComponentDatabase']],
+                + default_DBs['fragility'][
+                    config['DL']['Asset']['ComponentDatabase']
+                ],
             ]
         else:
             component_db = []
@@ -917,9 +931,9 @@ def run_pelicun(
                 adf.loc[coll_CMP_name, ('Demand', 'Type')] = coll_DEM_name
 
             else:
-                adf.loc[
-                    coll_CMP_name, ('Demand', 'Type')
-                ] = f'{coll_DEM_name}|{coll_DEM_spec}'
+                adf.loc[coll_CMP_name, ('Demand', 'Type')] = (
+                    f'{coll_DEM_name}|{coll_DEM_spec}'
+                )
 
             coll_DEM_unit = add_units(
                 pd.DataFrame(
@@ -975,9 +989,9 @@ def run_pelicun(
             # input file
             adf.loc['excessiveRID', ('Demand', 'Directional')] = 1
             adf.loc['excessiveRID', ('Demand', 'Offset')] = 0
-            adf.loc[
-                'excessiveRID', ('Demand', 'Type')
-            ] = 'Residual Interstory Drift Ratio'
+            adf.loc['excessiveRID', ('Demand', 'Type')] = (
+                'Residual Interstory Drift Ratio'
+            )
 
             adf.loc['excessiveRID', ('Demand', 'Unit')] = 'unitless'
             adf.loc['excessiveRID', ('LS1', 'Theta_0')] = irrep_config[
@@ -1086,7 +1100,9 @@ def run_pelicun(
             elif dp_approach == "User Defined":
                 # load the damage process from a file
                 with open(
-                    config['DL']['Damage']['DamageProcessFilePath'], 'r', encoding='utf-8'
+                    config['DL']['Damage']['DamageProcessFilePath'],
+                    'r',
+                    encoding='utf-8',
                 ) as f:
                     dmg_process = json.load(f)
 
@@ -1126,7 +1142,8 @@ def run_pelicun(
                 )
 
             out_reqs = [
-                out if val else "" for out, val in config['DL']['Outputs']['Damage'].items()
+                out if val else ""
+                for out, val in config['DL']['Outputs']['Damage'].items()
             ]
 
             if np.any(
@@ -1188,7 +1205,10 @@ def run_pelicun(
                     )
 
                     # if requested, condense DS output
-                    if config['DL']['Outputs']['Settings'].get('CondenseDS', False) is True:
+                    if (
+                        config['DL']['Outputs']['Settings'].get('CondenseDS', False)
+                        is True
+                    ):
                         # replace non-zero values with 1
                         grp_damage = grp_damage.mask(
                             grp_damage.astype(np.float64).values > 0, 1
@@ -1297,21 +1317,14 @@ def run_pelicun(
             repair_config = config['DL']['Losses']['Repair']
 
             # load the fragility information
-            if (
-                repair_config['ConsequenceDatabase']
-                in default_DBs['repair'].keys()
-            ):
+            if repair_config['ConsequenceDatabase'] in default_DBs['repair'].keys():
                 consequence_db = [
                     'PelicunDefault/'
-                    + default_DBs['repair'][
-                        repair_config['ConsequenceDatabase']
-                    ],
+                    + default_DBs['repair'][repair_config['ConsequenceDatabase']],
                 ]
 
                 conseq_df = PAL.get_default_data(
-                    default_DBs['repair'][repair_config['ConsequenceDatabase']][
-                        :-4
-                    ]
+                    default_DBs['repair'][repair_config['ConsequenceDatabase']][:-4]
                 )
             else:
                 consequence_db = []
@@ -1557,7 +1570,8 @@ def run_pelicun(
                     loss_map_path = repair_config['MapFilePath']
 
                     loss_map_path = loss_map_path.replace(
-                        'CustomDLDataFolder', custom_dl_file_path)
+                        'CustomDLDataFolder', custom_dl_file_path
+                    )
 
                 else:
                     print("User defined loss map path missing. Terminating analysis")
@@ -1573,9 +1587,7 @@ def run_pelicun(
             # assemble the list of requested decision variables
             DV_list = []
             if repair_config.get('DecisionVariables', False) is not False:
-                for DV_i, DV_status in repair_config[
-                    'DecisionVariables'
-                ].items():
+                for DV_i, DV_status in repair_config['DecisionVariables'].items():
                     if DV_status is True:
                         DV_list.append(DV_i)
 
@@ -1594,12 +1606,10 @@ def run_pelicun(
             PAL.repair.calculate(sample_size)
 
             agg_repair = PAL.repair.aggregate_losses()
-    
+
             # if requested, save results
             if out_config_loss.get('Repair', False):
-                repair_sample, repair_units = PAL.repair.save_sample(
-                    save_units=True
-                )
+                repair_sample, repair_units = PAL.repair.save_sample(save_units=True)
                 repair_units = repair_units.to_frame().T
 
                 if (
@@ -1781,7 +1791,10 @@ def run_pelicun(
         for filename in output_files:
             filename_json = filename[:-3] + 'json'
 
-            if config['DL']['Outputs']['Settings'].get('SimpleIndexInJSON', False) is True:
+            if (
+                config['DL']['Outputs']['Settings'].get('SimpleIndexInJSON', False)
+                is True
+            ):
                 df = pd.read_csv(output_path / filename, index_col=0)
             else:
                 df = convert_to_MultiIndex(

@@ -46,7 +46,7 @@ from pathlib import Path
 def convert_HDF(HDF_path):
 
     HDF_ext = HDF_path.split('.')[-1]
-    CSV_base = HDF_path[:-len(HDF_ext) - 1]
+    CSV_base = HDF_path[: -len(HDF_ext) - 1]
 
     HDF_path = Path(HDF_path).resolve()
 

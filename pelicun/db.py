@@ -321,9 +321,7 @@ def create_FEMA_P58_fragility_db(
         # the additional fields are added to the description if they exist
 
         if cmp_meta['Construction_Quality'] != 'Not Specified':
-            comments += (
-                f'\nConstruction Quality: {cmp_meta["Construction_Quality"]}'
-            )
+            comments += f'\nConstruction Quality: {cmp_meta["Construction_Quality"]}'
 
         if cmp_meta['Seismic_Installation_Conditions'] not in [
             'Not Specified',
@@ -429,9 +427,11 @@ def create_FEMA_P58_fragility_db(
                         sim_weights.append(
                             np.product(
                                 [
-                                    weights[ds_i]
-                                    if ds_map[-ds_i - 1] == '1'
-                                    else 1.0 - weights[ds_i]
+                                    (
+                                        weights[ds_i]
+                                        if ds_map[-ds_i - 1] == '1'
+                                        else 1.0 - weights[ds_i]
+                                    )
                                     for ds_i in range(sim_ds_count)
                                 ]
                             )
@@ -897,9 +897,11 @@ def create_FEMA_P58_repair_db(
 
                 cost_vals = np.sum(
                     [
-                        cost_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(5)
+                        (
+                            cost_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(5)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -907,9 +909,11 @@ def create_FEMA_P58_repair_db(
 
                 time_vals = np.sum(
                     [
-                        time_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(6)
+                        (
+                            time_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(6)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -917,9 +921,11 @@ def create_FEMA_P58_repair_db(
 
                 carbon_vals = np.sum(
                     [
-                        carbon_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(3)
+                        (
+                            carbon_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(3)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -927,9 +933,11 @@ def create_FEMA_P58_repair_db(
 
                 energy_vals = np.sum(
                     [
-                        energy_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(3)
+                        (
+                            energy_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(3)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -989,9 +997,9 @@ def create_FEMA_P58_repair_db(
                     f"{cost_qnt_low:g},{cost_qnt_up:g}"
                 )
 
-                df_db.loc[
-                    (cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'
-                ] = f"{cost_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'] = (
+                    f"{cost_theta[1]:g}"
+                )
 
                 df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = family_hat
 
@@ -1000,37 +1008,37 @@ def create_FEMA_P58_repair_db(
                     f"{time_qnt_low:g},{time_qnt_up:g}"
                 )
 
-                df_db.loc[
-                    (cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'
-                ] = f"{time_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'] = (
+                    f"{time_theta[1]:g}"
+                )
 
                 df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = int(
                     time_vals[5] > 0
                 )
 
-                df_db.loc[
-                    (cmp.Index, 'Carbon'), f'DS{DS_i}-Family'
-                ] = family_hat_carbon
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = (
+                    family_hat_carbon
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'
-                ] = f"{carbon_theta[0]:g}"
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'] = (
+                    f"{carbon_theta[0]:g}"
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_1'
-                ] = f"{carbon_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_1'] = (
+                    f"{carbon_theta[1]:g}"
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Energy'), f'DS{DS_i}-Family'
-                ] = family_hat_energy
+                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Family'] = (
+                    family_hat_energy
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Energy'), f'DS{DS_i}-Theta_0'
-                ] = f"{energy_theta[0]:g}"
+                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Theta_0'] = (
+                    f"{energy_theta[0]:g}"
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Energy'), f'DS{DS_i}-Theta_1'
-                ] = f"{energy_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Theta_1'] = (
+                    f"{energy_theta[1]:g}"
+                )
 
                 if ds_map.count('1') == 1:
                     ds_pure_id = ds_map[::-1].find('1') + 1
@@ -1071,9 +1079,9 @@ def create_FEMA_P58_repair_db(
             for DS_i in range(1, 6):
                 # cost
                 if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}')):
-                    df_db.loc[
-                        (cmp.Index, 'Cost'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}')]
+                    df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}')]
+                    )
 
                     if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')):
                         theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')
@@ -1082,9 +1090,9 @@ def create_FEMA_P58_repair_db(
                         qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}')
 
                         if theta_0_low == 0.0 and theta_0_up == 0.0:
-                            df_db.loc[
-                                (cmp.Index, 'Cost'), f'DS{DS_i}-Family'
-                            ] = np.nan
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = (
+                                np.nan
+                            )
 
                         else:
                             df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_0'] = (
@@ -1092,9 +1100,9 @@ def create_FEMA_P58_repair_db(
                                 f"{qnt_low:g},{qnt_up:g}"
                             )
 
-                            df_db.loc[
-                                (cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'
-                            ] = f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}'):g}"
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}'):g}"
+                            )
 
                     else:
                         incomplete_cost = True
@@ -1114,9 +1122,9 @@ def create_FEMA_P58_repair_db(
 
                 # time
                 if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}_1')):
-                    df_db.loc[
-                        (cmp.Index, 'Time'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}_1')]
+                    df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}_1')]
+                    )
 
                     if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')):
                         theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')
@@ -1125,9 +1133,9 @@ def create_FEMA_P58_repair_db(
                         qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}_1')
 
                         if theta_0_low == 0.0 and theta_0_up == 0.0:
-                            df_db.loc[
-                                (cmp.Index, 'Time'), f'DS{DS_i}-Family'
-                            ] = np.nan
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = (
+                                np.nan
+                            )
 
                         else:
                             df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_0'] = (
@@ -1135,22 +1143,22 @@ def create_FEMA_P58_repair_db(
                                 f"{qnt_low:g},{qnt_up:g}"
                             )
 
-                            df_db.loc[
-                                (cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'
-                            ] = f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}_2'):g}"
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}_2'):g}"
+                            )
 
-                        df_db.loc[
-                            (cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'
-                        ] = int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES')
+                        df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = (
+                            int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES')
+                        )
 
                     else:
                         incomplete_time = True
 
                 # Carbon
                 if not pd.isna(getattr(cmp, f'DS{DS_i}_Best_Fit')):
-                    df_db.loc[
-                        (cmp.Index, 'Carbon'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit')]
+                    df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit')]
+                    )
 
                     df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'] = getattr(
                         cmp, f'DS{DS_i}_Embodied_Carbon_kg_CO2eq'
@@ -1162,9 +1170,9 @@ def create_FEMA_P58_repair_db(
 
                 # Energy
                 if not pd.isna(getattr(cmp, f'DS{DS_i}_Best_Fit_1')):
-                    df_db.loc[
-                        (cmp.Index, 'Energy'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit_1')]
+                    df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit_1')]
+                    )
 
                     df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Theta_0'] = getattr(
                         cmp, f'DS{DS_i}_Embodied_Energy_MJ'
@@ -1221,9 +1229,7 @@ def create_FEMA_P58_repair_db(
     with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
-    print(
-        "Successfully parsed and saved the repair consequence data from FEMA P58"
-    )
+    print("Successfully parsed and saved the repair consequence data from FEMA P58")
 
 
 def create_FEMA_P58_bldg_redtag_db(
@@ -1484,9 +1490,7 @@ def create_FEMA_P58_bldg_redtag_db(
     with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
-    print(
-        "Successfully parsed and saved the red tag consequence data from FEMA P58"
-    )
+    print("Successfully parsed and saved the red tag consequence data from FEMA P58")
 
 
 def create_Hazus_EQ_fragility_db(
@@ -1712,9 +1716,9 @@ def create_Hazus_EQ_fragility_db(
 
                     if LS_i == 4:
                         p_coll = S_data['P_collapse'][bt]
-                        df_db.loc[
-                            counter, f'LS{LS_i}-DamageStateWeights'
-                        ] = f'{1.0 - p_coll} | {p_coll}'
+                        df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
+                            f'{1.0 - p_coll} | {p_coll}'
+                        )
 
                         cmp_meta["LimitStates"].update(
                             {
@@ -1940,9 +1944,9 @@ def create_Hazus_EQ_fragility_db(
 
                         if LS_i == 4:
                             p_coll = LF_data['P_collapse'][bt]
-                            df_db.loc[
-                                counter, f'LS{LS_i}-DamageStateWeights'
-                            ] = f'{1.0 - p_coll} | {p_coll}'
+                            df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
+                                f'{1.0 - p_coll} | {p_coll}'
+                            )
 
                             cmp_meta["LimitStates"].update(
                                 {
@@ -2006,9 +2010,9 @@ def create_Hazus_EQ_fragility_db(
                 f_depth
             ]
             p_complete = GF_data['P_Complete']
-            df_db.loc[
-                counter, 'LS1-DamageStateWeights'
-            ] = f'{1.0 - p_complete} | {p_complete}'
+            df_db.loc[counter, 'LS1-DamageStateWeights'] = (
+                f'{1.0 - p_complete} | {p_complete}'
+            )
 
             cmp_meta["LimitStates"].update(
                 {
@@ -2340,9 +2344,7 @@ def create_Hazus_EQ_repair_db(
     with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
-    print(
-        "Successfully parsed and saved the repair consequence data from Hazus EQ"
-    )
+    print("Successfully parsed and saved the repair consequence data from Hazus EQ")
 
 
 def create_Hazus_EQ_bldg_injury_db(
@@ -2475,9 +2477,7 @@ def create_Hazus_EQ_bldg_injury_db(
     # with open(target_meta_file, 'w+') as f:
     #    json.dump(meta_dict, f, indent=2)
 
-    print(
-        "Successfully parsed and saved the injury consequence data from Hazus " "EQ"
-    )
+    print("Successfully parsed and saved the injury consequence data from Hazus EQ")
 
 
 def create_Hazus_HU_fragility_db(

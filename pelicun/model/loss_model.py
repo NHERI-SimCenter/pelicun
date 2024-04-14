@@ -305,7 +305,6 @@ class LossModel(PelicunModel):
             # todo: deprecation warning
             sample_size = self._asmnt.demand.sample.shape[0]
         self.calculate_internal(sample_size)
-        
 
     def calculate_internal(self, sample_size):
         """

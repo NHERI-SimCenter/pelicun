@@ -91,7 +91,6 @@ idx = pd.IndexSlice
 
 
 class Options:
-
     """
     Options objects store analysis options and the logging
     configuration.
@@ -183,8 +182,7 @@ class Options:
         self._seed = None
 
         self._rng = np.random.default_rng()
-        merged_config_options = merge_default_config(
-            user_config_options)
+        merged_config_options = merge_default_config(user_config_options)
 
         self._seed = merged_config_options['Seed']
         self.sampling_method = merged_config_options['Sampling']['SamplingMethod']
@@ -203,7 +201,8 @@ class Options:
             merged_config_options['ShowWarnings'],
             merged_config_options['LogShowMS'],
             merged_config_options['LogFile'],
-            merged_config_options['PrintLog'])
+            merged_config_options['PrintLog'],
+        )
 
     def nondir_multi(self, EDP_type):
         """
@@ -237,7 +236,8 @@ class Options:
             f"calculation of {EDP_type} not specified.\n"
             f"Please add {EDP_type} in the configuration dictionary "
             f"under ['Options']['NonDirectionalMultipliers']"
-            " = {{'edp_type': value, ...}}")
+            " = {{'edp_type': value, ...}}"
+        )
 
     @property
     def seed(self):
@@ -277,7 +277,6 @@ class Options:
 
 
 class Logger:
-
     """
     Logger objects are used to generate log files documenting
     execution events and related messages.
@@ -314,6 +313,7 @@ class Logger:
         (see settings/default_config.json in the pelicun source code).
 
     """
+
     # TODO: finalize docstring
 
     def __init__(self, verbose, show_warnings, log_show_ms, log_file, print_log):
@@ -427,10 +427,12 @@ class Logger:
                     f.write('')
 
             except BaseException as err:
-                print(f"WARNING: The filepath provided for the log file does "
-                      f"not point to a valid location: {value}. \nPelicun "
-                      f"cannot print the log to a file.\n"
-                      f"The error was: '{err}'")
+                print(
+                    f"WARNING: The filepath provided for the log file does "
+                    f"not point to a valid location: {value}. \nPelicun "
+                    f"cannot print the log to a file.\n"
+                    f"The error was: '{err}'"
+                )
                 raise
 
     @property
@@ -485,9 +487,10 @@ class Logger:
 
         for msg_i, msg_line in enumerate(msg_lines):
 
-            if (prepend_timestamp and (msg_i == 0)):
+            if prepend_timestamp and (msg_i == 0):
                 formatted_msg = '{} {}'.format(
-                    datetime.now().strftime(self.log_time_format), msg_line)
+                    datetime.now().strftime(self.log_time_format), msg_line
+                )
             elif prepend_timestamp:
                 formatted_msg = self.log_pref + msg_line
             elif prepend_blank_space:
@@ -519,15 +522,16 @@ class Logger:
         """
 
         self.msg(
-            'System Information:',
-            prepend_timestamp=False, prepend_blank_space=False)
+            'System Information:', prepend_timestamp=False, prepend_blank_space=False
+        )
         self.msg(
             f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
             f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
             f'python: {sys.version}\n'
             f'numpy: {np.__version__}\n'
             f'pandas: {pd.__version__}\n',
-            prepend_timestamp=False)
+            prepend_timestamp=False,
+        )
 
 
 # get the absolute path of the pelicun directory
@@ -535,7 +539,6 @@ pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
 
 def control_warnings(show):
-
     """
     Convenience function to turn warnings on/off
 
@@ -552,14 +555,11 @@ def control_warnings(show):
         action = 'ignore'
 
     if not sys.warnoptions:
-        warnings.filterwarnings(
-            category=FutureWarning, action=action)
+        warnings.filterwarnings(category=FutureWarning, action=action)
 
-        warnings.filterwarnings(
-            category=DeprecationWarning, action=action)
+        warnings.filterwarnings(category=DeprecationWarning, action=action)
 
-        warnings.filterwarnings(
-            category=pd.errors.PerformanceWarning, action=action)
+        warnings.filterwarnings(category=pd.errors.PerformanceWarning, action=action)
 
 
 def load_default_options():
@@ -567,18 +567,16 @@ def load_default_options():
     Load the default_config.json file to set options to default values
     """
 
-    with open(pelicun_path / "settings/default_config.json",
-              'r', encoding='utf-8') as f:
+    with open(
+        pelicun_path / "settings/default_config.json", 'r', encoding='utf-8'
+    ) as f:
         default_config = json.load(f)
 
     default_options = default_config['Options']
     return default_options
 
 
-def update_vals(
-        update, primary,
-        update_path, primary_path
-):
+def update_vals(update, primary, update_path, primary_path):
     """
     Updates the values of the `update` nested dictionary with
     those provided in the `primary` nested dictionary. If a key
@@ -635,8 +633,11 @@ def update_vals(
                 )
             # With both being dictionaries, we recurse.
             update_vals(
-                update[key], primary[key],
-                f'{update_path}["{key}"]', f'{primary_path}["{key}"]')
+                update[key],
+                primary[key],
+                f'{update_path}["{key}"]',
+                f'{primary_path}["{key}"]',
+            )
         # if `primary[key]` is NOT a dictionary:
         else:
             # if `key` does not exist in `update`, we add it, with
@@ -686,9 +687,7 @@ def merge_default_config(user_config):
     # We fill out the user's config with the values available in the
     # default config that were not set.
     # We use a recursive function to handle nesting.
-    update_vals(
-        config, default_config,
-        'user_settings', 'default_settings')
+    update_vals(config, default_config, 'user_settings', 'default_settings')
 
     return config
 
@@ -907,8 +906,9 @@ def _warning(message, category, filename, lineno, file=None, line=None):
 warnings.showwarning = _warning
 
 
-def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
-                              0.977, 0.999)):
+def describe(
+    df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90, 0.977, 0.999)
+):
     """
     Provide descriptive statistics.
     """
@@ -1005,7 +1005,9 @@ def process_loc(string, stories):
     """
     try:
         res = int(string)
-        return [res, ]
+        return [
+            res,
+        ]
     except ValueError:
         if "-" in string:
             s_low, s_high = string.split('-')
@@ -1015,9 +1017,13 @@ def process_loc(string, stories):
         if string == "all":
             return list(range(1, stories + 1))
         if string == "top":
-            return [stories, ]
+            return [
+                stories,
+            ]
         if string == "roof":
-            return [stories, ]
+            return [
+                stories,
+            ]
         return None
 
 
@@ -1031,8 +1037,7 @@ def dedupe_index(dataframe, dtype=str):
 
     inames = dataframe.index.names
     dataframe.reset_index(inplace=True)
-    dataframe['uid'] = (
-        dataframe.groupby([*inames]).cumcount()).astype(dtype)
+    dataframe['uid'] = (dataframe.groupby([*inames]).cumcount()).astype(dtype)
     dataframe.set_index([*inames] + ['uid'], inplace=True)
     dataframe.sort_index(inplace=True)
 
@@ -1041,45 +1046,39 @@ def dedupe_index(dataframe, dtype=str):
 
 EDP_to_demand_type = {
     # Drifts
-    'Story Drift Ratio':               'PID',
-    'Peak Interstory Drift Ratio':     'PID',
-    'Roof Drift Ratio':                'PRD',
-    'Peak Roof Drift Ratio':           'PRD',
-    'Damageable Wall Drift':           'DWD',
-    'Racking Drift Ratio':             'RDR',
-    'Mega Drift Ratio':                'PMD',
-    'Residual Drift Ratio':            'RID',
+    'Story Drift Ratio': 'PID',
+    'Peak Interstory Drift Ratio': 'PID',
+    'Roof Drift Ratio': 'PRD',
+    'Peak Roof Drift Ratio': 'PRD',
+    'Damageable Wall Drift': 'DWD',
+    'Racking Drift Ratio': 'RDR',
+    'Mega Drift Ratio': 'PMD',
+    'Residual Drift Ratio': 'RID',
     'Residual Interstory Drift Ratio': 'RID',
-    'Peak Effective Drift Ratio':      'EDR',
-
+    'Peak Effective Drift Ratio': 'EDR',
     # Floor response
-    'Peak Floor Acceleration':        'PFA',
-    'Peak Floor Velocity':            'PFV',
-    'Peak Floor Displacement':        'PFD',
-
+    'Peak Floor Acceleration': 'PFA',
+    'Peak Floor Velocity': 'PFV',
+    'Peak Floor Displacement': 'PFD',
     # Component response
-    'Peak Link Rotation Angle':       'LR',
-    'Peak Link Beam Chord Rotation':  'LBR',
-
+    'Peak Link Rotation Angle': 'LR',
+    'Peak Link Beam Chord Rotation': 'LBR',
     # Wind Intensity
-    'Peak Gust Wind Speed':           'PWS',
-
+    'Peak Gust Wind Speed': 'PWS',
     # Inundation Intensity
-    'Peak Inundation Height':         'PIH',
-
+    'Peak Inundation Height': 'PIH',
     # Shaking Intensity
-    'Peak Ground Acceleration':       'PGA',
-    'Peak Ground Velocity':           'PGV',
-    'Spectral Acceleration':          'SA',
-    'Spectral Velocity':              'SV',
-    'Spectral Displacement':          'SD',
-    'Peak Spectral Acceleration':     'SA',
-    'Peak Spectral Velocity':         'SV',
-    'Peak Spectral Displacement':     'SD',
-    'Permanent Ground Deformation':   'PGD',
-
+    'Peak Ground Acceleration': 'PGA',
+    'Peak Ground Velocity': 'PGV',
+    'Spectral Acceleration': 'SA',
+    'Spectral Velocity': 'SV',
+    'Spectral Displacement': 'SD',
+    'Peak Spectral Acceleration': 'SA',
+    'Peak Spectral Velocity': 'SV',
+    'Peak Spectral Displacement': 'SD',
+    'Permanent Ground Deformation': 'PGD',
     # Placeholder for advanced calculations
-    'One':                            'ONE'
+    'One': 'ONE',
 }
 
 
@@ -1168,11 +1167,11 @@ def parse_units(custom_file=None, preserve_categories=False):
 
 
 def convert_units(
-    values: (float | list[float] | np.ndarray),
+    values: float | list[float] | np.ndarray,
     unit: str,
     to_unit: str,
-    category: (str | None) = None
-) -> (float | list[float] | np.ndarray):
+    category: str | None = None,
+) -> float | list[float] | np.ndarray:
     """
     Converts numeric values between different units.
 
@@ -1227,11 +1226,9 @@ def convert_units(
         units = all_units[category]
         for unt in unit, to_unit:
             if unt not in units:
-                raise ValueError(
-                    f'Unknown unit: `{unt}`'
-                )
+                raise ValueError(f'Unknown unit: `{unt}`')
     else:
-        unit_category: (str | None) = None
+        unit_category: str | None = None
         for key in all_units:
             units = all_units[key]
             if unit in units:

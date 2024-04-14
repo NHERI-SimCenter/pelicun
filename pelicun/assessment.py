@@ -90,13 +90,15 @@ class Assessment:
 
         self.options = base.Options(config_options, self)
 
-        self.unit_conversion_factors = base.parse_units(
-            self.options.units_file)
+        self.unit_conversion_factors = base.parse_units(self.options.units_file)
 
         self.log = self.options.log
 
-        self.log.msg(f'pelicun {pelicun_version} | \n',
-                     prepend_timestamp=False, prepend_blank_space=False)
+        self.log.msg(
+            f'pelicun {pelicun_version} | \n',
+            prepend_timestamp=False,
+            prepend_blank_space=False,
+        )
 
         self.log.print_system_info()
 
@@ -232,8 +234,9 @@ class Assessment:
             scale_factor = unit_count * self.unit_conversion_factors[unit_name]
 
         except KeyError as exc:
-            raise KeyError(f"Specified unit not recognized: "
-                           f"{unit_count} {unit_name}") from exc
+            raise KeyError(
+                f"Specified unit not recognized: {unit_count} {unit_name}"
+            ) from exc
 
         return scale_factor
 

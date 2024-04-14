@@ -71,28 +71,35 @@ convert_dv_name = {
 }
 
 dependency_to_acronym = {
-    'btw. Fragility Groups':   'FG',
+    'btw. Fragility Groups': 'FG',
     'btw. Performance Groups': 'PG',
-    'btw. Floors':             'LOC',
-    'btw. Directions':         'DIR',
-    'btw. Component Groups':   'CSG',
-    'btw. Damage States':      'DS',
-    'Independent':             'IND',
-    'per ATC recommendation':  'ATC',
+    'btw. Floors': 'LOC',
+    'btw. Directions': 'DIR',
+    'btw. Component Groups': 'CSG',
+    'btw. Damage States': 'DS',
+    'Independent': 'IND',
+    'per ATC recommendation': 'ATC',
 }
 
 HAZUS_occ_converter = {
-    'RES':  'Residential',
-    'COM':  'Commercial',
-    'REL':  'Commercial',
-    'EDU':  'Educational',
-    'IND':  'Industrial',
-    'AGR':  'Industrial'
+    'RES': 'Residential',
+    'COM': 'Commercial',
+    'REL': 'Commercial',
+    'EDU': 'Educational',
+    'IND': 'Industrial',
+    'AGR': 'Industrial',
 }
 
 
-def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
-                orientation=0, use_simpleindex=True, log=None):
+def save_to_csv(
+    data,
+    filepath,
+    units=None,
+    unit_conversion_factors=None,
+    orientation=0,
+    use_simpleindex=True,
+    log=None,
+):
     """
     Saves data to a CSV file following standard SimCenter schema.
 
@@ -143,9 +150,11 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
     """
 
     if filepath is None:
-        if log: log.msg('Preparing data ...', prepend_timestamp=False)
+        if log:
+            log.msg('Preparing data ...', prepend_timestamp=False)
 
-    elif log: log.msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+    elif log:
+        log.msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
 
@@ -158,9 +167,11 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
             if unit_conversion_factors is None:
                 raise ValueError(
                     'When units is not None, '
-                    'unit_conversion_factors must be provided')
+                    'unit_conversion_factors must be provided'
+                )
 
-            if log: log.msg('Converting units...', prepend_timestamp=False)
+            if log:
+                log.msg('Converting units...', prepend_timestamp=False)
 
             # if the orientation is 1, we might not need to scale all columns
             if orientation == 1:
@@ -173,7 +184,7 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
 
                 labels = units.loc[units == unit_name].index.values
 
-                unit_factor = 1. / unit_conversion_factors[unit_name]
+                unit_factor = 1.0 / unit_conversion_factors[unit_name]
 
                 active_labels = []
 
@@ -204,7 +215,8 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                 data = pd.concat([units, data], axis=1)
                 data.sort_index(inplace=True)
 
-            if log: log.msg('Unit conversion successful.', prepend_timestamp=False)
+            if log:
+                log.msg('Unit conversion successful.', prepend_timestamp=False)
 
         if use_simpleindex:
             # convert MultiIndex to regular index with '-' separators
@@ -223,13 +235,16 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
                 # save the contents of the DataFrame into a csv
                 data.to_csv(filepath)
 
-                if log: log.msg('Data successfully saved to file.',
-                                prepend_timestamp=False)
+                if log:
+                    log.msg(
+                        'Data successfully saved to file.', prepend_timestamp=False
+                    )
 
             else:
                 raise ValueError(
                     f'ERROR: Unexpected file type received when trying '
-                    f'to save to csv: {filepath}')
+                    f'to save to csv: {filepath}'
+                )
 
             return None
 
@@ -237,8 +252,8 @@ def save_to_csv(data, filepath, units=None, unit_conversion_factors=None,
         return data
 
     # at this line, data is None
-    if log: log.msg('WARNING: Data was empty, no file saved.',
-                    prepend_timestamp=False)
+    if log:
+        log.msg('WARNING: Data was empty, no file saved.', prepend_timestamp=False)
     return None
 
 
@@ -382,9 +397,11 @@ def load_data(
                 log.msg('Converting units...', prepend_timestamp=False)
 
             conversion_factors = units.map(
-                lambda unit: 1.00
-                if pd.isna(unit)
-                else unit_conversion_factors.get(unit, 1.00)
+                lambda unit: (
+                    1.00
+                    if pd.isna(unit)
+                    else unit_conversion_factors.get(unit, 1.00)
+                )
             )
 
             if orientation == 1:
@@ -458,7 +475,8 @@ def load_from_file(filepath, log=None):
         If the file is not a CSV.
     """
 
-    if log: log.msg(f'Loading data from {filepath}...')
+    if log:
+        log.msg(f'Loading data from {filepath}...')
 
     # check if the filepath is valid
     filepath = Path(filepath).resolve()
@@ -466,19 +484,28 @@ def load_from_file(filepath, log=None):
     if not filepath.is_file():
         raise FileNotFoundError(
             f"The filepath provided does not point to an existing "
-            f"file: {filepath}")
+            f"file: {filepath}"
+        )
 
     if filepath.suffix == '.csv':
 
         # load the contents of the csv into a DataFrame
 
-        data = pd.read_csv(filepath, header=0, index_col=0, low_memory=False,
-                           encoding_errors='replace')
+        data = pd.read_csv(
+            filepath,
+            header=0,
+            index_col=0,
+            low_memory=False,
+            encoding_errors='replace',
+        )
 
-        if log: log.msg('File successfully opened.', prepend_timestamp=False)
+        if log:
+            log.msg('File successfully opened.', prepend_timestamp=False)
 
     else:
-        raise ValueError(f'ERROR: Unexpected file type received when trying '
-                         f'to load from csv: {filepath}')
+        raise ValueError(
+            f'ERROR: Unexpected file type received when trying '
+            f'to load from csv: {filepath}'
+        )
 
     return data

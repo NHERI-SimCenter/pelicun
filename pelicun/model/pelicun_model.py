@@ -214,13 +214,13 @@ class PelicunModel:
                         )
 
                 # and update the values in the DF
-                marginal_params.loc[
-                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']
-                ] = theta
+                marginal_params.loc[row_id, ['Theta_0', 'Theta_1', 'Theta_2']] = (
+                    theta
+                )
 
-                marginal_params.loc[
-                    row_id, ['TruncateLower', 'TruncateUpper']
-                ] = tr_limits
+                marginal_params.loc[row_id, ['TruncateLower', 'TruncateUpper']] = (
+                    tr_limits
+                )
 
         # remove the added columns
         marginal_params = marginal_params[original_cols]

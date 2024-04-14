@@ -62,8 +62,7 @@ def export_DB(data_path, target_dir):
 
         row_dict = convert_Series_to_dict(row)
 
-        with open(target_dir_data / f'{row_id}.json', 'w',
-                  encoding='utf-8') as f:
+        with open(target_dir_data / f'{row_id}.json', 'w', encoding='utf-8') as f:
             json.dump(row_dict, f, indent=2)
 
     # add population if it exists
@@ -78,8 +77,7 @@ def export_DB(data_path, target_dir):
 
             pop_dict.update({row_id: convert_Series_to_dict(row)})
 
-        with open(target_dir / 'population.json', 'w',
-                  encoding='utf-8') as f:
+        with open(target_dir / 'population.json', 'w', encoding='utf-8') as f:
             json.dump(pop_dict, f, indent=2)
 
     except (ValueError, NotImplementedError, FileNotFoundError):

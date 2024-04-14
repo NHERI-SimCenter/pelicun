@@ -894,7 +894,7 @@ class DamageModel(PelicunModel):
         # initialize the DataFrames that store the damage states and
         # quantities
         ds_sample = pd.DataFrame(
-            0,                  # fill value
+            0,  # fill value
             columns=capacity_sample.columns.droplevel('ls').unique(),
             index=capacity_sample.index,
             dtype='int32',
@@ -1469,7 +1469,11 @@ class DamageModel(PelicunModel):
         return res
 
     def calculate(
-        self, sample_size=None, dmg_process=None, block_batch_size=1000, scaling_specification=None
+        self,
+        sample_size=None,
+        dmg_process=None,
+        block_batch_size=1000,
+        scaling_specification=None,
     ):
         """
         Wrapper around the new calculate method that requires sample size.
@@ -1478,12 +1482,16 @@ class DamageModel(PelicunModel):
         if not sample_size:
             # todo: Deprecation warning
             sample_size = self._asmnt.demand.sample.shape[0]
-        self.calculate_internal(sample_size, dmg_process, block_batch_size, scaling_specification)
-
+        self.calculate_internal(
+            sample_size, dmg_process, block_batch_size, scaling_specification
+        )
 
     def calculate_internal(
-        self, sample_size, dmg_process=None, block_batch_size=1000, scaling_specification=None
-        
+        self,
+        sample_size,
+        dmg_process=None,
+        block_batch_size=1000,
+        scaling_specification=None,
     ):
         """
         Calculate the damage state of each component block in the asset.
