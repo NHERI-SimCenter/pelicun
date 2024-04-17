@@ -864,9 +864,10 @@ def run_pelicun(
         if asset_config.get('ComponentDatabasePath', False) is not False:
             extra_comps = asset_config['ComponentDatabasePath']
 
-            extra_comps = extra_comps.replace(
-                'CustomDLDataFolder', custom_dl_file_path
-            )
+            if 'CustomDLDataFolder' in extra_comps:
+                extra_comps = extra_comps.replace(
+                    'CustomDLDataFolder', custom_dl_file_path
+                )
 
             component_db += [
                 extra_comps,
@@ -1317,9 +1318,10 @@ def run_pelicun(
             if repair_config.get('ConsequenceDatabasePath', False) is not False:
                 extra_comps = repair_config['ConsequenceDatabasePath']
 
-                extra_comps = extra_comps.replace(
-                    'CustomDLDataFolder', custom_dl_file_path
-                )
+                if 'CustomDLDataFolder' in extra_comps:
+                    extra_comps = extra_comps.replace(
+                        'CustomDLDataFolder', custom_dl_file_path
+                    )
 
                 consequence_db += [
                     extra_comps,

@@ -41,7 +41,7 @@ Adam Zsarnóczay
 
 name = "pelicun"
 
-__version__ = '3.3'
+__version__ = '3.3.1'
 
 __copyright__ = ("Copyright (c) 2018 Leland Stanford "
                  "Junior University and The Regents "
