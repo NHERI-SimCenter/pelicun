@@ -1006,9 +1006,6 @@ class RepairModel(LossModel):
 
         DV = self.sample
 
-        if DV is None:
-            return
-
         # group results by DV type and location
         DVG = DV.groupby(level=[0, 4], axis=1).sum()
 
