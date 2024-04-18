@@ -1356,7 +1356,7 @@ class TestDamageModel(TestPelicunModel):
         )
 
         qnt_sample = damage_model._prepare_dmg_quantities(
-            PGB, ds_sample, dropzero=False
+            ds_sample, dropzero=False
         )
 
         # note: the realized number of damage states is random, limiting

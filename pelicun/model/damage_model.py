@@ -935,7 +935,7 @@ class DamageModel(PelicunModel):
 
         return ds_sample
 
-    def _prepare_dmg_quantities(self, PGB, damage_state_sample, dropzero=True):
+    def _prepare_dmg_quantities(self, damage_state_sample, dropzero=True):
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -946,9 +946,6 @@ class DamageModel(PelicunModel):
 
         Parameters
         ----------
-        PGB: DataFrame
-            A DataFrame that contains the number of blocks for each
-            component.
         damage_state_sample: DataFrame
             A DataFrame that assigns a damage state to each component
             block in the asset model.
@@ -1577,7 +1574,7 @@ class DamageModel(PelicunModel):
             )
 
         qnt_sample = self._prepare_dmg_quantities(
-            pg_batch.reset_index('Batch', drop=True), ds_sample, dropzero=False
+            ds_sample, dropzero=False
         )
 
         # If requested, extend the quantity table with all possible DSs
