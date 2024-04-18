@@ -315,8 +315,6 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg("Calculating losses...")
 
-        drivers = [d for d, _ in self.loss_map['Driver']]
-
         # First, get the damaged quantities in each damage state for
         # each component of interest.
         dmg_q = self._asmnt.damage.sample.copy()
