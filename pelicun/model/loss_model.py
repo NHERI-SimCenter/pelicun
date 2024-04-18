@@ -53,6 +53,7 @@ This file defines Loss model objects and their methods.
 
 """
 
+import warnings
 import numpy as np
 import pandas as pd
 from .pelicun_model import PelicunModel
@@ -298,32 +299,23 @@ class LossModel(PelicunModel):
 
     def calculate(self, sample_size=None):
         """
-        Wrapper method around new calculate that requires sample size.
-        Exists for backwards compatibility.
-        """
-        if not sample_size:
-            # todo: deprecation warning
-            sample_size = self._asmnt.demand.sample.shape[0]
-        self.calculate_internal(sample_size)
-
-    def calculate_internal(self, sample_size):
-        """
         Calculate the consequences of each component block damage in
         the asset.
 
         """
+        if not sample_size:
+            sample_size = self._asmnt.demand.sample.shape[0]
+            warnings.warn(
+                'Using default sample size is deprecated and will '
+                'be removed in future versions. '
+                'Please provide the `sample_size` explicitly.',
+                DeprecationWarning,
+            )
 
         self.log_div()
         self.log_msg("Calculating losses...")
 
         drivers = [d for d, _ in self.loss_map['Driver']]
-
-        if 'DMG' in drivers:
-            sample_size = self._asmnt.damage.sample.shape[0]
-        elif 'DEM' in drivers:
-            sample_size = self._asmnt.demand.sample.shape[0]
-        else:
-            raise ValueError('Invalid loss drivers. Check the specified loss map.')
 
         # First, get the damaged quantities in each damage state for
         # each component of interest.
