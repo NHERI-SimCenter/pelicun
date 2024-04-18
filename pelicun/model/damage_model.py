@@ -1003,23 +1003,20 @@ class DamageModel(PelicunModel):
                     continue
                 if dropzero and ds == 0:
                     continue
-                else:
+                dmg_qnt_vals = np.where(
+                    damage_state_series.values == ds,
+                    component_quantities[component, location, direction, uid].values
+                    / get_num_blocks((component, location, direction, uid)),
+                    0.00,
+                )
+                if -1 in damage_state_set:
                     dmg_qnt_vals = np.where(
-                        damage_state_series.values == ds,
-                        component_quantities[
-                            component, location, direction, uid
-                        ].values
-                        / get_num_blocks((component, location, direction, uid)),
-                        0.00,
+                        damage_state_series.values != -1, dmg_qnt_vals, np.nan
                     )
-                    if -1 in damage_state_set:
-                        dmg_qnt_vals = np.where(
-                            damage_state_series.values != -1, dmg_qnt_vals, np.nan
-                        )
-                    dmg_qnt_series = pd.Series(dmg_qnt_vals)
-                    dmg_qnt_series_collection[
-                        (component, location, direction, uid, block, str(ds))
-                    ] = dmg_qnt_series
+                dmg_qnt_series = pd.Series(dmg_qnt_vals)
+                dmg_qnt_series_collection[
+                    (component, location, direction, uid, block, str(ds))
+                ] = dmg_qnt_series
 
         damage_quantities = pd.concat(
             dmg_qnt_series_collection.values(),
