@@ -988,7 +988,7 @@ class DamageModel(PelicunModel):
         else:
             # otherwise assume 1 block regardless of
             # ('cmp', 'loc', 'dir', 'uid) key
-            def get_num_blocks(key):
+            def get_num_blocks(_):
                 return 1.00
 
         # ('cmp', 'loc', 'dir', 'uid', 'block') -> damage state series
