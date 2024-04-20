@@ -608,7 +608,8 @@ def test_process_loc():
     ]
 
     # Test when string cannot be converted to an int or recognized
-    assert base.process_loc('abc', 10) is None
+    with pytest.raises(ValueError):
+        base.process_loc('abc', 10)
 
 
 def test_run_input_specs():

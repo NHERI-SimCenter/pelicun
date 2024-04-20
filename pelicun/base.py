@@ -1162,7 +1162,7 @@ def process_loc(string, stories):
         return [
             res,
         ]
-    except ValueError:
+    except ValueError as exc:
         if "-" in string:
             s_low, s_high = string.split('-')
             s_low = process_loc(s_low, stories)
@@ -1170,15 +1170,11 @@ def process_loc(string, stories):
             return list(range(s_low[0], s_high[0] + 1))
         if string == "all":
             return list(range(1, stories + 1))
-        if string == "top":
+        if string in {"top", "roof", "last"}:
             return [
                 stories,
             ]
-        if string == "roof":
-            return [
-                stories,
-            ]
-        return None
+        raise ValueError(f'Invalid string: {string}') from exc
 
 
 def dedupe_index(dataframe, dtype=str):
