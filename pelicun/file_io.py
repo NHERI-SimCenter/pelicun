@@ -101,54 +101,63 @@ def save_to_csv(
     log=None,
 ):
     """
-    Saves data to a CSV file following standard SimCenter schema.
+    Saves data to a CSV file following the standard SimCenter schema.
 
-    The produced CSV files have a single header line and an index column. The
-    second line may start with 'Units' in the index or the first column may be
-    'Units' to provide the units for the data in the file.
+    The produced CSV files have a single header line and an index
+    column. The second line may start with 'Units' in the index or the
+    first column may be 'Units' to provide the units for the data in
+    the file.
 
-    The following data types in pelicun can be saved with this function:
+    The following data types in pelicun can be saved with this
+    function:
 
-    Demand Data: Each column in a table corresponds to a demand type; each
-    row corresponds to a simulation/sample. The header identifies each demand
-    type. The user guide section of the documentation provides more
-    information about the header format. Target need to be specified in the
-    second row of the DataFrame.
+    Demand Data: Each column in a table corresponds to a demand type;
+    each row corresponds to a simulation/sample. The header identifies
+    each demand type. The user guide section of the documentation
+    provides more information about the header format. Target need to
+    be specified in the second row of the DataFrame.
 
     Parameters
     ----------
-    data: DataFrame
-        The data to save
-    filepath: string
-        The location of the destination file. If None, the data is not saved,
-        but returned in the end.
-    units: Series, optional
+    data : DataFrame
+        The data to save.
+    filepath : str
+        The location of the destination file. If None, the data is not
+        saved, but returned in the end.
+    units : Series, optional
         Provides a Series with variables and corresponding units.
-    unit_conversion_factors: dict
+    unit_conversion_factors : dict, optional
         Dictionary containing key-value pairs of unit names and their
-        corresponding factors. Conversion factors are defined as the number of
-        times a base unit fits in the alternative unit.
-    orientation: int, {0, 1}, default: 0
-        If 0, variables are organized along columns; otherwise they are along
-        the rows. This is important when converting values to follow the
-        prescribed units.
-    use_simpleindex: bool, default: True
-        If True, MultiIndex columns and indexes are converted to SimpleIndex
-        before saving
-    log: Logger
-        Logger object to be used. If no object is specified, no logging
-        is performed.
+        corresponding factors. Conversion factors are defined as the
+        number of times a base unit fits in the alternative unit.
+    orientation : int, {0, 1}, default 0
+        If 0, variables are organized along columns; otherwise, they
+        are along the rows. This is important when converting values
+        to follow the prescribed units.
+    use_simpleindex : bool, default True
+        If True, MultiIndex columns and indexes are converted to
+        SimpleIndex before saving.
+    log : Logger, optional
+        Logger object to be used. If no object is specified, no
+        logging is performed.
 
     Raises
     ------
     ValueError
-        If units is not None but unit_conversion_factors is None
+        If units is not None but unit_conversion_factors is None.
     ValueError
         If writing to a file fails.
     ValueError
         If the provided file name does not have the `.csv` suffix.
-    """
 
+    Returns
+    -------
+    DataFrame or None
+        If `filepath` is None, returns the DataFrame with potential
+        unit conversions and reformatting applied. Otherwise, returns
+        None after saving the data to a CSV file.
+    """
+    
     if filepath is None:
         if log:
             log.msg('Preparing data ...', prepend_timestamp=False)
@@ -357,11 +366,19 @@ def load_data(
 
     Returns
     -------
-    data: DataFrame
-        Parsed data.
-    units: Series
-        Labels from the data and corresponding units specified in the
-        data. Units are only returned if return_units is set to True.
+    tuple
+        data: DataFrame
+            Parsed data.
+        units: Series
+            Labels from the data and corresponding units specified in the
+            data. Units are only returned if return_units is set to True.
+
+    Raises
+    ------
+    TypeError
+        If `data_source` is neither a string nor a DataFrame, a TypeError is raised.
+    ValueError
+        If `unit_conversion_factors` contains keys that do not correspond to any units in the data, a ValueError may be raised during processing.
     """
 
     if isinstance(data_source, pd.DataFrame):
@@ -461,11 +478,12 @@ def load_from_file(filepath, log=None):
 
     Returns
     -------
-    data: DataFrame
-        Data loaded from the file.
-    log: Logger
-        Logger object to be used. If no object is specified, no logging
-        is performed.
+    tuple
+        data: DataFrame
+            Data loaded from the file.
+        log: Logger
+            Logger object to be used. If no object is specified, no logging
+            is performed.
 
     Raises
     ------

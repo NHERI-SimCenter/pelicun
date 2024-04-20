@@ -52,28 +52,50 @@ import sys
 import importlib
 from pathlib import Path
 
-from . import base
+from pelicun import base
 
 
 def auto_populate(
     config, auto_script_path, **kwargs  # pylint: disable=unused-argument
 ):
     """
-    Automatically populates the DL configuration for a Pelicun
-    calculation.
+    Automatically populates the Damage and Loss (DL) configuration for
+    a Pelicun calculation using predefined rules.
+
+    This function modifies the provided configuration dictionary based
+    on an external Python script that defines auto-population
+    rules. It supports using built-in scripts or custom scripts
+    specified by the user.
 
     Parameters
     ----------
-    config: dict
-        Configuration dictionary with a GeneralInformation key that
-        holds another dictionary with attributes of the asset of
-        interest.
-    auto_script_path: string
-        Path pointing to a python script with the auto-population
-        rules.  Built-in scripts can be referenced using the
-        PelicunDefault/XY format where XY is the name of the script.
-    """
+    config : dict
+        A configuration dictionary with a 'GeneralInformation' key
+        that holds another dictionary with attributes of the asset of
+        interest. This dictionary is modified in-place with
+        auto-populated values.
+    auto_script_path : str
+        The path pointing to a Python script with the auto-population
+        rules. Built-in scripts can be referenced using the
+        'PelicunDefault/XY' format where 'XY' is the name of the
+        script.
 
+    Returns
+    -------
+    tuple
+        A tuple containing two items:
+        1. Updated configuration dictionary including new 'DL' key
+        with damage and loss information.
+        2. A dictionary of component quantities (CMP) derived from the
+        auto-population process.
+
+    Raises
+    ------
+    ValueError
+        If the configuration dictionary does not contain necessary
+        asset information under 'GeneralInformation'.
+    """
+    
     # try to get the AIM attributes
     AIM = config.get('GeneralInformation', None)
     if AIM is None:

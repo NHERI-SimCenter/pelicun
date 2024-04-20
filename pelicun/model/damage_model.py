@@ -93,8 +93,35 @@ class DamageModel(PelicunModel):
 
     def save_sample(self, filepath=None, save_units=False):
         """
-        Save damage sample to a csv file
+        Saves the damage sample data to a CSV file or returns it
+        directly with an option to include units.
 
+        This function handles saving the sample data of damage
+        assessments to a specified file path or, if no path is
+        provided, returns the data as a DataFrame. The function can
+        optionally include a row for unit information when returning
+        data.
+
+        Parameters
+        ----------
+        filepath : str, optional
+            The path to the file where the damage sample should be
+            saved. If not provided, the sample is not saved to disk
+            but returned.
+        save_units : bool, default: False
+            Indicates whether to include a row with unit information
+            in the returned DataFrame. This parameter is ignored if a
+            file path is provided.
+
+        Returns
+        -------
+        None or tuple
+            If `filepath` is provided, the function returns None after
+            saving the data.
+            If no `filepath` is specified, returns:
+            - DataFrame containing the damage sample.
+            - Optionally, a Series containing the units for each
+              column if `save_units` is True.
         """
         self.log_div()
         self.log_msg('Saving damage sample...')
@@ -248,8 +275,13 @@ class DamageModel(PelicunModel):
 
         Returns
         -------
-        result: float
+        float
           The result of the operation
+
+        Raises
+        ------
+        ValueError
+            If the operation is invalid.
 
         """
         if operation == '+':
@@ -293,14 +325,64 @@ class DamageModel(PelicunModel):
             a float.  The operation can be '+' for addition, '-' for
             subtraction, '*' for multiplication, and '/' for division.
 
+        Returns
+        -------
+        tuple
+            A tuple containing two RandomVariableRegistry instances:
+            one for the capacity random variables and one for the LSDS
+            assignments.
+
+        Raises
+        ------
+        ValueError
+            Raises an error if the scaling specification is invalid or
+            if the input DataFrame does not meet the expected format.
+            Also, raises errors if there are any issues with the types
+            or formats of the data in the input DataFrame.
         """
 
         def assign_lsds(ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag):
             """
-            Prepare random variables to handle mutually exclusive damage states.
+            Assigns limit states to damage states using random
+            variables, updating the provided random variable registry.
+            This function either creates a deterministic random
+            variable for a single damage state or a multinomial random
+            variable for multiple damage states.
 
+            Parameters
+            ----------
+            ds_weights : str or None
+                A string representing the weights of different damage
+                states associated with a limit state, separated by
+                '|'.  If None, indicates that there is only one damage
+                state associated with the limit state.
+            ds_id : int
+                The starting index for damage state IDs. This ID helps
+                in mapping damage states to limit states.
+            lsds_RV_reg : RandomVariableRegistry
+                The registry where the newly created random variables
+                (for mapping limit states to damage states) will be
+                added.
+            lsds_rv_tag : str
+                A unique identifier for the random variable being
+                created, typically including identifiers for
+                component, location, direction, and limit state.
+
+            Returns
+            -------
+            int
+                The updated damage state ID, incremented based on the
+                number of damage states handled in this call.
+
+            Notes
+            -----
+            This function supports detailed control over the mapping
+            from limit states to damage states within a stochastic
+            framework, enhancing the flexibility and accuracy of
+            probabilistic damage assessments. It dynamically adjusts
+            to the number of damage states specified and applies a
+            mapping function to correctly assign state IDs.
             """
-
             # If the limit state has a single damage state assigned
             # to it, we don't need random sampling
             if pd.isnull(ds_weights):
@@ -321,6 +403,29 @@ class DamageModel(PelicunModel):
                 )
 
                 def map_ds(values, offset=int(ds_id + 1)):
+                    """
+                    Maps an array of damage state indices to their
+                    corresponding actual state IDs by applying an
+                    offset.
+
+                    Parameters
+                    ----------
+                    values : array-like
+                        An array of indices representing damage
+                        states. These indices are typically sequential
+                        integers starting from zero.
+                    offset : int
+                        The value to be added to each element in
+                        `values` to obtain the actual damage state
+                        IDs.
+
+                    Returns
+                    -------
+                    array
+                        An array where each original index from
+                        `values` has been incremented by `offset` to
+                        reflect its actual damage state ID.
+                    """
                     return values + offset
 
                 lsds_RV_reg.add_RV(
@@ -648,7 +753,7 @@ class DamageModel(PelicunModel):
 
         Returns
         -------
-        EDP_req: dict
+        dict
             A dictionary of EDP requirements, where each key is the EDP
             string (e.g., "Peak Ground Acceleration-0-0"), and the
             corresponding value is a list of tuples (component_id,
@@ -839,7 +944,7 @@ class DamageModel(PelicunModel):
 
         Returns
         -------
-        dmg_sample: DataFrame
+        DataFrame
             Assigns a Damage State to each component block in the
             asset model.
         """
@@ -955,12 +1060,13 @@ class DamageModel(PelicunModel):
 
         Returns
         -------
-        res_df: DataFrame
+        DataFrame
             A DataFrame that combines the component quantity and
             damage state information.
 
         """
 
+        # pylint: disable=missing-return-doc
         if self._asmnt.log.verbose:
             self.log_msg('Calculating damage quantities...', prepend_timestamp=True)
 
@@ -980,12 +1086,14 @@ class DamageModel(PelicunModel):
             num_blocks = component_marginal_parameters['Blocks'].to_dict()
 
             def get_num_blocks(key):
+                # pylint: disable=missing-return-type-doc
                 return float(num_blocks[key])
 
         else:
             # otherwise assume 1 block regardless of
             # ('cmp', 'loc', 'dir', 'uid) key
             def get_num_blocks(_):
+                # pylint: disable=missing-return-type-doc
                 return 1.00
 
         # ('cmp', 'loc', 'dir', 'uid', 'block') -> damage state series
@@ -1067,6 +1175,11 @@ class DamageModel(PelicunModel):
             damage states of the components after the task has been
             performed.
 
+        Raises
+        ------
+        ValueError
+            Raises an error if the source or target event descriptions
+            do not follow expected formats.
         """
 
         if self._asmnt.log.verbose:
@@ -1229,7 +1342,8 @@ class DamageModel(PelicunModel):
 
     def _get_pg_batches(self, block_batch_size):
         """
-        Group performance groups into batches for efficient damage assessment.
+        Group performance groups into batches for efficient damage
+        assessment.
 
         The method takes as input the block_batch_size, which
         specifies the maximum number of blocks per batch. The method
@@ -1253,6 +1367,23 @@ class DamageModel(PelicunModel):
         direction, and returns a dataframe that shows the number of
         blocks for each batch.
 
+        Returns
+        -------
+        DataFrame
+            A DataFrame indexed by batch number, component identifier,
+            location, direction, and unique ID, with a column
+            indicating the number of blocks assigned to each
+            batch. This dataframe facilitates the management and
+            execution of damage assessment tasks by grouping
+            components into manageable batches based on the specified
+            block batch size.
+
+        Raises
+        ------
+        Warning
+            Logs a warning if any performance groups do not have
+            corresponding damage model information and are therefore
+            excluded from the analysis.
         """
 
         # Get the marginal parameters for the components from the
@@ -1573,9 +1704,7 @@ class DamageModel(PelicunModel):
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
-        qnt_sample = self._prepare_dmg_quantities(
-            ds_sample, dropzero=False
-        )
+        qnt_sample = self._prepare_dmg_quantities(ds_sample, dropzero=False)
 
         # If requested, extend the quantity table with all possible DSs
         if self._asmnt.options.list_all_ds:

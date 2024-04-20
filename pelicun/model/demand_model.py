@@ -109,6 +109,21 @@ class DemandModel(PelicunModel):
         """
         Save demand sample to a csv file or return it in a DataFrame
 
+        Returns
+        -------
+        None or tuple
+            If `filepath` is specified, the function saves the demand
+            sample to a CSV file and returns None.
+            If `filepath` is not specified, it returns the DataFrame
+            containing the demand sample.
+            If `save_units` is True, it returns a tuple of the
+            DataFrame and a Series containing the units.
+
+        Raises
+        ------
+        IOError
+            Raises an IOError if there is an issue saving the file to
+            the specified `filepath`.
         """
 
         self.log_div()
@@ -156,6 +171,35 @@ class DemandModel(PelicunModel):
         """
 
         def parse_header(raw_header):
+            """
+            Parses and cleans the header of a demand DataFrame from
+            raw multi-level index to a standardized format.
+
+            This function adjusts the raw header of a DataFrame,
+            removing optional event IDs and whitespace, and
+            standardizing the format to facilitate further
+            processing. It is designed to handle headers with either
+            three or four levels, where the first level (event_ID) is
+            optional and not used in further analysis.  Note: This
+            will soon change, and that first level will be enforced
+            instead of removed.
+
+            Parameters
+            ----------
+            raw_header : pd.MultiIndex
+                The original multi-level index (header) of the
+                DataFrame, which may contain an optional event_ID and
+                might have excess whitespace in the labels.
+
+            Returns
+            -------
+            pd.MultiIndex
+                A new MultiIndex for the DataFrame's columns that is
+                cleaned of any unwanted characters or levels. This
+                index has three levels: 'type', 'loc', and 'dir',
+                representing the type of demand, location, and
+                direction, respectively.
+            """
             old_MI = raw_header
 
             # The first number (event_ID) in the demand labels is optional and
@@ -240,18 +284,54 @@ class DemandModel(PelicunModel):
 
     def estimate_RID(self, demands, params, method='FEMA P58'):
         """
-        Estimate residual drift realizations based on other demands
+        Estimates residual inter-story drift (RID) realizations based
+        on peak inter-story drift (PID) and other demand parameters
+        using specified methods.
+
+        This method calculates RID based on the peak inter-story drift
+        provided in the demands DataFrame and parameters such as yield
+        drift specified in the params dictionary. The calculation
+        adheres to the FEMA P-58 methodology, which includes
+        conditions for different ranges of drift.
 
         Parameters
         ----------
-        demands: DataFrame
-            Sample of demands required for the method to estimate the RID values
-        params: dict
-            Parameters required for the method to estimate the RID values
-        method: {'FEMA P58'}, default: 'FEMA P58'
-            Method to use for the estimation - currently, only one is available.
-        """
+        demands : DataFrame
+            A DataFrame containing samples of demands, specifically
+            peak inter-story drift (PID) values for various
+            location-direction pairs required for the estimation
+            method.
+        params : dict
+            A dictionary containing parameters required for the
+            estimation method, such as 'yield_drift', which is the
+            drift at which yielding is expected to occur.
+        method : str, optional
+            The method used to estimate the RID values. Currently,
+            only 'FEMA P58' is implemented. Defaults to 'FEMA P58'.
 
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing the estimated residual inter-story
+            drift (RID) realizations, indexed and structured similarly
+            to the input demands DataFrame.
+
+        Raises
+        ------
+        ValueError
+            Raises a ValueError if an unrecognized method is provided
+            or required parameters are missing in the `params`
+            dictionary.
+
+        Notes
+        -----
+        The FEMA P-58 estimation approach divides the drift into three
+        domains, with different transformation rules for
+        each. Additional stochastic variation is introduced to nonzero
+        RID values to model the inherent uncertainty. The method
+        ensures that the RID values do not exceed the corresponding
+        PID values.
+        """
         if method == 'FEMA P58':
             # method is described in FEMA P-58 Volume 1 Section 5.4 & Appendix C
 
@@ -324,6 +404,8 @@ class DemandModel(PelicunModel):
 
         def parse_settings(settings, demand_type):
             def parse_str_to_float(in_str, context_string):
+                # pylint: disable = missing-return-type-doc
+                # pylint: disable = missing-return-doc
                 try:
                     out_float = float(in_str)
 
@@ -391,6 +473,8 @@ class DemandModel(PelicunModel):
                 cal_df.loc[idx[cols, :, :], 'SigIncrease'] = sig_increase
 
         def get_filter_mask(lower_lims, upper_lims):
+            # pylint: disable=missing-return-doc
+            # pylint: disable=missing-return-type-doc
             demands_of_interest = demand_sample.iloc[:, pd.notna(upper_lims)]
             limits_of_interest = upper_lims[pd.notna(upper_lims)]
             upper_mask = np.all(demands_of_interest < limits_of_interest, axis=1)
@@ -814,6 +898,8 @@ class DemandModel(PelicunModel):
 
         # turn the config entries to tuples
         def turn_to_tuples(demand_cloning):
+            # pylint: disable=missing-return-doc
+            # pylint: disable=missing-return-type-doc
             demand_cloning_tuples = {}
             for key, values in demand_cloning.items():
                 demand_cloning_tuples[tuple(key.split('-'))] = [
@@ -865,9 +951,56 @@ class DemandModel(PelicunModel):
 
     def generate_sample(self, config):
         """
-        Generates an RV sample with the specified configuration.
-        """
+        Generates a sample of random variables (RVs) based on the
+        specified configuration for demand modeling.
 
+        This method utilizes the current settings for marginal
+        distribution parameters to generate a sample of demand
+        variables. The configuration can specify details such as the
+        sample size, whether to preserve the order of raw data, and
+        whether to apply demand cloning. The generated sample is
+        stored internally and can be used for subsequent analysis.
+
+        Parameters
+        ----------
+        config : dict
+            A dictionary containing configuration options for the
+            sample generation. Key options include:
+            - 'SampleSize': The number of samples to generate.
+            - 'PreserveRawOrder': Boolean indicating whether to
+              preserve the order of the raw data. Defaults to False.
+            - 'DemandCloning': Specifies if and how demand cloning
+              should be applied. Can be a boolean or a detailed
+              configuration.
+
+        Raises
+        ------
+        ValueError
+            If model parameters are not loaded or specified before
+            attempting to generate a sample.
+
+        Notes
+        -----
+        The function is responsible for the creation of random
+        variables based on the distribution parameters specified in
+        `marginal_params`.  It ensures that the sample is properly
+        indexed and sorted according to type, location, and
+        direction. It also handles the configuration of demand cloning
+        if specified, which is a method to artificially augment the
+        variability in the sample based on existing realizations.
+
+        Examples
+        --------
+        >>> config = {
+                'SampleSize': 1000,
+                'PreserveRawOrder': True,
+                'DemandCloning': False
+            }
+        >>> model.generate_sample(config)
+        # This will generate 1000 realizations of demand variables
+        # with the specified configuration.
+        """
+        
         if self.marginal_params is None:
             raise ValueError(
                 'Model parameters have not been specified. Either'

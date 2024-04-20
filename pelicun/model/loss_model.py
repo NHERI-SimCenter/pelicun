@@ -86,8 +86,43 @@ class LossModel(PelicunModel):
 
     def save_sample(self, filepath=None, save_units=False):
         """
-        Save loss sample to a csv file
+        Saves the loss sample to a CSV file or returns it as a
+        DataFrame with optional units.
 
+        This method handles the storage of a sample of loss estimates,
+        which can either be saved directly to a file or returned as a
+        DataFrame for further manipulation. When saving to a file,
+        additional information such as unit conversion factors and
+        column units can be included. If the data is not being saved
+        to a file, the method can return the DataFrame with or without
+        units as specified.
+
+        Parameters
+        ----------
+        filepath : str, optional
+            The path to the file where the loss sample should be
+            saved. If not provided, the sample is not saved to disk
+            but returned.
+        save_units : bool, default: False
+            Indicates whether to include a row with unit information
+            in the returned DataFrame. This parameter is ignored if a
+            file path is provided.
+
+        Returns
+        -------
+        None or tuple
+            If `filepath` is provided, the function returns None after
+            saving the data.
+            If no `filepath` is specified, returns:
+            - DataFrame containing the loss sample.
+            - Optionally, a Series containing the units for each
+              column if `save_units` is True.
+
+        Raises
+        ------
+        IOError
+            Raises an IOError if there is an issue saving the file to
+            the specified `filepath`.
         """
         self.log_div()
         if filepath is not None:
@@ -343,18 +378,29 @@ class RepairModel(LossModel):
 
     def _create_DV_RVs(self, case_list):
         """
-        Prepare the random variables used for repair cost and time simulation.
+        Prepare the random variables associated with decision
+        variables, such as repair cost and time.
 
         Parameters
         ----------
         case_list: MultiIndex
-            Index with cmp-loc-dir-ds descriptions that identify the RVs
-            we need for the simulation.
+            Index with cmp-loc-dir-ds descriptions that identify the
+            RVs we need for the simulation.
+
+        Returns
+        -------
+        RandomVariableRegistry or None
+            A RandomVariableRegistry containing all the generated
+            random variables necessary for the simulation. If no
+            random variables are generated (due to missing parameters
+            or conditions), returns None.
 
         Raises
         ------
         ValueError
-            When any Loss Driver is not recognized.
+            If an unrecognized loss driver type is encountered,
+            indicating a configuration or data input error.
+
         """
 
         RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
@@ -596,10 +642,43 @@ class RepairModel(LossModel):
 
     def _calc_median_consequence(self, eco_qnt):
         """
-        Calculate the median repair consequence for each loss component.
+        Calculates the median repair consequences for each loss
+        component based on their quantities and the associated loss
+        parameters.
 
+        This function evaluates the median consequences for different
+        types of decision variables (DV), such as repair costs or
+        repair time, based on the provided loss parameters. It
+        utilizes the eco_qnt DataFrame, which contains economic
+        quantity realizations for various damage states and
+        components, to compute the consequences.
+
+        Parameters
+        ----------
+        eco_qnt : DataFrame
+            A DataFrame containing economic quantity realizations for
+            various components and damage states, indexed or
+            structured to align with the loss parameters.
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are the types of decision variables
+            (DV) like 'COST' or 'TIME', and values are DataFrames
+            containing the median consequences for each component and
+            damage state. These DataFrames are structured with
+            MultiIndex columns that may include 'cmp' (component),
+            'ds' (damage state), and potentially 'loc' (location),
+            depending on assessment options.
+
+        Raises
+        ------
+        ValueError
+            If any loss driver types or distribution types are not
+            recognized, or if the parameters are incomplete or
+            unsupported.
         """
-
+        
         medians = {}
 
         DV_types = self.loss_params.index.unique(level=1)
@@ -994,13 +1073,24 @@ class RepairModel(LossModel):
         """
         Aggregates repair consequences across components.
 
-        Repair costs are simply summed up for each realization while repair
-        times are aggregated to provide lower and upper limits of the total
-        repair time using the assumption of parallel and sequential repair of
-        floors, respectively. Repairs within each floor are assumed to occur
-        sequentially.
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing aggregated repair
+            consequences. Columns include:
+            - 'repair_cost': Total repair costs across all components.
+            - 'repair_time-parallel': Minimum possible repair time
+              assuming repairs are conducted in parallel.
+            - 'repair_time-sequential': Maximum possible repair time
+              assuming sequential repairs.
+            - 'repair_carbon': Total carbon emissions associated with
+              repairs.
+            - 'repair_energy': Total energy usage associated with
+              repairs.
+            Each of these columns is summed or calculated based on the
+            repair data available.
         """
-
+        
         self.log_div()
         self.log_msg("Aggregating repair consequences...")
 
@@ -1103,13 +1193,15 @@ def prep_constant_median_DV(median):
 
     Returns
     -------
-    f: callable
+    callable
         A function that returns the constant median DV for all component
         quantities.
     """
 
     def f(*args):
         # pylint: disable=unused-argument
+        # pylint: disable=missing-return-doc
+        # pylint: disable=missing-return-type-doc
         return median
 
     return f
@@ -1135,12 +1227,14 @@ def prep_bounded_multilinear_median_DV(medians, quantities):
 
     Returns
     -------
-    f: callable
+    callable
         A function that returns the median DV given the quantity of damaged
         components.
     """
 
     def f(quantity):
+        # pylint: disable=missing-return-doc
+        # pylint: disable=missing-return-type-doc
         if quantity is None:
             raise ValueError(
                 'A bounded linear median Decision Variable function called '

@@ -51,8 +51,8 @@ This file defines the PelicunModel object and its methods.
 
 import numpy as np
 import pandas as pd
-from .. import base
-from .. import uq
+from pelicun import base
+from pelicun import uq
 
 
 idx = base.idx
@@ -100,7 +100,7 @@ class PelicunModel:
 
         Returns
         -------
-        marginal_params: DataFrame
+        DataFrame
             Same structure as the input DataFrame but with values scaled to
             represent internal Standard International units.
 

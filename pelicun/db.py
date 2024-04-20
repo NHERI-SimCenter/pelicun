@@ -75,6 +75,16 @@ idx = base.idx
 def parse_DS_Hierarchy(DSH):
     """
     Parses the FEMA P58 DS hierarchy into a set of arrays.
+
+    Parameters
+    ----------
+    DSH: str
+       Damage state hierarchy
+
+    Returns
+    -------
+    list
+      Damage state setup
     """
     if DSH[:3] == 'Seq':
         DSH = DSH[4:-1]
