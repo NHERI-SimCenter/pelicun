@@ -75,47 +75,9 @@ class AssetModel(PelicunModel):
 
         self.cmp_marginal_params = None
         self.cmp_units = None
+        self.cmp_sample = None
 
         self._cmp_RVs = None
-        self._cmp_sample = None
-
-    @property
-    def cmp_sample(self):
-        """
-        A property that gets or creates a DataFrame representing the
-        component sample for the current assessment.
-
-        If the component sample has not been previously set or
-        generated, this property will generate it by retrieving
-        samples from the component random variables (_cmp_RVs),
-        sorting the indexes, and converting the DataFrame to use a
-        MultiIndex. The component sample is structured to include
-        information on component ('cmp'), location ('loc'), direction
-        ('dir'), and unique identifier ('uid').
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing the component samples, indexed and
-            sorted appropriately. The columns are multi-indexed to
-            represent various dimensions of the component data.
-
-        """
-        if self._cmp_sample is None:
-            cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
-            cmp_sample.sort_index(axis=0, inplace=True)
-            cmp_sample.sort_index(axis=1, inplace=True)
-
-            cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
-
-            cmp_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-            self._cmp_sample = cmp_sample
-
-        else:
-            cmp_sample = self._cmp_sample
-
-        return cmp_sample
 
     def save_cmp_sample(self, filepath=None, save_units=False):
         """
@@ -246,7 +208,7 @@ class AssetModel(PelicunModel):
 
         sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
 
-        self._cmp_sample = sample
+        self.cmp_sample = sample
 
         self.cmp_units = units.groupby(level=0).first()
 
@@ -685,8 +647,12 @@ class AssetModel(PelicunModel):
             sample_size=sample_size, method=self._asmnt.options.sampling_method
         )
 
-        # replace the potentially existing sample with the generated one
-        self._cmp_sample = None
+        cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
+        cmp_sample.sort_index(axis=0, inplace=True)
+        cmp_sample.sort_index(axis=1, inplace=True)
+        cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
+        cmp_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        self.cmp_sample = cmp_sample
 
         self.log_msg(
             f"\nSuccessfully generated {sample_size} realizations.",

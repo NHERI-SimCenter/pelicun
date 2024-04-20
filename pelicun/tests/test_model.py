@@ -632,10 +632,10 @@ class TestAssetModel(TestPelicunModel):
         assert asset_model.cmp_marginal_params is None
         assert asset_model.cmp_units is None
         assert asset_model._cmp_RVs is None
-        assert asset_model._cmp_sample is None
+        assert asset_model.cmp_sample is None
 
     def test_save_cmp_sample(self, asset_model):
-        asset_model._cmp_sample = pd.DataFrame(
+        asset_model.cmp_sample = pd.DataFrame(
             {
                 ('component_a', f'{i}', f'{j}', '0'): 8.0
                 for i in range(1, 3)
@@ -914,7 +914,7 @@ class TestDamageModel(TestPelicunModel):
     def damage_model_model_loaded(self, damage_model, cmp_sample_A):
         asmt = damage_model._asmnt
         asmt.get_default_data('damage_DB_FEMA_P58_2nd')
-        asmt.asset._cmp_sample = cmp_sample_A
+        asmt.asset.cmp_sample = cmp_sample_A
         damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
         return deepcopy(damage_model)
 

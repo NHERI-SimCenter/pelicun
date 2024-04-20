@@ -85,81 +85,24 @@ class Assessment:
         config_options (Optional[dict]):
             User-specified configuration dictionary.
         """
-
         self.stories = None
-
         self.options = base.Options(config_options, self)
-
         self.unit_conversion_factors = base.parse_units(self.options.units_file)
 
         self.log = self.options.log
-
         self.log.msg(
             f'pelicun {pelicun_version} | \n',
             prepend_timestamp=False,
             prepend_blank_space=False,
         )
-
         self.log.print_system_info()
-
         self.log.div()
         self.log.msg('Assessment Started')
 
-    @property
-    def demand(self):
-        """
-        Return a DemandModel object that manages the demand information.
-
-        """
-        # pylint: disable = access-member-before-definition
-
-        if hasattr(self, '_demand'):
-            return self._demand
-
-        self._demand = model.DemandModel(self)
-        return self.demand
-
-    @property
-    def asset(self):
-        """
-        Return an AssetModel object that manages the asset information.
-
-        """
-        # pylint: disable = access-member-before-definition
-
-        if hasattr(self, '_asset'):
-            return self._asset
-
-        self._asset = model.AssetModel(self)
-        return self.asset
-
-    @property
-    def damage(self):
-        """
-        Return an DamageModel object that manages the damage information.
-
-        """
-        # pylint: disable = access-member-before-definition
-
-        if hasattr(self, '_damage'):
-            return self._damage
-
-        self._damage = model.DamageModel(self)
-        return self.damage
-
-    @property
-    def repair(self):
-        """
-        Return a RepairModel object that manages the repair information.
-
-        """
-        # pylint: disable = access-member-before-definition
-
-        if hasattr(self, '_repair'):
-            return self._repair
-
-        self._repair = model.RepairModel(self)
-        return self.repair
+        self.demand = model.DemandModel(self)
+        self.asset = model.AssetModel(self)
+        self.damage = model.DamageModel(self)
+        self.repair = model.RepairModel(self)
 
     def get_default_data(self, data_name):
         """

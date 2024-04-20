@@ -2437,6 +2437,8 @@ class RandomVariableRegistry:
             else:
                 raise NotImplementedError('Unknown RV parent class.')
 
+        
+
 
 def rv_class_map(distribution_name):
     """

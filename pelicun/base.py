@@ -276,25 +276,6 @@ class Options:
         """
         return self._rng
 
-    @property
-    def units_file(self):
-        """
-        units file property
-
-        Returns
-        -------
-        str
-            Units file
-        """
-        return self._units_file
-
-    @units_file.setter
-    def units_file(self, value):
-        """
-        units file property setter
-        """
-        self._units_file = value
-
 
 class Logger:
     """
@@ -351,25 +332,6 @@ class Logger:
         self.log_file = log_file
         self.print_log = print_log
         self.reset_log_strings()
-
-    @property
-    def verbose(self):
-        """
-        verbose property
-
-        Returns
-        -------
-        bool
-            Verbose property value
-        """
-        return self._verbose
-
-    @verbose.setter
-    def verbose(self, value):
-        """
-        verbose property setter
-        """
-        self._verbose = bool(value)
 
     @property
     def show_warnings(self):
