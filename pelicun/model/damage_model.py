@@ -1601,30 +1601,16 @@ class DamageModel(PelicunModel):
         scaling_specification=None,
     ):
         """
-        Wrapper around the new calculate method that requires sample size.
-        Exists for backwards compatibility
-        """
-        if not sample_size:
-            # todo: Deprecation warning
-            sample_size = self._asmnt.demand.sample.shape[0]
-        self.calculate_internal(
-            sample_size, dmg_process, block_batch_size, scaling_specification
-        )
-
-    def calculate_internal(
-        self,
-        sample_size,
-        dmg_process=None,
-        block_batch_size=1000,
-        scaling_specification=None,
-    ):
-        """
         Calculate the damage state of each component block in the asset.
 
         """
 
         self.log_div()
         self.log_msg('Calculating damages...')
+
+        if not sample_size:
+            # todo: Deprecation warning
+            sample_size = self._asmnt.demand.sample.shape[0]
 
         # Break up damage calculation and perform it by performance group.
         # Compared to the simultaneous calculation of all PGs, this approach
