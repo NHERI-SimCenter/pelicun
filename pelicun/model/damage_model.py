@@ -76,7 +76,6 @@ class DamageModel(PelicunModel):
         - _evaluate_damage_state()
         - _prepare_dmg_quantities()
         - _perform_dmg_task()
-        - _apply_dmg_funcitons()
     - save_sample()
     - load_sample()
 
