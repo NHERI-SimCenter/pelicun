@@ -50,10 +50,10 @@ This module has classes and methods that control the performance assessment.
 """
 
 import json
-from . import base
-from . import file_io
-from . import model
-from .__init__ import __version__ as pelicun_version
+from pelicun import base
+from pelicun import file_io
+from pelicun import model
+from pelicun.__init__ import __version__ as pelicun_version
 
 
 class Assessment:

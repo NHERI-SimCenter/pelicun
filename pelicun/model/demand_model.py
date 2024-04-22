@@ -51,10 +51,10 @@ This file defines the DemandModel object and its methods.
 
 import numpy as np
 import pandas as pd
-from .pelicun_model import PelicunModel
-from .. import base
-from .. import uq
-from .. import file_io
+from pelicun.model.pelicun_model import PelicunModel
+from pelicun import base
+from pelicun import uq
+from pelicun import file_io
 
 
 idx = base.idx
