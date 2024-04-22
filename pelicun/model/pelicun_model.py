@@ -49,11 +49,15 @@ This file defines the PelicunModel object and its methods.
 
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 from pelicun import base
 from pelicun import uq
 
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 idx = base.idx
 
@@ -66,7 +70,7 @@ class PelicunModel:
 
     def __init__(self, assessment):
         # link the PelicunModel object to its Assessment object
-        self._asmnt = assessment
+        self._asmnt: Assessment = assessment
 
         # link logging methods as attributes enabling more
         # concise syntax

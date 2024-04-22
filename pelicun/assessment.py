@@ -49,6 +49,7 @@ This module has classes and methods that control the performance assessment.
 
 """
 
+from __future__ import annotations
 import json
 from pelicun import base
 from pelicun import file_io
@@ -99,10 +100,10 @@ class Assessment:
         self.log.div()
         self.log.msg('Assessment Started')
 
-        self.demand = model.DemandModel(self)
-        self.asset = model.AssetModel(self)
-        self.damage = model.DamageModel(self)
-        self.repair = model.RepairModel(self)
+        self.demand: model.DemandModel = model.DemandModel(self)
+        self.asset: model.AssetModel = model.AssetModel(self)
+        self.damage: model.DamageModel = model.DamageModel(self)
+        self.repair: model.RepairModel = model.RepairModel(self)
 
     def get_default_data(self, data_name):
         """
@@ -212,7 +213,7 @@ class Assessment:
         -------
         float
             Scale factor
-    
+
         Raises
         ------
         ValueError
