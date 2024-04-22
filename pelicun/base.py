@@ -561,11 +561,21 @@ def control_warnings(show):
         action = 'ignore'
 
     if not sys.warnoptions:
-        warnings.filterwarnings(category=FutureWarning, action=action)
-
-        warnings.filterwarnings(category=DeprecationWarning, action=action)
-
-        warnings.filterwarnings(category=pd.errors.PerformanceWarning, action=action)
+        # Here we specify *specific* warnings to ignore.
+        # 'message' -- a regex that the warning message must match
+        warnings.filterwarnings(
+            action='ignore',
+            message=".*Use to_numeric without passing `errors`.*"
+        )
+        warnings.filterwarnings(
+            action='ignore',
+            message=".*The previous implementation of stack is deprecated.*"
+        )
+        warnings.filterwarnings(
+            action='ignore',
+            message=".*Setting an item of incompatible dtype is deprecated.*"
+        )
+        pass
 
 
 def load_default_options():
