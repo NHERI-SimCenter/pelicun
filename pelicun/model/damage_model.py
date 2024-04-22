@@ -66,8 +66,6 @@ class DamageModel(PelicunModel):
 
     This class contains the following methods:
 
-    - save_sample()
-    - load_sample()
     - load_damage_model()
     - calculate()
         - _get_pg_batches()
@@ -79,9 +77,8 @@ class DamageModel(PelicunModel):
         - _prepare_dmg_quantities()
         - _perform_dmg_task()
         - _apply_dmg_funcitons()
-
-    Parameters
-    ----------
+    - save_sample()
+    - load_sample()
 
     """
 
@@ -90,6 +87,196 @@ class DamageModel(PelicunModel):
 
         self.damage_params = None
         self.sample = None
+
+    def load_damage_model(self, data_paths):
+        """
+        Load limit state damage model parameters and damage state assignments
+
+        Parameters
+        ----------
+        data_paths: list of string
+            List of paths to data files with damage model information. Default
+            XY datasets can be accessed as PelicunDefault/XY.
+        """
+
+        self.log_div()
+        self.log_msg('Loading damage model...')
+
+        # replace default flag with default data path
+        data_paths = file_io.substitute_default_path(data_paths)
+
+        data_list = []
+        # load the data files one by one
+        for data_path in data_paths:
+            data = file_io.load_data(
+                data_path, None, orientation=1, reindex=False, log=self._asmnt.log
+            )
+
+            data_list.append(data)
+
+        damage_params = pd.concat(data_list, axis=0)
+
+        # drop redefinitions of components
+        damage_params = damage_params.groupby(damage_params.index).first()
+
+        # get the component types defined in the asset model
+        cmp_labels = self._asmnt.asset.cmp_sample.columns
+
+        # only keep the damage model parameters for the components in the model
+        cmp_unique = cmp_labels.unique(level=0)
+        cmp_mask = damage_params.index.isin(cmp_unique, level=0)
+
+        damage_params = damage_params.loc[cmp_mask, :]
+
+        if np.sum(cmp_mask) != len(cmp_unique):
+            cmp_list = cmp_unique[
+                np.isin(cmp_unique, damage_params.index.values, invert=True)
+            ].to_list()
+
+            self.log_msg(
+                "\nWARNING: The damage model does not provide "
+                "vulnerability information for the following component(s) "
+                f"in the asset model: {cmp_list}.\n",
+                prepend_timestamp=False,
+            )
+
+        # TODO: load defaults for Demand-Offset and Demand-Directional
+
+        # Now convert model parameters to base units
+        for LS_i in damage_params.columns.unique(level=0):
+            if LS_i.startswith('LS'):
+                damage_params.loc[:, LS_i] = self.convert_marginal_params(
+                    damage_params.loc[:, LS_i].copy(),
+                    damage_params[('Demand', 'Unit')],
+                ).values
+
+        # check for components with incomplete damage model information
+        cmp_incomplete_list = damage_params.loc[
+            damage_params[('Incomplete', '')] == 1
+        ].index
+
+        damage_params.drop(cmp_incomplete_list, inplace=True)
+
+        if len(cmp_incomplete_list) > 0:
+            self.log_msg(
+                f"\nWARNING: Damage model information is incomplete for "
+                f"the following component(s) {cmp_incomplete_list}. They "
+                f"were removed from the analysis.\n",
+                prepend_timestamp=False,
+            )
+
+        self.damage_params = damage_params
+
+        self.log_msg(
+            "Damage model parameters successfully parsed.", prepend_timestamp=False
+        )
+
+    def calculate(
+        self,
+        sample_size=None,
+        dmg_process=None,
+        block_batch_size=1000,
+        scaling_specification=None,
+    ):
+        """
+        Calculate the damage state of each component block in the asset.
+
+        """
+
+        self.log_div()
+        self.log_msg('Calculating damages...')
+
+        if not sample_size:
+            # todo: Deprecation warning
+            sample_size = self._asmnt.demand.sample.shape[0]
+
+        # Break up damage calculation and perform it by performance group.
+        # Compared to the simultaneous calculation of all PGs, this approach
+        # reduces demands on memory and increases the load on CPU. This leads
+        # to a more balanced workload on most machines for typical problems.
+        # It also allows for a straightforward extension with parallel
+        # computing.
+
+        # get the list of performance groups
+        self.log_msg(
+            f'Number of Performance Groups in Asset Model:'
+            f' {self._asmnt.asset.cmp_sample.shape[1]}',
+            prepend_timestamp=False,
+        )
+
+        pg_batch = self._get_pg_batches(block_batch_size)
+        batches = pg_batch.index.get_level_values(0).unique()
+
+        self.log_msg(
+            f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
+            prepend_timestamp=False,
+        )
+
+        self.log_msg(
+            f"{len(batches)} batches of Performance Groups prepared "
+            "for damage assessment",
+            prepend_timestamp=False,
+        )
+
+        # for PG_i in self._asmnt.asset.cmp_sample.columns:
+        ds_samples = []
+        for PGB_i in batches:
+
+            performance_group = pg_batch.loc[PGB_i]
+
+            self.log_msg(
+                f"Calculating damage for PG batch {PGB_i} with "
+                f"{int(performance_group['Blocks'].sum())} blocks"
+            )
+
+            # Generate an array with component capacities for each block and
+            # generate a second array that assigns a specific damage state to
+            # each component limit state. The latter is primarily needed to
+            # handle limit states with multiple, mutually exclusive DS options
+            capacity_sample, lsds_sample = self._generate_dmg_sample(
+                sample_size, performance_group, scaling_specification
+            )
+
+            # Get the required demand types for the analysis
+            EDP_req = self._get_required_demand_type(performance_group)
+
+            # Create the demand vector
+            demand_dict = self._assemble_required_demand_data(EDP_req)
+
+            # Evaluate the Damage State of each Component Block
+            ds_sample = self._evaluate_damage_state(
+                demand_dict, EDP_req, capacity_sample, lsds_sample
+            )
+
+            ds_samples.append(ds_sample)
+
+        ds_sample = pd.concat(ds_samples, axis=1)
+        self.log_msg("Raw damage calculation successful.", prepend_timestamp=False)
+
+        # Apply the prescribed damage process, if any
+        if dmg_process is not None:
+            self.log_msg("Applying damage processes...")
+
+            # Sort the damage processes tasks
+            dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
+
+            # Perform damage tasks in the sorted order
+            for task in dmg_process.items():
+                self._perform_dmg_task(task, ds_sample)
+
+            self.log_msg(
+                "Damage processes successfully applied.", prepend_timestamp=False
+            )
+
+        qnt_sample = self._prepare_dmg_quantities(ds_sample, dropzero=False)
+
+        # If requested, extend the quantity table with all possible DSs
+        if self._asmnt.options.list_all_ds:
+            qnt_sample = self._complete_ds_cols(qnt_sample)
+
+        self.sample = qnt_sample
+
+        self.log_msg('Damage calculation successfully completed.')
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -174,89 +361,6 @@ class DamageModel(PelicunModel):
         self.sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage sample successfully loaded.', prepend_timestamp=False)
-
-    def load_damage_model(self, data_paths):
-        """
-        Load limit state damage model parameters and damage state assignments
-
-        Parameters
-        ----------
-        data_paths: list of string
-            List of paths to data files with damage model information. Default
-            XY datasets can be accessed as PelicunDefault/XY.
-        """
-
-        self.log_div()
-        self.log_msg('Loading damage model...')
-
-        # replace default flag with default data path
-        data_paths = file_io.substitute_default_path(data_paths)
-
-        data_list = []
-        # load the data files one by one
-        for data_path in data_paths:
-            data = file_io.load_data(
-                data_path, None, orientation=1, reindex=False, log=self._asmnt.log
-            )
-
-            data_list.append(data)
-
-        damage_params = pd.concat(data_list, axis=0)
-
-        # drop redefinitions of components
-        damage_params = damage_params.groupby(damage_params.index).first()
-
-        # get the component types defined in the asset model
-        cmp_labels = self._asmnt.asset.cmp_sample.columns
-
-        # only keep the damage model parameters for the components in the model
-        cmp_unique = cmp_labels.unique(level=0)
-        cmp_mask = damage_params.index.isin(cmp_unique, level=0)
-
-        damage_params = damage_params.loc[cmp_mask, :]
-
-        if np.sum(cmp_mask) != len(cmp_unique):
-            cmp_list = cmp_unique[
-                np.isin(cmp_unique, damage_params.index.values, invert=True)
-            ].to_list()
-
-            self.log_msg(
-                "\nWARNING: The damage model does not provide "
-                "vulnerability information for the following component(s) "
-                f"in the asset model: {cmp_list}.\n",
-                prepend_timestamp=False,
-            )
-
-        # TODO: load defaults for Demand-Offset and Demand-Directional
-
-        # Now convert model parameters to base units
-        for LS_i in damage_params.columns.unique(level=0):
-            if LS_i.startswith('LS'):
-                damage_params.loc[:, LS_i] = self.convert_marginal_params(
-                    damage_params.loc[:, LS_i].copy(),
-                    damage_params[('Demand', 'Unit')],
-                ).values
-
-        # check for components with incomplete damage model information
-        cmp_incomplete_list = damage_params.loc[
-            damage_params[('Incomplete', '')] == 1
-        ].index
-
-        damage_params.drop(cmp_incomplete_list, inplace=True)
-
-        if len(cmp_incomplete_list) > 0:
-            self.log_msg(
-                f"\nWARNING: Damage model information is incomplete for "
-                f"the following component(s) {cmp_incomplete_list}. They "
-                f"were removed from the analysis.\n",
-                prepend_timestamp=False,
-            )
-
-        self.damage_params = damage_params
-
-        self.log_msg(
-            "Damage model parameters successfully parsed.", prepend_timestamp=False
-        )
 
     def _handle_operation(self, initial_value, operation, other_value):
         """
@@ -1592,110 +1696,3 @@ class DamageModel(PelicunModel):
         res.loc[:, dmg_sample.columns.to_list()] = dmg_sample
 
         return res
-
-    def calculate(
-        self,
-        sample_size=None,
-        dmg_process=None,
-        block_batch_size=1000,
-        scaling_specification=None,
-    ):
-        """
-        Calculate the damage state of each component block in the asset.
-
-        """
-
-        self.log_div()
-        self.log_msg('Calculating damages...')
-
-        if not sample_size:
-            # todo: Deprecation warning
-            sample_size = self._asmnt.demand.sample.shape[0]
-
-        # Break up damage calculation and perform it by performance group.
-        # Compared to the simultaneous calculation of all PGs, this approach
-        # reduces demands on memory and increases the load on CPU. This leads
-        # to a more balanced workload on most machines for typical problems.
-        # It also allows for a straightforward extension with parallel
-        # computing.
-
-        # get the list of performance groups
-        self.log_msg(
-            f'Number of Performance Groups in Asset Model:'
-            f' {self._asmnt.asset.cmp_sample.shape[1]}',
-            prepend_timestamp=False,
-        )
-
-        pg_batch = self._get_pg_batches(block_batch_size)
-        batches = pg_batch.index.get_level_values(0).unique()
-
-        self.log_msg(
-            f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
-            prepend_timestamp=False,
-        )
-
-        self.log_msg(
-            f"{len(batches)} batches of Performance Groups prepared "
-            "for damage assessment",
-            prepend_timestamp=False,
-        )
-
-        # for PG_i in self._asmnt.asset.cmp_sample.columns:
-        ds_samples = []
-        for PGB_i in batches:
-
-            performance_group = pg_batch.loc[PGB_i]
-
-            self.log_msg(
-                f"Calculating damage for PG batch {PGB_i} with "
-                f"{int(performance_group['Blocks'].sum())} blocks"
-            )
-
-            # Generate an array with component capacities for each block and
-            # generate a second array that assigns a specific damage state to
-            # each component limit state. The latter is primarily needed to
-            # handle limit states with multiple, mutually exclusive DS options
-            capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, performance_group, scaling_specification
-            )
-
-            # Get the required demand types for the analysis
-            EDP_req = self._get_required_demand_type(performance_group)
-
-            # Create the demand vector
-            demand_dict = self._assemble_required_demand_data(EDP_req)
-
-            # Evaluate the Damage State of each Component Block
-            ds_sample = self._evaluate_damage_state(
-                demand_dict, EDP_req, capacity_sample, lsds_sample
-            )
-
-            ds_samples.append(ds_sample)
-
-        ds_sample = pd.concat(ds_samples, axis=1)
-        self.log_msg("Raw damage calculation successful.", prepend_timestamp=False)
-
-        # Apply the prescribed damage process, if any
-        if dmg_process is not None:
-            self.log_msg("Applying damage processes...")
-
-            # Sort the damage processes tasks
-            dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
-
-            # Perform damage tasks in the sorted order
-            for task in dmg_process.items():
-                self._perform_dmg_task(task, ds_sample)
-
-            self.log_msg(
-                "Damage processes successfully applied.", prepend_timestamp=False
-            )
-
-        qnt_sample = self._prepare_dmg_quantities(ds_sample, dropzero=False)
-
-        # If requested, extend the quantity table with all possible DSs
-        if self._asmnt.options.list_all_ds:
-            qnt_sample = self._complete_ds_cols(qnt_sample)
-
-        self.sample = qnt_sample
-
-        self.log_msg('Damage calculation successfully completed.')
