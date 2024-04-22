@@ -64,21 +64,6 @@ class DamageModel(PelicunModel):
     """
     Manages damage information used in assessments.
 
-    This class contains the following methods:
-
-    - load_damage_model()
-    - calculate()
-        - _get_pg_batches()
-        - _generate_dmg_sample()
-            - _create_dmg_rvs()
-        - _get_required_demand_type()
-        - _assemble_required_demand_data()
-        - _evaluate_damage_state()
-        - _prepare_dmg_quantities()
-        - _perform_dmg_task()
-    - save_sample()
-    - load_sample()
-
     """
 
     def __init__(self, assessment):
@@ -1695,3 +1680,22 @@ class DamageModel(PelicunModel):
         res.loc[:, dmg_sample.columns.to_list()] = dmg_sample
 
         return res
+
+
+class DamageModel_DS(DamageModel):
+    """
+    Damage model for components that have discrete Damage States (DS).
+    """
+
+    def __init__(self, assessment):
+        super().__init__(assessment)
+
+
+class DamageModel_DR(DamageModel):
+    """
+    Damage model for components of which the damage is quantified by a
+    Damage Ratio (DR).
+    """
+
+    def __init__(self, assessment):
+        super().__init__(assessment)
