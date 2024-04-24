@@ -103,30 +103,8 @@ class Assessment:
 
         self.demand: model.DemandModel = model.DemandModel(self)
         self.asset: model.AssetModel = model.AssetModel(self)
-        self.damage_ds: model.DamageModel_DS = model.DamageModel_DS(self)
-        self.damage_dr: model.DamageModel_DR = model.DamageModel_DR(self)
+        self.damage: model.DamageModel = model.DamageModel(self)
         self.repair: model.RepairModel = model.RepairModel(self)
-
-    @property
-    def damage(self):
-        """
-        `.damage` property, used for backwards compatibility.
-        """
-        warnings.warn(
-            'Starting from version 3.3.2, assessment objects now '
-            'include two damage models: `.damage_ds` and '
-            '`.damage_dr`. The `.damage_ds` attribute models '
-            'damage using discrete Damage States (DS), '
-            'whereas `.damage_dr` uses a Damage Ratio (DR). '
-            'For backward compatibility, the '
-            '`.damage` attribute currently maps to '
-            '`.damage_ds`. However, the `.damage` attribute '
-            'will be removed in future versions. Users are '
-            'advised to explicitly use `.damage_ds` going forward.',
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.damage_ds
 
     def get_default_data(self, data_name):
         """

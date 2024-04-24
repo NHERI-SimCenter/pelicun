@@ -450,7 +450,7 @@ def load_data(
         data.sort_index(inplace=True)
 
     if log:
-        log.msg('Data successfully loaded from file.', prepend_timestamp=False)
+        log.msg('Data successfully loaded.', prepend_timestamp=False)
 
     if return_units:
         if units is not None:

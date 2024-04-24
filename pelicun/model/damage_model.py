@@ -69,8 +69,13 @@ class DamageModel(PelicunModel):
     def __init__(self, assessment):
         super().__init__(assessment)
 
-        self.damage_params = None
-        self.sample = None
+        self.ds_model: DamageModel_DS = DamageModel_DS(assessment)
+        self.dr_model: DamageModel_DR = DamageModel_DR(assessment)
+        self.missing_components: list[str] = []
+
+    @property
+    def damage_models(self):
+        return (self.ds_model, self.dr_model)
 
     def load_damage_model(self, data_paths):
         """
@@ -89,71 +94,57 @@ class DamageModel(PelicunModel):
         # replace default flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
 
-        data_list = []
-        # load the data files one by one
+        #
+        # load damage parameter data into the models
+        #
+
+        self.log_msg('Loading damage model parameters.')
         for data_path in data_paths:
             data = file_io.load_data(
                 data_path, None, orientation=1, reindex=False, log=self._asmnt.log
             )
+            # determine if the damage model parameters are for damage
+            # states or damage ratios
+            if _is_for_dr_model(data):
+                self.dr_model._add_damage_model(data)
+            elif _is_for_ds_model(data):
+                self.ds_model._add_damage_model(data)
+            else:
+                raise ValueError(f'Invalid damage model parameters: {data_path}')
 
-            data_list.append(data)
+        #
+        # remove items
+        #
 
-        damage_params = pd.concat(data_list, axis=0)
+        self.log_msg('Removing unused damage model parameters.')
+        # get a list of unique component IDs
+        cmp_list = self._asmnt.asset.cmp_sample.columns.unique(level=0).to_list()
 
-        # drop redefinitions of components
-        damage_params = damage_params.groupby(damage_params.index).first()
+        for damage_model in self.damage_models:
+            # drop unused damage parameter definitions
+            damage_model._drop_unused_damage_parameters(cmp_list)
+            # remove components with incomplete damage parameters
+            damage_model._remove_incomplete_components()
 
-        # get the component types defined in the asset model
-        cmp_labels = self._asmnt.asset.cmp_sample.columns
+        #
+        # convert units
+        #
 
-        # only keep the damage model parameters for the components in the model
-        cmp_unique = cmp_labels.unique(level=0)
-        cmp_mask = damage_params.index.isin(cmp_unique, level=0)
+        self.log_msg('Converting damage model parameter units.')
+        for damage_model in self.damage_models:
+            damage_model._convert_damage_parameter_units()
 
-        damage_params = damage_params.loc[cmp_mask, :]
-
-        if np.sum(cmp_mask) != len(cmp_unique):
-            cmp_list = cmp_unique[
-                np.isin(cmp_unique, damage_params.index.values, invert=True)
-            ].to_list()
-
-            self.log_msg(
-                "\nWARNING: The damage model does not provide "
-                "vulnerability information for the following component(s) "
-                f"in the asset model: {cmp_list}.\n",
-                prepend_timestamp=False,
-            )
-
-        # TODO: load defaults for Demand-Offset and Demand-Directional
-
-        # Now convert model parameters to base units
-        for LS_i in damage_params.columns.unique(level=0):
-            if LS_i.startswith('LS'):
-                damage_params.loc[:, LS_i] = self.convert_marginal_params(
-                    damage_params.loc[:, LS_i].copy(),
-                    damage_params[('Demand', 'Unit')],
-                ).values
-
-        # check for components with incomplete damage model information
-        cmp_incomplete_list = damage_params.loc[
-            damage_params[('Incomplete', '')] == 1
-        ].index
-
-        damage_params.drop(cmp_incomplete_list, inplace=True)
-
-        if len(cmp_incomplete_list) > 0:
-            self.log_msg(
-                f"\nWARNING: Damage model information is incomplete for "
-                f"the following component(s) {cmp_incomplete_list}. They "
-                f"were removed from the analysis.\n",
-                prepend_timestamp=False,
-            )
-
-        self.damage_params = damage_params
+        #
+        # verify damage parameter availability
+        #
 
         self.log_msg(
-            "Damage model parameters successfully parsed.", prepend_timestamp=False
+            'Checking damage model parameter '
+            'availability for all components in the asset model.'
         )
+        missing_components = self._ensure_damage_parameter_availability(cmp_list)
+
+        self.missing_components = missing_components
 
     def calculate(
         self,
@@ -163,10 +154,9 @@ class DamageModel(PelicunModel):
         scaling_specification=None,
     ):
         """
-        Calculate the damage state of each component block in the asset.
+        Calculate the damage of each component block.
 
         """
-
         self.log_div()
         self.log_msg('Calculating damages...')
 
@@ -174,68 +164,18 @@ class DamageModel(PelicunModel):
             # todo: Deprecation warning
             sample_size = self._asmnt.demand.sample.shape[0]
 
-        # Break up damage calculation and perform it by performance group.
-        # Compared to the simultaneous calculation of all PGs, this approach
-        # reduces demands on memory and increases the load on CPU. This leads
-        # to a more balanced workload on most machines for typical problems.
-        # It also allows for a straightforward extension with parallel
-        # computing.
-
-        # get the list of performance groups
-        self.log_msg(
-            f'Number of Performance Groups in Asset Model:'
-            f' {self._asmnt.asset.cmp_sample.shape[1]}',
-            prepend_timestamp=False,
+        # obtain damage states for applicable components
+        ds_sample = self.ds_model._obtain_ds_sample(
+            sample_size=sample_size,
+            block_batch_size=block_batch_size,
+            scaling_specification=scaling_specification,
+            missing_components=self.missing_components,
         )
 
-        pg_batch = self._get_pg_batches(block_batch_size)
-        batches = pg_batch.index.get_level_values(0).unique()
-
-        self.log_msg(
-            f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
-            prepend_timestamp=False,
+        # obtain damage ratios for applicable components
+        dr_sample = self.dr_model._obtain_dr_sample(
+            sample_size, block_batch_size, self.missing_components
         )
-
-        self.log_msg(
-            f"{len(batches)} batches of Performance Groups prepared "
-            "for damage assessment",
-            prepend_timestamp=False,
-        )
-
-        # for PG_i in self._asmnt.asset.cmp_sample.columns:
-        ds_samples = []
-        for PGB_i in batches:
-
-            performance_group = pg_batch.loc[PGB_i]
-
-            self.log_msg(
-                f"Calculating damage for PG batch {PGB_i} with "
-                f"{int(performance_group['Blocks'].sum())} blocks"
-            )
-
-            # Generate an array with component capacities for each block and
-            # generate a second array that assigns a specific damage state to
-            # each component limit state. The latter is primarily needed to
-            # handle limit states with multiple, mutually exclusive DS options
-            capacity_sample, lsds_sample = self._generate_dmg_sample(
-                sample_size, performance_group, scaling_specification
-            )
-
-            # Get the required demand types for the analysis
-            EDP_req = self._get_required_demand_type(performance_group)
-
-            # Create the demand vector
-            demand_dict = self._assemble_required_demand_data(EDP_req)
-
-            # Evaluate the Damage State of each Component Block
-            ds_sample = self._evaluate_damage_state(
-                demand_dict, EDP_req, capacity_sample, lsds_sample
-            )
-
-            ds_samples.append(ds_sample)
-
-        ds_sample = pd.concat(ds_samples, axis=1)
-        self.log_msg("Raw damage calculation successful.", prepend_timestamp=False)
 
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
@@ -246,21 +186,524 @@ class DamageModel(PelicunModel):
 
             # Perform damage tasks in the sorted order
             for task in dmg_process.items():
-                self._perform_dmg_task(task, ds_sample)
+                self.ds_model._perform_dmg_task(task, ds_sample)
 
             self.log_msg(
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
-        qnt_sample = self._prepare_dmg_quantities(ds_sample, dropzero=False)
+        qnt_sample = self.ds_model._prepare_dmg_quantities(ds_sample, dropzero=False)
 
         # If requested, extend the quantity table with all possible DSs
         if self._asmnt.options.list_all_ds:
             qnt_sample = self._complete_ds_cols(qnt_sample)
 
-        self.sample = qnt_sample
+        self.ds_model.sample = qnt_sample
 
-        self.log_msg('Damage calculation successfully completed.')
+        self.log_msg('Damage calculation completed.')
+
+    def _get_component_id_set(self):
+        """
+        Get a set of components for which damage parameters are
+        available.
+        """
+        cmp_list = []
+        if self.ds_model.damage_params is not None:
+            cmp_list.extend(self.ds_model.damage_params.index.to_list())
+        if self.dr_model.damage_params is not None:
+            cmp_list.extend(self.dr_model.damage_params.index.to_list())
+        return set(cmp_list)
+
+    def _ensure_damage_parameter_availability(self, cmp_list):
+        """
+        Makes sure that all components have damage parameters.
+
+        Returns
+        -------
+        list
+            List of component IDs with missing damage parameters.
+
+        """
+
+        available_components = self._get_component_id_set()
+
+        missing_components = [
+            component
+            for component in cmp_list
+            if component not in available_components
+        ]
+
+        if missing_components:
+            self.log_msg(
+                f"\n"
+                f"WARNING: The damage model does not provide "
+                f"damage information for the following component(s) "
+                f"in the asset model: {missing_components}."
+                f"\n",
+                prepend_timestamp=False,
+            )
+
+        return missing_components
+
+
+def _is_for_dr_model(data):
+    """
+    Determines if the specified damage model parameters are for
+    components modeled with a Damage Ratio (DR).
+    """
+    return 'DamageRatioFunction' in data.columns.get_level_values(0)
+
+
+def _is_for_ds_model(data):
+    """
+    Determines if the specified damage model parameters are for
+    components modeled with discrete Damage States (DS).
+    """
+    return 'LS1' in data.columns.get_level_values(0)
+
+
+class DamageModel_Base(PelicunModel):
+    """
+    Base class for damage models
+
+    """
+
+    def __init__(self, assessment):
+        super().__init__(assessment)
+
+        self.damage_params = None
+        self.sample = None
+
+    def _add_damage_model(self, data):
+        """
+        Load limit state damage model parameters and damage state assignments
+
+        Parameters
+        ----------
+        data: DataFrame
+            data with damage model information.
+        """
+
+        if self.damage_params is not None:
+            data = pd.concat((self.damage_params, data), axis=0)
+
+        # drop redefinitions of components
+        data = data.groupby(data.index).first()
+
+        # TODO: load defaults for Demand-Offset and Demand-Directional
+
+        self.damage_params = data
+
+    def _convert_damage_parameter_units(self):
+        """
+        Converts previously loaded damage parameters to base units.
+
+        """
+        if self.damage_params is None:
+            return
+
+        for LS_i in self.damage_params.columns.unique(level=0):
+            if LS_i.startswith('LS'):
+                self.damage_params.loc[:, LS_i] = self.convert_marginal_params(
+                    self.damage_params.loc[:, LS_i].copy(),
+                    self.damage_params[('Demand', 'Unit')],
+                ).values
+
+    def _remove_incomplete_components(self):
+        """
+        Removes components that have incomplete damage model
+        definitions from the damage model parameters.
+
+        """
+        if self.damage_params is None:
+            return
+
+        if ('Incomplete', '') not in self.damage_params.columns:
+            return
+
+        cmp_incomplete_idx = self.damage_params.loc[
+            self.damage_params[('Incomplete', '')] == 1
+        ].index
+
+        self.damage_params.drop(cmp_incomplete_idx, inplace=True)
+
+        if len(cmp_incomplete_idx) > 0:
+            self.log_msg(
+                f"\n"
+                f"WARNING: Damage model information is incomplete for "
+                f"the following component(s) "
+                f"{cmp_incomplete_idx.to_list()}. They "
+                f"were removed from the analysis."
+                f"\n",
+                prepend_timestamp=False,
+            )
+
+    def _drop_unused_damage_parameters(self, cmp_list):
+        """
+        Removes damage parameter definitions for component IDs not
+        present in the given list.
+
+        Parameters
+        ----------
+        cmp_list: list
+            List of component IDs to be preserved in the damage
+            parameters.
+        """
+
+        if self.damage_params is None:
+            return
+        cmp_mask = self.damage_params.index.isin(cmp_list, level=0)
+        self.damage_params = self.damage_params.loc[cmp_mask, :]
+
+    def _get_pg_batches(self, block_batch_size, missing_components):
+        """
+        Group performance groups into batches for efficient damage
+        assessment.
+
+        The method takes as input the block_batch_size, which
+        specifies the maximum number of blocks per batch. The method
+        first checks if performance groups have been defined in the
+        cmp_marginal_params dataframe, and if so, it uses the 'Blocks'
+        column as the performance group information. If performance
+        groups have not been defined in cmp_marginal_params, the
+        method uses the cmp_sample dataframe to define the performance
+        groups, with each performance group having a single block.
+
+        The method then checks if the performance groups are available
+        in the damage parameters dataframe, and removes any
+        performance groups that are not found in the damage
+        parameters. The method then groups the performance groups
+        based on the locations and directions of the components, and
+        calculates the cumulative sum of the blocks for each
+        group. The method then divides the performance groups into
+        batches of size specified by block_batch_size and assigns a
+        batch number to each group. Finally, the method groups the
+        performance groups by batch number, component, location, and
+        direction, and returns a dataframe that shows the number of
+        blocks for each batch.
+
+        Parameters
+        ----------
+        block_batch_size: int
+            Maximum number of components in each batch.
+        missing_components: list[str]
+            Set of component IDs for which damage parameters are
+            unavailable. These components are ignored.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame indexed by batch number, component identifier,
+            location, direction, and unique ID, with a column
+            indicating the number of blocks assigned to each
+            batch. This dataframe facilitates the management and
+            execution of damage assessment tasks by grouping
+            components into manageable batches based on the specified
+            block batch size.
+
+        Raises
+        ------
+        Warning
+            Logs a warning if any performance groups do not have
+            corresponding damage model information and are therefore
+            excluded from the analysis.
+        """
+
+        # Get the marginal parameters for the components from the
+        # asset model
+        cmp_marginals = self._asmnt.asset.cmp_marginal_params
+        cmp_sample = self._asmnt.asset.cmp_sample
+
+        # Initialize the batch dataframe
+        pg_batch = None
+
+        # Instantiate `pg_batch`
+        if 'Blocks' in cmp_marginals.columns:
+            # If a `Blocks` column is available, use `cmp_marginals`
+            pg_batch = cmp_marginals['Blocks'].to_frame().astype('int64')
+        else:
+            # Otherwise asume 1.00 for the number of blocks and
+            # initialize `pg_batch` using the columns of `cmp_sample`.
+            pg_batch = pd.DataFrame(
+                np.ones(cmp_sample.shape[1]),
+                index=cmp_sample.columns,
+                columns=['Blocks'],
+                dtype='int64',
+            )
+
+        # A warning has already been issued for components with
+        # missing damage parameters (in
+        # `DamageModel._ensure_damage_parameter_availability`).
+        pg_batch.drop(pd.Index(missing_components), inplace=True)
+
+        # It is safe to simply disregard components that are not
+        # present in the `damage_params` of *this* model, and let them
+        # be handled by another damage model.
+        available_components = self.damage_params.index.unique().to_list()
+        pg_batch = pg_batch.loc[pd.IndexSlice[available_components, :, :, :], :]
+
+        # Sum up the number of blocks for each performance group
+        pg_batch = pg_batch.groupby(['loc', 'dir', 'cmp', 'uid']).sum()
+        pg_batch.sort_index(axis=0, inplace=True)
+
+        # Calculate cumulative sum of blocks
+        pg_batch['CBlocks'] = np.cumsum(pg_batch['Blocks'].values.astype(int))
+        pg_batch['Batch'] = 0
+
+        # Group the performance groups into batches
+        for batch_i in range(1, pg_batch.shape[0] + 1):
+            # Find the mask for blocks that are less than the batch
+            # size and greater than 0
+            batch_mask = np.all(
+                np.array(
+                    [
+                        pg_batch['CBlocks'] <= block_batch_size,
+                        pg_batch['CBlocks'] > 0,
+                    ]
+                ),
+                axis=0,
+            )
+
+            if np.sum(batch_mask) < 1:
+                batch_mask = np.full(batch_mask.shape, False)
+                batch_mask[np.where(pg_batch['CBlocks'] > 0)[0][0]] = True
+
+            pg_batch.loc[batch_mask, 'Batch'] = batch_i
+
+            # Decrement the cumulative block count by the max count in
+            # the current batch
+            pg_batch['CBlocks'] -= pg_batch.loc[
+                pg_batch['Batch'] == batch_i, 'CBlocks'
+            ].max()
+
+            # If the maximum cumulative block count is 0, exit the
+            # loop
+            if pg_batch['CBlocks'].max() == 0:
+                break
+
+        # Group the performance groups by batch, component, location,
+        # and direction, and keep only the number of blocks for each
+        # group
+        pg_batch = (
+            pg_batch.groupby(['Batch', 'cmp', 'loc', 'dir', 'uid'])
+            .sum()
+            .loc[:, 'Blocks']
+            .to_frame()
+        )
+
+        return pg_batch
+
+    def _get_required_demand_type(self, PGB):
+        """
+        Returns the id of the demand needed to calculate damage to a
+        component. We assume that a damage model sample is available.
+
+        This method returns the demand type and its properties
+        required to calculate the damage to a component. The
+        properties include whether the demand is directional, the
+        offset, and the type of the demand. The method takes as input
+        a dataframe PGB that contains information about the component
+        groups in the asset. For each component group PG in the PGB
+        dataframe, the method retrieves the relevant damage parameters
+        from the damage_params dataframe and parses the demand type
+        into its properties. If the demand type has a subtype, the
+        method splits it and adds the subtype to the demand type to
+        form the EDP (engineering demand parameter) type. The method
+        also considers the default offset for the demand type, if it
+        is specified in the options attribute of the assessment, and
+        adds the offset to the EDP. If the demand is directional, the
+        direction is added to the EDP. The method collects all the
+        unique EDPs for each component group and returns them as a
+        dictionary where each key is an EDP and its value is a list of
+        component groups that require that EDP.
+
+        Parameters
+        ----------
+        `PGB`: pd.DataFrame
+            A pandas DataFrame with the block information for
+            each component
+
+        Returns
+        -------
+        dict
+            A dictionary of EDP requirements, where each key is the EDP
+            string (e.g., "Peak Ground Acceleration-0-0"), and the
+            corresponding value is a list of tuples (component_id,
+            location, direction)
+
+        """
+
+        # Assign the damage_params attribute to a local variable `DP`
+        DP = self.damage_params
+
+        # Check if verbose logging is enabled in `self._asmnt.log`
+        if self._asmnt.log.verbose:
+            # If verbose logging is enabled, log a message indicating
+            # that we are collecting demand information
+            self.log_msg(
+                'Collecting required demand information...', prepend_timestamp=True
+            )
+
+        # Initialize an empty dictionary to store the unique EDP
+        # requirements
+        EDP_req = {}
+
+        # Iterate over the index of the `PGB` DataFrame
+        for PG in PGB.index:
+            # Get the component name from the first element of the
+            # `PG` tuple
+            cmp = PG[0]
+
+            # Get the directional, offset, and demand_type parameters
+            # from the `DP` DataFrame
+            directional, offset, demand_type = DP.loc[
+                cmp,
+                [
+                    ('Demand', 'Directional'),
+                    ('Demand', 'Offset'),
+                    ('Demand', 'Type'),
+                ],
+            ]
+
+            # Parse the demand type
+
+            # Check if there is a subtype included in the demand_type
+            # string
+            if '|' in demand_type:
+                # If there is a subtype, split the demand_type string
+                # on the '|' character
+                demand_type, subtype = demand_type.split('|')
+                # Convert the demand type to the corresponding EDP
+                # type using `base.EDP_to_demand_type`
+                demand_type = base.EDP_to_demand_type[demand_type]
+                # Concatenate the demand type and subtype to form the
+                # EDP type
+                EDP_type = f'{demand_type}_{subtype}'
+            else:
+                # If there is no subtype, convert the demand type to
+                # the corresponding EDP type using
+                # `base.EDP_to_demand_type`
+                demand_type = base.EDP_to_demand_type[demand_type]
+                # Assign the EDP type to be equal to the demand type
+                EDP_type = demand_type
+
+            # Consider the default offset, if needed
+            if demand_type in self._asmnt.options.demand_offset.keys():
+                # If the demand type has a default offset in
+                # `self._asmnt.options.demand_offset`, add the offset
+                # to the default offset
+                offset = int(offset + self._asmnt.options.demand_offset[demand_type])
+            else:
+                # If the demand type does not have a default offset in
+                # `self._asmnt.options.demand_offset`, convert the
+                # offset to an integer
+                offset = int(offset)
+
+            # Determine the direction
+            if directional:
+                # If the demand is directional, use the third element
+                # of the `PG` tuple as the direction
+                direction = PG[2]
+            else:
+                # If the demand is not directional, use '0' as the
+                # direction
+                direction = '0'
+
+            # Concatenate the EDP type, offset, and direction to form
+            # the EDP key
+            EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
+
+            # If the EDP key is not already in the `EDP_req`
+            # dictionary, add it and initialize it with an empty list
+            if EDP not in EDP_req:
+                EDP_req.update({EDP: []})
+
+            # Add the current PG (performance group) to the list of
+            # PGs associated with the current EDP key
+            EDP_req[EDP].append(PG)
+
+        # Return the unique EDP requirements
+        return EDP_req
+
+    def _assemble_required_demand_data(self, EDP_req):
+        """
+        Assembles demand data for damage state determination.
+
+        The method takes the maximum of all available directions for
+        non-directional demand, scaling it using the non-directional
+        multiplier specified in self._asmnt.options, and returning the
+        result as a dictionary with keys in the format of
+        '<demand_type>-<location>-<direction>' and values as arrays of
+        demand values. If demand data is not found, logs a warning
+        message and skips the corresponding damages calculation.
+
+        Parameters
+        ----------
+        EDP_req : dict
+            A dictionary of unique EDP requirements
+
+        Returns
+        -------
+        demand_dict : dict
+            A dictionary of assembled demand data for calculation
+
+        Raises
+        ------
+        KeyError
+            If demand data for a given EDP cannot be found
+
+        """
+
+        if self._asmnt.log.verbose:
+            self.log_msg(
+                'Assembling demand data for calculation...', prepend_timestamp=True
+            )
+
+        demand_source = self._asmnt.demand.sample
+
+        demand_dict = {}
+
+        for EDP in EDP_req.keys():
+            EDP = EDP.split('-')
+
+            # if non-directional demand is requested...
+            if EDP[2] == '0':
+                # assume that the demand at the given location is available
+                try:
+                    # take the maximum of all available directions and scale it
+                    # using the nondirectional multiplier specified in the
+                    # self._asmnt.options (the default value is 1.2)
+                    demand = (
+                        demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
+                    )
+                    demand = demand * self._asmnt.options.nondir_multi(EDP[0])
+
+                except KeyError:
+                    demand = None
+
+            else:
+                demand = demand_source[(EDP[0], EDP[1], EDP[2])].values
+
+            if demand is None:
+                self.log_msg(
+                    f'\nWARNING: Cannot find demand data for {EDP}. The '
+                    'corresponding damages cannot be calculated.',
+                    prepend_timestamp=False,
+                )
+            else:
+                demand_dict.update({f'{EDP[0]}-{EDP[1]}-{EDP[2]}': demand})
+
+        return demand_dict
+
+
+class DamageModel_DS(DamageModel_Base):
+    """
+    Damage model for components that have discrete Damage States (DS).
+
+    """
+
+    def __init__(self, assessment):
+        super().__init__(assessment)
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -345,6 +788,84 @@ class DamageModel(PelicunModel):
         self.sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
 
         self.log_msg('Damage sample successfully loaded.', prepend_timestamp=False)
+
+    def _obtain_ds_sample(
+        self,
+        sample_size,
+        block_batch_size,
+        scaling_specification,
+        missing_components,
+    ):
+        """
+        Obtain the damage state of each performance group in the
+        model.
+        """
+
+        # Break up damage calculation and perform it by performance group.
+        # Compared to the simultaneous calculation of all PGs, this approach
+        # reduces demands on memory and increases the load on CPU. This leads
+        # to a more balanced workload on most machines for typical problems.
+        # It also allows for a straightforward extension with parallel
+        # computing.
+
+        # get the list of performance groups
+        self.log_msg(
+            f'Number of Performance Groups in Asset Model:'
+            f' {self._asmnt.asset.cmp_sample.shape[1]}',
+            prepend_timestamp=False,
+        )
+
+        pg_batch = self._get_pg_batches(block_batch_size, missing_components)
+        batches = pg_batch.index.get_level_values(0).unique()
+
+        self.log_msg(
+            f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
+            prepend_timestamp=False,
+        )
+
+        self.log_msg(
+            f"{len(batches)} batches of Performance Groups prepared "
+            "for damage assessment",
+            prepend_timestamp=False,
+        )
+
+        # for PG_i in self._asmnt.asset.cmp_sample.columns:
+        ds_samples = []
+        for PGB_i in batches:
+
+            performance_group = pg_batch.loc[PGB_i]
+
+            self.log_msg(
+                f"Calculating damage states for PG batch {PGB_i} with "
+                f"{int(performance_group['Blocks'].sum())} blocks"
+            )
+
+            # Generate an array with component capacities for each block and
+            # generate a second array that assigns a specific damage state to
+            # each component limit state. The latter is primarily needed to
+            # handle limit states with multiple, mutually exclusive DS options
+            capacity_sample, lsds_sample = self._generate_dmg_sample(
+                sample_size, performance_group, scaling_specification
+            )
+
+            # Get the required demand types for the analysis
+            EDP_req = self._get_required_demand_type(performance_group)
+
+            # Create the demand vector
+            demand_dict = self._assemble_required_demand_data(EDP_req)
+
+            # Evaluate the Damage State of each Component Block
+            ds_sample = self._evaluate_damage_state(
+                demand_dict, EDP_req, capacity_sample, lsds_sample
+            )
+
+            ds_samples.append(ds_sample)
+
+        ds_sample = pd.concat(ds_samples, axis=1)
+
+        self.log_msg("Damage state calculation successful.", prepend_timestamp=False)
+
+        return ds_sample
 
     def _handle_operation(self, initial_value, operation, other_value):
         """
@@ -809,208 +1330,6 @@ class DamageModel(PelicunModel):
 
         return capacity_sample, lsds_sample
 
-    def _get_required_demand_type(self, PGB):
-        """
-        Returns the id of the demand needed to calculate damage to a
-        component. We assume that a damage model sample is available.
-
-        This method returns the demand type and its properties
-        required to calculate the damage to a component. The
-        properties include whether the demand is directional, the
-        offset, and the type of the demand. The method takes as input
-        a dataframe PGB that contains information about the component
-        groups in the asset. For each component group PG in the PGB
-        dataframe, the method retrieves the relevant damage parameters
-        from the damage_params dataframe and parses the demand type
-        into its properties. If the demand type has a subtype, the
-        method splits it and adds the subtype to the demand type to
-        form the EDP (engineering demand parameter) type. The method
-        also considers the default offset for the demand type, if it
-        is specified in the options attribute of the assessment, and
-        adds the offset to the EDP. If the demand is directional, the
-        direction is added to the EDP. The method collects all the
-        unique EDPs for each component group and returns them as a
-        dictionary where each key is an EDP and its value is a list of
-        component groups that require that EDP.
-
-        Parameters
-        ----------
-        `PGB`: pd.DataFrame
-            A pandas DataFrame with the block information for
-            each component
-
-        Returns
-        -------
-        dict
-            A dictionary of EDP requirements, where each key is the EDP
-            string (e.g., "Peak Ground Acceleration-0-0"), and the
-            corresponding value is a list of tuples (component_id,
-            location, direction)
-
-        """
-
-        # Assign the damage_params attribute to a local variable `DP`
-        DP = self.damage_params
-
-        # Check if verbose logging is enabled in `self._asmnt.log`
-        if self._asmnt.log.verbose:
-            # If verbose logging is enabled, log a message indicating
-            # that we are collecting demand information
-            self.log_msg(
-                'Collecting required demand information...', prepend_timestamp=True
-            )
-
-        # Initialize an empty dictionary to store the unique EDP
-        # requirements
-        EDP_req = {}
-
-        # Iterate over the index of the `PGB` DataFrame
-        for PG in PGB.index:
-            # Get the component name from the first element of the
-            # `PG` tuple
-            cmp = PG[0]
-
-            # Get the directional, offset, and demand_type parameters
-            # from the `DP` DataFrame
-            directional, offset, demand_type = DP.loc[
-                cmp,
-                [
-                    ('Demand', 'Directional'),
-                    ('Demand', 'Offset'),
-                    ('Demand', 'Type'),
-                ],
-            ]
-
-            # Parse the demand type
-
-            # Check if there is a subtype included in the demand_type
-            # string
-            if '|' in demand_type:
-                # If there is a subtype, split the demand_type string
-                # on the '|' character
-                demand_type, subtype = demand_type.split('|')
-                # Convert the demand type to the corresponding EDP
-                # type using `base.EDP_to_demand_type`
-                demand_type = base.EDP_to_demand_type[demand_type]
-                # Concatenate the demand type and subtype to form the
-                # EDP type
-                EDP_type = f'{demand_type}_{subtype}'
-            else:
-                # If there is no subtype, convert the demand type to
-                # the corresponding EDP type using
-                # `base.EDP_to_demand_type`
-                demand_type = base.EDP_to_demand_type[demand_type]
-                # Assign the EDP type to be equal to the demand type
-                EDP_type = demand_type
-
-            # Consider the default offset, if needed
-            if demand_type in self._asmnt.options.demand_offset.keys():
-                # If the demand type has a default offset in
-                # `self._asmnt.options.demand_offset`, add the offset
-                # to the default offset
-                offset = int(offset + self._asmnt.options.demand_offset[demand_type])
-            else:
-                # If the demand type does not have a default offset in
-                # `self._asmnt.options.demand_offset`, convert the
-                # offset to an integer
-                offset = int(offset)
-
-            # Determine the direction
-            if directional:
-                # If the demand is directional, use the third element
-                # of the `PG` tuple as the direction
-                direction = PG[2]
-            else:
-                # If the demand is not directional, use '0' as the
-                # direction
-                direction = '0'
-
-            # Concatenate the EDP type, offset, and direction to form
-            # the EDP key
-            EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
-
-            # If the EDP key is not already in the `EDP_req`
-            # dictionary, add it and initialize it with an empty list
-            if EDP not in EDP_req:
-                EDP_req.update({EDP: []})
-
-            # Add the current PG (performance group) to the list of
-            # PGs associated with the current EDP key
-            EDP_req[EDP].append(PG)
-
-        # Return the unique EDP requirements
-        return EDP_req
-
-    def _assemble_required_demand_data(self, EDP_req):
-        """
-        Assembles demand data for damage state determination.
-
-        The method takes the maximum of all available directions for
-        non-directional demand, scaling it using the non-directional
-        multiplier specified in self._asmnt.options, and returning the
-        result as a dictionary with keys in the format of
-        '<demand_type>-<location>-<direction>' and values as arrays of
-        demand values. If demand data is not found, logs a warning
-        message and skips the corresponding damages calculation.
-
-        Parameters
-        ----------
-        EDP_req : dict
-            A dictionary of unique EDP requirements
-
-        Returns
-        -------
-        demand_dict : dict
-            A dictionary of assembled demand data for calculation
-
-        Raises
-        ------
-        KeyError
-            If demand data for a given EDP cannot be found
-
-        """
-
-        if self._asmnt.log.verbose:
-            self.log_msg(
-                'Assembling demand data for calculation...', prepend_timestamp=True
-            )
-
-        demand_source = self._asmnt.demand.sample
-
-        demand_dict = {}
-
-        for EDP in EDP_req.keys():
-            EDP = EDP.split('-')
-
-            # if non-directional demand is requested...
-            if EDP[2] == '0':
-                # assume that the demand at the given location is available
-                try:
-                    # take the maximum of all available directions and scale it
-                    # using the nondirectional multiplier specified in the
-                    # self._asmnt.options (the default value is 1.2)
-                    demand = (
-                        demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
-                    )
-                    demand = demand * self._asmnt.options.nondir_multi(EDP[0])
-
-                except KeyError:
-                    demand = None
-
-            else:
-                demand = demand_source[(EDP[0], EDP[1], EDP[2])].values
-
-            if demand is None:
-                self.log_msg(
-                    f'\nWARNING: Cannot find demand data for {EDP}. The '
-                    'corresponding damages cannot be calculated.',
-                    prepend_timestamp=False,
-                )
-            else:
-                demand_dict.update({f'{EDP[0]}-{EDP[1]}-{EDP[2]}': demand})
-
-        return demand_dict
-
     def _evaluate_damage_state(
         self, demand_dict, EDP_req, capacity_sample, lsds_sample
     ):
@@ -1036,9 +1355,6 @@ class DamageModel(PelicunModel):
             Assigns a Damage State to each component block in the
             asset model.
         """
-
-        # Log a message indicating that damage states are being
-        # evaluated
 
         if self._asmnt.log.verbose:
             self.log_msg('Evaluating damage states...', prepend_timestamp=True)
@@ -1428,156 +1744,6 @@ class DamageModel(PelicunModel):
                 )[0]
             ds_sample.iloc[row_selection, column_selection] = ds_target
 
-    def _get_pg_batches(self, block_batch_size):
-        """
-        Group performance groups into batches for efficient damage
-        assessment.
-
-        The method takes as input the block_batch_size, which
-        specifies the maximum number of blocks per batch. The method
-        first checks if performance groups have been defined in the
-        cmp_marginal_params dataframe, and if so, it uses the 'Blocks'
-        column as the performance group information. If performance
-        groups have not been defined in cmp_marginal_params, the
-        method uses the cmp_sample dataframe to define the performance
-        groups, with each performance group having a single block.
-
-        The method then checks if the performance groups are available
-        in the damage parameters dataframe, and removes any
-        performance groups that are not found in the damage
-        parameters. The method then groups the performance groups
-        based on the locations and directions of the components, and
-        calculates the cumulative sum of the blocks for each
-        group. The method then divides the performance groups into
-        batches of size specified by block_batch_size and assigns a
-        batch number to each group. Finally, the method groups the
-        performance groups by batch number, component, location, and
-        direction, and returns a dataframe that shows the number of
-        blocks for each batch.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame indexed by batch number, component identifier,
-            location, direction, and unique ID, with a column
-            indicating the number of blocks assigned to each
-            batch. This dataframe facilitates the management and
-            execution of damage assessment tasks by grouping
-            components into manageable batches based on the specified
-            block batch size.
-
-        Raises
-        ------
-        Warning
-            Logs a warning if any performance groups do not have
-            corresponding damage model information and are therefore
-            excluded from the analysis.
-        """
-
-        # Get the marginal parameters for the components from the
-        # asset model
-        cmp_marginals = self._asmnt.asset.cmp_marginal_params
-
-        # Initialize the batch dataframe
-        pg_batch = None
-
-        # If marginal parameters are available, use the 'Blocks'
-        # column to initialize the batch dataframe
-        if cmp_marginals is not None:
-            # Check if the "Blocks" column exists in the component
-            # marginal parameters
-            if 'Blocks' in cmp_marginals.columns:
-                pg_batch = cmp_marginals['Blocks'].to_frame()
-
-        # If the "Blocks" column doesn't exist, create a new dataframe
-        # with "Blocks" column filled with ones, using the component
-        # sample as the index.
-        if pg_batch is None:
-            cmp_sample = self._asmnt.asset.cmp_sample
-            pg_batch = pd.DataFrame(
-                np.ones(cmp_sample.shape[1]),
-                index=cmp_sample.columns,
-                columns=['Blocks'],
-            )
-
-        # Check if the damage model information exists for each
-        # performance group If not, remove the performance group from
-        # the analysis and log a warning message.
-        first_time = True
-        for pg_i in pg_batch.index:
-            if np.any(np.isin(pg_i, self.damage_params.index)):
-                blocks_i = pg_batch.loc[pg_i, 'Blocks']
-                pg_batch.loc[pg_i, 'Blocks'] = blocks_i
-
-            else:
-                pg_batch.drop(pg_i, inplace=True)
-
-                if first_time:
-                    self.log_msg(
-                        "\nWARNING: Damage model information is "
-                        "incomplete for some of the performance groups "
-                        "and they had to be removed from the analysis:",
-                        prepend_timestamp=False,
-                    )
-
-                    first_time = False
-
-                self.log_msg(f"{pg_i}", prepend_timestamp=False)
-
-        # Convert the data types of the dataframe to be efficient
-        pg_batch = pg_batch.convert_dtypes()
-
-        # Sum up the number of blocks for each performance group
-        pg_batch = pg_batch.groupby(['loc', 'dir', 'cmp', 'uid']).sum()
-        pg_batch.sort_index(axis=0, inplace=True)
-
-        # Calculate cumulative sum of blocks
-        pg_batch['CBlocks'] = np.cumsum(pg_batch['Blocks'].values.astype(int))
-        pg_batch['Batch'] = 0
-
-        # Group the performance groups into batches
-        for batch_i in range(1, pg_batch.shape[0] + 1):
-            # Find the mask for blocks that are less than the batch
-            # size and greater than 0
-            batch_mask = np.all(
-                np.array(
-                    [
-                        pg_batch['CBlocks'] <= block_batch_size,
-                        pg_batch['CBlocks'] > 0,
-                    ]
-                ),
-                axis=0,
-            )
-
-            if np.sum(batch_mask) < 1:
-                batch_mask = np.full(batch_mask.shape, False)
-                batch_mask[np.where(pg_batch['CBlocks'] > 0)[0][0]] = True
-
-            pg_batch.loc[batch_mask, 'Batch'] = batch_i
-
-            # Decrement the cumulative block count by the max count in
-            # the current batch
-            pg_batch['CBlocks'] -= pg_batch.loc[
-                pg_batch['Batch'] == batch_i, 'CBlocks'
-            ].max()
-
-            # If the maximum cumulative block count is 0, exit the
-            # loop
-            if pg_batch['CBlocks'].max() == 0:
-                break
-
-        # Group the performance groups by batch, component, location,
-        # and direction, and keep only the number of blocks for each
-        # group
-        pg_batch = (
-            pg_batch.groupby(['Batch', 'cmp', 'loc', 'dir', 'uid'])
-            .sum()
-            .loc[:, 'Blocks']
-            .to_frame()
-        )
-
-        return pg_batch
-
     def _complete_ds_cols(self, dmg_sample):
         """
         Completes the damage sample dataframe with all possible damage
@@ -1682,16 +1848,7 @@ class DamageModel(PelicunModel):
         return res
 
 
-class DamageModel_DS(DamageModel):
-    """
-    Damage model for components that have discrete Damage States (DS).
-    """
-
-    def __init__(self, assessment):
-        super().__init__(assessment)
-
-
-class DamageModel_DR(DamageModel):
+class DamageModel_DR(DamageModel_Base):
     """
     Damage model for components of which the damage is quantified by a
     Damage Ratio (DR).
@@ -1699,3 +1856,103 @@ class DamageModel_DR(DamageModel):
 
     def __init__(self, assessment):
         super().__init__(assessment)
+
+    def _obtain_dr_sample(self, sample_size, block_batch_size, missing_components):
+        """
+        Obtain the damage ratio of each performance group in the
+        model.
+        """
+
+        pg_batch = self._get_pg_batches(block_batch_size, missing_components)
+        batches = pg_batch.index.get_level_values(0).unique()
+
+        dr_samples = []
+        for PGB_i in batches:
+
+            performance_group = pg_batch.loc[PGB_i]
+
+            self.log_msg(
+                f"Calculating damage ratios for PG batch {PGB_i} with "
+                f"{int(performance_group['Blocks'].sum())} blocks"
+            )
+
+            # Get the required demand types for the analysis
+            EDP_req = self._get_required_demand_type(performance_group)
+
+            # Create the demand vector
+            demand_dict = self._assemble_required_demand_data(EDP_req)
+
+            # Evaluate the Damage State of each Component Block
+            dr_sample = self._evaluate_damage_ratio(
+                performance_group, demand_dict, EDP_req
+            )
+
+            dr_samples.append(ds_sample)
+
+        dr_sample = pd.concat(dr_samples, axis=1)
+
+    def _evaluate_damage_ratio(self, performance_group, demand_dict, EDP_req):
+        """
+        Use the damage ratio parameters and demand to evaluate damage
+        ratios
+
+        Parameters
+        ----------
+        demand_dict: dict
+            Dictionary containing the demand of each demand type.
+        EDP_req: dict
+            Dictionary containing the EDPs assigned to each demand
+            type.
+
+        Returns
+        -------
+        DataFrame
+            Assigns a Damage Ratio to each component block in the
+            asset model.
+        """
+
+        breakpoint()
+        if self._asmnt.log.verbose:
+            self.log_msg('Evaluating damage ratios...', prepend_timestamp=True)
+
+        dir(self)
+        self.damage_params
+        demand_dict
+        EDP_req
+
+        dr_function_arguments = self.damage_params['DamageRatioFunction'].to_dict()
+
+        for edp, components in EDP_req.items():
+            demand = demand_dict[edp]
+            for component in components:
+                cmp_id, location, direction, uid = component
+                damage_ratio_function_parameters = dr_function_arguments[cmp_id]
+
+                theta = np.column_stack(
+                    (
+                        np.array(
+                            damage_ratio_function_parameters.split('|')[0].split(
+                                ','
+                            ),
+                            dtype=float,
+                        ),
+                        np.array(
+                            damage_ratio_function_parameters.split('|')[1].split(
+                                ','
+                            ),
+                            dtype=float,
+                        ),
+                    )
+                )
+                x_i = [-np.inf] + [x[0] for x in theta] + [np.inf]
+                y_i = [0.00] + [x[1] for x in theta] + [1.00]
+
+                # Using Numpy's interp for linear interpolation
+                result = np.interp(demand, x_i, y_i, left=0.00, right=1.00)
+
+        for index, blocks in performance_group.itertuples():
+            component_id, location, direction, uid = index
+            edp = EDP_req
+            demand = demand_dict
+            pass
+        print()
