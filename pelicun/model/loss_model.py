@@ -80,7 +80,50 @@ class LossModel(PelicunModel):
     def loss_models(self):
         return (self.ds_model, self.dr_model)
 
-    def load_model_parameters(self, data_paths):
+    def add_loss_map(self, loss_map_path=None):
+        """
+        Add a loss map to the loss model. A loss map defines what loss
+        parameter definition should be used for each component ID in
+        the asset model.
+        
+        loss_map_path: str or pd.DataFrame or None
+            Path to a csv file or DataFrame object that maps
+            components IDs to their loss parameter definitions.
+            Components in the asset model that are omitted from the
+            provided loss map are mapped to the same ID.
+        """
+        self.log_msg(f'Loading loss map...')
+
+        # get a list of unique component IDs
+        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+
+        if loss_map_path is not None:
+            self.log_msg(f'Loss map is provided.', prepend_timestamp=False)
+            # Read the loss map into a variable
+            loss_map = file_io.load_data(
+                loss_map_path, None, orientation=1, reindex=False, log=self._asmnt.log
+            )
+        else:
+            self.log_msg(f'Using default loss map.', prepend_timestamp=False)
+            # If no loss map is provided map cmp_id -> cmp_id as a
+            # default choice: Instantiate an empty loss map.
+            loss_map = pd.DataFrame({'Repair': pd.Series(dtype='object')})
+            loss_map.index = loss_map.index.astype('object')
+
+        # Populate missing rows with cmp_id -> cmp_id
+        new_rows = {}
+        for component in cmp_set:
+            if component not in loss_map:
+                loss_map.loc[component, :] = component
+
+        # Assign the loss map to the available loss models
+        for loss_model in self.loss_models:
+            loss_model.loss_map = loss_map
+
+        self.log_msg(f'Loss map loaded successfully.', prepend_timestamp=True)
+
+
+    def load_model_parameters(self, data_paths, loss_map_path):
         """
         Load loss model parameters.
 
@@ -98,16 +141,153 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading loss model...')
 
-        # replace default flag with default data path
+        # replace `PelicunDefault/` flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
 
         #
         # load loss parameter data into the models
         #
 
+        for data_path in data_paths:
+            data = file_io.load_data(
+                data_path, None, orientation=1, reindex=False, log=self._asmnt.log
+            )
+            # determine if the damage model parameters are for damage
+            # states or damage ratios
+            if _is_for_ds_model(data):
+                self.ds_model._load_model_parameters(data)
+            elif _is_for_dr_model(data):
+                self.dr_model._load_model_parameters(data)
+            else:
+                raise ValueError(f'Invalid loss model parameters: {data_path}')
+
+        self.log_msg('Loss model parameters loaded successfully.')
+
+        #
+        # remove items
+        #
+
+        self.log_msg('Removing unused loss model parameters.')
+
+        # get a list of unique component IDs
+        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+
+        for loss_model in self.loss_models:
+            # drop unused loss parameter definitions
+            loss_model._drop_unused_damage_parameters(cmp_set)
+            # remove components with incomplete loss parameters
+            loss_model._remove_incomplete_components()
+
+        #
+        # convert units
+        #
+
+        self.log_msg('Converting loss model parameter units.')
+        for loss_model in self.loss_models:
+            loss_model._convert_loss_parameter_units()
+
+        #
+        # verify loss parameter availability
+        #
+
+        self.log_msg(
+            'Checking loss model parameter '
+            'availability for all components in the asset model.'
+        )
+        missing_components = self._ensure_loss_parameter_availability(cmp_list)
+
+        self.missing_components = missing_components
 
 
-class RepairModel_DS(PelicunModel):
+class RepairModel_Base(PelicunModel):
+    """
+    Base class for loss models
+
+    """
+
+    def __init__(self, assessment):
+        super().__init__(assessment)
+
+        self.loss_map = None
+        self.loss_params = None
+        self.sample = None
+
+    def _load_model_parameters(self, data):
+        """
+        Load model parameters from a dataframe, extending those
+        already available. Parameters already defined take precedence,
+        i.e. redefinitions of parameters are ignored.
+
+        Parameters
+        ----------
+        data: DataFrame
+            data with damage model information.
+        """
+
+        if self.loss_params is not None:
+            data = pd.concat((self.loss_params, data), axis=0)
+
+        # drop redefinitions of components
+        data = data.groupby(data.index).first()
+
+        self.loss_params = data
+
+    def _convert_damage_parameter_units(self):
+        """
+        Converts previously loaded loss parameters to base units.
+
+        """
+        breakpoint()
+        pass
+
+    def _remove_incomplete_components(self):
+        """
+        Removes components that have incomplete loss model
+        definitions from the loss model parameters.
+
+        """
+        if self.loss_params is None:
+            return
+
+        if ('Incomplete', '') not in self.loss_params.columns:
+            return
+
+        cmp_incomplete_idx = self.loss_params.loc[
+            self.loss_params[('Incomplete', '')] == 1
+        ].index
+
+        self.loss_params.drop(cmp_incomplete_idx, inplace=True)
+
+        if len(cmp_incomplete_idx) > 0:
+            self.log_msg(
+                f"\n"
+                f"WARNING: Loss model information is incomplete for "
+                f"the following component(s) "
+                f"{cmp_incomplete_idx.to_list()}. They "
+                f"were removed from the analysis."
+                f"\n",
+                prepend_timestamp=False,
+            )
+
+    def _drop_unused_loss_parameters(self, cmp_list):
+        """
+        Removes loss parameter definitions for component IDs not
+        present in the given list.
+
+        Parameters
+        ----------
+        cmp_list: list
+            List of component IDs to be preserved in the loss
+            parameters.
+        """
+
+        if self.loss_params is None:
+            return
+        cmp_mask = self.loss_params.index.isin(cmp_list, level=0)
+        self.loss_params = self.loss_params.loc[cmp_mask, :]
+
+
+class RepairModel_DS(RepairModel_Base):
     """
     Manages repair consequences driven by components that are modeled
     with discrete Damage States (DS)
@@ -116,11 +296,6 @@ class RepairModel_DS(PelicunModel):
 
     def __init__(self, assessment):
         super().__init__(assessment)
-
-        self.sample = None
-        self.loss_map = None
-        self.loss_params = None
-        self.loss_type = 'Repair'
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -206,14 +381,15 @@ class RepairModel_DS(PelicunModel):
         self.log_div()
         self.log_msg('Loading loss sample...')
 
-        
         self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
         )
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
-    def load_model(self, data_paths, mapping_path, decision_variables=None):
+    def _load_model_parameters(
+        self, data_paths, loss_map_path, decision_variables=None
+    ):
         """
         Load the list of prescribed consequence models and their parameters
 
@@ -224,24 +400,26 @@ class RepairModel_DS(PelicunModel):
             parameters.  Default XY datasets can be accessed as
             PelicunDefault/XY.  The list can also contain DataFrame
             objects, in which case that data is used directly.
-        mapping_path: string
-            Path to a csv file that maps drivers (i.e., damage or edp data) to
-            loss models.
+        loss_map_path: str or pd.DataFrame
+            Path to a csv file or DataFrame object that maps drivers
+            (i.e., damage or edp data) to loss models.
         decision_variables: list of string, optional
-            List of decision variables to include in the analysis. If None,
-            all variables provided in the consequence models are included. When
-            a list is provided, only variables in the list will be included.
+            List of decision variables to include in the analysis. If
+            None, all variables provided in the consequence models are
+            included. When a list is provided, only variables in the
+            list will be included.
+
         """
 
         self.log_div()
-        self.log_msg(f'Loading loss map for {self.loss_type}...')
+        self.log_msg(f'Loading loss map...')
 
         loss_map = file_io.load_data(
-            mapping_path, None, orientation=1, reindex=False, log=self._asmnt.log
+            loss_map_path, None, orientation=1, reindex=False, log=self._asmnt.log
         )
 
         loss_map['Driver'] = loss_map.index.values
-        loss_map['Consequence'] = loss_map[self.loss_type]
+        loss_map['Consequence'] = loss_map['Repair']
         loss_map.index = np.arange(loss_map.shape[0])
         loss_map = loss_map.loc[:, ['Driver', 'Consequence']]
         loss_map.dropna(inplace=True)
@@ -251,7 +429,7 @@ class RepairModel_DS(PelicunModel):
         self.log_msg("Loss map successfully parsed.", prepend_timestamp=False)
 
         self.log_div()
-        self.log_msg(f'Loading loss parameters for {self.loss_type}...')
+        self.log_msg(f'Loading loss parameters...')
 
         # replace default flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
@@ -1186,7 +1364,7 @@ class RepairModel_DS(PelicunModel):
         self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
 
 
-class RepairModel_DR(PelicunModel):
+class RepairModel_DR(RepairModel_Base):
     """
     Manages repair consequences driven by components that are modeled
     with Damage Ratios (DR)
@@ -1265,3 +1443,21 @@ def prep_bounded_multilinear_median_DV(medians, quantities):
         return output
 
     return f
+
+
+def _is_for_dr_model(data):
+    """
+    Determines if the specified damage model parameters are for
+    components modeled with a Damage Ratio (DR).
+    """
+    breakpoint()
+    # todo: fix the heuristic
+    return 'DamageRatioFunction' in data.columns.get_level_values(0)
+
+
+def _is_for_ds_model(data):
+    """
+    Determines if the specified damage model parameters are for
+    components modeled with discrete Damage States (DS).
+    """
+    return 'DS1' in data.columns.get_level_values(0)
