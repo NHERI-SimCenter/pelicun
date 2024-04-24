@@ -49,7 +49,6 @@ This file defines Loss model objects and their methods.
     prep_bounded_multilinear_median_DV
 
     LossModel
-    RepairModel
 
 """
 
@@ -67,25 +66,21 @@ idx = base.idx
 
 class LossModel(PelicunModel):
     """
-    Parent object for loss models.
-
-    All loss assessment methods should be children of this class.
-
-    Parameters
-    ----------
+    Manages loss information used in assessments.
 
     """
 
     def __init__(self, assessment):
         super().__init__(assessment)
 
+        self.ds_model: RepairModel_DS = RepairModel_DS(assessment)
+        self.dr_model: RepairModel_DR = RepairModel_DR(assessment)
 
-class RepairModel(LossModel):
+
+class RepairModel_DS(PelicunModel):
     """
-    Manages building repair consequence assessments.
-
-    Parameters
-    ----------
+    Manages repair consequences driven by components that are modeled
+    with discrete Damage States (DS)
 
     """
 
@@ -181,6 +176,7 @@ class RepairModel(LossModel):
         self.log_div()
         self.log_msg('Loading loss sample...')
 
+        
         self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
         )
@@ -1158,6 +1154,17 @@ class RepairModel(LossModel):
         self.sample = DV_sample
 
         self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
+
+
+class RepairModel_DR(PelicunModel):
+    """
+    Manages repair consequences driven by components that are modeled
+    with Damage Ratios (DR)
+
+    """
+
+    def __init__(self, assessment):
+        super().__init__(assessment)
 
 
 def prep_constant_median_DV(median):
