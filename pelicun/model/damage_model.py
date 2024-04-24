@@ -49,8 +49,10 @@ This file defines the DamageModel object and its methods.
 
 """
 
+from typing import Callable
 import numpy as np
 import pandas as pd
+from scipy.interpolate import interp1d
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun import base
 from pelicun import uq
@@ -199,6 +201,7 @@ class DamageModel(PelicunModel):
             qnt_sample = self._complete_ds_cols(qnt_sample)
 
         self.ds_model.sample = qnt_sample
+        self.dr_model.sample = dr_sample
 
         self.log_msg('Damage calculation completed.')
 
@@ -1887,9 +1890,11 @@ class DamageModel_DR(DamageModel_Base):
                 performance_group, demand_dict, EDP_req
             )
 
-            dr_samples.append(ds_sample)
+            dr_samples.append(dr_sample)
 
         dr_sample = pd.concat(dr_samples, axis=1)
+
+        return dr_sample
 
     def _evaluate_damage_ratio(self, performance_group, demand_dict, EDP_req):
         """
@@ -1911,48 +1916,80 @@ class DamageModel_DR(DamageModel_Base):
             asset model.
         """
 
-        breakpoint()
         if self._asmnt.log.verbose:
             self.log_msg('Evaluating damage ratios...', prepend_timestamp=True)
 
-        dir(self)
-        self.damage_params
-        demand_dict
-        EDP_req
-
+        # Cast series to `dict` for increased performance
         dr_function_arguments = self.damage_params['DamageRatioFunction'].to_dict()
+        num_blocks_dict = performance_group['Blocks'].to_dict()
 
+        # Initialize damage ratio sample dictionary
+        sample = {}
+
+        # Iterate over EDPs
         for edp, components in EDP_req.items():
+            # Get the demand array
             demand = demand_dict[edp]
+            # Iterate over the relevant components
             for component in components:
+                # Unravel component info
                 cmp_id, location, direction, uid = component
+                # Get relevant damage ratio parameters
                 damage_ratio_function_parameters = dr_function_arguments[cmp_id]
+                # Iterate over blocks
+                num_blocks = num_blocks_dict[component]
+                for block_id in range(num_blocks):
+                    # Get damage ratio for each realization or raise an error
+                    try:
+                        damage_ratio = stringterpolation(
+                            damage_ratio_function_parameters
+                        )(demand)
+                    except ValueError as exc:
+                        raise ValueError(
+                            f'Demand `{edp}` for component `{component}` exceeds '
+                            f'the interpolation range of its damage ratio parameters, '
+                            f'`{damage_ratio_function_parameters}`.'
+                        ) from exc
+                    # Store damage ratios
+                    sample[cmp_id, location, direction, uid, block_id] = damage_ratio
 
-                theta = np.column_stack(
-                    (
-                        np.array(
-                            damage_ratio_function_parameters.split('|')[0].split(
-                                ','
-                            ),
-                            dtype=float,
-                        ),
-                        np.array(
-                            damage_ratio_function_parameters.split('|')[1].split(
-                                ','
-                            ),
-                            dtype=float,
-                        ),
-                    )
-                )
-                x_i = [-np.inf] + [x[0] for x in theta] + [np.inf]
-                y_i = [0.00] + [x[1] for x in theta] + [1.00]
+        # Cast damage ratios to a dataframe and return it
+        dr_sample = pd.DataFrame(sample)
+        dr_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block']
 
-                # Using Numpy's interp for linear interpolation
-                result = np.interp(demand, x_i, y_i, left=0.00, right=1.00)
+        if self._asmnt.log.verbose:
+            self.log_msg(
+                'Damage ratios evaluation complete.', prepend_timestamp=False
+            )
 
-        for index, blocks in performance_group.itertuples():
-            component_id, location, direction, uid = index
-            edp = EDP_req
-            demand = demand_dict
-            pass
-        print()
+        return dr_sample
+
+
+def stringterpolation(
+    arguments: str,
+) -> tuple[Callable[np.array, np.array]]:
+    """
+    Turns a string of specially formatted arguments into a multilinear
+    interpolating funciton.
+
+    Parameters
+    ----------
+    arguments: str
+        String of arguments containing Y values and X values,
+        separated by a pipe symbol (`|`). Individual values are
+        separated by commas (`,`). Example:
+        arguments = 'y1,y2,y3|x1,x2,x3'
+
+    Returns
+    -------
+    Callable
+        A callable interpolating function
+
+    """
+    split = arguments.split('|')
+    x_vals = split[0].split(',')
+    y_vals = split[1].split(',')
+    x = np.array(x_vals, dtype=float)
+    y = np.array(y_vals, dtype=float)
+
+    return interp1d(x=x, y=y, kind='linear')
