@@ -139,7 +139,7 @@ class LossModel(PelicunModel):
 
         """
         self.log_div()
-        self.log_msg('Loading loss model...')
+        self.log_msg(f'Loading loss parameters...')
 
         # replace `PelicunDefault/` flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
@@ -338,23 +338,6 @@ class RepairModel_Base(PelicunModel):
                 f"\n",
                 prepend_timestamp=False,
             )
-
-    def _drop_unused_loss_parameters(self, cmp_list):
-        """
-        Removes loss parameter definitions for component IDs not
-        present in the given list.
-
-        Parameters
-        ----------
-        cmp_list: list
-            List of component IDs to be preserved in the loss
-            parameters.
-        """
-
-        if self.loss_params is None:
-            return
-        cmp_mask = self.loss_params.index.isin(cmp_list, level=0)
-        self.loss_params = self.loss_params.loc[cmp_mask, :]
 
 
 class RepairModel_DS(RepairModel_Base):
@@ -597,6 +580,28 @@ class RepairModel_DS(RepairModel_Base):
         self.log_msg("Repair consequences successfully aggregated.")
 
         return df_agg.astype(float)
+
+    def _drop_unused_damage_states(self):
+        """
+        Removes columns from the loss model parameters corresponding
+        to unused damage states.
+
+        """
+        first_level = self.loss_params.columns.get_level_values(0).unique().to_list()
+        ds_list = [x for x in first_level if x.startswith('DS')]
+        ds_to_drop = []
+        for damage_state in ds_list:
+            if (
+                np.all(pd.isna(self.loss_params.loc[:, idx[damage_state, :]].values))
+                # Note: When this evaluates to True, when you add `is
+                # True` on the right it suddenly evaluates to
+                # False. We need to figure out why this is happening,
+                # but the way it's written now does what we want in
+                # each case.
+            ):
+                ds_to_drop.append(damage_state)
+
+        self.loss_params.drop(columns=ds_to_drop, level=0, inplace=True)
 
     def _create_DV_RVs(self, case_list):
         """

@@ -292,7 +292,8 @@ class DamageModel_Base(PelicunModel):
         Parameters
         ----------
         data: DataFrame
-            data with damage model information.
+            Data with damage model information.
+
         """
 
         if self.damage_params is not None:
