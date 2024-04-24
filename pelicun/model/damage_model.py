@@ -105,17 +105,16 @@ class DamageModel(PelicunModel):
         # load damage parameter data into the models
         #
 
-        self.log_msg('Loading damage model parameters.')
         for data_path in data_paths:
             data = file_io.load_data(
                 data_path, None, orientation=1, reindex=False, log=self._asmnt.log
             )
             # determine if the damage model parameters are for damage
             # states or damage ratios
-            if _is_for_dr_model(data):
-                self.dr_model._load_model_parameters(data)
-            elif _is_for_ds_model(data):
+            if _is_for_ds_model(data):
                 self.ds_model._load_model_parameters(data)
+            elif _is_for_dr_model(data):
+                self.dr_model._load_model_parameters(data)
             else:
                 raise ValueError(f'Invalid damage model parameters: {data_path}')
 
@@ -127,11 +126,11 @@ class DamageModel(PelicunModel):
 
         self.log_msg('Removing unused damage model parameters.')
         # get a list of unique component IDs
-        cmp_list = self._asmnt.asset.cmp_sample.columns.unique(level=0).to_list()
+        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
 
         for damage_model in self.damage_models:
             # drop unused damage parameter definitions
-            damage_model._drop_unused_damage_parameters(cmp_list)
+            damage_model._drop_unused_damage_parameters(cmp_set)
             # remove components with incomplete damage parameters
             damage_model._remove_incomplete_components()
 
@@ -151,7 +150,7 @@ class DamageModel(PelicunModel):
             'Checking damage model parameter '
             'availability for all components in the asset model.'
         )
-        missing_components = self._ensure_damage_parameter_availability(cmp_list)
+        missing_components = self._ensure_damage_parameter_availability(cmp_set)
 
         self.missing_components = missing_components
 
