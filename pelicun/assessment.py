@@ -104,7 +104,7 @@ class Assessment:
         self.demand: model.DemandModel = model.DemandModel(self)
         self.asset: model.AssetModel = model.AssetModel(self)
         self.damage: model.DamageModel = model.DamageModel(self)
-        self.repair: model.RepairModel = model.RepairModel(self)
+        self.repair: model.LossModel = model.LossModel(self)
 
     def get_default_data(self, data_name):
         """
