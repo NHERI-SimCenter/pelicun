@@ -85,7 +85,7 @@ class LossModel(PelicunModel):
         Add a loss map to the loss model. A loss map defines what loss
         parameter definition should be used for each component ID in
         the asset model.
-        
+
         loss_map_path: str or pd.DataFrame or None
             Path to a csv file or DataFrame object that maps
             components IDs to their loss parameter definitions.
@@ -101,7 +101,11 @@ class LossModel(PelicunModel):
             self.log_msg(f'Loss map is provided.', prepend_timestamp=False)
             # Read the loss map into a variable
             loss_map = file_io.load_data(
-                loss_map_path, None, orientation=1, reindex=False, log=self._asmnt.log
+                loss_map_path,
+                None,
+                orientation=1,
+                reindex=False,
+                log=self._asmnt.log,
             )
         else:
             self.log_msg(f'Using default loss map.', prepend_timestamp=False)
@@ -121,7 +125,6 @@ class LossModel(PelicunModel):
             loss_model.loss_map = loss_map
 
         self.log_msg(f'Loss map loaded successfully.', prepend_timestamp=True)
-
 
     def load_model_parameters(self, data_paths, loss_map_path):
         """
