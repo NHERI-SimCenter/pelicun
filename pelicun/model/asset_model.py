@@ -549,7 +549,7 @@ class AssetModel(PelicunModel):
         # internal component uid
         base.dedupe_index(cmp_marginal_params)
 
-        cmp_marginal_params = self.convert_marginal_params(
+        cmp_marginal_params = self._convert_marginal_params(
             cmp_marginal_params, cmp_marginal_params['Units']
         )
 

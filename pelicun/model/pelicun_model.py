@@ -77,7 +77,7 @@ class PelicunModel:
         self.log_msg = self._asmnt.log.msg
         self.log_div = self._asmnt.log.div
 
-    def convert_marginal_params(self, marginal_params, units, arg_units=None):
+    def _convert_marginal_params(self, marginal_params, units, arg_units=None):
         """
         Converts the parameters of marginal distributions in a model to SI units.
 

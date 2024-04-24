@@ -174,9 +174,12 @@ class LossModel(PelicunModel):
 
         for loss_model in self.loss_models:
             # drop unused loss parameter definitions
-            loss_model._drop_unused_damage_parameters(cmp_set)
+            loss_model._drop_unused_loss_parameters(cmp_set)
             # remove components with incomplete loss parameters
             loss_model._remove_incomplete_components()
+
+        # drop unused damage state columns
+        self.ds_model._drop_unused_damage_states()
 
         #
         # convert units
@@ -221,24 +224,91 @@ class RepairModel_Base(PelicunModel):
         Parameters
         ----------
         data: DataFrame
-            data with damage model information.
+            Data with loss model information.
+
         """
+
+        data.index.names = ['Loss Driver', 'Decision Variable']
 
         if self.loss_params is not None:
             data = pd.concat((self.loss_params, data), axis=0)
 
         # drop redefinitions of components
-        data = data.groupby(data.index).first()
+        data = (
+            data.groupby(level=[0, 1]).first().transform(lambda x: x.fillna(np.nan))
+        )
+        # note: .groupby introduces None entries. We replace them with
+        # NaN for consistency.
 
         self.loss_params = data
 
-    def _convert_damage_parameter_units(self):
+    def _drop_unused_loss_parameters(self, cmp_list):
+        """
+        Removes loss parameter definitions for component IDs not
+        present in the given list.
+
+        Parameters
+        ----------
+        cmp_list: list
+            List of component IDs to be preserved in the loss
+            parameters.
+        """
+
+        if self.loss_params is None:
+            return
+        cmp_mask = self.loss_params.index.get_level_values(0).isin(cmp_list, level=0)
+        self.loss_params = self.loss_params.iloc[cmp_mask, :]
+
+    def _old_load_model_parameters(self, data):
+
+        # check for components with incomplete loss information
+        cmp_incomplete_list = loss_params.loc[
+            loss_params[('Incomplete', '')] == 1
+        ].index
+
+        if len(cmp_incomplete_list) > 0:
+            loss_params.drop(cmp_incomplete_list, inplace=True)
+
+            self.log_msg(
+                "\n"
+                "WARNING: Loss information is incomplete for the "
+                f"following component(s) {cmp_incomplete_list}. "
+                "They were removed from the analysis."
+                "\n",
+                prepend_timestamp=False,
+            )
+
+        # filter decision variables, if needed
+        if decision_variables is not None:
+            loss_params = loss_params.reorder_levels([1, 0])
+
+            available_DVs = loss_params.index.unique(level=0)
+            filtered_DVs = []
+
+            for DV_i in decision_variables:
+                if DV_i in available_DVs:
+                    filtered_DVs.append(DV_i)
+
+            loss_params = loss_params.loc[filtered_DVs, :].reorder_levels([1, 0])
+
+        self.loss_params = loss_params.sort_index(axis=1)
+
+        self.log_msg("Loss parameters successfully parsed.", prepend_timestamp=False)
+
+    def _convert_loss_parameter_units(self):
         """
         Converts previously loaded loss parameters to base units.
 
         """
         breakpoint()
-        pass
+        units = self.loss_params[('DV', 'Unit')]
+        arg_units = self.loss_params[('Quantity', 'Unit')]
+        for column in self.loss_params.columns.unique(level=0):
+            if not column.startswith('DS'):
+                continue
+            self.loss_params.loc[:, column] = self._convert_marginal_params(
+                self.loss_params.loc[:, column].copy(), units, arg_units
+            ).values  # todo: the way we do this here looks a bit weird
 
     def _remove_incomplete_components(self):
         """
@@ -386,148 +456,6 @@ class RepairModel_DS(RepairModel_Base):
         )
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
-
-    def _load_model_parameters(
-        self, data_paths, loss_map_path, decision_variables=None
-    ):
-        """
-        Load the list of prescribed consequence models and their parameters
-
-        Parameters
-        ----------
-        data_paths: list of string or DataFrame
-            List of paths to data files with consequence model
-            parameters.  Default XY datasets can be accessed as
-            PelicunDefault/XY.  The list can also contain DataFrame
-            objects, in which case that data is used directly.
-        loss_map_path: str or pd.DataFrame
-            Path to a csv file or DataFrame object that maps drivers
-            (i.e., damage or edp data) to loss models.
-        decision_variables: list of string, optional
-            List of decision variables to include in the analysis. If
-            None, all variables provided in the consequence models are
-            included. When a list is provided, only variables in the
-            list will be included.
-
-        """
-
-        self.log_div()
-        self.log_msg(f'Loading loss map...')
-
-        loss_map = file_io.load_data(
-            loss_map_path, None, orientation=1, reindex=False, log=self._asmnt.log
-        )
-
-        loss_map['Driver'] = loss_map.index.values
-        loss_map['Consequence'] = loss_map['Repair']
-        loss_map.index = np.arange(loss_map.shape[0])
-        loss_map = loss_map.loc[:, ['Driver', 'Consequence']]
-        loss_map.dropna(inplace=True)
-
-        self.loss_map = loss_map
-
-        self.log_msg("Loss map successfully parsed.", prepend_timestamp=False)
-
-        self.log_div()
-        self.log_msg(f'Loading loss parameters...')
-
-        # replace default flag with default data path
-        data_paths = file_io.substitute_default_path(data_paths)
-
-        data_list = []
-        # load the data files one by one
-        for data_path in data_paths:
-            data = file_io.load_data(
-                data_path, None, orientation=1, reindex=False, log=self._asmnt.log
-            )
-
-            data_list.append(data)
-
-        loss_params = pd.concat(data_list, axis=0)
-
-        # drop redefinitions of components
-        loss_params = (
-            loss_params.groupby(level=[0, 1])
-            .first()
-            .transform(lambda x: x.fillna(np.nan))
-        )
-        # note: .groupby introduces None entries. We replace them with
-        # NaN for consistency.
-
-        # keep only the relevant data
-        loss_cmp = np.unique(self.loss_map['Consequence'].values)
-
-        available_cmp = loss_params.index.unique(level=0)
-        missing_cmp = []
-        for cmp in loss_cmp:
-            if cmp not in available_cmp:
-                missing_cmp.append(cmp)
-
-        if len(missing_cmp) > 0:
-            self.log_msg(
-                "\nWARNING: The loss model does not provide "
-                "consequence information for the following component(s) "
-                f"in the loss map: {missing_cmp}. They are removed from "
-                "further analysis\n",
-                prepend_timestamp=False,
-            )
-
-        self.loss_map = self.loss_map.loc[~loss_map['Consequence'].isin(missing_cmp)]
-        loss_cmp = np.unique(self.loss_map['Consequence'].values)
-
-        loss_params = loss_params.loc[idx[loss_cmp, :], :]
-
-        # drop unused damage states
-        DS_list = loss_params.columns.get_level_values(0).unique()
-        DS_to_drop = []
-        for DS in DS_list:
-            if np.all(pd.isna(loss_params.loc[:, idx[DS, :]].values)) is True:
-                DS_to_drop.append(DS)
-
-        loss_params.drop(columns=DS_to_drop, level=0, inplace=True)
-
-        # convert values to internal base units
-        for DS in loss_params.columns.unique(level=0):
-            if DS.startswith('DS'):
-                loss_params.loc[:, DS] = self.convert_marginal_params(
-                    loss_params.loc[:, DS].copy(),
-                    loss_params[('DV', 'Unit')],
-                    loss_params[('Quantity', 'Unit')],
-                ).values
-
-        # check for components with incomplete loss information
-        cmp_incomplete_list = loss_params.loc[
-            loss_params[('Incomplete', '')] == 1
-        ].index
-
-        if len(cmp_incomplete_list) > 0:
-            loss_params.drop(cmp_incomplete_list, inplace=True)
-
-            self.log_msg(
-                "\n"
-                "WARNING: Loss information is incomplete for the "
-                f"following component(s) {cmp_incomplete_list}. "
-                "They were removed from the analysis."
-                "\n",
-                prepend_timestamp=False,
-            )
-
-        # filter decision variables, if needed
-        if decision_variables is not None:
-            loss_params = loss_params.reorder_levels([1, 0])
-
-            available_DVs = loss_params.index.unique(level=0)
-            filtered_DVs = []
-
-            for DV_i in decision_variables:
-                if DV_i in available_DVs:
-                    filtered_DVs.append(DV_i)
-
-            loss_params = loss_params.loc[filtered_DVs, :].reorder_levels([1, 0])
-
-        self.loss_params = loss_params.sort_index(axis=1)
-
-        self.log_msg("Loss parameters successfully parsed.", prepend_timestamp=False)
 
     def calculate(self, sample_size=None):
         """

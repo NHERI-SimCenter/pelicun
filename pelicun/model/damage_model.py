@@ -313,11 +313,11 @@ class DamageModel_Base(PelicunModel):
         if self.damage_params is None:
             return
 
+        units = self.damage_params[('Demand', 'Unit')]
         for LS_i in self.damage_params.columns.unique(level=0):
             if LS_i.startswith('LS'):
-                self.damage_params.loc[:, LS_i] = self.convert_marginal_params(
-                    self.damage_params.loc[:, LS_i].copy(),
-                    self.damage_params[('Demand', 'Unit')],
+                self.damage_params.loc[:, LS_i] = self._convert_marginal_params(
+                    self.damage_params.loc[:, LS_i].copy(), units
                 ).values
 
     def _remove_incomplete_components(self):
