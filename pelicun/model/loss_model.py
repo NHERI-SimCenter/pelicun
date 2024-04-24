@@ -1383,9 +1383,7 @@ def _is_for_dr_model(data):
     Determines if the specified damage model parameters are for
     components modeled with a Damage Ratio (DR).
     """
-    breakpoint()
-    # todo: fix the heuristic
-    return 'DamageRatioFunction' in data.columns.get_level_values(0)
+    return 'LossFunction' in data.columns.get_level_values(0)
 
 
 def _is_for_ds_model(data):
