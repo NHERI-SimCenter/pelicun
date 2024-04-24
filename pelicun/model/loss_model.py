@@ -76,6 +76,10 @@ class LossModel(PelicunModel):
         self.ds_model: RepairModel_DS = RepairModel_DS(assessment)
         self.dr_model: RepairModel_DR = RepairModel_DR(assessment)
 
+    @property
+    def loss_models(self):
+        return (self.ds_model, self.dr_model)
+
 
 class RepairModel_DS(PelicunModel):
     """
