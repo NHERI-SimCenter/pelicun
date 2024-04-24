@@ -265,6 +265,7 @@ class AssetModel(PelicunModel):
         >>> model.load_cmp_model(data_dict)
 
         """
+
         def get_locations(loc_str):
             """
             Parses a location string to determine specific sections of
@@ -565,40 +566,25 @@ class AssetModel(PelicunModel):
 
         # the empirical data and correlation files can be added later, if needed
 
-    def _create_cmp_RVs(self):
+    def list_unique_component_ids(self, as_set=False):
         """
-        Defines the RVs used for sampling component quantities.
+        Returns unique component IDs.
+
+        Parameters
+        ----------
+        as_set: bool
+            Whether to cast the list into a set.
+
+        Returns
+        -------
+        list | set
+            Unique components in the asset model.
+
         """
-
-        # initialize the registry
-        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
-
-        # add a random variable for each component quantity variable
-        for rv_params in self.cmp_marginal_params.itertuples():
-            cmp = rv_params.Index
-
-            # create a random variable and add it to the registry
-            family = getattr(rv_params, "Family", 'deterministic')
-            RV_reg.add_RV(
-                uq.rv_class_map(family)(
-                    name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
-                    theta=[
-                        getattr(rv_params, f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
-                    ],
-                    truncation_limits=[
-                        getattr(rv_params, f"Truncate{side}", np.nan)
-                        for side in ("Lower", "Upper")
-                    ],
-                )
-            )
-
-        self.log_msg(
-            f"\n{self.cmp_marginal_params.shape[0]} random variables created.",
-            prepend_timestamp=False,
-        )
-
-        self._cmp_RVs = RV_reg
+        cmp_list = self.cmp_marginal_params.index.unique(level=0).to_list()
+        if as_set:
+            return set(cmp_list)
+        return cmp_list
 
     def generate_cmp_sample(self, sample_size=None):
         """
@@ -621,7 +607,7 @@ class AssetModel(PelicunModel):
             generation, or if neither sample size is specified nor can
             be determined from the demand model.
         """
-        
+
         if self.cmp_marginal_params is None:
             raise ValueError(
                 'Model parameters have not been specified. Load'
@@ -658,3 +644,38 @@ class AssetModel(PelicunModel):
             f"\nSuccessfully generated {sample_size} realizations.",
             prepend_timestamp=False,
         )
+
+    def _create_cmp_RVs(self):
+        """
+        Defines the RVs used for sampling component quantities.
+        """
+
+        # initialize the registry
+        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+
+        # add a random variable for each component quantity variable
+        for rv_params in self.cmp_marginal_params.itertuples():
+            cmp = rv_params.Index
+
+            # create a random variable and add it to the registry
+            family = getattr(rv_params, "Family", 'deterministic')
+            RV_reg.add_RV(
+                uq.rv_class_map(family)(
+                    name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
+                    theta=[
+                        getattr(rv_params, f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
+                    ],
+                    truncation_limits=[
+                        getattr(rv_params, f"Truncate{side}", np.nan)
+                        for side in ("Lower", "Upper")
+                    ],
+                )
+            )
+
+        self.log_msg(
+            f"\n{self.cmp_marginal_params.shape[0]} random variables created.",
+            prepend_timestamp=False,
+        )
+
+        self._cmp_RVs = RV_reg
