@@ -114,6 +114,8 @@ class DamageModel(PelicunModel):
             else:
                 raise ValueError(f'Invalid damage model parameters: {data_path}')
 
+        self.log_msg('Damage model parameters loaded successfully.')
+
         #
         # remove items
         #
@@ -181,7 +183,7 @@ class DamageModel(PelicunModel):
 
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
-            self.log_msg("Applying damage processes...")
+            self.log_msg("Applying damage processes.")
 
             # Sort the damage processes tasks
             dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
@@ -203,7 +205,7 @@ class DamageModel(PelicunModel):
         self.ds_model.sample = qnt_sample
         self.dr_model.sample = dr_sample
 
-        self.log_msg('Damage calculation completed.')
+        self.log_msg('Damage calculation completed.', prepend_timestamp=False)
 
     def _get_component_id_set(self):
         """
@@ -1893,6 +1895,8 @@ class DamageModel_DR(DamageModel_Base):
             dr_samples.append(dr_sample)
 
         dr_sample = pd.concat(dr_samples, axis=1)
+
+        self.log_msg("Damage ratio calculation successful.", prepend_timestamp=False)
 
         return dr_sample
 

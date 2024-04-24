@@ -449,9 +449,6 @@ def load_data(
         data = base.convert_to_MultiIndex(data, axis=0)
         data.sort_index(inplace=True)
 
-    if log:
-        log.msg('Data successfully loaded.', prepend_timestamp=False)
-
     if return_units:
         if units is not None:
             # convert index in units Series to MultiIndex if needed
