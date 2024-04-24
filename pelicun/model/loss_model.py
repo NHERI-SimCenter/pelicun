@@ -347,7 +347,7 @@ class RepairModel(LossModel):
 
         # First, get the damaged quantities in each damage state for
         # each component of interest.
-        dmg_q = self._asmnt.damage.sample.copy()
+        dmg_q = self._asmnt.damage.ds_model.sample.copy()
 
         # Now sample random Decision Variables
         # Note that this method is DV-specific and needs to be
