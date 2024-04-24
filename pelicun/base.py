@@ -575,7 +575,10 @@ def control_warnings(show):
             action='ignore',
             message=".*Setting an item of incompatible dtype is deprecated.*"
         )
-        pass
+        warnings.filterwarnings(
+            action='ignore',
+            message=".*DataFrame.groupby with axis=1 is deprecated.*"
+        )
 
 
 def load_default_options():
