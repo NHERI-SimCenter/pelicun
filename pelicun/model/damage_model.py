@@ -79,9 +79,9 @@ class DamageModel(PelicunModel):
     def damage_models(self):
         return (self.ds_model, self.dr_model)
 
-    def load_damage_model(self, data_paths):
+    def load_model_parameters(self, data_paths):
         """
-        Load limit state damage model parameters and damage state assignments
+        Load damage model parameters
 
         Parameters
         ----------
@@ -108,9 +108,9 @@ class DamageModel(PelicunModel):
             # determine if the damage model parameters are for damage
             # states or damage ratios
             if _is_for_dr_model(data):
-                self.dr_model._add_damage_model(data)
+                self.dr_model._load_model_parameters(data)
             elif _is_for_ds_model(data):
-                self.ds_model._add_damage_model(data)
+                self.ds_model._load_model_parameters(data)
             else:
                 raise ValueError(f'Invalid damage model parameters: {data_path}')
 
@@ -279,9 +279,11 @@ class DamageModel_Base(PelicunModel):
         self.damage_params = None
         self.sample = None
 
-    def _add_damage_model(self, data):
+    def _load_model_parameters(self, data):
         """
-        Load limit state damage model parameters and damage state assignments
+        Load model parameters from a dataframe, extending those
+        already available. Parameters already defined take precedence,
+        i.e. redefinitions of parameters are ignored.
 
         Parameters
         ----------
