@@ -79,11 +79,6 @@ class LossModel(PelicunModel):
     def __init__(self, assessment):
         super().__init__(assessment)
 
-        self.sample = None
-        self.loss_map = None
-        self.loss_params = None
-        self.loss_type = 'Generic'
-
 
 class RepairModel(LossModel):
     """
@@ -97,6 +92,9 @@ class RepairModel(LossModel):
     def __init__(self, assessment):
         super().__init__(assessment)
 
+        self.sample = None
+        self.loss_map = None
+        self.loss_params = None
         self.loss_type = 'Repair'
 
     def save_sample(self, filepath=None, save_units=False):
