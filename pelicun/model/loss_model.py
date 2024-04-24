@@ -82,17 +82,29 @@ class LossModel(PelicunModel):
 
     def load_model_parameters(self, data_paths):
         """
-        Load loss model parameters
+        Load loss model parameters.
 
         Parameters
         ----------
         data_paths: list of (string | DataFrame)
             List of paths to data or files with damage model
             information. Default XY datasets can be accessed as
-            PelicunDefault/XY.
+            PelicunDefault/XY. Order matters. Parameters defined in
+            prior elements in the list take precedence over the same
+            parameters in subsequent data paths. I.e., place the
+            Default datasets in the back.
 
         """
-        pass
+        self.log_div()
+        self.log_msg('Loading loss model...')
+
+        # replace default flag with default data path
+        data_paths = file_io.substitute_default_path(data_paths)
+
+        #
+        # load loss parameter data into the models
+        #
+
 
 
 class RepairModel_DS(PelicunModel):
