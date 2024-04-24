@@ -217,6 +217,7 @@ class RepairModel_Base(PelicunModel):
         self.loss_map = None
         self.loss_params = None
         self.sample = None
+        self.consequence = 'Repair'
 
     def _load_model_parameters(self, data):
         """
