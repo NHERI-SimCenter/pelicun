@@ -364,7 +364,7 @@ class DamageModel_Base(PelicunModel):
         if self.damage_params is None:
             return
         cmp_mask = self.damage_params.index.isin(cmp_list, level=0)
-        self.damage_params = self.damage_params.loc[cmp_mask, :]
+        self.damage_params = self.damage_params.iloc[cmp_mask, :]
 
     def _get_pg_batches(self, block_batch_size, missing_components):
         """
