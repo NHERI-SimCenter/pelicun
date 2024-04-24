@@ -85,9 +85,11 @@ class DamageModel(PelicunModel):
 
         Parameters
         ----------
-        data_paths: list of string
-            List of paths to data files with damage model information. Default
-            XY datasets can be accessed as PelicunDefault/XY.
+        data_paths: list of (string | DataFrame)
+            List of paths to data or files with damage model
+            information. Default XY datasets can be accessed as
+            PelicunDefault/XY.
+
         """
 
         self.log_div()

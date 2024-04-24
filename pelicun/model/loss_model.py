@@ -80,6 +80,20 @@ class LossModel(PelicunModel):
     def loss_models(self):
         return (self.ds_model, self.dr_model)
 
+    def load_model_parameters(self, data_paths):
+        """
+        Load loss model parameters
+
+        Parameters
+        ----------
+        data_paths: list of (string | DataFrame)
+            List of paths to data or files with damage model
+            information. Default XY datasets can be accessed as
+            PelicunDefault/XY.
+
+        """
+        pass
+
 
 class RepairModel_DS(PelicunModel):
     """
