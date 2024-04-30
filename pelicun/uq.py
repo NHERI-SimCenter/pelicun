@@ -1774,7 +1774,7 @@ class MultilinearCDFRandomVariable(CommonRandomVariable):
         return result
 
 
-class EmpiricalRandomVariable(SampleSizeRandomVariable):
+class EmpiricalRandomVariable(CommonRandomVariable):
     """
     Empirical random variable.
 
@@ -1789,7 +1789,9 @@ class EmpiricalRandomVariable(SampleSizeRandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name=name,            
+            name=name, 
+            theta=raw_samples,
+            truncation_limits=truncation_limits,           
             f_map=f_map,
             anchor=anchor,
         )
