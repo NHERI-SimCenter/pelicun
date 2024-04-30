@@ -1245,9 +1245,9 @@ class RandomVariable(BaseRandomVariable):
 
         """
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            f_map=f_map,
+            anchor=anchor,
         )
 
     @abstractmethod
@@ -1281,9 +1281,7 @@ class UtilityRandomVariable(BaseRandomVariable):
     @abstractmethod
     def __init__(
         self,
-        name,
-        theta,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name,        
         f_map=None,
         anchor=None,
     ):
@@ -1293,15 +1291,7 @@ class UtilityRandomVariable(BaseRandomVariable):
         Parameters
         ----------
         name: string
-            A unique string that identifies the random variable.
-        theta: 2-element float ndarray
-          Set of parameters that define the Cumulative Distribution
-          Function (CDF) of the variable: Mean, coefficient of
-          variation.
-        truncation_limits: float ndarray, optional
-          Defines the np.array((a, b)) truncation limits for the
-          distribution. Use np.nan to assign no limit in one direction,
-          like so: np.array((a, np.nan)), or np.array((np.nan, b)).
+            A unique string that identifies the random variable.        
         f_map: function, optional
             A user-defined function that is applied on the realizations before
             returning a sample.
@@ -1313,9 +1303,9 @@ class UtilityRandomVariable(BaseRandomVariable):
 
         """
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            f_map=f_map,
+            anchor=anchor,
         )
 
     @abstractmethod
@@ -1349,9 +1339,11 @@ class NormalRandomVariable(RandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            theta=theta,
+            truncation_limits=truncation_limits,
+            f_map=f_map,
+            anchor=anchor,
         )
         self.distribution = 'normal'
         self.theta = np.atleast_1d(theta)
@@ -1469,9 +1461,11 @@ class LogNormalRandomVariable(RandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            theta=theta,
+            truncation_limits=truncation_limits,
+            f_map=f_map,
+            anchor=anchor,
         )
         self.distribution = 'lognormal'
         self.theta = np.atleast_1d(theta)
@@ -1583,9 +1577,11 @@ class UniformRandomVariable(RandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            theta=theta,
+            truncation_limits=truncation_limits,
+            f_map=f_map,
+            anchor=anchor,
         )
         self.distribution = 'uniform'
         self.theta = np.atleast_1d(theta)
@@ -1670,9 +1666,11 @@ class MultilinearCDFRandomVariable(RandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            theta=theta,
+            truncation_limits=truncation_limits,
+            f_map=f_map,
+            anchor=anchor,
         )
         self.distribution = 'multilinear_CDF'
 
@@ -1791,9 +1789,11 @@ class EmpiricalRandomVariable(RandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name, 
+            theta=raw_samples,
+            truncation_limits=truncation_limits,           
+            f_map=f_map,
+            anchor=anchor,
         )
         self.distribution = 'empirical'
         if not np.all(np.isnan(truncation_limits)):
@@ -1871,9 +1871,9 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
 
         """
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            f_map=f_map,
+            anchor=anchor,
         )
         self.distribution = 'coupled_empirical'
         if not np.all(np.isnan(truncation_limits)):
@@ -1957,9 +1957,9 @@ class DeterministicRandomVariable(UtilityRandomVariable):
 
         """
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            f_map=f_map,
+            anchor=anchor,
         )
         self.distribution = 'deterministic'
         if not np.all(np.isnan(truncation_limits)):
@@ -2004,9 +2004,11 @@ class MultinomialRandomVariable(RandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name,
-            f_map,
-            anchor,
+            name=name,
+            theta=theta,
+            truncation_limits=truncation_limits,
+            f_map=f_map,
+            anchor=anchor,
         )
         if not np.all(np.isnan(truncation_limits)):
             raise NotImplementedError(

@@ -408,6 +408,11 @@ def auto_populate(AIM):
                     "MapApproach": "Automatic",
                 }
             },
+            "Options": {
+                "NonDirectionalMultipliers": {
+                    "ALL": 1.0
+                },
+            }
         }
 
     elif assetType == "TransportationNetwork":
@@ -441,6 +446,11 @@ def auto_populate(AIM):
                         "MapApproach": "Automatic",
                     }
                 },
+                "Options": {
+                    "NonDirectionalMultipliers": {
+                        "ALL": 1.0
+                    },
+                }
             }
 
         elif inf_type == "HwyTunnel":
@@ -471,6 +481,11 @@ def auto_populate(AIM):
                         "MapApproach": "Automatic",
                     }
                 },
+                "Options": {
+                    "NonDirectionalMultipliers": {
+                        "ALL": 1.0
+                    },
+                }
             }
         elif inf_type == "Roadway":
             # get the road class
@@ -499,6 +514,11 @@ def auto_populate(AIM):
                         "MapApproach": "Automatic",
                     }
                 },
+                "Options": {
+                    "NonDirectionalMultipliers": {
+                        "ALL": 1.0
+                    },
+                }
             }
         else:
             print("subtype not supported in HWY")
