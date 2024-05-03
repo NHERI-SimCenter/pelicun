@@ -72,12 +72,11 @@ class DamageModel(PelicunModel):
         super().__init__(assessment)
 
         self.ds_model: DamageModel_DS = DamageModel_DS(assessment)
-        self.dr_model: DamageModel_DR = DamageModel_DR(assessment)
         self.missing_components: list[str] = []
 
     @property
     def damage_models(self):
-        return (self.ds_model, self.dr_model)
+        return (self.ds_model,)
 
     def load_model_parameters(self, data_paths):
         """
@@ -180,11 +179,6 @@ class DamageModel(PelicunModel):
             missing_components=self.missing_components,
         )
 
-        # obtain damage ratios for applicable components
-        dr_sample = self.dr_model._obtain_dr_sample(
-            sample_size, block_batch_size, self.missing_components
-        )
-
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
             self.log_msg("Applying damage processes.")
@@ -207,7 +201,6 @@ class DamageModel(PelicunModel):
             qnt_sample = self._complete_ds_cols(qnt_sample)
 
         self.ds_model.sample = qnt_sample
-        self.dr_model.sample = dr_sample
 
         self.log_msg('Damage calculation completed.', prepend_timestamp=False)
 
@@ -219,8 +212,6 @@ class DamageModel(PelicunModel):
         cmp_list = []
         if self.ds_model.damage_params is not None:
             cmp_list.extend(self.ds_model.damage_params.index.to_list())
-        if self.dr_model.damage_params is not None:
-            cmp_list.extend(self.dr_model.damage_params.index.to_list())
         return set(cmp_list)
 
     def _ensure_damage_parameter_availability(self, cmp_list):
@@ -253,14 +244,6 @@ class DamageModel(PelicunModel):
             )
 
         return missing_components
-
-
-def _is_for_dr_model(data):
-    """
-    Determines if the specified damage model parameters are for
-    components modeled with a Damage Ratio (DR).
-    """
-    return 'DamageRatioFunction' in data.columns.get_level_values(0)
 
 
 def _is_for_ds_model(data):
@@ -1858,122 +1841,6 @@ class DamageModel_DS(DamageModel_Base):
         res.loc[:, dmg_sample.columns.to_list()] = dmg_sample
 
         return res
-
-
-class DamageModel_DR(DamageModel_Base):
-    """
-    Damage model for components of which the damage is quantified by a
-    Damage Ratio (DR).
-    """
-
-    def __init__(self, assessment):
-        super().__init__(assessment)
-
-    def _obtain_dr_sample(self, sample_size, block_batch_size, missing_components):
-        """
-        Obtain the damage ratio of each performance group in the
-        model.
-        """
-
-        pg_batch = self._get_pg_batches(block_batch_size, missing_components)
-        batches = pg_batch.index.get_level_values(0).unique()
-
-        dr_samples = []
-        for PGB_i in batches:
-
-            performance_group = pg_batch.loc[PGB_i]
-
-            self.log_msg(
-                f"Calculating damage ratios for PG batch {PGB_i} with "
-                f"{int(performance_group['Blocks'].sum())} blocks"
-            )
-
-            # Get the required demand types for the analysis
-            EDP_req = self._get_required_demand_type(performance_group)
-
-            # Create the demand vector
-            demand_dict = self._assemble_required_demand_data(EDP_req)
-
-            # Evaluate the Damage State of each Component Block
-            dr_sample = self._evaluate_damage_ratio(
-                performance_group, demand_dict, EDP_req
-            )
-
-            dr_samples.append(dr_sample)
-
-        dr_sample = pd.concat(dr_samples, axis=1)
-
-        self.log_msg("Damage ratio calculation successful.", prepend_timestamp=False)
-
-        return dr_sample
-
-    def _evaluate_damage_ratio(self, performance_group, demand_dict, EDP_req):
-        """
-        Use the damage ratio parameters and demand to evaluate damage
-        ratios
-
-        Parameters
-        ----------
-        demand_dict: dict
-            Dictionary containing the demand of each demand type.
-        EDP_req: dict
-            Dictionary containing the EDPs assigned to each demand
-            type.
-
-        Returns
-        -------
-        DataFrame
-            Assigns a Damage Ratio to each component block in the
-            asset model.
-        """
-
-        if self._asmnt.log.verbose:
-            self.log_msg('Evaluating damage ratios...', prepend_timestamp=True)
-
-        # Cast series to `dict` for increased performance
-        dr_function_arguments = self.damage_params['DamageRatioFunction'].to_dict()
-        num_blocks_dict = performance_group['Blocks'].to_dict()
-
-        # Initialize damage ratio sample dictionary
-        sample = {}
-
-        # Iterate over EDPs
-        for edp, components in EDP_req.items():
-            # Get the demand array
-            demand = demand_dict[edp]
-            # Iterate over the relevant components
-            for component in components:
-                # Unravel component info
-                cmp_id, location, direction, uid = component
-                # Get relevant damage ratio parameters
-                damage_ratio_function_parameters = dr_function_arguments[cmp_id]
-                # Iterate over blocks
-                num_blocks = num_blocks_dict[component]
-                for block_id in range(num_blocks):
-                    # Get damage ratio for each realization or raise an error
-                    try:
-                        damage_ratio = stringterpolation(
-                            damage_ratio_function_parameters
-                        )(demand)
-                    except ValueError as exc:
-                        raise ValueError(
-                            f'Demand `{edp}` for component `{component}` exceeds '
-                            f'the interpolation range of its damage ratio parameters, '
-                            f'`{damage_ratio_function_parameters}`.'
-                        ) from exc
-                    # Store damage ratios
-                    sample[cmp_id, location, direction, uid, block_id] = damage_ratio
-
-        # Cast damage ratios to a dataframe and return it
-        dr_sample = pd.DataFrame(sample)
-        dr_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block']
-
-        if self._asmnt.log.verbose:
-            self.log_msg(
-                'Damage ratios evaluation complete.', prepend_timestamp=False
-            )
-
-        return dr_sample
 
 
 def stringterpolation(
