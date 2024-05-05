@@ -157,7 +157,7 @@ def save_to_csv(
         unit conversions and reformatting applied. Otherwise, returns
         None after saving the data to a CSV file.
     """
-    
+
     if filepath is None:
         if log:
             log.msg('Preparing data ...', prepend_timestamp=False)
@@ -376,9 +376,12 @@ def load_data(
     Raises
     ------
     TypeError
-        If `data_source` is neither a string nor a DataFrame, a TypeError is raised.
+        If `data_source` is neither a string nor a DataFrame, a
+        TypeError is raised.
     ValueError
-        If `unit_conversion_factors` contains keys that do not correspond to any units in the data, a ValueError may be raised during processing.
+        If `unit_conversion_factors` contains keys that do not
+        correspond to any units in the data, a ValueError may be
+        raised during processing.
     """
 
     if isinstance(data_source, pd.DataFrame):

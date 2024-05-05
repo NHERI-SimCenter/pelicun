@@ -95,7 +95,7 @@ def auto_populate(
         If the configuration dictionary does not contain necessary
         asset information under 'GeneralInformation'.
     """
-    
+
     # try to get the AIM attributes
     AIM = config.get('GeneralInformation', None)
     if AIM is None:

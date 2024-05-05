@@ -360,6 +360,7 @@ class Logger:
         log_show_ms property
 
         Returns
+        -------
         bool
             log_show_ms value
         """
@@ -402,6 +403,11 @@ class Logger:
     def log_time_format(self):
         """
         log_time_format property
+
+        Returns
+        -------
+        str
+            Log time format
         """
         return self._log_time_format
 
@@ -409,6 +415,11 @@ class Logger:
     def log_file(self):
         """
         log_file property
+
+        Returns
+        -------
+        str
+            Log file path
         """
         return self._log_file
 
@@ -416,6 +427,11 @@ class Logger:
     def log_file(self, value):
         """
         log_file property setter
+
+        Raises
+        ------
+        BaseException
+            If there is an issue with the provided file path.
         """
 
         if value is None:
@@ -445,6 +461,12 @@ class Logger:
     def print_log(self):
         """
         print_log property
+
+        Returns
+        -------
+        bool
+            Whether to print log entries to stdout.
+
         """
         return self._print_log
 
@@ -564,19 +586,19 @@ def control_warnings(show):
         # Here we specify *specific* warnings to ignore.
         # 'message' -- a regex that the warning message must match
         warnings.filterwarnings(
-            action='ignore',
+            action=action,
             message=".*Use to_numeric without passing `errors`.*"
         )
         warnings.filterwarnings(
-            action='ignore',
+            action=action,
             message=".*The previous implementation of stack is deprecated.*"
         )
         warnings.filterwarnings(
-            action='ignore',
+            action=action,
             message=".*Setting an item of incompatible dtype is deprecated.*"
         )
         warnings.filterwarnings(
-            action='ignore',
+            action=action,
             message=".*DataFrame.groupby with axis=1 is deprecated.*"
         )
 
@@ -901,9 +923,11 @@ def show_matrix(data, use_describe=False):
     Parameters
     ----------
     data : array-like
-        The matrix data to display. Can be any array-like structure that pandas can convert to a DataFrame.
+        The matrix data to display. Can be any array-like structure
+        that pandas can convert to a DataFrame.
     use_describe : bool, default: False
-        If True, provides a descriptive statistical summary of the matrix including specified percentiles.
+        If True, provides a descriptive statistical summary of the
+        matrix including specified percentiles.
         If False, simply prints the matrix as is.
     """
     if use_describe:

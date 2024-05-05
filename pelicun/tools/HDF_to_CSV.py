@@ -54,7 +54,7 @@ def convert_HDF(HDF_path):
 
     for key in store.keys():
 
-        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/","_")}.csv')
+        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/", "_")}.csv')
 
     store.close()
 

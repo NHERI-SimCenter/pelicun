@@ -1303,7 +1303,7 @@ def test_RandomVariable_Set_orthotope_density(reset=False):
         res = rv_set.orthotope_density(lower, upper, var_subset=var_subset)
         # check that the density is equal to the expected value
         # construct a filepath for the results
-        filename = f'{data_dir}/test_{i+1}.pcl'
+        filename = f'{data_dir}/test_{i + 1}.pcl'
         # overwrite results if needed
         if reset:
             export_pickle(filename, res)
@@ -1379,7 +1379,7 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         rv_registry.generate_sample(10, method=method)
 
         # verify that all samples have been generated as expected
-        for rv_name in (f'rv{i+1}' for i in range(5)):
+        for rv_name in (f'rv{i + 1}' for i in range(5)):
             res = rv_registry.RV_sample[rv_name]
             file_incr += 1
             filename = f'{data_dir}/test_{file_incr}.pcl'

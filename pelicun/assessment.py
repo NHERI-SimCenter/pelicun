@@ -51,7 +51,6 @@ This module has classes and methods that control the performance assessment.
 
 from __future__ import annotations
 import json
-import warnings
 from pelicun import base
 from pelicun import file_io
 from pelicun import model

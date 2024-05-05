@@ -99,37 +99,102 @@ class LossModel(PelicunModel):
 
     @property
     def loss_models(self):
+        """
+        Points to the loss model objects included in LossModel.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the loss models.
+
+        """
         return (self.ds_model, self.dr_model)
 
     @property
     def decision_variables(self):
+        """
+        Retrieves the decision variables to be used in the loss
+        calculations.
+
+        Returns
+        -------
+        tuple
+            Decision variables.
+        """
         # pick the object from one of the models
         # it's the same for the other(s).
         return self.ds_model.decision_variables
 
     @decision_variables.setter
     def decision_variables(self, decision_variables):
+        """
+        Sets the decision variables to be used in the loss
+        calculations.
+
+        Supported: {`Cost`, `Time`, `Energy`, `Carbon`}.
+        Could also be any other string, as long as the provided loss
+        parameters contain that decision variable.
+
+        """
         # assign the same DVs to the included loss models.
         for model in self.loss_models:
             model.decision_variables = decision_variables
 
     @property
     def loss_map(self):
+        """
+        Returns
+        -------
+        pd.DataFrame
+            The loss map.
+
+        """
+        # Retrieve the dataframe from one of the included loss models.
+        # We use a single loss map for all.
         return self.ds_model.loss_map
 
     @loss_map.setter
     def loss_map(self, loss_map):
+        """
+        Sets the loss map.
+
+        Parameters
+        ----------
+        loss_map: pd.DataFrame
+            The loss map.
+
+        """
+        # Add the dataframe to the included loss models.
+        # We use a single loss map for all.
         for model in self.loss_models:
             model.loss_map = loss_map
 
     @property
-    def missing(self):
-        return self.ds_model.missing
+    def _missing(self):
+        """
+        Returns
+        -------
+        set
+            Set containing tuples identifying missing loss parameter
+            definitions.
 
-    @missing.setter
-    def missing(self, missing):
+        """
+        return self.ds_model._missing
+
+    @_missing.setter
+    def _missing(self, missing):
+        """
+        Assigns missing parameter definitions to the loss models.
+
+        Parameters
+        ----------
+        missing: set
+            Set containing tuples identifying missing loss parameter
+            definitions.
+
+        """
         for model in self.loss_models:
-            model.missing = missing
+            model._missing = missing
 
     def add_loss_map(self, loss_map_path=None):
         """
@@ -154,9 +219,7 @@ class LossModel(PelicunModel):
         # their own ID.
 
         # get a list of unique component IDs
-        cmp_set = self._asmnt.asset.list_unique_component_ids(
-            as_set=True
-        )
+        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
 
         if loss_map_path is not None:
             self.log_msg('Loss map is provided.', prepend_timestamp=False)
@@ -185,7 +248,7 @@ class LossModel(PelicunModel):
 
         self.log_msg('Loss map loaded successfully.', prepend_timestamp=True)
 
-    def load_model_parameters(self, data_paths, loss_map_path):
+    def load_model_parameters(self, data_paths):
         """
         Load loss model parameters.
 
@@ -198,6 +261,12 @@ class LossModel(PelicunModel):
             prior elements in the list take precedence over the same
             parameters in subsequent data paths. I.e., place the
             Default datasets in the back.
+
+        Raises
+        ------
+        ValueError
+            If the method can't parse the loss parameters in the
+            specified paths.
 
         """
         self.log_div()
@@ -265,7 +334,7 @@ class LossModel(PelicunModel):
         )
         missing = self._ensure_loss_parameter_availability()
 
-        self.missing = missing
+        self._missing = missing
 
     def calculate(self, sample_size=None):
         """
@@ -446,9 +515,6 @@ class RepairModel_DS(RepairModel_Base):
     with discrete Damage States (DS)
 
     """
-
-    def __init__(self, assessment):
-        super().__init__(assessment)
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -754,7 +820,7 @@ class RepairModel_DS(RepairModel_Base):
                 # If loss parameters are missing for that consequence,
                 # don't estimate losses for it. A warning has already
                 # been issued for what is missing.
-                if (consequence, decision_variable) in self.missing:
+                if (consequence, decision_variable) in self._missing:
                     continue
 
                 # If loss parameters are missing for that consequence,
@@ -806,31 +872,41 @@ class RepairModel_DS(RepairModel_Base):
 
         # assign Time-Cost correlation whenever applicable
         for component, consequence in self.loss_map['Repair'].items():
-            if (consequence, decision_variable) in self.missing:
-                continue
-            if (consequence, decision_variable) not in self.loss_params.index:
-                continue
-            for ds in damage_states[component]:
-                if ds == '0':
+            for decision_variable in self.decision_variables:
+                if (consequence, decision_variable) in self._missing:
                     continue
-                for loc, direction, uid in loc_dir_uid:
-                    cost_rv_tag = f'Cost-{consequence}-{ds}-{loc}-{direction}-{uid}'
-                    time_rv_tag = f'Time-{consequence}-{ds}-{loc}-{direction}-{uid}'
-                    if (
-                        cost_rv_tag in RV_reg.RV
-                        and time_rv_tag in RV_reg.RV
-                        and (self._asmnt.options.rho_cost_time != 0.0)
-                    ):
-                        rho = self._asmnt.options.rho_cost_time
-                        RV_reg.add_RV_set(
-                            uq.RandomVariableSet(
-                                f'DV-{component}-{ds}-{loc}-{direction}-{uid}_set',
-                                list(
-                                    RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()
-                                ),
-                                np.array([[1.0, rho], [rho, 1.0]]),
-                            )
+                if (consequence, decision_variable) not in self.loss_params.index:
+                    continue
+                for ds in damage_states[component]:
+                    if ds == '0':
+                        continue
+                    for loc, direction, uid in loc_dir_uid:
+                        cost_rv_tag = (
+                            f'Cost-{consequence}-{ds}-{loc}-{direction}-{uid}'
                         )
+                        time_rv_tag = (
+                            f'Time-{consequence}-{ds}-{loc}-{direction}-{uid}'
+                        )
+                        set_flag = (
+                            f'DV-{component}-{ds}-{loc}-{direction}-{uid}_set'
+                        )
+                        if (
+                            cost_rv_tag in RV_reg.RV
+                            and time_rv_tag in RV_reg.RV
+                            and (self._asmnt.options.rho_cost_time != 0.0)
+                        ):
+                            rho = self._asmnt.options.rho_cost_time
+                            RV_reg.add_RV_set(
+                                uq.RandomVariableSet(
+                                    set_flag,
+                                    list(
+                                        RV_reg.RVs(
+                                            [cost_rv_tag, time_rv_tag]
+                                        ).values()
+                                    ),
+                                    np.array([[1.0, rho], [rho, 1.0]]),
+                                )
+                            )
 
         self.log_msg(
             f"\n{rv_count} random variables created.", prepend_timestamp=False
@@ -1243,9 +1319,6 @@ class RepairModel_LF(RepairModel_Base):
     with Loss Functions (LF)
 
     """
-
-    def __init__(self, assessment):
-        super().__init__(assessment)
 
     def _convert_loss_parameter_units(self):
         """

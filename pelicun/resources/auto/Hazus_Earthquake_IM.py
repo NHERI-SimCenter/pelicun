@@ -650,7 +650,7 @@ def auto_populate(AIM):
 
                     demand_cloning_config['-'.join(edp)] = [
                         f'{tag}-{x}-{direction}'
-                        for x in [f'{i+1}' for i in range(num_segments)]
+                        for x in [f'{i + 1}' for i in range(num_segments)]
                     ]
                 demand_config = {'DemandCloning': demand_cloning_config}
 

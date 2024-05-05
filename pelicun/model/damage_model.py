@@ -49,7 +49,8 @@ This file defines the DamageModel object and its methods.
 
 """
 
-from typing import Callable
+from __future__ import annotations
+from collections.abc import Callable
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
@@ -76,6 +77,15 @@ class DamageModel(PelicunModel):
 
     @property
     def damage_models(self):
+        """
+        Points to the damage model objects included in DamageModel.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the damage models.
+
+        """
         return (self.ds_model,)
 
     def load_model_parameters(self, data_paths):
@@ -91,6 +101,12 @@ class DamageModel(PelicunModel):
             prior elements in the list take precedence over the same
             parameters in subsequent data paths. I.e., place the
             Default datasets in the back.
+
+        Raises
+        ------
+        ValueError
+            If the method can't parse the damage parameters in the
+            specified paths.
 
         """
 
@@ -115,13 +131,17 @@ class DamageModel(PelicunModel):
             else:
                 raise ValueError(f'Invalid damage model parameters: {data_path}')
 
-        self.log_msg('Damage model parameters loaded successfully.', prepend_timestamp=False)
+        self.log_msg(
+            'Damage model parameters loaded successfully.', prepend_timestamp=False
+        )
 
         #
         # remove items
         #
 
-        self.log_msg('Removing unused damage model parameters.', prepend_timestamp=False)
+        self.log_msg(
+            'Removing unused damage model parameters.', prepend_timestamp=False
+        )
         # get a list of unique component IDs
         cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
 
@@ -135,7 +155,9 @@ class DamageModel(PelicunModel):
         # convert units
         #
 
-        self.log_msg('Converting damage model parameter units.', prepend_timestamp=False)
+        self.log_msg(
+            'Converting damage model parameter units.', prepend_timestamp=False
+        )
         for damage_model in self.damage_models:
             damage_model._convert_damage_parameter_units()
 
@@ -145,7 +167,8 @@ class DamageModel(PelicunModel):
 
         self.log_msg(
             'Checking damage model parameter '
-            'availability for all components in the asset model.', prepend_timestamp=False
+            'availability for all components in the asset model.',
+            prepend_timestamp=False,
         )
         missing_components = self._ensure_damage_parameter_availability(cmp_set)
 
@@ -196,7 +219,7 @@ class DamageModel(PelicunModel):
 
         # If requested, extend the quantity table with all possible DSs
         if self._asmnt.options.list_all_ds:
-            qnt_sample = self._complete_ds_cols(qnt_sample)
+            qnt_sample = self.ds_model._complete_ds_cols(qnt_sample)
 
         self.ds_model.sample = qnt_sample
 
@@ -695,9 +718,6 @@ class DamageModel_DS(DamageModel_Base):
 
     """
 
-    def __init__(self, assessment):
-        super().__init__(assessment)
-
     def save_sample(self, filepath=None, save_units=False):
         """
         Saves the damage sample data to a CSV file or returns it
@@ -1154,7 +1174,7 @@ class DamageModel_DS(DamageModel_Base):
                             f'{PG[1]}-'  # loc
                             f'{PG[2]}-'  # dir
                             f'{PG[3]}-'  # uid
-                            f'{block_i+1}-'  # block
+                            f'{block_i + 1}-'  # block
                             f'{ls_id}'
                         )
 
@@ -1213,7 +1233,7 @@ class DamageModel_DS(DamageModel_Base):
                             f'{PG[1]}-'  # loc
                             f'{PG[2]}-'  # dir
                             f'{PG[3]}-'  # uid
-                            f'{block_i+1}-'  # block
+                            f'{block_i + 1}-'  # block
                             f'{ls_id}'
                         )
 

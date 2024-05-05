@@ -772,7 +772,9 @@ class DemandModel(PelicunModel):
         )
         marginal_params.index.set_names(['type', 'loc', 'dir'], inplace=True)
 
-        marginal_params = self._convert_marginal_params(marginal_params.copy(), units)
+        marginal_params = self._convert_marginal_params(
+            marginal_params.copy(), units
+        )
 
         self.marginal_params = marginal_params
         self.units = units
@@ -1000,7 +1002,7 @@ class DemandModel(PelicunModel):
         # This will generate 1000 realizations of demand variables
         # with the specified configuration.
         """
-        
+
         if self.marginal_params is None:
             raise ValueError(
                 'Model parameters have not been specified. Either'
