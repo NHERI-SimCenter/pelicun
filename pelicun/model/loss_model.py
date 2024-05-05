@@ -73,6 +73,8 @@ class LossModel(PelicunModel):
 
     """
 
+    __slots__ = ['ds_model', 'dr_model', '_loss_map' 'decision_variables']
+
     def __init__(
         self, assessment, decision_variables=('Carbon', 'Cost', 'Energy', 'Time')
     ):
@@ -94,21 +96,8 @@ class LossModel(PelicunModel):
 
         self.ds_model: RepairModel_DS = RepairModel_DS(assessment)
         self.dr_model: RepairModel_LF = RepairModel_LF(assessment)
-        self.loss_map = None
+        self._loss_map = None
         self.decision_variables = decision_variables
-
-    @property
-    def loss_models(self):
-        """
-        Points to the loss model objects included in LossModel.
-
-        Returns
-        -------
-        tuple
-            A tuple containing the loss models.
-
-        """
-        return (self.ds_model, self.dr_model)
 
     @property
     def decision_variables(self):
@@ -137,64 +126,8 @@ class LossModel(PelicunModel):
 
         """
         # assign the same DVs to the included loss models.
-        for model in self.loss_models:
+        for model in self._loss_models:
             model.decision_variables = decision_variables
-
-    @property
-    def loss_map(self):
-        """
-        Returns
-        -------
-        pd.DataFrame
-            The loss map.
-
-        """
-        # Retrieve the dataframe from one of the included loss models.
-        # We use a single loss map for all.
-        return self.ds_model.loss_map
-
-    @loss_map.setter
-    def loss_map(self, loss_map):
-        """
-        Sets the loss map.
-
-        Parameters
-        ----------
-        loss_map: pd.DataFrame
-            The loss map.
-
-        """
-        # Add the dataframe to the included loss models.
-        # We use a single loss map for all.
-        for model in self.loss_models:
-            model.loss_map = loss_map
-
-    @property
-    def _missing(self):
-        """
-        Returns
-        -------
-        set
-            Set containing tuples identifying missing loss parameter
-            definitions.
-
-        """
-        return self.ds_model._missing
-
-    @_missing.setter
-    def _missing(self, missing):
-        """
-        Assigns missing parameter definitions to the loss models.
-
-        Parameters
-        ----------
-        missing: set
-            Set containing tuples identifying missing loss parameter
-            definitions.
-
-        """
-        for model in self.loss_models:
-            model._missing = missing
 
     def add_loss_map(self, loss_map_path=None):
         """
@@ -244,7 +177,7 @@ class LossModel(PelicunModel):
                 loss_map.loc[component, :] = component
 
         # Assign the loss map to the available loss models
-        self.loss_map = loss_map
+        self._loss_map = loss_map
 
         self.log_msg('Loss map loaded successfully.', prepend_timestamp=True)
 
@@ -304,9 +237,9 @@ class LossModel(PelicunModel):
             'Removing unused loss model parameters.', prepend_timestamp=False
         )
 
-        for loss_model in self.loss_models:
+        for loss_model in self._loss_models:
             # drop unused loss parameter definitions
-            loss_model._drop_unused_loss_parameters(self.loss_map)
+            loss_model._drop_unused_loss_parameters(self._loss_map)
             # remove components with incomplete loss parameters
             loss_model._remove_incomplete_components()
 
@@ -320,7 +253,7 @@ class LossModel(PelicunModel):
         self.log_msg(
             'Converting loss model parameter units.', prepend_timestamp=False
         )
-        for loss_model in self.loss_models:
+        for loss_model in self._loss_models:
             loss_model._convert_loss_parameter_units()
 
         #
@@ -357,6 +290,66 @@ class LossModel(PelicunModel):
 
         self.log_msg("Loss calculation successful.")
 
+    @property
+    def _loss_models(self):
+        return (self.ds_model, self.dr_model)
+
+    @property
+    def _loss_map(self):
+        """
+        Returns
+        -------
+        pd.DataFrame
+            The loss map.
+
+        """
+        # Retrieve the dataframe from one of the included loss models.
+        # We use a single loss map for all.
+        return self.ds_model._loss_map
+
+    @_loss_map.setter
+    def _loss_map(self, loss_map):
+        """
+        Sets the loss map.
+
+        Parameters
+        ----------
+        loss_map: pd.DataFrame
+            The loss map.
+
+        """
+        # Add the dataframe to the included loss models.
+        # We use a single loss map for all.
+        for model in self._loss_models:
+            model._loss_map = loss_map
+
+    @property
+    def _missing(self):
+        """
+        Returns
+        -------
+        set
+            Set containing tuples identifying missing loss parameter
+            definitions.
+
+        """
+        return self.ds_model._missing
+
+    @_missing.setter
+    def _missing(self, missing):
+        """
+        Assigns missing parameter definitions to the loss models.
+
+        Parameters
+        ----------
+        missing: set
+            Set containing tuples identifying missing loss parameter
+            definitions.
+
+        """
+        for model in self._loss_models:
+            model._missing = missing
+
     def _ensure_loss_parameter_availability(self):
         """
         Makes sure that all components have loss parameters.
@@ -375,7 +368,7 @@ class LossModel(PelicunModel):
         required = []
         for dv in self.decision_variables:
             required.extend(
-                [(component, dv) for component in self.loss_map['Repair']]
+                [(component, dv) for component in self._loss_map['Repair']]
             )
         missing_set = set(required)
 
@@ -812,7 +805,7 @@ class RepairModel_DS(RepairModel_Base):
         rv_count = 0
 
         # for each component in the loss map
-        for component, consequence in self.loss_map['Repair'].items():
+        for component, consequence in self._loss_map['Repair'].items():
 
             # for each DV
             for decision_variable in self.decision_variables:
@@ -871,7 +864,7 @@ class RepairModel_DS(RepairModel_Base):
                         rv_count += 1
 
         # assign Time-Cost correlation whenever applicable
-        for component, consequence in self.loss_map['Repair'].items():
+        for component, consequence in self._loss_map['Repair'].items():
             for decision_variable in self.decision_variables:
                 if (consequence, decision_variable) in self._missing:
                     continue
@@ -887,9 +880,7 @@ class RepairModel_DS(RepairModel_Base):
                         time_rv_tag = (
                             f'Time-{consequence}-{ds}-{loc}-{direction}-{uid}'
                         )
-                        set_flag = (
-                            f'DV-{component}-{ds}-{loc}-{direction}-{uid}_set'
-                        )
+                        set_flag = f'DV-{component}-{ds}-{loc}-{direction}-{uid}_set'
                         if (
                             cost_rv_tag in RV_reg.RV
                             and time_rv_tag in RV_reg.RV
@@ -960,9 +951,10 @@ class RepairModel_DS(RepairModel_Base):
             cmp_list = []
             median_list = []
 
-            for loss_cmp_id in self.loss_map.index:
+            for loss_cmp_id, loss_cmp_name in self._loss_map['Repair'].items():
 
-                loss_cmp_name = self.loss_map.loc[loss_cmp_id, 'Repair']
+                if (loss_cmp_name, decision_variable) in self._missing:
+                    continue
 
                 if loss_cmp_id not in eco_qnt.columns.get_level_values(0).unique():
                     continue
@@ -1206,7 +1198,7 @@ class RepairModel_DS(RepairModel_Base):
 
             for component in medians[decision_variable].columns.unique(level=0):
                 # check if there is damage in the component
-                consequence = self.loss_map.at[component, 'Repair']
+                consequence = self._loss_map.at[component, 'Repair']
 
                 if not (component in dmg_quantities.columns.get_level_values('cmp')):
                     continue
