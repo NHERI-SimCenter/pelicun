@@ -109,11 +109,9 @@ class DamageModel(PelicunModel):
                 data_path, None, orientation=1, reindex=False, log=self._asmnt.log
             )
             # determine if the damage model parameters are for damage
-            # states or damage ratios
+            # states
             if _is_for_ds_model(data):
                 self.ds_model._load_model_parameters(data)
-            elif _is_for_dr_model(data):
-                self.dr_model._load_model_parameters(data)
             else:
                 raise ValueError(f'Invalid damage model parameters: {data_path}')
 

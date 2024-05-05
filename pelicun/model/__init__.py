@@ -46,7 +46,6 @@ from pelicun.model.demand_model import DemandModel
 from pelicun.model.asset_model import AssetModel
 from pelicun.model.damage_model import DamageModel
 from pelicun.model.damage_model import DamageModel_DS
-from pelicun.model.damage_model import DamageModel_DR
 from pelicun.model.loss_model import LossModel
 from pelicun.model.loss_model import RepairModel_DS
-from pelicun.model.loss_model import RepairModel_DR
+from pelicun.model.loss_model import RepairModel_LF
