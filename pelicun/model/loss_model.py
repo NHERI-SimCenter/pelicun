@@ -304,7 +304,13 @@ class LossModel(PelicunModel):
             )
             sample_size = self._asmnt.demand.sample.shape[0]
 
-        self.ds_model.calculate(sample_size)
+        # Get the damaged quantities in each damage state for each
+        # component of interest.
+        # TODO: FIND A WAY to avoid making a copy of this.
+        dmg_quantities = self._asmnt.damage.ds_model.sample.copy()
+        self.ds_model._calculate(dmg_quantities, sample_size)
+
+        self.lf_model._calculate(sample_size)
 
         self.log_msg("Loss calculation successful.")
 
@@ -649,19 +655,246 @@ class RepairModel_DS(RepairModel_Base):
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
-    def calculate(self, sample_size):
+    def _calculate(self, dmg_quantities, sample_size):
         """
-        Calculate the consequences of each component block damage in
-        the asset.
+        Calculate the consequences of each damage state-driven
+        component block damage in the asset.
+
+        Parameters
+        ----------
+        dmg_quantities: DataFrame
+            A table with the quantity of damage experienced in each
+            damage state of each performance group at each location
+            and direction. You can use the prepare_dmg_quantities
+            method in the DamageModel to get such a DF.
+        sample_size: integer
+            The number of realizations to generate.
+
+        Raises
+        ------
+        ValueError
+            When any Loss Driver is not recognized.
 
         """
-        # First, get the damaged quantities in each damage state for
-        # each component of interest.
-        dmg_quantities = self._asmnt.damage.ds_model.sample.copy()
-        # TODO: FIND A WAY to avoid making a copy of this.
 
-        # Now sample random Decision Variables
-        self._generate_DV_sample(dmg_quantities, sample_size)
+        # If everything is undamaged there are no losses
+        if set(dmg_quantities.columns.get_level_values('ds')) == {'0'}:
+            self.sample = None
+            self.log_msg(
+                "There is no damage---DV sample is set to None.",
+                prepend_timestamp=False,
+            )
+            return
+
+        # calculate the quantities for economies of scale
+        self.log_msg("\nAggregating damage quantities...", prepend_timestamp=False)
+
+        if self._asmnt.options.eco_scale["AcrossFloors"]:
+            if self._asmnt.options.eco_scale["AcrossDamageStates"]:
+                eco_levels = [
+                    0,
+                ]
+                eco_columns = [
+                    'cmp',
+                ]
+
+            else:
+                eco_levels = [0, 4]
+                eco_columns = ['cmp', 'ds']
+
+        elif self._asmnt.options.eco_scale["AcrossDamageStates"]:
+            eco_levels = [0, 1]
+            eco_columns = ['cmp', 'loc']
+
+        else:
+            eco_levels = [0, 1, 4]
+            eco_columns = ['cmp', 'loc', 'ds']
+
+        eco_group = dmg_quantities.groupby(level=eco_levels, axis=1)
+        eco_qnt = eco_group.sum().mask(eco_group.count() == 0, np.nan)
+        assert eco_qnt.columns.names == eco_columns
+
+        self.log_msg(
+            "Successfully aggregated damage quantities.", prepend_timestamp=False
+        )
+
+        # apply the median functions, if needed, to get median consequences for
+        # each realization
+        self.log_msg(
+            "\nCalculating the median repair consequences...",
+            prepend_timestamp=False,
+        )
+
+        medians = self._calc_median_consequence(eco_qnt)
+
+        self.log_msg(
+            "Successfully determined median repair consequences.",
+            prepend_timestamp=False,
+        )
+
+        # combine the median consequences with the samples of deviation from the
+        # median to get the consequence realizations.
+        self.log_msg(
+            "\nConsidering deviations from the median values to obtain "
+            "random DV sample..."
+        )
+
+        self.log_msg(
+            "Preparing random variables for repair cost and time...",
+            prepend_timestamp=False,
+        )
+        RV_reg = self._create_DV_RVs(dmg_quantities.columns)
+
+        if RV_reg is not None:
+            RV_reg.generate_sample(
+                sample_size=sample_size, method=self._asmnt.options.sampling_method
+            )
+
+            std_sample = base.convert_to_MultiIndex(
+                pd.DataFrame(RV_reg.RV_sample), axis=1
+            )
+            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'uid']
+            std_sample.sort_index(axis=1, inplace=True)
+
+        else:
+            std_sample = None
+
+        self.log_msg(
+            f"\nSuccessfully generated {sample_size} realizations of "
+            "deviation from the median consequences.",
+            prepend_timestamp=False,
+        )
+
+        res_list = []
+        key_list = []
+
+        dmg_quantities.columns = dmg_quantities.columns.reorder_levels(
+            ['cmp', 'ds', 'loc', 'dir', 'uid']
+        )
+        dmg_quantities.sort_index(axis=1, inplace=True)
+
+        if std_sample is not None:
+            std_dvs = std_sample.columns.unique(level=0)
+        else:
+            std_dvs = []
+
+        for decision_variable in self.decision_variables:
+            if decision_variable in std_dvs:
+                prob_cmp_list = std_sample[decision_variable].columns.unique(level=0)
+            else:
+                prob_cmp_list = []
+
+            cmp_list = []
+
+            if decision_variable not in medians:
+                continue
+            for component in medians[decision_variable].columns.unique(level=0):
+                # check if there is damage in the component
+                consequence = self._loss_map.at[component, 'Repair']
+
+                if not (component in dmg_quantities.columns.get_level_values('cmp')):
+                    continue
+
+                ds_list = []
+
+                for ds in (
+                    medians[decision_variable]
+                    .loc[:, component]
+                    .columns.unique(level=0)
+                ):
+                    loc_list = []
+
+                    for loc_id, loc in enumerate(
+                        dmg_quantities.loc[:, (component, ds)].columns.unique(
+                            level=0
+                        )
+                    ):
+                        if (
+                            self._asmnt.options.eco_scale["AcrossFloors"] is True
+                        ) and (loc_id > 0):
+                            break
+
+                        if self._asmnt.options.eco_scale["AcrossFloors"] is True:
+                            median_i = medians[decision_variable].loc[
+                                :, (component, ds)
+                            ]
+                            dmg_i = dmg_quantities.loc[:, (component, ds)]
+
+                            if component in prob_cmp_list:
+                                std_i = std_sample.loc[
+                                    :, (decision_variable, component, ds)
+                                ]
+                            else:
+                                std_i = None
+
+                        else:
+                            median_i = medians[decision_variable].loc[
+                                :, (component, ds, loc)
+                            ]
+                            dmg_i = dmg_quantities.loc[:, (component, ds, loc)]
+
+                            if component in prob_cmp_list:
+                                std_i = std_sample.loc[
+                                    :, (decision_variable, component, ds, loc)
+                                ]
+                            else:
+                                std_i = None
+
+                        if std_i is not None:
+                            res_list.append(dmg_i.mul(median_i, axis=0) * std_i)
+                        else:
+                            res_list.append(dmg_i.mul(median_i, axis=0))
+
+                        loc_list.append(loc)
+
+                    if self._asmnt.options.eco_scale["AcrossFloors"] is True:
+                        ds_list += [
+                            ds,
+                        ]
+                    else:
+                        ds_list += [(ds, loc) for loc in loc_list]
+
+                if self._asmnt.options.eco_scale["AcrossFloors"] is True:
+                    cmp_list += [(consequence, component, ds) for ds in ds_list]
+                else:
+                    cmp_list += [
+                        (consequence, component, ds, loc) for ds, loc in ds_list
+                    ]
+
+            if self._asmnt.options.eco_scale["AcrossFloors"] is True:
+                key_list += [
+                    (decision_variable, loss_cmp_i, dmg_cmp_i, ds)
+                    for loss_cmp_i, dmg_cmp_i, ds in cmp_list
+                ]
+            else:
+                key_list += [
+                    (decision_variable, loss_cmp_i, dmg_cmp_i, ds, loc)
+                    for loss_cmp_i, dmg_cmp_i, ds, loc in cmp_list
+                ]
+
+        lvl_names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'uid']
+        DV_sample = pd.concat(res_list, axis=1, keys=key_list, names=lvl_names)
+
+        DV_sample = DV_sample.fillna(0).convert_dtypes()
+
+        # Get the flags for replacement consequence trigger
+        DV_sum = DV_sample.groupby(level=[1], axis=1).sum()
+        if 'replacement' in DV_sum.columns:
+            # When the 'replacement' consequence is triggered, all
+            # local repair consequences are discarded. Note that
+            # global consequences are assigned to location '0'.
+
+            id_replacement = DV_sum['replacement'] > 0
+
+            # get the list of non-zero locations
+            locs = DV_sample.columns.get_level_values('loc').unique().values
+            locs = locs[locs != '0']
+
+            DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
+
+        self.sample = DV_sample
+
+        self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
 
     def _aggregate_losses(self):
 
@@ -671,7 +904,9 @@ class RepairModel_DS(RepairModel_Base):
         # Note: The `Time` DV receives special treatment.
 
         # create the summary DF
-        columns = [f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time']
+        columns = [
+            f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time'
+        ]
         if 'Time' in self.decision_variables:
             columns.extend(('repair_time-sequential', 'repair_time-parallel'))
         df_agg = pd.DataFrame(index=self.sample.index, columns=columns)
@@ -1048,246 +1283,6 @@ class RepairModel_DS(RepairModel_Base):
                 medians.update({decision_variable: result})
 
         return medians
-
-    def _generate_DV_sample(self, dmg_quantities, sample_size):
-        """
-        Generate a sample of repair costs and times.
-
-        Parameters
-        ----------
-        dmg_quantities: DataFrame
-            A table with the quantity of damage experienced in each damage state
-            of each performance group at each location and direction. You can use
-            the prepare_dmg_quantities method in the DamageModel to get such a
-            DF.
-        sample_size: integer
-            The number of realizations to generate.
-
-        Raises
-        ------
-        ValueError
-            When any Loss Driver is not recognized.
-
-        """
-
-        # calculate the quantities for economies of scale
-        self.log_msg("\nAggregating damage quantities...", prepend_timestamp=False)
-
-        # If everything is undamaged there are no losses
-        if set(dmg_quantities.columns.get_level_values('ds')) == {'0'}:
-            self.sample = None
-            self.log_msg(
-                "There is no damage---DV sample is set to None.",
-                prepend_timestamp=False,
-            )
-            return
-
-        if self._asmnt.options.eco_scale["AcrossFloors"]:
-            if self._asmnt.options.eco_scale["AcrossDamageStates"]:
-                eco_levels = [
-                    0,
-                ]
-                eco_columns = [
-                    'cmp',
-                ]
-
-            else:
-                eco_levels = [0, 4]
-                eco_columns = ['cmp', 'ds']
-
-        elif self._asmnt.options.eco_scale["AcrossDamageStates"]:
-            eco_levels = [0, 1]
-            eco_columns = ['cmp', 'loc']
-
-        else:
-            eco_levels = [0, 1, 4]
-            eco_columns = ['cmp', 'loc', 'ds']
-
-        eco_group = dmg_quantities.groupby(level=eco_levels, axis=1)
-        eco_qnt = eco_group.sum().mask(eco_group.count() == 0, np.nan)
-        assert eco_qnt.columns.names == eco_columns
-
-        self.log_msg(
-            "Successfully aggregated damage quantities.", prepend_timestamp=False
-        )
-
-        # apply the median functions, if needed, to get median consequences for
-        # each realization
-        self.log_msg(
-            "\nCalculating the median repair consequences...",
-            prepend_timestamp=False,
-        )
-
-        medians = self._calc_median_consequence(eco_qnt)
-
-        self.log_msg(
-            "Successfully determined median repair consequences.",
-            prepend_timestamp=False,
-        )
-
-        # combine the median consequences with the samples of deviation from the
-        # median to get the consequence realizations.
-        self.log_msg(
-            "\nConsidering deviations from the median values to obtain "
-            "random DV sample..."
-        )
-
-        self.log_msg(
-            "Preparing random variables for repair cost and time...",
-            prepend_timestamp=False,
-        )
-        RV_reg = self._create_DV_RVs(dmg_quantities.columns)
-
-        if RV_reg is not None:
-            RV_reg.generate_sample(
-                sample_size=sample_size, method=self._asmnt.options.sampling_method
-            )
-
-            std_sample = base.convert_to_MultiIndex(
-                pd.DataFrame(RV_reg.RV_sample), axis=1
-            )
-            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'uid']
-            std_sample.sort_index(axis=1, inplace=True)
-
-        else:
-            std_sample = None
-
-        self.log_msg(
-            f"\nSuccessfully generated {sample_size} realizations of "
-            "deviation from the median consequences.",
-            prepend_timestamp=False,
-        )
-
-        res_list = []
-        key_list = []
-
-        dmg_quantities.columns = dmg_quantities.columns.reorder_levels(
-            ['cmp', 'ds', 'loc', 'dir', 'uid']
-        )
-        dmg_quantities.sort_index(axis=1, inplace=True)
-
-        if std_sample is not None:
-            std_dvs = std_sample.columns.unique(level=0)
-        else:
-            std_dvs = []
-
-        for decision_variable in self.decision_variables:
-            if decision_variable in std_dvs:
-                prob_cmp_list = std_sample[decision_variable].columns.unique(level=0)
-            else:
-                prob_cmp_list = []
-
-            cmp_list = []
-
-            if decision_variable not in medians:
-                continue
-            for component in medians[decision_variable].columns.unique(level=0):
-                # check if there is damage in the component
-                consequence = self._loss_map.at[component, 'Repair']
-
-                if not (component in dmg_quantities.columns.get_level_values('cmp')):
-                    continue
-
-                ds_list = []
-
-                for ds in (
-                    medians[decision_variable]
-                    .loc[:, component]
-                    .columns.unique(level=0)
-                ):
-                    loc_list = []
-
-                    for loc_id, loc in enumerate(
-                        dmg_quantities.loc[:, (component, ds)].columns.unique(
-                            level=0
-                        )
-                    ):
-                        if (
-                            self._asmnt.options.eco_scale["AcrossFloors"] is True
-                        ) and (loc_id > 0):
-                            break
-
-                        if self._asmnt.options.eco_scale["AcrossFloors"] is True:
-                            median_i = medians[decision_variable].loc[
-                                :, (component, ds)
-                            ]
-                            dmg_i = dmg_quantities.loc[:, (component, ds)]
-
-                            if component in prob_cmp_list:
-                                std_i = std_sample.loc[
-                                    :, (decision_variable, component, ds)
-                                ]
-                            else:
-                                std_i = None
-
-                        else:
-                            median_i = medians[decision_variable].loc[
-                                :, (component, ds, loc)
-                            ]
-                            dmg_i = dmg_quantities.loc[:, (component, ds, loc)]
-
-                            if component in prob_cmp_list:
-                                std_i = std_sample.loc[
-                                    :, (decision_variable, component, ds, loc)
-                                ]
-                            else:
-                                std_i = None
-
-                        if std_i is not None:
-                            res_list.append(dmg_i.mul(median_i, axis=0) * std_i)
-                        else:
-                            res_list.append(dmg_i.mul(median_i, axis=0))
-
-                        loc_list.append(loc)
-
-                    if self._asmnt.options.eco_scale["AcrossFloors"] is True:
-                        ds_list += [
-                            ds,
-                        ]
-                    else:
-                        ds_list += [(ds, loc) for loc in loc_list]
-
-                if self._asmnt.options.eco_scale["AcrossFloors"] is True:
-                    cmp_list += [(consequence, component, ds) for ds in ds_list]
-                else:
-                    cmp_list += [
-                        (consequence, component, ds, loc) for ds, loc in ds_list
-                    ]
-
-            if self._asmnt.options.eco_scale["AcrossFloors"] is True:
-                key_list += [
-                    (decision_variable, loss_cmp_i, dmg_cmp_i, ds)
-                    for loss_cmp_i, dmg_cmp_i, ds in cmp_list
-                ]
-            else:
-                key_list += [
-                    (decision_variable, loss_cmp_i, dmg_cmp_i, ds, loc)
-                    for loss_cmp_i, dmg_cmp_i, ds, loc in cmp_list
-                ]
-
-        lvl_names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'uid']
-        DV_sample = pd.concat(res_list, axis=1, keys=key_list, names=lvl_names)
-
-        DV_sample = DV_sample.fillna(0).convert_dtypes()
-
-        # Get the flags for replacement consequence trigger
-        DV_sum = DV_sample.groupby(level=[1], axis=1).sum()
-        if 'replacement' in DV_sum.columns:
-            # When the 'replacement' consequence is triggered, all
-            # local repair consequences are discarded. Note that
-            # global consequences are assigned to location '0'.
-
-            id_replacement = DV_sum['replacement'] > 0
-
-            # get the list of non-zero locations
-            locs = DV_sample.columns.get_level_values('loc').unique().values
-            locs = locs[locs != '0']
-
-            DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
-
-        self.sample = DV_sample
-
-        self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
 
 
 class RepairModel_LF(RepairModel_Base):
