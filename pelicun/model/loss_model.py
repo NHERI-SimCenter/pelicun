@@ -45,9 +45,6 @@ This file defines Loss model objects and their methods.
 
 .. autosummary::
 
-    prep_constant_median_DV
-    prep_bounded_multilinear_median_DV
-
     LossModel
 
 """
@@ -1215,13 +1212,13 @@ class RepairModel_DS(RepairModel_Base):
 
                         if pd.isna(loss_params_DS.get('Family', np.nan)):
                             # if theta_0 is constant, then use it directly
-                            f_median = prep_constant_median_DV(theta_0)
+                            f_median = _prep_constant_median_DV(theta_0)
 
                         else:
                             # otherwise use a constant 1.0 as the median
                             # The random variable will be generated as a
                             # variation from this 1.0 and added in a later step.
-                            f_median = prep_constant_median_DV(1.0)
+                            f_median = _prep_constant_median_DV(1.0)
 
                     except ValueError:
                         # otherwise, use the multilinear function
@@ -1231,7 +1228,7 @@ class RepairModel_DS(RepairModel_Base):
                         )
                         medns = all_vals[0]
                         qnts = all_vals[1]
-                        f_median = prep_bounded_multilinear_median_DV(medns, qnts)
+                        f_median = _prep_bounded_multilinear_median_DV(medns, qnts)
 
                     # get the corresponding aggregate damage quantities
                     # to consider economies of scale
@@ -1292,6 +1289,9 @@ class RepairModel_LF(RepairModel_Base):
 
     """
 
+    def _calculate(self, sample_size):
+        pass
+
     def _convert_loss_parameter_units(self):
         """
         Converts previously loaded loss parameters to base units.
@@ -1304,8 +1304,7 @@ class RepairModel_LF(RepairModel_Base):
             self.loss_params[column].copy(), units, arg_units, divide_units=False
         ).values
 
-
-def prep_constant_median_DV(median):
+def _prep_constant_median_DV(median):
     """
     Returns a constant median Decision Variable (DV) function.
 
@@ -1330,7 +1329,7 @@ def prep_constant_median_DV(median):
     return f
 
 
-def prep_bounded_multilinear_median_DV(medians, quantities):
+def _prep_bounded_multilinear_median_DV(medians, quantities):
     """
     Returns a bounded multilinear median Decision Variable (DV) function.
 
