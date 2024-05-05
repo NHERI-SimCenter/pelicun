@@ -73,7 +73,7 @@ class LossModel(PelicunModel):
 
     """
 
-    __slots__ = ['ds_model', 'dr_model', '_loss_map' 'decision_variables']
+    __slots__ = ['ds_model', 'lf_model', '_loss_map' 'decision_variables']
 
     def __init__(
         self, assessment, decision_variables=('Carbon', 'Cost', 'Energy', 'Time')
@@ -95,7 +95,7 @@ class LossModel(PelicunModel):
         super().__init__(assessment)
 
         self.ds_model: RepairModel_DS = RepairModel_DS(assessment)
-        self.dr_model: RepairModel_LF = RepairModel_LF(assessment)
+        self.lf_model: RepairModel_LF = RepairModel_LF(assessment)
         self._loss_map = None
         self.decision_variables = decision_variables
 
@@ -238,8 +238,8 @@ class LossModel(PelicunModel):
             # states or loss functions
             if _is_for_ds_model(data):
                 self.ds_model._load_model_parameters(data)
-            elif _is_for_dr_model(data):
-                self.dr_model._load_model_parameters(data)
+            elif _is_for_lf_model(data):
+                self.lf_model._load_model_parameters(data)
             else:
                 raise ValueError(f'Invalid loss model parameters: {data_path}')
 
@@ -342,7 +342,7 @@ class LossModel(PelicunModel):
 
     @property
     def _loss_models(self):
-        return (self.ds_model, self.dr_model)
+        return (self.ds_model, self.lf_model)
 
     @property
     def _loss_map(self):
@@ -422,7 +422,7 @@ class LossModel(PelicunModel):
             )
         missing_set = set(required)
 
-        for model in (self.ds_model, self.dr_model):
+        for model in (self.ds_model, self.lf_model):
             missing_set = missing_set - model._get_available()
 
         if missing_set:
@@ -1380,7 +1380,7 @@ def prep_bounded_multilinear_median_DV(medians, quantities):
     return f
 
 
-def _is_for_dr_model(data):
+def _is_for_lf_model(data):
     """
     Determines if the specified loss model parameters are for
     components modeled with Loss Functions (LF).
