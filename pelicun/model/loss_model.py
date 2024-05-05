@@ -290,6 +290,38 @@ class LossModel(PelicunModel):
 
         self.log_msg("Loss calculation successful.")
 
+    def aggregate_losses(self):
+        """
+        Aggregates repair consequences across components.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing aggregated repair
+            consequences. Columns include:
+            - 'repair_cost': Total repair costs across all components.
+            - 'repair_time-parallel': Minimum possible repair time
+              assuming repairs are conducted in parallel.
+            - 'repair_time-sequential': Maximum possible repair time
+              assuming sequential repairs.
+            - 'repair_carbon': Total carbon emissions associated with
+              repairs.
+            - 'repair_energy': Total energy usage associated with
+              repairs.
+            Each of these columns is summed or calculated based on the
+            repair data available.
+
+        """
+
+        self.log_div()
+        self.log_msg("Aggregating repair consequences...")
+
+        ds_model_losses = self.ds_model._aggregate_losses()
+
+        self.log_msg("Repair consequences successfully aggregated.")
+
+        return ds_model_losses
+
     @property
     def _loss_models(self):
         return (self.ds_model, self.dr_model)
@@ -613,39 +645,14 @@ class RepairModel_DS(RepairModel_Base):
         # Now sample random Decision Variables
         self._generate_DV_sample(dmg_quantities, sample_size)
 
-    def aggregate_losses(self):
-        """
-        Aggregates repair consequences across components.
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing aggregated repair
-            consequences. Columns include:
-            - 'repair_cost': Total repair costs across all components.
-            - 'repair_time-parallel': Minimum possible repair time
-              assuming repairs are conducted in parallel.
-            - 'repair_time-sequential': Maximum possible repair time
-              assuming sequential repairs.
-            - 'repair_carbon': Total carbon emissions associated with
-              repairs.
-            - 'repair_energy': Total energy usage associated with
-              repairs.
-            Each of these columns is summed or calculated based on the
-            repair data available.
-        """
-
-        self.log_div()
-        self.log_msg("Aggregating repair consequences...")
-
-        DV = self.sample
+    def _aggregate_losses(self):
 
         # group results by DV type and location
-        DVG = DV.groupby(level=[0, 4], axis=1).sum()
+        aggregated = self.sample.groupby(level=[0, 4], axis=1).sum()
 
         # create the summary DF
         df_agg = pd.DataFrame(
-            index=DV.index,
+            index=self.sample.index,
             columns=[
                 'repair_cost',
                 'repair_time-parallel',
@@ -655,75 +662,34 @@ class RepairModel_DS(RepairModel_Base):
             ],
         )
 
-        if 'Cost' in DVG.columns:
-            df_agg['repair_cost'] = DVG['Cost'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_cost', axis=1)
+        for decision_variable in self.decision_variables:
 
-        if 'Time' in DVG.columns:
-            df_agg['repair_time-sequential'] = DVG['Time'].sum(axis=1)
+            if decision_variable == 'Time':
+                if 'Time' in aggregated.columns:
+                    df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
 
-            df_agg['repair_time-parallel'] = DVG['Time'].max(axis=1)
-        else:
-            df_agg = df_agg.drop(
-                ['repair_time-parallel', 'repair_time-sequential'], axis=1
-            )
+                    df_agg['repair_time-parallel'] = aggregated['Time'].max(axis=1)
+                else:
+                    df_agg = df_agg.drop(
+                        ['repair_time-parallel', 'repair_time-sequential'], axis=1
+                    )
+            else:
+                if decision_variable in aggregated.columns:
+                    df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
+                        decision_variable
+                    ].sum(axis=1)
+                else:
+                    df_agg = df_agg.drop(
+                        f'repair_{decision_variable.lower()}', axis=1
+                    )
 
-        if 'Carbon' in DVG.columns:
-            df_agg['repair_carbon'] = DVG['Carbon'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_carbon', axis=1)
-
-        if 'Energy' in DVG.columns:
-            df_agg['repair_energy'] = DVG['Energy'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_energy', axis=1)
-
-        # convert units
-
-        cmp_units = (
-            self.loss_params[('DV', 'Unit')]
-            .groupby(
-                level=[
-                    1,
-                ]
-            )
-            .agg(lambda x: x.value_counts().index[0])
-        )
-
-        dv_units = pd.Series(index=df_agg.columns, name='Units', dtype='object')
-
-        if 'Cost' in DVG.columns:
-            dv_units['repair_cost'] = cmp_units['Cost']
-
-        if 'Time' in DVG.columns:
-            dv_units['repair_time-parallel'] = cmp_units['Time']
-            dv_units['repair_time-sequential'] = cmp_units['Time']
-
-        if 'Carbon' in DVG.columns:
-            dv_units['repair_carbon'] = cmp_units['Carbon']
-
-        if 'Energy' in DVG.columns:
-            dv_units['repair_energy'] = cmp_units['Energy']
-
-        df_agg = file_io.save_to_csv(
-            df_agg,
-            None,
-            units=dv_units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=False,
-            log=self._asmnt.log,
-        )
-
-        df_agg.drop("Units", inplace=True)
-
-        # convert header
+        # TODO: implement conversion of loss values to any desired
+        # unit other than the base loss units
 
         df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
+        df_agg.sort_index(axis=1, inplace=True)
 
-        self.log_msg("Repair consequences successfully aggregated.")
-
-        return df_agg.astype(float)
+        return df_agg
 
     def _convert_loss_parameter_units(self):
         """
