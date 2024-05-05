@@ -77,7 +77,9 @@ class PelicunModel:
         self.log_msg = self._asmnt.log.msg
         self.log_div = self._asmnt.log.div
 
-    def _convert_marginal_params(self, marginal_params, units, arg_units=None):
+    def _convert_marginal_params(
+        self, marginal_params, units, arg_units=None, divide_units=True
+    ):
         """
         Converts the parameters of marginal distributions in a model to SI units.
 
@@ -101,6 +103,12 @@ class PelicunModel:
             skipped. This Series provides the units of the reference entities
             for each component. Use '1 EA' if you want to skip such scaling for
             select components but provide arg units for others.
+        divide_units: bool, defaults to True
+            This parameter affects how the units of parameters
+            specified in SimCenter notation will be converted. It
+            should be True when the arg units represent the quantity
+            corresponding to the primary parameters, and False
+            otherwise.
 
         Returns
         -------
@@ -203,8 +211,12 @@ class PelicunModel:
                                 args[a_i] = arg * arg_unit_factor
 
                 # convert the distribution parameters to SI
+                if divide_units:
+                    conversion_factor = unit_factor / arg_unit_factor
+                else:
+                    conversion_factor = unit_factor
                 theta, tr_limits = uq.scale_distribution(
-                    unit_factor / arg_unit_factor, family, theta, tr_limits
+                    conversion_factor, family, theta, tr_limits
                 )
 
                 # convert multilinear function parameters back into strings

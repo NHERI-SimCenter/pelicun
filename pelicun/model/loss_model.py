@@ -68,17 +68,68 @@ class LossModel(PelicunModel):
     """
     Manages loss information used in assessments.
 
+    Groups a loss model for components with Damage States (DS) and
+    another for components with Loss Functions (LF).
+
     """
 
-    def __init__(self, assessment):
+    def __init__(
+        self, assessment, decision_variables=('Carbon', 'Cost', 'Energy', 'Time')
+    ):
+        """
+        Initializes LossModel objects.
+
+        Parameters
+        ----------
+        assessment: pelicun.Assessment
+            Parent assessment
+        decision_variables: tuple
+            Defines the decision variables to be included in the loss
+            calculations. Defaults to those supported, but fewer can be
+            used if desired. When fewer are used, the loss parameters for
+            those not used will not be required.
+
+        """
         super().__init__(assessment)
 
         self.ds_model: RepairModel_DS = RepairModel_DS(assessment)
-        self.dr_model: RepairModel_DR = RepairModel_DR(assessment)
+        self.dr_model: RepairModel_LF = RepairModel_LF(assessment)
+        self.loss_map = None
+        self.decision_variables = decision_variables
 
     @property
     def loss_models(self):
         return (self.ds_model, self.dr_model)
+
+    @property
+    def decision_variables(self):
+        # pick the object from one of the models
+        # it's the same for the other(s).
+        return self.ds_model.decision_variables
+
+    @decision_variables.setter
+    def decision_variables(self, decision_variables):
+        # assign the same DVs to the included loss models.
+        for model in self.loss_models:
+            model.decision_variables = decision_variables
+
+    @property
+    def loss_map(self):
+        return self.ds_model.loss_map
+
+    @loss_map.setter
+    def loss_map(self, loss_map):
+        for model in self.loss_models:
+            model.loss_map = loss_map
+
+    @property
+    def missing(self):
+        return self.ds_model.missing
+
+    @missing.setter
+    def missing(self, missing):
+        for model in self.loss_models:
+            model.missing = missing
 
     def add_loss_map(self, loss_map_path=None):
         """
@@ -86,19 +137,29 @@ class LossModel(PelicunModel):
         parameter definition should be used for each component ID in
         the asset model.
 
+        Parameters
+        ----------
         loss_map_path: str or pd.DataFrame or None
             Path to a csv file or DataFrame object that maps
             components IDs to their loss parameter definitions.
             Components in the asset model that are omitted from the
             provided loss map are mapped to the same ID.
         """
-        self.log_msg(f'Loading loss map...')
+        self.log_msg('Loading loss map...')
+
+        # TODO
+        # Here the default behavior should be to leave the loss map
+        # unchanged, unless the user specifies a different method.
+        # Currently it fills the missing components by mapping them to
+        # their own ID.
 
         # get a list of unique component IDs
-        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+        cmp_set = self._asmnt.asset.list_unique_component_ids(
+            as_set=True
+        )
 
         if loss_map_path is not None:
-            self.log_msg(f'Loss map is provided.', prepend_timestamp=False)
+            self.log_msg('Loss map is provided.', prepend_timestamp=False)
             # Read the loss map into a variable
             loss_map = file_io.load_data(
                 loss_map_path,
@@ -108,23 +169,21 @@ class LossModel(PelicunModel):
                 log=self._asmnt.log,
             )
         else:
-            self.log_msg(f'Using default loss map.', prepend_timestamp=False)
+            self.log_msg('Using default loss map.', prepend_timestamp=False)
             # If no loss map is provided map cmp_id -> cmp_id as a
             # default choice: Instantiate an empty loss map.
             loss_map = pd.DataFrame({'Repair': pd.Series(dtype='object')})
             loss_map.index = loss_map.index.astype('object')
 
         # Populate missing rows with cmp_id -> cmp_id
-        new_rows = {}
         for component in cmp_set:
-            if component not in loss_map:
+            if component not in loss_map.index:
                 loss_map.loc[component, :] = component
 
         # Assign the loss map to the available loss models
-        for loss_model in self.loss_models:
-            loss_model.loss_map = loss_map
+        self.loss_map = loss_map
 
-        self.log_msg(f'Loss map loaded successfully.', prepend_timestamp=True)
+        self.log_msg('Loss map loaded successfully.', prepend_timestamp=True)
 
     def load_model_parameters(self, data_paths, loss_map_path):
         """
@@ -133,7 +192,7 @@ class LossModel(PelicunModel):
         Parameters
         ----------
         data_paths: list of (string | DataFrame)
-            List of paths to data or files with damage model
+            List of paths to data or files with loss model
             information. Default XY datasets can be accessed as
             PelicunDefault/XY. Order matters. Parameters defined in
             prior elements in the list take precedence over the same
@@ -142,7 +201,7 @@ class LossModel(PelicunModel):
 
         """
         self.log_div()
-        self.log_msg(f'Loading loss parameters...')
+        self.log_msg('Loading loss parameters...')
 
         # replace `PelicunDefault/` flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
@@ -155,8 +214,8 @@ class LossModel(PelicunModel):
             data = file_io.load_data(
                 data_path, None, orientation=1, reindex=False, log=self._asmnt.log
             )
-            # determine if the damage model parameters are for damage
-            # states or damage ratios
+            # determine if the loss model parameters are for damage
+            # states or loss functions
             if _is_for_ds_model(data):
                 self.ds_model._load_model_parameters(data)
             elif _is_for_dr_model(data):
@@ -172,14 +231,13 @@ class LossModel(PelicunModel):
         # remove items
         #
 
-        self.log_msg('Removing unused loss model parameters.')
-
-        # get a list of unique component IDs
-        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+        self.log_msg(
+            'Removing unused loss model parameters.', prepend_timestamp=False
+        )
 
         for loss_model in self.loss_models:
             # drop unused loss parameter definitions
-            loss_model._drop_unused_loss_parameters(cmp_set)
+            loss_model._drop_unused_loss_parameters(self.loss_map)
             # remove components with incomplete loss parameters
             loss_model._remove_incomplete_components()
 
@@ -205,9 +263,67 @@ class LossModel(PelicunModel):
             'availability for all components in the asset model.',
             prepend_timestamp=False,
         )
-        missing_components = self._ensure_loss_parameter_availability(cmp_list)
+        missing = self._ensure_loss_parameter_availability()
 
-        self.missing_components = missing_components
+        self.missing = missing
+
+    def calculate(self, sample_size=None):
+        """
+        Calculate the loss of each component block.
+
+        """
+        self.log_div()
+        self.log_msg('Calculating losses...')
+
+        if not sample_size:
+            warnings.warn(
+                'Using default sample size is deprecated and will '
+                'be removed in future versions. '
+                'Please provide the `sample_size` explicitly.',
+                DeprecationWarning,
+            )
+            sample_size = self._asmnt.demand.sample.shape[0]
+
+        self.ds_model.calculate(sample_size)
+
+        self.log_msg("Loss calculation successful.")
+
+    def _ensure_loss_parameter_availability(self):
+        """
+        Makes sure that all components have loss parameters.
+
+        Returns
+        -------
+        list
+            List of component IDs with missing loss parameters.
+
+        """
+
+        #
+        # Repair Models (currently the only type supported)
+        #
+
+        required = []
+        for dv in self.decision_variables:
+            required.extend(
+                [(component, dv) for component in self.loss_map['Repair']]
+            )
+        missing_set = set(required)
+
+        for model in (self.ds_model, self.dr_model):
+            missing_set = missing_set - model._get_available()
+
+        if missing_set:
+            self.log_msg(
+                f"\n"
+                f"WARNING: The loss model does not provide "
+                f"loss information for the following component(s) "
+                f"in the asset model: {sorted(list(missing_set))}."
+                f"\n",
+                prepend_timestamp=False,
+            )
+
+        return missing_set
 
 
 class RepairModel_Base(PelicunModel):
@@ -217,9 +333,17 @@ class RepairModel_Base(PelicunModel):
     """
 
     def __init__(self, assessment):
+        """
+        Initializes RepairModel_Base objects.
+
+        Parameters
+        ----------
+        assessment: pelicun.Assessment
+            Parent assessment
+
+        """
         super().__init__(assessment)
 
-        self.loss_map = None
         self.loss_params = None
         self.sample = None
         self.consequence = 'Repair'
@@ -251,73 +375,30 @@ class RepairModel_Base(PelicunModel):
 
         self.loss_params = data
 
-    def _drop_unused_loss_parameters(self, cmp_list):
+    def _drop_unused_loss_parameters(self, loss_map):
         """
         Removes loss parameter definitions for component IDs not
-        present in the given list.
+        present in the loss map.
 
         Parameters
         ----------
-        cmp_list: list
-            List of component IDs to be preserved in the loss
-            parameters.
+        loss_map_path: str or pd.DataFrame or None
+            Path to a csv file or DataFrame object that maps
+            components IDs to their loss parameter definitions.
+            Components in the asset model that are omitted from the
+            provided loss map are mapped to the same ID.
+
+
         """
 
         if self.loss_params is None:
             return
-        cmp_mask = self.loss_params.index.get_level_values(0).isin(cmp_list, level=0)
+
+        # get a list of unique component IDs
+        cmp_set = set(loss_map['Repair'].unique())
+
+        cmp_mask = self.loss_params.index.get_level_values(0).isin(cmp_set, level=0)
         self.loss_params = self.loss_params.iloc[cmp_mask, :]
-
-    def _old_load_model_parameters(self, data):
-
-        # check for components with incomplete loss information
-        cmp_incomplete_list = loss_params.loc[
-            loss_params[('Incomplete', '')] == 1
-        ].index
-
-        if len(cmp_incomplete_list) > 0:
-            loss_params.drop(cmp_incomplete_list, inplace=True)
-
-            self.log_msg(
-                "\n"
-                "WARNING: Loss information is incomplete for the "
-                f"following component(s) {cmp_incomplete_list}. "
-                "They were removed from the analysis."
-                "\n",
-                prepend_timestamp=False,
-            )
-
-        # filter decision variables, if needed
-        if decision_variables is not None:
-            loss_params = loss_params.reorder_levels([1, 0])
-
-            available_DVs = loss_params.index.unique(level=0)
-            filtered_DVs = []
-
-            for DV_i in decision_variables:
-                if DV_i in available_DVs:
-                    filtered_DVs.append(DV_i)
-
-            loss_params = loss_params.loc[filtered_DVs, :].reorder_levels([1, 0])
-
-        self.loss_params = loss_params.sort_index(axis=1)
-
-        self.log_msg("Loss parameters successfully parsed.", prepend_timestamp=False)
-
-    def _convert_loss_parameter_units(self):
-        """
-        Converts previously loaded loss parameters to base units.
-
-        """
-        breakpoint()
-        units = self.loss_params[('DV', 'Unit')]
-        arg_units = self.loss_params[('Quantity', 'Unit')]
-        for column in self.loss_params.columns.unique(level=0):
-            if not column.startswith('DS'):
-                continue
-            self.loss_params.loc[:, column] = self._convert_marginal_params(
-                self.loss_params.loc[:, column].copy(), units, arg_units
-            ).values  # todo: the way we do this here looks a bit weird
 
     def _remove_incomplete_components(self):
         """
@@ -347,6 +428,16 @@ class RepairModel_Base(PelicunModel):
                 f"\n",
                 prepend_timestamp=False,
             )
+
+    def _get_available(self):
+        """
+        Get a set of components for which loss parameters are
+        available.
+        """
+        if self.loss_params is not None:
+            cmp_list = self.loss_params.index.to_list()
+            return set(cmp_list)
+        return set()
 
 
 class RepairModel_DS(RepairModel_Base):
@@ -437,7 +528,7 @@ class RepairModel_DS(RepairModel_Base):
 
     def load_sample(self, filepath):
         """
-        Load damage sample data.
+        Load loss sample data.
 
         """
         self.log_div()
@@ -449,34 +540,19 @@ class RepairModel_DS(RepairModel_Base):
 
         self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
-    def calculate(self, sample_size=None):
+    def calculate(self, sample_size):
         """
         Calculate the consequences of each component block damage in
         the asset.
 
         """
-        if not sample_size:
-            sample_size = self._asmnt.demand.sample.shape[0]
-            warnings.warn(
-                'Using default sample size is deprecated and will '
-                'be removed in future versions. '
-                'Please provide the `sample_size` explicitly.',
-                DeprecationWarning,
-            )
-
-        self.log_div()
-        self.log_msg("Calculating losses...")
-
         # First, get the damaged quantities in each damage state for
         # each component of interest.
-        dmg_q = self._asmnt.damage.ds_model.sample.copy()
+        dmg_quantities = self._asmnt.damage.ds_model.sample.copy()
+        # TODO: FIND A WAY to avoid making a copy of this.
 
         # Now sample random Decision Variables
-        # Note that this method is DV-specific and needs to be
-        # implemented in every child of the LossModel independently.
-        self._generate_DV_sample(dmg_q, sample_size)
-
-        self.log_msg("Loss calculation successful.")
+        self._generate_DV_sample(dmg_quantities, sample_size)
 
     def aggregate_losses(self):
         """
@@ -590,12 +666,27 @@ class RepairModel_DS(RepairModel_Base):
 
         return df_agg.astype(float)
 
+    def _convert_loss_parameter_units(self):
+        """
+        Converts previously loaded loss parameters to base units.
+
+        """
+        units = self.loss_params[('DV', 'Unit')]
+        arg_units = self.loss_params[('Quantity', 'Unit')]
+        for column in self.loss_params.columns.unique(level=0):
+            if not column.startswith('DS'):
+                continue
+            self.loss_params.loc[:, column] = self._convert_marginal_params(
+                self.loss_params.loc[:, column].copy(), units, arg_units
+            ).values
+
     def _drop_unused_damage_states(self):
         """
         Removes columns from the loss model parameters corresponding
         to unused damage states.
 
         """
+
         first_level = self.loss_params.columns.get_level_values(0).unique().to_list()
         ds_list = [x for x in first_level if x.startswith('DS')]
         ds_to_drop = []
@@ -639,227 +730,101 @@ class RepairModel_DS(RepairModel_Base):
 
         """
 
-        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
-        LP = self.loss_params
-
-        # make ds the second level in the MultiIndex
-        case_DF = pd.DataFrame(
-            index=case_list.reorder_levels([0, 4, 1, 2, 3]),
-            columns=[
-                0,
-            ],
+        # Convert the MultiIndex to a DataFrame
+        case_df = pd.DataFrame(index=case_list).reset_index()
+        # maps `cmp` to array of damage states
+        damage_states = case_df.groupby('cmp')['ds'].unique().to_dict()
+        # maps `cmp`-`ds` to tuple of `loc`-`dir`-`uid` tuples
+        loc_dir_uids = (
+            case_df.groupby(['cmp', 'ds'])
+            .apply(lambda x: tuple(zip(x['loc'], x['dir'], x['uid'])))
+            .to_dict()
         )
-        case_DF.sort_index(axis=0, inplace=True)
-        driver_cmps = case_list.get_level_values(0).unique()
+
+        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
         rv_count = 0
 
-        # for each loss component
-        for loss_cmp_id in self.loss_map.index.values:
-            # load the corresponding parameters
-            driver_type, driver_cmp_id = self.loss_map.loc[loss_cmp_id, 'Driver']
-            conseq_cmp_id = self.loss_map.loc[loss_cmp_id, 'Consequence']
+        # for each component in the loss map
+        for component, consequence in self.loss_map['Repair'].items():
 
-            # currently, we only support DMG-based loss calculations
-            # but this will be extended in the very near future
-            if driver_type != 'DMG':
-                raise ValueError(
-                    f"Loss Driver type not recognized: " f"{driver_type}"
-                )
+            # for each DV
+            for decision_variable in self.decision_variables:
 
-            # load the parameters
-            # TODO: remove specific DV_type references and make the code below
-            # generate parameters for any DV_types provided
-            if (conseq_cmp_id, 'Cost') in LP.index:
-                cost_params = LP.loc[(conseq_cmp_id, 'Cost'), :]
-            else:
-                cost_params = None
+                # If loss parameters are missing for that consequence,
+                # don't estimate losses for it. A warning has already
+                # been issued for what is missing.
+                if (consequence, decision_variable) in self.missing:
+                    continue
 
-            if (conseq_cmp_id, 'Time') in LP.index:
-                time_params = LP.loc[(conseq_cmp_id, 'Time'), :]
-            else:
-                time_params = None
+                # If loss parameters are missing for that consequence,
+                # for this particular loss model, they will exist in
+                # the other(s).
+                if (consequence, decision_variable) not in self.loss_params.index:
+                    continue
 
-            if (conseq_cmp_id, 'Carbon') in LP.index:
-                carbon_params = LP.loc[(conseq_cmp_id, 'Carbon'), :]
-            else:
-                carbon_params = None
+                # load the corresponding parameters
+                parameters = self.loss_params.loc[
+                    (consequence, decision_variable), :
+                ]
 
-            if (conseq_cmp_id, 'Energy') in LP.index:
-                energy_params = LP.loc[(conseq_cmp_id, 'Energy'), :]
-            else:
-                energy_params = None
+                for ds in damage_states[component]:
+                    if ds == '0':
+                        continue
 
-            if driver_cmp_id not in driver_cmps:
+                    ds_family = parameters.at[(f'DS{ds}', 'Family')]
+                    ds_theta = [
+                        parameters.get((f'DS{ds}', f'Theta_{t_i}'), np.nan)
+                        for t_i in range(3)
+                    ]
+
+                    # If there is no RV family we don't need an RV
+                    if pd.isna(ds_family):
+                        continue
+
+                    # If the first parameter is controlled by a function, we use
+                    # 1.0 in its place and will scale the results in a later
+                    # step
+                    if isinstance(ds_theta[0], str) and '|' in ds_theta[0]:
+                        ds_theta[0] = 1.0
+
+                    loc_dir_uid = loc_dir_uids[(component, ds)]
+
+                    for loc, direction, uid in loc_dir_uid:
+                        # assign RVs
+                        RV_reg.add_RV(
+                            uq.rv_class_map(ds_family)(
+                                name=(
+                                    f'{decision_variable}-{component}-'
+                                    f'{ds}-{loc}-{direction}-{uid}'
+                                ),
+                                theta=ds_theta,
+                                truncation_limits=[0.0, np.nan],
+                            )
+                        )
+                        rv_count += 1
+
+        # assign Time-Cost correlation whenever applicable
+        for component, consequence in self.loss_map['Repair'].items():
+            if (consequence, decision_variable) in self.missing:
                 continue
-
-            for ds in case_DF.loc[driver_cmp_id, :].index.unique(level=0):
+            if (consequence, decision_variable) not in self.loss_params.index:
+                continue
+            for ds in damage_states[component]:
                 if ds == '0':
                     continue
-
-                if cost_params is not None:
-                    cost_params_DS = cost_params[f'DS{ds}']
-
-                    cost_family = cost_params_DS.get('Family', np.nan)
-                    cost_theta = [
-                        cost_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
-                    ]
-
-                    # If the first parameter is controlled by a function, we use
-                    # 1.0 in its place and will scale the results in a later
-                    # step
-                    if '|' in str(cost_theta[0]):
-                        # if isinstance(cost_theta[0], str):
-                        cost_theta[0] = 1.0
-
-                else:
-                    cost_family = np.nan
-
-                if time_params is not None:
-                    time_params_DS = time_params[f'DS{ds}']
-
-                    time_family = time_params_DS.get('Family', np.nan)
-                    time_theta = [
-                        time_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
-                    ]
-
-                    # If the first parameter is controlled by a function, we use
-                    # 1.0 in its place and will scale the results in a later
-                    # step
-                    if '|' in str(time_theta[0]):
-                        # if isinstance(time_theta[0], str):
-                        time_theta[0] = 1.0
-
-                else:
-                    time_family = np.nan
-
-                if carbon_params is not None:
-                    carbon_params_DS = carbon_params[f'DS{ds}']
-
-                    carbon_family = carbon_params_DS.get('Family', np.nan)
-                    carbon_theta = [
-                        carbon_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
-                    ]
-
-                    # If the first parameter is controlled by a function, we use
-                    # 1.0 in its place and will scale the results in a later
-                    # step
-                    if '|' in str(carbon_theta[0]):
-                        # if isinstance(carbon_theta[0], str):
-                        carbon_theta[0] = 1.0
-
-                else:
-                    carbon_family = np.nan
-
-                if energy_params is not None:
-                    energy_params_DS = energy_params[f'DS{ds}']
-
-                    energy_family = energy_params_DS.get('Family', np.nan)
-                    energy_theta = [
-                        energy_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
-                    ]
-
-                    # If the first parameter is controlled by a function, we use
-                    # 1.0 in its place and will scale the results in a later
-                    # step
-                    if '|' in str(energy_theta[0]):
-                        # if isinstance(energy_theta[0], str):
-                        energy_theta[0] = 1.0
-
-                else:
-                    energy_family = np.nan
-
-                # If neither of the DV_types has a stochastic model assigned,
-                # we do not need random variables for this DS
-                if (
-                    (pd.isna(cost_family))
-                    and (pd.isna(time_family))
-                    and (pd.isna(carbon_family))
-                    and (pd.isna(energy_family))
-                ):
-                    continue
-
-                # Otherwise, load the loc-dir cases
-                loc_dir_uid = case_DF.loc[(driver_cmp_id, ds)].index.values
-
                 for loc, direction, uid in loc_dir_uid:
-                    # assign cost RV
-                    if pd.isna(cost_family) is False:
-                        cost_rv_tag = (
-                            f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
-                        )
-
-                        RV_reg.add_RV(
-                            uq.rv_class_map(cost_family)(
-                                name=cost_rv_tag,
-                                theta=cost_theta,
-                                truncation_limits=[0.0, np.nan],
-                            )
-                        )
-                        rv_count += 1
-
-                    # assign time RV
-                    if pd.isna(time_family) is False:
-                        time_rv_tag = (
-                            f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
-                        )
-
-                        RV_reg.add_RV(
-                            uq.rv_class_map(time_family)(
-                                name=time_rv_tag,
-                                theta=time_theta,
-                                truncation_limits=[0.0, np.nan],
-                            )
-                        )
-                        rv_count += 1
-
-                    # assign time RV
-                    if pd.isna(carbon_family) is False:
-                        carbon_rv_tag = (
-                            f'Carbon-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
-                        )
-
-                        RV_reg.add_RV(
-                            uq.rv_class_map(carbon_family)(
-                                name=carbon_rv_tag,
-                                theta=carbon_theta,
-                                truncation_limits=[0.0, np.nan],
-                            )
-                        )
-                        rv_count += 1
-
-                    # assign time RV
-                    if pd.isna(energy_family) is False:
-                        energy_rv_tag = (
-                            f'Energy-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
-                        )
-
-                        RV_reg.add_RV(
-                            uq.rv_class_map(energy_family)(
-                                name=energy_rv_tag,
-                                theta=energy_theta,
-                                truncation_limits=[0.0, np.nan],
-                            )
-                        )
-                        rv_count += 1
-
-                    # assign correlation between RVs across DV_types
-                    # TODO: add more DV_types and handle cases with only a
-                    # subset of them being defined
+                    cost_rv_tag = f'Cost-{consequence}-{ds}-{loc}-{direction}-{uid}'
+                    time_rv_tag = f'Time-{consequence}-{ds}-{loc}-{direction}-{uid}'
                     if (
-                        (pd.isna(cost_family) is False)
-                        and (pd.isna(time_family) is False)
+                        cost_rv_tag in RV_reg.RV
+                        and time_rv_tag in RV_reg.RV
                         and (self._asmnt.options.rho_cost_time != 0.0)
                     ):
                         rho = self._asmnt.options.rho_cost_time
-
                         RV_reg.add_RV_set(
                             uq.RandomVariableSet(
-                                f'DV-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}_set',
+                                f'DV-{component}-{ds}-{loc}-{direction}-{uid}_set',
                                 list(
                                     RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()
                                 ),
@@ -873,7 +838,6 @@ class RepairModel_DS(RepairModel_Base):
 
         if rv_count > 0:
             return RV_reg
-        # else:
         return None
 
     def _calc_median_consequence(self, eco_qnt):
@@ -882,30 +846,29 @@ class RepairModel_DS(RepairModel_Base):
         component based on their quantities and the associated loss
         parameters.
 
-        This function evaluates the median consequences for different
-        types of decision variables (DV), such as repair costs or
-        repair time, based on the provided loss parameters. It
-        utilizes the eco_qnt DataFrame, which contains economic
-        quantity realizations for various damage states and
-        components, to compute the consequences.
-
         Parameters
         ----------
-        eco_qnt : DataFrame
-            A DataFrame containing economic quantity realizations for
-            various components and damage states, indexed or
-            structured to align with the loss parameters.
+        eco_qnt: DataFrame
+            A DataFrame containing quantity realizations for various
+            components and damage states, appropriately grouped to
+            account for economies of scale.
+
+        decision_variables: tuple
+            Defines the decision variables to be included in the loss
+            calculations. Defaults to those supported, but fewer can be
+            used if desired. When fewer are used, the loss parameters for
+            those not used will not be required.
 
         Returns
         -------
         dict
-            A dictionary where keys are the types of decision variables
-            (DV) like 'COST' or 'TIME', and values are DataFrames
-            containing the median consequences for each component and
-            damage state. These DataFrames are structured with
-            MultiIndex columns that may include 'cmp' (component),
+            A dictionary where keys are the types of decision
+            variables (DV) like 'COST' or 'TIME', and values are
+            DataFrames containing the median consequences for each
+            component and damage state. These DataFrames are structured
+            with MultiIndex columns that may include 'cmp' (component),
             'ds' (damage state), and potentially 'loc' (location),
-            depending on assessment options.
+            depending on the way economies of scale are handled.
 
         Raises
         ------
@@ -917,28 +880,15 @@ class RepairModel_DS(RepairModel_Base):
 
         medians = {}
 
-        DV_types = self.loss_params.index.unique(level=1)
-
-        # for DV_type, DV_type_scase in zip(['COST', 'TIME'], ['Cost', 'Time']):
-        for DV_type in DV_types:
+        for decision_variable in self.decision_variables:
             cmp_list = []
             median_list = []
 
             for loss_cmp_id in self.loss_map.index:
-                driver_type, driver_cmp = self.loss_map.loc[loss_cmp_id, 'Driver']
-                loss_cmp_name = self.loss_map.loc[loss_cmp_id, 'Consequence']
 
-                # check if the given DV type is available as an output for the
-                # selected component
-                if (loss_cmp_name, DV_type) not in self.loss_params.index:
-                    continue
+                loss_cmp_name = self.loss_map.loc[loss_cmp_id, 'Repair']
 
-                if driver_type != 'DMG':
-                    raise ValueError(
-                        f"Loss Driver type not recognized: " f"{driver_type}"
-                    )
-
-                if driver_cmp not in eco_qnt.columns.get_level_values(0).unique():
+                if loss_cmp_id not in eco_qnt.columns.get_level_values(0).unique():
                     continue
 
                 ds_list = []
@@ -954,7 +904,7 @@ class RepairModel_DS(RepairModel_Base):
                         continue
 
                     loss_params_DS = self.loss_params.loc[
-                        (loss_cmp_name, DV_type), ds
+                        (loss_cmp_name, decision_variable), ds
                     ]
 
                     # check if theta_0 is defined
@@ -1000,15 +950,17 @@ class RepairModel_DS(RepairModel_Base):
                     # get the corresponding aggregate damage quantities
                     # to consider economies of scale
                     if 'ds' in eco_qnt.columns.names:
-                        avail_ds = eco_qnt.loc[:, driver_cmp].columns.unique(level=0)
+                        avail_ds = eco_qnt.loc[:, loss_cmp_id].columns.unique(
+                            level=0
+                        )
 
                         if ds_id not in avail_ds:
                             continue
 
-                        eco_qnt_i = eco_qnt.loc[:, (driver_cmp, ds_id)].copy()
+                        eco_qnt_i = eco_qnt.loc[:, (loss_cmp_id, ds_id)].copy()
 
                     else:
-                        eco_qnt_i = eco_qnt.loc[:, driver_cmp].copy()
+                        eco_qnt_i = eco_qnt.loc[:, loss_cmp_id].copy()
 
                     if isinstance(eco_qnt_i, pd.Series):
                         eco_qnt_i = eco_qnt_i.to_frame()
@@ -1042,7 +994,7 @@ class RepairModel_DS(RepairModel_Base):
                     result.columns.names = ['cmp', 'ds', 'loc']
 
                 # save the results to the returned dictionary
-                medians.update({DV_type: result})
+                medians.update({decision_variable: result})
 
         return medians
 
@@ -1064,6 +1016,7 @@ class RepairModel_DS(RepairModel_Base):
         ------
         ValueError
             When any Loss Driver is not recognized.
+
         """
 
         # calculate the quantities for economies of scale
@@ -1141,23 +1094,8 @@ class RepairModel_DS(RepairModel_Base):
 
             std_sample = base.convert_to_MultiIndex(
                 pd.DataFrame(RV_reg.RV_sample), axis=1
-            ).sort_index(axis=1)
-            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'uid']
-
-            # convert column names to int
-            std_idx = std_sample.columns.levels
-
-            std_sample.columns = std_sample.columns.set_levels(
-                [
-                    std_idx[0],
-                    std_idx[1].astype(int),
-                    std_idx[2],
-                    std_idx[3],
-                    std_idx[4],
-                    std_idx[5],
-                ]
             )
-
+            std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'uid']
             std_sample.sort_index(axis=1, inplace=True)
 
         else:
@@ -1173,49 +1111,41 @@ class RepairModel_DS(RepairModel_Base):
         key_list = []
 
         dmg_quantities.columns = dmg_quantities.columns.reorder_levels(
-            [0, 4, 1, 2, 3]
+            ['cmp', 'ds', 'loc', 'dir', 'uid']
         )
         dmg_quantities.sort_index(axis=1, inplace=True)
 
-        DV_types = self.loss_params.index.unique(level=1)
-
-        if isinstance(std_sample, pd.DataFrame):
-            std_DV_types = std_sample.columns.unique(level=0)
+        if std_sample is not None:
+            std_dvs = std_sample.columns.unique(level=0)
         else:
-            std_DV_types = []
+            std_dvs = []
 
-        # for DV_type, _ in zip(['COST', 'TIME'], ['Cost', 'Time']):
-        for DV_type in DV_types:
-            if DV_type in std_DV_types:
-                prob_cmp_list = std_sample[DV_type].columns.unique(level=0)
+        for decision_variable in self.decision_variables:
+            if decision_variable in std_dvs:
+                prob_cmp_list = std_sample[decision_variable].columns.unique(level=0)
             else:
                 prob_cmp_list = []
 
             cmp_list = []
 
-            if DV_type not in medians:
-                continue
-
-            for cmp_i in medians[DV_type].columns.unique(level=0):
+            for component in medians[decision_variable].columns.unique(level=0):
                 # check if there is damage in the component
-                driver_type, dmg_cmp_i = self.loss_map.loc[cmp_i, 'Driver']
-                loss_cmp_i = self.loss_map.loc[cmp_i, 'Consequence']
+                consequence = self.loss_map.at[component, 'Repair']
 
-                if driver_type != 'DMG':
-                    raise ValueError(
-                        f"Loss Driver type not " f"recognized: {driver_type}"
-                    )
-
-                if not (dmg_cmp_i in dmg_quantities.columns.unique(level=0)):
+                if not (component in dmg_quantities.columns.get_level_values('cmp')):
                     continue
 
                 ds_list = []
 
-                for ds in medians[DV_type].loc[:, cmp_i].columns.unique(level=0):
+                for ds in (
+                    medians[decision_variable]
+                    .loc[:, component]
+                    .columns.unique(level=0)
+                ):
                     loc_list = []
 
                     for loc_id, loc in enumerate(
-                        dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.unique(
+                        dmg_quantities.loc[:, (component, ds)].columns.unique(
                             level=0
                         )
                     ):
@@ -1225,20 +1155,28 @@ class RepairModel_DS(RepairModel_Base):
                             break
 
                         if self._asmnt.options.eco_scale["AcrossFloors"] is True:
-                            median_i = medians[DV_type].loc[:, (cmp_i, ds)]
-                            dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds)]
+                            median_i = medians[decision_variable].loc[
+                                :, (component, ds)
+                            ]
+                            dmg_i = dmg_quantities.loc[:, (component, ds)]
 
-                            if cmp_i in prob_cmp_list:
-                                std_i = std_sample.loc[:, (DV_type, cmp_i, ds)]
+                            if component in prob_cmp_list:
+                                std_i = std_sample.loc[
+                                    :, (decision_variable, component, ds)
+                                ]
                             else:
                                 std_i = None
 
                         else:
-                            median_i = medians[DV_type].loc[:, (cmp_i, ds, loc)]
-                            dmg_i = dmg_quantities.loc[:, (dmg_cmp_i, ds, loc)]
+                            median_i = medians[decision_variable].loc[
+                                :, (component, ds, loc)
+                            ]
+                            dmg_i = dmg_quantities.loc[:, (component, ds, loc)]
 
-                            if cmp_i in prob_cmp_list:
-                                std_i = std_sample.loc[:, (DV_type, cmp_i, ds, loc)]
+                            if component in prob_cmp_list:
+                                std_i = std_sample.loc[
+                                    :, (decision_variable, component, ds, loc)
+                                ]
                             else:
                                 std_i = None
 
@@ -1257,20 +1195,20 @@ class RepairModel_DS(RepairModel_Base):
                         ds_list += [(ds, loc) for loc in loc_list]
 
                 if self._asmnt.options.eco_scale["AcrossFloors"] is True:
-                    cmp_list += [(loss_cmp_i, dmg_cmp_i, ds) for ds in ds_list]
+                    cmp_list += [(consequence, component, ds) for ds in ds_list]
                 else:
                     cmp_list += [
-                        (loss_cmp_i, dmg_cmp_i, ds, loc) for ds, loc in ds_list
+                        (consequence, component, ds, loc) for ds, loc in ds_list
                     ]
 
             if self._asmnt.options.eco_scale["AcrossFloors"] is True:
                 key_list += [
-                    (DV_type, loss_cmp_i, dmg_cmp_i, ds)
+                    (decision_variable, loss_cmp_i, dmg_cmp_i, ds)
                     for loss_cmp_i, dmg_cmp_i, ds in cmp_list
                 ]
             else:
                 key_list += [
-                    (DV_type, loss_cmp_i, dmg_cmp_i, ds, loc)
+                    (decision_variable, loss_cmp_i, dmg_cmp_i, ds, loc)
                     for loss_cmp_i, dmg_cmp_i, ds, loc in cmp_list
                 ]
 
@@ -1278,15 +1216,9 @@ class RepairModel_DS(RepairModel_Base):
         DV_sample = pd.concat(res_list, axis=1, keys=key_list, names=lvl_names)
 
         DV_sample = DV_sample.fillna(0).convert_dtypes()
-        DV_sample.columns.names = lvl_names
 
         # Get the flags for replacement consequence trigger
-        DV_sum = DV_sample.groupby(
-            level=[
-                1,
-            ],
-            axis=1,
-        ).sum()
+        DV_sum = DV_sample.groupby(level=[1], axis=1).sum()
         if 'replacement' in DV_sum.columns:
             # When the 'replacement' consequence is triggered, all
             # local repair consequences are discarded. Note that
@@ -1295,8 +1227,7 @@ class RepairModel_DS(RepairModel_Base):
             id_replacement = DV_sum['replacement'] > 0
 
             # get the list of non-zero locations
-            locs = DV_sample.columns.get_level_values(4).unique().values
-
+            locs = DV_sample.columns.get_level_values('loc').unique().values
             locs = locs[locs != '0']
 
             DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
@@ -1306,15 +1237,27 @@ class RepairModel_DS(RepairModel_Base):
         self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
 
 
-class RepairModel_DR(RepairModel_Base):
+class RepairModel_LF(RepairModel_Base):
     """
     Manages repair consequences driven by components that are modeled
-    with Damage Ratios (DR)
+    with Loss Functions (LF)
 
     """
 
     def __init__(self, assessment):
         super().__init__(assessment)
+
+    def _convert_loss_parameter_units(self):
+        """
+        Converts previously loaded loss parameters to base units.
+
+        """
+        units = self.loss_params[('DV', 'Unit')]
+        arg_units = self.loss_params[('Demand', 'Unit')]
+        column = 'LossFunction'
+        self.loss_params.loc[:, column] = self._convert_marginal_params(
+            self.loss_params[column].copy(), units, arg_units, divide_units=False
+        ).values
 
 
 def prep_constant_median_DV(median):
@@ -1389,15 +1332,15 @@ def prep_bounded_multilinear_median_DV(medians, quantities):
 
 def _is_for_dr_model(data):
     """
-    Determines if the specified damage model parameters are for
-    components modeled with a Damage Ratio (DR).
+    Determines if the specified loss model parameters are for
+    components modeled with Loss Functions (LF).
     """
     return 'LossFunction' in data.columns.get_level_values(0)
 
 
 def _is_for_ds_model(data):
     """
-    Determines if the specified damage model parameters are for
+    Determines if the specified loss model parameters are for
     components modeled with discrete Damage States (DS).
     """
     return 'DS1' in data.columns.get_level_values(0)
