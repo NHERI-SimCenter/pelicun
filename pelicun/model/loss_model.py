@@ -129,7 +129,7 @@ class LossModel(PelicunModel):
         for model in self._loss_models:
             model.decision_variables = decision_variables
 
-    def add_loss_map(self, loss_map_path=None):
+    def add_loss_map(self, loss_map_path=None, loss_map_policy=None):
         """
         Add a loss map to the loss model. A loss map defines what loss
         parameter definition should be used for each component ID in
@@ -140,16 +140,26 @@ class LossModel(PelicunModel):
         loss_map_path: str or pd.DataFrame or None
             Path to a csv file or DataFrame object that maps
             components IDs to their loss parameter definitions.
-            Components in the asset model that are omitted from the
-            provided loss map are mapped to the same ID.
+        loss_map_policy: str or None
+            If None, does not modify the loss map.
+            If set to `fill`, each component ID that is present in the
+            asset model but not in the loss map is mapped to itself.
+
+        Raises
+        ------
+        ValueError
+            If both arguments are None.
+
         """
+
         self.log_msg('Loading loss map...')
 
-        # TODO
-        # Here the default behavior should be to leave the loss map
-        # unchanged, unless the user specifies a different method.
-        # Currently it fills the missing components by mapping them to
-        # their own ID.
+        # If no loss map is provided and no default is requested,
+        # there is no loss map and we can't proceed.
+        if loss_map_path is None and loss_map_policy is None:
+            raise ValueError(
+                'Please provide a loss map and/or a loss map extension policy.'
+            )
 
         # get a list of unique component IDs
         cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
@@ -166,15 +176,23 @@ class LossModel(PelicunModel):
             )
         else:
             self.log_msg('Using default loss map.', prepend_timestamp=False)
-            # If no loss map is provided map cmp_id -> cmp_id as a
-            # default choice: Instantiate an empty loss map.
+            # Instantiate an empty loss map.
             loss_map = pd.DataFrame({'Repair': pd.Series(dtype='object')})
             loss_map.index = loss_map.index.astype('object')
 
-        # Populate missing rows with cmp_id -> cmp_id
-        for component in cmp_set:
-            if component not in loss_map.index:
-                loss_map.loc[component, :] = component
+        if loss_map_policy == 'fill':
+            # Populate missing rows with cmp_id -> cmp_id
+            for component in cmp_set:
+                if component not in loss_map.index:
+                    loss_map.loc[component, :] = component
+
+        elif loss_map_policy is None:
+            # Don't do anything.
+            pass
+
+        # TODO: add other loss map policies.
+        else:
+            raise ValueError(f'Unknown loss map policy: `{loss_map_policy}`.')
 
         # Assign the loss map to the available loss models
         self._loss_map = loss_map
@@ -650,20 +668,17 @@ class RepairModel_DS(RepairModel_Base):
         # group results by DV type and location
         aggregated = self.sample.groupby(level=[0, 4], axis=1).sum()
 
+        # Note: The `Time` DV receives special treatment.
+
         # create the summary DF
-        df_agg = pd.DataFrame(
-            index=self.sample.index,
-            columns=[
-                'repair_cost',
-                'repair_time-parallel',
-                'repair_time-sequential',
-                'repair_carbon',
-                'repair_energy',
-            ],
-        )
+        columns = [f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time']
+        if 'Time' in self.decision_variables:
+            columns.extend(('repair_time-sequential', 'repair_time-parallel'))
+        df_agg = pd.DataFrame(index=self.sample.index, columns=columns)
 
         for decision_variable in self.decision_variables:
 
+            # Time ..
             if decision_variable == 'Time':
                 if 'Time' in aggregated.columns:
                     df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
@@ -673,6 +688,7 @@ class RepairModel_DS(RepairModel_Base):
                     df_agg = df_agg.drop(
                         ['repair_time-parallel', 'repair_time-sequential'], axis=1
                     )
+            # All other ..
             else:
                 if decision_variable in aggregated.columns:
                     df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
@@ -839,6 +855,7 @@ class RepairModel_DS(RepairModel_Base):
                 for ds in damage_states[component]:
                     if ds == '0':
                         continue
+                    loc_dir_uid = loc_dir_uids[(component, ds)]
                     for loc, direction, uid in loc_dir_uid:
                         cost_rv_tag = (
                             f'Cost-{consequence}-{ds}-{loc}-{direction}-{uid}'
@@ -1162,6 +1179,8 @@ class RepairModel_DS(RepairModel_Base):
 
             cmp_list = []
 
+            if decision_variable not in medians:
+                continue
             for component in medians[decision_variable].columns.unique(level=0):
                 # check if there is damage in the component
                 consequence = self._loss_map.at[component, 'Repair']
