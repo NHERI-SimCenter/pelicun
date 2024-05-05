@@ -164,7 +164,9 @@ class LossModel(PelicunModel):
             else:
                 raise ValueError(f'Invalid loss model parameters: {data_path}')
 
-        self.log_msg('Loss model parameters loaded successfully.')
+        self.log_msg(
+            'Loss model parameters loaded successfully.', prepend_timestamp=False
+        )
 
         #
         # remove items
@@ -188,7 +190,9 @@ class LossModel(PelicunModel):
         # convert units
         #
 
-        self.log_msg('Converting loss model parameter units.')
+        self.log_msg(
+            'Converting loss model parameter units.', prepend_timestamp=False
+        )
         for loss_model in self.loss_models:
             loss_model._convert_loss_parameter_units()
 
@@ -198,7 +202,8 @@ class LossModel(PelicunModel):
 
         self.log_msg(
             'Checking loss model parameter '
-            'availability for all components in the asset model.'
+            'availability for all components in the asset model.',
+            prepend_timestamp=False,
         )
         missing_components = self._ensure_loss_parameter_availability(cmp_list)
 

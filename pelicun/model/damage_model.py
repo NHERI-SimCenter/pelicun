@@ -95,7 +95,7 @@ class DamageModel(PelicunModel):
         """
 
         self.log_div()
-        self.log_msg('Loading damage model...')
+        self.log_msg('Loading damage model...', prepend_timestamp=False)
 
         # replace default flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
@@ -117,13 +117,13 @@ class DamageModel(PelicunModel):
             else:
                 raise ValueError(f'Invalid damage model parameters: {data_path}')
 
-        self.log_msg('Damage model parameters loaded successfully.')
+        self.log_msg('Damage model parameters loaded successfully.', prepend_timestamp=False)
 
         #
         # remove items
         #
 
-        self.log_msg('Removing unused damage model parameters.')
+        self.log_msg('Removing unused damage model parameters.', prepend_timestamp=False)
         # get a list of unique component IDs
         cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
 
@@ -137,7 +137,7 @@ class DamageModel(PelicunModel):
         # convert units
         #
 
-        self.log_msg('Converting damage model parameter units.')
+        self.log_msg('Converting damage model parameter units.', prepend_timestamp=False)
         for damage_model in self.damage_models:
             damage_model._convert_damage_parameter_units()
 
@@ -147,7 +147,7 @@ class DamageModel(PelicunModel):
 
         self.log_msg(
             'Checking damage model parameter '
-            'availability for all components in the asset model.'
+            'availability for all components in the asset model.', prepend_timestamp=False
         )
         missing_components = self._ensure_damage_parameter_availability(cmp_set)
 
