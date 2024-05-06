@@ -915,25 +915,21 @@ class RepairModel_DS(RepairModel_Base):
         for decision_variable in self.decision_variables:
 
             # Time ..
-            if decision_variable == 'Time':
-                if 'Time' in aggregated.columns:
-                    df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
+            if decision_variable == 'Time' and 'Time' in aggregated.columns:
+                df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
 
-                    df_agg['repair_time-parallel'] = aggregated['Time'].max(axis=1)
-                else:
-                    df_agg = df_agg.drop(
-                        ['repair_time-parallel', 'repair_time-sequential'], axis=1
-                    )
+                df_agg['repair_time-parallel'] = aggregated['Time'].max(axis=1)
+            elif decision_variable == 'Time' and 'Time' not in aggregated.columns:
+                df_agg = df_agg.drop(
+                    ['repair_time-parallel', 'repair_time-sequential'], axis=1
+                )
             # All other ..
+            elif decision_variable in aggregated.columns:
+                df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
+                    decision_variable
+                ].sum(axis=1)
             else:
-                if decision_variable in aggregated.columns:
-                    df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
-                        decision_variable
-                    ].sum(axis=1)
-                else:
-                    df_agg = df_agg.drop(
-                        f'repair_{decision_variable.lower()}', axis=1
-                    )
+                df_agg = df_agg.drop(f'repair_{decision_variable.lower()}', axis=1)
 
         # TODO: implement conversion of loss values to any desired
         # unit other than the base loss units

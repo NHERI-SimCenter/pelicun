@@ -227,6 +227,90 @@ class DamageModel(PelicunModel):
 
         self.log_msg('Damage calculation completed.', prepend_timestamp=False)
 
+    def save_sample(self, filepath=None, save_units=False):
+        """
+        Saves the damage sample data to a CSV file or returns it
+        directly with an option to include units.
+
+        This function handles saving the sample data of damage
+        assessments to a specified file path or, if no path is
+        provided, returns the data as a DataFrame. The function can
+        optionally include a row for unit information when returning
+        data.
+
+        Parameters
+        ----------
+        filepath : str, optional
+            The path to the file where the damage sample should be
+            saved. If not provided, the sample is not saved to disk
+            but returned.
+        save_units : bool, default: False
+            Indicates whether to include a row with unit information
+            in the returned DataFrame. This parameter is ignored if a
+            file path is provided.
+
+        Returns
+        -------
+        None or tuple
+            If `filepath` is provided, the function returns None after
+            saving the data.
+            If no `filepath` is specified, returns:
+            - DataFrame containing the damage sample.
+            - Optionally, a Series containing the units for each
+              column if `save_units` is True.
+        """
+        self.log_div()
+        self.log_msg('Saving damage sample...')
+
+        cmp_units = self._asmnt.asset.cmp_units
+        qnt_units = pd.Series(
+            index=self.ds_model.sample.columns, name='Units', dtype='object'
+        )
+        for cmp in cmp_units.index:
+            qnt_units.loc[cmp] = cmp_units.loc[cmp]
+
+        res = file_io.save_to_csv(
+            self.ds_model.sample,
+            filepath,
+            units=qnt_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log,
+        )
+
+        if filepath is not None:
+            self.log_msg(
+                'Damage sample successfully saved.', prepend_timestamp=False
+            )
+            return None
+
+        # else:
+        units = res.loc["Units"]
+        res.drop("Units", inplace=True)
+        res.index = res.index.astype('int64')
+
+        if save_units:
+            return res.astype(float), units
+
+        return res.astype(float)
+
+    def load_sample(self, filepath):
+        """
+        Load damage state sample data.
+
+        """
+        self.log_div()
+        self.log_msg('Loading damage sample...')
+
+        self.ds_model.sample = file_io.load_data(
+            filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
+        )
+
+        # set the names of the columns
+        self.ds_model.sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
+
+        self.log_msg('Damage sample successfully loaded.', prepend_timestamp=False)
+
     def _get_component_id_set(self):
         """
         Get a set of components for which damage parameters are
@@ -722,89 +806,7 @@ class DamageModel_DS(DamageModel_Base):
 
     """
 
-    def save_sample(self, filepath=None, save_units=False):
-        """
-        Saves the damage sample data to a CSV file or returns it
-        directly with an option to include units.
-
-        This function handles saving the sample data of damage
-        assessments to a specified file path or, if no path is
-        provided, returns the data as a DataFrame. The function can
-        optionally include a row for unit information when returning
-        data.
-
-        Parameters
-        ----------
-        filepath : str, optional
-            The path to the file where the damage sample should be
-            saved. If not provided, the sample is not saved to disk
-            but returned.
-        save_units : bool, default: False
-            Indicates whether to include a row with unit information
-            in the returned DataFrame. This parameter is ignored if a
-            file path is provided.
-
-        Returns
-        -------
-        None or tuple
-            If `filepath` is provided, the function returns None after
-            saving the data.
-            If no `filepath` is specified, returns:
-            - DataFrame containing the damage sample.
-            - Optionally, a Series containing the units for each
-              column if `save_units` is True.
-        """
-        self.log_div()
-        self.log_msg('Saving damage sample...')
-
-        cmp_units = self._asmnt.asset.cmp_units
-        qnt_units = pd.Series(
-            index=self.sample.columns, name='Units', dtype='object'
-        )
-        for cmp in cmp_units.index:
-            qnt_units.loc[cmp] = cmp_units.loc[cmp]
-
-        res = file_io.save_to_csv(
-            self.sample,
-            filepath,
-            units=qnt_units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=(filepath is not None),
-            log=self._asmnt.log,
-        )
-
-        if filepath is not None:
-            self.log_msg(
-                'Damage sample successfully saved.', prepend_timestamp=False
-            )
-            return None
-
-        # else:
-        units = res.loc["Units"]
-        res.drop("Units", inplace=True)
-        res.index = res.index.astype('int64')
-
-        if save_units:
-            return res.astype(float), units
-
-        return res.astype(float)
-
-    def load_sample(self, filepath):
-        """
-        Load damage state sample data.
-
-        """
-        self.log_div()
-        self.log_msg('Loading damage sample...')
-
-        self.sample = file_io.load_data(
-            filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
-        )
-
-        # set the names of the columns
-        self.sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
-
-        self.log_msg('Damage sample successfully loaded.', prepend_timestamp=False)
+    __slots__ = []
 
     def _obtain_ds_sample(
         self,
