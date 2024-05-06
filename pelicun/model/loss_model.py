@@ -65,8 +65,8 @@ class LossModel(PelicunModel):
     """
     Manages loss information used in assessments.
 
-    Groups a loss model for components with Damage States (DS) and
-    another for components with Loss Functions (LF).
+    Contains a loss model for components with Damage States (DS) and
+    one for components with Loss Functions (LF).
 
     """
 
@@ -310,6 +310,109 @@ class LossModel(PelicunModel):
         self.lf_model._calculate(sample_size)
 
         self.log_msg("Loss calculation successful.")
+
+    def save_sample(self, filepath=None, save_units=False):
+        """
+        Saves the loss sample to a CSV file or returns it as a
+        DataFrame with optional units.
+
+        This method handles the storage of a sample of loss estimates,
+        which can either be saved directly to a file or returned as a
+        DataFrame for further manipulation. When saving to a file,
+        additional information such as unit conversion factors and
+        column units can be included. If the data is not being saved
+        to a file, the method can return the DataFrame with or without
+        units as specified.
+
+        Parameters
+        ----------
+        filepath : str, optional
+            The path where the loss samples should be saved. If not
+            provided, the samples are not saved to disk but
+            returned. A prefix is added internally for each loss
+            model.
+        save_units : bool, default: False
+            Indicates whether to include a row with unit information
+            in the returned DataFrame. This parameter is ignored if a
+            file path is provided.
+
+        Returns
+        -------
+        None or dict
+            If `filepath` is provided, the function returns None after
+            saving the data.
+            If no `filepath` is specified, returns a dictionary with
+            the following data for each loss model:
+            - DataFrame containing the loss sample.
+            - Optionally, a Series containing the units for each
+              column if `save_units` is True.
+
+        Raises
+        ------
+        IOError
+            Raises an IOError if there is an issue saving the file to
+            the specified `filepath`.
+        """
+        self.log_div()
+        if filepath is not None:
+            self.log_msg('Saving loss sample...')
+            ds_filepath = f'DS_{filepath}'
+
+        # DS model
+
+        cmp_units = self.ds_model.loss_params[('DV', 'Unit')]
+        dv_units = pd.Series(
+            index=self.ds_model.sample.columns, name='Units', dtype='object'
+        )
+
+        valid_dv_types = dv_units.index.unique(level=0)
+        valid_cmp_ids = dv_units.index.unique(level=1)
+
+        for cmp_id, dv_type in cmp_units.index:
+            if (dv_type in valid_dv_types) and (cmp_id in valid_cmp_ids):
+                dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
+
+        res = file_io.save_to_csv(
+            self.ds_model.sample,
+            ds_filepath,
+            units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log,
+        )
+
+        if filepath is not None:
+            self.log_msg('Loss sample successfully saved.', prepend_timestamp=False)
+            return None
+
+        units = res.loc["Units"]
+        res.drop("Units", inplace=True)
+
+        if save_units:
+            return {'DS': (res.astype(float), units)}
+
+        return {'DS': res.astype(float)}
+
+    def load_sample(self, filepath):
+        """
+        Load loss sample data.
+
+        Parameters
+        ----------
+        filepath: str
+            The path where the loss samples should be loaded from. A
+            prefix is added internally for each loss model.
+
+        """
+        self.log_div()
+        self.log_msg('Loading loss sample...')
+
+        ds_filepath = f'DS_{filepath}'
+        self.ds_model.sample = file_io.load_data(
+            ds_filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
+        )
+
+        self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
     def aggregate_losses(self):
         """
@@ -565,96 +668,6 @@ class RepairModel_DS(RepairModel_Base):
     """
 
     __slots__ = ['decision_variables', '_loss_map', '_missing']
-
-    def save_sample(self, filepath=None, save_units=False):
-        """
-        Saves the loss sample to a CSV file or returns it as a
-        DataFrame with optional units.
-
-        This method handles the storage of a sample of loss estimates,
-        which can either be saved directly to a file or returned as a
-        DataFrame for further manipulation. When saving to a file,
-        additional information such as unit conversion factors and
-        column units can be included. If the data is not being saved
-        to a file, the method can return the DataFrame with or without
-        units as specified.
-
-        Parameters
-        ----------
-        filepath : str, optional
-            The path to the file where the loss sample should be
-            saved. If not provided, the sample is not saved to disk
-            but returned.
-        save_units : bool, default: False
-            Indicates whether to include a row with unit information
-            in the returned DataFrame. This parameter is ignored if a
-            file path is provided.
-
-        Returns
-        -------
-        None or tuple
-            If `filepath` is provided, the function returns None after
-            saving the data.
-            If no `filepath` is specified, returns:
-            - DataFrame containing the loss sample.
-            - Optionally, a Series containing the units for each
-              column if `save_units` is True.
-
-        Raises
-        ------
-        IOError
-            Raises an IOError if there is an issue saving the file to
-            the specified `filepath`.
-        """
-        self.log_div()
-        if filepath is not None:
-            self.log_msg('Saving loss sample...')
-
-        cmp_units = self.loss_params[('DV', 'Unit')]
-        dv_units = pd.Series(index=self.sample.columns, name='Units', dtype='object')
-
-        valid_dv_types = dv_units.index.unique(level=0)
-        valid_cmp_ids = dv_units.index.unique(level=1)
-
-        for cmp_id, dv_type in cmp_units.index:
-            if (dv_type in valid_dv_types) and (cmp_id in valid_cmp_ids):
-                dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
-
-        res = file_io.save_to_csv(
-            self.sample,
-            filepath,
-            units=dv_units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=(filepath is not None),
-            log=self._asmnt.log,
-        )
-
-        if filepath is not None:
-            self.log_msg('Loss sample successfully saved.', prepend_timestamp=False)
-            return None
-
-        # else:
-        units = res.loc["Units"]
-        res.drop("Units", inplace=True)
-
-        if save_units:
-            return res.astype(float), units
-
-        return res.astype(float)
-
-    def load_sample(self, filepath):
-        """
-        Load loss sample data.
-
-        """
-        self.log_div()
-        self.log_msg('Loading loss sample...')
-
-        self.sample = file_io.load_data(
-            filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
-        )
-
-        self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
     def _calculate(self, dmg_quantities, sample_size):
         """
