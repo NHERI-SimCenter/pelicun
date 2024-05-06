@@ -1049,3 +1049,129 @@ class DemandModel(PelicunModel):
             f"\nSuccessfully generated {sample_size} realizations.",
             prepend_timestamp=False,
         )
+
+
+def _get_required_demand_type(model_parameters, PGB, demand_offset={}):
+    """
+    Returns the id of the demand needed to calculate damage or
+    loss of a component.
+
+    This method returns the demand type and its properties
+    required to calculate the the damage or loss of a
+    component. The properties include whether the demand is
+    directional, the offset, and the type of the demand. The
+    method takes as input a dataframe `PGB` that contains
+    information about the component groups in the asset. For each
+    performance group PG in the PGB dataframe, the method
+    retrieves the relevant parameters from the model_params
+    dataframe and parses the demand type into its properties. If
+    the demand type has a subtype, the method splits it and adds
+    the subtype to the demand type to form the EDP type. The
+    method also considers the default offset for the demand type,
+    if it is specified in the options attribute of the assessment,
+    and adds the offset to the EDP. If the demand is directional,
+    the direction is added to the EDP. The method collects all the
+    unique EDPs for each component group and returns them as a
+    dictionary where each key is an EDP and its value is a list of
+    component groups that require that EDP.
+
+    Parameters
+    ----------
+    model_parameters: pd.DataFrame
+        Model parameters. Damage model parameters, or
+        loss-function loss model parameters.
+    PGB: pd.DataFrame
+        A pandas DataFrame with the block information for
+        each component
+    demand_offset: dict
+        Specifies an additional location offset for specific
+        demand types. Example:
+        {'PFA': -1, 'PFV': +2}.
+
+    Returns
+    -------
+    dict
+        A dictionary of EDP requirements, where each key is the EDP
+        string (e.g., "PGA-0-1"), and the
+        corresponding value is a list of tuples (component_id,
+        location, direction)
+
+    """
+
+    EDP_req = {}
+
+    for PG in PGB.index:
+        # Get the component name from the first element of the
+        # `PG` tuple
+        cmp = PG[0]
+
+        # Get the directional, offset, and demand_type parameters
+        # from the `model_parameters` DataFrame
+        directional, offset, demand_type = model_parameters.loc[
+            cmp,
+            [
+                ('Demand', 'Directional'),
+                ('Demand', 'Offset'),
+                ('Demand', 'Type'),
+            ],
+        ]
+
+        # Parse the demand type
+
+        # Check if there is a subtype included in the demand_type
+        # string
+        if '|' in demand_type:
+            # If there is a subtype, split the demand_type string
+            # on the '|' character
+            demand_type, subtype = demand_type.split('|')
+            # Convert the demand type to the corresponding EDP
+            # type using `base.EDP_to_demand_type`
+            demand_type = base.EDP_to_demand_type[demand_type]
+            # Concatenate the demand type and subtype to form the
+            # EDP type
+            EDP_type = f'{demand_type}_{subtype}'
+        else:
+            # If there is no subtype, convert the demand type to
+            # the corresponding EDP type using
+            # `base.EDP_to_demand_type`
+            demand_type = base.EDP_to_demand_type[demand_type]
+            # Assign the EDP type to be equal to the demand type
+            EDP_type = demand_type
+
+        # Consider the default offset, if needed
+        if demand_type in demand_offset.keys():
+            # If the demand type has a default offset in
+            # `demand_offset`, add the offset
+            # to the default offset
+            offset = int(offset + demand_offset[demand_type])
+        else:
+            # If the demand type does not have a default offset in
+            # `demand_offset`, convert the
+            # offset to an integer
+            offset = int(offset)
+
+        # Determine the direction
+        if directional:
+            # If the demand is directional, use the third element
+            # of the `PG` tuple as the direction
+            direction = PG[2]
+        else:
+            # If the demand is not directional, use '0' as the
+            # direction
+            direction = '0'
+
+        # Concatenate the EDP type, offset, and direction to form
+        # the EDP key
+        EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
+
+        # If the EDP key is not already in the `EDP_req`
+        # dictionary, add it and initialize it with an empty list
+        if EDP not in EDP_req:
+            EDP_req.update({EDP: []})
+
+        # Add the current PG (performance group) to the list of
+        # PGs associated with the current EDP key
+        EDP_req[EDP].append(PG)
+
+    # Return the required EDPs
+    return EDP_req

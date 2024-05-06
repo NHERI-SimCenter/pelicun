@@ -52,6 +52,7 @@ This file defines Loss model objects and their methods.
 import warnings
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun import base
 from pelicun import uq
@@ -284,7 +285,7 @@ class LossModel(PelicunModel):
 
         self._missing = missing
 
-    def calculate(self, sample_size=None):
+    def calculate(self):
         """
         Calculate the loss of each component block.
 
@@ -292,23 +293,19 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg('Calculating losses...')
 
-        if not sample_size:
-            warnings.warn(
-                'Using default sample size is deprecated and will '
-                'be removed in future versions. '
-                'Please provide the `sample_size` explicitly.',
-                DeprecationWarning,
-            )
-            sample_size = self._asmnt.demand.sample.shape[0]
-
         # Get the damaged quantities in each damage state for each
         # component of interest.
         # TODO: FIND A WAY to avoid making a copy of this.
         dmg_quantities = self._asmnt.damage.ds_model.sample.copy()
-        self.ds_model._calculate(dmg_quantities, sample_size)
-
-        self.lf_model._calculate(sample_size)
-
+        demand = self._asmnt.demand.sample
+        if len(demand) != len(dmg_quantities):
+            raise ValueError(
+                f'The demand sample contains {len(demand)} realizations, '
+                f'but the damage sample contains {len(dmg_quantities)}. '
+                f'Loss calculation cannot proceed when these numbers are different. '
+            )
+        self.ds_model._calculate(dmg_quantities)
+        self.lf_model._calculate(demand)
         self.log_msg("Loss calculation successful.")
 
     def save_sample(self, filepath=None, save_units=False):
@@ -356,7 +353,7 @@ class LossModel(PelicunModel):
         self.log_div()
         if filepath is not None:
             self.log_msg('Saving loss sample...')
-            ds_filepath = f'DS_{filepath}'
+            ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
 
         # DS model
 
@@ -407,7 +404,7 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading loss sample...')
 
-        ds_filepath = f'DS_{filepath}'
+        ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
         self.ds_model.sample = file_io.load_data(
             ds_filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
         )
@@ -669,7 +666,7 @@ class RepairModel_DS(RepairModel_Base):
 
     __slots__ = ['decision_variables', '_loss_map', '_missing']
 
-    def _calculate(self, dmg_quantities, sample_size):
+    def _calculate(self, dmg_quantities):
         """
         Calculate the consequences of each damage state-driven
         component block damage in the asset.
@@ -681,8 +678,6 @@ class RepairModel_DS(RepairModel_Base):
             damage state of each performance group at each location
             and direction. You can use the prepare_dmg_quantities
             method in the DamageModel to get such a DF.
-        sample_size: integer
-            The number of realizations to generate.
 
         Raises
         ------
@@ -690,6 +685,8 @@ class RepairModel_DS(RepairModel_Base):
             When any Loss Driver is not recognized.
 
         """
+
+        sample_size = len(dmg_quantities)
 
         # If everything is undamaged there are no losses
         if set(dmg_quantities.columns.get_level_values('ds')) == {'0'}:
@@ -1304,8 +1301,37 @@ class RepairModel_LF(RepairModel_Base):
 
     __slots__ = ['decision_variables', '_loss_map', '_missing']
 
-    def _calculate(self, sample_size):
-        pass
+    def _calculate(self, demand_sample):
+        """
+        Calculate the repair consequences of each loss function-driven
+        component block in the asset.
+
+        Parameters
+        ----------
+        demand_sample: pd.DataFrame
+            The sample of the demand model to be used for the inputs
+            of the loss functions.
+
+        Raises
+        ------
+        ValueError
+            When any Loss Driver is not recognized.
+
+        """
+        demand_sample                   #and this
+        self.sample                     # stuff goes here
+        self._loss_map
+
+        # # for each repair consequence in the loss map
+        # for component, consequence in self._loss_map['Repair'].items():
+        #     # skip if there are no loss parameters in this model
+        #     if consequence not in self.loss_params.index:
+        #         continue
+        #     # retrieve loss parameters
+        #     self.loss_params.to_dict()
+        # breakpoint()
+        # Utilize methods/functions from damage_model (which should be
+        # mobed to the demand model)
 
     def _convert_loss_parameter_units(self):
         """
