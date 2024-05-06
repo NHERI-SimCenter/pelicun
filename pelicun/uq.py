@@ -1220,6 +1220,7 @@ class RandomVariable(BaseRandomVariable):
     """
     Random variable that needs `values` in `inverse_transform`
     """
+
     __slots__ = [
         'name',
         'distribution',
@@ -1298,6 +1299,7 @@ class UtilityRandomVariable(BaseRandomVariable):
     """
     Random variable that needs `sample_size` in `inverse_transform`
     """
+
     __slots__ = [
         'name',
         'distribution',
@@ -1370,6 +1372,7 @@ class NormalRandomVariable(RandomVariable):
     Normal random variable.
 
     """
+
     __slots__ = ['distribution', 'theta', 'truncation_limits']
 
     def __init__(
@@ -1485,11 +1488,13 @@ class NormalRandomVariable(RandomVariable):
 
         return result
 
+
 class LogNormalRandomVariable(RandomVariable):
     """
     Lognormal random variable.
 
     """
+
     __slots__ = ['distribution', 'theta', 'truncation_limits']
 
     def __init__(
@@ -1605,6 +1610,7 @@ class UniformRandomVariable(RandomVariable):
     Uniform random variable.
 
     """
+
     __slots__ = ['distribution', 'theta', 'truncation_limits']
 
     def __init__(
@@ -1693,6 +1699,7 @@ class MultilinearCDFRandomVariable(RandomVariable):
     linear interpolation between them.
 
     """
+
     __slots__ = ['distribution', 'theta']
 
     def __init__(
@@ -1815,6 +1822,7 @@ class EmpiricalRandomVariable(RandomVariable):
     Empirical random variable.
 
     """
+
     __slots__ = ['distribution', '_raw_samples']
 
     def __init__(
@@ -1869,6 +1877,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
     Coupled empirical random variable.
 
     """
+
     __slots__ = ['distribution', '_raw_samples']
 
     def __init__(
@@ -1954,6 +1963,7 @@ class DeterministicRandomVariable(UtilityRandomVariable):
     Deterministic random variable.
 
     """
+
     __slots__ = ['distribution', 'theta']
 
     def __init__(
@@ -2031,6 +2041,7 @@ class MultinomialRandomVariable(RandomVariable):
     Multinomial random variable.
 
     """
+
     __slots__ = ['distribution', 'theta']
 
     def __init__(
@@ -2316,6 +2327,7 @@ class RandomVariableRegistry:
     ----------
 
     """
+
     __slots__ = ['_rng', '_variables', '_sets']
 
     def __init__(self, rng):
