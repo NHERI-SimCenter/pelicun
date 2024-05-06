@@ -1221,16 +1221,7 @@ class RandomVariable(BaseRandomVariable):
     Random variable that needs `values` in `inverse_transform`
     """
 
-    __slots__ = [
-        'name',
-        'distribution',
-        'f_map',
-        '_uni_samples',
-        'RV_set',
-        '_sample_DF',
-        '_sample',
-        'anchor',
-    ]
+    __slots__ = []
 
     @abstractmethod
     def __init__(
@@ -1300,16 +1291,7 @@ class UtilityRandomVariable(BaseRandomVariable):
     Random variable that needs `sample_size` in `inverse_transform`
     """
 
-    __slots__ = [
-        'name',
-        'distribution',
-        'f_map',
-        '_uni_samples',
-        'RV_set',
-        '_sample_DF',
-        '_sample',
-        'anchor',
-    ]
+    __slots__ = []
 
     @abstractmethod
     def __init__(
@@ -1373,7 +1355,7 @@ class NormalRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['distribution', 'theta', 'truncation_limits']
+    __slots__ = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1495,7 +1477,7 @@ class LogNormalRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['distribution', 'theta', 'truncation_limits']
+    __slots__ = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1611,7 +1593,7 @@ class UniformRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['distribution', 'theta', 'truncation_limits']
+    __slots__ = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1700,7 +1682,7 @@ class MultilinearCDFRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['distribution', 'theta']
+    __slots__ = ['theta']
 
     def __init__(
         self,
@@ -1823,7 +1805,7 @@ class EmpiricalRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['distribution', '_raw_samples']
+    __slots__ = ['_raw_samples']
 
     def __init__(
         self,
@@ -1878,7 +1860,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
 
     """
 
-    __slots__ = ['distribution', '_raw_samples']
+    __slots__ = ['_raw_samples']
 
     def __init__(
         self,
@@ -1964,7 +1946,7 @@ class DeterministicRandomVariable(UtilityRandomVariable):
 
     """
 
-    __slots__ = ['distribution', 'theta']
+    __slots__ = ['theta']
 
     def __init__(
         self,
@@ -2042,7 +2024,7 @@ class MultinomialRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['distribution', 'theta']
+    __slots__ = ['theta']
 
     def __init__(
         self,
