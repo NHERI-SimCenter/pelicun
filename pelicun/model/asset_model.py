@@ -69,6 +69,7 @@ class AssetModel(PelicunModel):
     ----------
 
     """
+    __slots__ = ['cmp_marginal_params', 'cmp_units', 'cmp_sample', '_cmp_RVs']
 
     def __init__(self, assessment):
         super().__init__(assessment)

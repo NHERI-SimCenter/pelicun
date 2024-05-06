@@ -69,6 +69,8 @@ class DamageModel(PelicunModel):
 
     """
 
+    __slots__ = ['ds_model', 'missing_components']
+
     def __init__(self, assessment):
         super().__init__(assessment)
 
@@ -280,6 +282,8 @@ class DamageModel_Base(PelicunModel):
     Base class for damage models
 
     """
+
+    __slots__ = ['damage_params', 'sample']
 
     def __init__(self, assessment):
         super().__init__(assessment)

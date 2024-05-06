@@ -67,6 +67,7 @@ class PelicunModel:
     Generic model class to manage methods shared between all models in Pelicun.
 
     """
+    __slots__ = ['_asmnt', 'log_msg', 'log_div']
 
     def __init__(self, assessment):
         # link the PelicunModel object to its Assessment object

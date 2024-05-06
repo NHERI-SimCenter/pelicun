@@ -93,6 +93,16 @@ class DemandModel(PelicunModel):
 
     """
 
+    __slots__ = [
+        'marginal_params',
+        'correlation',
+        'empirical_data',
+        'units',
+        'calibrated',
+        '_RVs',
+        'sample',
+    ]
+
     def __init__(self, assessment):
         super().__init__(assessment)
 

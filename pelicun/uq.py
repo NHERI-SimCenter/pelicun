@@ -1091,6 +1091,17 @@ class BaseRandomVariable(ABC):
 
     """
 
+    __slots__ = [
+        'name',
+        'distribution',
+        'f_map',
+        '_uni_samples',
+        'RV_set',
+        '_sample_DF',
+        '_sample',
+        'anchor',
+    ]
+
     def __init__(
         self,
         name,
@@ -1209,6 +1220,16 @@ class RandomVariable(BaseRandomVariable):
     """
     Random variable that needs `values` in `inverse_transform`
     """
+    __slots__ = [
+        'name',
+        'distribution',
+        'f_map',
+        '_uni_samples',
+        'RV_set',
+        '_sample_DF',
+        '_sample',
+        'anchor',
+    ]
 
     @abstractmethod
     def __init__(
@@ -1277,6 +1298,16 @@ class UtilityRandomVariable(BaseRandomVariable):
     """
     Random variable that needs `sample_size` in `inverse_transform`
     """
+    __slots__ = [
+        'name',
+        'distribution',
+        'f_map',
+        '_uni_samples',
+        'RV_set',
+        '_sample_DF',
+        '_sample',
+        'anchor',
+    ]
 
     @abstractmethod
     def __init__(
@@ -1339,6 +1370,7 @@ class NormalRandomVariable(RandomVariable):
     Normal random variable.
 
     """
+    __slots__ = ['distribution', 'theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1453,12 +1485,12 @@ class NormalRandomVariable(RandomVariable):
 
         return result
 
-
 class LogNormalRandomVariable(RandomVariable):
     """
     Lognormal random variable.
 
     """
+    __slots__ = ['distribution', 'theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1573,6 +1605,7 @@ class UniformRandomVariable(RandomVariable):
     Uniform random variable.
 
     """
+    __slots__ = ['distribution', 'theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1660,6 +1693,7 @@ class MultilinearCDFRandomVariable(RandomVariable):
     linear interpolation between them.
 
     """
+    __slots__ = ['distribution', 'theta']
 
     def __init__(
         self,
@@ -1781,6 +1815,7 @@ class EmpiricalRandomVariable(RandomVariable):
     Empirical random variable.
 
     """
+    __slots__ = ['distribution', '_raw_samples']
 
     def __init__(
         self,
@@ -1834,6 +1869,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
     Coupled empirical random variable.
 
     """
+    __slots__ = ['distribution', '_raw_samples']
 
     def __init__(
         self,
@@ -1918,6 +1954,7 @@ class DeterministicRandomVariable(UtilityRandomVariable):
     Deterministic random variable.
 
     """
+    __slots__ = ['distribution', 'theta']
 
     def __init__(
         self,
@@ -1994,6 +2031,7 @@ class MultinomialRandomVariable(RandomVariable):
     Multinomial random variable.
 
     """
+    __slots__ = ['distribution', 'theta']
 
     def __init__(
         self,
@@ -2073,6 +2111,8 @@ class RandomVariableSet:
         the random variables in the set. Currently, only the Gaussian copula
         is supported.
     """
+
+    __slots__ = ['name', '_variables', '_Rho']
 
     def __init__(self, name, RV_list, Rho):
         self.name = name
@@ -2276,6 +2316,7 @@ class RandomVariableRegistry:
     ----------
 
     """
+    __slots__ = ['_rng', '_variables', '_sets']
 
     def __init__(self, rng):
         """

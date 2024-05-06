@@ -70,7 +70,7 @@ class LossModel(PelicunModel):
 
     """
 
-    __slots__ = ['ds_model', 'lf_model', '_loss_map' 'decision_variables']
+    __slots__ = ['ds_model', 'lf_model']
 
     def __init__(
         self, assessment, decision_variables=('Carbon', 'Cost', 'Energy', 'Time')
@@ -447,6 +447,8 @@ class RepairModel_Base(PelicunModel):
 
     """
 
+    __slots__ = ['loss_params', 'sample', 'consequence']
+
     def __init__(self, assessment):
         """
         Initializes RepairModel_Base objects.
@@ -561,6 +563,8 @@ class RepairModel_DS(RepairModel_Base):
     with discrete Damage States (DS)
 
     """
+
+    __slots__ = ['decision_variables', '_loss_map', '_missing']
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -1289,6 +1293,8 @@ class RepairModel_LF(RepairModel_Base):
 
     """
 
+    __slots__ = ['decision_variables', '_loss_map', '_missing']
+
     def _calculate(self, sample_size):
         pass
 
@@ -1303,6 +1309,7 @@ class RepairModel_LF(RepairModel_Base):
         self.loss_params.loc[:, column] = self._convert_marginal_params(
             self.loss_params[column].copy(), units, arg_units, divide_units=False
         ).values
+
 
 def _prep_constant_median_DV(median):
     """
