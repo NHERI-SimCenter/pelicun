@@ -1197,6 +1197,20 @@ def test_RandomVariable_Set():
     )
 
 
+def test_RandomVariable_perfect_correlation():
+
+    # Test that the `.anchor` attribute is propagated correctly
+    rv_1 = uq.NormalRandomVariable('rv1', theta=(1.0, 1.0))
+    rv_2 = uq.NormalRandomVariable('rv2', theta=(1.0, 1.0), anchor=rv_1)
+    rv_1.uni_sample = np.random.random(size=10)
+    assert np.all(rv_2.uni_sample == rv_1.uni_sample)
+
+    rv_1 = uq.NormalRandomVariable('rv1', theta=(1.0, 1.0))
+    rv_2 = uq.NormalRandomVariable('rv2', theta=(1.0, 1.0))
+    rv_1.uni_sample = np.random.random(size=10)
+    assert rv_2.uni_sample is None
+
+
 def test_RandomVariable_Set_apply_correlation(reset=False):
     data_dir = 'pelicun/tests/data/uq/test_random_variable_set_apply_correlation'
     file_incr = 0
