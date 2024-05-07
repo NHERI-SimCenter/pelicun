@@ -1028,6 +1028,7 @@ def run_pelicun(
             adf.loc['aggregate', ('Demand', 'Type')] = 'Peak Ground Velocity'
             adf.loc['aggregate', ('Demand', 'Unit')] = 'mps'
             adf.loc['aggregate', ('LS1', 'Theta_0')] = 1e10
+            adf.loc['aggregate', ('LS2', 'Theta_0')] = 1e10
             adf.loc['aggregate', 'Incomplete'] = 0
 
         PAL.damage.load_damage_model(component_db + [adf])
