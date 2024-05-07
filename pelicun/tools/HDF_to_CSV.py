@@ -44,7 +44,6 @@ from pathlib import Path
 
 
 def convert_HDF(HDF_path):
-
     HDF_ext = HDF_path.split('.')[-1]
     CSV_base = HDF_path[: -len(HDF_ext) - 1]
 
@@ -53,14 +52,12 @@ def convert_HDF(HDF_path):
     store = pd.HDFStore(HDF_path)
 
     for key in store.keys():
-
         store[key].to_csv(f'{CSV_base}_{key[1:].replace("/","_")}.csv')
 
     store.close()
 
 
 if __name__ == '__main__':
-
     args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()

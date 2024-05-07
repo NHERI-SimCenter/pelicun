@@ -380,7 +380,6 @@ def run_pelicun(
             config_ap, CMP = auto_populate(config, auto_script_path)
 
             if config_ap['DL'] is None:
-
                 log_msg(
                     "The prescribed auto-population script failed to identify "
                     "a valid damage and loss configuration for this asset. "
@@ -633,8 +632,7 @@ def run_pelicun(
     # save results
     if 'Demand' in config['DL']['Outputs']:
         out_reqs = [
-            out if val else ""
-            for out, val in config['DL']['Outputs']['Demand'].items()
+            out if val else "" for out, val in config['DL']['Outputs']['Demand'].items()
         ]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
@@ -721,9 +719,7 @@ def run_pelicun(
                     cmp_marginals.loc['excessive.coll.DEM', 'Units'] = 'ea'
 
                     locs = demand_sample[coll_DEM].columns.unique(level=0)
-                    cmp_marginals.loc['excessive.coll.DEM', 'Location'] = ','.join(
-                        locs
-                    )
+                    cmp_marginals.loc['excessive.coll.DEM', 'Location'] = ','.join(locs)
 
                     dirs = demand_sample[coll_DEM].columns.unique(level=1)
                     cmp_marginals.loc['excessive.coll.DEM', 'Direction'] = ','.join(
@@ -802,8 +798,7 @@ def run_pelicun(
             )
 
         out_reqs = [
-            out if val else ""
-            for out, val in config['DL']['Outputs']['Asset'].items()
+            out if val else "" for out, val in config['DL']['Outputs']['Asset'].items()
         ]
 
         if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
@@ -872,9 +867,7 @@ def run_pelicun(
         ):
             component_db = [
                 'PelicunDefault/'
-                + default_DBs['fragility'][
-                    config['DL']['Asset']['ComponentDatabase']
-                ],
+                + default_DBs['fragility'][config['DL']['Asset']['ComponentDatabase']],
             ]
         else:
             component_db = []
@@ -932,9 +925,9 @@ def run_pelicun(
                 adf.loc[coll_CMP_name, ('Demand', 'Type')] = coll_DEM_name
 
             else:
-                adf.loc[coll_CMP_name, ('Demand', 'Type')] = (
-                    f'{coll_DEM_name}|{coll_DEM_spec}'
-                )
+                adf.loc[
+                    coll_CMP_name, ('Demand', 'Type')
+                ] = f'{coll_DEM_name}|{coll_DEM_spec}'
 
             coll_DEM_unit = add_units(
                 pd.DataFrame(
@@ -990,9 +983,9 @@ def run_pelicun(
             # input file
             adf.loc['excessiveRID', ('Demand', 'Directional')] = 1
             adf.loc['excessiveRID', ('Demand', 'Offset')] = 0
-            adf.loc['excessiveRID', ('Demand', 'Type')] = (
-                'Residual Interstory Drift Ratio'
-            )
+            adf.loc[
+                'excessiveRID', ('Demand', 'Type')
+            ] = 'Residual Interstory Drift Ratio'
 
             adf.loc['excessiveRID', ('Demand', 'Unit')] = 'unitless'
             adf.loc['excessiveRID', ('LS1', 'Theta_0')] = irrep_config[
@@ -1019,7 +1012,6 @@ def run_pelicun(
         # TODO: we can improve this by creating a water
         # network-specific assessment class
         if "Water" in config['DL']['Asset']['ComponentDatabase']:
-
             # add a placeholder aggregate fragility that will never trigger
             # damage, but allow damage processes to aggregate the
             # various pipeline damages
@@ -1086,9 +1078,7 @@ def run_pelicun(
 
                                 for target_val in target_vals:
                                     for cmp_type, cmp_id in cmp_map.items():
-                                        if (cmp_type in target_val) and (
-                                            cmp_id != ''
-                                        ):
+                                        if (cmp_type in target_val) and (cmp_id != ''):
                                             target_val = target_val.replace(
                                                 cmp_type, cmp_id
                                             )
@@ -1113,9 +1103,7 @@ def run_pelicun(
                 dmg_process = None
 
             else:
-                log_msg(
-                    f"Prescribed Damage Process not recognized: " f"{dp_approach}"
-                )
+                log_msg(f"Prescribed Damage Process not recognized: " f"{dp_approach}")
 
         # calculate damages
         PAL.damage.calculate(sample_size, dmg_process=dmg_process)
@@ -1131,13 +1119,9 @@ def run_pelicun(
                 )
                 is True
             ):
-                damage_units = damage_units.groupby(
-                    level=[0, 1, 2, 4], axis=1
-                ).first()
+                damage_units = damage_units.groupby(level=[0, 1, 2, 4], axis=1).first()
 
-                damage_groupby_uid = damage_sample.groupby(
-                    level=[0, 1, 2, 4], axis=1
-                )
+                damage_groupby_uid = damage_sample.groupby(level=[0, 1, 2, 4], axis=1)
 
                 damage_sample = damage_groupby_uid.sum().mask(
                     damage_groupby_uid.count() == 0, np.nan
@@ -1161,9 +1145,7 @@ def run_pelicun(
                     damage_sample_s.to_csv(
                         output_path / "DMG_sample.zip",
                         index_label=damage_sample_s.columns.name,
-                        compression=dict(
-                            method='zip', archive_name='DMG_sample.csv'
-                        ),
+                        compression=dict(method='zip', archive_name='DMG_sample.csv'),
                     )
                     output_files.append('DMG_sample.zip')
 
@@ -1185,18 +1167,14 @@ def run_pelicun(
                         )
                         is True
                     ):
-                        damage_groupby = damage_sample.groupby(
-                            level=[0, 1, 3], axis=1
-                        )
+                        damage_groupby = damage_sample.groupby(level=[0, 1, 3], axis=1)
 
                         damage_units = damage_units.groupby(
                             level=[0, 1, 3], axis=1
                         ).first()
 
                     else:
-                        damage_groupby = damage_sample.groupby(
-                            level=[0, 1, 4], axis=1
-                        )
+                        damage_groupby = damage_sample.groupby(level=[0, 1, 4], axis=1)
 
                         damage_units = damage_units.groupby(
                             level=[0, 1, 4], axis=1
@@ -1256,9 +1234,7 @@ def run_pelicun(
                         grp_damage_s.to_csv(
                             output_path / "DMG_grp.zip",
                             index_label=grp_damage_s.columns.name,
-                            compression=dict(
-                                method='zip', archive_name='DMG_grp.csv'
-                            ),
+                            compression=dict(method='zip', archive_name='DMG_grp.csv'),
                         )
                         output_files.append('DMG_grp.zip')
 
@@ -1469,9 +1445,7 @@ def run_pelicun(
                 adf.loc[rcarb, ('DS1', 'Theta_0')] = rCarbon_config["Median"]
 
                 if pd.isna(rCarbon_config.get('Distribution', np.nan)) is False:
-                    adf.loc[rcarb, ('DS1', 'Family')] = rCarbon_config[
-                        "Distribution"
-                    ]
+                    adf.loc[rcarb, ('DS1', 'Family')] = rCarbon_config["Distribution"]
                     adf.loc[rcarb, ('DS1', 'Theta_1')] = rCarbon_config["Theta_1"]
             else:
                 # add a default replacement carbon value as a placeholder
@@ -1563,12 +1537,9 @@ def run_pelicun(
                             drivers.append(f'DMG-{dmg_cmp}')
                             loss_models.append(loss_cmp)
 
-                loss_map = pd.DataFrame(
-                    loss_models, columns=['Repair'], index=drivers
-                )
+                loss_map = pd.DataFrame(loss_models, columns=['Repair'], index=drivers)
 
             elif repair_config['MapApproach'] == "User Defined":
-
                 if repair_config.get('MapFilePath', False) is not False:
                     loss_map_path = repair_config['MapFilePath']
 
@@ -1634,8 +1605,7 @@ def run_pelicun(
                     )
 
                 out_reqs = [
-                    out if val else ""
-                    for out, val in out_config_loss['Repair'].items()
+                    out if val else "" for out, val in out_config_loss['Repair'].items()
                 ]
 
                 if np.any(
@@ -1682,9 +1652,7 @@ def run_pelicun(
                     if np.any(
                         np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)
                     ):
-                        repair_groupby = repair_sample.groupby(
-                            level=[0, 1, 2], axis=1
-                        )
+                        repair_groupby = repair_sample.groupby(level=[0, 1, 2], axis=1)
 
                         repair_units = repair_units.groupby(
                             level=[0, 1, 2], axis=1
@@ -1697,9 +1665,7 @@ def run_pelicun(
                         if 'GroupedSample' in out_reqs:
                             grp_repair_s = pd.concat([grp_repair, repair_units])
 
-                            grp_repair_s = convert_to_SimpleIndex(
-                                grp_repair_s, axis=1
-                            )
+                            grp_repair_s = convert_to_SimpleIndex(grp_repair_s, axis=1)
                             grp_repair_s.to_csv(
                                 output_path / "DV_repair_grp.zip",
                                 index_label=grp_repair_s.columns.name,
@@ -1765,14 +1731,12 @@ def run_pelicun(
         damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
 
     if 'Losses' in config['DL']:
-
         if 'agg_repair' not in locals():
             agg_repair = PAL.repair.aggregate_losses()
 
         agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
 
     else:
-
         agg_repair_s = pd.DataFrame()
 
     summary = pd.concat(
@@ -1816,8 +1780,7 @@ def run_pelicun(
                 out_dict.update(
                     {
                         "Units": {
-                            col: df_units.loc["Units", col]
-                            for col in df_units.columns
+                            col: df_units.loc["Units", col] for col in df_units.columns
                         }
                     }
                 )
@@ -1841,7 +1804,6 @@ def run_pelicun(
 
 
 def main():
-
     args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
