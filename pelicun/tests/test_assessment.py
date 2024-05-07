@@ -43,8 +43,6 @@ These are unit and integration tests on the assessment module of pelicun.
 """
 
 import pytest
-from pelicun import base
-from pelicun import model
 from pelicun import assessment
 
 # pylint: disable=missing-function-docstring
@@ -61,11 +59,25 @@ def create_assessment_obj(config=None):
 def test_Assessment_init():
     asmt = create_assessment_obj()
     # confirm attributes
-    for attribute in ('asset', 'calc_unit_scale_factor', 'damage', 'demand', 'get_default_data', 'get_default_metadata', 'log', 'loss', 'options', 'scale_factor', 'stories', 'unit_conversion_factors'):
+    for attribute in (
+        'asset',
+        'calc_unit_scale_factor',
+        'damage',
+        'demand',
+        'get_default_data',
+        'get_default_metadata',
+        'log',
+        'loss',
+        'options',
+        'scale_factor',
+        'stories',
+        'unit_conversion_factors',
+    ):
         assert hasattr(asmt, attribute)
     # confirm that creating an attribute on the fly is not allowed
     with pytest.raises(AttributeError):
         asmt.my_attribute = 2
+
 
 def test_assessment_get_default_metadata():
     asmt = create_assessment_obj()

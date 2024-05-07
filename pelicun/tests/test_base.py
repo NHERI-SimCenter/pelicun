@@ -46,7 +46,6 @@ import os
 import io
 import re
 from contextlib import redirect_stdout
-import re
 import argparse
 import pytest
 import pandas as pd
