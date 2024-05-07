@@ -126,9 +126,9 @@ class AssetModel(PelicunModel):
         completion of the saving process. It adjusts index types and
         handles unit conversions based on assessment configurations.
         """
-        self.log_div()
+        self.log.div()
         if filepath is not None:
-            self.log_msg('Saving asset components sample...')
+            self.log.msg('Saving asset components sample...')
 
         # prepare a units array
         sample = self.cmp_sample
@@ -148,7 +148,7 @@ class AssetModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg(
+            self.log.msg(
                 'Asset components sample successfully saved.',
                 prepend_timestamp=False,
             )
@@ -197,8 +197,8 @@ class AssetModel(PelicunModel):
         # This will load the component quantity sample into the model
         # from the specified file.
         """
-        self.log_div()
-        self.log_msg('Loading asset components sample...')
+        self.log.div()
+        self.log.msg('Loading asset components sample...')
 
         sample, units = file_io.load_data(
             filepath,
@@ -213,7 +213,7 @@ class AssetModel(PelicunModel):
 
         self.cmp_units = units.groupby(level=0).first()
 
-        self.log_msg(
+        self.log.msg(
             'Asset components sample successfully loaded.', prepend_timestamp=False
         )
 
@@ -445,8 +445,8 @@ class AssetModel(PelicunModel):
                 return default
             return dtype(attribute_str)
 
-        self.log_div()
-        self.log_msg('Loading component model...')
+        self.log.div()
+        self.log.msg('Loading component model...')
 
         # Currently, we assume independent component distributions are defined
         # throughout the building. Correlations may be added afterward or this
@@ -534,14 +534,14 @@ class AssetModel(PelicunModel):
 
         cmp_marginal_params.dropna(axis=1, how='all', inplace=True)
 
-        self.log_msg(
+        self.log.msg(
             "Model parameters successfully parsed. "
             f"{cmp_marginal_params.shape[0]} performance groups identified",
             prepend_timestamp=False,
         )
 
         # Now we can take care of converting the values to base units
-        self.log_msg(
+        self.log.msg(
             "Converting model parameters to internal units...",
             prepend_timestamp=False,
         )
@@ -556,11 +556,11 @@ class AssetModel(PelicunModel):
 
         self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
 
-        self.log_msg(
+        self.log.msg(
             "Model parameters successfully loaded.", prepend_timestamp=False
         )
 
-        self.log_msg(
+        self.log.msg(
             "\nComponent model marginal distributions:\n" + str(cmp_marginal_params),
             prepend_timestamp=False,
         )
@@ -616,8 +616,8 @@ class AssetModel(PelicunModel):
                 'sample.'
             )
 
-        self.log_div()
-        self.log_msg('Generating sample from component quantity variables...')
+        self.log.div()
+        self.log.msg('Generating sample from component quantity variables...')
 
         if sample_size is None:
             if self._asmnt.demand.sample is None:
@@ -641,7 +641,7 @@ class AssetModel(PelicunModel):
         cmp_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
         self.cmp_sample = cmp_sample
 
-        self.log_msg(
+        self.log.msg(
             f"\nSuccessfully generated {sample_size} realizations.",
             prepend_timestamp=False,
         )
@@ -674,7 +674,7 @@ class AssetModel(PelicunModel):
                 )
             )
 
-        self.log_msg(
+        self.log.msg(
             f"\n{self.cmp_marginal_params.shape[0]} random variables created.",
             prepend_timestamp=False,
         )

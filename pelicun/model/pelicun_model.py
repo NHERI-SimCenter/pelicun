@@ -67,7 +67,7 @@ class PelicunModel:
     Generic model class to manage methods shared between all models in Pelicun.
 
     """
-    __slots__ = ['_asmnt', 'log_msg', 'log_div']
+    __slots__ = ['_asmnt', 'log']
 
     def __init__(self, assessment):
         # link the PelicunModel object to its Assessment object
@@ -75,8 +75,7 @@ class PelicunModel:
 
         # link logging methods as attributes enabling more
         # concise syntax
-        self.log_msg = self._asmnt.log.msg
-        self.log_div = self._asmnt.log.div
+        self.log = self._asmnt.log
 
     def _convert_marginal_params(
         self, marginal_params, units, arg_units=None, divide_units=True

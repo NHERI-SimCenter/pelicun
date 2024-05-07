@@ -136,9 +136,9 @@ class DemandModel(PelicunModel):
             the specified `filepath`.
         """
 
-        self.log_div()
+        self.log.div()
         if filepath is not None:
-            self.log_msg('Saving demand sample...')
+            self.log.msg('Saving demand sample...')
 
         res = file_io.save_to_csv(
             self.sample,
@@ -150,7 +150,7 @@ class DemandModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg(
+            self.log.msg(
                 'Demand sample successfully saved.', prepend_timestamp=False
             )
             return None
@@ -216,7 +216,7 @@ class DemandModel(PelicunModel):
             # currently not used. We remove it if it was in the raw data.
             if old_MI.nlevels == 4:
                 if self._asmnt.log.verbose:
-                    self.log_msg(
+                    self.log.msg(
                         'Removing event_ID from header...', prepend_timestamp=False
                     )
 
@@ -232,7 +232,7 @@ class DemandModel(PelicunModel):
             # Remove whitespace to avoid ambiguity
 
             if self._asmnt.log.verbose:
-                self.log_msg(
+                self.log.msg(
                     'Removing whitespace from header...', prepend_timestamp=False
                 )
 
@@ -248,8 +248,8 @@ class DemandModel(PelicunModel):
 
             return new_MI
 
-        self.log_div()
-        self.log_msg('Loading demand data...')
+        self.log.div()
+        self.log.msg('Loading demand data...')
 
         demand_data, units = file_io.load_data(
             filepath,
@@ -266,7 +266,7 @@ class DemandModel(PelicunModel):
 
         # Remove errors, if needed
         if 'ERROR' in parsed_data.columns.get_level_values(0):
-            self.log_msg(
+            self.log.msg(
                 'Removing errors from the raw data...', prepend_timestamp=False
             )
 
@@ -275,7 +275,7 @@ class DemandModel(PelicunModel):
             parsed_data = parsed_data.loc[~error_list, :].copy()
             parsed_data.drop('ERROR', level=0, axis=1, inplace=True)
 
-            self.log_msg(
+            self.log.msg(
                 "\nBased on the values in the ERROR column, "
                 f"{np.sum(error_list)} demand samples were removed.\n",
                 prepend_timestamp=False,
@@ -283,14 +283,14 @@ class DemandModel(PelicunModel):
 
         self.sample = parsed_data
 
-        self.log_msg('Demand data successfully parsed.', prepend_timestamp=False)
+        self.log.msg('Demand data successfully parsed.', prepend_timestamp=False)
 
         # parse the index for the units
         units.index = parse_header(units.index)
 
         self.units = units
 
-        self.log_msg('Demand units successfully parsed.', prepend_timestamp=False)
+        self.log.msg('Demand units successfully parsed.', prepend_timestamp=False)
 
     def estimate_RID(self, demands, params, method='FEMA P58'):
         """
@@ -407,7 +407,7 @@ class DemandModel(PelicunModel):
         """
 
         if self.calibrated:
-            self.log_msg(
+            self.log.msg(
                 'WARNING: DemandModel has been previously calibrated.',
                 prepend_timestamp=False,
             )
@@ -420,7 +420,7 @@ class DemandModel(PelicunModel):
                     out_float = float(in_str)
 
                 except ValueError:
-                    self.log_msg(
+                    self.log.msg(
                         f"WARNING: Could not parse {in_str} provided as "
                         f"{context_string}. Using NaN instead.",
                         prepend_timestamp=False,
@@ -495,8 +495,8 @@ class DemandModel(PelicunModel):
 
             return np.all([lower_mask, upper_mask], axis=0)
 
-        self.log_div()
-        self.log_msg('Calibrating demand model...')
+        self.log.div()
+        self.log.msg('Calibrating demand model...')
 
         demand_sample = self.sample
 
@@ -527,12 +527,12 @@ class DemandModel(PelicunModel):
                 parse_settings(config[demand_type], demand_type)
 
         if self._asmnt.log.verbose:
-            self.log_msg(
+            self.log.msg(
                 "\nCalibration settings successfully parsed:\n" + str(cal_df),
                 prepend_timestamp=False,
             )
         else:
-            self.log_msg(
+            self.log.msg(
                 "\nCalibration settings successfully parsed:\n",
                 prepend_timestamp=False,
             )
@@ -553,7 +553,7 @@ class DemandModel(PelicunModel):
 
             demand_sample = demand_sample.loc[censor_mask, :]
 
-            self.log_msg(
+            self.log.msg(
                 "\nBased on the provided censoring limits, "
                 f"{censored_count} samples were censored.",
                 prepend_timestamp=False,
@@ -575,7 +575,7 @@ class DemandModel(PelicunModel):
             if truncated_count > 0:
                 demand_sample = demand_sample.loc[truncate_mask, :]
 
-                self.log_msg(
+                self.log.msg(
                     "\nBased on the provided truncation limits, "
                     f"{truncated_count} samples were removed before demand "
                     "calibration.",
@@ -601,13 +601,13 @@ class DemandModel(PelicunModel):
         cal_df = cal_df.drop(empirical_edps, axis=0)
 
         if self._asmnt.log.verbose:
-            self.log_msg(
+            self.log.msg(
                 f"\nDemand data used for calibration:\n{demand_sample}",
                 prepend_timestamp=False,
             )
 
         # fit the joint distribution
-        self.log_msg(
+        self.log.msg(
             "\nFitting the prescribed joint demand distribution...",
             prepend_timestamp=False,
         )
@@ -624,7 +624,7 @@ class DemandModel(PelicunModel):
             logger_object=self._asmnt.log,
         )
         # fit the joint distribution
-        self.log_msg(
+        self.log.msg(
             "\nCalibration successful, processing results...",
             prepend_timestamp=False,
         )
@@ -634,7 +634,7 @@ class DemandModel(PelicunModel):
 
         # increase the variance of the marginal distributions, if needed
         if ~np.all(pd.isna(model_params.loc[:, 'SigIncrease'].values)):
-            self.log_msg("\nIncreasing demand variance...", prepend_timestamp=False)
+            self.log.msg("\nIncreasing demand variance...", prepend_timestamp=False)
 
             sig_inc = np.nan_to_num(model_params.loc[:, 'SigIncrease'].values)
             sig_0 = model_params.loc[:, 'Theta_1'].values
@@ -652,7 +652,7 @@ class DemandModel(PelicunModel):
 
         self.marginal_params = model_params
 
-        self.log_msg(
+        self.log.msg(
             "\nCalibrated demand model marginal distributions:\n"
             + str(model_params),
             prepend_timestamp=False,
@@ -663,7 +663,7 @@ class DemandModel(PelicunModel):
             demand_rho, columns=cal_df.index, index=cal_df.index
         )
 
-        self.log_msg(
+        self.log.msg(
             "\nCalibrated demand model correlation matrix:\n"
             + str(self.correlation),
             prepend_timestamp=False,
@@ -677,8 +677,8 @@ class DemandModel(PelicunModel):
 
         """
 
-        self.log_div()
-        self.log_msg('Saving demand model...')
+        self.log.div()
+        self.log.msg('Saving demand model...')
 
         # save the correlation and empirical data
         file_io.save_to_csv(self.correlation, file_prefix + '_correlation.csv')
@@ -715,7 +715,7 @@ class DemandModel(PelicunModel):
             log=self._asmnt.log,
         )
 
-        self.log_msg('Demand model successfully saved.', prepend_timestamp=False)
+        self.log.msg('Demand model successfully saved.', prepend_timestamp=False)
 
     def load_model(self, data_source):
         """
@@ -732,8 +732,8 @@ class DemandModel(PelicunModel):
             'correlation'. The value under each key shall be a DataFrame.
         """
 
-        self.log_div()
-        self.log_msg('Loading demand model...')
+        self.log.div()
+        self.log.msg('Loading demand model...')
 
         # prepare the marginal data source variable to load the data
         if isinstance(data_source, dict):
@@ -789,7 +789,7 @@ class DemandModel(PelicunModel):
         self.marginal_params = marginal_params
         self.units = units
 
-        self.log_msg('Demand model successfully loaded.', prepend_timestamp=False)
+        self.log.msg('Demand model successfully loaded.', prepend_timestamp=False)
 
     def _create_RVs(self, preserve_order=False):
         """
@@ -836,7 +836,7 @@ class DemandModel(PelicunModel):
                     )
                 )
 
-        self.log_msg(
+        self.log.msg(
             f"\n{self.marginal_params.shape[0]} random variables created.",
             prepend_timestamp=False,
         )
@@ -856,7 +856,7 @@ class DemandModel(PelicunModel):
                 )
             )
 
-            self.log_msg(
+            self.log.msg(
                 f"\nCorrelations between {len(rv_set_tags)} random variables "
                 "successfully defined.",
                 prepend_timestamp=False,
@@ -929,7 +929,7 @@ class DemandModel(PelicunModel):
                 warn_columns.append(column)
         if warn_columns:
             warn_columns = ['-'.join(x) for x in warn_columns]
-            self.log_msg(
+            self.log.msg(
                 "\nWARNING: The demand cloning configuration lists "
                 "columns that are not present in the original demand sample's "
                 f"columns: {warn_columns}.\n",
@@ -1020,8 +1020,8 @@ class DemandModel(PelicunModel):
                 'model using raw demand data.'
             )
 
-        self.log_div()
-        self.log_msg('Generating sample from demand variables...')
+        self.log.div()
+        self.log.msg('Generating sample from demand variables...')
 
         self._create_RVs(preserve_order=config.get('PreserveRawOrder', False))
 
@@ -1045,7 +1045,7 @@ class DemandModel(PelicunModel):
         if config.get('DemandCloning', False):
             self.clone_demands(config['DemandCloning'])
 
-        self.log_msg(
+        self.log.msg(
             f"\nSuccessfully generated {sample_size} realizations.",
             prepend_timestamp=False,
         )

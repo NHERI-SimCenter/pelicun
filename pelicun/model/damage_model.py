@@ -50,6 +50,7 @@ This file defines the DamageModel object and its methods.
 """
 
 from __future__ import annotations
+import warnings
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -59,7 +60,7 @@ from pelicun.model.demand_model import _verify_edps_available
 from pelicun import base
 from pelicun import uq
 from pelicun import file_io
-
+from pelicun.warnings import PelicunWarning
 
 idx = base.idx
 
@@ -113,8 +114,8 @@ class DamageModel(PelicunModel):
 
         """
 
-        self.log_div()
-        self.log_msg('Loading damage model...', prepend_timestamp=False)
+        self.log.div()
+        self.log.msg('Loading damage model...', prepend_timestamp=False)
 
         # replace default flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
@@ -134,7 +135,7 @@ class DamageModel(PelicunModel):
             else:
                 raise ValueError(f'Invalid damage model parameters: {data_path}')
 
-        self.log_msg(
+        self.log.msg(
             'Damage model parameters loaded successfully.', prepend_timestamp=False
         )
 
@@ -142,11 +143,9 @@ class DamageModel(PelicunModel):
         # remove items
         #
 
-        self.log_msg(
+        self.log.msg(
             'Removing unused damage model parameters.', prepend_timestamp=False
         )
-        # get a list of unique component IDs
-        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
 
         for damage_model in self.damage_models:
             # drop unused damage parameter definitions
@@ -158,7 +157,7 @@ class DamageModel(PelicunModel):
         # convert units
         #
 
-        self.log_msg(
+        self.log.msg(
             'Converting damage model parameter units.', prepend_timestamp=False
         )
         for damage_model in self.damage_models:
@@ -168,7 +167,7 @@ class DamageModel(PelicunModel):
         # verify damage parameter availability
         #
 
-        self.log_msg(
+        self.log.msg(
             'Checking damage model parameter '
             'availability for all components in the asset model.',
             prepend_timestamp=False,
@@ -187,8 +186,8 @@ class DamageModel(PelicunModel):
         Calculate the damage of each component block.
 
         """
-        self.log_div()
-        self.log_msg('Calculating damages...')
+        self.log.div()
+        self.log.msg('Calculating damages...')
 
         # obtain damage states for applicable components
         ds_sample = self.ds_model._obtain_ds_sample(
@@ -201,7 +200,7 @@ class DamageModel(PelicunModel):
 
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
-            self.log_msg("Applying damage processes.")
+            self.log.msg("Applying damage processes.")
 
             # Sort the damage processes tasks
             dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
@@ -210,7 +209,7 @@ class DamageModel(PelicunModel):
             for task in dmg_process.items():
                 self.ds_model._perform_dmg_task(task, ds_sample)
 
-            self.log_msg(
+            self.log.msg(
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
@@ -222,7 +221,7 @@ class DamageModel(PelicunModel):
 
         self.ds_model.sample = qnt_sample
 
-        self.log_msg('Damage calculation completed.', prepend_timestamp=False)
+        self.log.msg('Damage calculation completed.', prepend_timestamp=False)
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -256,8 +255,8 @@ class DamageModel(PelicunModel):
             - Optionally, a Series containing the units for each
               column if `save_units` is True.
         """
-        self.log_div()
-        self.log_msg('Saving damage sample...')
+        self.log.div()
+        self.log.msg('Saving damage sample...')
 
         cmp_units = self._asmnt.asset.cmp_units
         qnt_units = pd.Series(
@@ -276,7 +275,7 @@ class DamageModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg(
+            self.log.msg(
                 'Damage sample successfully saved.', prepend_timestamp=False
             )
             return None
@@ -296,8 +295,8 @@ class DamageModel(PelicunModel):
         Load damage state sample data.
 
         """
-        self.log_div()
-        self.log_msg('Loading damage sample...')
+        self.log.div()
+        self.log.msg('Loading damage sample...')
 
         self.ds_model.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
@@ -306,7 +305,7 @@ class DamageModel(PelicunModel):
         # set the names of the columns
         self.ds_model.sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
 
-        self.log_msg('Damage sample successfully loaded.', prepend_timestamp=False)
+        self.log.msg('Damage sample successfully loaded.', prepend_timestamp=False)
 
     def _get_component_id_set(self):
         """
@@ -338,7 +337,7 @@ class DamageModel(PelicunModel):
         ]
 
         if missing_components:
-            self.log_msg(
+            self.log.msg(
                 f"\n"
                 f"WARNING: The damage model does not provide "
                 f"damage information for the following component(s) "
@@ -404,6 +403,7 @@ class DamageModel_Base(PelicunModel):
             return
 
         units = self.damage_params[('Demand', 'Unit')]
+        self.damage_params.drop(('Demand', 'Unit'), axis=1, inplace=True)
         for LS_i in self.damage_params.columns.unique(level=0):
             if LS_i.startswith('LS'):
                 self.damage_params.loc[:, LS_i] = self._convert_marginal_params(
@@ -429,7 +429,7 @@ class DamageModel_Base(PelicunModel):
         self.damage_params.drop(cmp_incomplete_idx, inplace=True)
 
         if len(cmp_incomplete_idx) > 0:
-            self.log_msg(
+            self.log.msg(
                 f"\n"
                 f"WARNING: Damage model information is incomplete for "
                 f"the following component(s) "
@@ -439,7 +439,7 @@ class DamageModel_Base(PelicunModel):
                 prepend_timestamp=False,
             )
 
-    def _drop_unused_damage_parameters(self, cmp_list):
+    def _drop_unused_damage_parameters(self, cmp_set):
         """
         Removes damage parameter definitions for component IDs not
         present in the given list.
@@ -453,7 +453,7 @@ class DamageModel_Base(PelicunModel):
 
         if self.damage_params is None:
             return
-        cmp_mask = self.damage_params.index.isin(cmp_list, level=0)
+        cmp_mask = self.damage_params.index.isin(cmp_set, level=0)
         self.damage_params = self.damage_params.iloc[cmp_mask, :]
 
     def _get_pg_batches(self, block_batch_size, missing_components):
@@ -609,7 +609,7 @@ class DamageModel_DS(DamageModel_Base):
         block_batch_size,
         scaling_specification,
         missing_components,
-        nondirectional_multipliers
+        nondirectional_multipliers,
     ):
         """
         Obtain the damage state of each performance group in the
@@ -626,7 +626,7 @@ class DamageModel_DS(DamageModel_Base):
         sample_size = len(demand_sample)
 
         # get the list of performance groups
-        self.log_msg(
+        self.log.msg(
             f'Number of Performance Groups in Asset Model:'
             f' {self._asmnt.asset.cmp_sample.shape[1]}',
             prepend_timestamp=False,
@@ -635,12 +635,12 @@ class DamageModel_DS(DamageModel_Base):
         pg_batch = self._get_pg_batches(block_batch_size, missing_components)
         batches = pg_batch.index.get_level_values(0).unique()
 
-        self.log_msg(
+        self.log.msg(
             f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
             prepend_timestamp=False,
         )
 
-        self.log_msg(
+        self.log.msg(
             f"{len(batches)} batches of Performance Groups prepared "
             "for damage assessment",
             prepend_timestamp=False,
@@ -652,7 +652,7 @@ class DamageModel_DS(DamageModel_Base):
 
             performance_group = pg_batch.loc[PGB_i]
 
-            self.log_msg(
+            self.log.msg(
                 f"Calculating damage states for PG batch {PGB_i} with "
                 f"{int(performance_group['Blocks'].sum())} blocks"
             )
@@ -667,7 +667,7 @@ class DamageModel_DS(DamageModel_Base):
 
             # Get the required demand types for the analysis
             if self._asmnt.log.verbose:
-                self.log_msg(
+                self.log.msg(
                     'Collecting required demand information...',
                     prepend_timestamp=True,
                 )
@@ -689,7 +689,7 @@ class DamageModel_DS(DamageModel_Base):
 
             # Create the demand vector
             if self._asmnt.log.verbose:
-                self.log_msg(
+                self.log.msg(
                     'Assembling demand data for calculation...',
                     prepend_timestamp=True,
                 )
@@ -706,7 +706,7 @@ class DamageModel_DS(DamageModel_Base):
 
         ds_sample = pd.concat(ds_samples, axis=1)
 
-        self.log_msg("Damage state calculation successful.", prepend_timestamp=False)
+        self.log.msg("Damage state calculation successful.", prepend_timestamp=False)
 
         return ds_sample
 
@@ -893,7 +893,7 @@ class DamageModel_DS(DamageModel_Base):
             return ds_id
 
         if self._asmnt.log.verbose:
-            self.log_msg('Generating capacity variables ...', prepend_timestamp=True)
+            self.log.msg('Generating capacity variables ...', prepend_timestamp=True)
 
         # initialize the registry
         capacity_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
@@ -985,7 +985,7 @@ class DamageModel_DS(DamageModel_Base):
                                 capacity_adjustment_operation[1],
                             )
                         else:
-                            self.log_msg(
+                            self.log.msg(
                                 f'\nWARNING: Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: {cmp_loc_dir}, which is {family}',
@@ -1075,7 +1075,7 @@ class DamageModel_DS(DamageModel_Base):
 
         if self._asmnt.log.verbose:
             rv_count = len(lsds_RV_reg.RV)
-            self.log_msg(
+            self.log.msg(
                 f"2x{rv_count} random variables created.", prepend_timestamp=False
             )
 
@@ -1132,7 +1132,7 @@ class DamageModel_DS(DamageModel_Base):
         capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification)
 
         if self._asmnt.log.verbose:
-            self.log_msg('Sampling capacities...', prepend_timestamp=True)
+            self.log.msg('Sampling capacities...', prepend_timestamp=True)
 
         # Generate samples for capacity RVs
         capacity_RVs.generate_sample(
@@ -1145,7 +1145,7 @@ class DamageModel_DS(DamageModel_Base):
         )
 
         if self._asmnt.log.verbose:
-            self.log_msg("Raw samples are available", prepend_timestamp=True)
+            self.log.msg("Raw samples are available", prepend_timestamp=True)
 
         # get the capacity and lsds samples
         capacity_sample = (
@@ -1166,7 +1166,7 @@ class DamageModel_DS(DamageModel_Base):
         lsds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
 
         if self._asmnt.log.verbose:
-            self.log_msg(
+            self.log.msg(
                 f"Successfully generated {sample_size} realizations.",
                 prepend_timestamp=True,
             )
@@ -1200,7 +1200,7 @@ class DamageModel_DS(DamageModel_Base):
         """
 
         if self._asmnt.log.verbose:
-            self.log_msg('Evaluating damage states...', prepend_timestamp=True)
+            self.log.msg('Evaluating damage states...', prepend_timestamp=True)
 
         # Create an empty dataframe with columns and index taken from
         # the input capacity sample
@@ -1315,7 +1315,7 @@ class DamageModel_DS(DamageModel_Base):
 
         # pylint: disable=missing-return-doc
         if self._asmnt.log.verbose:
-            self.log_msg('Calculating damage quantities...', prepend_timestamp=True)
+            self.log.msg('Calculating damage quantities...', prepend_timestamp=True)
 
         # Retrieve the component quantity information and component
         # marginal parameters from the asset model
@@ -1430,7 +1430,7 @@ class DamageModel_DS(DamageModel_Base):
         """
 
         if self._asmnt.log.verbose:
-            self.log_msg(f'Applying task {task}...', prepend_timestamp=True)
+            self.log.msg(f'Applying task {task}...', prepend_timestamp=True)
 
         # parse task
         source_cmp = task[0].split('_')[1]  # source component
@@ -1447,7 +1447,7 @@ class DamageModel_DS(DamageModel_Base):
         # check if the source component exists in the damage state
         # dataframe
         if source_cmp not in ds_sample.columns.get_level_values('cmp'):
-            self.log_msg(
+            self.log.msg(
                 f"WARNING: Source component {source_cmp} in the prescribed "
                 "damage process not found among components in the damage "
                 "sample. The corresponding part of the damage process is "
@@ -1481,7 +1481,7 @@ class DamageModel_DS(DamageModel_Base):
                 if (target_cmp != 'ALL') and (
                     target_cmp not in ds_sample.columns.get_level_values('cmp')
                 ):
-                    self.log_msg(
+                    self.log.msg(
                         f"WARNING: Target component {target_cmp} in the prescribed "
                         "damage process not found among components in the damage "
                         "sample. The corresponding part of the damage process is "
@@ -1519,7 +1519,7 @@ class DamageModel_DS(DamageModel_Base):
                     )
 
         if self._asmnt.log.verbose:
-            self.log_msg(
+            self.log.msg(
                 'Damage process task successfully applied.', prepend_timestamp=False
             )
 

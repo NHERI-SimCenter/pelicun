@@ -63,8 +63,7 @@ class TestPelicunModel(TestModelModule):
         return deepcopy(model.PelicunModel(assessment_instance))
 
     def test_init(self, pelicun_model):
-        assert pelicun_model.log_msg
-        assert pelicun_model.log_div
+        assert pelicun_model.log
 
     def test__convert_marginal_params(self, pelicun_model):
         # one row, only Theta_0, no conversion

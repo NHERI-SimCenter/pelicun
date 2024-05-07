@@ -153,7 +153,7 @@ class LossModel(PelicunModel):
 
         """
 
-        self.log_msg('Loading loss map...')
+        self.log.msg('Loading loss map...')
 
         # If no loss map is provided and no default is requested,
         # there is no loss map and we can't proceed.
@@ -166,7 +166,7 @@ class LossModel(PelicunModel):
         cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
 
         if loss_map_path is not None:
-            self.log_msg('Loss map is provided.', prepend_timestamp=False)
+            self.log.msg('Loss map is provided.', prepend_timestamp=False)
             # Read the loss map into a variable
             loss_map = file_io.load_data(
                 loss_map_path,
@@ -176,7 +176,7 @@ class LossModel(PelicunModel):
                 log=self._asmnt.log,
             )
         else:
-            self.log_msg('Using default loss map.', prepend_timestamp=False)
+            self.log.msg('Using default loss map.', prepend_timestamp=False)
             # Instantiate an empty loss map.
             loss_map = pd.DataFrame({'Repair': pd.Series(dtype='object')})
             loss_map.index = loss_map.index.astype('object')
@@ -198,7 +198,7 @@ class LossModel(PelicunModel):
         # Assign the loss map to the available loss models
         self._loss_map = loss_map
 
-        self.log_msg('Loss map loaded successfully.', prepend_timestamp=True)
+        self.log.msg('Loss map loaded successfully.', prepend_timestamp=True)
 
     def load_model_parameters(self, data_paths):
         """
@@ -221,8 +221,8 @@ class LossModel(PelicunModel):
             specified paths.
 
         """
-        self.log_div()
-        self.log_msg('Loading loss parameters...')
+        self.log.div()
+        self.log.msg('Loading loss parameters...')
 
         # replace `PelicunDefault/` flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
@@ -244,7 +244,7 @@ class LossModel(PelicunModel):
             else:
                 raise ValueError(f'Invalid loss model parameters: {data_path}')
 
-        self.log_msg(
+        self.log.msg(
             'Loss model parameters loaded successfully.', prepend_timestamp=False
         )
 
@@ -252,7 +252,7 @@ class LossModel(PelicunModel):
         # remove items
         #
 
-        self.log_msg(
+        self.log.msg(
             'Removing unused loss model parameters.', prepend_timestamp=False
         )
 
@@ -269,7 +269,7 @@ class LossModel(PelicunModel):
         # convert units
         #
 
-        self.log_msg(
+        self.log.msg(
             'Converting loss model parameter units.', prepend_timestamp=False
         )
         for loss_model in self._loss_models:
@@ -279,7 +279,7 @@ class LossModel(PelicunModel):
         # verify loss parameter availability
         #
 
-        self.log_msg(
+        self.log.msg(
             'Checking loss model parameter '
             'availability for all components in the asset model.',
             prepend_timestamp=False,
@@ -299,8 +299,8 @@ class LossModel(PelicunModel):
             don't match.
 
         """
-        self.log_div()
-        self.log_msg('Calculating losses...')
+        self.log.div()
+        self.log.msg('Calculating losses...')
 
         # Get the damaged quantities in each damage state for each
         # component of interest.
@@ -315,7 +315,7 @@ class LossModel(PelicunModel):
             )
         self.ds_model._calculate(dmg_quantities)
         self.lf_model._calculate(demand)
-        self.log_msg("Loss calculation successful.")
+        self.log.msg("Loss calculation successful.")
 
     def save_sample(self, filepath=None, save_units=False):
         """
@@ -359,9 +359,9 @@ class LossModel(PelicunModel):
             Raises an IOError if there is an issue saving the file to
             the specified `filepath`.
         """
-        self.log_div()
+        self.log.div()
         if filepath is not None:
-            self.log_msg('Saving loss sample...')
+            self.log.msg('Saving loss sample...')
             ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
 
         # DS model
@@ -388,7 +388,7 @@ class LossModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg('Loss sample successfully saved.', prepend_timestamp=False)
+            self.log.msg('Loss sample successfully saved.', prepend_timestamp=False)
             return None
 
         units = res.loc["Units"]
@@ -410,15 +410,15 @@ class LossModel(PelicunModel):
             prefix is added internally for each loss model.
 
         """
-        self.log_div()
-        self.log_msg('Loading loss sample...')
+        self.log.div()
+        self.log.msg('Loading loss sample...')
 
         ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
         self.ds_model.sample = file_io.load_data(
             ds_filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
         )
 
-        self.log_msg('Loss sample successfully loaded.', prepend_timestamp=False)
+        self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
     def aggregate_losses(self):
         """
@@ -443,12 +443,12 @@ class LossModel(PelicunModel):
 
         """
 
-        self.log_div()
-        self.log_msg("Aggregating repair consequences...")
+        self.log.div()
+        self.log.msg("Aggregating repair consequences...")
 
         ds_model_losses = self.ds_model._aggregate_losses()
 
-        self.log_msg("Repair consequences successfully aggregated.")
+        self.log.msg("Repair consequences successfully aggregated.")
 
         return ds_model_losses
 
@@ -538,7 +538,7 @@ class LossModel(PelicunModel):
             missing_set = missing_set - model._get_available()
 
         if missing_set:
-            self.log_msg(
+            self.log.msg(
                 f"\n"
                 f"WARNING: The loss model does not provide "
                 f"loss information for the following component(s) "
@@ -645,7 +645,7 @@ class RepairModel_Base(PelicunModel):
         self.loss_params.drop(cmp_incomplete_idx, inplace=True)
 
         if len(cmp_incomplete_idx) > 0:
-            self.log_msg(
+            self.log.msg(
                 f"\n"
                 f"WARNING: Loss model information is incomplete for "
                 f"the following component(s) "
@@ -700,14 +700,14 @@ class RepairModel_DS(RepairModel_Base):
         # If everything is undamaged there are no losses
         if set(dmg_quantities.columns.get_level_values('ds')) == {'0'}:
             self.sample = None
-            self.log_msg(
+            self.log.msg(
                 "There is no damage---DV sample is set to None.",
                 prepend_timestamp=False,
             )
             return
 
         # calculate the quantities for economies of scale
-        self.log_msg("\nAggregating damage quantities...", prepend_timestamp=False)
+        self.log.msg("\nAggregating damage quantities...", prepend_timestamp=False)
 
         if self._asmnt.options.eco_scale["AcrossFloors"]:
             if self._asmnt.options.eco_scale["AcrossDamageStates"]:
@@ -734,32 +734,32 @@ class RepairModel_DS(RepairModel_Base):
         eco_qnt = eco_group.sum().mask(eco_group.count() == 0, np.nan)
         assert eco_qnt.columns.names == eco_columns
 
-        self.log_msg(
+        self.log.msg(
             "Successfully aggregated damage quantities.", prepend_timestamp=False
         )
 
         # apply the median functions, if needed, to get median consequences for
         # each realization
-        self.log_msg(
+        self.log.msg(
             "\nCalculating the median repair consequences...",
             prepend_timestamp=False,
         )
 
         medians = self._calc_median_consequence(eco_qnt)
 
-        self.log_msg(
+        self.log.msg(
             "Successfully determined median repair consequences.",
             prepend_timestamp=False,
         )
 
         # combine the median consequences with the samples of deviation from the
         # median to get the consequence realizations.
-        self.log_msg(
+        self.log.msg(
             "\nConsidering deviations from the median values to obtain "
             "random DV sample..."
         )
 
-        self.log_msg(
+        self.log.msg(
             "Preparing random variables for repair cost and time...",
             prepend_timestamp=False,
         )
@@ -779,7 +779,7 @@ class RepairModel_DS(RepairModel_Base):
         else:
             std_sample = None
 
-        self.log_msg(
+        self.log.msg(
             f"\nSuccessfully generated {sample_size} realizations of "
             "deviation from the median consequences.",
             prepend_timestamp=False,
@@ -912,7 +912,7 @@ class RepairModel_DS(RepairModel_Base):
 
             DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
 
-        self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
+        self.log.msg("Successfully obtained DV sample.", prepend_timestamp=False)
         self.sample = DV_sample
 
     def _aggregate_losses(self):
@@ -1116,7 +1116,7 @@ class RepairModel_DS(RepairModel_Base):
                         )
                     )
 
-        self.log_msg(
+        self.log.msg(
             f"\n{rv_count} random variables created.", prepend_timestamp=False
         )
 
@@ -1369,7 +1369,7 @@ class RepairModel_LF(RepairModel_Base):
             demand_sample,
         )
 
-        self.log_msg(
+        self.log.msg(
             "\nCalculating the median repair consequences...",
             prepend_timestamp=False,
         )
@@ -1378,17 +1378,17 @@ class RepairModel_LF(RepairModel_Base):
             performance_group, loss_map, required_edps, demand_dict, cmp_sample
         )
 
-        self.log_msg(
+        self.log.msg(
             "Successfully determined median repair consequences.",
             prepend_timestamp=False,
         )
 
-        self.log_msg(
+        self.log.msg(
             "\nConsidering deviations from the median values to obtain "
             "random DV sample..."
         )
 
-        self.log_msg(
+        self.log.msg(
             "Preparing random variables for repair cost and time...",
             prepend_timestamp=False,
         )
@@ -1416,7 +1416,7 @@ class RepairModel_LF(RepairModel_Base):
         else:
             std_sample = None
 
-        self.log_msg(
+        self.log.msg(
             f"\nSuccessfully generated {sample_size} realizations of "
             "deviation from the median consequences.",
             prepend_timestamp=False,
@@ -1428,7 +1428,7 @@ class RepairModel_LF(RepairModel_Base):
             by=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid'], axis=1
         ).sum()
 
-        self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
+        self.log.msg("Successfully obtained DV sample.", prepend_timestamp=False)
         self.sample = sample
 
     def _convert_loss_parameter_units(self):
@@ -1624,7 +1624,7 @@ class RepairModel_LF(RepairModel_Base):
                         )
                     )
 
-        self.log_msg(
+        self.log.msg(
             f"\n{rv_count} random variables created.", prepend_timestamp=False
         )
 

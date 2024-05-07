@@ -61,8 +61,7 @@ from pelicun import assessment
 #         return deepcopy(model.LossModel(assessment_instance))
 
 #     def test_init(self, loss_model):
-#         assert loss_model.log_msg
-#         assert loss_model.log_div
+#         assert loss_model.log
 
 #         assert loss_model.sample is None
 #         assert loss_model.loss_type == 'Generic'
@@ -228,8 +227,7 @@ from pelicun import assessment
 #         )
 
 #     def test_init(self, repair_model):
-#         assert repair_model.log_msg
-#         assert repair_model.log_div
+#         assert repair_model.log
 
 #         assert repair_model.sample is None
 #         assert repair_model.loss_type == 'Repair'

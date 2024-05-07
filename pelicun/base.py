@@ -539,28 +539,29 @@ def control_warnings(show):
         warnings are ignored.
 
     """
-    if show:
-        action = 'default'
-    else:
-        action = 'ignore'
+    pass
+    # if show:
+    #     action = 'default'
+    # else:
+    #     action = 'ignore'
 
-    if not sys.warnoptions:
-        # Here we specify *specific* warnings to ignore.
-        # 'message' -- a regex that the warning message must match
-        warnings.filterwarnings(
-            action=action, message=".*Use to_numeric without passing `errors`.*"
-        )
-        warnings.filterwarnings(
-            action=action,
-            message=".*The previous implementation of stack is deprecated.*",
-        )
-        warnings.filterwarnings(
-            action=action,
-            message=".*Setting an item of incompatible dtype is deprecated.*",
-        )
-        warnings.filterwarnings(
-            action=action, message=".*DataFrame.groupby with axis=1 is deprecated.*"
-        )
+    # if not sys.warnoptions:
+    #     # Here we specify *specific* warnings to ignore.
+    #     # 'message' -- a regex that the warning message must match
+    #     warnings.filterwarnings(
+    #         action=action, message=".*Use to_numeric without passing `errors`.*"
+    #     )
+    #     warnings.filterwarnings(
+    #         action=action,
+    #         message=".*The previous implementation of stack is deprecated.*",
+    #     )
+    #     warnings.filterwarnings(
+    #         action=action,
+    #         message=".*Setting an item of incompatible dtype is deprecated.*",
+    #     )
+    #     warnings.filterwarnings(
+    #         action=action, message=".*DataFrame.groupby with axis=1 is deprecated.*"
+    #     )
 
 
 def load_default_options():
@@ -924,23 +925,24 @@ def _warning(message, category, filename, lineno, file=None, line=None):
         Line of code causing the warning (unused, but required for
         compatibility with standard warning signature).
     """
-    # pylint:disable = unused-argument
-    if '\\' in filename:
-        file_path = filename.split('\\')
-    elif '/' in filename:
-        file_path = filename.split('/')
-    else:
-        file_path = None
+    pass
+    # # pylint:disable = unused-argument
+    # if '\\' in filename:
+    #     file_path = filename.split('\\')
+    # elif '/' in filename:
+    #     file_path = filename.split('/')
+    # else:
+    #     file_path = None
 
-    if file_path is not None:
-        python_file = '/'.join(file_path[-3:])
-    else:
-        python_file = filename
+    # if file_path is not None:
+    #     python_file = '/'.join(file_path[-3:])
+    # else:
+    #     python_file = filename
 
-    print(f'WARNING in {python_file} at line {lineno}\n{message}\n')
+    # print(f'WARNING in {python_file} at line {lineno}\n{message}\n')
 
 
-warnings.showwarning = _warning
+# warnings.showwarning = _warning
 
 
 def describe(
