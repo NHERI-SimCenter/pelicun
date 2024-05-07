@@ -90,13 +90,15 @@ class Assessment:
 
         self.options = base.Options(config_options, self)
 
-        self.unit_conversion_factors = base.parse_units(
-            self.options.units_file)
+        self.unit_conversion_factors = base.parse_units(self.options.units_file)
 
         self.log = self.options.log
 
-        self.log.msg(f'pelicun {pelicun_version} | \n',
-                     prepend_timestamp=False, prepend_blank_space=False)
+        self.log.msg(
+            f'pelicun {pelicun_version} | \n',
+            prepend_timestamp=False,
+            prepend_blank_space=False,
+        )
 
         self.log.print_system_info()
 
@@ -161,15 +163,24 @@ class Assessment:
 
     def get_default_data(self, data_name):
         """
-        Load a default data file and pass it to the user.
+        Loads a default data file by name and returns it. This method
+        is specifically designed to access predefined CSV files from a
+        structured directory path related to the SimCenter fragility
+        library.
 
         Parameters
         ----------
-        data_name: string
-            Name of the csv file to be loaded
+        data_name : str
+            The name of the CSV file to be loaded, without the '.csv'
+            extension. This name is used to construct the full path to
+            the file.
 
+        Returns
+        -------
+        pd.DataFrame
+            The DataFrame containing the data loaded from the
+            specified CSV file.
         """
-
         data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/{data_name}.csv'
 
         return file_io.load_data(
@@ -184,6 +195,11 @@ class Assessment:
         ----------
         data_name: string
             Name of the json file to be loaded
+
+        Returns
+        -------
+        dict
+            Default metadata
 
         """
 
@@ -208,7 +224,7 @@ class Assessment:
 
         Returns
         -------
-        scale_factor: float
+        float
             Scale factor that convert values from unit to base unit
 
         Raises
@@ -232,8 +248,9 @@ class Assessment:
             scale_factor = unit_count * self.unit_conversion_factors[unit_name]
 
         except KeyError as exc:
-            raise KeyError(f"Specified unit not recognized: "
-                           f"{unit_count} {unit_name}") from exc
+            raise KeyError(
+                f"Specified unit not recognized: {unit_count} {unit_name}"
+            ) from exc
 
         return scale_factor
 
@@ -248,6 +265,11 @@ class Assessment:
         unit: str
             A unit name.
 
+        Returns
+        -------
+        float
+            Scale factor
+
         Raises
         ------
         ValueError
@@ -256,7 +278,6 @@ class Assessment:
         """
 
         if unit is not None:
-
             if unit in self.unit_conversion_factors:
                 scale_factor = self.unit_conversion_factors[unit]
 

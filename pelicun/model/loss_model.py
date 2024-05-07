@@ -53,6 +53,7 @@ This file defines Loss model objects and their methods.
 
 """
 
+import warnings
 import numpy as np
 import pandas as pd
 from .pelicun_model import PelicunModel
@@ -78,22 +79,50 @@ class LossModel(PelicunModel):
     def __init__(self, assessment):
         super().__init__(assessment)
 
-        self._sample = None
+        self.sample = None
         self.loss_map = None
         self.loss_params = None
         self.loss_type = 'Generic'
 
-    @property
-    def sample(self):
-        """
-        sample property
-        """
-        return self._sample
-
     def save_sample(self, filepath=None, save_units=False):
         """
-        Save loss sample to a csv file
+        Saves the loss sample to a CSV file or returns it as a
+        DataFrame with optional units.
 
+        This method handles the storage of a sample of loss estimates,
+        which can either be saved directly to a file or returned as a
+        DataFrame for further manipulation. When saving to a file,
+        additional information such as unit conversion factors and
+        column units can be included. If the data is not being saved
+        to a file, the method can return the DataFrame with or without
+        units as specified.
+
+        Parameters
+        ----------
+        filepath : str, optional
+            The path to the file where the loss sample should be
+            saved. If not provided, the sample is not saved to disk
+            but returned.
+        save_units : bool, default: False
+            Indicates whether to include a row with unit information
+            in the returned DataFrame. This parameter is ignored if a
+            file path is provided.
+
+        Returns
+        -------
+        None or tuple
+            If `filepath` is provided, the function returns None after
+            saving the data.
+            If no `filepath` is specified, returns:
+            - DataFrame containing the loss sample.
+            - Optionally, a Series containing the units for each
+              column if `save_units` is True.
+
+        Raises
+        ------
+        IOError
+            Raises an IOError if there is an issue saving the file to
+            the specified `filepath`.
         """
         self.log_div()
         if filepath is not None:
@@ -139,7 +168,7 @@ class LossModel(PelicunModel):
         self.log_div()
         self.log_msg('Loading loss sample...')
 
-        self._sample = file_io.load_data(
+        self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
         )
 
@@ -303,24 +332,23 @@ class LossModel(PelicunModel):
         """
         raise NotImplementedError
 
-    def calculate(self):
+    def calculate(self, sample_size=None):
         """
         Calculate the consequences of each component block damage in
         the asset.
 
         """
+        if not sample_size:
+            sample_size = self._asmnt.demand.sample.shape[0]
+            warnings.warn(
+                'Using default sample size is deprecated and will '
+                'be removed in future versions. '
+                'Please provide the `sample_size` explicitly.',
+                DeprecationWarning,
+            )
 
         self.log_div()
         self.log_msg("Calculating losses...")
-
-        drivers = [d for d, _ in self.loss_map['Driver']]
-
-        if 'DMG' in drivers:
-            sample_size = self._asmnt.damage.sample.shape[0]
-        elif 'DEM' in drivers:
-            sample_size = self._asmnt.demand.sample.shape[0]
-        else:
-            raise ValueError('Invalid loss drivers. Check the specified loss map.')
 
         # First, get the damaged quantities in each damage state for
         # each component of interest.
@@ -348,28 +376,31 @@ class RepairModel(LossModel):
 
         self.loss_type = 'Repair'
 
-    # def load_model(self, data_paths, mapping_path):
-
-    #     super().load_model(data_paths, mapping_path)
-
-    # def calculate(self):
-
-    #     super().calculate()
-
     def _create_DV_RVs(self, case_list):
         """
-        Prepare the random variables used for repair cost and time simulation.
+        Prepare the random variables associated with decision
+        variables, such as repair cost and time.
 
         Parameters
         ----------
         case_list: MultiIndex
-            Index with cmp-loc-dir-ds descriptions that identify the RVs
-            we need for the simulation.
+            Index with cmp-loc-dir-ds descriptions that identify the
+            RVs we need for the simulation.
+
+        Returns
+        -------
+        RandomVariableRegistry or None
+            A RandomVariableRegistry containing all the generated
+            random variables necessary for the simulation. If no
+            random variables are generated (due to missing parameters
+            or conditions), returns None.
 
         Raises
         ------
         ValueError
-            When any Loss Driver is not recognized.
+            If an unrecognized loss driver type is encountered,
+            indicating a configuration or data input error.
+
         """
 
         RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
@@ -396,9 +427,7 @@ class RepairModel(LossModel):
             # currently, we only support DMG-based loss calculations
             # but this will be extended in the very near future
             if driver_type != 'DMG':
-                raise ValueError(
-                    f"Loss Driver type not recognized: " f"{driver_type}"
-                )
+                raise ValueError(f"Loss Driver type not recognized: " f"{driver_type}")
 
             # load the parameters
             # TODO: remove specific DV_type references and make the code below
@@ -435,8 +464,7 @@ class RepairModel(LossModel):
 
                     cost_family = cost_params_DS.get('Family', np.nan)
                     cost_theta = [
-                        cost_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
+                        cost_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -454,8 +482,7 @@ class RepairModel(LossModel):
 
                     time_family = time_params_DS.get('Family', np.nan)
                     time_theta = [
-                        time_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
+                        time_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -473,8 +500,7 @@ class RepairModel(LossModel):
 
                     carbon_family = carbon_params_DS.get('Family', np.nan)
                     carbon_theta = [
-                        carbon_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
+                        carbon_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -492,8 +518,7 @@ class RepairModel(LossModel):
 
                     energy_family = energy_params_DS.get('Family', np.nan)
                     energy_theta = [
-                        energy_params_DS.get(f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
+                        energy_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -522,9 +547,7 @@ class RepairModel(LossModel):
                 for loc, direction, uid in loc_dir_uid:
                     # assign cost RV
                     if pd.isna(cost_family) is False:
-                        cost_rv_tag = (
-                            f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
-                        )
+                        cost_rv_tag = f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(
                             uq.rv_class_map(cost_family)(
@@ -537,9 +560,7 @@ class RepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(time_family) is False:
-                        time_rv_tag = (
-                            f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
-                        )
+                        time_rv_tag = f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
 
                         RV_reg.add_RV(
                             uq.rv_class_map(time_family)(
@@ -593,16 +614,12 @@ class RepairModel(LossModel):
                         RV_reg.add_RV_set(
                             uq.RandomVariableSet(
                                 f'DV-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}_set',
-                                list(
-                                    RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()
-                                ),
+                                list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
                                 np.array([[1.0, rho], [rho, 1.0]]),
                             )
                         )
 
-        self.log_msg(
-            f"\n{rv_count} random variables created.", prepend_timestamp=False
-        )
+        self.log_msg(f"\n{rv_count} random variables created.", prepend_timestamp=False)
 
         if rv_count > 0:
             return RV_reg
@@ -611,8 +628,41 @@ class RepairModel(LossModel):
 
     def _calc_median_consequence(self, eco_qnt):
         """
-        Calculate the median repair consequence for each loss component.
+        Calculates the median repair consequences for each loss
+        component based on their quantities and the associated loss
+        parameters.
 
+        This function evaluates the median consequences for different
+        types of decision variables (DV), such as repair costs or
+        repair time, based on the provided loss parameters. It
+        utilizes the eco_qnt DataFrame, which contains economic
+        quantity realizations for various damage states and
+        components, to compute the consequences.
+
+        Parameters
+        ----------
+        eco_qnt : DataFrame
+            A DataFrame containing economic quantity realizations for
+            various components and damage states, indexed or
+            structured to align with the loss parameters.
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are the types of decision variables
+            (DV) like 'COST' or 'TIME', and values are DataFrames
+            containing the median consequences for each component and
+            damage state. These DataFrames are structured with
+            MultiIndex columns that may include 'cmp' (component),
+            'ds' (damage state), and potentially 'loc' (location),
+            depending on assessment options.
+
+        Raises
+        ------
+        ValueError
+            If any loss driver types or distribution types are not
+            recognized, or if the parameters are incomplete or
+            unsupported.
         """
 
         medians = {}
@@ -653,9 +703,7 @@ class RepairModel(LossModel):
                     if ds_id == '0':
                         continue
 
-                    loss_params_DS = self.loss_params.loc[
-                        (loss_cmp_name, DV_type), ds
-                    ]
+                    loss_params_DS = self.loss_params.loc[(loss_cmp_name, DV_type), ds]
 
                     # check if theta_0 is defined
                     theta_0 = loss_params_DS.get('Theta_0', np.nan)
@@ -746,110 +794,6 @@ class RepairModel(LossModel):
 
         return medians
 
-    def aggregate_losses(self):
-        """
-        Aggregates repair consequences across components.
-
-        Repair costs are simply summed up for each realization while repair
-        times are aggregated to provide lower and upper limits of the total
-        repair time using the assumption of parallel and sequential repair of
-        floors, respectively. Repairs within each floor are assumed to occur
-        sequentially.
-        """
-
-        self.log_div()
-        self.log_msg("Aggregating repair consequences...")
-
-        DV = self.sample
-
-        if DV is None:
-            return
-
-        # group results by DV type and location
-        DVG = DV.groupby(level=[0, 4], axis=1).sum()
-
-        # create the summary DF
-        df_agg = pd.DataFrame(
-            index=DV.index,
-            columns=[
-                'repair_cost',
-                'repair_time-parallel',
-                'repair_time-sequential',
-                'repair_carbon',
-                'repair_energy',
-            ],
-        )
-
-        if 'Cost' in DVG.columns:
-            df_agg['repair_cost'] = DVG['Cost'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_cost', axis=1)
-
-        if 'Time' in DVG.columns:
-            df_agg['repair_time-sequential'] = DVG['Time'].sum(axis=1)
-
-            df_agg['repair_time-parallel'] = DVG['Time'].max(axis=1)
-        else:
-            df_agg = df_agg.drop(
-                ['repair_time-parallel', 'repair_time-sequential'], axis=1
-            )
-
-        if 'Carbon' in DVG.columns:
-            df_agg['repair_carbon'] = DVG['Carbon'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_carbon', axis=1)
-
-        if 'Energy' in DVG.columns:
-            df_agg['repair_energy'] = DVG['Energy'].sum(axis=1)
-        else:
-            df_agg = df_agg.drop('repair_energy', axis=1)
-
-        # convert units
-
-        cmp_units = (
-            self.loss_params[('DV', 'Unit')]
-            .groupby(
-                level=[
-                    1,
-                ]
-            )
-            .agg(lambda x: x.value_counts().index[0])
-        )
-
-        dv_units = pd.Series(index=df_agg.columns, name='Units', dtype='object')
-
-        if 'Cost' in DVG.columns:
-            dv_units['repair_cost'] = cmp_units['Cost']
-
-        if 'Time' in DVG.columns:
-            dv_units['repair_time-parallel'] = cmp_units['Time']
-            dv_units['repair_time-sequential'] = cmp_units['Time']
-
-        if 'Carbon' in DVG.columns:
-            dv_units['repair_carbon'] = cmp_units['Carbon']
-
-        if 'Energy' in DVG.columns:
-            dv_units['repair_energy'] = cmp_units['Energy']
-
-        df_agg = file_io.save_to_csv(
-            df_agg,
-            None,
-            units=dv_units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=False,
-            log=self._asmnt.log,
-        )
-
-        df_agg.drop("Units", inplace=True)
-
-        # convert header
-
-        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
-
-        self.log_msg("Repair consequences successfully aggregated.")
-
-        return df_agg.astype(float)
-
     def _generate_DV_sample(self, dmg_quantities, sample_size):
         """
         Generate a sample of repair costs and times.
@@ -875,7 +819,7 @@ class RepairModel(LossModel):
 
         # If everything is undamaged there are no losses
         if set(dmg_quantities.columns.get_level_values('ds')) == {'0'}:
-            self._sample = None
+            self.sample = None
             self.log_msg(
                 "There is no damage---DV sample is set to None.",
                 prepend_timestamp=False,
@@ -976,9 +920,7 @@ class RepairModel(LossModel):
         res_list = []
         key_list = []
 
-        dmg_quantities.columns = dmg_quantities.columns.reorder_levels(
-            [0, 4, 1, 2, 3]
-        )
+        dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0, 4, 1, 2, 3])
         dmg_quantities.sort_index(axis=1, inplace=True)
 
         DV_types = self.loss_params.index.unique(level=1)
@@ -1019,13 +961,11 @@ class RepairModel(LossModel):
                     loc_list = []
 
                     for loc_id, loc in enumerate(
-                        dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.unique(
-                            level=0
-                        )
+                        dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.unique(level=0)
                     ):
-                        if (
-                            self._asmnt.options.eco_scale["AcrossFloors"] is True
-                        ) and (loc_id > 0):
+                        if (self._asmnt.options.eco_scale["AcrossFloors"] is True) and (
+                            loc_id > 0
+                        ):
                             break
 
                         if self._asmnt.options.eco_scale["AcrossFloors"] is True:
@@ -1105,9 +1045,121 @@ class RepairModel(LossModel):
 
             DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
 
-        self._sample = DV_sample
+        self.sample = DV_sample
 
         self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
+
+    def aggregate_losses(self):
+        """
+        Aggregates repair consequences across components.
+
+        Returns
+        -------
+        DataFrame
+            A DataFrame containing aggregated repair
+            consequences. Columns include:
+            - 'repair_cost': Total repair costs across all components.
+            - 'repair_time-parallel': Minimum possible repair time
+              assuming repairs are conducted in parallel.
+            - 'repair_time-sequential': Maximum possible repair time
+              assuming sequential repairs.
+            - 'repair_carbon': Total carbon emissions associated with
+              repairs.
+            - 'repair_energy': Total energy usage associated with
+              repairs.
+            Each of these columns is summed or calculated based on the
+            repair data available.
+        """
+
+        self.log_div()
+        self.log_msg("Aggregating repair consequences...")
+
+        DV = self.sample
+
+        # group results by DV type and location
+        DVG = DV.groupby(level=[0, 4], axis=1).sum()
+
+        # create the summary DF
+        df_agg = pd.DataFrame(
+            index=DV.index,
+            columns=[
+                'repair_cost',
+                'repair_time-parallel',
+                'repair_time-sequential',
+                'repair_carbon',
+                'repair_energy',
+            ],
+        )
+
+        if 'Cost' in DVG.columns:
+            df_agg['repair_cost'] = DVG['Cost'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_cost', axis=1)
+
+        if 'Time' in DVG.columns:
+            df_agg['repair_time-sequential'] = DVG['Time'].sum(axis=1)
+
+            df_agg['repair_time-parallel'] = DVG['Time'].max(axis=1)
+        else:
+            df_agg = df_agg.drop(
+                ['repair_time-parallel', 'repair_time-sequential'], axis=1
+            )
+
+        if 'Carbon' in DVG.columns:
+            df_agg['repair_carbon'] = DVG['Carbon'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_carbon', axis=1)
+
+        if 'Energy' in DVG.columns:
+            df_agg['repair_energy'] = DVG['Energy'].sum(axis=1)
+        else:
+            df_agg = df_agg.drop('repair_energy', axis=1)
+
+        # convert units
+
+        cmp_units = (
+            self.loss_params[('DV', 'Unit')]
+            .groupby(
+                level=[
+                    1,
+                ]
+            )
+            .agg(lambda x: x.value_counts().index[0])
+        )
+
+        dv_units = pd.Series(index=df_agg.columns, name='Units', dtype='object')
+
+        if 'Cost' in DVG.columns:
+            dv_units['repair_cost'] = cmp_units['Cost']
+
+        if 'Time' in DVG.columns:
+            dv_units['repair_time-parallel'] = cmp_units['Time']
+            dv_units['repair_time-sequential'] = cmp_units['Time']
+
+        if 'Carbon' in DVG.columns:
+            dv_units['repair_carbon'] = cmp_units['Carbon']
+
+        if 'Energy' in DVG.columns:
+            dv_units['repair_energy'] = cmp_units['Energy']
+
+        df_agg = file_io.save_to_csv(
+            df_agg,
+            None,
+            units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=False,
+            log=self._asmnt.log,
+        )
+
+        df_agg.drop("Units", inplace=True)
+
+        # convert header
+
+        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
+
+        self.log_msg("Repair consequences successfully aggregated.")
+
+        return df_agg.astype(float)
 
 
 def prep_constant_median_DV(median):
@@ -1121,13 +1173,15 @@ def prep_constant_median_DV(median):
 
     Returns
     -------
-    f: callable
+    callable
         A function that returns the constant median DV for all component
         quantities.
     """
 
     def f(*args):
         # pylint: disable=unused-argument
+        # pylint: disable=missing-return-doc
+        # pylint: disable=missing-return-type-doc
         return median
 
     return f
@@ -1153,12 +1207,14 @@ def prep_bounded_multilinear_median_DV(medians, quantities):
 
     Returns
     -------
-    f: callable
+    callable
         A function that returns the median DV given the quantity of damaged
         components.
     """
 
     def f(quantity):
+        # pylint: disable=missing-return-doc
+        # pylint: disable=missing-return-type-doc
         if quantity is None:
             raise ValueError(
                 'A bounded linear median Decision Variable function called '

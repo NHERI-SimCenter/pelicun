@@ -59,27 +59,22 @@ def export_DB(data_path, target_dir):
     DB_df = pd.read_hdf(data_path, 'data')
 
     for row_id, row in DB_df.iterrows():
-
         row_dict = convert_Series_to_dict(row)
 
-        with open(target_dir_data / f'{row_id}.json', 'w',
-                  encoding='utf-8') as f:
+        with open(target_dir_data / f'{row_id}.json', 'w', encoding='utf-8') as f:
             json.dump(row_dict, f, indent=2)
 
     # add population if it exists
 
     try:
-
         DB_df = pd.read_hdf(data_path, 'pop')
 
         pop_dict = {}
 
         for row_id, row in DB_df.iterrows():
-
             pop_dict.update({row_id: convert_Series_to_dict(row)})
 
-        with open(target_dir / 'population.json', 'w',
-                  encoding='utf-8') as f:
+        with open(target_dir / 'population.json', 'w', encoding='utf-8') as f:
             json.dump(pop_dict, f, indent=2)
 
     except (ValueError, NotImplementedError, FileNotFoundError):
@@ -87,7 +82,6 @@ def export_DB(data_path, target_dir):
 
 
 if __name__ == '__main__':
-
     args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()

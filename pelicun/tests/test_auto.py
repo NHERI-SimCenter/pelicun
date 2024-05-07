@@ -106,14 +106,10 @@ def test_pelicun_default_path_replacement(
     modified_path = setup_auto_script_path.replace(
         'PelicunDefault/', setup_expected_base_path
     )
-    assert modified_path.startswith(
-        setup_expected_base_path
-    )
+    assert modified_path.startswith(setup_expected_base_path)
 
 
-def test_auto_population_script_execution(
-    setup_valid_config, setup_auto_script_path
-):
+def test_auto_population_script_execution(setup_valid_config, setup_auto_script_path):
     with patch('pelicun.base.pelicun_path', '/expected/path'), patch(
         'os.path.exists', return_value=True
     ), patch('importlib.__import__') as mock_import:

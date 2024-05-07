@@ -409,10 +409,8 @@ def auto_populate(AIM):
                 }
             },
             "Options": {
-                "NonDirectionalMultipliers": {
-                    "ALL": 1.0
-                },
-            }
+                "NonDirectionalMultipliers": {"ALL": 1.0},
+            },
         }
 
     elif assetType == "TransportationNetwork":
@@ -447,10 +445,8 @@ def auto_populate(AIM):
                     }
                 },
                 "Options": {
-                    "NonDirectionalMultipliers": {
-                        "ALL": 1.0
-                    },
-                }
+                    "NonDirectionalMultipliers": {"ALL": 1.0},
+                },
             }
 
         elif inf_type == "HwyTunnel":
@@ -482,10 +478,8 @@ def auto_populate(AIM):
                     }
                 },
                 "Options": {
-                    "NonDirectionalMultipliers": {
-                        "ALL": 1.0
-                    },
-                }
+                    "NonDirectionalMultipliers": {"ALL": 1.0},
+                },
             }
         elif inf_type == "Roadway":
             # get the road class
@@ -515,16 +509,13 @@ def auto_populate(AIM):
                     }
                 },
                 "Options": {
-                    "NonDirectionalMultipliers": {
-                        "ALL": 1.0
-                    },
-                }
+                    "NonDirectionalMultipliers": {"ALL": 1.0},
+                },
             }
         else:
             print("subtype not supported in HWY")
 
     elif assetType == "WaterDistributionNetwork":
-
         pipe_material_map = {
             "CI": "B",
             "AC": "B",
@@ -703,7 +694,6 @@ def auto_populate(AIM):
             }
 
         elif wdn_element_type == "Tank":
-
             tank_cmp_lines = {
                 ("OG", "C", 1): {'PST.G.C.A.GS': ['ea', 1, 1, 1, 'N/A']},
                 ("OG", "C", 0): {'PST.G.C.U.GS': ['ea', 1, 1, 1, 'N/A']},

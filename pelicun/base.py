@@ -91,7 +91,6 @@ idx = pd.IndexSlice
 
 
 class Options:
-
     """
     Options objects store analysis options and the logging
     configuration.
@@ -183,11 +182,10 @@ class Options:
         self._seed = None
 
         self._rng = np.random.default_rng()
-        merged_config_options = merge_default_config(
-            user_config_options)
+        merged_config_options = merge_default_config(user_config_options)
 
         self._seed = merged_config_options['Seed']
-        self.sampling_method = merged_config_options['SamplingMethod']
+        self.sampling_method = merged_config_options['Sampling']['SamplingMethod']
         self.list_all_ds = merged_config_options['ListAllDamageStates']
 
         self.units_file = merged_config_options['UnitsFile']
@@ -203,7 +201,8 @@ class Options:
             merged_config_options['ShowWarnings'],
             merged_config_options['LogShowMS'],
             merged_config_options['LogFile'],
-            merged_config_options['PrintLog'])
+            merged_config_options['PrintLog'],
+        )
 
     def nondir_multi(self, EDP_type):
         """
@@ -215,6 +214,11 @@ class Options:
         ----------
         EDP_type: str
             EDP type (e.g. "PFA", "PFV", ..., "ALL")
+
+        Returns
+        -------
+        float
+            Nondirectional component multiplicative factor.
 
         Raises
         ------
@@ -237,12 +241,18 @@ class Options:
             f"calculation of {EDP_type} not specified.\n"
             f"Please add {EDP_type} in the configuration dictionary "
             f"under ['Options']['NonDirectionalMultipliers']"
-            " = {{'edp_type': value, ...}}")
+            " = {{'edp_type': value, ...}}"
+        )
 
     @property
     def seed(self):
         """
-        seed property
+        Seed property
+
+        Returns
+        -------
+        float
+            Seed value
         """
         return self._seed
 
@@ -258,6 +268,11 @@ class Options:
     def rng(self):
         """
         rng property
+
+        Returns
+        -------
+        Generator
+            Random generator
         """
         return self._rng
 
@@ -265,6 +280,11 @@ class Options:
     def units_file(self):
         """
         units file property
+
+        Returns
+        -------
+        str
+            Units file
         """
         return self._units_file
 
@@ -277,7 +297,6 @@ class Options:
 
 
 class Logger:
-
     """
     Logger objects are used to generate log files documenting
     execution events and related messages.
@@ -314,6 +333,7 @@ class Logger:
         (see settings/default_config.json in the pelicun source code).
 
     """
+
     # TODO: finalize docstring
 
     def __init__(self, verbose, show_warnings, log_show_ms, log_file, print_log):
@@ -336,6 +356,11 @@ class Logger:
     def verbose(self):
         """
         verbose property
+
+        Returns
+        -------
+        bool
+            Verbose property value
         """
         return self._verbose
 
@@ -350,6 +375,11 @@ class Logger:
     def show_warnings(self):
         """
         show_warnings property
+
+        Returns
+        -------
+        bool
+            show_warnings value
         """
         return self._show_warnings
 
@@ -366,6 +396,10 @@ class Logger:
     def log_show_ms(self):
         """
         log_show_ms property
+
+        Returns
+        bool
+            log_show_ms value
         """
         return self._log_show_ms
 
@@ -382,6 +416,11 @@ class Logger:
     def log_pref(self):
         """
         log_pref property
+
+        Returns
+        -------
+        str
+            log_pref value
         """
         return self._log_pref
 
@@ -389,6 +428,11 @@ class Logger:
     def log_div(self):
         """
         log_div property
+
+        Returns
+        -------
+        str
+            log_div value
         """
         return self._log_div
 
@@ -416,9 +460,7 @@ class Logger:
             self._log_file = None
 
         else:
-
             try:
-
                 filepath = Path(value).resolve()
 
                 self._log_file = str(filepath)
@@ -427,10 +469,12 @@ class Logger:
                     f.write('')
 
             except BaseException as err:
-                print(f"WARNING: The filepath provided for the log file does "
-                      f"not point to a valid location: {value}. \nPelicun "
-                      f"cannot print the log to a file.\n"
-                      f"The error was: '{err}'")
+                print(
+                    f"WARNING: The filepath provided for the log file does "
+                    f"not point to a valid location: {value}. \nPelicun "
+                    f"cannot print the log to a file.\n"
+                    f"The error was: '{err}'"
+                )
                 raise
 
     @property
@@ -484,10 +528,10 @@ class Logger:
         msg_lines = msg.split('\n')
 
         for msg_i, msg_line in enumerate(msg_lines):
-
-            if (prepend_timestamp and (msg_i == 0)):
+            if prepend_timestamp and (msg_i == 0):
                 formatted_msg = '{} {}'.format(
-                    datetime.now().strftime(self.log_time_format), msg_line)
+                    datetime.now().strftime(self.log_time_format), msg_line
+                )
             elif prepend_timestamp:
                 formatted_msg = self.log_pref + msg_line
             elif prepend_blank_space:
@@ -519,15 +563,16 @@ class Logger:
         """
 
         self.msg(
-            'System Information:',
-            prepend_timestamp=False, prepend_blank_space=False)
+            'System Information:', prepend_timestamp=False, prepend_blank_space=False
+        )
         self.msg(
             f'local time zone: {datetime.utcnow().astimezone().tzinfo}\n'
             f'start time: {datetime.now().strftime("%Y-%m-%dT%H:%M:%S")}\n'
             f'python: {sys.version}\n'
             f'numpy: {np.__version__}\n'
             f'pandas: {pd.__version__}\n',
-            prepend_timestamp=False)
+            prepend_timestamp=False,
+        )
 
 
 # get the absolute path of the pelicun directory
@@ -535,7 +580,6 @@ pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
 
 def control_warnings(show):
-
     """
     Convenience function to turn warnings on/off
 
@@ -552,33 +596,33 @@ def control_warnings(show):
         action = 'ignore'
 
     if not sys.warnoptions:
-        warnings.filterwarnings(
-            category=FutureWarning, action=action)
+        warnings.filterwarnings(category=FutureWarning, action=action)
 
-        warnings.filterwarnings(
-            category=DeprecationWarning, action=action)
+        warnings.filterwarnings(category=DeprecationWarning, action=action)
 
-        warnings.filterwarnings(
-            category=pd.errors.PerformanceWarning, action=action)
+        warnings.filterwarnings(category=pd.errors.PerformanceWarning, action=action)
 
 
 def load_default_options():
     """
     Load the default_config.json file to set options to default values
+
+    Returns
+    -------
+    dict
+        Default options
     """
 
-    with open(pelicun_path / "settings/default_config.json",
-              'r', encoding='utf-8') as f:
+    with open(
+        pelicun_path / "settings/default_config.json", 'r', encoding='utf-8'
+    ) as f:
         default_config = json.load(f)
 
     default_options = default_config['Options']
     return default_options
 
 
-def update_vals(
-        update, primary,
-        update_path, primary_path
-):
+def update_vals(update, primary, update_path, primary_path):
     """
     Updates the values of the `update` nested dictionary with
     those provided in the `primary` nested dictionary. If a key
@@ -635,8 +679,11 @@ def update_vals(
                 )
             # With both being dictionaries, we recurse.
             update_vals(
-                update[key], primary[key],
-                f'{update_path}["{key}"]', f'{primary_path}["{key}"]')
+                update[key],
+                primary[key],
+                f'{update_path}["{key}"]',
+                f'{primary_path}["{key}"]',
+            )
         # if `primary[key]` is NOT a dictionary:
         else:
             # if `key` does not exist in `update`, we add it, with
@@ -666,14 +713,14 @@ def merge_default_config(user_config):
     not include some option available in the default options, then the
     default option is used in the merged config.
 
-    Parameters.
+    Parameters
     ----------
     user_config: dict
         User-specified configuration dictionary
 
     Returns
     -------
-    user_config: dict
+    dict
         Merged configuration dictionary
     """
 
@@ -686,9 +733,7 @@ def merge_default_config(user_config):
     # We fill out the user's config with the values available in the
     # default config that were not set.
     # We use a recursive function to handle nesting.
-    update_vals(
-        config, default_config,
-        'user_settings', 'default_settings')
+    update_vals(config, default_config, 'user_settings', 'default_settings')
 
     return config
 
@@ -714,7 +759,7 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
 
     Returns
     -------
-    data: DataFrame
+    DataFrame
         The modified DataFrame
 
     Raises
@@ -724,17 +769,14 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
 
     if axis in {0, 1}:
-
         if inplace:
             data_mod = data
         else:
             data_mod = data.copy()
 
         if axis == 0:
-
             # only perform this if there are multiple levels
             if data.index.nlevels > 1:
-
                 simple_name = '-'.join(
                     [n if n is not None else "" for n in data.index.names]
                 )
@@ -746,10 +788,8 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
                 data_mod.index.name = simple_name
 
         elif axis == 1:
-
             # only perform this if there are multiple levels
             if data.columns.nlevels > 1:
-
                 simple_name = '-'.join(
                     [n if n is not None else "" for n in data.columns.names]
                 )
@@ -787,7 +827,7 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
 
     Returns
     -------
-    data: DataFrame
+    DataFrame
         The modified DataFrame.
 
     Raises
@@ -800,7 +840,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     if ((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or (
         (axis == 1) and (isinstance(data.columns, pd.MultiIndex))
     ):
-
         # if yes, return the data unchanged
         return data
 
@@ -816,7 +855,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     max_lbl_len = np.max([len(labels) for labels in index_labels])
 
     for l_i, labels in enumerate(index_labels):
-
         if len(labels) != max_lbl_len:
             labels += [
                 '',
@@ -826,7 +864,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     index_labels = np.array(index_labels)
 
     if index_labels.shape[1] > 1:
-
         if inplace:
             data_mod = data
         else:
@@ -874,19 +911,46 @@ def convert_dtypes(dataframe):
 
 def show_matrix(data, use_describe=False):
     """
-    Print a matrix in a nice way using a DataFrame
+    Print a matrix in a nice way using a DataFrame.
+    Parameters
+    ----------
+    data : array-like
+        The matrix data to display. Can be any array-like structure that pandas can convert to a DataFrame.
+    use_describe : bool, default: False
+        If True, provides a descriptive statistical summary of the matrix including specified percentiles.
+        If False, simply prints the matrix as is.
     """
     if use_describe:
-        pp.pprint(
-            pd.DataFrame(data).describe(percentiles=[0.01, 0.1, 0.5, 0.9, 0.99])
-        )
+        pp.pprint(pd.DataFrame(data).describe(percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
     else:
         pp.pprint(pd.DataFrame(data))
 
 
 def _warning(message, category, filename, lineno, file=None, line=None):
     """
-    Monkeypatch warnings to get prettier messages
+    Custom warning function to format and print warnings more
+    attractively. This function modifies how warning messages are
+    displayed, emphasizing the file path and line number from where
+    the warning originated.
+
+    Parameters
+    ----------
+    message : str
+        The warning message to be displayed.
+    category : Warning
+        The category of the warning (unused, but required for
+        compatibility with standard warning signature).
+    filename : str
+        The path of the file from which the warning is issued. The
+        function simplifies the path for display.
+    lineno : int
+        The line number in the file at which the warning is issued.
+    file : file-like object, optional
+        The target file object to write the warning to (unused, but
+        required for compatibility with standard warning signature).
+    line : str, optional
+        Line of code causing the warning (unused, but required for
+        compatibility with standard warning signature).
     """
     # pylint:disable = unused-argument
     if '\\' in filename:
@@ -907,10 +971,34 @@ def _warning(message, category, filename, lineno, file=None, line=None):
 warnings.showwarning = _warning
 
 
-def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
-                              0.977, 0.999)):
+def describe(
+    df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90, 0.977, 0.999)
+):
     """
-    Provide descriptive statistics.
+    Provides extended descriptive statistics for given data, including
+    percentiles and log standard deviation for applicable columns.
+
+    This function accepts both pandas Series and DataFrame objects
+    directly, or any array-like structure which can be converted to
+    them. It calculates common descriptive statistics and optionally
+    adds log standard deviation for columns where all values are
+    positive.
+
+    Parameters
+    ----------
+    df : pd.Series, pd.DataFrame, or array-like
+        The data to describe. If array-like, it is converted to a
+        DataFrame or Series before analysis.
+    percentiles : tuple of float, optional
+        Specific percentiles to include in the output. Default
+        includes an extensive range tailored to provide a detailed
+        summary.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the descriptive statistics of the input
+        data, transposed so that each descriptive statistic is a row.
     """
     if not isinstance(df, (pd.Series, pd.DataFrame)):
         vals = df
@@ -940,7 +1028,32 @@ def describe(df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90,
 
 def str2bool(v):
     """
-    Converts various bool-like forms of string to actual booleans
+    Converts a string representation of truth to boolean True or
+    False.
+
+    This function is designed to convert string inputs that represent
+    boolean values into actual Python boolean types. It handles
+    typical representations of truthiness and falsiness, and is case
+    insensitive.
+
+    Parameters
+    ----------
+    v : str or bool
+        The value to convert into a boolean. This can be a boolean
+        itself (in which case it is simply returned) or a string that
+        is expected to represent a boolean value.
+
+    Returns
+    -------
+    bool
+        The boolean value corresponding to the input.
+
+    Raises
+    ------
+    argparse.ArgumentTypeError
+        If `v` is a string that does not correspond to a boolean
+        value, an error is raised indicating that a boolean value was
+        expected.
     """
     # courtesy of Maxim @ stackoverflow
 
@@ -965,7 +1078,7 @@ def float_or_None(string):
 
     Returns
     -------
-    res: float, optional
+    float or None
         A float, if the given string can be converted to a
         float. Otherwise, it returns None
     """
@@ -988,7 +1101,7 @@ def int_or_None(string):
 
     Returns
     -------
-    res: int, optional
+    int or None
         An int, if the given string can be converted to an
         int. Otherwise, it returns None
     """
@@ -1001,12 +1114,42 @@ def int_or_None(string):
 
 def process_loc(string, stories):
     """
-    Parses the location parameter.
+    Parses the 'location' parameter from input to determine the
+    specific locations to be processed. This function interprets
+    various string formats to output a list of integers representing
+    locations.
+
+    Parameters
+    ----------
+    string : str
+        A string that describes the location or range of locations of
+        the asset.  It can be a single number, a range (e.g., '3-7'),
+        'all', 'top', 'roof', or 'last'.
+    stories : int
+        The total number of locations in the asset, used to interpret
+        relative terms like 'top' or 'roof', or to generate a range
+        for 'all'.
+
+    Returns
+    -------
+    list of int or None
+        A list of integers representing each floor specified by the
+        string. Returns None if the string does not conform to
+        expected formats.
+
+    Raises
+    ------
+    ValueError
+        Raises an exception if the string contains a range that is not
+        interpretable (e.g., non-integer values or logical
+        inconsistencies in the range).
     """
     try:
         res = int(string)
-        return [res, ]
-    except ValueError:
+        return [
+            res,
+        ]
+    except ValueError as exc:
         if "-" in string:
             s_low, s_high = string.split('-')
             s_low = process_loc(s_low, stories)
@@ -1014,25 +1157,39 @@ def process_loc(string, stories):
             return list(range(s_low[0], s_high[0] + 1))
         if string == "all":
             return list(range(1, stories + 1))
-        if string == "top":
-            return [stories, ]
-        if string == "roof":
-            return [stories, ]
-        return None
+        if string in {"top", "roof", "last"}:
+            return [
+                stories,
+            ]
+        raise ValueError(f'Invalid string: {string}') from exc
 
 
 def dedupe_index(dataframe, dtype=str):
     """
-    Adds an extra level to the index of a dataframe so that all
-    resulting index elements are unique. Assumes that the original
-    index is a MultiIndex with specified names.
+    Modifies the index of a DataFrame to ensure all index elements are
+    unique by adding an extra level.  Assumes that the DataFrame's
+    original index is a MultiIndex with specified names. A unique
+    identifier ('uid') is added as an additional index level based on
+    the cumulative count of occurrences of the original index
+    combinations.
+
+    Parameters
+    ----------
+    dataframe : pd.DataFrame
+        The DataFrame whose index is to be modified. It must have a
+        MultiIndex.
+    dtype : type, optional
+        The data type for the new index level 'uid'. Defaults to str.
+
+    Notes
+    -----
+    This function changes the DataFrame in place, hence it does not
+    return the DataFrame but modifies the original one provided.
 
     """
-
     inames = dataframe.index.names
     dataframe.reset_index(inplace=True)
-    dataframe['uid'] = (
-        dataframe.groupby([*inames]).cumcount()).astype(dtype)
+    dataframe['uid'] = (dataframe.groupby([*inames]).cumcount()).astype(dtype)
     dataframe.set_index([*inames] + ['uid'], inplace=True)
     dataframe.sort_index(inplace=True)
 
@@ -1041,57 +1198,82 @@ def dedupe_index(dataframe, dtype=str):
 
 EDP_to_demand_type = {
     # Drifts
-    'Story Drift Ratio':               'PID',
-    'Peak Interstory Drift Ratio':     'PID',
-    'Roof Drift Ratio':                'PRD',
-    'Peak Roof Drift Ratio':           'PRD',
-    'Damageable Wall Drift':           'DWD',
-    'Racking Drift Ratio':             'RDR',
-    'Mega Drift Ratio':                'PMD',
-    'Residual Drift Ratio':            'RID',
+    'Story Drift Ratio': 'PID',
+    'Peak Interstory Drift Ratio': 'PID',
+    'Roof Drift Ratio': 'PRD',
+    'Peak Roof Drift Ratio': 'PRD',
+    'Damageable Wall Drift': 'DWD',
+    'Racking Drift Ratio': 'RDR',
+    'Mega Drift Ratio': 'PMD',
+    'Residual Drift Ratio': 'RID',
     'Residual Interstory Drift Ratio': 'RID',
-    'Peak Effective Drift Ratio':      'EDR',
-
+    'Peak Effective Drift Ratio': 'EDR',
     # Floor response
-    'Peak Floor Acceleration':        'PFA',
-    'Peak Floor Velocity':            'PFV',
-    'Peak Floor Displacement':        'PFD',
-
+    'Peak Floor Acceleration': 'PFA',
+    'Peak Floor Velocity': 'PFV',
+    'Peak Floor Displacement': 'PFD',
     # Component response
-    'Peak Link Rotation Angle':       'LR',
-    'Peak Link Beam Chord Rotation':  'LBR',
-
+    'Peak Link Rotation Angle': 'LR',
+    'Peak Link Beam Chord Rotation': 'LBR',
     # Wind Intensity
-    'Peak Gust Wind Speed':           'PWS',
-
+    'Peak Gust Wind Speed': 'PWS',
     # Inundation Intensity
-    'Peak Inundation Height':         'PIH',
-
+    'Peak Inundation Height': 'PIH',
     # Shaking Intensity
-    'Peak Ground Acceleration':       'PGA',
-    'Peak Ground Velocity':           'PGV',
-    'Spectral Acceleration':          'SA',
-    'Spectral Velocity':              'SV',
-    'Spectral Displacement':          'SD',
-    'Peak Spectral Acceleration':     'SA',
-    'Peak Spectral Velocity':         'SV',
-    'Peak Spectral Displacement':     'SD',
-    'Permanent Ground Deformation':   'PGD',
-
+    'Peak Ground Acceleration': 'PGA',
+    'Peak Ground Velocity': 'PGV',
+    'Spectral Acceleration': 'SA',
+    'Spectral Velocity': 'SV',
+    'Spectral Displacement': 'SD',
+    'Peak Spectral Acceleration': 'SA',
+    'Peak Spectral Velocity': 'SV',
+    'Peak Spectral Displacement': 'SD',
+    'Permanent Ground Deformation': 'PGD',
     # Placeholder for advanced calculations
-    'One':                            'ONE'
+    'One': 'ONE',
 }
 
 
 def dict_raise_on_duplicates(ordered_pairs):
     """
-    Reject duplicate keys.
+    Constructs a dictionary from a list of key-value pairs, raising an
+    exception if duplicate keys are found.
 
-    https://stackoverflow.com/questions/14902299/
-    json-loads-allows-duplicate-keys-
-    in-a-dictionary-overwriting-the-first-value
+    This function ensures that no two pairs have the same key. It is
+    particularly useful when parsing JSON-like data where unique keys
+    are expected but not enforced by standard parsing methods.
 
+    Parameters
+    ----------
+    ordered_pairs : list of tuples
+        A list of tuples, each containing a key and a value. Keys are
+        expected to be unique across the list.
+
+    Returns
+    -------
+    dict
+        A dictionary constructed from the ordered_pairs without any
+        duplicates.
+
+    Raises
+    ------
+    ValueError
+        If a duplicate key is found in the input list, a ValueError is
+        raised with a message indicating the duplicate key.
+
+    Examples
+    --------
+    >>> dict_raise_on_duplicates(
+    ...     [("key1", "value1"), ("key2", "value2"), ("key1", "value3")]
+    ... )
+    ValueError: duplicate key: key1
+
+    Notes
+    -----
+    This implementation is useful for contexts in which data integrity
+    is crucial and key uniqueness must be ensured.
     """
+
     d = {}
     for k, v in ordered_pairs:
         if k in d:
@@ -1110,6 +1292,16 @@ def parse_units(custom_file=None, preserve_categories=False):
         If a custom file is provided, only the units specified in the
         custom file are used.
 
+    Returns
+    -------
+    dict
+        A dictionary where keys are unit names and values are
+        their corresponding conversion factors. If
+        `preserve_categories` is True, the dictionary may maintain
+        its original nested structure based on the JSON file. If
+        `preserve_categories` is False, the dictionary is flattened
+        to have globally unique unit names.
+
     Raises
     ------
     KeyError
@@ -1123,6 +1315,57 @@ def parse_units(custom_file=None, preserve_categories=False):
     """
 
     def get_contents(file_path, preserve_categories=False):
+        """
+        Parses a unit conversion factors JSON file and returns a
+        dictionary mapping unit names to conversion factors.
+
+        This function allows the use of a custom JSON file for
+        defining unit conversion factors or defaults to a predefined
+        file. It ensures that each unit name is unique and that all
+        conversion factors are float values. Additionally, it supports
+        the option to preserve the original data types of category
+        values from the JSON.
+
+        Parameters
+        ----------
+        file_path : str
+            The file path to a JSON file containing unit conversion
+            factors. If not provided, a default file is used.
+        preserve_categories : bool, optional
+            If True, maintains the original data types of category
+            values from the JSON file. If False, converts all values
+            to floats and flattens the dictionary structure, ensuring
+            that each unit name is globally unique across categories.
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are unit names and values are
+            their corresponding conversion factors. If
+            `preserve_categories` is True, the dictionary may maintain
+            its original nested structure based on the JSON file.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the specified file does not exist.
+        ValueError
+            If a unit name is duplicated, a conversion factor is not a
+            float, or other JSON structure issues are present.
+        json.decoder.JSONDecodeError
+            If the file is not a valid JSON file.
+        TypeError
+            If any value that needs to be converted to float cannot be
+            converted.
+
+        Examples
+        --------
+        >>> parse_units('custom_units.json')
+        { 'm': 1.0, 'cm': 0.01, 'mm': 0.001 }
+
+        >>> parse_units('custom_units.json', preserve_categories=True)
+        { 'Length': {'m': 1.0, 'cm': 0.01, 'mm': 0.001} }
+        """
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 dictionary = json.load(f, object_pairs_hook=dict_raise_on_duplicates)
@@ -1168,11 +1411,11 @@ def parse_units(custom_file=None, preserve_categories=False):
 
 
 def convert_units(
-    values: (float | list[float] | np.ndarray),
+    values: float | list[float] | np.ndarray,
     unit: str,
     to_unit: str,
-    category: (str | None) = None
-) -> (float | list[float] | np.ndarray):
+    category: str | None = None,
+) -> float | list[float] | np.ndarray:
     """
     Converts numeric values between different units.
 
@@ -1195,16 +1438,16 @@ def convert_units(
 
     Returns
     -------
-    (float | list[float] | np.ndarray):
+    float or list[float] or np.ndarray
       The converted value(s) in the target unit, in the same data type
       as the input values.
 
     Raises
     ------
-    TypeError:
+    TypeError
       If the input `values` are not of type float, list, or
       np.ndarray.
-    ValueError:
+    ValueError
       If the `unit`, `to_unit`, or `category` is unknown or if `unit`
       and `to_unit` are not in the same category.
 
@@ -1227,11 +1470,9 @@ def convert_units(
         units = all_units[category]
         for unt in unit, to_unit:
             if unt not in units:
-                raise ValueError(
-                    f'Unknown unit: `{unt}`'
-                )
+                raise ValueError(f'Unknown unit: `{unt}`')
     else:
-        unit_category: (str | None) = None
+        unit_category: str | None = None
         for key in all_units:
             units = all_units[key]
             if unit in units:

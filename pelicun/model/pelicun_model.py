@@ -51,8 +51,8 @@ This file defines the PelicunModel object and its methods.
 
 import numpy as np
 import pandas as pd
-from .. import base
-from .. import uq
+from pelicun import base
+from pelicun import uq
 
 
 idx = base.idx
@@ -100,7 +100,7 @@ class PelicunModel:
 
         Returns
         -------
-        marginal_params: DataFrame
+        DataFrame
             Same structure as the input DataFrame but with values scaled to
             represent internal Standard International units.
 
@@ -189,9 +189,7 @@ class PelicunModel:
 
                     if arg_unit != '1 EA':
                         # get the scale factor
-                        arg_unit_factor = self._asmnt.calc_unit_scale_factor(
-                            arg_unit
-                        )
+                        arg_unit_factor = self._asmnt.calc_unit_scale_factor(arg_unit)
 
                         # scale arguments, if needed
                         for a_i, arg in enumerate(args):
@@ -214,9 +212,7 @@ class PelicunModel:
                         )
 
                 # and update the values in the DF
-                marginal_params.loc[
-                    row_id, ['Theta_0', 'Theta_1', 'Theta_2']
-                ] = theta
+                marginal_params.loc[row_id, ['Theta_0', 'Theta_1', 'Theta_2']] = theta
 
                 marginal_params.loc[
                     row_id, ['TruncateLower', 'TruncateUpper']

@@ -46,15 +46,14 @@ This module has classes and methods to manage databases used by pelicun.
 
     create_FEMA_P58_fragility_db
     create_FEMA_P58_repair_db
-    create_FEMA_P58_bldg_injury_db
     create_FEMA_P58_bldg_redtag_db
 
     create_Hazus_EQ_fragility_db
     create_Hazus_EQ_repair_db
-    create_Hazus_EQ_bldg_injury_db
 
 """
 
+from __future__ import annotations
 import re
 import json
 from pathlib import Path
@@ -63,8 +62,8 @@ import numpy as np
 from scipy.stats import norm
 import pandas as pd
 
-from . import base
-from .uq import fit_distribution_to_percentiles
+from pelicun import base
+from pelicun.uq import fit_distribution_to_percentiles
 
 idx = base.idx
 
@@ -76,6 +75,16 @@ idx = base.idx
 def parse_DS_Hierarchy(DSH):
     """
     Parses the FEMA P58 DS hierarchy into a set of arrays.
+
+    Parameters
+    ----------
+    DSH: str
+       Damage state hierarchy
+
+    Returns
+    -------
+    list
+      Damage state setup
     """
     if DSH[:3] == 'Seq':
         DSH = DSH[4:-1]
@@ -320,9 +329,7 @@ def create_FEMA_P58_fragility_db(
         # the additional fields are added to the description if they exist
 
         if cmp_meta['Construction_Quality'] != 'Not Specified':
-            comments += (
-                f'\nConstruction Quality: {cmp_meta["Construction_Quality"]}'
-            )
+            comments += f'\nConstruction Quality: {cmp_meta["Construction_Quality"]}'
 
         if cmp_meta['Seismic_Installation_Conditions'] not in [
             'Not Specified',
@@ -406,9 +413,7 @@ def create_FEMA_P58_fragility_db(
                         ls_meta.update(
                             {
                                 f"DS{ds_id}": {
-                                    "Description": cmp_meta[
-                                        f"DS_{ds_id}_Description"
-                                    ],
+                                    "Description": cmp_meta[f"DS_{ds_id}_Description"],
                                     "RepairAction": repair_action,
                                 }
                             }
@@ -428,9 +433,11 @@ def create_FEMA_P58_fragility_db(
                         sim_weights.append(
                             np.product(
                                 [
-                                    weights[ds_i]
-                                    if ds_map[-ds_i - 1] == '1'
-                                    else 1.0 - weights[ds_i]
+                                    (
+                                        weights[ds_i]
+                                        if ds_map[-ds_i - 1] == '1'
+                                        else 1.0 - weights[ds_i]
+                                    )
                                     for ds_i in range(sim_ds_count)
                                 ]
                             )
@@ -896,9 +903,11 @@ def create_FEMA_P58_repair_db(
 
                 cost_vals = np.sum(
                     [
-                        cost_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(5)
+                        (
+                            cost_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(5)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -906,9 +915,11 @@ def create_FEMA_P58_repair_db(
 
                 time_vals = np.sum(
                     [
-                        time_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(6)
+                        (
+                            time_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(6)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -916,9 +927,11 @@ def create_FEMA_P58_repair_db(
 
                 carbon_vals = np.sum(
                     [
-                        carbon_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(3)
+                        (
+                            carbon_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(3)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -926,9 +939,11 @@ def create_FEMA_P58_repair_db(
 
                 energy_vals = np.sum(
                     [
-                        energy_est[f'DS{ds_i + 1}']
-                        if ds_map[-ds_i - 1] == '1'
-                        else np.zeros(3)
+                        (
+                            energy_est[f'DS{ds_i + 1}']
+                            if ds_map[-ds_i - 1] == '1'
+                            else np.zeros(3)
+                        )
                         for ds_i in range(sim_ds_count)
                     ],
                     axis=0,
@@ -1007,9 +1022,7 @@ def create_FEMA_P58_repair_db(
                     time_vals[5] > 0
                 )
 
-                df_db.loc[
-                    (cmp.Index, 'Carbon'), f'DS{DS_i}-Family'
-                ] = family_hat_carbon
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = family_hat_carbon
 
                 df_db.loc[
                     (cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'
@@ -1019,9 +1032,7 @@ def create_FEMA_P58_repair_db(
                     (cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_1'
                 ] = f"{carbon_theta[1]:g}"
 
-                df_db.loc[
-                    (cmp.Index, 'Energy'), f'DS{DS_i}-Family'
-                ] = family_hat_energy
+                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Family'] = family_hat_energy
 
                 df_db.loc[
                     (cmp.Index, 'Energy'), f'DS{DS_i}-Theta_0'
@@ -1056,8 +1067,7 @@ def create_FEMA_P58_repair_db(
                     meta_data['DamageStates'].update(
                         {
                             f"DS{DS_i}": {
-                                "Description": 'Combination of '
-                                + ' & '.join(ds_combo),
+                                "Description": 'Combination of ' + ' & '.join(ds_combo),
                                 "RepairAction": 'Combination of pure DS repair '
                                 'actions.',
                             }
@@ -1070,9 +1080,9 @@ def create_FEMA_P58_repair_db(
             for DS_i in range(1, 6):
                 # cost
                 if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}')):
-                    df_db.loc[
-                        (cmp.Index, 'Cost'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}')]
+                    df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = convert_family[
+                        getattr(cmp, f'Best_Fit_DS{DS_i}')
+                    ]
 
                     if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')):
                         theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')
@@ -1081,9 +1091,7 @@ def create_FEMA_P58_repair_db(
                         qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}')
 
                         if theta_0_low == 0.0 and theta_0_up == 0.0:
-                            df_db.loc[
-                                (cmp.Index, 'Cost'), f'DS{DS_i}-Family'
-                            ] = np.nan
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = np.nan
 
                         else:
                             df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_0'] = (
@@ -1113,9 +1121,9 @@ def create_FEMA_P58_repair_db(
 
                 # time
                 if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}_1')):
-                    df_db.loc[
-                        (cmp.Index, 'Time'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}_1')]
+                    df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = convert_family[
+                        getattr(cmp, f'Best_Fit_DS{DS_i}_1')
+                    ]
 
                     if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')):
                         theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')
@@ -1124,9 +1132,7 @@ def create_FEMA_P58_repair_db(
                         qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}_1')
 
                         if theta_0_low == 0.0 and theta_0_up == 0.0:
-                            df_db.loc[
-                                (cmp.Index, 'Time'), f'DS{DS_i}-Family'
-                            ] = np.nan
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = np.nan
 
                         else:
                             df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_0'] = (
@@ -1138,9 +1144,9 @@ def create_FEMA_P58_repair_db(
                                 (cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'
                             ] = f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}_2'):g}"
 
-                        df_db.loc[
-                            (cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'
-                        ] = int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES')
+                        df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = int(
+                            getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES'
+                        )
 
                     else:
                         incomplete_time = True
@@ -1220,272 +1226,7 @@ def create_FEMA_P58_repair_db(
     with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
-    print(
-        "Successfully parsed and saved the repair consequence data from FEMA P58"
-    )
-
-
-def create_FEMA_P58_bldg_redtag_db(
-    source_file,
-    target_data_file='bldg_redtag_DB_FEMA_P58_2nd.csv',
-    target_meta_file='bldg_redtag_DB_FEMA_P58_2nd.json',
-):
-    """
-    Create an red tag consequence parameter database based on the FEMA P58 data
-
-    The method was developed to process v3.1.2 of the FragilityDatabase xls
-    that is provided with FEMA P58 2nd edition.
-
-    Parameters
-    ----------
-    source_file: string
-        Path to the fragility database file.
-    target_data_file: string
-        Path where the consequence data file should be saved. A csv file is
-        expected.
-    target_meta_file: string
-        Path where the consequence metadata should be saved. A json file is
-        expected.
-
-    """
-
-    # parse the source file
-    df = pd.read_excel(
-        source_file,
-        sheet_name='Summary',
-        header=2,
-        index_col=1,
-        true_values=["YES", "Yes", "yes"],
-        false_values=["NO", "No", "no"],
-    )
-
-    # take another pass with booleans because the first does not always work
-    for true_str in ("YES", "Yes", "yes"):
-        df.replace(true_str, True, inplace=True)
-
-    for false_str in ("NO", "No", "no"):
-        df.replace(false_str, False, inplace=True)
-
-    # remove empty rows and columns
-    df.dropna(axis=0, how='all', inplace=True)
-    df.dropna(axis=1, how='all', inplace=True)
-
-    # filter the columns we need for the injury database
-    cols_to_db = [
-        'DS Hierarchy',
-    ]
-    for DS_i in range(1, 6):
-        cols_to_db += [
-            f'DS {DS_i}, Unsafe Placard Trigger Flag',
-            f'DS {DS_i}, Unsafe Placard Damage Median',
-            f'DS {DS_i}, Unsafe Placard Damage Dispersion',
-        ]
-
-    # filter the columns that we need for the metadata
-    cols_to_meta = [
-        "Component Name",
-        "Component Description",
-        "Construction Quality:",
-        "Seismic Installation Conditions:",
-        "Comments / Notes",
-        "Author",
-        "Fragility Unit of Measure",
-        "Round to Integer Unit?",
-        "DS 1, Description",
-        "DS 2, Description",
-        "DS 3, Description",
-        "DS 4, Description",
-        "DS 5, Description",
-    ]
-
-    # remove special characters to make it easier to work with column names
-    str_map = {
-        ord(' '): "_",
-        ord('.'): "_",
-        ord('-'): "_",
-        ord(':'): None,
-        ord('('): None,
-        ord(')'): None,
-        ord('?'): None,
-        ord('/'): None,
-        ord(','): None,
-    }
-
-    df_db_source = df.loc[:, cols_to_db]
-    df_db_source.columns = [s.translate(str_map) for s in cols_to_db]
-    df_db_source.sort_index(inplace=True)
-
-    df_meta = df.loc[:, cols_to_meta]
-    df_meta.columns = [s.translate(str_map) for s in cols_to_meta]
-
-    df_db_source.replace('BY USER', np.nan, inplace=True)
-    df_db_source.replace('By User', np.nan, inplace=True)
-
-    # initialize the output loss table
-    # define the columns
-    out_cols = [
-        "Index",
-        "Incomplete",
-    ]
-    for DS_i in range(1, 6):
-        out_cols += [f"DS{DS_i}-Family", f"DS{DS_i}-Theta_0", f"DS{DS_i}-Theta_1"]
-
-    # create the database index
-    comps = df_db_source.index.values
-
-    df_db = pd.DataFrame(columns=out_cols, index=comps, dtype=float)
-
-    # initialize the dictionary that stores the loss metadata
-    meta_dict = {}
-
-    # for each component...
-    # (this approach is not efficient, but easy to follow which was considered
-    # more important than efficiency.)
-    for cmp in df_db_source.itertuples():
-        ID = cmp.Index.split('.')
-        cmpID = f'{ID[0][0]}.{ID[0][1:3]}.{ID[0][3:5]}.{ID[1]}'
-
-        # store the new index
-        df_db.loc[cmp.Index, 'Index'] = cmpID
-
-        # assume the component information is complete
-        incomplete = False
-
-        # get the raw metadata for the component
-        cmp_meta = df_meta.loc[cmp.Index, :]
-
-        # store the global (i.e., not DS-specific) metadata
-
-        # start with a comp. description
-        if not pd.isna(cmp_meta['Component_Description']):
-            comments = cmp_meta['Component_Description']
-        else:
-            comments = ''
-
-        # the additional fields are added to the description if they exist
-        if cmp_meta['Construction_Quality'] != 'Not Specified':
-            comments += (
-                f'\nConstruction Quality: ' f'{cmp_meta["Construction_Quality"]}'
-            )
-
-        if cmp_meta['Seismic_Installation_Conditions'] not in [
-            'Not Specified',
-            'Not applicable',
-            'Unknown',
-            'Any',
-        ]:
-            comments += (
-                f'\nSeismic Installation Conditions: '
-                f'{cmp_meta["Seismic_Installation_Conditions"]}'
-            )
-
-        if cmp_meta['Comments__Notes'] != 'None':
-            comments += f'\nNotes: {cmp_meta["Comments__Notes"]}'
-
-        if cmp_meta['Author'] not in ['Not Given', 'By User']:
-            comments += f'\nAuthor: {cmp_meta["Author"]}'
-
-        # get the suggested block size and replace the misleading values with ea
-        block_size = cmp_meta['Fragility_Unit_of_Measure'].split(' ')[::-1]
-
-        meta_data = {
-            "Description": cmp_meta['Component_Name'],
-            "Comments": comments,
-            "SuggestedComponentBlockSize": ' '.join(block_size),
-            "RoundUpToIntegerQuantity": cmp_meta['Round_to_Integer_Unit'],
-            "ControllingDemand": "Damage Quantity",
-            "DamageStates": {},
-        }
-
-        # Handle components with simultaneous damage states separately
-        if 'Simul' in cmp.DS_Hierarchy:
-            pass
-            # Note that we are assuming that components with simultaneous
-            # damage states do not have damage that would trigger a red tag.
-            # This assumption holds for the second edition of FEMA P58, but it
-            # might need to be revisited in future editions.
-
-        # for every other component...
-        else:
-            # now look at each Damage State
-            for DS_i in range(1, 6):
-                redtag_flag = getattr(cmp, f'DS_{DS_i}_Unsafe_Placard_Trigger_Flag')
-
-                if redtag_flag is True:
-                    theta_0 = getattr(
-                        cmp, f'DS_{DS_i}_Unsafe_Placard_Damage_' f'Median'
-                    )
-                    theta_1 = getattr(
-                        cmp, f'DS_{DS_i}_Unsafe_Placard_Damage_' f'Dispersion'
-                    )
-
-                    if theta_0 != 0.0:
-                        df_db.loc[cmp.Index, f'DS{DS_i}-Family'] = 'lognormal'
-
-                        df_db.loc[cmp.Index, f'DS{DS_i}-Theta_0'] = theta_0
-
-                        df_db.loc[cmp.Index, f'DS{DS_i}-Theta_1'] = theta_1
-
-                        if pd.isna(theta_0) or pd.isna(theta_1):
-                            incomplete = True
-
-                if ~np.isnan(redtag_flag):
-                    meta_data['DamageStates'].update(
-                        {
-                            f"DS{DS_i}": {
-                                "Description": cmp_meta[f"DS_{DS_i}_Description"]
-                            }
-                        }
-                    )
-
-        df_db.loc[cmp.Index, 'Incomplete'] = int(incomplete)
-
-        # store the metadata for this component
-        meta_dict.update({cmpID: meta_data})
-
-    # assign the Index column as the new ID
-    df_db.set_index('Index', inplace=True)
-
-    # review the database and drop rows with no information
-    cmp_to_drop = []
-    for cmp in df_db.index:
-        empty = True
-
-        for DS_i in range(1, 6):
-            if not pd.isna(df_db.loc[cmp, f'DS{DS_i}-Family']):
-                empty = False
-                break
-
-        if empty:
-            cmp_to_drop.append(cmp)
-
-    df_db.drop(cmp_to_drop, axis=0, inplace=True)
-    cmp_kept = df_db.index.get_level_values(0).unique()
-
-    cmp_to_drop = []
-    for cmp in meta_dict:
-        if cmp not in cmp_kept:
-            cmp_to_drop.append(cmp)
-
-    for cmp in cmp_to_drop:
-        del meta_dict[cmp]
-
-    # convert to optimal datatypes to reduce file size
-    df_db = df_db.convert_dtypes()
-
-    # rename the index
-    df_db.index.name = "ID"
-
-    # save the consequence data
-    df_db.to_csv(target_data_file)
-
-    # save the metadata
-    with open(target_meta_file, 'w+', encoding='utf-8') as f:
-        json.dump(meta_dict, f, indent=2)
-
-    print(
-        "Successfully parsed and saved the red tag consequence data from FEMA P58"
-    )
+    print("Successfully parsed and saved the repair consequence data from FEMA P58")
 
 
 def create_Hazus_EQ_fragility_db(
@@ -1538,13 +1279,9 @@ def create_Hazus_EQ_fragility_db(
         frag_meta = {}
 
     # prepare lists of labels for various building features
-    design_levels = list(
-        raw_data['Structural_Fragility_Groups']['EDP_limits'].keys()
-    )
+    design_levels = list(raw_data['Structural_Fragility_Groups']['EDP_limits'].keys())
 
-    building_types = list(
-        raw_data['Structural_Fragility_Groups']['P_collapse'].keys()
-    )
+    building_types = list(raw_data['Structural_Fragility_Groups']['P_collapse'].keys())
 
     convert_design_level = {
         'High_code': 'HC',
@@ -1646,9 +1383,7 @@ def create_Hazus_EQ_fragility_db(
                         "Description": (
                             frag_meta['Meta']['Collections']['STR']['Description']
                             + ", "
-                            + frag_meta['Meta']['StructuralSystems'][st][
-                                'Description'
-                            ]
+                            + frag_meta['Meta']['StructuralSystems'][st]['Description']
                             + ", "
                             + frag_meta['Meta']['HeightClasses'][hc]['Description']
                             + ", "
@@ -1676,9 +1411,7 @@ def create_Hazus_EQ_fragility_db(
                         "Description": (
                             frag_meta['Meta']['Collections']['STR']['Description']
                             + ", "
-                            + frag_meta['Meta']['StructuralSystems'][st][
-                                'Description'
-                            ]
+                            + frag_meta['Meta']['StructuralSystems'][st]['Description']
                             + ", "
                             + frag_meta['Meta']['DesignLevels'][
                                 convert_design_level[dl]
@@ -1702,12 +1435,12 @@ def create_Hazus_EQ_fragility_db(
                 ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
                 for LS_i in range(1, 5):
                     df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
-                    df_db.loc[counter, f'LS{LS_i}-Theta_0'] = S_data['EDP_limits'][
+                    df_db.loc[counter, f'LS{LS_i}-Theta_0'] = S_data['EDP_limits'][dl][
+                        bt
+                    ][LS_i - 1]
+                    df_db.loc[counter, f'LS{LS_i}-Theta_1'] = S_data['Fragility_beta'][
                         dl
-                    ][bt][LS_i - 1]
-                    df_db.loc[counter, f'LS{LS_i}-Theta_1'] = S_data[
-                        'Fragility_beta'
-                    ][dl]
+                    ]
 
                     if LS_i == 4:
                         p_coll = S_data['P_collapse'][bt]
@@ -1728,9 +1461,7 @@ def create_Hazus_EQ_fragility_db(
                         cmp_meta["LimitStates"].update(
                             {
                                 f"LS{LS_i}": {
-                                    f"DS{LS_i}": {
-                                        "Description": ds_meta[f"DS{LS_i}"]
-                                    }
+                                    f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
                                 }
                             }
                         )
@@ -1806,9 +1537,7 @@ def create_Hazus_EQ_fragility_db(
             "Comments": (
                 frag_meta['Meta']['Collections']['NSA']['Comment']
                 + "\n"
-                + frag_meta['Meta']['DesignLevels'][convert_design_level[dl]][
-                    'Comment'
-                ]
+                + frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
             ),
             "SuggestedComponentBlockSize": "1 EA",
             "RoundUpToIntegerQuantity": "True",
@@ -1870,9 +1599,7 @@ def create_Hazus_EQ_fragility_db(
                                     'Description'
                                 ]
                                 + ", "
-                                + frag_meta['Meta']['HeightClasses'][hc][
-                                    'Description'
-                                ]
+                                + frag_meta['Meta']['HeightClasses'][hc]['Description']
                                 + ", "
                                 + frag_meta['Meta']['DesignLevels'][
                                     convert_design_level[dl]
@@ -1881,9 +1608,7 @@ def create_Hazus_EQ_fragility_db(
                             "Comments": (
                                 frag_meta['Meta']['Collections']['LF']['Comment']
                                 + "\n"
-                                + frag_meta['Meta']['StructuralSystems'][st][
-                                    'Comment'
-                                ]
+                                + frag_meta['Meta']['StructuralSystems'][st]['Comment']
                                 + "\n"
                                 + frag_meta['Meta']['HeightClasses'][hc]['Comment']
                                 + "\n"
@@ -1911,9 +1636,7 @@ def create_Hazus_EQ_fragility_db(
                             "Comments": (
                                 frag_meta['Meta']['Collections']['LF']['Comment']
                                 + "\n"
-                                + frag_meta['Meta']['StructuralSystems'][st][
-                                    'Comment'
-                                ]
+                                + frag_meta['Meta']['StructuralSystems'][st]['Comment']
                                 + "\n"
                                 + frag_meta['Meta']['DesignLevels'][
                                     convert_design_level[dl]
@@ -1925,14 +1648,12 @@ def create_Hazus_EQ_fragility_db(
                         }
 
                     # store the Limit State parameters
-                    ds_meta = frag_meta['Meta']['StructuralSystems'][st][
-                        'DamageStates'
-                    ]
+                    ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
                     for LS_i in range(1, 5):
                         df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
-                        df_db.loc[counter, f'LS{LS_i}-Theta_0'] = LF_data[
-                            'EDP_limits'
-                        ][dl][bt][LS_i - 1]
+                        df_db.loc[counter, f'LS{LS_i}-Theta_0'] = LF_data['EDP_limits'][
+                            dl
+                        ][bt][LS_i - 1]
                         df_db.loc[counter, f'LS{LS_i}-Theta_1'] = LF_data[
                             'Fragility_beta'
                         ][dl]
@@ -2115,9 +1836,7 @@ def create_Hazus_EQ_repair_db(
     # create the MultiIndex
     cmp_types = ['STR', 'NSD', 'NSA', 'LF']
     comps = [
-        f'{cmp_type}.{occ_type}'
-        for cmp_type in cmp_types
-        for occ_type in occupancies
+        f'{cmp_type}.{occ_type}' for cmp_type in cmp_types for occ_type in occupancies
     ]
     DVs = ['Cost', 'Time']
     df_MI = pd.MultiIndex.from_product([comps, DVs], names=['ID', 'DV'])
@@ -2217,9 +1936,9 @@ def create_Hazus_EQ_repair_db(
                 {f"DS{DS_i}": {"Description": ds_meta[f"DS{DS_i}"]}}
             )
 
-            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSD_data[
-                'Repair_cost'
-            ][occ_type][DS_i - 1]
+            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSD_data['Repair_cost'][
+                occ_type
+            ][DS_i - 1]
 
         # store metadata
         meta_dict.update({cmp_id: cmp_meta})
@@ -2254,9 +1973,9 @@ def create_Hazus_EQ_repair_db(
                 {f"DS{DS_i}": {"Description": ds_meta[f"DS{DS_i}"]}}
             )
 
-            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSA_data[
-                'Repair_cost'
-            ][occ_type][DS_i - 1]
+            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSA_data['Repair_cost'][
+                occ_type
+            ][DS_i - 1]
 
         # store metadata
         meta_dict.update({cmp_id: cmp_meta})
@@ -2339,6 +2058,582 @@ def create_Hazus_EQ_repair_db(
     with open(target_meta_file, 'w+', encoding='utf-8') as f:
         json.dump(meta_dict, f, indent=2)
 
-    print(
-        "Successfully parsed and saved the repair consequence data from Hazus EQ"
-    )
+    print("Successfully parsed and saved the repair consequence data from Hazus EQ")
+
+
+def create_Hazus_HU_fragility_db(
+    source_file: str = (
+        'pelicun/resources/SimCenterDBDL/' 'damage_DB_SimCenter_Hazus_HU_bldg.csv'
+    ),
+    meta_file: str = (
+        'pelicun/resources/SimCenterDBDL/'
+        'damage_DB_SimCenter_Hazus_HU_bldg_template.json'
+    ),
+    target_meta_file: str = 'damage_DB_SimCenter_Hazus_HU_bldg.json',
+) -> None:
+    """
+    Create a database metadata file for the HAZUS Hurricane fragilities.
+
+    This method was developed to add a json file with metadata
+    accompanying `damage_DB_SimCenter_Hazus_HU_bldg.csv`. That file
+    contains fragility curves fitted to Hazus Hurricane data relaetd
+    to the Hazus Hurricane Technical Manual v4.2.
+
+    Parameters
+    ----------
+    source_file: string
+        Path to the Hazus Hurricane fragility data.
+    meta_file: string
+        Path to a predefined fragility metadata file.
+    target_meta_file: string
+        Path where the fragility metadata should be saved. A json file is
+        expected.
+
+    """
+
+    fragility_data = pd.read_csv(source_file)
+
+    with open(meta_file, 'r', encoding='utf-8') as f:
+        meta_dict = json.load(f)
+
+    # retrieve damage state descriptions and remove that part from
+    # `hazus_hu_metadata`
+    damage_state_classes = meta_dict.pop('DamageStateClasses')
+    damage_state_descriptions = meta_dict.pop('DamageStateDescriptions')
+
+    # Procedure Overview:
+    # (1) We define several dictionaries mapping chunks of the
+    # composite asset ID (the parts between periods) to human-readable
+    # (`-h` for short) representations.
+    # (2) We define -h asset type descriptions and map them to the
+    # first-most relevant ID chunks (`primary chunks`)
+    # (3) We map asset class codes with general asset classes
+    # (4) We define the required dictionaries from (1) that decode the
+    # ID chunks after the `primary chunks` for each general asset
+    # class
+    # (5) We decode:
+    # ID -> asset class -> general asset class -> dictionaries
+    # -> ID turns to -h text by combining the description of the asset class
+    # from the `primary chunks` and the decoded description of the
+    # following chunks using the dictionaries.
+
+    #
+    # (1) Dictionaries
+    #
+
+    roof_shape = {
+        'flt': 'Flat roof.',
+        'gab': 'Gable roof.',
+        'hip': 'Hip roof.',
+    }
+
+    secondary_water_resistance = {
+        '1': 'Secondary water resistance.',
+        '0': 'No secondary water resistance.',
+        'null': 'No information on secondary water resistance.',
+    }
+
+    roof_deck_attachment = {
+        '6d': '6d roof deck nails.',
+        '6s': '6s roof deck nails.',
+        '8d': '8d roof deck nails.',
+        '8s': '8s roof deck nails.',
+        'st': 'Standard roof deck attachment.',
+        'su': 'Superior roof deck attachment.',
+        'null': 'Missing roof deck attachment information.',
+    }
+
+    roof_wall_connection = {
+        'tnail': 'Roof-to-wall toe nails.',
+        'strap': 'Roof-to-wall straps.',
+        'null': 'Missing roof-to-wall connection information.',
+    }
+
+    garage_presence = {
+        'no': 'No garage.',
+        'wkd': 'Weak garage door.',
+        'std': 'Standard garage door.',
+        'sup': 'Strong garage door.',
+        'null': 'No information on garage.',
+    }
+
+    shutters = {'1': 'Has Shutters.', '0': 'No shutters.'}
+
+    roof_cover = {
+        'bur': 'Built-up roof cover.',
+        'spm': 'Single-ply membrane roof cover.',
+        'smtl': 'Sheet metal roof cover.',
+        'cshl': 'Shingle roof cover.',
+        'null': 'No information on roof cover.',
+    }
+
+    roof_quality = {
+        'god': 'Good roof quality.',
+        'por': 'Poor roof quality.',
+        'null': 'No information on roof quality.',
+    }
+
+    masonry_reinforcing = {
+        '1': 'Has masonry reinforcing.',
+        '0': 'No masonry reinforcing.',
+        'null': 'Unknown information on masonry reinfocing.',
+    }
+
+    roof_frame_type = {
+        'trs': 'Wood truss roof frame.',
+        'ows': 'OWSJ roof frame.',
+    }
+
+    wind_debris_environment = {
+        'A': 'Residentiao/commercial wind debris environment.',
+        'B': 'Wind debris environment varies by direction.',
+        'C': 'Residential wind debris environment.',
+        'D': 'No wind debris environment.',
+    }
+
+    roof_deck_age = {
+        'god': 'New or average roof age.',
+        'por': 'Old roof age.',
+        'null': 'Missing roof age information.',
+    }
+
+    roof_metal_deck_attachment_quality = {
+        'std': 'Standard metal deck roof attachment.',
+        'sup': 'Superior metal deck roof attachment.',
+        'null': 'Missing roof attachment quality information.',
+    }
+
+    number_of_units = {
+        'sgl': 'Single unit.',
+        'mlt': 'Multi-unit.',
+        'null': 'Unknown number of units.',
+    }
+
+    joist_spacing = {
+        '4': '4 ft joist spacing.',
+        '6': '6 ft foot joist spacing.',
+        'null': 'Unknown joist spacing.',
+    }
+
+    window_area = {
+        'low': 'Low window area.',
+        'med': 'Medium window area.',
+        'hig': 'High window area.',
+    }
+
+    tie_downs = {'1': 'Tie downs.', '0': 'No tie downs.'}
+
+    terrain_surface_roughness = {
+        '3': 'Terrain surface roughness: 0.03 m.',
+        '15': 'Terrain surface roughness: 0.15 m.',
+        '35': 'Terrain surface roughness: 0.35 m.',
+        '70': 'Terrain surface roughness: 0.7 m.',
+        '100': 'Terrain surface roughness: 1 m.',
+    }
+
+    #
+    # (2) Asset type descriptions
+    #
+
+    # maps class type code to -h description
+    class_types = {
+        # ------------------------
+        'W.SF.1': 'Wood, Single-family, One-story.',
+        'W.SF.2': 'Wood, Single-family, Two or More Stories.',
+        # ------------------------
+        'W.MUH.1': 'Wood, Multi-Unit Housing, One-story.',
+        'W.MUH.2': 'Wood, Multi-Unit Housing, Two Stories.',
+        'W.MUH.3': 'Wood, Multi-Unit Housing, Three or More Stories.',
+        # ------------------------
+        'M.SF.1': 'Masonry, Single-family, One-story.',
+        'M.SF.2': 'Masonry, Single-family, Two or More Stories.',
+        # ------------------------
+        'M.MUH.1': 'Masonry, Multi-Unit Housing, One-story.',
+        'M.MUH.2': 'Masonry, Multi-Unit Housing, Two Stories.',
+        'M.MUH.3': 'Masonry, Multi-Unit Housing, Three or More Stories.',
+        # ------------------------
+        'M.LRM.1': 'Masonry, Low-Rise Strip Mall, Up to 15 Feet.',
+        'M.LRM.2': 'Masonry, Low-Rise Strip Mall, More than 15 Feet.',
+        # ------------------------
+        'M.LRI': 'Masonry, Low-Rise Industrial/Warehouse/Factory Buildings.',
+        # ------------------------
+        'M.ERB.L': (
+            'Masonry, Engineered Residential Building, Low-Rise (1-2 Stories).'
+        ),
+        'M.ERB.M': (
+            'Masonry, Engineered Residential Building, Mid-Rise (3-5 Stories).'
+        ),
+        'M.ERB.H': (
+            'Masonry, Engineered Residential Building, High-Rise (6+ Stories).'
+        ),
+        # ------------------------
+        'M.ECB.L': ('Masonry, Engineered Commercial Building, Low-Rise (1-2 Stories).'),
+        'M.ECB.M': ('Masonry, Engineered Commercial Building, Mid-Rise (3-5 Stories).'),
+        'M.ECB.H': ('Masonry, Engineered Commercial Building, High-Rise (6+ Stories).'),
+        # ------------------------
+        'C.ERB.L': (
+            'Concrete, Engineered Residential Building, Low-Rise (1-2 Stories).'
+        ),
+        'C.ERB.M': (
+            'Concrete, Engineered Residential Building, Mid-Rise (3-5 Stories).'
+        ),
+        'C.ERB.H': (
+            'Concrete, Engineered Residential Building, High-Rise (6+ Stories).'
+        ),
+        # ------------------------
+        'C.ECB.L': (
+            'Concrete, Engineered Commercial Building, Low-Rise (1-2 Stories).'
+        ),
+        'C.ECB.M': (
+            'Concrete, Engineered Commercial Building, Mid-Rise (3-5 Stories).'
+        ),
+        'C.ECB.H': (
+            'Concrete, Engineered Commercial Building, High-Rise (6+ Stories).'
+        ),
+        # ------------------------
+        'S.PMB.S': 'Steel, Pre-Engineered Metal Building, Small.',
+        'S.PMB.M': 'Steel, Pre-Engineered Metal Building, Medium.',
+        'S.PMB.L': 'Steel, Pre-Engineered Metal Building, Large.',
+        # ------------------------
+        'S.ERB.L': 'Steel, Engineered Residential Building, Low-Rise (1-2 Stories).',
+        'S.ERB.M': 'Steel, Engineered Residential Building, Mid-Rise (3-5 Stories).',
+        'S.ERB.H': 'Steel, Engineered Residential Building, High-Rise (6+ Stories).',
+        # ------------------------
+        'S.ECB.L': 'Steel, Engineered Commercial Building, Low-Rise (1-2 Stories).',
+        'S.ECB.M': 'Steel, Engineered Commercial Building, Mid-Rise (3-5 Stories).',
+        'S.ECB.H': 'Steel, Engineered Commercial Building, High-Rise (6+ Stories).',
+        # ------------------------
+        'MH.PHUD': 'Manufactured Home, Pre-Housing and Urban Development (HUD).',
+        'MH.76HUD': 'Manufactured Home, 1976 HUD.',
+        'MH.94HUDI': 'Manufactured Home, 1994 HUD - Wind Zone I.',
+        'MH.94HUDII': 'Manufactured Home, 1994 HUD - Wind Zone II.',
+        'MH.94HUDIII': 'Manufactured Home, 1994 HUD - Wind Zone III.',
+        # ------------------------
+        'HUEF.H.S': 'Small Hospital, Hospital with fewer than 50 Beds.',
+        'HUEF.H.M': 'Medium Hospital, Hospital with beds between 50 & 150.',
+        'HUEF.H.L': 'Large Hospital, Hospital with more than 150 Beds.',
+        # ------------------------
+        'HUEF.S.S': 'Elementary School.',
+        'HUEF.S.M': 'High school, two-story.',
+        'HUEF.S.L': 'Large high school, three-story.',
+        # ------------------------
+        'HUEF.EO': 'Emergency Operation Centers.',
+        'HUEF.FS': 'Fire Station.',
+        'HUEF.PS': 'Police Station.',
+        # ------------------------
+    }
+
+    def find_class_type(entry: str) -> str | None:
+        """
+        Find the class type code from an entry string based on
+        predefined patterns.
+
+        Parameters
+        ----------
+        entry : str
+            A string representing the entry, consisting of delimited
+            segments that correspond to various attributes of an
+            asset.
+
+        Returns
+        -------
+        str or None
+            The class type code if a matching pattern is found;
+            otherwise, None if no pattern matches the input string.
+
+        """
+        entry_elements = entry.split('.')
+        for nper in range(1, len(entry_elements)):
+            first_parts = '.'.join(entry_elements[:nper])
+            if first_parts in class_types:
+                return first_parts
+        return None
+
+    #
+    # (3) General asset class
+    #
+
+    # maps class code type to general class code
+    general_classes = {
+        # ------------------------
+        'W.SF.1': 'WSF',
+        'W.SF.2': 'WSF',
+        # ------------------------
+        'W.MUH.1': 'WMUH',
+        'W.MUH.2': 'WMUH',
+        'W.MUH.3': 'WMUH',
+        # ------------------------
+        'M.SF.1': 'MSF',
+        'M.SF.2': 'MSF',
+        # ------------------------
+        'M.MUH.1': 'MMUH',
+        'M.MUH.2': 'MMUH',
+        'M.MUH.3': 'MMUH',
+        # ------------------------
+        'M.LRM.1': 'MLRM1',
+        'M.LRM.2': 'MLRM2',
+        # ------------------------
+        'M.LRI': 'MLRI',
+        # ------------------------
+        'M.ERB.L': 'MERB',
+        'M.ERB.M': 'MERB',
+        'M.ERB.H': 'MERB',
+        # ------------------------
+        'M.ECB.L': 'MECB',
+        'M.ECB.M': 'MECB',
+        'M.ECB.H': 'MECB',
+        # ------------------------
+        'C.ERB.L': 'CERB',
+        'C.ERB.M': 'CERB',
+        'C.ERB.H': 'CERB',
+        # ------------------------
+        'C.ECB.L': 'CECB',
+        'C.ECB.M': 'CECB',
+        'C.ECB.H': 'CECB',
+        # ------------------------
+        'S.PMB.S': 'SPMB',
+        'S.PMB.M': 'SPMB',
+        'S.PMB.L': 'SPMB',
+        # ------------------------
+        'S.ERB.L': 'SERB',
+        'S.ERB.M': 'SERB',
+        'S.ERB.H': 'SERB',
+        # ------------------------
+        'S.ECB.L': 'SECB',
+        'S.ECB.M': 'SECB',
+        'S.ECB.H': 'SECB',
+        # ------------------------
+        'MH.PHUD': 'MH',
+        'MH.76HUD': 'MH',
+        'MH.94HUDI': 'MH',
+        'MH.94HUDII': 'MH',
+        'MH.94HUDIII': 'MH',
+        # ------------------------
+        'HUEF.H.S': 'HUEFH',
+        'HUEF.H.M': 'HUEFH',
+        'HUEF.H.L': 'HUEFH',
+        # ------------------------
+        'HUEF.S.S': 'HUEFS',
+        'HUEF.S.M': 'HUEFS',
+        'HUEF.S.L': 'HUEFS',
+        # ------------------------
+        'HUEF.EO': 'HUEFEO',
+        'HUEF.FS': 'HUEFFS',
+        'HUEF.PS': 'HUEFPS',
+        # ------------------------
+    }
+
+    #
+    # (4) Relevant dictionaries
+    #
+
+    # maps general class code to list of dicts where the -h attribute
+    # descriptions will be pulled from
+    dictionaries_of_interest = {
+        'WSF': [
+            roof_shape,
+            secondary_water_resistance,
+            roof_deck_attachment,
+            roof_wall_connection,
+            garage_presence,
+            shutters,
+            terrain_surface_roughness,
+        ],
+        'WMUH': [
+            roof_shape,
+            roof_cover,
+            roof_quality,
+            secondary_water_resistance,
+            roof_deck_attachment,
+            roof_wall_connection,
+            shutters,
+            terrain_surface_roughness,
+        ],
+        'MSF': [
+            roof_shape,
+            roof_wall_connection,
+            roof_frame_type,
+            roof_deck_attachment,
+            shutters,
+            secondary_water_resistance,
+            garage_presence,
+            masonry_reinforcing,
+            roof_cover,
+            terrain_surface_roughness,
+        ],
+        'MMUH': [
+            roof_shape,
+            secondary_water_resistance,
+            roof_cover,
+            roof_quality,
+            roof_deck_attachment,
+            roof_wall_connection,
+            shutters,
+            masonry_reinforcing,
+            terrain_surface_roughness,
+        ],
+        'MLRM1': [
+            roof_cover,
+            shutters,
+            masonry_reinforcing,
+            wind_debris_environment,
+            roof_frame_type,
+            roof_deck_attachment,
+            roof_wall_connection,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'MLRM2': [
+            roof_cover,
+            shutters,
+            masonry_reinforcing,
+            wind_debris_environment,
+            roof_frame_type,
+            roof_deck_attachment,
+            roof_wall_connection,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            number_of_units,
+            joist_spacing,
+            terrain_surface_roughness,
+        ],
+        'MLRI': [
+            shutters,
+            masonry_reinforcing,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'MERB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'MECB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'CERB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'CECB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'SPMB': [
+            shutters,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'SERB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'SECB': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'MH': [shutters, tie_downs, terrain_surface_roughness],
+        'HUEFH': [
+            roof_cover,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            shutters,
+            terrain_surface_roughness,
+        ],
+        'HUEFS': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'HUEFEO': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+        'HUEFFS': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_deck_age,
+            roof_metal_deck_attachment_quality,
+            terrain_surface_roughness,
+        ],
+        'HUEFPS': [
+            roof_cover,
+            shutters,
+            wind_debris_environment,
+            roof_metal_deck_attachment_quality,
+            window_area,
+            terrain_surface_roughness,
+        ],
+    }
+
+    #
+    # (5) Decode IDs and extend metadata with the individual records
+    #
+
+    for fragility_id in fragility_data['ID'].to_list():
+        class_type = find_class_type(fragility_id)
+
+        class_type_human_readable = class_types[class_type]
+
+        general_class = general_classes[class_type]
+        dictionaries = dictionaries_of_interest[general_class]
+        remaining_chunks = fragility_id.replace(f'{class_type}.', '').split('.')
+        assert len(remaining_chunks) == len(dictionaries)
+        human_description = [class_type_human_readable]
+        for chunk, dictionary in zip(remaining_chunks, dictionaries):
+            human_description.append(dictionary[chunk])
+        human_description_str = ' '.join(human_description)
+
+        damage_state_class = damage_state_classes[class_type]
+        damage_state_description = damage_state_descriptions[damage_state_class]
+
+        limit_states = {}
+        for damage_state, description in damage_state_description.items():
+            limit_state = damage_state.replace('DS', 'LS')
+            limit_states[limit_state] = {damage_state: description}
+
+        record = {
+            'Description': human_description_str,
+            'SuggestedComponentBlockSize': '1 EA',
+            'RoundUpToIntegerQuantity': 'True',
+            'LimitStates': limit_states,
+        }
+
+        meta_dict[fragility_id] = record
+
+    # save the metadata
+    with open(target_meta_file, 'w+', encoding='utf-8') as f:
+        json.dump(meta_dict, f, indent=2)

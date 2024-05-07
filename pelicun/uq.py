@@ -1281,7 +1281,7 @@ class UtilityRandomVariable(BaseRandomVariable):
     @abstractmethod
     def __init__(
         self,
-        name,        
+        name,
         f_map=None,
         anchor=None,
     ):
@@ -1291,7 +1291,7 @@ class UtilityRandomVariable(BaseRandomVariable):
         Parameters
         ----------
         name: string
-            A unique string that identifies the random variable.        
+            A unique string that identifies the random variable.
         f_map: function, optional
             A user-defined function that is applied on the realizations before
             returning a sample.
@@ -1789,9 +1789,9 @@ class EmpiricalRandomVariable(RandomVariable):
         anchor=None,
     ):
         super().__init__(
-            name=name, 
+            name=name,
             theta=raw_samples,
-            truncation_limits=truncation_limits,           
+            truncation_limits=truncation_limits,
             f_map=f_map,
             anchor=anchor,
         )
@@ -1906,9 +1906,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
         """
 
         raw_sample_count = len(self._raw_samples)
-        new_sample = np.tile(
-            self._raw_samples, int(sample_size / raw_sample_count) + 1
-        )
+        new_sample = np.tile(self._raw_samples, int(sample_size / raw_sample_count) + 1)
         result = new_sample[:sample_size]
         return result
 

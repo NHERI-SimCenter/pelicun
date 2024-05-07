@@ -224,6 +224,7 @@ def auto_populate(AIM):
         if ground_failure:
             foundation_type = 'S'
 
+            # fmt: off
             FG_GF_H = f'GF.H.{foundation_type}'                                        # noqa
             FG_GF_V = f'GF.V.{foundation_type}'                                        # noqa
             CMP_GF = pd.DataFrame(                                                     # noqa
@@ -231,6 +232,7 @@ def auto_populate(AIM):
                  f'{FG_GF_V}':[  'ea',         1,          3,        1,   'N/A']},     # noqa
                 index = [     'Units','Location','Direction','Theta_0','Family']       # noqa
             ).T                                                                        # noqa
+            # fmt: on
 
             CMP = pd.concat([CMP, CMP_GF], axis=0)
 
@@ -265,10 +267,8 @@ def auto_populate(AIM):
             "Demands": {},
             "Losses": {"Repair": repair_config},
             "Options": {
-                "NonDirectionalMultipliers": {
-                    "ALL": 1.0
-                },
-            }
+                "NonDirectionalMultipliers": {"ALL": 1.0},
+            },
         }
 
     else:
