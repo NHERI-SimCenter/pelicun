@@ -538,14 +538,12 @@ class LossModel(PelicunModel):
             missing_set = missing_set - model._get_available()
 
         if missing_set:
-            self.log.msg(
-                f"\n"
-                f"WARNING: The loss model does not provide "
+            self.log.add_warning(
+                f"The loss model does not provide "
                 f"loss information for the following component(s) "
                 f"in the asset model: {sorted(list(missing_set))}."
-                f"\n",
-                prepend_timestamp=False,
             )
+            self.log.emit_warnings()
 
         return missing_set
 

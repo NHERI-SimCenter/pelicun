@@ -54,7 +54,7 @@ def reset_all_test_data(restore=True, purge=False):
     Update the expected result pickle files with new results, accepting
     the values obtained by executing the code as correct from now on.
 
-    Warning: This function should never be used if tests are
+    CAUTION: This function should never be used if tests are
     failing. Its only purpose is to aid the development of more tests
     and keeping things tidy. If tests are failing, the specific tests
     need to be investigated, and after rectifying the cause, new

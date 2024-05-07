@@ -66,6 +66,11 @@ from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
 import numpy as np
 import pandas as pd
+import colorama
+from colorama import Fore
+from colorama import Style
+
+colorama.init()
 
 
 def scale_distribution(scale_factor, family, theta, truncation_limits=None):
@@ -931,16 +936,15 @@ def fit_distribution_to_sample(
         np.fill_diagonal(rho_hat, 1.0)
 
         if logger_object:
-            logger_object.msg(
-                "\nWARNING: Demand sample size too small to reliably estimate "
-                "the correlation matrix. Assuming uncorrelated demands.",
-                prepend_timestamp=False,
-                prepend_blank_space=False,
+            logger_object.add_warning(
+                "Demand sample size too small to reliably estimate "
+                "the correlation matrix. Assuming uncorrelated demands."
             )
+            logger_object.emit_warnings()
         else:
             print(
-                "\nWARNING: Demand sample size too small to reliably estimate "
-                "the correlation matrix. Assuming uncorrelated demands."
+                f"\n{Fore.RED}WARNING: Demand sample size too small to reliably estimate "
+                "the correlation matrix. Assuming uncorrelated demands.{Style.RESET_ALL}"
             )
 
     for d_i, distr in enumerate(dist_list):

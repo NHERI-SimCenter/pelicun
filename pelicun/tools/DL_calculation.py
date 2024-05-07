@@ -48,6 +48,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import colorama
+from colorama import Fore
+from colorama import Style
+
 import pelicun
 from pelicun.auto import auto_populate
 from pelicun.base import str2bool
@@ -310,6 +314,7 @@ def run_pelicun(
     regional,
     output_format,
     custom_model_dir,
+    color_warnings,
     **kwargs,
 ):
     """
@@ -336,12 +341,25 @@ def run_pelicun(
         parameters for a customized damage and loss assessment.
     detailed_results: bool, optional
         If False, only the main statistics are saved.
+    color_warnings: bool, optional
+        If True, warnings are printed in red on the console. If output
+        is redirected to a file, it will contain ANSI codes. When
+        viewed on the console with `cat`, `less`, or similar utilites,
+        the color will be shown.
 
     """
 
     log_msg('First line of DL_calculation')
 
     # Initial setup -----------------------------------------------------------
+
+    # color warnings
+    if color_warnings:
+        colorama.init()
+        cpref = Fore.RED
+        csuff = Style.RESET_ALL
+    else:
+        cpref = csuff = ''
 
     # get the absolute path to the config file
     config_path = Path(config_path).resolve()
@@ -734,10 +752,10 @@ def run_pelicun(
 
                 else:
                     log_msg(
-                        f'WARNING: No {coll_DEM} among available demands. Collapse '
-                        'cannot be evaluated.'
+                        f'{cpref}WARNING: No {coll_DEM} among available '
+                        f'demands. Collapse '
+                        f'cannot be evaluated.{csuff}'
                     )
-
         # always add a component to support basic collapse calculation
         cmp_marginals.loc['collapse', 'Units'] = 'ea'
         cmp_marginals.loc['collapse', 'Location'] = 0
@@ -767,9 +785,9 @@ def run_pelicun(
 
             else:
                 log_msg(
-                    'WARNING: No residual interstory drift ratio among'
-                    'available demands. Irreparable damage cannot be '
-                    'evaluated.'
+                    f'{cpref}WARNING: No residual interstory drift ratio among'
+                    f'available demands. Irreparable damage cannot be '
+                    f'evaluated.{csuff}'
                 )
 
         # load component model
@@ -1868,6 +1886,9 @@ def main():
         '--regional', default=False, type=str2bool, nargs='?', const=False
     )
     parser.add_argument('--output_format', default=None)
+    parser.add_argument(
+        '--color_warnings', default=False, type=str2bool, nargs='?', const=False
+    )
     # parser.add_argument('-d', '--demandFile', default=None)
     # parser.add_argument('--DL_Method', default = None)
     # parser.add_argument('--outputBIM', default='BIM.csv')
@@ -1903,6 +1924,7 @@ def main():
         auto_script_path=args.auto_script,
         resource_dir=args.resource_dir,
         custom_model_dir=args.custom_model_dir,
+        color_warnings=args.color_warnings,
         regional=args.regional,
         output_format=args.output_format,
     )

@@ -341,14 +341,12 @@ class DamageModel(PelicunModel):
         ]
 
         if missing_components:
-            self.log.msg(
-                f"\n"
-                f"WARNING: The damage model does not provide "
+            self.log.add_warning(
+                f"The damage model does not provide "
                 f"damage information for the following component(s) "
                 f"in the asset model: {missing_components}."
-                f"\n",
-                prepend_timestamp=False,
             )
+            self.log.emit_warnings()
 
         return missing_components
 
@@ -433,15 +431,13 @@ class DamageModel_Base(PelicunModel):
         self.damage_params.drop(cmp_incomplete_idx, inplace=True)
 
         if len(cmp_incomplete_idx) > 0:
-            self.log.msg(
-                f"\n"
-                f"WARNING: Damage model information is incomplete for "
+            self.log.add_warning(
+                f"Damage model information is incomplete for "
                 f"the following component(s) "
                 f"{cmp_incomplete_idx.to_list()}. They "
                 f"were removed from the analysis."
-                f"\n",
-                prepend_timestamp=False,
             )
+            self.log.emit_warnings()
 
     def _drop_unused_damage_parameters(self, cmp_set):
         """
@@ -506,12 +502,6 @@ class DamageModel_Base(PelicunModel):
             components into manageable batches based on the specified
             block batch size.
 
-        Raises
-        ------
-        Warning
-            Logs a warning if any performance groups do not have
-            corresponding damage model information and are therefore
-            excluded from the analysis.
         """
 
         # Get the marginal parameters for the components from the
@@ -989,12 +979,12 @@ class DamageModel_DS(DamageModel_Base):
                                 capacity_adjustment_operation[1],
                             )
                         else:
-                            self.log.msg(
-                                f'\nWARNING: Capacity adjustment is only supported '
+                            self.log.add_warning(
+                                f'Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
-                                f'Ignoring: {cmp_loc_dir}, which is {family}',
-                                prepend_timestamp=False,
+                                f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
                             )
+                            self.log.emit_warnings()
 
                     tr_lims = [
                         frg_params_LS.get(f"Truncate{side}", np.nan)
@@ -1451,13 +1441,13 @@ class DamageModel_DS(DamageModel_Base):
         # check if the source component exists in the damage state
         # dataframe
         if source_cmp not in ds_sample.columns.get_level_values('cmp'):
-            self.log.msg(
-                f"WARNING: Source component {source_cmp} in the prescribed "
+            self.log.add_warning(
+                f"Source component `{source_cmp}` in the prescribed "
                 "damage process not found among components in the damage "
                 "sample. The corresponding part of the damage process is "
-                "skipped.",
-                prepend_timestamp=False,
+                "skipped."
             )
+            self.log.emit_warnings()
             return
 
         # execute the events pres prescribed in the damage task
@@ -1485,13 +1475,13 @@ class DamageModel_DS(DamageModel_Base):
                 if (target_cmp != 'ALL') and (
                     target_cmp not in ds_sample.columns.get_level_values('cmp')
                 ):
-                    self.log.msg(
-                        f"WARNING: Target component {target_cmp} in the prescribed "
+                    self.log.add_warning(
+                        f"Target component {target_cmp} in the prescribed "
                         "damage process not found among components in the damage "
                         "sample. The corresponding part of the damage process is "
-                        "skipped.",
-                        prepend_timestamp=False,
+                        "skipped."
                     )
+                    self.log.emit_warnings()
                     continue
 
                 # trigger a damage state
