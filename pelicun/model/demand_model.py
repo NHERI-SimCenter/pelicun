@@ -1051,7 +1051,7 @@ class DemandModel(PelicunModel):
         )
 
 
-def _get_required_demand_type(model_parameters, PGB, demand_offset={}):
+def _get_required_demand_type(model_parameters, PGB, demand_offset=None):
     """
     Returns the id of the demand needed to calculate damage or
     loss of a component.
@@ -1083,7 +1083,7 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset={}):
     PGB: pd.DataFrame
         A pandas DataFrame with the block information for
         each component
-    demand_offset: dict
+    demand_offset: dict, optional
         Specifies an additional location offset for specific
         demand types. Example:
         {'PFA': -1, 'PFV': +2}.
@@ -1098,7 +1098,11 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset={}):
 
     """
 
-    EDP_req = {}
+    # Assign default demand_offset to empty dict.
+    if not demand_offset:
+        demand_offset = {}
+
+    required_edps = {}
 
     for PG in PGB.index:
         # Get the component name from the first element of the
@@ -1107,14 +1111,9 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset={}):
 
         # Get the directional, offset, and demand_type parameters
         # from the `model_parameters` DataFrame
-        directional, offset, demand_type = model_parameters.loc[
-            cmp,
-            [
-                ('Demand', 'Directional'),
-                ('Demand', 'Offset'),
-                ('Demand', 'Type'),
-            ],
-        ]
+        directional = model_parameters.at[cmp, ('Demand', 'Directional')]
+        offset = model_parameters.at[cmp, ('Demand', 'Offset')]
+        demand_type = model_parameters.at[cmp, ('Demand', 'Type')]
 
         # Parse the demand type
 
@@ -1164,14 +1163,138 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset={}):
         # the EDP key
         EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
 
-        # If the EDP key is not already in the `EDP_req`
+        # If the EDP key is not already in the `required_edps`
         # dictionary, add it and initialize it with an empty list
-        if EDP not in EDP_req:
-            EDP_req.update({EDP: []})
+        if EDP not in required_edps:
+            required_edps.update({EDP: []})
 
         # Add the current PG (performance group) to the list of
         # PGs associated with the current EDP key
-        EDP_req[EDP].append(PG)
+        required_edps[EDP].append(PG)
 
     # Return the required EDPs
-    return EDP_req
+    return required_edps
+
+
+def _assemble_required_demand_data(
+    required_edps, nondirectional_multipliers, demand_sample
+):
+    """
+    Assembles demand data for damage state determination.
+
+    The method takes the maximum of all available directions for
+    non-directional demand, scaling it using the non-directional
+    multiplier specified in self._asmnt.options, and returning the
+    result as a dictionary with keys in the format of
+    '<demand_type>-<location>-<direction>' and values as arrays of
+    demand values. If demand data is not found, logs a warning
+    message and skips the corresponding damages calculation.
+
+    Parameters
+    ----------
+    required_edps: set
+        Set of required EDPs
+    nondirectional_multipliers: dict
+        Nondirectional components are sensitive to demands coming
+        in any direction. Results are typically available in two
+        orthogonal directions. FEMA P-58 suggests using the
+        formula `max(dir_1, dir_2) * 1.2` to estimate the demand
+        for such components. This parameter allows modifying the
+        1.2 multiplier with a user-specified value. The change can
+        be applied to "ALL" EDPs, or for specific EDPs, such as
+        "PFA", "PFV", etc. Examples:
+            1) {'PFA': 1.2, 'PID': 1.00}
+            2) {'ALL': 1.0}
+    demand_sample: pd.DataFrame
+        Dataframe containing the demand sample, realizations of EDPs
+        (or/and IMs) that are used for damage and loss calculations.
+
+    Returns
+    -------
+    demand_dict : dict
+        A dictionary of assembled demand data for calculation
+
+    Raises
+    ------
+    ValueError
+        If demand data for a given EDP cannot be found
+
+    """
+
+    demand_dict = {}
+
+    for edp in required_edps:
+        edp_type, location, direction = edp.split('-')
+
+        if direction == '0':
+
+            # non-directional
+            demand = demand_sample.loc[:, (edp_type, location)].max(axis=1).values
+
+            if edp_type in nondirectional_multipliers:
+                multiplier = nondirectional_multipliers[edp_type]
+
+            elif 'ALL' in nondirectional_multipliers:
+                multiplier = nondirectional_multipliers['ALL']
+
+            else:
+                raise ValueError(
+                    f"Peak orthogonal EDP multiplier "
+                    f"for non-directional demand "
+                    f"calculation of `{edp_type}` not specified."
+                )
+
+            demand = demand * multiplier
+
+        else:
+
+            # directional
+            demand = demand_sample[(edp_type, location, direction)].values
+
+        demand_dict.update({f'{edp_type}-{location}-{direction}': demand})
+
+    return demand_dict
+
+
+def _verify_edps_available(available_edps, required):
+    """
+    Verifies that the required EDPs are available and raises
+    appropriate errors otherwise.
+
+    Parameters
+    ----------
+    available_edps: dict
+        Dictionary mapping (`edp_type`-`cmp`-`dir`) to
+        list of `loc`s where values are available.
+    required: set
+        Set of required EDPs, expressed as
+        `edp_type`-`loc-`dir`. Direction `0` has special
+        meaning: It is used for directional demands.
+
+    Raises
+    ------
+    ValueError
+        When the verification fails.
+
+    """
+    # Verify that the required EDPs are available in the
+    # demand sample
+    for EDP in required:
+        edp_type, location, direction = EDP.split('-')
+        if (edp_type, location) not in available_edps:
+            raise ValueError(
+                f'Unable to locate `{edp_type}` at location '
+                f'{location} in demand sample.'
+            )
+        # if non-directional demand is requested, ensure there
+        # are entries (all directions accepted)
+        num_entries = len(available_edps[(edp_type, location)])
+        if EDP[2] == '0' and num_entries == 0:
+            raise ValueError(
+                f'Unable to locate any `{edp_type}` '
+                f'at location {location} and direction {direction}.'
+            )
+        if EDP[2] != '0' and num_entries == 0:
+            raise ValueError(
+                f'Unable to locate `{edp_type}-{location}-{direction}`.'
+            )

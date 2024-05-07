@@ -50,12 +50,12 @@ This file defines the DamageModel object and its methods.
 """
 
 from __future__ import annotations
-from collections.abc import Callable
 import numpy as np
 import pandas as pd
-from scipy.interpolate import interp1d
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun.model.demand_model import _get_required_demand_type
+from pelicun.model.demand_model import _assemble_required_demand_data
+from pelicun.model.demand_model import _verify_edps_available
 from pelicun import base
 from pelicun import uq
 from pelicun import file_io
@@ -179,7 +179,6 @@ class DamageModel(PelicunModel):
 
     def calculate(
         self,
-        sample_size=None,
         dmg_process=None,
         block_batch_size=1000,
         scaling_specification=None,
@@ -191,16 +190,13 @@ class DamageModel(PelicunModel):
         self.log_div()
         self.log_msg('Calculating damages...')
 
-        if not sample_size:
-            # todo: Deprecation warning
-            sample_size = self._asmnt.demand.sample.shape[0]
-
         # obtain damage states for applicable components
         ds_sample = self.ds_model._obtain_ds_sample(
-            sample_size=sample_size,
+            demand_sample=self._asmnt.demand.sample,
             block_batch_size=block_batch_size,
             scaling_specification=scaling_specification,
             missing_components=self.missing_components,
+            nondirectional_multipliers=self._asmnt.options.nondir_multi_dict,
         )
 
         # Apply the prescribed damage process, if any
@@ -598,76 +594,6 @@ class DamageModel_Base(PelicunModel):
 
         return pg_batch
 
-    def _assemble_required_demand_data(self, EDP_req):
-        """
-        Assembles demand data for damage state determination.
-
-        The method takes the maximum of all available directions for
-        non-directional demand, scaling it using the non-directional
-        multiplier specified in self._asmnt.options, and returning the
-        result as a dictionary with keys in the format of
-        '<demand_type>-<location>-<direction>' and values as arrays of
-        demand values. If demand data is not found, logs a warning
-        message and skips the corresponding damages calculation.
-
-        Parameters
-        ----------
-        EDP_req : dict
-            A dictionary of unique EDP requirements
-
-        Returns
-        -------
-        demand_dict : dict
-            A dictionary of assembled demand data for calculation
-
-        Raises
-        ------
-        KeyError
-            If demand data for a given EDP cannot be found
-
-        """
-
-        if self._asmnt.log.verbose:
-            self.log_msg(
-                'Assembling demand data for calculation...', prepend_timestamp=True
-            )
-
-        demand_source = self._asmnt.demand.sample
-
-        demand_dict = {}
-
-        for EDP in EDP_req.keys():
-            EDP = EDP.split('-')
-
-            # if non-directional demand is requested...
-            if EDP[2] == '0':
-                # assume that the demand at the given location is available
-                try:
-                    # take the maximum of all available directions and scale it
-                    # using the nondirectional multiplier specified in the
-                    # self._asmnt.options (the default value is 1.2)
-                    demand = (
-                        demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
-                    )
-                    demand = demand * self._asmnt.options.nondir_multi(EDP[0])
-
-                except KeyError:
-                    demand = None
-
-            else:
-                demand = demand_source[(EDP[0], EDP[1], EDP[2])].values
-
-            if demand is None:
-                self.log_msg(
-                    f'\nWARNING: Cannot find demand data for {EDP}. The '
-                    'corresponding damages cannot be calculated.',
-                    prepend_timestamp=False,
-                )
-            else:
-                demand_dict.update({f'{EDP[0]}-{EDP[1]}-{EDP[2]}': demand})
-
-        return demand_dict
-
 
 class DamageModel_DS(DamageModel_Base):
     """
@@ -679,10 +605,11 @@ class DamageModel_DS(DamageModel_Base):
 
     def _obtain_ds_sample(
         self,
-        sample_size,
+        demand_sample,
         block_batch_size,
         scaling_specification,
         missing_components,
+        nondirectional_multipliers
     ):
         """
         Obtain the damage state of each performance group in the
@@ -695,6 +622,8 @@ class DamageModel_DS(DamageModel_Base):
         # to a more balanced workload on most machines for typical problems.
         # It also allows for a straightforward extension with parallel
         # computing.
+
+        sample_size = len(demand_sample)
 
         # get the list of performance groups
         self.log_msg(
@@ -742,18 +671,35 @@ class DamageModel_DS(DamageModel_Base):
                     'Collecting required demand information...',
                     prepend_timestamp=True,
                 )
-            model_parameters = self.damage_params
             demand_offset = self._asmnt.options.demand_offset
-            EDP_req = _get_required_demand_type(
-                model_parameters, performance_group, demand_offset
+            required_edps = _get_required_demand_type(
+                self.damage_params, performance_group, demand_offset
             )
 
+            available_edps = (
+                pd.DataFrame(index=demand_sample.columns)
+                .reset_index()
+                .groupby(['type', 'loc'])['dir']
+                .agg(lambda x: list(set(x)))
+                .to_dict()
+            )
+
+            # Raise an error if demand sample is missing necessary entries.
+            _verify_edps_available(available_edps, set(required_edps.keys()))
+
             # Create the demand vector
-            demand_dict = self._assemble_required_demand_data(EDP_req)
+            if self._asmnt.log.verbose:
+                self.log_msg(
+                    'Assembling demand data for calculation...',
+                    prepend_timestamp=True,
+                )
+            demand_dict = _assemble_required_demand_data(
+                set(required_edps.keys()), nondirectional_multipliers, demand_sample
+            )
 
             # Evaluate the Damage State of each Component Block
             ds_sample = self._evaluate_damage_state(
-                demand_dict, EDP_req, capacity_sample, lsds_sample
+                demand_dict, required_edps, capacity_sample, lsds_sample
             )
 
             ds_samples.append(ds_sample)
@@ -1228,7 +1174,7 @@ class DamageModel_DS(DamageModel_Base):
         return capacity_sample, lsds_sample
 
     def _evaluate_damage_state(
-        self, demand_dict, EDP_req, capacity_sample, lsds_sample
+        self, demand_dict, required_edps, capacity_sample, lsds_sample
     ):
         """
         Use the demand and LS capacity sample to evaluate damage states
@@ -1237,7 +1183,7 @@ class DamageModel_DS(DamageModel_Base):
         ----------
         demand_dict: dict
             Dictionary containing the demand of each demand type.
-        EDP_req: dict
+        required_edps: dict
             Dictionary containing the EDPs assigned to each demand
             type.
         capacity_sample: DataFrame
@@ -1268,7 +1214,7 @@ class DamageModel_DS(DamageModel_Base):
         # For each demand type in the demand dictionary
         for demand_name, demand_vals in demand_dict.items():
             # Get the list of PGs assigned to this demand type
-            PG_list = EDP_req[demand_name]
+            PG_list = required_edps[demand_name]
 
             # Create a list of columns for the demand data
             # corresponding to each PG in the PG_list
@@ -1743,33 +1689,3 @@ class DamageModel_DS(DamageModel_Base):
         res.loc[:, dmg_sample.columns.to_list()] = dmg_sample
 
         return res
-
-
-def stringterpolation(
-    arguments: str,
-) -> tuple[Callable[np.array, np.array]]:
-    """
-    Turns a string of specially formatted arguments into a multilinear
-    interpolating funciton.
-
-    Parameters
-    ----------
-    arguments: str
-        String of arguments containing Y values and X values,
-        separated by a pipe symbol (`|`). Individual values are
-        separated by commas (`,`). Example:
-        arguments = 'y1,y2,y3|x1,x2,x3'
-
-    Returns
-    -------
-    Callable
-        A callable interpolating function
-
-    """
-    split = arguments.split('|')
-    x_vals = split[0].split(',')
-    y_vals = split[1].split(',')
-    x = np.array(x_vals, dtype=float)
-    y = np.array(y_vals, dtype=float)
-
-    return interp1d(x=x, y=y, kind='linear')

@@ -49,11 +49,14 @@ This file defines Loss model objects and their methods.
 
 """
 
-import warnings
+from __future__ import annotations
+from pathlib import Path
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from pelicun.model.pelicun_model import PelicunModel
+from pelicun.model.demand_model import _get_required_demand_type
+from pelicun.model.demand_model import _assemble_required_demand_data
+from pelicun.model.demand_model import _verify_edps_available
 from pelicun import base
 from pelicun import uq
 from pelicun import file_io
@@ -288,6 +291,12 @@ class LossModel(PelicunModel):
     def calculate(self):
         """
         Calculate the loss of each component block.
+
+        Raises
+        ------
+        ValueError
+            If the size of the demand sample and the damage sample
+            don't match.
 
         """
         self.log_div()
@@ -903,9 +912,8 @@ class RepairModel_DS(RepairModel_Base):
 
             DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
 
-        self.sample = DV_sample
-
         self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
+        self.sample = DV_sample
 
     def _aggregate_losses(self):
 
@@ -1088,41 +1096,25 @@ class RepairModel_DS(RepairModel_Base):
                         rv_count += 1
 
         # assign Time-Cost correlation whenever applicable
-        for component, consequence in self._loss_map['Repair'].items():
-            for decision_variable in self.decision_variables:
-                if (consequence, decision_variable) in self._missing:
+        rho = self._asmnt.options.rho_cost_time
+        if rho != 0.0:
+            for rv_tag in RV_reg.RV:
+                if not rv_tag.startswith('Cost'):
                     continue
-                if (consequence, decision_variable) not in self.loss_params.index:
-                    continue
-                for ds in damage_states[component]:
-                    if ds == '0':
-                        continue
-                    loc_dir_uid = loc_dir_uids[(component, ds)]
-                    for loc, direction, uid in loc_dir_uid:
-                        cost_rv_tag = (
-                            f'Cost-{consequence}-{ds}-{loc}-{direction}-{uid}'
+                component = rv_tag.split('-')[1]
+                ds = rv_tag.split('-')[2]
+                loc = rv_tag.split('-')[3]
+                direction = rv_tag.split('-')[4]
+                uid = rv_tag.split('-')[5]
+                time_rv_tag = rv_tag.replace('Cost', 'Time')
+                if time_rv_tag in RV_reg.RV:
+                    RV_reg.add_RV_set(
+                        uq.RandomVariableSet(
+                            f'DV-{component}-{ds}-{loc}-{direction}-{uid}_set',
+                            list(RV_reg.RVs([rv_tag, time_rv_tag]).values()),
+                            np.array([[1.0, rho], [rho, 1.0]]),
                         )
-                        time_rv_tag = (
-                            f'Time-{consequence}-{ds}-{loc}-{direction}-{uid}'
-                        )
-                        set_flag = f'DV-{component}-{ds}-{loc}-{direction}-{uid}_set'
-                        if (
-                            cost_rv_tag in RV_reg.RV
-                            and time_rv_tag in RV_reg.RV
-                            and (self._asmnt.options.rho_cost_time != 0.0)
-                        ):
-                            rho = self._asmnt.options.rho_cost_time
-                            RV_reg.add_RV_set(
-                                uq.RandomVariableSet(
-                                    set_flag,
-                                    list(
-                                        RV_reg.RVs(
-                                            [cost_rv_tag, time_rv_tag]
-                                        ).values()
-                                    ),
-                                    np.array([[1.0, rho], [rho, 1.0]]),
-                                )
-                            )
+                    )
 
         self.log_msg(
             f"\n{rv_count} random variables created.", prepend_timestamp=False
@@ -1135,8 +1127,8 @@ class RepairModel_DS(RepairModel_Base):
     def _calc_median_consequence(self, eco_qnt):
         """
         Calculates the median repair consequences for each loss
-        component based on their quantities and the associated loss
-        parameters.
+        component based on its quantity realizations and the
+        associated loss parameters.
 
         Parameters
         ----------
@@ -1318,20 +1310,126 @@ class RepairModel_LF(RepairModel_Base):
             When any Loss Driver is not recognized.
 
         """
-        demand_sample                   #and this
-        self.sample                     # stuff goes here
-        self._loss_map
+        loss_map = self._loss_map['Repair'].to_dict()
+        cmp_sample = self._asmnt.asset.cmp_sample.to_dict(
+            'series'
+        )  # this needs to become an argument
+        cmp_marginal_params = (
+            self._asmnt.asset.cmp_marginal_params
+        )  # this needs to become an argument
 
-        # # for each repair consequence in the loss map
-        # for component, consequence in self._loss_map['Repair'].items():
-        #     # skip if there are no loss parameters in this model
-        #     if consequence not in self.loss_params.index:
-        #         continue
-        #     # retrieve loss parameters
-        #     self.loss_params.to_dict()
-        # breakpoint()
-        # Utilize methods/functions from damage_model (which should be
-        # mobed to the demand model)
+        sample_size = len(demand_sample)
+
+        demand_offset = self._asmnt.options.demand_offset
+
+        index = [
+            x
+            for x in cmp_marginal_params.index.get_level_values(0)
+            if loss_map.get(x) in self.loss_params.index
+        ]
+
+        blocks = cmp_marginal_params.loc[index, 'Blocks'].to_dict()
+
+        performance_group_dict = {}
+        for (component, location, direction, uid), num_blocks in blocks.items():
+            for decision_variable in self.decision_variables:
+                if (component, decision_variable) in self._missing:
+                    continue
+                performance_group_dict[
+                    ((component, decision_variable), location, direction, uid)
+                ] = num_blocks
+
+        performance_group = pd.DataFrame(
+            performance_group_dict.values(),
+            index=performance_group_dict.keys(),
+            columns=['Blocks'],
+        )
+        performance_group.index.names = ['cmp', 'loc', 'dir', 'uid']
+
+        required_edps = base.invert_mapping(
+            _get_required_demand_type(
+                self.loss_params, performance_group, demand_offset
+            )
+        )
+
+        available_edps = (
+            pd.DataFrame(index=demand_sample.columns)
+            .reset_index()
+            .groupby(['type', 'loc'])['dir']
+            .agg(lambda x: list(set(x)))
+            .to_dict()
+        )
+
+        # Raise an error if demand sample is missing necessary entries.
+        _verify_edps_available(available_edps, set(required_edps.values()))
+
+        demand_dict = _assemble_required_demand_data(
+            set(required_edps.values()),
+            self._asmnt.options.nondir_multi_dict,
+            demand_sample,
+        )
+
+        self.log_msg(
+            "\nCalculating the median repair consequences...",
+            prepend_timestamp=False,
+        )
+
+        medians = self._calc_median_consequence(
+            performance_group, loss_map, required_edps, demand_dict, cmp_sample
+        )
+
+        self.log_msg(
+            "Successfully determined median repair consequences.",
+            prepend_timestamp=False,
+        )
+
+        self.log_msg(
+            "\nConsidering deviations from the median values to obtain "
+            "random DV sample..."
+        )
+
+        self.log_msg(
+            "Preparing random variables for repair cost and time...",
+            prepend_timestamp=False,
+        )
+
+        RV_reg = self._create_DV_RVs(medians.columns)
+        if RV_reg is not None:
+            RV_reg.generate_sample(
+                sample_size=sample_size, method=self._asmnt.options.sampling_method
+            )
+
+            std_sample = base.convert_to_MultiIndex(
+                pd.DataFrame(RV_reg.RV_sample), axis=1
+            )
+            std_sample.columns.names = [
+                'dv',
+                'loss',
+                'dmg',
+                'loc',
+                'dir',
+                'uid',
+                'block',
+            ]
+            std_sample.sort_index(axis=1, inplace=True)
+
+        else:
+            std_sample = None
+
+        self.log_msg(
+            f"\nSuccessfully generated {sample_size} realizations of "
+            "deviation from the median consequences.",
+            prepend_timestamp=False,
+        )
+        sample = (medians * std_sample).combine_first(medians)
+
+        # sum up the block losses
+        sample = sample.groupby(
+            by=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid'], axis=1
+        ).sum()
+
+        self.log_msg("Successfully obtained DV sample.", prepend_timestamp=False)
+        self.sample = sample
 
     def _convert_loss_parameter_units(self):
         """
@@ -1344,6 +1442,195 @@ class RepairModel_LF(RepairModel_Base):
         self.loss_params.loc[:, column] = self._convert_marginal_params(
             self.loss_params[column].copy(), units, arg_units, divide_units=False
         ).values
+
+    def _calc_median_consequence(
+        self, performance_group, loss_map, required_edps, demand_dict, cmp_sample
+    ):
+        """
+        Calculates the median repair consequences for each loss
+        function-driven component based on its quantity realizations
+        and the associated loss parameters.
+
+        Parameters
+        ----------
+        performance_group: pd.DataFrame
+            Dataframe with a single column `Blocks` containing an
+            integer for the number of blocks of each
+            (`cmp`-`decision_variable`)-`loc`-`dir`-`uid`.
+        loss_map: dict
+            Dictionary mpping component IDs, `cmp`, to their repair
+            consequences.
+        required_edps: dict
+            Dictionary mapping (`cmp`-`realization`)-`loc`-`dir`-`uid`
+            (each entry of the `performance_group`'s index) with the
+            EDP name (e.g., `PFA-1-1`) that should be used as its loss
+            function input.
+        demand_dict: dict
+            Dictionary mapping each EDP name to the values in the
+            demand sample in the form of numpy arrays.
+        cmp_sample: dict
+            Dict mapping each `cmp`-`loc`-`dir`-`uid` to the component
+            quantity realizations in the asset model in the form of
+            pd.Series objects.
+
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with medial loss for loss-function driven
+            components.
+
+        """
+
+        medians_dict = {}
+
+        # for each component in the asset model
+        for (
+            (component, decision_variable),
+            location,
+            direction,
+            uid,
+        ), blocks in performance_group['Blocks'].items():
+            consequence = loss_map[component]
+            edp = required_edps[
+                ((consequence, decision_variable), location, direction, uid)
+            ]
+            edp_values = demand_dict[edp]
+            loss_function_str = self.loss_params.at[
+                (component, decision_variable), ('LossFunction', 'Theta_0')
+            ]
+            try:
+                median_loss = base.stringterpolation(loss_function_str)(edp_values)
+            except ValueError as exc:
+                raise ValueError(
+                    f'Loss function for consequence '
+                    f'`{consequence}-{decision_variable}` '
+                    f'has an insufficiently small interpolation domain.'
+                ) from exc
+            for block in range(blocks):
+                medians_dict[
+                    (
+                        decision_variable,
+                        consequence,
+                        component,
+                        location,
+                        direction,
+                        uid,
+                        str(block),
+                    )
+                ] = (
+                    median_loss
+                    * cmp_sample[component, location, direction, uid].values
+                    / float(blocks)
+                )
+
+        medians = pd.DataFrame(medians_dict)
+        medians.columns.names = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid', 'block']
+        medians.sort_index(axis=1, inplace=True)
+
+        return medians
+
+    def _create_DV_RVs(self, case_list):
+        """
+        Prepare the random variables associated with decision
+        variables, such as repair cost and time.
+
+        Parameters
+        ----------
+        case_list: MultiIndex
+            Index with `dv`-`loss`-`dmg`-`loc`-`dir`-`uid`
+            entries that identify the RVs we need for the
+            simulation (columns of the `medians` dataframe).
+
+        Returns
+        -------
+        RandomVariableRegistry or None
+            A RandomVariableRegistry containing all the generated
+            random variables necessary for the simulation. If no
+            random variables are generated (due to missing parameters
+            or conditions), returns None.
+
+        """
+
+        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+
+        rv_count = 0
+
+        # for each component in the loss map
+        for (
+            decision_variable,
+            consequence,
+            component,
+            location,
+            direction,
+            uid,
+            block,
+        ) in case_list:
+
+            # load the corresponding parameters
+            parameters = self.loss_params.loc[(consequence, decision_variable), :]
+
+            family = parameters.at[('LossFunction', 'Family')]
+            theta = [
+                parameters.get(('LossFunction', f'Theta_{t_i}'), np.nan)
+                for t_i in range(3)
+            ]
+
+            # If there is no RV family we don't need an RV
+            if pd.isna(family):
+                continue
+
+            # Since the first parameter is controlled by a function,
+            # we use 1.0 in its place and will scale the results in a
+            # later step.
+            theta[0] = 1.0
+
+            # assign RVs
+            RV_reg.add_RV(
+                uq.rv_class_map(family)(
+                    name=(
+                        f'{decision_variable}-{consequence}-'
+                        f'{component}-{location}-{direction}-{uid}-{block}'
+                    ),
+                    theta=theta,
+                    truncation_limits=[0.0, np.nan],
+                )
+            )
+            rv_count += 1
+
+        # assign Time-Cost correlation whenever applicable
+        rho = self._asmnt.options.rho_cost_time
+        if rho != 0.0:
+            for rv_tag in RV_reg.RV:
+                if not rv_tag.startswith('Cost'):
+                    continue
+                split = rv_tag.split('-')
+                consequence = split[1]
+                component = split[2]
+                location = split[3]
+                direction = split[4]
+                uid = split[5]
+                block = split[6]
+                time_rv_tag = rv_tag.replace('Cost', 'Time')
+                if time_rv_tag in RV_reg.RV:
+                    RV_reg.add_RV_set(
+                        uq.RandomVariableSet(
+                            (
+                                f'DV-{consequence}-{component}-'
+                                f'{location}-{direction}-{uid}-{block}_set'
+                            ),
+                            list(RV_reg.RVs([rv_tag, time_rv_tag]).values()),
+                            np.array([[1.0, rho], [rho, 1.0]]),
+                        )
+                    )
+
+        self.log_msg(
+            f"\n{rv_count} random variables created.", prepend_timestamp=False
+        )
+
+        if rv_count > 0:
+            return RV_reg
+        return None
 
 
 def _prep_constant_median_DV(median):

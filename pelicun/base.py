@@ -67,6 +67,7 @@ This module defines constants, basic classes and methods for pelicun.
 """
 
 from __future__ import annotations
+from collections.abc import Callable
 import os
 import sys
 from datetime import datetime
@@ -76,6 +77,7 @@ from pathlib import Path
 import argparse
 import pprint
 import numpy as np
+from scipy.interpolate import interp1d
 import pandas as pd
 
 
@@ -202,46 +204,6 @@ class Options:
             merged_config_options['LogShowMS'],
             merged_config_options['LogFile'],
             merged_config_options['PrintLog'],
-        )
-
-    def nondir_multi(self, EDP_type):
-        """
-        Returns the multiplicative factor used in nondirectional
-        component demand generation. Read the description of the
-        nondir_multi_dict attribute of the Options class.
-
-        Parameters
-        ----------
-        EDP_type: str
-            EDP type (e.g. "PFA", "PFV", ..., "ALL")
-
-        Returns
-        -------
-        float
-            Nondirectional component multiplicative factor.
-
-        Raises
-        ------
-        ValueError
-            If the specified EDP type is not present in the
-            dictionary.  If this is the case, a value for that type
-            needs to be specified in the user's configuration
-            dictionary, under ['Options']['NonDirectionalMultipliers']
-            = {"edp_type": value, ...}
-        """
-
-        if EDP_type in self.nondir_multi_dict:
-            return self.nondir_multi_dict[EDP_type]
-
-        if 'ALL' in self.nondir_multi_dict:
-            return self.nondir_multi_dict['ALL']
-
-        raise ValueError(
-            f"Peak orthogonal EDP multiplier for non-directional demand "
-            f"calculation of {EDP_type} not specified.\n"
-            f"Please add {EDP_type} in the configuration dictionary "
-            f"under ['Options']['NonDirectionalMultipliers']"
-            " = {{'edp_type': value, ...}}"
         )
 
     @property
@@ -586,20 +548,18 @@ def control_warnings(show):
         # Here we specify *specific* warnings to ignore.
         # 'message' -- a regex that the warning message must match
         warnings.filterwarnings(
-            action=action,
-            message=".*Use to_numeric without passing `errors`.*"
+            action=action, message=".*Use to_numeric without passing `errors`.*"
         )
         warnings.filterwarnings(
             action=action,
-            message=".*The previous implementation of stack is deprecated.*"
+            message=".*The previous implementation of stack is deprecated.*",
         )
         warnings.filterwarnings(
             action=action,
-            message=".*Setting an item of incompatible dtype is deprecated.*"
+            message=".*Setting an item of incompatible dtype is deprecated.*",
         )
         warnings.filterwarnings(
-            action=action,
-            message=".*DataFrame.groupby with axis=1 is deprecated.*"
+            action=action, message=".*DataFrame.groupby with axis=1 is deprecated.*"
         )
 
 
@@ -1511,3 +1471,65 @@ def convert_units(
     if isinstance(values, list):
         return new_values.tolist()
     return new_values
+
+
+def stringterpolation(
+    arguments: str,
+) -> tuple[Callable[np.array, np.array]]:
+    """
+    Turns a string of specially formatted arguments into a multilinear
+    interpolating funciton.
+
+    Parameters
+    ----------
+    arguments: str
+        String of arguments containing Y values and X values,
+        separated by a pipe symbol (`|`). Individual values are
+        separated by commas (`,`). Example:
+        arguments = 'y1,y2,y3|x1,x2,x3'
+
+    Returns
+    -------
+    Callable
+        A callable interpolating function
+
+    """
+    split = arguments.split('|')
+    x_vals = split[1].split(',')
+    y_vals = split[0].split(',')
+    x = np.array(x_vals, dtype=float)
+    y = np.array(y_vals, dtype=float)
+
+    return interp1d(x=x, y=y, kind='linear')
+
+
+def invert_mapping(original_dict):
+    """
+    Inverts a dictionary mapping from key to list of values.
+
+    Parameters
+    ----------
+    original_dict : dict
+        Dictionary with values that are lists of hashable items.
+
+    Returns
+    -------
+    dict
+        New dictionary where each item in the original value lists
+        becomes a key and the original key becomes the corresponding
+        value.
+
+    Raises
+    ------
+    ValueError
+        If any value in the original dictionary's value lists appears
+        more than once.
+
+    """
+    inverted_dict = {}
+    for key, value_list in original_dict.items():
+        for value in value_list:
+            if value in inverted_dict:
+                raise ValueError('Cannot invert mapping with duplicate values.')
+            inverted_dict[value] = key
+    return inverted_dict
