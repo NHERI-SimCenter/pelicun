@@ -452,7 +452,7 @@ def run_pelicun(
         )
     if not sample_size_str:
         # give up
-        print('Sampling size not provided in config file.')
+        print('Sample size not provided in config file.')
         return -1
     sample_size = int(sample_size_str)
 
@@ -1021,7 +1021,6 @@ def run_pelicun(
         # TODO: we can improve this by creating a water
         # network-specific assessment class
         if "Water" in config['DL']['Asset']['ComponentDatabase']:
-
             # add a placeholder aggregate fragility that will never trigger
             # damage, but allow damage processes to aggregate the
             # various pipeline damages
@@ -1570,7 +1569,6 @@ def run_pelicun(
                 )
 
             elif repair_config['MapApproach'] == "User Defined":
-
                 if repair_config.get('MapFilePath', False) is not False:
                     loss_map_path = repair_config['MapFilePath']
 
@@ -1767,14 +1765,12 @@ def run_pelicun(
         damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
 
     if 'Losses' in config['DL']:
-
         if 'agg_repair' not in locals():
             agg_repair = PAL.repair.aggregate_losses()
 
         agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
 
     else:
-
         agg_repair_s = pd.DataFrame()
 
     summary = pd.concat(
@@ -1843,7 +1839,6 @@ def run_pelicun(
 
 
 def main():
-
     args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()

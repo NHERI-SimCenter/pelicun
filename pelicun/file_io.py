@@ -157,7 +157,7 @@ def save_to_csv(
         unit conversions and reformatting applied. Otherwise, returns
         None after saving the data to a CSV file.
     """
-    
+
     if filepath is None:
         if log:
             log.msg('Preparing data ...', prepend_timestamp=False)
@@ -166,13 +166,11 @@ def save_to_csv(
         log.msg(f'Saving data to {filepath}...', prepend_timestamp=False)
 
     if data is not None:
-
         # make sure we do not modify the original data
         data = data.copy()
 
         # convert units and add unit information, if needed
         if units is not None:
-
             if unit_conversion_factors is None:
                 raise ValueError(
                     'When units is not None, '
@@ -190,7 +188,6 @@ def save_to_csv(
             labels_to_keep = []
 
             for unit_name in units.unique():
-
                 labels = units.loc[units == unit_name].index.values
 
                 unit_factor = 1.0 / unit_conversion_factors[unit_name]
@@ -237,17 +234,13 @@ def save_to_csv(
                 data = base.convert_to_SimpleIndex(data, axis=1)
 
         if filepath is not None:
-
             filepath = Path(filepath).resolve()
             if filepath.suffix == '.csv':
-
                 # save the contents of the DataFrame into a csv
                 data.to_csv(filepath)
 
                 if log:
-                    log.msg(
-                        'Data successfully saved to file.', prepend_timestamp=False
-                    )
+                    log.msg('Data successfully saved to file.', prepend_timestamp=False)
 
             else:
                 raise ValueError(
@@ -398,7 +391,6 @@ def load_data(
     # if there is information about units, separate that information
     # and optionally apply conversions to all numeric values
     if 'Units' in the_index:
-
         units = data['Units'] if orientation == 1 else data.loc['Units']
         data.drop('Units', axis=orientation, inplace=True)
         data = base.convert_dtypes(data)
@@ -415,20 +407,18 @@ def load_data(
 
             conversion_factors = units.map(
                 lambda unit: (
-                    1.00
-                    if pd.isna(unit)
-                    else unit_conversion_factors.get(unit, 1.00)
+                    1.00 if pd.isna(unit) else unit_conversion_factors.get(unit, 1.00)
                 )
             )
 
             if orientation == 1:
-                data.loc[:, numeric_elements] = data.loc[
-                    :, numeric_elements
-                ].multiply(conversion_factors, axis=axis[orientation])
+                data.loc[:, numeric_elements] = data.loc[:, numeric_elements].multiply(
+                    conversion_factors, axis=axis[orientation]
+                )
             else:
-                data.loc[numeric_elements, :] = data.loc[
-                    numeric_elements, :
-                ].multiply(conversion_factors, axis=axis[orientation])
+                data.loc[numeric_elements, :] = data.loc[numeric_elements, :].multiply(
+                    conversion_factors, axis=axis[orientation]
+                )
 
         if log:
             log.msg('Unit conversion successful.', prepend_timestamp=False)
@@ -501,12 +491,10 @@ def load_from_file(filepath, log=None):
 
     if not filepath.is_file():
         raise FileNotFoundError(
-            f"The filepath provided does not point to an existing "
-            f"file: {filepath}"
+            f"The filepath provided does not point to an existing " f"file: {filepath}"
         )
 
     if filepath.suffix == '.csv':
-
         # load the contents of the csv into a DataFrame
 
         data = pd.read_csv(

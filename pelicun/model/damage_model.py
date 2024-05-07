@@ -127,9 +127,7 @@ class DamageModel(PelicunModel):
         self.log_msg('Saving damage sample...')
 
         cmp_units = self._asmnt.asset.cmp_units
-        qnt_units = pd.Series(
-            index=self.sample.columns, name='Units', dtype='object'
-        )
+        qnt_units = pd.Series(index=self.sample.columns, name='Units', dtype='object')
         for cmp in cmp_units.index:
             qnt_units.loc[cmp] = cmp_units.loc[cmp]
 
@@ -143,9 +141,7 @@ class DamageModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg(
-                'Damage sample successfully saved.', prepend_timestamp=False
-            )
+            self.log_msg('Damage sample successfully saved.', prepend_timestamp=False)
             return None
 
         # else:
@@ -483,9 +479,7 @@ class DamageModel(PelicunModel):
         for PG in PGB.index:
             # determine demand capacity adjustment operation, if required
             cmp_loc_dir = '-'.join(PG[0:3])
-            capacity_adjustment_operation = scaling_specification.get(
-                cmp_loc_dir, None
-            )
+            capacity_adjustment_operation = scaling_specification.get(cmp_loc_dir, None)
 
             cmp_id = PG[0]
             blocks = PGB.loc[PG, 'Blocks']
@@ -697,9 +691,7 @@ class DamageModel(PelicunModel):
 
         # get the capacity and lsds samples
         capacity_sample = (
-            pd.DataFrame(capacity_RVs.RV_sample)
-            .sort_index(axis=0)
-            .sort_index(axis=1)
+            pd.DataFrame(capacity_RVs.RV_sample).sort_index(axis=0).sort_index(axis=1)
         )
         capacity_sample = base.convert_to_MultiIndex(capacity_sample, axis=1)['FRG']
         capacity_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
@@ -901,9 +893,7 @@ class DamageModel(PelicunModel):
                     # take the maximum of all available directions and scale it
                     # using the nondirectional multiplier specified in the
                     # self._asmnt.options (the default value is 1.2)
-                    demand = (
-                        demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
-                    )
+                    demand = demand_source.loc[:, (EDP[0], EDP[1])].max(axis=1).values
                     demand = demand * self._asmnt.options.nondir_multi(EDP[0])
 
                 except KeyError:
@@ -978,9 +968,7 @@ class DamageModel(PelicunModel):
             # Create a dataframe with demand values repeated for the
             # number of PGs and assign the columns as PG_cols
             demand_df.append(
-                pd.concat(
-                    [pd.Series(demand_vals)] * len(PG_cols), axis=1, keys=PG_cols
-                )
+                pd.concat([pd.Series(demand_vals)] * len(PG_cols), axis=1, keys=PG_cols)
             )
 
         # Concatenate all demand dataframes into a single dataframe
@@ -1211,7 +1199,6 @@ class DamageModel(PelicunModel):
 
         # execute the events pres prescribed in the damage task
         for source_event, target_infos in events.items():
-
             # events can only be triggered by damage state occurrence
             if not source_event.startswith('DS'):
                 raise ValueError(
@@ -1227,7 +1214,6 @@ class DamageModel(PelicunModel):
                 target_infos = [target_infos]
 
             for target_info in target_infos:
-
                 # get the target component and event type
                 target_cmp, target_event = target_info.split('_')
 
@@ -1245,7 +1231,6 @@ class DamageModel(PelicunModel):
 
                 # trigger a damage state
                 if target_event.startswith('DS'):
-
                     # get the ID of the damage state to switch the target
                     # components to
                     ds_target = int(target_event[2:])
@@ -1527,9 +1512,7 @@ class DamageModel(PelicunModel):
 
         # Get the header for the results that we can use to identify
         # cmp-loc-dir-uid sets
-        dmg_header = (
-            dmg_sample.groupby(level=[0, 1, 2, 3], axis=1).first().iloc[:2, :]
-        )
+        dmg_header = dmg_sample.groupby(level=[0, 1, 2, 3], axis=1).first().iloc[:2, :]
 
         # get the number of possible limit states
         ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
@@ -1555,9 +1538,7 @@ class DamageModel(PelicunModel):
 
                     else:
                         # or if there are more than one, how many
-                        ds_count += len(
-                            cmp_data[(ls, 'DamageStateWeights')].split('|')
-                        )
+                        ds_count += len(cmp_data[(ls, 'DamageStateWeights')].split('|'))
 
             # get the list of valid cmp-loc-dir-uid sets
             cmp_header = dmg_header.loc[
@@ -1657,7 +1638,6 @@ class DamageModel(PelicunModel):
         # for PG_i in self._asmnt.asset.cmp_sample.columns:
         ds_samples = []
         for PGB_i in batches:
-
             performance_group = pg_batch.loc[PGB_i]
 
             self.log_msg(

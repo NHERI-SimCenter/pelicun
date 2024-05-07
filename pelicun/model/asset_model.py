@@ -303,6 +303,7 @@ class AssetModel(PelicunModel):
         >>> model.load_cmp_model(data_dict)
 
         """
+
         def get_locations(loc_str):
             """
             Parses a location string to determine specific sections of
@@ -559,9 +560,7 @@ class AssetModel(PelicunModel):
         cmp_marginal_param_series = []
         for col, cmp_marginal_param in cmp_marginal_param_dct.items():
             cmp_marginal_param_series.append(
-                pd.Series(
-                    cmp_marginal_param, dtype=dtypes[col], name=col, index=index
-                )
+                pd.Series(cmp_marginal_param, dtype=dtypes[col], name=col, index=index)
             )
 
         cmp_marginal_params = pd.concat(cmp_marginal_param_series, axis=1)
@@ -592,9 +591,7 @@ class AssetModel(PelicunModel):
 
         self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
 
-        self.log_msg(
-            "Model parameters successfully loaded.", prepend_timestamp=False
-        )
+        self.log_msg("Model parameters successfully loaded.", prepend_timestamp=False)
 
         self.log_msg(
             "\nComponent model marginal distributions:\n" + str(cmp_marginal_params),
@@ -621,8 +618,7 @@ class AssetModel(PelicunModel):
                 uq.rv_class_map(family)(
                     name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
                     theta=[
-                        getattr(rv_params, f"Theta_{t_i}", np.nan)
-                        for t_i in range(3)
+                        getattr(rv_params, f"Theta_{t_i}", np.nan) for t_i in range(3)
                     ],
                     truncation_limits=[
                         getattr(rv_params, f"Truncate{side}", np.nan)
@@ -659,7 +655,7 @@ class AssetModel(PelicunModel):
             generation, or if neither sample size is specified nor can
             be determined from the demand model.
         """
-        
+
         if self.cmp_marginal_params is None:
             raise ValueError(
                 'Model parameters have not been specified. Load'
