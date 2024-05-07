@@ -460,9 +460,7 @@ class Logger:
             self._log_file = None
 
         else:
-
             try:
-
                 filepath = Path(value).resolve()
 
                 self._log_file = str(filepath)
@@ -530,7 +528,6 @@ class Logger:
         msg_lines = msg.split('\n')
 
         for msg_i, msg_line in enumerate(msg_lines):
-
             if prepend_timestamp and (msg_i == 0):
                 formatted_msg = '{} {}'.format(
                     datetime.now().strftime(self.log_time_format), msg_line
@@ -772,17 +769,14 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
     """
 
     if axis in {0, 1}:
-
         if inplace:
             data_mod = data
         else:
             data_mod = data.copy()
 
         if axis == 0:
-
             # only perform this if there are multiple levels
             if data.index.nlevels > 1:
-
                 simple_name = '-'.join(
                     [n if n is not None else "" for n in data.index.names]
                 )
@@ -794,10 +788,8 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
                 data_mod.index.name = simple_name
 
         elif axis == 1:
-
             # only perform this if there are multiple levels
             if data.columns.nlevels > 1:
-
                 simple_name = '-'.join(
                     [n if n is not None else "" for n in data.columns.names]
                 )
@@ -848,7 +840,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     if ((axis == 0) and (isinstance(data.index, pd.MultiIndex))) or (
         (axis == 1) and (isinstance(data.columns, pd.MultiIndex))
     ):
-
         # if yes, return the data unchanged
         return data
 
@@ -864,7 +855,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     max_lbl_len = np.max([len(labels) for labels in index_labels])
 
     for l_i, labels in enumerate(index_labels):
-
         if len(labels) != max_lbl_len:
             labels += [
                 '',
@@ -874,7 +864,6 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
     index_labels = np.array(index_labels)
 
     if index_labels.shape[1] > 1:
-
         if inplace:
             data_mod = data
         else:
@@ -932,9 +921,7 @@ def show_matrix(data, use_describe=False):
         If False, simply prints the matrix as is.
     """
     if use_describe:
-        pp.pprint(
-            pd.DataFrame(data).describe(percentiles=[0.01, 0.1, 0.5, 0.9, 0.99])
-        )
+        pp.pprint(pd.DataFrame(data).describe(percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
     else:
         pp.pprint(pd.DataFrame(data))
 

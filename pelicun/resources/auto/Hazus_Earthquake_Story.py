@@ -267,10 +267,8 @@ def auto_populate(AIM):
             "Demands": {},
             "Losses": {"Repair": repair_config},
             "Options": {
-                "NonDirectionalMultipliers": {
-                    "ALL": 1.0
-                },
-            }
+                "NonDirectionalMultipliers": {"ALL": 1.0},
+            },
         }
 
     else:

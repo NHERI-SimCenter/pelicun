@@ -269,7 +269,7 @@ class Assessment:
         -------
         float
             Scale factor
-    
+
         Raises
         ------
         ValueError
@@ -278,7 +278,6 @@ class Assessment:
         """
 
         if unit is not None:
-
             if unit in self.unit_conversion_factors:
                 scale_factor = self.unit_conversion_factors[unit]
 
