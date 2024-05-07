@@ -434,6 +434,9 @@ def control_warnings():
     """
     Convenience function to turn warnings on/off
 
+        See also: `pelicun/pytest.ini`. Devs: make sure to update that
+        file when addressing & eliminating warnings.
+
     Parameters
     ----------
     show: bool
