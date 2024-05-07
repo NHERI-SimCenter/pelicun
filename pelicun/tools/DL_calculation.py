@@ -371,7 +371,7 @@ def run_pelicun(
     # f"{config['commonFileDir']}/CustomDLModels/"
     custom_dl_file_path = custom_model_dir
 
-    if 'DL' not in config:
+    if ('DL' not in config) or (not config['DL']):
         log_msg("Damage and Loss configuration missing from config file. ")
 
         if auto_script_path is not None:
@@ -379,7 +379,7 @@ def run_pelicun(
 
             config_ap, CMP = auto_populate(config, auto_script_path)
 
-            if config_ap['DL'] is None:
+            if not config_ap['DL']:
 
                 log_msg(
                     "The prescribed auto-population script failed to identify "
@@ -390,7 +390,9 @@ def run_pelicun(
                 return 0
 
             # add the demand information
-            config_ap['DL']['Demands'].update({'DemandFilePath': f'{demand_file}'})
+            config_ap['DL']['Demands'].update(
+                {'DemandFilePath': f'{demand_file}', 'SampleSize': f'{realizations}'}
+            )
 
             if coupled_EDP is True:
                 config_ap['DL']['Demands'].update({"CoupledDemands": True})
@@ -414,7 +416,7 @@ def run_pelicun(
             else:
                 config_ap['DL'].update({'Outputs': full_out_config})
                 # add output settings from regional output config
-                if 'Settings' not in config_ap['DL']['Outputs'].keys():
+                if 'Settings' not in config_ap['DL']['Outputs']:
                     config_ap['DL']['Outputs'].update({'Settings': {}})
 
                 config_ap['DL']['Outputs']['Settings'].update(
@@ -455,7 +457,7 @@ def run_pelicun(
     sample_size = int(sample_size_str)
 
     # provide all outputs if the files are not specified
-    if 'Outputs' not in config:
+    if ('Outputs' not in config) or (not config['Outputs']):
         config['DL']['Outputs'] = full_out_config
 
     # provide outputs in CSV by default
@@ -477,11 +479,11 @@ def run_pelicun(
     if ('Settings' in config['DL']['Outputs'].keys()) is False:
         config['DL']['Outputs'].update({'Settings': pbe_settings})
 
-    if 'Asset' not in config['DL']:
+    if ('Asset' not in config['DL']) or (not config['DL']['Asset']):
         log_msg("Asset configuration missing. Terminating analysis.")
         return -1
 
-    if 'Demands' not in config['DL']:
+    if ('Demands' not in config['DL']) or (not config['DL']['Demands']):
         log_msg("Demand configuration missing. Terminating analysis.")
         return -1
 
@@ -503,7 +505,7 @@ def run_pelicun(
     # If the user did not prescribe anything for ListAllDamageStates,
     # then use True as default for DL_calculations regardless of what
     # the Pelicun default is.
-    if "ListAllDamageStates" not in options.keys():
+    if "ListAllDamageStates" not in options:
         options.update({"ListAllDamageStates": True})
 
     PAL = Assessment(options)
