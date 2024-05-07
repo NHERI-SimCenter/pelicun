@@ -48,6 +48,8 @@ import pytest
 import numpy as np
 import pandas as pd
 from pelicun import file_io
+from pelicun import base
+from pelicun.warnings import PelicunWarning
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
@@ -121,28 +123,22 @@ def test_save_to_csv():
             )
 
     # no data, log a complaint
-    # Logger object used for a single test
-    class Logger:
-        def __init__(self):
-            self.logs = []
-
-        def msg(self, text, **kwargs):
-            # Keep track of the contents of the logging calls
-            self.logs.append((text, kwargs))
-
-    mylogger = Logger()
+    mylogger = base.Logger(
+        verbose=True, log_show_ms=False, log_file=None, print_log=True
+    )
     data = None
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = os.path.join(tmpdir, 'foo.csv')
-        file_io.save_to_csv(
-            data,
-            filepath,
-            units,
-            unit_conversion_factors,
-            orientation=0,
-            log=mylogger,
-        )
-    assert mylogger.logs[-1][0] == 'WARNING: Data was empty, no file saved.'
+        with pytest.warns(PelicunWarning) as record:
+            file_io.save_to_csv(
+                data,
+                filepath,
+                units,
+                unit_conversion_factors,
+                orientation=0,
+                log=mylogger,
+            )
+    assert 'Data was empty, no file saved.' in str(record.list[0].message)
 
 
 def test_substitute_default_path():

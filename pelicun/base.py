@@ -453,6 +453,9 @@ def control_warnings():
             action='ignore', message=".*Use to_numeric without passing `errors`.*"
         )
         warnings.filterwarnings(
+            action='ignore', message=".*errors='ignore' is deprecated.*"
+        )
+        warnings.filterwarnings(
             action='ignore',
             message=".*The previous implementation of stack is deprecated.*",
         )
