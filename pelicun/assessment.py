@@ -76,6 +76,7 @@ class Assessment:
     options: Options
         Options object.
     """
+    __slots__ = ['stories', 'options', 'unit_conversion_factors', 'log' , 'demand', 'asset', 'damage', 'loss']
 
     def __init__(self, config_options=None):
         """

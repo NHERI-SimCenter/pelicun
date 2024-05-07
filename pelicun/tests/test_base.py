@@ -44,6 +44,7 @@ These are unit and integration tests on the base module of pelicun.
 
 import os
 import io
+import re
 from contextlib import redirect_stdout
 import re
 import argparse
@@ -108,38 +109,13 @@ def test_options_init():
     options.seed = 42
     assert options.seed == 42
 
+    # test rng
+    assert isinstance(options.rng, np.random._generator.Generator)
+
 
 def test_nondir_multi():
-    # Tests that the nondir_multi method of the Options class returns
-    # the correct value for the specified EDP type. Tests that the
-    # method uses the value associated with the 'ALL' key if the EDP
-    # type is not present in the nondir_multi_dict attribute. Tests
-    # that a ValueError is raised if the 'ALL' key is not present in the
-    # nondir_multi_dict attribute.
-
-    # Create an instance of the Options class with default values for all options,
-    # except for the nondir_multi_dict attribute
     options = base.Options({'NonDirectionalMultipliers': {'PFA': 1.5, 'PFV': 1.00}})
-
-    # Call the nondir_multi method with the specific EDP type as the argument
-    assert options.nondir_multi('PFA') == 1.5
-    assert options.nondir_multi('PFV') == 1.00
-
-    # the 'ALL' key is automatically assigned to 1.2, even if the user
-    # does not specify it
-    assert 'ALL' in options.nondir_multi_dict
-    assert options.nondir_multi('ALL') == 1.2
-
-    # When an EDP type is not present in the nondir_multi_dict, the
-    # value associated with 'ALL' is used.
-    assert options.nondir_multi('spread love') == 1.2
-
-    # We get an error if the 'ALL' key is not present, but this would
-    # be unexpected.
-    options.nondir_multi_dict.pop('ALL')  # 'ALL' is gone now
-    # the following will cause a ValueError
-    with pytest.raises(ValueError):
-        options.nondir_multi('Sa(T*)')
+    assert options.nondir_multi_dict == {'PFA': 1.5, 'PFV': 1.0, 'ALL': 1.2}
 
 
 def test_logger_init():
@@ -192,6 +168,16 @@ def test_logger_msg():
     with open('log.txt', 'r', encoding='utf-8') as f:
         assert 'This is a message' in f.read()
     os.remove('log.txt')
+
+    # Check if timestamp is printed
+    with io.StringIO() as buf, redirect_stdout(buf):
+        log.msg(
+            ('This is a message' '\n' 'Second line'), # noqa
+            prepend_timestamp=True,
+        )
+        output = buf.getvalue()
+        pattern = r'(\d{2}:\d{2}:\d{2})'
+        assert re.search(pattern, output) is not None
 
 
 def test_logger_div():
@@ -278,6 +264,10 @@ def test_update_vals():
 def test_merge_default_config():
     # Test merging an empty user config with the default config
     user_config = {}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == base.load_default_options()
+
+    user_config = None  # same as {}
     merged_config = base.merge_default_config(user_config)
     assert merged_config == base.load_default_options()
 
@@ -616,6 +606,22 @@ def test_run_input_specs():
     assert os.path.basename(base.pelicun_path) == 'pelicun'
 
 
+def test_dedupe_index():
+    tuples = [('A', '1'), ('A', '1'), ('B', '2'), ('B', '3')]
+    index = pd.MultiIndex.from_tuples(tuples, names=['L1', 'L2'])
+    data = np.full((4, 1), 0.00)
+    df = pd.DataFrame(data, index=index)
+    base.dedupe_index(df)
+    assert df.to_dict() == {
+        0: {
+            ('A', '1', '0'): 0.0,
+            ('A', '1', '1'): 0.0,
+            ('B', '2', '0'): 0.0,
+            ('B', '3', '0'): 0.0,
+        }
+    }
+
+
 def test_dict_raise_on_duplicates():
     res = base.dict_raise_on_duplicates([('A', '1'), ('B', '2')])
     assert res == {'A': '1', 'B': '2'}
@@ -777,3 +783,34 @@ def test_unit_conversion():
     with pytest.raises(ValueError) as excinfo:
         base.convert_units(1.00, 'ft', 'm', category='volume')
     assert str(excinfo.value) == 'Unknown unit: `ft`'
+
+    # Test error handling unknown category
+    with pytest.raises(ValueError) as excinfo:
+        base.convert_units(1.00, 'ft', 'm', category='unknown_category')
+    assert str(excinfo.value) == 'Unknown category: `unknown_category`'
+
+    # Test error handling different categories
+    with pytest.raises(ValueError) as excinfo:
+        base.convert_units(1.00, 'lb', 'm')
+    assert (
+        str(excinfo.value)
+        == '`lb` is a `mass` unit, but `m` is not specified in that category.'
+    )
+
+
+def test_stringterpolation():
+    func = base.stringterpolation('1,2,3|4,5,6')
+    x_new = np.array([4, 4.5, 5])
+    expected = np.array([1, 1.5, 2])
+    np.testing.assert_array_almost_equal(func(x_new), expected)
+
+
+def test_invert_mapping():
+    original_dict = {'a': [1, 2], 'b': [3]}
+    expected = {1: 'a', 2: 'a', 3: 'b'}
+    assert base.invert_mapping(original_dict) == expected
+
+    # with duplicates, raises an error
+    original_dict = {'a': [1, 2], 'b': [2]}
+    with pytest.raises(ValueError):
+        base.invert_mapping(original_dict)

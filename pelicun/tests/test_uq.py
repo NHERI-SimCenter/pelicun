@@ -806,6 +806,9 @@ def test_NormalRandomVariable():
     assert np.all(np.isnan(rv.truncation_limits))
     assert rv.RV_set is None
     assert rv.sample_DF is None
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
 
 
 def test_NormalRandomVariable_cdf():
@@ -903,6 +906,9 @@ def test_LogNormalRandomVariable_cdf():
         theta=(1.0, 1.0),
         truncation_limits=np.array((0.10, np.nan)),
     )
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
     assert np.allclose(
@@ -969,6 +975,9 @@ def test_LogNormalRandomVariable_inverse_transform():
 def test_UniformRandomVariable_cdf():
     # uniform, both theta values
     rv = uq.UniformRandomVariable('test_rv', theta=(0.0, 1.0))
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
     assert np.allclose(cdf, (0.0, 0.0, 0.5, 1.0, 1.0), rtol=1e-5)
@@ -1104,6 +1113,9 @@ def test_MultilinearCDFRandomVariable_cdf():
     y_values = (0.00, 0.20, 0.30, 0.80, 1.00)
     values = np.column_stack((x_values, y_values))
     rv = uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
     x = (-100.00, 0.00, 0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 100.00)
     cdf = rv.cdf(x)
 
@@ -1134,6 +1146,9 @@ def test_EmpiricalRandomVariable_inverse_transform():
     samples = np.array((0.10, 0.20, 0.30))
 
     rv = uq.EmpiricalRandomVariable('test_rv', raw_samples=(1.00, 2.00, 3.00, 4.00))
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
 
     samples = np.array((0.10, 0.50, 0.90))
 
