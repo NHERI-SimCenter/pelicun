@@ -42,18 +42,14 @@
 These are unit and integration tests on the model module of pelicun.
 """
 
-import os
-import tempfile
 from copy import deepcopy
 import pytest
-import numpy as np
-import pandas as pd
-from pelicun import model
 from pelicun import assessment
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 # pylint: disable=arguments-renamed
+
 
 class TestModelModule:
     @pytest.fixture

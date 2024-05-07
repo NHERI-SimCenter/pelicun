@@ -42,14 +42,11 @@
 These are unit and integration tests on the model module of pelicun.
 """
 
-import os
-import tempfile
 from copy import deepcopy
 import pytest
 import numpy as np
 import pandas as pd
 from pelicun import model
-from pelicun import assessment
 from pelicun.tests.model.test_model import TestModelModule
 
 

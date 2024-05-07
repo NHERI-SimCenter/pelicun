@@ -50,213 +50,251 @@ import numpy as np
 import pandas as pd
 from pelicun import model
 from pelicun import assessment
+from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 # pylint: disable=arguments-renamed
 
-# class TestDamageModel(TestPelicunModel):
-#     @pytest.fixture
-#     def cmp_sample_A(self):
-#         # This sample contains 8 units of B.10.31.001 assigned to
-#         # locations 1, 2 and directions 1, 2
-#         return pd.DataFrame(
-#             {
-#                 ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
-#                 for i in range(1, 3)
-#                 for j in range(1, 3)
-#             },
-#             index=range(10),
-#             columns=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('B.10.31.001', f'{i}', f'{j}', '0')
-#                     for i in range(1, 3)
-#                     for j in range(1, 3)
-#                 ),
-#                 names=('cmp', 'loc', 'dir', 'uid'),
-#             ),
-#         )
+class TestDamageModel(TestPelicunModel):
+    # @pytest.fixture
+    # def cmp_sample_A(self):
+    #     # This sample contains 8 units of B.10.31.001 assigned to
+    #     # locations 1, 2 and directions 1, 2
+    #     return pd.DataFrame(
+    #         {
+    #             ('B.10.31.001', f'{i}', f'{j}', '0'): 8.0
+    #             for i in range(1, 3)
+    #             for j in range(1, 3)
+    #         },
+    #         index=range(10),
+    #         columns=pd.MultiIndex.from_tuples(
+    #             (
+    #                 ('B.10.31.001', f'{i}', f'{j}', '0')
+    #                 for i in range(1, 3)
+    #                 for j in range(1, 3)
+    #             ),
+    #             names=('cmp', 'loc', 'dir', 'uid'),
+    #         ),
+    #     )
 
-#     @pytest.fixture
-#     def calibration_config_A(self):
-#         return {
-#             "ALL": {"DistributionFamily": "lognormal"},
-#             "PID": {
-#                 "DistributionFamily": "lognormal",
-#                 "TruncateLower": "",
-#                 "TruncateUpper": "0.06",
-#             },
-#         }
+    # @pytest.fixture
+    # def calibration_config_A(self):
+    #     return {
+    #         "ALL": {"DistributionFamily": "lognormal"},
+    #         "PID": {
+    #             "DistributionFamily": "lognormal",
+    #             "TruncateLower": "",
+    #             "TruncateUpper": "0.06",
+    #         },
+    #     }
 
-#     @pytest.fixture
-#     def damage_model(self, assessment_instance):
-#         return deepcopy(assessment_instance.damage)
+    @pytest.fixture
+    def damage_model(self, assessment_instance):
+        return deepcopy(assessment_instance.damage)
 
-#     @pytest.fixture
-#     def damage_model_model_loaded(self, damage_model, cmp_sample_A):
-#         asmt = damage_model._asmnt
-#         asmt.get_default_data('damage_DB_FEMA_P58_2nd')
-#         asmt.asset.cmp_sample = cmp_sample_A
-#         damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
-#         return deepcopy(damage_model)
+    # @pytest.fixture
+    # def damage_model_model_loaded(self, damage_model, cmp_sample_A):
+    #     asmt = damage_model._asmnt
+    #     asmt.get_default_data('damage_DB_FEMA_P58_2nd')
+    #     asmt.asset.cmp_sample = cmp_sample_A
+    #     damage_model.load_damage_model(['PelicunDefault/damage_DB_FEMA_P58_2nd.csv'])
+    #     return deepcopy(damage_model)
 
-#     @pytest.fixture
-#     def damage_model_with_sample(self, assessment_instance):
-#         dmg_process = None
-#         assessment_instance.demand.sample = pd.DataFrame(
-#             np.column_stack(
-#                 (
-#                     np.array((4.94, 2.73, 4.26, 2.79)),
-#                     np.array((4.74, 2.23, 4.14, 2.28)),
-#                     np.array((0.02, 0.022, 0.021, 0.02)),
-#                     np.array((0.02, 0.022, 0.021, 0.02)),
-#                 )
-#             ),
-#             columns=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('PFA', '1', '1'),
-#                     ('PFA', '1', '2'),
-#                     ('PID', '1', '1'),
-#                     ('PID', '1', '2'),
-#                 ),
-#                 names=['type', 'loc', 'dir'],
-#             ),
-#             index=range(4),
-#         )
-#         assessment_instance.asset.cmp_marginal_params = pd.DataFrame(
-#             np.full((4, 2), 2.00),
-#             index=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('cmp_1', '1', '1', '0'),
-#                     ('cmp_1', '1', '2', '0'),
-#                     ('cmp_2', '1', '1', '0'),
-#                     ('cmp_2', '1', '2', '0'),
-#                 ),
-#                 names=['cmp', 'loc', 'dir', 'uid'],
-#             ),
-#             columns=('Theta_0', 'Blocks'),
-#         )
-#         assessment_instance.asset.generate_cmp_sample(sample_size=4)
-#         assessment_instance.damage.damage_params = pd.DataFrame(
-#             np.array(
-#                 (
-#                     (
-#                         1.0,
-#                         0.0,
-#                         'Peak Interstory Drift Ratio',
-#                         'ea',
-#                         0.0,
-#                         None,
-#                         'lognormal',
-#                         1e-2,
-#                         0.40,
-#                         None,
-#                         'lognormal',
-#                         2e-2,
-#                         0.40,
-#                         None,
-#                         'lognormal',
-#                         3e-2,
-#                         0.40,
-#                         None,
-#                         'lognormal',
-#                         4e-2,
-#                         0.40,
-#                     ),
-#                     (
-#                         1.0,
-#                         0.0,
-#                         'Peak Interstory Drift Ratio',
-#                         'ea',
-#                         0.0,
-#                         None,
-#                         'lognormal',
-#                         1e-2,
-#                         0.40,
-#                         None,
-#                         'lognormal',
-#                         2e-2,
-#                         0.40,
-#                         None,
-#                         'lognormal',
-#                         3e-2,
-#                         0.40,
-#                         None,
-#                         'lognormal',
-#                         4e-2,
-#                         0.40,
-#                     ),
-#                 )
-#             ),
-#             index=['cmp_1', 'cmp_2'],
-#             columns=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('Demand', 'Directional'),
-#                     ('Demand', 'Offset'),
-#                     ('Demand', 'Type'),
-#                     ('Demand', 'Unit'),
-#                     ('Incomplete', ''),
-#                     ('LS1', 'DamageStateWeights'),
-#                     ('LS1', 'Family'),
-#                     ('LS1', 'Theta_0'),
-#                     ('LS1', 'Theta_1'),
-#                     ('LS2', 'DamageStateWeights'),
-#                     ('LS2', 'Family'),
-#                     ('LS2', 'Theta_0'),
-#                     ('LS2', 'Theta_1'),
-#                     ('LS3', 'DamageStateWeights'),
-#                     ('LS3', 'Family'),
-#                     ('LS3', 'Theta_0'),
-#                     ('LS3', 'Theta_1'),
-#                     ('LS4', 'DamageStateWeights'),
-#                     ('LS4', 'Family'),
-#                     ('LS4', 'Theta_0'),
-#                     ('LS4', 'Theta_1'),
-#                 )
-#             ),
-#         )
-#         assessment_instance.damage.calculate(sample_size=4, dmg_process=dmg_process)
-#         assessment_instance.asset.cmp_units = pd.Series(
-#             ['ea'] * len(assessment_instance.damage.sample.columns),
-#             index=assessment_instance.damage.sample.columns,
-#             name='Units',
-#             dtype='object',
-#         )
-#         return deepcopy(assessment_instance.damage)
+    # @pytest.fixture
+    # def damage_model_with_sample(self, assessment_instance):
+    #     dmg_process = None
+    #     assessment_instance.demand.sample = pd.DataFrame(
+    #         np.column_stack(
+    #             (
+    #                 np.array((4.94, 2.73, 4.26, 2.79)),
+    #                 np.array((4.74, 2.23, 4.14, 2.28)),
+    #                 np.array((0.02, 0.022, 0.021, 0.02)),
+    #                 np.array((0.02, 0.022, 0.021, 0.02)),
+    #             )
+    #         ),
+    #         columns=pd.MultiIndex.from_tuples(
+    #             (
+    #                 ('PFA', '1', '1'),
+    #                 ('PFA', '1', '2'),
+    #                 ('PID', '1', '1'),
+    #                 ('PID', '1', '2'),
+    #             ),
+    #             names=['type', 'loc', 'dir'],
+    #         ),
+    #         index=range(4),
+    #     )
+    #     assessment_instance.asset.cmp_marginal_params = pd.DataFrame(
+    #         np.full((4, 2), 2.00),
+    #         index=pd.MultiIndex.from_tuples(
+    #             (
+    #                 ('cmp_1', '1', '1', '0'),
+    #                 ('cmp_1', '1', '2', '0'),
+    #                 ('cmp_2', '1', '1', '0'),
+    #                 ('cmp_2', '1', '2', '0'),
+    #             ),
+    #             names=['cmp', 'loc', 'dir', 'uid'],
+    #         ),
+    #         columns=('Theta_0', 'Blocks'),
+    #     )
+    #     assessment_instance.asset.generate_cmp_sample(sample_size=4)
+    #     assessment_instance.damage.damage_params = pd.DataFrame(
+    #         np.array(
+    #             (
+    #                 (
+    #                     1.0,
+    #                     0.0,
+    #                     'Peak Interstory Drift Ratio',
+    #                     'ea',
+    #                     0.0,
+    #                     None,
+    #                     'lognormal',
+    #                     1e-2,
+    #                     0.40,
+    #                     None,
+    #                     'lognormal',
+    #                     2e-2,
+    #                     0.40,
+    #                     None,
+    #                     'lognormal',
+    #                     3e-2,
+    #                     0.40,
+    #                     None,
+    #                     'lognormal',
+    #                     4e-2,
+    #                     0.40,
+    #                 ),
+    #                 (
+    #                     1.0,
+    #                     0.0,
+    #                     'Peak Interstory Drift Ratio',
+    #                     'ea',
+    #                     0.0,
+    #                     None,
+    #                     'lognormal',
+    #                     1e-2,
+    #                     0.40,
+    #                     None,
+    #                     'lognormal',
+    #                     2e-2,
+    #                     0.40,
+    #                     None,
+    #                     'lognormal',
+    #                     3e-2,
+    #                     0.40,
+    #                     None,
+    #                     'lognormal',
+    #                     4e-2,
+    #                     0.40,
+    #                 ),
+    #             )
+    #         ),
+    #         index=['cmp_1', 'cmp_2'],
+    #         columns=pd.MultiIndex.from_tuples(
+    #             (
+    #                 ('Demand', 'Directional'),
+    #                 ('Demand', 'Offset'),
+    #                 ('Demand', 'Type'),
+    #                 ('Demand', 'Unit'),
+    #                 ('Incomplete', ''),
+    #                 ('LS1', 'DamageStateWeights'),
+    #                 ('LS1', 'Family'),
+    #                 ('LS1', 'Theta_0'),
+    #                 ('LS1', 'Theta_1'),
+    #                 ('LS2', 'DamageStateWeights'),
+    #                 ('LS2', 'Family'),
+    #                 ('LS2', 'Theta_0'),
+    #                 ('LS2', 'Theta_1'),
+    #                 ('LS3', 'DamageStateWeights'),
+    #                 ('LS3', 'Family'),
+    #                 ('LS3', 'Theta_0'),
+    #                 ('LS3', 'Theta_1'),
+    #                 ('LS4', 'DamageStateWeights'),
+    #                 ('LS4', 'Family'),
+    #                 ('LS4', 'Theta_0'),
+    #                 ('LS4', 'Theta_1'),
+    #             )
+    #         ),
+    #     )
+    #     assessment_instance.damage.calculate(sample_size=4, dmg_process=dmg_process)
+    #     assessment_instance.asset.cmp_units = pd.Series(
+    #         ['ea'] * len(assessment_instance.damage.sample.columns),
+    #         index=assessment_instance.damage.sample.columns,
+    #         name='Units',
+    #         dtype='object',
+    #     )
+    #     return deepcopy(assessment_instance.damage)
 
-#     def test_init(self, damage_model):
-#         assert damage_model.log_msg
-#         assert damage_model.log_div
+    def test_init(self, damage_model):
+        assert damage_model.log
+        assert damage_model.ds_model
+        with pytest.raises(AttributeError):
+            damage_model.xyz = 123
 
-#         assert damage_model.damage_params is None
-#         assert damage_model.sample is None
+        assert damage_model.ds_model.damage_params is None
+        assert damage_model.ds_model.sample is None
 
-#     def test_save_load_sample(self, damage_model_with_sample, assessment_instance):
-#         # saving to a file
-#         temp_dir = tempfile.mkdtemp()
-#         # convert the sample's index from RangeIndex to int64 (to
-#         # match the datatype when it is loaded back; the contents are
-#         # the same)
-#         damage_model_with_sample.sample.index = (
-#             damage_model_with_sample.sample.index.astype('int64')
-#         )
-#         damage_model_with_sample.save_sample(f'{temp_dir}/damage_model_sample.csv')
-#         # loading from the file
-#         assessment_instance.damage.load_sample(f'{temp_dir}/damage_model_sample.csv')
-#         sample_from_file = assessment_instance.damage.sample
+        assert len(damage_model.damage_models) == 1
 
-#         # saving to a variable
-#         sample_from_variable = damage_model_with_sample.save_sample(save_units=False)
-#         pd.testing.assert_frame_equal(
-#             sample_from_file,
-#             sample_from_variable,
-#             check_index_type=False,
-#             check_column_type=False,
-#         )
-#         _, units_from_variable = damage_model_with_sample.save_sample(
-#             save_units=True
-#         )
-#         assert np.all(units_from_variable.to_numpy() == 'ea')
+    def test_load_model_parameters(self, damage_model):
+        path = 'pelicun/tests/data/model/test_DamageModel/damage_db.csv'
+        # The file defines the parameters for four components:
+        # component.A, component.B, component.C, and component.incomplete
+        # component.incomplete is flagged incomplete.
+        cmp_set = {'component.A', 'component.B', 'component.incomplete'}
+        # (Omit component.C)
+        damage_model.load_model_parameters([path], cmp_set)
+        damage_parameters = damage_model.ds_model.damage_params
+        assert 'component.A' in damage_parameters.index
+        assert 'component.B' in damage_parameters.index
+        assert 'component.C' not in damage_parameters.index
+        assert 'component.incomplete' not in damage_parameters.index
+
+        # make sure unit conversions were done correctly.
+        # component.A: unitless, 3 limit states
+        # component.B: from g -> m/s^2, 2 limit states
+        assert damage_parameters['LS1']['Theta_0']['component.A'] == 0.02
+        assert damage_parameters['LS2']['Theta_0']['component.A'] == 0.04
+        assert damage_parameters['LS3']['Theta_0']['component.A'] == 0.08
+        assert damage_parameters['LS1']['Theta_0']['component.B'] == 1.96133
+        assert damage_parameters['LS2']['Theta_0']['component.B'] == 3.92266
+        assert pd.isna(damage_parameters['LS3']['Theta_0']['component.B'])
+
+        # If a component is in the set but does not have damage
+        # parameters, no damage parameters are loaded for it.
+        cmp_set = {'not.exist'}
+        damage_model.load_model_parameters([path], cmp_set)
+        # with pytest.warns:
+        #     pass
+        assert damage_model.ds_model.damage_params.empty
+
+
+    # def test_save_load_sample(self, damage_model_with_sample, assessment_instance):
+    #     # saving to a file
+    #     temp_dir = tempfile.mkdtemp()
+    #     # convert the sample's index from RangeIndex to int64 (to
+    #     # match the datatype when it is loaded back; the contents are
+    #     # the same)
+    #     damage_model_with_sample.sample.index = (
+    #         damage_model_with_sample.sample.index.astype('int64')
+    #     )
+    #     damage_model_with_sample.save_sample(f'{temp_dir}/damage_model_sample.csv')
+    #     # loading from the file
+    #     assessment_instance.damage.load_sample(f'{temp_dir}/damage_model_sample.csv')
+    #     sample_from_file = assessment_instance.damage.sample
+
+    #     # saving to a variable
+    #     sample_from_variable = damage_model_with_sample.save_sample(save_units=False)
+    #     pd.testing.assert_frame_equal(
+    #         sample_from_file,
+    #         sample_from_variable,
+    #         check_index_type=False,
+    #         check_column_type=False,
+    #     )
+    #     _, units_from_variable = damage_model_with_sample.save_sample(
+    #         save_units=True
+    #     )
+    #     assert np.all(units_from_variable.to_numpy() == 'ea')
 
 #     def test_load_damage_model(self, damage_model_model_loaded):
 #         # should no longer be None

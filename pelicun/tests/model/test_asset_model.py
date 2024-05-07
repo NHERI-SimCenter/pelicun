@@ -42,266 +42,265 @@
 These are unit and integration tests on the model module of pelicun.
 """
 
-import os
 import tempfile
 from copy import deepcopy
 import pytest
 import numpy as np
 import pandas as pd
-from pelicun import model
 from pelicun import assessment
+from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 # pylint: disable=arguments-renamed
 
-# class TestAssetModel(TestPelicunModel):
-#     @pytest.fixture
-#     def asset_model(self, assessment_instance):
-#         return deepcopy(assessment_instance.asset)
 
-#     def test_init(self, asset_model):
-#         assert asset_model.log_msg
-#         assert asset_model.log_div
-#         assert asset_model.cmp_marginal_params is None
-#         assert asset_model.cmp_units is None
-#         assert asset_model._cmp_RVs is None
-#         assert asset_model.cmp_sample is None
+class TestAssetModel(TestPelicunModel):
+    @pytest.fixture
+    def asset_model(self, assessment_instance):
+        return deepcopy(assessment_instance.asset)
 
-#     def test_save_cmp_sample(self, asset_model):
-#         asset_model.cmp_sample = pd.DataFrame(
-#             {
-#                 ('component_a', f'{i}', f'{j}', '0'): 8.0
-#                 for i in range(1, 3)
-#                 for j in range(1, 3)
-#             },
-#             index=range(10),
-#             columns=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('component_a', f'{i}', f'{j}', '0')
-#                     for i in range(1, 3)
-#                     for j in range(1, 3)
-#                 ),
-#                 names=('cmp', 'loc', 'dir', 'uid'),
-#             ),
-#         )
+    def test_init(self, asset_model):
+        assert asset_model.log
+        assert asset_model.cmp_marginal_params is None
+        assert asset_model.cmp_units is None
+        assert asset_model._cmp_RVs is None
+        assert asset_model.cmp_sample is None
 
-#         asset_model.cmp_units = pd.Series(
-#             data=['ea'], index=['component_a'], name='Units'
-#         )
+    def test_save_cmp_sample(self, asset_model):
+        asset_model.cmp_sample = pd.DataFrame(
+            {
+                ('component_a', f'{i}', f'{j}', '0'): 8.0
+                for i in range(1, 3)
+                for j in range(1, 3)
+            },
+            index=range(10),
+            columns=pd.MultiIndex.from_tuples(
+                (
+                    ('component_a', f'{i}', f'{j}', '0')
+                    for i in range(1, 3)
+                    for j in range(1, 3)
+                ),
+                names=('cmp', 'loc', 'dir', 'uid'),
+            ),
+        )
 
-#         res = asset_model.save_cmp_sample()
-#         assert isinstance(res, pd.DataFrame)
+        asset_model.cmp_units = pd.Series(
+            data=['ea'], index=['component_a'], name='Units'
+        )
 
-#         temp_dir = tempfile.mkdtemp()
-#         # save the sample there
-#         asset_model.save_cmp_sample(f'{temp_dir}/temp.csv')
+        res = asset_model.save_cmp_sample()
+        assert isinstance(res, pd.DataFrame)
 
-#         # load the component sample to a different AssetModel
-#         asmt = assessment.Assessment()
-#         asset_model = asmt.asset
-#         asset_model.load_cmp_sample(f'{temp_dir}/temp.csv')
+        temp_dir = tempfile.mkdtemp()
+        # save the sample there
+        asset_model.save_cmp_sample(f'{temp_dir}/temp.csv')
 
-#         # also test loading sample to variables
-#         # (but we don't inspect them)
-#         _ = asset_model.save_cmp_sample(save_units=False)
-#         _, _ = asset_model.save_cmp_sample(save_units=True)
+        # load the component sample to a different AssetModel
+        asmt = assessment.Assessment()
+        asset_model = asmt.asset
+        asset_model.load_cmp_sample(f'{temp_dir}/temp.csv')
 
-#     def test_load_cmp_model_1(self, asset_model):
-#         cmp_marginals = pd.read_csv(
-#             'pelicun/tests/data/model/test_AssetModel/CMP_marginals.csv',
-#             index_col=0,
-#         )
-#         asset_model.load_cmp_model({'marginals': cmp_marginals})
+        # also test loading sample to variables
+        # (but we don't inspect them)
+        _ = asset_model.save_cmp_sample(save_units=False)
+        _, _ = asset_model.save_cmp_sample(save_units=True)
 
-#         expected_cmp_marginal_params = pd.DataFrame(
-#             {
-#                 'Theta_0': (8.0, 8.0, 8.0, 8.0, 8.0, 8.0),
-#                 'Blocks': (1, 1, 1, 1, 1, 1),
-#             },
-#             index=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('component_a', '0', '1', '0'),
-#                     ('component_a', '0', '2', '0'),
-#                     ('component_a', '1', '1', '0'),
-#                     ('component_a', '1', '2', '0'),
-#                     ('component_a', '2', '1', '0'),
-#                     ('component_a', '2', '2', '0'),
-#                 ),
-#                 names=('cmp', 'loc', 'dir', 'uid'),
-#             ),
-#         ).astype({'Theta_0': 'float64', 'Blocks': 'int64'})
+    def test_load_cmp_model_1(self, asset_model):
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals.csv',
+            index_col=0,
+        )
+        asset_model.load_cmp_model({'marginals': cmp_marginals})
 
-#         pd.testing.assert_frame_equal(
-#             expected_cmp_marginal_params,
-#             asset_model.cmp_marginal_params,
-#             check_index_type=False,
-#             check_column_type=False,
-#             check_dtype=False,
-#         )
+        expected_cmp_marginal_params = pd.DataFrame(
+            {
+                'Theta_0': (8.0, 8.0, 8.0, 8.0, 8.0, 8.0),
+                'Blocks': (1, 1, 1, 1, 1, 1),
+            },
+            index=pd.MultiIndex.from_tuples(
+                (
+                    ('component_a', '0', '1', '0'),
+                    ('component_a', '0', '2', '0'),
+                    ('component_a', '1', '1', '0'),
+                    ('component_a', '1', '2', '0'),
+                    ('component_a', '2', '1', '0'),
+                    ('component_a', '2', '2', '0'),
+                ),
+                names=('cmp', 'loc', 'dir', 'uid'),
+            ),
+        ).astype({'Theta_0': 'float64', 'Blocks': 'int64'})
 
-#         expected_cmp_units = pd.Series(
-#             data=['ea'], index=['component_a'], name='Units'
-#         )
+        pd.testing.assert_frame_equal(
+            expected_cmp_marginal_params,
+            asset_model.cmp_marginal_params,
+            check_index_type=False,
+            check_column_type=False,
+            check_dtype=False,
+        )
 
-#         pd.testing.assert_series_equal(
-#             expected_cmp_units,
-#             asset_model.cmp_units,
-#             check_index_type=False,
-#         )
+        expected_cmp_units = pd.Series(
+            data=['ea'], index=['component_a'], name='Units'
+        )
 
-#     def test_load_cmp_model_2(self, asset_model):
-#         # component marginals utilizing the keywords '--', 'all', 'top', 'roof'
-#         cmp_marginals = pd.read_csv(
-#             'pelicun/tests/data/model/test_AssetModel/CMP_marginals_2.csv',
-#             index_col=0,
-#         )
-#         asset_model._asmnt.stories = 4
-#         asset_model.load_cmp_model({'marginals': cmp_marginals})
+        pd.testing.assert_series_equal(
+            expected_cmp_units,
+            asset_model.cmp_units,
+            check_index_type=False,
+        )
 
-#         assert asset_model.cmp_marginal_params.to_dict() == {
-#             'Theta_0': {
-#                 ('component_a', '0', '1', '0'): 1.0,
-#                 ('component_a', '0', '2', '0'): 1.0,
-#                 ('component_a', '1', '1', '0'): 1.0,
-#                 ('component_a', '1', '2', '0'): 1.0,
-#                 ('component_a', '2', '1', '0'): 1.0,
-#                 ('component_a', '2', '2', '0'): 1.0,
-#                 ('component_a', '3', '1', '0'): 1.0,
-#                 ('component_a', '3', '2', '0'): 1.0,
-#                 ('component_b', '1', '1', '0'): 1.0,
-#                 ('component_b', '2', '1', '0'): 1.0,
-#                 ('component_b', '3', '1', '0'): 1.0,
-#                 ('component_b', '4', '1', '0'): 1.0,
-#                 ('component_c', '0', '1', '0'): 1.0,
-#                 ('component_c', '1', '1', '0'): 1.0,
-#                 ('component_c', '2', '1', '0'): 1.0,
-#                 ('component_d', '4', '1', '0'): 1.0,
-#                 ('component_e', '5', '1', '0'): 1.0,
-#             },
-#             'Blocks': {
-#                 ('component_a', '0', '1', '0'): 1,
-#                 ('component_a', '0', '2', '0'): 1,
-#                 ('component_a', '1', '1', '0'): 1,
-#                 ('component_a', '1', '2', '0'): 1,
-#                 ('component_a', '2', '1', '0'): 1,
-#                 ('component_a', '2', '2', '0'): 1,
-#                 ('component_a', '3', '1', '0'): 1,
-#                 ('component_a', '3', '2', '0'): 1,
-#                 ('component_b', '1', '1', '0'): 1,
-#                 ('component_b', '2', '1', '0'): 1,
-#                 ('component_b', '3', '1', '0'): 1,
-#                 ('component_b', '4', '1', '0'): 1,
-#                 ('component_c', '0', '1', '0'): 1,
-#                 ('component_c', '1', '1', '0'): 1,
-#                 ('component_c', '2', '1', '0'): 1,
-#                 ('component_d', '4', '1', '0'): 1,
-#                 ('component_e', '5', '1', '0'): 1,
-#             },
-#         }
+    def test_load_cmp_model_2(self, asset_model):
+        # component marginals utilizing the keywords '--', 'all', 'top', 'roof'
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals_2.csv',
+            index_col=0,
+        )
+        asset_model._asmnt.stories = 4
+        asset_model.load_cmp_model({'marginals': cmp_marginals})
 
-#         expected_cmp_units = pd.Series(
-#             data=['ea'] * 5,
-#             index=[f'component_{x}' for x in ('a', 'b', 'c', 'd', 'e')],
-#             name='Units',
-#         )
+        assert asset_model.cmp_marginal_params.to_dict() == {
+            'Theta_0': {
+                ('component_a', '0', '1', '0'): 1.0,
+                ('component_a', '0', '2', '0'): 1.0,
+                ('component_a', '1', '1', '0'): 1.0,
+                ('component_a', '1', '2', '0'): 1.0,
+                ('component_a', '2', '1', '0'): 1.0,
+                ('component_a', '2', '2', '0'): 1.0,
+                ('component_a', '3', '1', '0'): 1.0,
+                ('component_a', '3', '2', '0'): 1.0,
+                ('component_b', '1', '1', '0'): 1.0,
+                ('component_b', '2', '1', '0'): 1.0,
+                ('component_b', '3', '1', '0'): 1.0,
+                ('component_b', '4', '1', '0'): 1.0,
+                ('component_c', '0', '1', '0'): 1.0,
+                ('component_c', '1', '1', '0'): 1.0,
+                ('component_c', '2', '1', '0'): 1.0,
+                ('component_d', '4', '1', '0'): 1.0,
+                ('component_e', '5', '1', '0'): 1.0,
+            },
+            'Blocks': {
+                ('component_a', '0', '1', '0'): 1,
+                ('component_a', '0', '2', '0'): 1,
+                ('component_a', '1', '1', '0'): 1,
+                ('component_a', '1', '2', '0'): 1,
+                ('component_a', '2', '1', '0'): 1,
+                ('component_a', '2', '2', '0'): 1,
+                ('component_a', '3', '1', '0'): 1,
+                ('component_a', '3', '2', '0'): 1,
+                ('component_b', '1', '1', '0'): 1,
+                ('component_b', '2', '1', '0'): 1,
+                ('component_b', '3', '1', '0'): 1,
+                ('component_b', '4', '1', '0'): 1,
+                ('component_c', '0', '1', '0'): 1,
+                ('component_c', '1', '1', '0'): 1,
+                ('component_c', '2', '1', '0'): 1,
+                ('component_d', '4', '1', '0'): 1,
+                ('component_e', '5', '1', '0'): 1,
+            },
+        }
 
-#         pd.testing.assert_series_equal(
-#             expected_cmp_units,
-#             asset_model.cmp_units,
-#             check_index_type=False,
-#         )
+        expected_cmp_units = pd.Series(
+            data=['ea'] * 5,
+            index=[f'component_{x}' for x in ('a', 'b', 'c', 'd', 'e')],
+            name='Units',
+        )
 
-#     def test_load_cmp_model_csv(self, asset_model):
-#         # load by directly specifying the csv file
-#         cmp_marginals = 'pelicun/tests/data/model/test_AssetModel/CMP'
-#         asset_model.load_cmp_model(cmp_marginals)
+        pd.testing.assert_series_equal(
+            expected_cmp_units,
+            asset_model.cmp_units,
+            check_index_type=False,
+        )
 
-#     def test_load_cmp_model_exceptions(self, asset_model):
-#         cmp_marginals = pd.read_csv(
-#             'pelicun/tests/data/model/test_AssetModel/CMP_marginals_invalid_loc.csv',
-#             index_col=0,
-#         )
-#         asset_model._asmnt.stories = 4
-#         with pytest.raises(ValueError):
-#             asset_model.load_cmp_model({'marginals': cmp_marginals})
+    def test_load_cmp_model_csv(self, asset_model):
+        # load by directly specifying the csv file
+        cmp_marginals = 'pelicun/tests/data/model/test_AssetModel/CMP'
+        asset_model.load_cmp_model(cmp_marginals)
 
-#         cmp_marginals = pd.read_csv(
-#             'pelicun/tests/data/model/test_AssetModel/CMP_marginals_invalid_dir.csv',
-#             index_col=0,
-#         )
-#         asset_model._asmnt.stories = 4
-#         with pytest.raises(ValueError):
-#             asset_model.load_cmp_model({'marginals': cmp_marginals})
+    def test_load_cmp_model_exceptions(self, asset_model):
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals_invalid_loc.csv',
+            index_col=0,
+        )
+        asset_model._asmnt.stories = 4
+        with pytest.raises(ValueError):
+            asset_model.load_cmp_model({'marginals': cmp_marginals})
 
-#     def test_generate_cmp_sample(self, asset_model):
-#         asset_model.cmp_marginal_params = pd.DataFrame(
-#             {'Theta_0': (8.0, 8.0, 8.0, 8.0), 'Blocks': (1.0, 1.0, 1.0, 1.0)},
-#             index=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('component_a', '1', '1', '0'),
-#                     ('component_a', '1', '2', '0'),
-#                     ('component_a', '2', '1', '0'),
-#                     ('component_a', '2', '2', '0'),
-#                 ),
-#                 names=('cmp', 'loc', 'dir', 'uid'),
-#             ),
-#         )
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals_invalid_dir.csv',
+            index_col=0,
+        )
+        asset_model._asmnt.stories = 4
+        with pytest.raises(ValueError):
+            asset_model.load_cmp_model({'marginals': cmp_marginals})
 
-#         asset_model.cmp_units = pd.Series(
-#             data=['ea'], index=['component_a'], name='Units'
-#         )
+    def test_generate_cmp_sample(self, asset_model):
+        asset_model.cmp_marginal_params = pd.DataFrame(
+            {'Theta_0': (8.0, 8.0, 8.0, 8.0), 'Blocks': (1.0, 1.0, 1.0, 1.0)},
+            index=pd.MultiIndex.from_tuples(
+                (
+                    ('component_a', '1', '1', '0'),
+                    ('component_a', '1', '2', '0'),
+                    ('component_a', '2', '1', '0'),
+                    ('component_a', '2', '2', '0'),
+                ),
+                names=('cmp', 'loc', 'dir', 'uid'),
+            ),
+        )
 
-#         asset_model.generate_cmp_sample(sample_size=10)
+        asset_model.cmp_units = pd.Series(
+            data=['ea'], index=['component_a'], name='Units'
+        )
 
-#         assert asset_model._cmp_RVs is not None
+        asset_model.generate_cmp_sample(sample_size=10)
 
-#         expected_cmp_sample = pd.DataFrame(
-#             {
-#                 ('component_a', f'{i}', f'{j}'): 8.0
-#                 for i in range(1, 3)
-#                 for j in range(1, 3)
-#             },
-#             index=range(10),
-#             columns=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('component_a', f'{i}', f'{j}', '0')
-#                     for i in range(1, 3)
-#                     for j in range(1, 3)
-#                 ),
-#                 names=('cmp', 'loc', 'dir', 'uid'),
-#             ),
-#         )
+        assert asset_model._cmp_RVs is not None
 
-#         pd.testing.assert_frame_equal(
-#             expected_cmp_sample,
-#             asset_model.cmp_sample,
-#             check_index_type=False,
-#             check_column_type=False,
-#         )
+        expected_cmp_sample = pd.DataFrame(
+            {
+                ('component_a', f'{i}', f'{j}'): 8.0
+                for i in range(1, 3)
+                for j in range(1, 3)
+            },
+            index=range(10),
+            columns=pd.MultiIndex.from_tuples(
+                (
+                    ('component_a', f'{i}', f'{j}', '0')
+                    for i in range(1, 3)
+                    for j in range(1, 3)
+                ),
+                names=('cmp', 'loc', 'dir', 'uid'),
+            ),
+        )
 
-#     # currently this is not working
-#     # def test_load_cmp_model_block_weights(self, asset_model):
-#     #     cmp_marginals = pd.read_csv(
-#     #         'pelicun/tests/data/model/test_AssetModel/CMP_marginals_block_weights.csv',
-#     #         index_col=0,
-#     #     )
-#     #     asset_model.load_cmp_model({'marginals': cmp_marginals})
+        pd.testing.assert_frame_equal(
+            expected_cmp_sample,
+            asset_model.cmp_sample,
+            check_index_type=False,
+            check_column_type=False,
+        )
 
-#     def test_generate_cmp_sample_exceptions_1(self, asset_model):
-#         # without marginal parameters
-#         with pytest.raises(ValueError):
-#             asset_model.generate_cmp_sample(sample_size=10)
+    # TODO: this currently fails
+    # def test_load_cmp_model_block_weights(self, asset_model):
+    #     cmp_marginals = pd.read_csv(
+    #         'pelicun/tests/data/model/test_AssetModel/CMP_marginals_block_weights.csv',
+    #         index_col=0,
+    #     )
+    #     asset_model.load_cmp_model({'marginals': cmp_marginals})
 
-#     def test_generate_cmp_sample_exceptions_2(self, asset_model):
-#         # without specifying sample size
-#         cmp_marginals = pd.read_csv(
-#             'pelicun/tests/data/model/test_AssetModel/CMP_marginals.csv',
-#             index_col=0,
-#         )
-#         asset_model.load_cmp_model({'marginals': cmp_marginals})
-#         with pytest.raises(ValueError):
-#             asset_model.generate_cmp_sample()
-#         # but it should work if a demand sample is available
-#         asset_model._asmnt.demand.sample = np.empty(shape=(10, 2))
-#         asset_model.generate_cmp_sample()
+    def test_generate_cmp_sample_exceptions_1(self, asset_model):
+        # without marginal parameters
+        with pytest.raises(ValueError):
+            asset_model.generate_cmp_sample(sample_size=10)
+
+    def test_generate_cmp_sample_exceptions_2(self, asset_model):
+        # without specifying sample size
+        cmp_marginals = pd.read_csv(
+            'pelicun/tests/data/model/test_AssetModel/CMP_marginals.csv',
+            index_col=0,
+        )
+        asset_model.load_cmp_model({'marginals': cmp_marginals})
+        with pytest.raises(ValueError):
+            asset_model.generate_cmp_sample()
+        # but it should work if a demand sample is available
+        asset_model._asmnt.demand.sample = np.empty(shape=(10, 2))
+        asset_model.generate_cmp_sample()

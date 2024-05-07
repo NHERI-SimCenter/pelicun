@@ -92,7 +92,7 @@ class DamageModel(PelicunModel):
         """
         return (self.ds_model,)
 
-    def load_model_parameters(self, data_paths):
+    def load_model_parameters(self, data_paths, cmp_set):
         """
         Load damage model parameters.
 
@@ -105,6 +105,10 @@ class DamageModel(PelicunModel):
             prior elements in the list take precedence over the same
             parameters in subsequent data paths. I.e., place the
             Default datasets in the back.
+        cmp_set: set
+            Set of component IDs that are present in the asset model.
+            Damage parameters in the input files for components
+            outside of that set are omitted for performance.
 
         Raises
         ------
@@ -446,8 +450,8 @@ class DamageModel_Base(PelicunModel):
 
         Parameters
         ----------
-        cmp_list: list
-            List of component IDs to be preserved in the damage
+        cmp_set: set
+            Set of component IDs to be preserved in the damage
             parameters.
         """
 
