@@ -449,7 +449,7 @@ def run_pelicun(
         )
     if not sample_size_str:
         # give up
-        print('Sampling size not provided in config file.')
+        print('Sample size not provided in config file.')
         return -1
     sample_size = int(sample_size_str)
 
