@@ -45,7 +45,7 @@ setup(
         'numpy>=1.22.0, <2.0',
         'scipy>=1.7.0, <2.0',
         'pandas>=1.4.0, <3.0',
-        'tables>=3.7.0',
+        #'tables>=3.7.0',
     ],
     extras_require={
         'development': [
