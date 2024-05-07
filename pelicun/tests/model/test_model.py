@@ -55,16 +55,16 @@ from pelicun import assessment
 # pylint: disable=missing-class-docstring
 # pylint: disable=arguments-renamed
 
-# class TestModelModule:
-#     @pytest.fixture
-#     def assessment_factory(self):
-#         def create_instance(verbose):
-#             x = assessment.Assessment()
-#             x.log.verbose = verbose
-#             return x
+class TestModelModule:
+    @pytest.fixture
+    def assessment_factory(self):
+        def create_instance(verbose):
+            x = assessment.Assessment()
+            x.log.verbose = verbose
+            return x
 
-#         return create_instance
+        return create_instance
 
-#     @pytest.fixture(params=[True, False])
-#     def assessment_instance(self, request, assessment_factory):
-#         return deepcopy(assessment_factory(request.param))
+    @pytest.fixture(params=[True, False])
+    def assessment_instance(self, request, assessment_factory):
+        return deepcopy(assessment_factory(request.param))

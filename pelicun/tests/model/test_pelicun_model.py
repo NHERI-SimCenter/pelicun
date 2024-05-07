@@ -50,130 +50,160 @@ import numpy as np
 import pandas as pd
 from pelicun import model
 from pelicun import assessment
+from pelicun.tests.model.test_model import TestModelModule
+
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 # pylint: disable=arguments-renamed
 
-# class TestPelicunModel(TestModelModule):
-#     @pytest.fixture
-#     def pelicun_model(self, assessment_instance):
-#         return deepcopy(model.PelicunModel(assessment_instance))
+class TestPelicunModel(TestModelModule):
+    @pytest.fixture
+    def pelicun_model(self, assessment_instance):
+        return deepcopy(model.PelicunModel(assessment_instance))
 
-#     def test_init(self, pelicun_model):
-#         assert pelicun_model.log_msg
-#         assert pelicun_model.log_div
+    def test_init(self, pelicun_model):
+        assert pelicun_model.log_msg
+        assert pelicun_model.log_div
 
-#     def test_convert_marginal_params(self, pelicun_model):
-#         # one row, only Theta_0, no conversion
-#         marginal_params = pd.DataFrame(
-#             [['1.0']],
-#             columns=['Theta_0'],
-#             index=pd.MultiIndex.from_tuples(
-#                 (('A', '0', '1'),), names=('cmp', 'loc', 'dir')
-#             ),
-#         )
-#         units = pd.Series(['ea'], index=marginal_params.index)
-#         arg_units = None
-#         res = pelicun_model.convert_marginal_params(
-#             marginal_params, units, arg_units
-#         )
+    def test__convert_marginal_params(self, pelicun_model):
+        # one row, only Theta_0, no conversion
+        marginal_params = pd.DataFrame(
+            [['1.0']],
+            columns=['Theta_0'],
+            index=pd.MultiIndex.from_tuples(
+                (('A', '0', '1'),), names=('cmp', 'loc', 'dir')
+            ),
+        )
+        units = pd.Series(['ea'], index=marginal_params.index)
+        arg_units = None
+        res = pelicun_model._convert_marginal_params(
+            marginal_params, units, arg_units
+        )
 
-#         # >>> res
-#         #             Theta_0
-#         # cmp loc dir
-#         # A   0   1       1.0
+        # >>> res
+        #             Theta_0
+        # cmp loc dir
+        # A   0   1       1.0
 
-#         assert 'Theta_0' in res.columns
-#         assert res.to_dict() == {'Theta_0': {('A', '0', '1'): 1.0}}
+        assert 'Theta_0' in res.columns
+        assert res.to_dict() == {'Theta_0': {('A', '0', '1'): 1.0}}
 
-#         # many rows, with conversions
-#         marginal_params = pd.DataFrame(
-#             [
-#                 [np.nan, 1.0, np.nan, np.nan, np.nan, np.nan],
-#                 ['normal', np.nan, 1.0, np.nan, -0.50, 0.50],
-#                 ['lognormal', 1.0, 0.5, np.nan, 0.50, 1.50],
-#                 ['uniform', 0.0, 10.0, np.nan, np.nan, np.nan],
-#             ],
-#             columns=[
-#                 'Family',
-#                 'Theta_0',
-#                 'Theta_1',
-#                 'Theta_2',
-#                 'TruncateLower',
-#                 'TruncateUpper',
-#             ],
-#             index=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('A', '0', '1'),
-#                     ('B', '0', '1'),
-#                     ('C', '0', '1'),
-#                     ('D', '0', '1'),
-#                 ),
-#                 names=('cmp', 'loc', 'dir'),
-#             ),
-#         )
-#         units = pd.Series(['ea', 'ft', 'in', 'in2'], index=marginal_params.index)
-#         arg_units = None
-#         res = pelicun_model.convert_marginal_params(
-#             marginal_params, units, arg_units
-#         )
+        # many rows, with conversions
+        marginal_params = pd.DataFrame(
+            [
+                [np.nan, 1.0, np.nan, np.nan, np.nan, np.nan],
+                ['normal', np.nan, 1.0, np.nan, -0.50, 0.50],
+                ['lognormal', 1.0, 0.5, np.nan, 0.50, 1.50],
+                ['uniform', 0.0, 10.0, np.nan, np.nan, np.nan],
+            ],
+            columns=[
+                'Family',
+                'Theta_0',
+                'Theta_1',
+                'Theta_2',
+                'TruncateLower',
+                'TruncateUpper',
+            ],
+            index=pd.MultiIndex.from_tuples(
+                (
+                    ('A', '0', '1'),
+                    ('B', '0', '1'),
+                    ('C', '0', '1'),
+                    ('D', '0', '1'),
+                ),
+                names=('cmp', 'loc', 'dir'),
+            ),
+        )
+        units = pd.Series(['ea', 'ft', 'in', 'in2'], index=marginal_params.index)
+        arg_units = None
+        res = pelicun_model._convert_marginal_params(
+            marginal_params, units, arg_units
+        )
 
-#         expected_df = pd.DataFrame(
-#             {
-#                 'Family': [np.nan, 'normal', 'lognormal', 'uniform'],
-#                 'Theta_0': [1.0000, np.nan, 0.0254, 0.0000],
-#                 'Theta_1': [np.nan, 1.000000, 0.500000, 0.0064516],
-#                 'Theta_2': [np.nan, np.nan, np.nan, np.nan],
-#                 'TruncateLower': [np.nan, -0.1524, 0.0127, np.nan],
-#                 'TruncateUpper': [np.nan, 0.1524, 0.0381, np.nan],
-#             },
-#             index=pd.MultiIndex.from_tuples(
-#                 (
-#                     ('A', '0', '1'),
-#                     ('B', '0', '1'),
-#                     ('C', '0', '1'),
-#                     ('D', '0', '1'),
-#                 ),
-#                 names=('cmp', 'loc', 'dir'),
-#             ),
-#         )
+        expected_df = pd.DataFrame(
+            {
+                'Family': [np.nan, 'normal', 'lognormal', 'uniform'],
+                'Theta_0': [1.0000, np.nan, 0.0254, 0.0000],
+                'Theta_1': [np.nan, 1.000000, 0.500000, 0.0064516],
+                'Theta_2': [np.nan, np.nan, np.nan, np.nan],
+                'TruncateLower': [np.nan, -0.1524, 0.0127, np.nan],
+                'TruncateUpper': [np.nan, 0.1524, 0.0381, np.nan],
+            },
+            index=pd.MultiIndex.from_tuples(
+                (
+                    ('A', '0', '1'),
+                    ('B', '0', '1'),
+                    ('C', '0', '1'),
+                    ('D', '0', '1'),
+                ),
+                names=('cmp', 'loc', 'dir'),
+            ),
+        )
 
-#         pd.testing.assert_frame_equal(
-#             expected_df, res, check_index_type=False, check_column_type=False
-#         )
+        pd.testing.assert_frame_equal(
+            expected_df, res, check_index_type=False, check_column_type=False
+        )
 
-#         # a case with arg_units
-#         marginal_params = pd.DataFrame(
-#             [['500.0,400.00|20,10']],
-#             columns=['Theta_0'],
-#             index=pd.MultiIndex.from_tuples(
-#                 (('A', '0', '1'),), names=('cmp', 'loc', 'dir')
-#             ),
-#         )
-#         units = pd.Series(['test_three'], index=marginal_params.index)
-#         arg_units = pd.Series(['test_two'], index=marginal_params.index)
-#         res = pelicun_model.convert_marginal_params(
-#             marginal_params, units, arg_units
-#         )
+        # a case with arg_units
+        marginal_params = pd.DataFrame(
+            [['500.0,400.00|20,10']],
+            columns=['Theta_0'],
+            index=pd.MultiIndex.from_tuples(
+                (('A', '0', '1'),), names=('cmp', 'loc', 'dir')
+            ),
+        )
+        units = pd.Series(['test_three'], index=marginal_params.index)
+        arg_units = pd.Series(['test_two'], index=marginal_params.index)
+        res = pelicun_model._convert_marginal_params(
+            marginal_params, units, arg_units
+        )
 
-#         # >>> res
-#         #                              Theta_0
-#         # cmp loc dir
-#         # A   0   1    750,600|40,20
+        # >>> res
+        #                              Theta_0
+        # cmp loc dir
+        # A   0   1    750,600|40,20
 
-#         # note: '40,20' = '20,10' * 2.00 (test_two)
-#         # note: '750,600' = '500,400' * 3.00 / 2.00 (test_three/test_two)
+        # note: '40,20' = '20,10' * 2.00 (test_two)
+        # note: '750,600' = '500,400' * 3.00 / 2.00 (test_three/test_two)
 
-#         expected_df = pd.DataFrame(
-#             {
-#                 'Theta_0': ['750,600|40,20'],
-#             },
-#             index=pd.MultiIndex.from_tuples(
-#                 (('A', '0', '1'),),
-#                 names=('cmp', 'loc', 'dir'),
-#             ),
-#         )
-#         pd.testing.assert_frame_equal(
-#             expected_df, res, check_index_type=False, check_column_type=False
-#         )
+        expected_df = pd.DataFrame(
+            {
+                'Theta_0': ['750,600|40,20'],
+            },
+            index=pd.MultiIndex.from_tuples(
+                (('A', '0', '1'),),
+                names=('cmp', 'loc', 'dir'),
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            expected_df, res, check_index_type=False, check_column_type=False
+        )
+
+        # a case with arg_units where we don't divide
+        marginal_params = pd.DataFrame(
+            [['1.00,2.00|1.00,4.00']],
+            columns=['Theta_0'],
+            index=[1],
+        )
+        units = pd.Series(['test_three'], index=marginal_params.index)
+        arg_units = pd.Series(['test_two'], index=marginal_params.index)
+        res = pelicun_model._convert_marginal_params(
+            marginal_params, units, arg_units, divide_units=False
+        )
+
+        #    Theta_0
+        # 1  3,6|2,8
+
+        # note: '3,6' = '1,2' * 3.00 (test_three)
+        # note: '2,8' = '1,4' * 2.00 (test_two)
+
+        expected_df = pd.DataFrame(
+            {
+                'Theta_0': ['3,6|2,8'],
+            },
+            index=[1],
+        )
+        pd.testing.assert_frame_equal(
+            expected_df, res, check_index_type=False, check_column_type=False
+        )

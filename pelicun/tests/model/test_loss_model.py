@@ -489,3 +489,42 @@ from pelicun import assessment
 #             ('repair_time', 'sequential'): {0: 1.0},
 #         }
             
+def test__prep_constant_median_DV():
+    median = 10.00
+    constant_median_DV = model.loss_model._prep_constant_median_DV(median)
+    assert constant_median_DV() == median
+    values = (1.0, 2.0, 3.0, 4.0, 5.0)
+    for value in values:
+        assert constant_median_DV(value) == 10.00
+
+def test__prep_bounded_multilinear_median_DV():
+    medians = np.array((1.00, 2.00, 3.00, 4.00, 5.00))
+    quantities = np.array((0.00, 1.00, 2.00, 3.00, 4.00))
+    f = model.loss_model._prep_bounded_multilinear_median_DV(medians, quantities)
+
+    result = f(2.5)
+    expected = 3.5
+    assert result == expected
+
+    result = f(0.00)
+    expected = 1.00
+    assert result == expected
+
+    result = f(4.00)
+    expected = 5.0
+    assert result == expected
+
+    result = f(-1.00)
+    expected = 1.00
+    assert result == expected
+
+    result = f(5.00)
+    expected = 5.00
+    assert result == expected
+
+    result_list = f([2.5, 3.5])
+    expected_list = [3.5, 4.5]
+    assert np.allclose(result_list, expected_list)
+
+    with pytest.raises(ValueError):
+        f(None)
