@@ -421,7 +421,7 @@ def run_pelicun(
 
                 config_ap['DL']['Outputs']['Settings'].update(
                     regional_out_config['Settings']
-                )
+                )            
 
             # save the extended config to a file
             config_ap_path = Path(config_path.stem + '_ap.json').resolve()
@@ -457,7 +457,7 @@ def run_pelicun(
     sample_size = int(sample_size_str)
 
     # provide all outputs if the files are not specified
-    if ('Outputs' not in config) or (not config['Outputs']):
+    if ('Outputs' not in config['DL']) or (not config['DL']['Outputs']):
         config['DL']['Outputs'] = full_out_config
 
     # provide outputs in CSV by default
