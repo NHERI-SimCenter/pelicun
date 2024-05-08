@@ -14,6 +14,7 @@
 
 ![Tests](https://github.com/NHERI-SimCenter/pelicun/actions/workflows/tests.yml/badge.svg)
 [![codecov](https://codecov.io/github/NHERI-SimCenter/pelicun/branch/master/graph/badge.svg?token=W79M5FGOCG)](https://codecov.io/github/NHERI-SimCenter/pelicun/tree/master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## What is it?
 
