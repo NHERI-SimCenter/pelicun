@@ -50,6 +50,7 @@ import numpy as np
 import pandas as pd
 from pelicun import model
 from pelicun import assessment
+from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
@@ -486,7 +487,103 @@ from pelicun import assessment
 #             ('repair_time', 'parallel'): {0: 1.0},
 #             ('repair_time', 'sequential'): {0: 1.0},
 #         }
-            
+
+
+class TestLossModel(TestPelicunModel):
+    def test___init__(self):
+        pass
+
+    def test_decision_variables(self):
+        pass
+
+    def test_decision_variables(self):
+        pass
+
+    def test_add_loss_map(self):
+        pass
+
+    def test_load_model_parameters(self):
+        pass
+
+    def test_calculate(self):
+        pass
+
+    def test_save_sample(self):
+        pass
+
+    def test_load_sample(self):
+        pass
+
+    def test_aggregate_losses(self):
+        pass
+
+    def test__loss_models(self):
+        pass
+
+    def test__loss_map(self):
+        pass
+
+    def test__loss_map(self):
+        pass
+
+    def test__missing(self):
+        pass
+
+    def test__missing(self):
+        pass
+
+    def test__ensure_loss_parameter_availability(self):
+        pass
+
+
+class TestRepairModel_Base(TestPelicunModel):
+    def test___init__(self):
+        pass
+
+    def test__load_model_parameters(self):
+        pass
+
+    def test__drop_unused_loss_parameters(self):
+        pass
+
+    def test__remove_incomplete_components(self):
+        pass
+
+    def test__get_available(self):
+        pass
+
+
+class TestRepairModel_DS(TestRepairModel_Base):
+    def test__calculate(self):
+        pass
+
+    def test__aggregate_losses(self):
+        pass
+
+    def test__convert_loss_parameter_units(self):
+        pass
+
+    def test__drop_unused_damage_states(self):
+        pass
+
+    def test__create_DV_RVs(self):
+        pass
+
+    def test__calc_median_consequence(self):
+        pass
+
+
+class TestRepairModel_LF(TestRepairModel_Base):
+    def test__calculate(self):
+        pass
+
+    def test__convert_loss_parameter_units(self):
+        pass
+
+    def test__calc_median_consequence(self):
+        pass
+
+
 def test__prep_constant_median_DV():
     median = 10.00
     constant_median_DV = model.loss_model._prep_constant_median_DV(median)
@@ -494,6 +591,7 @@ def test__prep_constant_median_DV():
     values = (1.0, 2.0, 3.0, 4.0, 5.0)
     for value in values:
         assert constant_median_DV(value) == 10.00
+
 
 def test__prep_bounded_multilinear_median_DV():
     medians = np.array((1.00, 2.00, 3.00, 4.00, 5.00))
@@ -526,3 +624,11 @@ def test__prep_bounded_multilinear_median_DV():
 
     with pytest.raises(ValueError):
         f(None)
+
+
+def _is_for_lf_model(data):
+    pass
+
+
+def _is_for_ds_model(data):
+    pass
