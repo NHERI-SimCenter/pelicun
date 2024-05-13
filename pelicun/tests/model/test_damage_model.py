@@ -83,8 +83,12 @@ class TestDamageModel(TestPelicunModel):
 
         assert len(damage_model.damage_models) == 1
 
-    def test_damage_models(self):
-        pass
+    def test_damage_models(self, assessment_instance):
+
+        damage_model = DamageModel(assessment_instance)
+        assert damage_model.damage_models is not None
+        assert len(damage_model.damage_models) == 1
+        assert isinstance(damage_model.damage_models[0], DamageModel_DS)
 
     def test_load_model_parameters(self, damage_model):
         path = (
