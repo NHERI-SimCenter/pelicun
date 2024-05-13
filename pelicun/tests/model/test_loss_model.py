@@ -75,11 +75,11 @@ class TestLossModel(TestPelicunModel):
 
         assert len(loss_model._loss_models) == 2
 
-    def test_decision_variables(self):
-        pass
-
-    def test_decision_variables(self):
-        pass
+    def test_decision_variables(self, loss_model):
+        dvs = ('Carbon', 'Cost', 'Energy', 'Time')
+        assert loss_model.decision_variables == dvs
+        assert loss_model.ds_model.decision_variables == dvs
+        assert loss_model.lf_model.decision_variables == dvs
 
     def test_add_loss_map(self):
         pass
@@ -99,20 +99,37 @@ class TestLossModel(TestPelicunModel):
     def test_aggregate_losses(self):
         pass
 
-    def test__loss_models(self):
-        pass
+    def test__loss_models(self, loss_model):
+        models = loss_model._loss_models
+        assert len(models) == 2
+        assert isinstance(models[0], RepairModel_DS)
+        assert isinstance(models[1], RepairModel_LF)
 
-    def test__loss_map(self):
-        pass
+    def test__loss_map(self, loss_model):
+        loss_map = loss_map = pd.DataFrame(
+            {
+                'Repair': ['consequence_A', 'consequence_B'],
+            },
+            index=['cmp_A', 'cmp_B'],
+        )
+        # test setter
+        loss_model._loss_map = loss_map
+        # test getter
+        pd.testing.assert_frame_equal(loss_model._loss_map, loss_map)
+        for model in loss_model._loss_models:
+            pd.testing.assert_frame_equal(model._loss_map, loss_map)
 
-    def test__loss_map(self):
-        pass
-
-    def test__missing(self):
-        pass
-
-    def test__missing(self):
-        pass
+    def test__missing(self, loss_model):
+        missing = {
+            ('missing.component', 'Time'),
+            ('missing.component', 'Energy'),
+        }
+        # test setter
+        loss_model._missing = missing
+        # test getter
+        assert loss_model._missing == missing
+        for model in loss_model._loss_models:
+            assert model._missing == missing
 
     def test__ensure_loss_parameter_availability(self):
         pass
@@ -208,9 +225,9 @@ def test__prep_bounded_multilinear_median_DV():
         f(None)
 
 
-def _is_for_lf_model():
+def test__is_for_lf_model():
     pass
 
 
-def _is_for_ds_model():
+def test__is_for_ds_model():
     pass
