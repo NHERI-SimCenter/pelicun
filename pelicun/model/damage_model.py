@@ -379,14 +379,6 @@ class DamageModel(PelicunModel):
         return missing_components
 
 
-def _is_for_ds_model(data):
-    """
-    Determines if the specified damage model parameters are for
-    components modeled with discrete Damage States (DS).
-    """
-    return 'LS1' in data.columns.get_level_values(0)
-
-
 class DamageModel_Base(PelicunModel):
     """
     Base class for damage models
@@ -469,7 +461,6 @@ class DamageModel_Base(PelicunModel):
             Set of component IDs to be preserved in the damage
             parameters.
         """
-
         if self.damage_params is None:
             return
         cmp_mask = self.damage_params.index.isin(cmp_set, level=0)
@@ -1705,3 +1696,11 @@ class DamageModel_DS(DamageModel_Base):
         res.loc[:, dmg_sample.columns.to_list()] = dmg_sample
 
         return res
+
+
+def _is_for_ds_model(data):
+    """
+    Determines if the specified damage model parameters are for
+    components modeled with discrete Damage States (DS).
+    """
+    return 'LS1' in data.columns.get_level_values(0)

@@ -145,25 +145,134 @@ class TestDamageModel(TestPelicunModel):
         pass
 
 
-def test__is_for_ds_model():
-    pass
-
-
 class TestDamageModel_Base(TestPelicunModel):
-    def test___init__(self):
-        pass
+    def test___init__(self, assessment_instance):
 
-    def test__load_model_parameters(self):
-        pass
+        damage_model = DamageModel_DS(assessment_instance)
+        with pytest.raises(AttributeError):
+            damage_model.xyz = 123
 
-    def test__convert_damage_parameter_units(self):
-        pass
+    def test__load_model_parameters(self, assessment_instance):
 
-    def test__remove_incomplete_components(self):
-        pass
+        damage_model = DamageModel_DS(assessment_instance)
 
-    def test__drop_unused_damage_parameters(self):
-        pass
+        damage_model.damage_params = pd.DataFrame(
+            {
+                ('Demand', 'Type'): ['Type1', 'Type2'],
+                ('LS1', 'Theta_0'): [0.1, 0.2],
+            },
+            index=pd.Index(['cmp.1', 'cmp.2'], name='ID'),
+        )
+
+        # New data to be loaded, which contains a redefinition and a
+        # new parameter
+        new_data = pd.DataFrame(
+            {
+                ('Demand', 'Type'): ['Type3', 'Type4'],
+                ('LS1', 'Theta_0'): [0.3, 0.4],
+            },
+            index=pd.Index(['cmp.1', 'cmp.3'], name='ID'),
+        )
+
+        damage_model._load_model_parameters(new_data)
+
+        pd.testing.assert_frame_equal(
+            damage_model.damage_params,
+            pd.DataFrame(
+                {
+                    ('Demand', 'Type'): ['Type1', 'Type2', 'Type4'],
+                    ('LS1', 'Theta_0'): [0.1, 0.2, 0.4],
+                },
+                index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3'], name='ID'),
+            ),
+        )
+
+    def test__convert_damage_parameter_units(self, assessment_instance):
+
+        damage_model = DamageModel_DS(assessment_instance)
+
+        # should have no effect when damage_params is None
+        damage_model._convert_damage_parameter_units()
+
+        # converting units from 'g' to 'm/s2' (1g ~ 9.80665 m/s2)
+
+        damage_model.damage_params = pd.DataFrame(
+            {
+                ('Demand', 'Unit'): ['g', 'g'],
+                ('LS1', 'Theta_0'): [0.5, 0.2],  # Values in g's
+            },
+            index=pd.Index(['cmp.1', 'cmp.2'], name='ID'),
+        )
+
+        damage_model._convert_damage_parameter_units()
+
+        pd.testing.assert_frame_equal(
+            damage_model.damage_params,
+            pd.DataFrame(
+                {
+                    ('LS1', 'Theta_0'): [
+                        0.5 * 9.80665,
+                        0.2 * 9.80665,
+                    ],
+                },
+                index=pd.Index(['cmp.1', 'cmp.2'], name='ID'),
+            ),
+        )
+
+    def test__remove_incomplete_components(self, assessment_instance):
+
+        damage_model = DamageModel_DS(assessment_instance)
+
+        # with damage_model.damage_params set to None this should have
+        # no effect.
+        damage_model._remove_incomplete_components()
+
+        damage_model.damage_params = pd.DataFrame(
+            {
+                ('Demand', 'Type'): ['Type1', 'Type2', 'Type3', 'Type4'],
+                ('Incomplete', ''): [0, 1, 0, 1],
+            },
+            index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3', 'cmp.4'], name='ID'),
+        )
+
+        damage_model._remove_incomplete_components()
+
+        pd.testing.assert_frame_equal(
+            damage_model.damage_params,
+            pd.DataFrame(
+                {
+                    ('Demand', 'Type'): ['Type1', 'Type3'],
+                    # Only complete components remain
+                    ('Incomplete', ''): [0, 0],
+                },
+                index=pd.Index(['cmp.1', 'cmp.3'], name='ID'),
+            ),
+        )
+
+        # with damage_model.damage_params set to None this should have
+        # no effect.
+        damage_model.damage_params.drop(('Incomplete', ''), axis=1, inplace=True)
+        # now, this should also have no effect
+        before = damage_model.damage_params.copy()
+        damage_model._remove_incomplete_components()
+        pd.testing.assert_frame_equal(before, damage_model.damage_params)
+
+    def test__drop_unused_damage_parameters(self, assessment_instance):
+
+        damage_model = DamageModel_DS(assessment_instance)
+
+        damage_model.damage_params = pd.DataFrame(
+            index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3', 'cmp.4'], name='ID')
+        )
+
+        cmp_set = {'cmp.1', 'cmp.3'}
+
+        damage_model._drop_unused_damage_parameters(cmp_set)
+
+        pd.testing.assert_frame_equal(
+            damage_model.damage_params,
+            pd.DataFrame(index=pd.Index(['cmp.1', 'cmp.3'], name='ID')),
+        )
 
     def test__get_pg_batches(self, assessment_instance):
 
@@ -286,7 +395,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('cmp.2', '1', '1', '1', '2'): [1, 1],
                     ('cmp.3', '1', '1', '1', '1'): [0, 0],
                 },
-                dtype='int64'
+                dtype='int64',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block']),
         )
 
@@ -927,6 +1036,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 }
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
         )
+
+
+def test__is_for_ds_model():
+    pass
 
 
 # class TestDamageModel(TestPelicunModel):
