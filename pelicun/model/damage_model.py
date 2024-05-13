@@ -215,7 +215,6 @@ class DamageModel(PelicunModel):
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
-
         qnt_sample = self.ds_model._prepare_dmg_quantities(
             ds_sample,
             self._asmnt.asset.cmp_sample,
@@ -733,7 +732,7 @@ class DamageModel_DS(DamageModel_Base):
             return initial_value * other_value
         if operation == '/':
             return initial_value / other_value
-        raise ValueError(f'Invalid operation: {operation}')
+        raise ValueError(f'Invalid operation: `{operation}`')
 
     def _create_dmg_RVs(self, PGB, scaling_specification=None):
         """
@@ -1617,6 +1616,7 @@ class DamageModel_DS(DamageModel_Base):
           damage states for each component.
 
         """
+
         # get a shortcut for the damage model parameters
         DP = self.damage_params
 
