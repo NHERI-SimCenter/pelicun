@@ -81,22 +81,22 @@ class TestLossModel(TestPelicunModel):
         assert loss_model.ds_model.decision_variables == dvs
         assert loss_model.lf_model.decision_variables == dvs
 
-    def test_add_loss_map(self):
+    def TODO_test_add_loss_map(self):
         pass
 
-    def test_load_model_parameters(self):
+    def TODO_test_load_model_parameters(self):
         pass
 
-    def test_calculate(self):
+    def TODO_test_calculate(self):
         pass
 
-    def test_save_sample(self):
+    def TODO_test_save_sample(self):
         pass
 
-    def test_load_sample(self):
+    def TODO_test_load_sample(self):
         pass
 
-    def test_aggregate_losses(self):
+    def TODO_test_aggregate_losses(self):
         pass
 
     def test__loss_models(self, loss_model):
@@ -131,55 +131,55 @@ class TestLossModel(TestPelicunModel):
         for model in loss_model._loss_models:
             assert model._missing == missing
 
-    def test__ensure_loss_parameter_availability(self):
+    def TODO_test__ensure_loss_parameter_availability(self):
         pass
 
 
 class TestRepairModel_Base(TestPelicunModel):
-    def test___init__(self):
+    def TODO_test___init__(self):
         pass
 
-    def test__load_model_parameters(self):
+    def TODO_test__load_model_parameters(self):
         pass
 
-    def test__drop_unused_loss_parameters(self):
+    def TODO_test__drop_unused_loss_parameters(self):
         pass
 
-    def test__remove_incomplete_components(self):
+    def TODO_test__remove_incomplete_components(self):
         pass
 
-    def test__get_available(self):
+    def TODO_test__get_available(self):
         pass
 
 
 class TestRepairModel_DS(TestRepairModel_Base):
-    def test__calculate(self):
+    def TODO_test__calculate(self):
         pass
 
-    def test__aggregate_losses(self):
+    def TODO_test__aggregate_losses(self):
         pass
 
-    def test__convert_loss_parameter_units(self):
+    def TODO_test__convert_loss_parameter_units(self):
         pass
 
-    def test__drop_unused_damage_states(self):
+    def TODO_test__drop_unused_damage_states(self):
         pass
 
-    def test__create_DV_RVs(self):
+    def TODO_test__create_DV_RVs(self):
         pass
 
-    def test__calc_median_consequence(self):
+    def TODO_test__calc_median_consequence(self):
         pass
 
 
 class TestRepairModel_LF(TestRepairModel_Base):
-    def test__calculate(self):
+    def TODO_test__calculate(self):
         pass
 
-    def test__convert_loss_parameter_units(self):
+    def TODO_test__convert_loss_parameter_units(self):
         pass
 
-    def test__calc_median_consequence(self):
+    def TODO_test__calc_median_consequence(self):
         pass
 
 
@@ -225,9 +225,9 @@ def test__prep_bounded_multilinear_median_DV():
         f(None)
 
 
-def test__is_for_lf_model():
+def TODO_test__is_for_lf_model():
     pass
 
 
-def test__is_for_ds_model():
+def TODO_test__is_for_ds_model():
     pass
