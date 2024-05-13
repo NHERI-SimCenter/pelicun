@@ -51,13 +51,33 @@ import pandas as pd
 from pelicun import model
 from pelicun import assessment
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
+from pelicun.model.loss_model import LossModel
+from pelicun.model.loss_model import RepairModel_Base
+from pelicun.model.loss_model import RepairModel_DS
+from pelicun.model.loss_model import RepairModel_LF
+from pelicun.model.loss_model import _is_for_ds_model
+from pelicun.model.loss_model import _is_for_lf_model
+from pelicun.warnings import PelicunWarning
 
 # pylint: disable=missing-class-docstring
 
 
 class TestLossModel(TestPelicunModel):
-    def test___init__(self):
-        pass
+
+    @pytest.fixture
+    def loss_model(self, assessment_instance):
+        return deepcopy(assessment_instance.loss)
+
+    def test___init__(self, loss_model):
+        assert loss_model.log
+        assert loss_model.ds_model
+        with pytest.raises(AttributeError):
+            loss_model.xyz = 123
+
+        assert loss_model.ds_model.loss_params is None
+        assert loss_model.ds_model.sample is None
+
+        assert len(loss_model._loss_models) == 2
 
     def test_decision_variables(self):
         pass
