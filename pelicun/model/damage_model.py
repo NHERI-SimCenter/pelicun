@@ -191,9 +191,28 @@ class DamageModel(PelicunModel):
         self.log.div()
         self.log.msg('Calculating damages...')
 
+        # Instantiate `component_blocks`
+        if 'Blocks' in self._asmnt.asset.cmp_marginal_params.columns:
+            # If a `Blocks` column is available, use `cmp_marginals`
+            component_blocks = (
+                self._asmnt.asset.cmp_marginal_params['Blocks']
+                .to_frame()
+                .astype('int64')
+            )
+        else:
+            # Otherwise asume 1.00 for the number of blocks and
+            # initialize `component_blocks` using the columns of `cmp_sample`.
+            component_blocks = pd.DataFrame(
+                np.ones(self._asmnt.asset.cmp_sample.shape[1]),
+                index=self._asmnt.asset.cmp_sample.columns,
+                columns=['Blocks'],
+                dtype='int64',
+            )
+
         # obtain damage states for applicable components
         ds_sample = self.ds_model._obtain_ds_sample(
             demand_sample=self._asmnt.demand.sample,
+            component_blocks=component_blocks,
             block_batch_size=block_batch_size,
             scaling_specification=scaling_specification,
             missing_components=self.missing_components,
@@ -450,7 +469,9 @@ class DamageModel_Base(PelicunModel):
         cmp_mask = self.damage_params.index.isin(cmp_set, level=0)
         self.damage_params = self.damage_params.iloc[cmp_mask, :]
 
-    def _get_pg_batches(self, block_batch_size, missing_components):
+    def _get_pg_batches(
+        self, component_blocks, block_batch_size, missing_components
+    ):
         """
         Group performance groups into batches for efficient damage
         assessment.
@@ -479,6 +500,10 @@ class DamageModel_Base(PelicunModel):
 
         Parameters
         ----------
+
+        component_blocks: pd.DataFrame
+            Dataframe containing a singe column, `Blocks`, which lists
+            the number of blocks for each (`cmp`-`loc`-`dir`-`uid`).
         block_batch_size: int
             Maximum number of components in each batch.
         missing_components: list[str]
@@ -498,56 +523,40 @@ class DamageModel_Base(PelicunModel):
 
         """
 
-        # Get the marginal parameters for the components from the
-        # asset model
-        cmp_marginals = self._asmnt.asset.cmp_marginal_params
-        cmp_sample = self._asmnt.asset.cmp_sample
-
-        # Initialize the batch dataframe
-        pg_batch = None
-
-        # Instantiate `pg_batch`
-        if 'Blocks' in cmp_marginals.columns:
-            # If a `Blocks` column is available, use `cmp_marginals`
-            pg_batch = cmp_marginals['Blocks'].to_frame().astype('int64')
-        else:
-            # Otherwise asume 1.00 for the number of blocks and
-            # initialize `pg_batch` using the columns of `cmp_sample`.
-            pg_batch = pd.DataFrame(
-                np.ones(cmp_sample.shape[1]),
-                index=cmp_sample.columns,
-                columns=['Blocks'],
-                dtype='int64',
-            )
-
         # A warning has already been issued for components with
         # missing damage parameters (in
         # `DamageModel._ensure_damage_parameter_availability`).
-        pg_batch.drop(pd.Index(missing_components), inplace=True)
+        component_blocks.drop(pd.Index(missing_components), inplace=True)
 
         # It is safe to simply disregard components that are not
         # present in the `damage_params` of *this* model, and let them
         # be handled by another damage model.
         available_components = self.damage_params.index.unique().to_list()
-        pg_batch = pg_batch.loc[pd.IndexSlice[available_components, :, :, :], :]
+        component_blocks = component_blocks.loc[
+            pd.IndexSlice[available_components, :, :, :], :
+        ]
 
         # Sum up the number of blocks for each performance group
-        pg_batch = pg_batch.groupby(['loc', 'dir', 'cmp', 'uid']).sum()
-        pg_batch.sort_index(axis=0, inplace=True)
+        component_blocks = component_blocks.groupby(
+            ['loc', 'dir', 'cmp', 'uid']
+        ).sum()
+        component_blocks.sort_index(axis=0, inplace=True)
 
         # Calculate cumulative sum of blocks
-        pg_batch['CBlocks'] = np.cumsum(pg_batch['Blocks'].values.astype(int))
-        pg_batch['Batch'] = 0
+        component_blocks['CBlocks'] = np.cumsum(
+            component_blocks['Blocks'].values.astype(int)
+        )
+        component_blocks['Batch'] = 0
 
         # Group the performance groups into batches
-        for batch_i in range(1, pg_batch.shape[0] + 1):
+        for batch_i in range(1, component_blocks.shape[0] + 1):
             # Find the mask for blocks that are less than the batch
             # size and greater than 0
             batch_mask = np.all(
                 np.array(
                     [
-                        pg_batch['CBlocks'] <= block_batch_size,
-                        pg_batch['CBlocks'] > 0,
+                        component_blocks['CBlocks'] <= block_batch_size,
+                        component_blocks['CBlocks'] > 0,
                     ]
                 ),
                 axis=0,
@@ -555,32 +564,32 @@ class DamageModel_Base(PelicunModel):
 
             if np.sum(batch_mask) < 1:
                 batch_mask = np.full(batch_mask.shape, False)
-                batch_mask[np.where(pg_batch['CBlocks'] > 0)[0][0]] = True
+                batch_mask[np.where(component_blocks['CBlocks'] > 0)[0][0]] = True
 
-            pg_batch.loc[batch_mask, 'Batch'] = batch_i
+            component_blocks.loc[batch_mask, 'Batch'] = batch_i
 
             # Decrement the cumulative block count by the max count in
             # the current batch
-            pg_batch['CBlocks'] -= pg_batch.loc[
-                pg_batch['Batch'] == batch_i, 'CBlocks'
+            component_blocks['CBlocks'] -= component_blocks.loc[
+                component_blocks['Batch'] == batch_i, 'CBlocks'
             ].max()
 
             # If the maximum cumulative block count is 0, exit the
             # loop
-            if pg_batch['CBlocks'].max() == 0:
+            if component_blocks['CBlocks'].max() == 0:
                 break
 
         # Group the performance groups by batch, component, location,
         # and direction, and keep only the number of blocks for each
         # group
-        pg_batch = (
-            pg_batch.groupby(['Batch', 'cmp', 'loc', 'dir', 'uid'])
+        component_blocks = (
+            component_blocks.groupby(['Batch', 'cmp', 'loc', 'dir', 'uid'])
             .sum()
             .loc[:, 'Blocks']
             .to_frame()
         )
 
-        return pg_batch
+        return component_blocks
 
 
 class DamageModel_DS(DamageModel_Base):
@@ -594,6 +603,7 @@ class DamageModel_DS(DamageModel_Base):
     def _obtain_ds_sample(
         self,
         demand_sample,
+        component_blocks,
         block_batch_size,
         scaling_specification,
         missing_components,
@@ -620,11 +630,13 @@ class DamageModel_DS(DamageModel_Base):
             prepend_timestamp=False,
         )
 
-        pg_batch = self._get_pg_batches(block_batch_size, missing_components)
-        batches = pg_batch.index.get_level_values(0).unique()
+        component_blocks = self._get_pg_batches(
+            component_blocks, block_batch_size, missing_components
+        )
+        batches = component_blocks.index.get_level_values(0).unique()
 
         self.log.msg(
-            f'Number of Component Blocks: {pg_batch["Blocks"].sum()}',
+            f'Number of Component Blocks: {component_blocks["Blocks"].sum()}',
             prepend_timestamp=False,
         )
 
@@ -638,7 +650,7 @@ class DamageModel_DS(DamageModel_Base):
         ds_samples = []
         for PGB_i in batches:
 
-            performance_group = pg_batch.loc[PGB_i]
+            performance_group = component_blocks.loc[PGB_i]
 
             self.log.msg(
                 f"Calculating damage states for PG batch {PGB_i} with "
@@ -734,6 +746,211 @@ class DamageModel_DS(DamageModel_Base):
             return initial_value / other_value
         raise ValueError(f'Invalid operation: `{operation}`')
 
+    def _generate_dmg_sample(self, sample_size, PGB, scaling_specification=None):
+        """
+        This method generates a damage sample by creating random
+        variables (RVs) for capacities and limit-state-damage-states
+        (lsds), and then sampling from these RVs. The sample size and
+        performance group batches (PGB) are specified as inputs. The
+        method returns the capacity sample and the lsds sample.
+
+        Parameters
+        ----------
+        sample_size : int
+            The number of realizations to generate.
+        PGB : DataFrame
+            A DataFrame that groups performance groups into batches
+            for efficient damage assessment.
+        scaling_specification: dict, optional
+            A dictionary defining the shift in median.
+            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
+            The keys are individual components that should be present
+            in the `capacity_sample`.  The values should be strings
+            containing an operation followed by the value formatted as
+            a float.  The operation can be '+' for addition, '-' for
+            subtraction, '*' for multiplication, and '/' for division.
+
+        Returns
+        -------
+        capacity_sample : DataFrame
+            A DataFrame that represents the capacity sample.
+        lsds_sample : DataFrame
+            A DataFrame that represents the .
+
+        Raises
+        ------
+        ValueError
+            If the damage parameters have not been specified.
+
+        """
+        # Check if damage model parameters have been specified
+        if self.damage_params is None:
+            raise ValueError(
+                'Damage model parameters have not been specified. '
+                'Load parameters from the default damage model '
+                'databases or provide your own damage model '
+                'definitions before generating a sample.'
+            )
+
+        # Create capacity and LSD RVs for each performance group
+        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification)
+
+        if self._asmnt.log.verbose:
+            self.log.msg('Sampling capacities...', prepend_timestamp=True)
+
+        # Generate samples for capacity RVs
+        capacity_RVs.generate_sample(
+            sample_size=sample_size, method=self._asmnt.options.sampling_method
+        )
+
+        # Generate samples for LSD RVs
+        lsds_RVs.generate_sample(
+            sample_size=sample_size, method=self._asmnt.options.sampling_method
+        )
+
+        if self._asmnt.log.verbose:
+            self.log.msg("Raw samples are available", prepend_timestamp=True)
+
+        # get the capacity and lsds samples
+        capacity_sample = (
+            pd.DataFrame(capacity_RVs.RV_sample)
+            .sort_index(axis=0)
+            .sort_index(axis=1)
+        )
+        capacity_sample = base.convert_to_MultiIndex(capacity_sample, axis=1)['FRG']
+        capacity_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
+
+        lsds_sample = (
+            pd.DataFrame(lsds_RVs.RV_sample)
+            .sort_index(axis=0)
+            .sort_index(axis=1)
+            .astype(int)
+        )
+        lsds_sample = base.convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
+        lsds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
+
+        if self._asmnt.log.verbose:
+            self.log.msg(
+                f"Successfully generated {sample_size} realizations.",
+                prepend_timestamp=True,
+            )
+
+        return capacity_sample, lsds_sample
+
+    def _evaluate_damage_state(
+        self, demand_dict, required_edps, capacity_sample, lsds_sample
+    ):
+        """
+        Use the demand and LS capacity sample to evaluate damage states
+
+        Parameters
+        ----------
+        demand_dict: dict
+            Dictionary containing the demand of each demand type.
+        required_edps: dict
+            Dictionary containing the EDPs assigned to each demand
+            type.
+        capacity_sample: DataFrame
+            Provides a sample of the capacity.
+        lsds_sample: DataFrame
+            Provides the mapping between limit states and damage
+            states.
+
+        Returns
+        -------
+        DataFrame
+            Assigns a Damage State to each component block in the
+            asset model.
+        """
+
+        if self._asmnt.log.verbose:
+            self.log.msg('Evaluating damage states...', prepend_timestamp=True)
+
+        # Create an empty dataframe with columns and index taken from
+        # the input capacity sample
+        dmg_eval = pd.DataFrame(
+            columns=capacity_sample.columns, index=capacity_sample.index
+        )
+
+        # Initialize an empty list to store demand data
+        demand_df = []
+
+        # For each demand type in the demand dictionary
+        for demand_name, demand_vals in demand_dict.items():
+            # Get the list of PGs assigned to this demand type
+            PG_list = required_edps[demand_name]
+
+            # Create a list of columns for the demand data
+            # corresponding to each PG in the PG_list
+            PG_cols = pd.concat(
+                [dmg_eval.loc[:1, PG_i] for PG_i in PG_list], axis=1, keys=PG_list
+            ).columns
+            PG_cols.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
+            # Create a dataframe with demand values repeated for the
+            # number of PGs and assign the columns as PG_cols
+            demand_df.append(
+                pd.concat(
+                    [pd.Series(demand_vals)] * len(PG_cols), axis=1, keys=PG_cols
+                )
+            )
+
+        # Concatenate all demand dataframes into a single dataframe
+        demand_df = pd.concat(demand_df, axis=1)
+        # Sort the columns of the demand dataframe
+        demand_df.sort_index(axis=1, inplace=True)
+
+        # Evaluate the damage exceedance by subtracting demand from
+        # capacity and checking if the result is less than zero
+        dmg_eval = (capacity_sample - demand_df) < 0
+
+        # Remove any columns with NaN values from the damage
+        # exceedance dataframe
+        dmg_eval.dropna(axis=1, inplace=True)
+
+        # initialize the DataFrames that store the damage states and
+        # quantities
+        ds_sample = pd.DataFrame(
+            0,  # fill value
+            columns=capacity_sample.columns.droplevel('ls').unique(),
+            index=capacity_sample.index,
+            dtype='int32',
+        )
+
+        # get a list of limit state ids among all components in the damage model
+        ls_list = dmg_eval.columns.get_level_values(5).unique()
+
+        # for each consecutive limit state...
+        for LS_id in ls_list:
+            # get all cmp - loc - dir - block where this limit state occurs
+            dmg_e_ls = dmg_eval.loc[:, idx[:, :, :, :, :, LS_id]].dropna(axis=1)
+
+            # Get the damage states corresponding to this limit state in each
+            # block
+            # Note that limit states with a set of mutually exclusive damage
+            # states options have their damage state picked here.
+            lsds = lsds_sample.loc[:, dmg_e_ls.columns]
+
+            # Drop the limit state level from the columns to make the damage
+            # exceedance DataFrame compatible with the other DataFrames in the
+            # following steps
+            dmg_e_ls.columns = dmg_e_ls.columns.droplevel(5)
+
+            # Same thing for the lsds DataFrame
+            lsds.columns = dmg_e_ls.columns
+
+            # Update the damage state in the result with the values from the
+            # lsds DF if the limit state was exceeded according to the
+            # dmg_e_ls DF.
+            # This one-liner updates the given Limit State exceedance in the
+            # entire damage model. If subsequent Limit States are also exceeded,
+            # those cells in the result matrix will get overwritten by higher
+            # damage states.
+            ds_sample.loc[:, dmg_e_ls.columns] = ds_sample.loc[
+                :, dmg_e_ls.columns
+            ].mask(dmg_e_ls, lsds)
+
+        return ds_sample
+
     def _create_dmg_RVs(self, PGB, scaling_specification=None):
         """
         Creates random variables required later for the damage calculation.
@@ -779,6 +996,7 @@ class DamageModel_DS(DamageModel_Base):
             if the input DataFrame does not meet the expected format.
             Also, raises errors if there are any issues with the types
             or formats of the data in the input DataFrame.
+
         """
 
         def assign_lsds(ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag):
@@ -1068,212 +1286,6 @@ class DamageModel_DS(DamageModel_Base):
             )
 
         return capacity_RV_reg, lsds_RV_reg
-
-    def _generate_dmg_sample(self, sample_size, PGB, scaling_specification=None):
-        """
-        This method generates a damage sample by creating random
-        variables (RVs) for capacities and limit-state-damage-states
-        (lsds), and then sampling from these RVs. The sample size and
-        performance group batches (PGB) are specified as inputs. The
-        method returns the capacity sample and the lsds sample.
-
-        Parameters
-        ----------
-        sample_size : int
-            The number of realizations to generate.
-        PGB : DataFrame
-            A DataFrame that groups performance groups into batches
-            for efficient damage assessment.
-        scaling_specification: dict, optional
-            A dictionary defining the shift in median.
-            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
-            The keys are individual components that should be present
-            in the `capacity_sample`.  The values should be strings
-            containing an operation followed by the value formatted as
-            a float.  The operation can be '+' for addition, '-' for
-            subtraction, '*' for multiplication, and '/' for division.
-
-        Returns
-        -------
-        capacity_sample : DataFrame
-            A DataFrame that represents the capacity sample.
-        lsds_sample : DataFrame
-            A DataFrame that represents the .
-
-        Raises
-        ------
-        ValueError
-            If the damage parameters have not been specified.
-
-        """
-
-        # Check if damage model parameters have been specified
-        if self.damage_params is None:
-            raise ValueError(
-                'Damage model parameters have not been specified. '
-                'Load parameters from the default damage model '
-                'databases or provide your own damage model '
-                'definitions before generating a sample.'
-            )
-
-        # Create capacity and LSD RVs for each performance group
-        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification)
-
-        if self._asmnt.log.verbose:
-            self.log.msg('Sampling capacities...', prepend_timestamp=True)
-
-        # Generate samples for capacity RVs
-        capacity_RVs.generate_sample(
-            sample_size=sample_size, method=self._asmnt.options.sampling_method
-        )
-
-        # Generate samples for LSD RVs
-        lsds_RVs.generate_sample(
-            sample_size=sample_size, method=self._asmnt.options.sampling_method
-        )
-
-        if self._asmnt.log.verbose:
-            self.log.msg("Raw samples are available", prepend_timestamp=True)
-
-        # get the capacity and lsds samples
-        capacity_sample = (
-            pd.DataFrame(capacity_RVs.RV_sample)
-            .sort_index(axis=0)
-            .sort_index(axis=1)
-        )
-        capacity_sample = base.convert_to_MultiIndex(capacity_sample, axis=1)['FRG']
-        capacity_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
-
-        lsds_sample = (
-            pd.DataFrame(lsds_RVs.RV_sample)
-            .sort_index(axis=0)
-            .sort_index(axis=1)
-            .astype(int)
-        )
-        lsds_sample = base.convert_to_MultiIndex(lsds_sample, axis=1)['LSDS']
-        lsds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
-
-        if self._asmnt.log.verbose:
-            self.log.msg(
-                f"Successfully generated {sample_size} realizations.",
-                prepend_timestamp=True,
-            )
-
-        return capacity_sample, lsds_sample
-
-    def _evaluate_damage_state(
-        self, demand_dict, required_edps, capacity_sample, lsds_sample
-    ):
-        """
-        Use the demand and LS capacity sample to evaluate damage states
-
-        Parameters
-        ----------
-        demand_dict: dict
-            Dictionary containing the demand of each demand type.
-        required_edps: dict
-            Dictionary containing the EDPs assigned to each demand
-            type.
-        capacity_sample: DataFrame
-            Provides a sample of the capacity.
-        lsds_sample: DataFrame
-            Provides the mapping between limit states and damage
-            states.
-
-        Returns
-        -------
-        DataFrame
-            Assigns a Damage State to each component block in the
-            asset model.
-        """
-
-        if self._asmnt.log.verbose:
-            self.log.msg('Evaluating damage states...', prepend_timestamp=True)
-
-        # Create an empty dataframe with columns and index taken from
-        # the input capacity sample
-        dmg_eval = pd.DataFrame(
-            columns=capacity_sample.columns, index=capacity_sample.index
-        )
-
-        # Initialize an empty list to store demand data
-        demand_df = []
-
-        # For each demand type in the demand dictionary
-        for demand_name, demand_vals in demand_dict.items():
-            # Get the list of PGs assigned to this demand type
-            PG_list = required_edps[demand_name]
-
-            # Create a list of columns for the demand data
-            # corresponding to each PG in the PG_list
-            PG_cols = pd.concat(
-                [dmg_eval.loc[:1, PG_i] for PG_i in PG_list], axis=1, keys=PG_list
-            ).columns
-            PG_cols.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
-            # Create a dataframe with demand values repeated for the
-            # number of PGs and assign the columns as PG_cols
-            demand_df.append(
-                pd.concat(
-                    [pd.Series(demand_vals)] * len(PG_cols), axis=1, keys=PG_cols
-                )
-            )
-
-        # Concatenate all demand dataframes into a single dataframe
-        demand_df = pd.concat(demand_df, axis=1)
-        # Sort the columns of the demand dataframe
-        demand_df.sort_index(axis=1, inplace=True)
-
-        # Evaluate the damage exceedance by subtracting demand from
-        # capacity and checking if the result is less than zero
-        dmg_eval = (capacity_sample - demand_df) < 0
-
-        # Remove any columns with NaN values from the damage
-        # exceedance dataframe
-        dmg_eval.dropna(axis=1, inplace=True)
-
-        # initialize the DataFrames that store the damage states and
-        # quantities
-        ds_sample = pd.DataFrame(
-            0,  # fill value
-            columns=capacity_sample.columns.droplevel('ls').unique(),
-            index=capacity_sample.index,
-            dtype='int32',
-        )
-
-        # get a list of limit state ids among all components in the damage model
-        ls_list = dmg_eval.columns.get_level_values(5).unique()
-
-        # for each consecutive limit state...
-        for LS_id in ls_list:
-            # get all cmp - loc - dir - block where this limit state occurs
-            dmg_e_ls = dmg_eval.loc[:, idx[:, :, :, :, :, LS_id]].dropna(axis=1)
-
-            # Get the damage states corresponding to this limit state in each
-            # block
-            # Note that limit states with a set of mutually exclusive damage
-            # states options have their damage state picked here.
-            lsds = lsds_sample.loc[:, dmg_e_ls.columns]
-
-            # Drop the limit state level from the columns to make the damage
-            # exceedance DataFrame compatible with the other DataFrames in the
-            # following steps
-            dmg_e_ls.columns = dmg_e_ls.columns.droplevel(5)
-
-            # Same thing for the lsds DataFrame
-            lsds.columns = dmg_e_ls.columns
-
-            # Update the damage state in the result with the values from the
-            # lsds DF if the limit state was exceeded according to the
-            # dmg_e_ls DF.
-            # This one-liner updates the given Limit State exceedance in the
-            # entire damage model. If subsequent Limit States are also exceeded,
-            # those cells in the result matrix will get overwritten by higher
-            # damage states.
-            ds_sample.loc[:, dmg_e_ls.columns] = ds_sample.loc[
-                :, dmg_e_ls.columns
-            ].mask(dmg_e_ls, lsds)
-
-        return ds_sample
 
     def _prepare_dmg_quantities(
         self,

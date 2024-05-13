@@ -52,6 +52,7 @@ import pandas as pd
 from pelicun import base
 from pelicun import assessment
 from pelicun import model
+from pelicun import uq
 from pelicun.model.damage_model import DamageModel_DS
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 from pelicun.warnings import PelicunWarning
@@ -185,11 +186,116 @@ class TestDamageModel_DS(TestDamageModel_Base):
             damage_model._handle_operation(1.00, '%', 1.00)
         assert ('Invalid operation: `%`') in str(record.value)
 
-    def test__create_dmg_RVs(self):
-        pass
+    def test__generate_dmg_sample(self, assessment_instance):
 
-    def test__generate_dmg_sample(self):
-        pass
+        # Create an instance of the damage model
+        damage_model = DamageModel_DS(assessment_instance)
+
+        PGB = pd.DataFrame(
+            {'Blocks': [1]},
+            index=pd.MultiIndex.from_tuples(
+                [('cmp.test', '1', '2', '3')],
+                names=['cmp', 'loc', 'dir', 'uid'],
+            ),
+        )
+
+        damage_params = pd.DataFrame(
+            {
+                ('Directional', None): [0.0],
+                ('Offset', None): [0.0],
+                ('Type', None): ['None Specified'],
+                ('Incomplete', None): [0],
+                ('LS1', 'DamageStateWeights'): [None],  # No randomness
+                ('LS1', 'Family'): [None],  # No specific family of distribution
+                ('LS1', 'Theta_0'): [1.0],  # Constant value for simplicity
+                ('LS1', 'Theta_1'): [None],  # No randomness
+            },
+            index=['cmp.test'],
+        ).rename_axis('ID')
+
+        damage_model.damage_params = damage_params
+
+        scaling_specification = None
+        sample_size = 2
+
+        capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
+            sample_size, PGB, scaling_specification
+        )
+
+        pd.testing.assert_frame_equal(
+            capacity_sample,
+            pd.DataFrame(
+                {
+                    ('cmp.test', '1', '2', '3', '1', '1'): [1.0, 1.0],
+                }
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block', 'ls']),
+        )
+
+        pd.testing.assert_frame_equal(
+            lsds_sample,
+            pd.DataFrame(
+                {
+                    ('cmp.test', '1', '2', '3', '1', '1'): [1, 1],
+                }
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block', 'ls']),
+        )
+
+
+    def test__create_dmg_RVs(self, assessment_instance):
+
+        damage_model = DamageModel_DS(assessment_instance)
+
+        PGB = pd.DataFrame(
+            {'Blocks': [1]},
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('cmp.A', '1', '2', '3'),
+                ],
+                names=['cmp', 'loc', 'dir', 'uid'],
+            ),
+        )
+
+        damage_params = pd.DataFrame(
+            {
+                ('Directional', None): [0.0],
+                ('Offset', None): [0.0],
+                ('Type', None): ['Peak Floor Acceleration'],
+                ('Incomplete', None): [0],
+                ('LS1', 'DamageStateWeights'): [
+                    '0.40 | 0.10 | 0.50',
+                ],
+                ('LS1', 'Family'): ['lognormal'],
+                ('LS1', 'Theta_0'): [30.00],
+                ('LS1', 'Theta_1'): [0.5],
+            },
+            index=['cmp.A'],
+        ).rename_axis('ID')
+
+        # Attach this DataFrame to the damage model instance
+        damage_model.damage_params = damage_params
+
+        # Define a scaling specification
+        scaling_specification = {'cmp.A-1-2': '*1.20'}
+
+        # Execute the method under test
+        capacity_RV_reg, lsds_RV_reg = damage_model._create_dmg_RVs(
+            PGB, scaling_specification
+        )
+
+        # Now we need to verify the outputs in the registries
+        # This will include checks to ensure random variables were created correctly.
+        # Example check for presence and properties of a RandomVariable in the registry:
+        assert 'FRG-cmp.A-1-2-3-1-1' in capacity_RV_reg.RV
+        assert isinstance(
+            capacity_RV_reg.RV['FRG-cmp.A-1-2-3-1-1'],
+            uq.LogNormalRandomVariable,
+        )
+
+        assert 'LSDS-cmp.A-1-2-3-1-1' in lsds_RV_reg.RV
+        assert isinstance(
+            lsds_RV_reg.RV['LSDS-cmp.A-1-2-3-1-1'],
+            uq.MultinomialRandomVariable,
+        )
 
     def test__evaluate_damage_state(self, assessment_instance):
 
@@ -707,69 +813,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
         )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
 # class TestDamageModel(TestPelicunModel):
 #     @pytest.fixture
 #     def cmp_sample_A(self):
@@ -934,10 +977,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
 #             dtype='object',
 #         )
 #         return deepcopy(assessment_instance.damage)
-
-
-
-
 
 
 # def test_save_load_sample(self, damage_model_with_sample, assessment_instance):
