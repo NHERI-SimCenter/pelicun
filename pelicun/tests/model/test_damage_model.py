@@ -68,7 +68,7 @@ class TestDamageModel(TestPelicunModel):
     def damage_model(self, assessment_instance):
         return deepcopy(assessment_instance.damage)
 
-    def test_init(self, damage_model):
+    def test___init__(self, damage_model):
         assert damage_model.log
         assert damage_model.ds_model
         with pytest.raises(AttributeError):
@@ -77,14 +77,14 @@ class TestDamageModel(TestPelicunModel):
         assert damage_model.ds_model.damage_params is None
         assert damage_model.ds_model.sample is None
 
-        assert len(damage_model.damage_models) == 1
+        assert len(damage_model._damage_models) == 1
 
     def test_damage_models(self, assessment_instance):
 
         damage_model = DamageModel(assessment_instance)
-        assert damage_model.damage_models is not None
-        assert len(damage_model.damage_models) == 1
-        assert isinstance(damage_model.damage_models[0], DamageModel_DS)
+        assert damage_model._damage_models is not None
+        assert len(damage_model._damage_models) == 1
+        assert isinstance(damage_model._damage_models[0], DamageModel_DS)
 
     def test_load_model_parameters(self, damage_model):
         path = (

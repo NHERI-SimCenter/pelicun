@@ -78,7 +78,7 @@ class DamageModel(PelicunModel):
         self.missing_components: list[str] = []
 
     @property
-    def damage_models(self):
+    def _damage_models(self):
         """
         Points to the damage model objects included in DamageModel.
 
@@ -149,7 +149,7 @@ class DamageModel(PelicunModel):
             'Removing unused damage model parameters.', prepend_timestamp=False
         )
 
-        for damage_model in self.damage_models:
+        for damage_model in self._damage_models:
             # drop unused damage parameter definitions
             damage_model._drop_unused_damage_parameters(cmp_set)
             # remove components with incomplete damage parameters
@@ -162,7 +162,7 @@ class DamageModel(PelicunModel):
         self.log.msg(
             'Converting damage model parameter units.', prepend_timestamp=False
         )
-        for damage_model in self.damage_models:
+        for damage_model in self._damage_models:
             damage_model._convert_damage_parameter_units()
 
         #
