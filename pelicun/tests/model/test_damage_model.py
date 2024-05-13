@@ -53,6 +53,8 @@ from pelicun import base
 from pelicun import assessment
 from pelicun import model
 from pelicun import uq
+from pelicun.model.damage_model import DamageModel
+from pelicun.model.damage_model import DamageModel_Base
 from pelicun.model.damage_model import DamageModel_DS
 from pelicun.model.damage_model import _is_for_ds_model
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
@@ -137,48 +139,59 @@ class TestDamageModel(TestPelicunModel):
     def test_load_sample(self):
         pass
 
-    def test__get_component_id_set(self):
-        pass
+    def test__get_component_id_set(self, assessment_instance):
 
-    def test__ensure_damage_parameter_availability(self):
+        damage_model = DamageModel(assessment_instance)
 
-        damage_model = DamageModel_DS(assessment_instance)
+        damage_model.ds_model.damage_params = pd.DataFrame(
+            {
+                ('LS1', 'Theta_0'): [0.1, 0.2, 0.3],
+                ('LS2', 'Theta_0'): [0.2, 0.3, 0.4],
+            },
+            index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3'], name='ID'),
+        )
+
+        component_id_set = damage_model._get_component_id_set()
+
+        expected_set = {'cmp.1', 'cmp.2', 'cmp.3'}
+
+        assert component_id_set == expected_set
+
+    def test__ensure_damage_parameter_availability(self, assessment_instance):
+
+        damage_model = DamageModel(assessment_instance)
+
+        damage_model.ds_model.damage_params = pd.DataFrame(
+            {
+                ('LS1', 'Theta_0'): [0.1, 0.2, 0.3],
+                ('LS2', 'Theta_0'): [0.2, 0.3, 0.4],
+            },
+            index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3'], name='ID'),
+        )
 
         cmp_list = ['cmp.1', 'cmp.2', 'cmp.3', 'cmp.4']
 
-        damage_model._get_component_id_set = lambda: {'cmp.1', 'cmp.3', 'cmp.5'}
+        expected_missing_components = ['cmp.4']
 
-        # Expected missing components
-        expected_missing_components = ['cmp.2', 'cmp.4']
-
-        # Execute the method under test with a warning check
-        with pytest.warns(UserWarning) as record:
+        with pytest.warns(PelicunWarning) as record:
             missing_components = damage_model._ensure_damage_parameter_availability(
                 cmp_list
             )
-
-        # Assert that the missing components are identified correctly
-        assert (
-            missing_components == expected_missing_components
-        ), "Test failed: Incorrect missing components identified."
-
-        # Check if the warning was correctly logged
-        assert len(record) == 1, "Test failed: Expected one warning to be logged."
-        assert "cmp.2" in str(record[0].message) and "cmp.4" in str(
-            record[0].message
-        ), "Test failed: The warning message does not correctly list the missing components."
+        assert missing_components == expected_missing_components
+        assert len(record) == 1
+        assert "cmp.4" in str(record[0].message)
 
 
 class TestDamageModel_Base(TestPelicunModel):
     def test___init__(self, assessment_instance):
 
-        damage_model = DamageModel_DS(assessment_instance)
+        damage_model = DamageModel_Base(assessment_instance)
         with pytest.raises(AttributeError):
             damage_model.xyz = 123
 
     def test__load_model_parameters(self, assessment_instance):
 
-        damage_model = DamageModel_DS(assessment_instance)
+        damage_model = DamageModel_Base(assessment_instance)
 
         damage_model.damage_params = pd.DataFrame(
             {
@@ -213,7 +226,7 @@ class TestDamageModel_Base(TestPelicunModel):
 
     def test__convert_damage_parameter_units(self, assessment_instance):
 
-        damage_model = DamageModel_DS(assessment_instance)
+        damage_model = DamageModel_Base(assessment_instance)
 
         # should have no effect when damage_params is None
         damage_model._convert_damage_parameter_units()
@@ -245,7 +258,7 @@ class TestDamageModel_Base(TestPelicunModel):
 
     def test__remove_incomplete_components(self, assessment_instance):
 
-        damage_model = DamageModel_DS(assessment_instance)
+        damage_model = DamageModel_Base(assessment_instance)
 
         # with damage_model.damage_params set to None this should have
         # no effect.
@@ -283,7 +296,7 @@ class TestDamageModel_Base(TestPelicunModel):
 
     def test__drop_unused_damage_parameters(self, assessment_instance):
 
-        damage_model = DamageModel_DS(assessment_instance)
+        damage_model = DamageModel_Base(assessment_instance)
 
         damage_model.damage_params = pd.DataFrame(
             index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3', 'cmp.4'], name='ID')
@@ -300,7 +313,7 @@ class TestDamageModel_Base(TestPelicunModel):
 
     def test__get_pg_batches(self, assessment_instance):
 
-        damage_model = DamageModel_DS(assessment_instance)
+        damage_model = DamageModel_Base(assessment_instance)
 
         component_blocks = pd.DataFrame(
             {'Blocks': [1, 1, 2, 1, 3, 4]},
