@@ -173,20 +173,14 @@ class TestDemandModel(TestModelModule):
 
         # compare against the expected values for the sample
         expected_sample = pd.DataFrame(
-            [
-                [4.029069, 10.084915, 0.02672, 8.690585],
-            ],
-            columns=pd.MultiIndex.from_tuples(
-                (
-                    ('PFA', '0', '1'),
-                    ('PFA', '1', '1'),
-                    ('PID', '1', '1'),
-                    ('SA_0.23', '0', '1'),
-                ),
-                names=('type', 'loc', 'dir'),
-            ),
+            {
+                ('PFA', '0', '1'): [4.029069],
+                ('PFA', '1', '1'): [10.084915],
+                ('PID', '1', '1'): [0.02672],
+                ('SA_0.23', '0', '1'): [8.690585],
+            },
             index=[0],
-        )
+        ).rename_axis(columns=['type', 'loc', 'dir'])
         pd.testing.assert_frame_equal(
             expected_sample,
             obtained_sample,
@@ -366,22 +360,14 @@ class TestDemandModel(TestModelModule):
 
         # compare against the expected values for the sample
         expected_sample = pd.DataFrame(
-            (
-                (158.624160, 397.042985, 0.02672, 342.148783),
-                (158.624160, 397.042985, 0.02672, 342.148783),
-                (158.624160, 397.042985, 0.02672, 342.148783),
-            ),
-            columns=pd.MultiIndex.from_tuples(
-                (
-                    ('PFA', '0', '1'),
-                    ('PFA', '1', '1'),
-                    ('PID', '1', '1'),
-                    ('SA_0.23', '0', '1'),
-                ),
-                names=('type', 'loc', 'dir'),
-            ),
-            index=pd.Index((0, 1, 2), dtype='object'),
-        )
+            {
+                ('PFA', '0', '1'): [158.624160, 158.624160, 158.624160],
+                ('PFA', '1', '1'): [397.042985, 397.042985, 397.042985],
+                ('PID', '1', '1'): [0.02672, 0.02672, 0.02672],
+                ('SA_0.23', '0', '1'): [342.148783, 342.148783, 342.148783],
+            },
+            index=pd.Index([0, 1, 2], dtype='object'),
+        ).rename_axis(columns=['type', 'loc', 'dir'])
         pd.testing.assert_frame_equal(
             expected_sample,
             obtained_sample,

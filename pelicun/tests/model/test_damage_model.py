@@ -54,6 +54,7 @@ from pelicun import assessment
 from pelicun import model
 from pelicun.model.damage_model import DamageModel_DS
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
+from pelicun.warnings import PelicunWarning
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
@@ -183,8 +184,153 @@ class TestDamageModel_DS(TestDamageModel_Base):
     def test__evaluate_damage_state(self):
         pass
 
-    def test__prepare_dmg_quantities(self):
-        pass
+    def test__prepare_dmg_quantities(self, assessment_instance):
+
+        #
+        # A case with blocks
+        #
+
+        # Instantiate an isolated DamageModel_DS
+        damage_model = DamageModel_DS(assessment_instance)
+
+        damage_state_sample = pd.DataFrame(
+            {
+                ('A', '0', '1', '0', '1'): [-1, 0, 1, 2, 3],  # block 1
+                ('A', '0', '1', '0', '2'): [3, -1, 0, 1, 2],  # block 2
+            },
+            dtype='int32',
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block'])
+
+        component_sample = pd.DataFrame(
+            {
+                ('A', '0', '1', '0'): [2.0, 4.0, 6.0, 8.0, 10.0],
+            },
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
+
+        component_marginal_parameters = pd.DataFrame(
+            {
+                'Blocks': [2.00],
+            },
+            index=pd.MultiIndex.from_tuples([('A', '0', '1', '0')]),
+        ).rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
+
+        res = damage_model._prepare_dmg_quantities(
+            damage_state_sample,
+            component_sample,
+            component_marginal_parameters,
+            dropzero=True,
+        )
+
+        # Each block takes half the quantity.
+        # Realization 0: Expect q=1 at DS3 from block 2
+        # Realization 1: Expect zeros
+        # Realization 2: Expect q=6/2=3 at DS1 from block 1
+        # Realization 3: Expect q=8/2 at DSs 1 and 2
+        # Realization 4: Expect q=10/2 at DSs 2 and 3
+        pd.testing.assert_frame_equal(
+            res,
+            pd.DataFrame(
+                {
+                    ('A', '0', '1', '0', '1'): [0.0, 0.0, 3.0, 4.0, 0.0],
+                    ('A', '0', '1', '0', '2'): [0.0, 0.0, 0.0, 4.0, 5.0],
+                    ('A', '0', '1', '0', '3'): [1.0, 0.0, 0.0, 0.0, 5.0],
+                }
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
+        )
+
+        #
+        # A case without blocks
+        #
+
+        damage_state_sample = pd.DataFrame(
+            {
+                ('A', '0', '1', '0', '1'): [-1, 0, 1, 2, 3],
+            },
+            dtype='int32',
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block'])
+
+        component_sample = pd.DataFrame(
+            {
+                ('A', '0', '1', '0'): [2.0, 4.0, 6.0, 8.0, 10.0],
+            },
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
+
+        res = damage_model._prepare_dmg_quantities(
+            damage_state_sample,
+            component_sample,
+            component_marginal_parameters=None,
+            dropzero=True,
+        )
+
+        # Realization 0: Expect zeros
+        # Realization 1: Expect zeros
+        # Realization 2: Expect q=6 at DS1
+        # Realization 3: Expect q=8 at DS2
+        # Realization 4: Expect q=10 at DS3
+        pd.testing.assert_frame_equal(
+            res,
+            pd.DataFrame(
+                {
+                    ('A', '0', '1', '0', '1'): [0.0, 0.0, 6.0, 0.0, 0.0],
+                    ('A', '0', '1', '0', '2'): [0.0, 0.0, 0.0, 8.0, 0.0],
+                    ('A', '0', '1', '0', '3'): [0.0, 0.0, 0.0, 0.0, 10.0],
+                }
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
+        )
+
+        #
+        # Test `dropzero`
+        #
+
+        damage_state_sample = pd.DataFrame(
+            {
+                ('A', '0', '1', '0', '1'): [-1, 0],
+                ('A', '0', '1', '1', '1'): [1, 0],
+            },
+            dtype='int32',
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block'])
+
+        component_sample = pd.DataFrame(
+            {
+                ('A', '0', '1', '0'): [2.0, 4.0],
+                ('A', '0', '1', '1'): [6.0, 8.0],
+            },
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
+
+        res = damage_model._prepare_dmg_quantities(
+            damage_state_sample,
+            component_sample,
+            component_marginal_parameters=None,
+            dropzero=True,
+        )
+
+        pd.testing.assert_frame_equal(
+            res,
+            pd.DataFrame(
+                {
+                    ('A', '0', '1', '1', '1'): [6.0, 0.0],
+                }
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
+        )
+
+        res = damage_model._prepare_dmg_quantities(
+            damage_state_sample,
+            component_sample,
+            component_marginal_parameters=None,
+            dropzero=False,
+        )
+
+        pd.testing.assert_frame_equal(
+            res,
+            pd.DataFrame(
+                {
+                    ('A', '0', '1', '0', '0'): [0.0, 4.0], # returned
+                    ('A', '0', '1', '1', '0'): [0.0, 8.0], # returned
+                    ('A', '0', '1', '1', '1'): [6.0, 0.0],
+                }
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
+        )
+
 
     def test__perform_dmg_task(self, assessment_instance):
 
@@ -203,20 +349,25 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
             },
             dtype='int32',
-        )
-        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS4"}}
         for task in dmg_process.items():
             damage_model._perform_dmg_task(task, ds_sample)
         after = ds_sample
 
-        assert after.to_dict() == {
-            ('CMP.A', '1', '1', '0'): {0: 4, 1: 0, 2: 4},
-            ('CMP.A', '1', '1', '1'): {0: 4, 1: 0, 2: 4},
-            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-            ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
-        }
+        pd.testing.assert_frame_equal(
+            after,
+            pd.DataFrame(
+                {
+                    ('CMP.A', '1', '1', '0'): [4, 0, 4],
+                    ('CMP.A', '1', '1', '1'): [4, 0, 4],
+                    ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                    ('CMP.B', '1', '1', '1'): [1, 0, 0],
+                },
+                dtype='int32',
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
+        )
 
         #
         # when CMP.B reaches DS1, CMP.A should be NA (-1)
@@ -230,20 +381,25 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
             },
             dtype='int32',
-        )
-        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
         for task in dmg_process.items():
             damage_model._perform_dmg_task(task, ds_sample)
         after = ds_sample
 
-        assert after.to_dict() == {
-            ('CMP.A', '1', '1', '0'): {0: -1, 1: 0, 2: -1},
-            ('CMP.A', '1', '1', '1'): {0: -1, 1: 0, 2: -1},
-            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-            ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
-        }
+        pd.testing.assert_frame_equal(
+            after,
+            pd.DataFrame(
+                {
+                    ('CMP.A', '1', '1', '0'): [-1, 0, -1],
+                    ('CMP.A', '1', '1', '1'): [-1, 0, -1],
+                    ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                    ('CMP.B', '1', '1', '1'): [1, 0, 0],
+                },
+                dtype='int32',
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
+        )
 
         #
         # `-LOC` keyword
@@ -259,20 +415,25 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '2', '1', '0'): [1, 0, 0],
             },
             dtype='int32',
-        )
-        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_DS4"}}
         for task in dmg_process.items():
             damage_model._perform_dmg_task(task, ds_sample)
         after = ds_sample
 
-        assert after.to_dict() == {
-            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: 4},
-            ('CMP.A', '2', '1', '0'): {0: 4, 1: 0, 2: 0},
-            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-            ('CMP.B', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
-        }
+        pd.testing.assert_frame_equal(
+            after,
+            pd.DataFrame(
+                {
+                    ('CMP.A', '1', '1', '0'): [0, 0, 4],
+                    ('CMP.A', '2', '1', '0'): [4, 0, 0],
+                    ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                    ('CMP.B', '2', '1', '0'): [1, 0, 0],
+                },
+                dtype='int32',
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
+        )
 
         #
         # ALL keyword
@@ -289,20 +450,25 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.D', '1', '1', '0'): [0, 0, 0],
             },
             dtype='int32',
-        )
-        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.A": {"DS1": "ALL_DS2"}}
         for task in dmg_process.items():
             damage_model._perform_dmg_task(task, ds_sample)
         after = ds_sample
 
-        assert after.to_dict() == {
-            ('CMP.A', '1', '1', '0'): {0: 1, 1: 0, 2: 0},
-            ('CMP.B', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
-            ('CMP.C', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
-            ('CMP.D', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
-        }
+        pd.testing.assert_frame_equal(
+            after,
+            pd.DataFrame(
+                {
+                    ('CMP.A', '1', '1', '0'): [1, 0, 0],
+                    ('CMP.B', '1', '1', '0'): [2, 0, 0],
+                    ('CMP.C', '1', '1', '0'): [2, 0, 0],
+                    ('CMP.D', '1', '1', '0'): [2, 0, 0],
+                },
+                dtype='int32',
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
+        )
 
         #
         # NA keyword
@@ -318,20 +484,25 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
             },
             dtype='int32',
-        )
-        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
         for task in dmg_process.items():
             damage_model._perform_dmg_task(task, ds_sample)
         after = ds_sample
 
-        assert after.to_dict() == {
-            ('CMP.A', '1', '1', '0'): {0: -1, 1: 0, 2: -1},
-            ('CMP.A', '1', '1', '1'): {0: -1, 1: 0, 2: -1},
-            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-            ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
-        }
+        pd.testing.assert_frame_equal(
+            after,
+            pd.DataFrame(
+                {
+                    ('CMP.A', '1', '1', '0'): [-1, 0, -1],
+                    ('CMP.A', '1', '1', '1'): [-1, 0, -1],
+                    ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                    ('CMP.B', '1', '1', '1'): [1, 0, 0],
+                },
+                dtype='int32',
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
+        )
 
         #
         # NA keyword combined with `-LOC`
@@ -345,20 +516,25 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '2', '1', '0'): [1, 0, 0],
             },
             dtype='int32',
-        )
-        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_NA"}}
         for task in dmg_process.items():
             damage_model._perform_dmg_task(task, ds_sample)
         after = ds_sample
 
-        assert after.to_dict() == {
-            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
-            ('CMP.A', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
-            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-            ('CMP.B', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
-        }
+        pd.testing.assert_frame_equal(
+            after,
+            pd.DataFrame(
+                {
+                    ('CMP.A', '1', '1', '0'): [0, 0, -1],
+                    ('CMP.A', '2', '1', '0'): [-1, 0, 0],
+                    ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                    ('CMP.B', '2', '1', '0'): [1, 0, 0],
+                },
+                dtype='int32',
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
+        )
 
         #
         # NA keyword combined with `-LOC` and `ALL`
@@ -374,22 +550,75 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.C', '2', '1', '0'): [0, 0, 0],
             },
             dtype='int32',
-        )
-        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.A-LOC": {"DS1": "ALL_NA"}}
         for task in dmg_process.items():
             damage_model._perform_dmg_task(task, ds_sample)
         after = ds_sample
 
-        assert after.to_dict() == {
-            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-            ('CMP.A', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
-            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
-            ('CMP.B', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
-            ('CMP.C', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
-            ('CMP.C', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
-        }
+        pd.testing.assert_frame_equal(
+            after,
+            pd.DataFrame(
+                {
+                    ('CMP.A', '1', '1', '0'): [0, 0, 1],
+                    ('CMP.A', '2', '1', '0'): [1, 0, 0],
+                    ('CMP.B', '1', '1', '0'): [0, 0, -1],
+                    ('CMP.B', '2', '1', '0'): [-1, 0, 0],
+                    ('CMP.C', '1', '1', '0'): [0, 0, -1],
+                    ('CMP.C', '2', '1', '0'): [-1, 0, 0],
+                },
+                dtype='int32',
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
+        )
+
+        #
+        # Test warnings: Source component not found
+        #
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 0],
+                ('CMP.B', '1', '1', '1'): [0, 0, 0],
+            },
+            dtype='int32',
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
+
+        dmg_process = {"1_CMP.C": {"DS1": "CMP.A_DS4"}}
+        with pytest.warns(PelicunWarning) as record:
+            for task in dmg_process.items():
+                damage_model._perform_dmg_task(task, ds_sample)
+        assert (
+            'Source component `CMP.C` in the prescribed damage process not found'
+        ) in str(record.list[0].message)
+
+        #
+        # Test warnings: Target component not found
+        #
+        dmg_process = {"1_CMP.A": {"DS1": "CMP.C_DS4"}}
+        with pytest.warns(PelicunWarning) as record:
+            for task in dmg_process.items():
+                damage_model._perform_dmg_task(task, ds_sample)
+        assert (
+            'Target component `CMP.C` in the prescribed damage process not found'
+        ) in str(record.list[0].message)
+
+        #
+        # Test Error: Unable to parse source event
+        #
+        dmg_process = {"1_CMP.A": {"XYZ": "CMP.B_DS1"}}
+        with pytest.raises(ValueError) as record:
+            for task in dmg_process.items():
+                damage_model._perform_dmg_task(task, ds_sample)
+        assert ('Unable to parse source event in damage process: `XYZ`') in str(
+            record.value
+        )
+        dmg_process = {"1_CMP.A": {"DS1": "CMP.B_ABC"}}
+        with pytest.raises(ValueError) as record:
+            for task in dmg_process.items():
+                damage_model._perform_dmg_task(task, ds_sample)
+        assert ('Unable to parse target event in damage process: `ABC`') in str(
+            record.value
+        )
 
     def test__complete_ds_cols(self, assessment_instance):
 
@@ -408,18 +637,25 @@ class TestDamageModel_DS(TestDamageModel_Base):
         # Set up one realization, with 100 units of the component in
         # damage state 2.
         dmg_sample = pd.DataFrame(
-            np.full(1, 100.0),
-            columns=pd.MultiIndex.from_tuples(
-                [('test.component', '0', '0', '0', '2')]
-            ),
-        )
-        dmg_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
+            {
+                ('many.ds', '0', '0', '0', '2'): [100.00],
+                ('single.ds', '0', '0', '0', '1'): [100.00],
+            },
+        ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds'])
         out = damage_model._complete_ds_cols(dmg_sample)
-        assert len(out.columns) == 4
-        # Ensure damage state 2 is unchanged and the rest of the
-        # damage states exist with a quantity of 0.00
-        assert list(out.columns.get_level_values('ds')) == ['0', '1', '2', '3']
-        assert list(out.iloc[0].values) == [0.00, 0.00, 100.00, 0.00]
+        pd.testing.assert_frame_equal(
+            out,
+            pd.DataFrame(
+                {
+                    ('many.ds', '0', '0', '0', '0'): [0.00],
+                    ('many.ds', '0', '0', '0', '1'): [0.00],
+                    ('many.ds', '0', '0', '0', '2'): [100.00],
+                    ('many.ds', '0', '0', '0', '3'): [0.00],
+                    ('single.ds', '0', '0', '0', '0'): [0.00],
+                    ('single.ds', '0', '0', '0', '1'): [100.00],
+                }
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
+        )
 
 
 # class TestDamageModel(TestPelicunModel):

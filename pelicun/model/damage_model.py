@@ -215,14 +215,11 @@ class DamageModel(PelicunModel):
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
-        # ('cmp', 'loc', 'dir', 'uid') -> component quantity series
-        component_quantities = self._asmnt.asset.cmp_sample.to_dict('series')
-        component_marginal_parameters = self._asmnt.asset.cmp_marginal_params
 
         qnt_sample = self.ds_model._prepare_dmg_quantities(
             ds_sample,
-            component_quantities,
-            component_marginal_parameters,
+            self._asmnt.asset.cmp_sample,
+            self._asmnt.asset.cmp_marginal_params,
             dropzero=False,
         )
 
@@ -1282,7 +1279,7 @@ class DamageModel_DS(DamageModel_Base):
     def _prepare_dmg_quantities(
         self,
         damage_state_sample,
-        component_quantities,
+        component_sample,
         component_marginal_parameters,
         dropzero=True,
     ):
@@ -1314,6 +1311,9 @@ class DamageModel_DS(DamageModel_Base):
             damage state information.
 
         """
+
+        # ('cmp', 'loc', 'dir', 'uid') -> component quantity series
+        component_quantities = component_sample.to_dict('series')
 
         # pylint: disable=missing-return-doc
         if self._asmnt.log.verbose:
@@ -1461,7 +1461,7 @@ class DamageModel_DS(DamageModel_Base):
             if not source_event.startswith('DS'):
                 raise ValueError(
                     f"Unable to parse source event in damage "
-                    f"process: {source_event}"
+                    f"process: `{source_event}`"
                 )
             # get the ID of the damage state that triggers the event
             ds_source = int(source_event[2:])
@@ -1480,7 +1480,7 @@ class DamageModel_DS(DamageModel_Base):
                     target_cmp not in ds_sample.columns.get_level_values('cmp')
                 ):
                     self.log.add_warning(
-                        f"Target component {target_cmp} in the prescribed "
+                        f"Target component `{target_cmp}` in the prescribed "
                         "damage process not found among components in the damage "
                         "sample. The corresponding part of the damage process is "
                         "skipped."
@@ -1503,7 +1503,7 @@ class DamageModel_DS(DamageModel_Base):
                 else:
                     raise ValueError(
                         f"Unable to parse target event in damage "
-                        f"process: {target_event}"
+                        f"process: `{target_event}`"
                     )
 
                 if match_locations:
