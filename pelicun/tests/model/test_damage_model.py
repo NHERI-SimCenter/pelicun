@@ -165,13 +165,130 @@ class TestDamageModel_Base(TestPelicunModel):
     def test__drop_unused_damage_parameters(self):
         pass
 
-    def test__get_pg_batches(self):
-        pass
+    def test__get_pg_batches(self, assessment_instance):
+
+        damage_model = DamageModel_DS(assessment_instance)
+
+        component_blocks = pd.DataFrame(
+            {'Blocks': [1, 1, 2, 1, 3, 4]},
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('cmp.1', '1', '1', '1'),
+                    ('cmp.2', '2', '2', '2'),
+                    ('cmp.3', '1', '1', '1'),
+                    ('cmp.4', '3', '3', '3'),
+                    ('cmp.5', '2', '2', '2'),
+                    ('cmp.6', '1', '1', '1'),
+                ],
+                names=['cmp', 'loc', 'dir', 'uid'],
+            ),
+        )
+
+        block_batch_size = 3
+
+        missing_components = ['cmp.4', 'cmp.5', 'cmp.6']
+
+        # Attach a mocked damage_params DataFrame to the damage model
+        # instance to simulate the available
+        # components. `_get_pg_batches` doesn't need any other
+        # information from that attribute.
+        damage_model.damage_params = pd.DataFrame(index=['cmp.1', 'cmp.2', 'cmp.3'])
+
+        resulting_batches = damage_model._get_pg_batches(
+            component_blocks, block_batch_size, missing_components
+        )
+        pd.testing.assert_frame_equal(
+            resulting_batches,
+            pd.DataFrame(
+                {'Blocks': [1, 2, 1]},
+                index=pd.MultiIndex.from_tuples(
+                    [
+                        (1, 'cmp.1', '1', '1', '1'),
+                        (1, 'cmp.3', '1', '1', '1'),
+                        (2, 'cmp.2', '2', '2', '2'),
+                    ],
+                    names=['Batch', 'cmp', 'loc', 'dir', 'uid'],
+                ),
+            ),
+        )
 
 
 class TestDamageModel_DS(TestDamageModel_Base):
-    def test__obtain_ds_sample(self):
-        pass
+
+    def test__obtain_ds_sample(self, assessment_instance):
+
+        damage_model = DamageModel_DS(assessment_instance)
+
+        demand_sample = pd.DataFrame(
+            {
+                ('PFA', '0', '1'): [5.00, 5.00],  # m/s2
+                ('PFA', '0', '2'): [5.00, 5.00],
+            },
+            index=[0, 1],
+        ).rename_axis(columns=['type', 'loc', 'dir'])
+
+        component_blocks = pd.DataFrame(
+            {'Blocks': [1, 2, 1]},
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('cmp.1', '1', '1', '1'),
+                    ('cmp.2', '1', '1', '1'),
+                    ('cmp.3', '1', '1', '1'),
+                ],
+                names=['cmp', 'loc', 'dir', 'uid'],
+            ),
+        )
+
+        block_batch_size = 2
+        scaling_specification = None
+        nondirectional_multipliers = {'ALL': 1.2}
+
+        damage_model.damage_params = pd.DataFrame(
+            {
+                ('Demand', 'Directional'): [0, 0, 0],
+                ('Demand', 'Offset'): [0, 0, 0],
+                ('Demand', 'Type'): [
+                    'Peak Floor Acceleration',
+                    'Peak Floor Acceleration',
+                    'Peak Floor Acceleration',
+                ],
+                ('Incomplete', ''): [0, 0, 0],
+                ('LS1', 'DamageStateWeights'): [None, None, None],
+                ('LS1', 'Family'): [None, None, None],
+                ('LS1', 'Theta_0'): [1.0, 1.0, 10.0],  # m/s2
+                ('LS1', 'Theta_1'): [None, None, None],
+            },
+            index=['cmp.1', 'cmp.2', 'cmp.3'],
+        ).rename_axis('ID')
+
+        res = pd.DataFrame(
+            {
+                ('cmp.1', '1', '1', '1'): [1, 1],
+                ('cmp.3', '1', '1', '1'): [0, 0],
+            },
+            index=[0, 1],
+        )
+
+        res = damage_model._obtain_ds_sample(
+            demand_sample,
+            component_blocks,
+            block_batch_size,
+            scaling_specification,
+            [],
+            nondirectional_multipliers,
+        )
+        pd.testing.assert_frame_equal(
+            res,
+            pd.DataFrame(
+                {
+                    ('cmp.1', '1', '1', '1', '1'): [1, 1],
+                    ('cmp.2', '1', '1', '1', '1'): [1, 1],
+                    ('cmp.2', '1', '1', '1', '2'): [1, 1],
+                    ('cmp.3', '1', '1', '1', '1'): [0, 0],
+                },
+                dtype='int64'
+            ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block']),
+        )
 
     def test__handle_operation(self, assessment_instance):
 
@@ -201,10 +318,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
 
         damage_params = pd.DataFrame(
             {
-                ('Directional', None): [0.0],
-                ('Offset', None): [0.0],
-                ('Type', None): ['None Specified'],
-                ('Incomplete', None): [0],
+                ('Demand', 'Directional'): [0.0],
+                ('Demand', 'Offset'): [0.0],
+                ('Demand', 'Type'): ['None Specified'],
+                ('Incomplete', ''): [0],
                 ('LS1', 'DamageStateWeights'): [None],  # No randomness
                 ('LS1', 'Family'): [None],  # No specific family of distribution
                 ('LS1', 'Theta_0'): [1.0],  # Constant value for simplicity
@@ -240,7 +357,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block', 'ls']),
         )
 
-
     def test__create_dmg_RVs(self, assessment_instance):
 
         damage_model = DamageModel_DS(assessment_instance)
@@ -257,10 +373,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
 
         damage_params = pd.DataFrame(
             {
-                ('Directional', None): [0.0],
-                ('Offset', None): [0.0],
-                ('Type', None): ['Peak Floor Acceleration'],
-                ('Incomplete', None): [0],
+                ('Demand', 'Directional'): [0.0],
+                ('Demand', 'Offset'): [0.0],
+                ('Demand', 'Type'): ['Peak Floor Acceleration'],
+                ('Incomplete', ''): [0],
                 ('LS1', 'DamageStateWeights'): [
                     '0.40 | 0.10 | 0.50',
                 ],

@@ -191,6 +191,12 @@ class DamageModel(PelicunModel):
         self.log.div()
         self.log.msg('Calculating damages...')
 
+        self.log.msg(
+            f'Number of Performance Groups in Asset Model:'
+            f' {self._asmnt.asset.cmp_sample.shape[1]}',
+            prepend_timestamp=False,
+        )
+
         # Instantiate `component_blocks`
         if 'Blocks' in self._asmnt.asset.cmp_marginal_params.columns:
             # If a `Blocks` column is available, use `cmp_marginals`
@@ -588,7 +594,9 @@ class DamageModel_Base(PelicunModel):
             .loc[:, 'Blocks']
             .to_frame()
         )
-
+        component_blocks = component_blocks.sort_index(
+            level=['Batch', 'cmp', 'loc', 'dir', 'uid']
+        )
         return component_blocks
 
 
@@ -622,13 +630,6 @@ class DamageModel_DS(DamageModel_Base):
         # computing.
 
         sample_size = len(demand_sample)
-
-        # get the list of performance groups
-        self.log.msg(
-            f'Number of Performance Groups in Asset Model:'
-            f' {self._asmnt.asset.cmp_sample.shape[1]}',
-            prepend_timestamp=False,
-        )
 
         component_blocks = self._get_pg_batches(
             component_blocks, block_batch_size, missing_components
@@ -913,7 +914,7 @@ class DamageModel_DS(DamageModel_Base):
             0,  # fill value
             columns=capacity_sample.columns.droplevel('ls').unique(),
             index=capacity_sample.index,
-            dtype='int32',
+            dtype='int64',
         )
 
         # get a list of limit state ids among all components in the damage model
