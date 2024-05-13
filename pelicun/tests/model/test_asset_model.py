@@ -38,10 +38,6 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the model module of pelicun.
-"""
-
 import tempfile
 from copy import deepcopy
 import pytest
