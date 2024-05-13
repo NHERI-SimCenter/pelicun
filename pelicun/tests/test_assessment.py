@@ -77,6 +77,7 @@ def test_Assessment_init():
         assert hasattr(asmt, attribute)
     # confirm that creating an attribute on the fly is not allowed
     with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
         asmt.my_attribute = 2
 
 
