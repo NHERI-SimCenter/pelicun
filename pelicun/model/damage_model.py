@@ -430,15 +430,6 @@ class DamageModel_Base(PelicunModel):
 
         self.damage_params.drop(cmp_incomplete_idx, inplace=True)
 
-        if len(cmp_incomplete_idx) > 0:
-            self.log.add_warning(
-                f"Damage model information is incomplete for "
-                f"the following component(s) "
-                f"{cmp_incomplete_idx.to_list()}. They "
-                f"were removed from the analysis."
-            )
-            self.log.emit_warnings()
-
     def _drop_unused_damage_parameters(self, cmp_set):
         """
         Removes damage parameter definitions for component IDs not
