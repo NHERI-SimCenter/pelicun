@@ -307,6 +307,14 @@ class LossModel(PelicunModel):
         # TODO: FIND A WAY to avoid making a copy of this.
         dmg_quantities = self._asmnt.damage.ds_model.sample.copy()
         demand = self._asmnt.demand.sample
+        demand_offset = self._asmnt.options.demand_offset
+        nondirectional_multipliers = self._asmnt.options.nondir_multi_dict
+        cmp_sample = self._asmnt.asset.cmp_sample.to_dict(
+            'series'
+        )  # this needs to become an argument
+        cmp_marginal_params = (
+            self._asmnt.asset.cmp_marginal_params
+        )  # this needs to become an argument
         if len(demand) != len(dmg_quantities):
             raise ValueError(
                 f'The demand sample contains {len(demand)} realizations, '
@@ -314,7 +322,9 @@ class LossModel(PelicunModel):
                 f'Loss calculation cannot proceed when these numbers are different. '
             )
         self.ds_model._calculate(dmg_quantities)
-        self.lf_model._calculate(demand)
+        self.lf_model._calculate(
+            demand, cmp_sample, cmp_marginal_params, demand_offset
+        )
         self.log.msg("Loss calculation successful.")
 
     def save_sample(self, filepath=None, save_units=False):
@@ -1291,7 +1301,14 @@ class RepairModel_LF(RepairModel_Base):
 
     __slots__ = ['decision_variables', '_loss_map', '_missing']
 
-    def _calculate(self, demand_sample):
+    def _calculate(
+        self,
+        demand_sample,
+        component_sample,
+        component_marginal_parameters,
+        demand_offset,
+        nondirectional_multipliers,
+    ):
         """
         Calculate the repair consequences of each loss function-driven
         component block in the asset.
@@ -1309,23 +1326,16 @@ class RepairModel_LF(RepairModel_Base):
 
         """
         loss_map = self._loss_map['Repair'].to_dict()
-        cmp_sample = self._asmnt.asset.cmp_sample.to_dict(
-            'series'
-        )  # this needs to become an argument
-        cmp_marginal_params = (
-            self._asmnt.asset.cmp_marginal_params
-        )  # this needs to become an argument
-
         sample_size = len(demand_sample)
 
-        demand_offset = self._asmnt.options.demand_offset
-
+        # TODO: this can be taken out and simly passed as blocks in
+        # the arguments, and cast to a dict in here. Index can be
+        # obtained from there.
         index = [
             x
             for x in cmp_marginal_params.index.get_level_values(0)
             if loss_map.get(x) in self.loss_params.index
         ]
-
         blocks = cmp_marginal_params.loc[index, 'Blocks'].to_dict()
 
         performance_group_dict = {}
@@ -1363,7 +1373,7 @@ class RepairModel_LF(RepairModel_Base):
 
         demand_dict = _assemble_required_demand_data(
             set(required_edps.values()),
-            self._asmnt.options.nondir_multi_dict,
+            nondirectional_multipliers,
             demand_sample,
         )
 
