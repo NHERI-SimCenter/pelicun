@@ -44,6 +44,7 @@ These are unit and integration tests on the model module of pelicun.
 
 import os
 import tempfile
+import warnings
 from copy import deepcopy
 import pytest
 import numpy as np
@@ -429,17 +430,24 @@ class TestDemandModel(TestModelModule):
                 },
             }
         )
-        demand_model.generate_sample(
-            {
-                'SampleSize': 1000,
-                'DemandCloning': {
-                    'PGV-0-1': ['PGV-0-1', 'PGV-0-2', 'PGV-0-3'],
-                    'PGV-1-1': ['PGV-1-1', 'PGV-1-2', 'PGV-1-3'],
-                    'PGV-2-1': ['PGV-2-1', 'PGV-2-2', 'PGV-2-3'],
-                    'not_present': ['X-0-0', 'Y-0-0', 'Z-0-0'],
-                },
-            }
-        )
+        with warnings.catch_warnings(record=True) as w:
+            demand_model.generate_sample(
+                {
+                    'SampleSize': 1000,
+                    'DemandCloning': {
+                        'PGV-0-1': ['PGV-0-1', 'PGV-0-2', 'PGV-0-3'],
+                        'PGV-1-1': ['PGV-1-1', 'PGV-1-2', 'PGV-1-3'],
+                        'PGV-2-1': ['PGV-2-1', 'PGV-2-2', 'PGV-2-3'],
+                        'not_present': ['X-0-0', 'Y-0-0', 'Z-0-0'],
+                    },
+                }
+            )
+        assert len(w) == 1
+        assert (
+            "The demand cloning configuration lists columns "
+            "that are not present in the original demand sample's "
+            "columns: ['not_present']."
+        ) in str(w[0].message)
         # we'll just get a warning for the `not_present` entry
         assert demand_model.sample.columns.to_list() == [
             ('PGA', '0', '1'),
