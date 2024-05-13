@@ -43,13 +43,16 @@ These are unit and integration tests on the auto module of pelicun.
 
 """
 
-import pytest
 from unittest.mock import patch
 from unittest.mock import MagicMock
+import pytest
 from pelicun.auto import auto_populate
 
 
 # pylint: disable=missing-function-docstring
+# pylint: disable=missing-return-doc,missing-return-type-doc
+# pylint: disable=redefined-outer-name
+
 
 # The tests maintain the order of definitions of the `auto.py` file.
 

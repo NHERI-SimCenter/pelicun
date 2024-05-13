@@ -51,8 +51,6 @@ from pelicun import file_io
 from pelicun import base
 from pelicun.warnings import PelicunWarning
 
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
 
 # The tests maintain the order of definitions of the `file_io.py` file.
 

@@ -53,6 +53,7 @@ from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
 # pylint: disable=arguments-renamed
+# pylint: disable=missing-return-doc,missing-return-type-doc
 
 
 class TestAssetModel(TestPelicunModel):

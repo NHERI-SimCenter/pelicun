@@ -48,7 +48,7 @@ from pelicun import assessment
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
-# pylint: disable=arguments-renamed
+# pylint: disable=missing-return-doc,missing-return-type-doc
 
 
 class TestModelModule:

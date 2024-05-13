@@ -55,7 +55,6 @@ from pelicun import uq
 from pelicun.tests.util import import_pickle
 from pelicun.tests.util import export_pickle
 
-# pylint: disable=missing-function-docstring
 
 # The tests maintain the order of definitions of the `uq.py` file.
 
@@ -808,6 +807,8 @@ def test_NormalRandomVariable():
     assert rv.sample_DF is None
     # confirm that creating an attribute on the fly is not allowed
     with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
+        # thanks pylint, we are aware of this.
         rv.xyz = 123
 
 
@@ -1145,25 +1146,27 @@ def test_MultilinearCDFRandomVariable_inverse_transform():
 def test_EmpiricalRandomVariable_inverse_transform():
     samples = np.array((0.10, 0.20, 0.30))
 
-    rv = uq.EmpiricalRandomVariable('test_rv', raw_samples=(1.00, 2.00, 3.00, 4.00))
+    rv_empirical = uq.EmpiricalRandomVariable(
+        'test_rv_empirical', raw_samples=(1.00, 2.00, 3.00, 4.00)
+    )
     # confirm that creating an attribute on the fly is not allowed
     with pytest.raises(AttributeError):
-        rv.xyz = 123
+        rv_empirical.xyz = 123
 
     samples = np.array((0.10, 0.50, 0.90))
 
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
+    rv_empirical.uni_sample = samples
+    rv_empirical.inverse_transform_sampling()
+    inverse_transform = rv_empirical.sample
 
     assert np.allclose(inverse_transform, np.array((1.00, 3.00, 4.00)), rtol=1e-5)
 
-    rv = uq.CoupledEmpiricalRandomVariable(
-        'test_rv',
+    rv_coupled = uq.CoupledEmpiricalRandomVariable(
+        'test_rv_coupled',
         raw_samples=np.array((1.00, 2.00, 3.00, 4.00)),
     )
-    rv.inverse_transform_sampling(sample_size=6)
-    inverse_transform = rv.sample
+    rv_coupled.inverse_transform_sampling(sample_size=6)
+    inverse_transform = rv_coupled.sample
 
     assert np.allclose(
         inverse_transform, np.array((1.00, 2.00, 3.00, 4.00, 1.00, 2.00)), rtol=1e-5

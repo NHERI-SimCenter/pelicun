@@ -51,9 +51,10 @@ import numpy as np
 import pandas as pd
 from pelicun.tests.model.test_model import TestModelModule
 
+# pylint: disable=unused-argument
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
-# pylint: disable=arguments-renamed
+# pylint: disable=missing-return-doc,missing-return-type-doc
 
 
 class TestDemandModel(TestModelModule):

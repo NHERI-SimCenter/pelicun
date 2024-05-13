@@ -52,7 +52,6 @@ import pandas as pd
 import numpy as np
 from pelicun import base
 
-# pylint: disable=missing-function-docstring
 
 # The tests maintain the order of definitions of the `base.py` file.
 
@@ -108,6 +107,7 @@ def test_options_init():
     assert options.seed == 42
 
     # test rng
+    # pylint: disable=c-extension-no-member
     assert isinstance(options.rng, np.random._generator.Generator)
 
 
@@ -166,7 +166,7 @@ def test_logger_msg():
     # Check if timestamp is printed
     with io.StringIO() as buf, redirect_stdout(buf):
         log.msg(
-            ('This is a message' '\n' 'Second line'), # noqa
+            ('This is a message\nSecond line'),  # noqa
             prepend_timestamp=True,
         )
         output = buf.getvalue()
@@ -746,17 +746,17 @@ def test_unit_conversion():
     assert base.convert_units(1.00, 'ft', 'm') == 0.3048
 
     # Test list conversion from feet to meters
-    feet_values = [1.0, 2.0, 3.0]
-    meter_values = [0.3048, 0.6096, 0.9144]
+    feet_values_list = [1.0, 2.0, 3.0]
+    meter_values_list = [0.3048, 0.6096, 0.9144]
     np.testing.assert_array_almost_equal(
-        base.convert_units(feet_values, 'ft', 'm'), meter_values
+        base.convert_units(feet_values_list, 'ft', 'm'), meter_values_list
     )
 
     # Test numpy array conversion from feet to meters
-    feet_values = np.array([1.0, 2.0, 3.0])
-    meter_values = np.array([0.3048, 0.6096, 0.9144])
+    feet_values_array = np.array([1.0, 2.0, 3.0])
+    meter_values_array = np.array([0.3048, 0.6096, 0.9144])
     np.testing.assert_array_almost_equal(
-        base.convert_units(feet_values, 'ft', 'm'), meter_values
+        base.convert_units(feet_values_array, 'ft', 'm'), meter_values_array
     )
 
     # Test conversion with explicit category

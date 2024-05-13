@@ -46,6 +46,7 @@ import pytest
 from pelicun import assessment
 
 # pylint: disable=missing-function-docstring
+# pylint: disable=missing-return-doc, missing-return-type-doc
 
 
 def create_assessment_obj(config=None):

@@ -44,7 +44,6 @@ This module defines pelicun warning classes and relevant methods
 """
 
 from __future__ import annotations
-import warnings
 
 
 class PelicunWarning(Warning):

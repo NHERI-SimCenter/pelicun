@@ -103,7 +103,6 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
 
-
 [REPORTS]
 
 # Set the output format. Available formats are text, parseable, colorized, msvs
@@ -326,7 +325,7 @@ method-rgx=[a-z_][a-z0-9_]{2,}$
 
 # Regular expression which should only match function or class names that do
 # not require a docstring. Use ^(?!__init__$)_ to also check __init__.
-no-docstring-rgx=^_
+no-docstring-rgx=((^test_)|(^_.*(?<!__init__)))
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.

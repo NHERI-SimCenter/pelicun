@@ -52,9 +52,7 @@ from pelicun import model
 from pelicun import assessment
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 
-# pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
-# pylint: disable=arguments-renamed
 
 # class TestLossModel(TestPelicunModel):
 #     @pytest.fixture
@@ -626,9 +624,9 @@ def test__prep_bounded_multilinear_median_DV():
         f(None)
 
 
-def _is_for_lf_model(data):
+def _is_for_lf_model():
     pass
 
 
-def _is_for_ds_model(data):
+def _is_for_ds_model():
     pass

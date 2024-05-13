@@ -52,7 +52,8 @@ from pelicun.tests.model.test_model import TestModelModule
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
-# pylint: disable=arguments-renamed
+# pylint: disable=missing-return-doc,missing-return-type-doc
+
 
 class TestPelicunModel(TestModelModule):
     @pytest.fixture

@@ -50,7 +50,6 @@ This file defines the DamageModel object and its methods.
 """
 
 from __future__ import annotations
-import warnings
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -60,7 +59,6 @@ from pelicun.model.demand_model import _verify_edps_available
 from pelicun import base
 from pelicun import uq
 from pelicun import file_io
-from pelicun.warnings import PelicunWarning
 
 idx = base.idx
 
@@ -216,7 +214,6 @@ class DamageModel(PelicunModel):
             self.log.msg(
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
-
 
         # ('cmp', 'loc', 'dir', 'uid') -> component quantity series
         component_quantities = self._asmnt.asset.cmp_sample.to_dict('series')

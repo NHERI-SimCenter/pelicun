@@ -943,8 +943,10 @@ def fit_distribution_to_sample(
             logger_object.emit_warnings()
         else:
             print(
-                f"\n{Fore.RED}WARNING: Demand sample size too small to reliably estimate "
-                "the correlation matrix. Assuming uncorrelated demands.{Style.RESET_ALL}"
+                f"\n{Fore.RED}WARNING: Demand sample size "
+                f"too small to reliably estimate "
+                f"the correlation matrix. Assuming "
+                f"uncorrelated demands.{Style.RESET_ALL}"
             )
 
     for d_i, distr in enumerate(dist_list):

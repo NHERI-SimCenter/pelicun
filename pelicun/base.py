@@ -297,8 +297,8 @@ class Logger:
                     f.write('')
             except BaseException as err:
                 print(
-                    f"{Fore.RED}WARNING: The filepath provided for the log file does "
-                    f"not point to a valid location: {log_file}. \nPelicun "
+                    f"{Fore.RED}WARNING: The filepath provided for the log file "
+                    f"does not point to a valid location: {log_file}. \nPelicun "
                     f"cannot print the log to a file.\n"
                     f"The error was: '{err}'{Style.RESET_ALL}"
                 )
@@ -436,12 +436,6 @@ def control_warnings():
 
         See also: `pelicun/pytest.ini`. Devs: make sure to update that
         file when addressing & eliminating warnings.
-
-    Parameters
-    ----------
-    show: bool
-        If True, warnings are set to the default level. If False,
-        warnings are ignored.
 
     """
     if not sys.warnoptions:
