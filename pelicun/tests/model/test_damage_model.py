@@ -49,8 +49,10 @@ import warnings
 import pytest
 import numpy as np
 import pandas as pd
-from pelicun import model
+from pelicun import base
 from pelicun import assessment
+from pelicun import model
+from pelicun.model.damage_model import DamageModel_DS
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 
 # pylint: disable=missing-function-docstring
@@ -79,7 +81,10 @@ class TestDamageModel(TestPelicunModel):
         pass
 
     def test_load_model_parameters(self, damage_model):
-        path = 'pelicun/tests/data/model/test_DamageModel/damage_db.csv'
+        path = (
+            'pelicun/tests/data/model/test_DamageModel/'
+            'load_model_parameters/damage_db.csv'
+        )
         # The file defines the parameters for four components:
         # component.A, component.B, component.C, and component.incomplete
         # component.incomplete is flagged incomplete.
@@ -180,17 +185,240 @@ class TestDamageModel_DS(TestDamageModel_Base):
     def test__prepare_dmg_quantities(self):
         pass
 
-    def test__perform_dmg_task(self):
-        pass
+    def test__perform_dmg_task(self, assessment_instance):
 
-    def test__perform_dmg_event(self):
-        pass
+        # Instantiate an isolated DamageModel_DS
+        damage_model = DamageModel_DS(assessment_instance)
 
-    def test__perform_dmg_event_loc(self):
-        pass
+        #
+        # when CMP.B reaches DS1, CMP.A should be DS4
+        #
 
-    def test__complete_ds_cols(self):
-        pass
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 0],
+                ('CMP.A', '1', '1', '1'): [0, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                ('CMP.B', '1', '1', '1'): [1, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS4"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: 4, 1: 0, 2: 4},
+            ('CMP.A', '1', '1', '1'): {0: 4, 1: 0, 2: 4},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
+        }
+
+        #
+        # when CMP.B reaches DS1, CMP.A should be NA (-1)
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 0],
+                ('CMP.A', '1', '1', '1'): [0, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                ('CMP.B', '1', '1', '1'): [1, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: -1, 1: 0, 2: -1},
+            ('CMP.A', '1', '1', '1'): {0: -1, 1: 0, 2: -1},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
+        }
+
+        #
+        # `-LOC` keyword
+        # when CMP.B reaches DS1, CMP.A should be DS4
+        # matching locations
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 0],
+                ('CMP.A', '2', '1', '0'): [0, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                ('CMP.B', '2', '1', '0'): [1, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_DS4"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: 4},
+            ('CMP.A', '2', '1', '0'): {0: 4, 1: 0, 2: 0},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.B', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
+        }
+
+        #
+        # ALL keyword
+        #
+        # Whenever CMP.A reaches DS1, all other components should be
+        # set to DS2.
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [1, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 0],
+                ('CMP.C', '1', '1', '0'): [0, 0, 0],
+                ('CMP.D', '1', '1', '0'): [0, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.A": {"DS1": "ALL_DS2"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: 1, 1: 0, 2: 0},
+            ('CMP.B', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
+            ('CMP.C', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
+            ('CMP.D', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
+        }
+
+        #
+        # NA keyword
+        #
+        # NA translates to -1 representing nan
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 0],
+                ('CMP.A', '1', '1', '1'): [0, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                ('CMP.B', '1', '1', '1'): [1, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: -1, 1: 0, 2: -1},
+            ('CMP.A', '1', '1', '1'): {0: -1, 1: 0, 2: -1},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
+        }
+
+        #
+        # NA keyword combined with `-LOC`
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 0],
+                ('CMP.A', '2', '1', '0'): [0, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 1],
+                ('CMP.B', '2', '1', '0'): [1, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_NA"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
+            ('CMP.A', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.B', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
+        }
+
+        #
+        # NA keyword combined with `-LOC` and `ALL`
+        #
+
+        ds_sample = pd.DataFrame(
+            {
+                ('CMP.A', '1', '1', '0'): [0, 0, 1],
+                ('CMP.A', '2', '1', '0'): [1, 0, 0],
+                ('CMP.B', '1', '1', '0'): [0, 0, 0],
+                ('CMP.B', '2', '1', '0'): [0, 0, 0],
+                ('CMP.C', '1', '1', '0'): [0, 0, 0],
+                ('CMP.C', '2', '1', '0'): [0, 0, 0],
+            },
+            dtype='int32',
+        )
+        ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        dmg_process = {"1_CMP.A-LOC": {"DS1": "ALL_NA"}}
+        for task in dmg_process.items():
+            damage_model._perform_dmg_task(task, ds_sample)
+        after = ds_sample
+
+        assert after.to_dict() == {
+            ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
+            ('CMP.A', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
+            ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
+            ('CMP.B', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
+            ('CMP.C', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
+            ('CMP.C', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
+        }
+
+    def test__complete_ds_cols(self, assessment_instance):
+
+        damage_model = DamageModel_DS(assessment_instance)
+        # the method needs damage parameters
+        damage_model.damage_params = base.convert_to_MultiIndex(
+            pd.read_csv(
+                (
+                    'pelicun/tests/data/model/test_DamageModel/'
+                    '_complete_ds_cols/parameters.csv'
+                ),
+                index_col=0,
+            ),
+            axis=1,
+        )
+        # Set up one realization, with 100 units of the component in
+        # damage state 2.
+        dmg_sample = pd.DataFrame(
+            np.full(1, 100.0),
+            columns=pd.MultiIndex.from_tuples(
+                [('test.component', '0', '0', '0', '2')]
+            ),
+        )
+        dmg_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'ds']
+        out = damage_model._complete_ds_cols(dmg_sample)
+        assert len(out.columns) == 4
+        # Ensure damage state 2 is unchanged and the rest of the
+        # damage states exist with a quantity of 0.00
+        assert list(out.columns.get_level_values('ds')) == ['0', '1', '2', '3']
+        assert list(out.iloc[0].values) == [0.00, 0.00, 100.00, 0.00]
 
 
 # class TestDamageModel(TestPelicunModel):
@@ -679,210 +907,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
 
 #         assert list(ds_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '1')
 #         assert list(qnt_sample.columns)[0] == ('B.10.31.001', '2', '2', '0', '0')
-
-#     def test__perform_dmg_task(self, assessment_instance):
-
-#         damage_model = assessment_instance.damage
-
-#         #
-#         # when CMP.B reaches DS1, CMP.A should be DS4
-#         #
-
-#         ds_sample = pd.DataFrame(
-#             {
-#                 ('CMP.A', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.A', '1', '1', '1'): [0, 0, 0],
-#                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
-#                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
-#             },
-#             dtype='int32',
-#         )
-#         ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-#         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS4"}}
-#         for task in dmg_process.items():
-#             damage_model._perform_dmg_task(task, ds_sample)
-#         after = ds_sample
-
-#         assert after.to_dict() == {
-#             ('CMP.A', '1', '1', '0'): {0: 4, 1: 0, 2: 4},
-#             ('CMP.A', '1', '1', '1'): {0: 4, 1: 0, 2: 4},
-#             ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-#             ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
-#         }
-
-#         #
-#         # when CMP.B reaches DS1, CMP.A should be NA (-1)
-#         #
-
-#         ds_sample = pd.DataFrame(
-#             {
-#                 ('CMP.A', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.A', '1', '1', '1'): [0, 0, 0],
-#                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
-#                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
-#             },
-#             dtype='int32',
-#         )
-#         ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-#         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
-#         for task in dmg_process.items():
-#             damage_model._perform_dmg_task(task, ds_sample)
-#         after = ds_sample
-
-#         assert after.to_dict() == {
-#             ('CMP.A', '1', '1', '0'): {0: -1, 1: 0, 2: -1},
-#             ('CMP.A', '1', '1', '1'): {0: -1, 1: 0, 2: -1},
-#             ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-#             ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
-#         }
-
-#         #
-#         # `-LOC` keyword
-#         # when CMP.B reaches DS1, CMP.A should be DS4
-#         # matching locations
-#         #
-
-#         ds_sample = pd.DataFrame(
-#             {
-#                 ('CMP.A', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.A', '2', '1', '0'): [0, 0, 0],
-#                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
-#                 ('CMP.B', '2', '1', '0'): [1, 0, 0],
-#             },
-#             dtype='int32',
-#         )
-#         ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-#         dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_DS4"}}
-#         for task in dmg_process.items():
-#             damage_model._perform_dmg_task(task, ds_sample)
-#         after = ds_sample
-
-#         assert after.to_dict() == {
-#             ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: 4},
-#             ('CMP.A', '2', '1', '0'): {0: 4, 1: 0, 2: 0},
-#             ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-#             ('CMP.B', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
-#         }
-
-#         #
-#         # ALL keyword
-#         #
-#         # Whenever CMP.A reaches DS1, all other components should be
-#         # set to DS2.
-#         #
-
-#         ds_sample = pd.DataFrame(
-#             {
-#                 ('CMP.A', '1', '1', '0'): [1, 0, 0],
-#                 ('CMP.B', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.C', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.D', '1', '1', '0'): [0, 0, 0],
-#             },
-#             dtype='int32',
-#         )
-#         ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-#         dmg_process = {"1_CMP.A": {"DS1": "ALL_DS2"}}
-#         for task in dmg_process.items():
-#             damage_model._perform_dmg_task(task, ds_sample)
-#         after = ds_sample
-
-#         assert after.to_dict() == {
-#             ('CMP.A', '1', '1', '0'): {0: 1, 1: 0, 2: 0},
-#             ('CMP.B', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
-#             ('CMP.C', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
-#             ('CMP.D', '1', '1', '0'): {0: 2, 1: 0, 2: 0},
-#         }
-
-#         #
-#         # NA keyword
-#         #
-#         # NA translates to -1 representing nan
-#         #
-
-#         ds_sample = pd.DataFrame(
-#             {
-#                 ('CMP.A', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.A', '1', '1', '1'): [0, 0, 0],
-#                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
-#                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
-#             },
-#             dtype='int32',
-#         )
-#         ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-#         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
-#         for task in dmg_process.items():
-#             damage_model._perform_dmg_task(task, ds_sample)
-#         after = ds_sample
-
-#         assert after.to_dict() == {
-#             ('CMP.A', '1', '1', '0'): {0: -1, 1: 0, 2: -1},
-#             ('CMP.A', '1', '1', '1'): {0: -1, 1: 0, 2: -1},
-#             ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-#             ('CMP.B', '1', '1', '1'): {0: 1, 1: 0, 2: 0},
-#         }
-
-#         #
-#         # NA keyword combined with `-LOC`
-#         #
-
-#         ds_sample = pd.DataFrame(
-#             {
-#                 ('CMP.A', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.A', '2', '1', '0'): [0, 0, 0],
-#                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
-#                 ('CMP.B', '2', '1', '0'): [1, 0, 0],
-#             },
-#             dtype='int32',
-#         )
-#         ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-#         dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_NA"}}
-#         for task in dmg_process.items():
-#             damage_model._perform_dmg_task(task, ds_sample)
-#         after = ds_sample
-
-#         assert after.to_dict() == {
-#             ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
-#             ('CMP.A', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
-#             ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-#             ('CMP.B', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
-#         }
-
-#         #
-#         # NA keyword combined with `-LOC` and `ALL`
-#         #
-
-#         ds_sample = pd.DataFrame(
-#             {
-#                 ('CMP.A', '1', '1', '0'): [0, 0, 1],
-#                 ('CMP.A', '2', '1', '0'): [1, 0, 0],
-#                 ('CMP.B', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.B', '2', '1', '0'): [0, 0, 0],
-#                 ('CMP.C', '1', '1', '0'): [0, 0, 0],
-#                 ('CMP.C', '2', '1', '0'): [0, 0, 0],
-#             },
-#             dtype='int32',
-#         )
-#         ds_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-#         dmg_process = {"1_CMP.A-LOC": {"DS1": "ALL_NA"}}
-#         for task in dmg_process.items():
-#             damage_model._perform_dmg_task(task, ds_sample)
-#         after = ds_sample
-
-#         assert after.to_dict() == {
-#             ('CMP.A', '1', '1', '0'): {0: 0, 1: 0, 2: 1},
-#             ('CMP.A', '2', '1', '0'): {0: 1, 1: 0, 2: 0},
-#             ('CMP.B', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
-#             ('CMP.B', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
-#             ('CMP.C', '1', '1', '0'): {0: 0, 1: 0, 2: -1},
-#             ('CMP.C', '2', '1', '0'): {0: -1, 1: 0, 2: 0},
-#         }
 
 #     def test__get_pg_batches_1(self, assessment_instance):
 #         damage_model = assessment_instance.damage

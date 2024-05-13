@@ -217,7 +217,17 @@ class DamageModel(PelicunModel):
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
-        qnt_sample = self.ds_model._prepare_dmg_quantities(ds_sample, dropzero=False)
+
+        # ('cmp', 'loc', 'dir', 'uid') -> component quantity series
+        component_quantities = self._asmnt.asset.cmp_sample.to_dict('series')
+        component_marginal_parameters = self._asmnt.asset.cmp_marginal_params
+
+        qnt_sample = self.ds_model._prepare_dmg_quantities(
+            ds_sample,
+            component_quantities,
+            component_marginal_parameters,
+            dropzero=False,
+        )
 
         # If requested, extend the quantity table with all possible DSs
         if self._asmnt.options.list_all_ds:
@@ -1272,7 +1282,13 @@ class DamageModel_DS(DamageModel_Base):
 
         return ds_sample
 
-    def _prepare_dmg_quantities(self, damage_state_sample, dropzero=True):
+    def _prepare_dmg_quantities(
+        self,
+        damage_state_sample,
+        component_quantities,
+        component_marginal_parameters,
+        dropzero=True,
+    ):
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -1283,9 +1299,13 @@ class DamageModel_DS(DamageModel_Base):
 
         Parameters
         ----------
-        damage_state_sample: DataFrame
+        damage_state_sample: pd.DataFrame
             A DataFrame that assigns a damage state to each component
             block in the asset model.
+        component_quantities: pd.DataFrame
+            Component quantity sample from the AssetModel.
+        component_marginal_parameters: pd.DataFrame
+            Component marginal parameters from the AssetModel.
         dropzero: bool, optional, default: True
             If True, the quantity of non-damaged components is not
             saved.
@@ -1304,10 +1324,6 @@ class DamageModel_DS(DamageModel_Base):
 
         # Retrieve the component quantity information and component
         # marginal parameters from the asset model
-
-        # ('cmp', 'loc', 'dir', 'uid') -> component quantity series
-        component_quantities = self._asmnt.asset.cmp_sample.to_dict('series')
-        component_marginal_parameters = self._asmnt.asset.cmp_marginal_params
 
         if (component_marginal_parameters is not None) and (
             'Blocks' in component_marginal_parameters.columns
@@ -1618,6 +1634,11 @@ class DamageModel_DS(DamageModel_Base):
 
         # initialize the result dataframe
         res = pd.DataFrame()
+
+        # TODO: For the code below, store the number of damage states
+        # for each component ID as an attribute of the ds_model when
+        # loading the parameters, and then directly access them here
+        # much faster instead of parsing the parameters again.
 
         # walk through all components that have damage parameters provided
         for cmp_id in DP.index:
