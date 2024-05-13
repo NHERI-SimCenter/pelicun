@@ -54,6 +54,7 @@ from pelicun import assessment
 from pelicun import model
 from pelicun import uq
 from pelicun.model.damage_model import DamageModel_DS
+from pelicun.model.damage_model import _is_for_ds_model
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 from pelicun.warnings import PelicunWarning
 
@@ -128,8 +129,6 @@ class TestDamageModel(TestPelicunModel):
             "information for the following component(s) "
             "in the asset model: ['not.exist']."
         ) in str(w[0].message)
-        # with pytest.warns:
-        #     pass
         assert damage_model.ds_model.damage_params.empty
 
     def test_calculate(self):
@@ -142,7 +141,32 @@ class TestDamageModel(TestPelicunModel):
         pass
 
     def test__ensure_damage_parameter_availability(self):
-        pass
+
+        damage_model = DamageModel_DS(assessment_instance)
+
+        cmp_list = ['cmp.1', 'cmp.2', 'cmp.3', 'cmp.4']
+
+        damage_model._get_component_id_set = lambda: {'cmp.1', 'cmp.3', 'cmp.5'}
+
+        # Expected missing components
+        expected_missing_components = ['cmp.2', 'cmp.4']
+
+        # Execute the method under test with a warning check
+        with pytest.warns(UserWarning) as record:
+            missing_components = damage_model._ensure_damage_parameter_availability(
+                cmp_list
+            )
+
+        # Assert that the missing components are identified correctly
+        assert (
+            missing_components == expected_missing_components
+        ), "Test failed: Incorrect missing components identified."
+
+        # Check if the warning was correctly logged
+        assert len(record) == 1, "Test failed: Expected one warning to be logged."
+        assert "cmp.2" in str(record[0].message) and "cmp.4" in str(
+            record[0].message
+        ), "Test failed: The warning message does not correctly list the missing components."
 
 
 class TestDamageModel_Base(TestPelicunModel):
@@ -1039,7 +1063,28 @@ class TestDamageModel_DS(TestDamageModel_Base):
 
 
 def test__is_for_ds_model():
-    pass
+
+    data_with_ls1 = pd.DataFrame(
+        {
+            ('LS1', 'Theta_0'): [0.5],
+            ('LS2', 'Theta_0'): [0.6],
+        },
+        index=pd.Index(['cmp.1'], name='ID'),
+    )
+
+    data_without_ls1 = pd.DataFrame(
+        {
+            ('Demand', 'Type'): ['Type1'],
+            ('LS2', 'Theta_0'): [0.6],
+        },
+        index=pd.Index(['cmp.1'], name='ID'),
+    )
+
+    result_with_ls1 = _is_for_ds_model(data_with_ls1)
+    assert result_with_ls1 == True
+
+    result_without_ls1 = _is_for_ds_model(data_without_ls1)
+    assert result_without_ls1 == False
 
 
 # class TestDamageModel(TestPelicunModel):

@@ -339,16 +339,6 @@ class DamageModel(PelicunModel):
 
         self.log.msg('Damage sample successfully loaded.', prepend_timestamp=False)
 
-    def _get_component_id_set(self):
-        """
-        Get a set of components for which damage parameters are
-        available.
-        """
-        cmp_list = []
-        if self.ds_model.damage_params is not None:
-            cmp_list.extend(self.ds_model.damage_params.index.to_list())
-        return set(cmp_list)
-
     def _ensure_damage_parameter_availability(self, cmp_list):
         """
         Makes sure that all components have damage parameters.
@@ -377,6 +367,16 @@ class DamageModel(PelicunModel):
             self.log.emit_warnings()
 
         return missing_components
+
+    def _get_component_id_set(self):
+        """
+        Get a set of components for which damage parameters are
+        available.
+        """
+        cmp_list = []
+        if self.ds_model.damage_params is not None:
+            cmp_list.extend(self.ds_model.damage_params.index.to_list())
+        return set(cmp_list)
 
 
 class DamageModel_Base(PelicunModel):
