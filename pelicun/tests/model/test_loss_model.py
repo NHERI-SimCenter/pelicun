@@ -119,8 +119,59 @@ class TestLossModel(TestPelicunModel):
         for model in loss_model._loss_models:
             pd.testing.assert_frame_equal(model._loss_map, loss_map)
 
-    def TODO_test_load_model_parameters(self):
-        pass
+    def test_load_model_parameters(self, loss_model, asset_model_A):
+
+        loss_model._asmnt.asset = asset_model_A
+        loss_model.decision_variables = ('my_RV',)
+        loss_map = loss_map = pd.DataFrame(
+            {
+                'Repair': ['consequence.A', 'consequence.B', 'consequence.F'],
+            },
+            index=['cmp.A', 'cmp.B', 'cmp.F'],
+        )
+        loss_model.add_loss_map(loss_map)
+        # consequence.A will be for the DS model
+        # consequence.B will be for the LF model
+        # consequence.C will have no loss parameters defined for it
+        # consequence.D should be removed from the DS parameters
+        # consequence.E should be removed from the LF parameters
+        # consequence.F should be missing
+        ds_loss_parameters = pd.DataFrame(
+            {
+                ('Quantity', 'Unit'): ['1 EA'] * 2,
+                ('DV', 'Unit'): ['1 EA'] * 2,
+                ('DS1', 'Theta_0'): ['0.00,1.00|0.00,1.00'] * 2,
+            },
+            index=pd.MultiIndex.from_tuples(
+                [('consequence.A', 'my_RV'), ('consequence.D', 'my_RV')]
+            ),
+        )
+        lf_loss_parameters = pd.DataFrame(
+            {
+                ('Quantity', 'Unit'): ['1 EA'] * 2,
+                ('DV', 'Unit'): ['1 EA'] * 2,
+                ('Demand', 'Unit'): ['1 EA'] * 2,
+                ('LossFunction', 'Theta_0'): ['0.00,1.00|0.00,1.00'] * 2,
+            },
+            index=pd.MultiIndex.from_tuples(
+                [('consequence.B', 'my_RV'), ('consequence.E', 'my_RV')]
+            ),
+        )
+        with pytest.warns(PelicunWarning) as record:
+            loss_model.load_model_parameters([ds_loss_parameters, lf_loss_parameters])
+
+        loss_model.ds_model.loss_params
+        loss_model.lf_model.loss_params
+        loss_model._missing
+
+        # assert len(record) == 1
+        # TODO: re-enable the line above once we address other
+        # warnings, and change indexing to [0] below.
+        assert (
+            "The loss model does not provide loss information "
+            "for the following component(s) in the asset "
+            "model: [('consequence.F', 'my_RV')]."
+        ) in str(record[-1].message)
 
     def TODO_test_calculate(self):
         pass
