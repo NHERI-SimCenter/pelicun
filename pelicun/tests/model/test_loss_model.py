@@ -175,9 +175,6 @@ class TestLossModel(TestPelicunModel):
             "model: [('consequence.F', 'my_RV')]."
         ) in str(record[-1].message)
 
-    def TODO_test_calculate(self):
-        pass
-
     def TODO_test_save_sample(self):
         pass
 
