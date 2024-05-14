@@ -382,8 +382,41 @@ class TestRepairModel_DS(TestRepairModel_Base):
     def TODO_test__create_DV_RVs(self):
         pass
 
-    def TODO_test__calc_median_consequence(self):
-        pass
+    def test__calc_median_consequence(self, assessment_instance):
+        model = RepairModel_DS(assessment_instance)
+        eco_qnt = pd.DataFrame(
+            {
+                ('cmp.A', '0'): [0.00, 0.00, 1.00],
+                ('cmp.A', '1'): [1.00, 0.00, 0.00],
+                ('cmp.A', '2'): [0.00, 1.00, 0.00],
+            }
+        ).rename_axis(columns=['cmp', 'ds'])
+        model.decision_variables = ('my_DV',)
+        model._loss_map = pd.DataFrame(
+            {'Repair': ['cmp.A']},
+            index=['cmp.A'],
+        )
+        model.loss_params = pd.DataFrame(
+            {
+                ('DV', 'Unit'): ['1 EA'],
+                ('Quantity', 'Unit'): ['1 EA'],
+                ('DS1', 'Theta_0'): [100.00],
+                ('DS2', 'Theta_0'): [200.00],
+            },
+            index=pd.MultiIndex.from_tuples([('cmp.A', 'my_DV')]),
+        ).rename_axis(index=['Loss Driver', 'Decision Variable'])
+        model._missing = set()
+        medians = model._calc_median_consequence(eco_qnt)
+        assert len(medians) == 1 and 'my_DV' in medians
+        pd.testing.assert_frame_equal(
+            medians['my_DV'],
+            pd.DataFrame(
+                {
+                    ('cmp.A', '1'): [100.00, 100.00, 100.00],
+                    ('cmp.A', '2'): [200.00, 200.00, 200.00],
+                }
+            ).rename_axis(columns=['cmp', 'ds']),
+        )
 
 
 class TestRepairModel_LF(TestRepairModel_Base):
