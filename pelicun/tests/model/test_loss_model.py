@@ -166,8 +166,51 @@ class TestLossModel(TestPelicunModel):
         for model in loss_model._loss_models:
             assert model._missing == missing
 
-    def TODO_test__ensure_loss_parameter_availability(self):
-        pass
+    def test__ensure_loss_parameter_availability(self, assessment_instance):
+        model = LossModel(assessment_instance)
+
+        # Only consider `DecisionVariableXYZ`
+        model.decision_variables = ('DecisionVariableXYZ',)
+
+        # A, B should be in the ds model
+        # C, D should be in the lf model
+        # E should be missing
+
+        loss_map = loss_map = pd.DataFrame(
+            {
+                'Repair': [f'consequence_{x}' for x in ('A', 'B', 'C', 'D', 'E')],
+            },
+            index=[f'cmp_{x}' for x in ('A', 'B', 'C', 'D', 'E')],
+        )
+
+        model._loss_map = loss_map
+
+        model.ds_model.loss_params = pd.DataFrame(
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('consequence_A', 'DecisionVariableXYZ'),
+                    ('consequence_B', 'DecisionVariableXYZ'),
+                ]
+            )
+        )
+        model.lf_model.loss_params = pd.DataFrame(
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('consequence_C', 'DecisionVariableXYZ'),
+                    ('consequence_D', 'DecisionVariableXYZ'),
+                ]
+            )
+        )
+
+        with pytest.warns(PelicunWarning) as record:
+            missing = model._ensure_loss_parameter_availability()
+        assert missing == {('consequence_E', 'DecisionVariableXYZ')}
+        assert len(record) == 1
+        assert (
+            "The loss model does not provide loss information "
+            "for the following component(s) in the asset model: "
+            "[('consequence_E', 'DecisionVariableXYZ')]"
+        ) in str(record[0].message)
 
 
 class TestRepairModel_Base(TestPelicunModel):
@@ -224,8 +267,10 @@ class TestRepairModel_Base(TestPelicunModel):
             ),
         )
 
-    def TODO_test__get_available(self):
-        pass
+    def test__get_available(self, assessment_instance):
+        model = RepairModel_Base(assessment_instance)
+        model.loss_params = pd.DataFrame(index=['cmp.A', 'cmp.B', 'cmp.C'])
+        assert model._get_available() == {'cmp.A', 'cmp.B', 'cmp.C'}
 
 
 class TestRepairModel_DS(TestRepairModel_Base):
