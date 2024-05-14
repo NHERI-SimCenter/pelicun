@@ -64,6 +64,29 @@ class TestLossModel(TestPelicunModel):
     def loss_model(self, assessment_instance):
         return deepcopy(assessment_instance.loss)
 
+    @pytest.fixture
+    def asset_model_empty(self, assessment_instance):
+        return deepcopy(assessment_instance.asset)
+
+    @pytest.fixture
+    def asset_model_A(self, asset_model_empty):
+        asset = deepcopy(asset_model_empty)
+        asset.cmp_marginal_params = pd.DataFrame(
+            {
+                ('Theta_0'): [1.0, 1.0, 1.0],
+                ('Blocks'): [1, 1, 1],
+            },
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('cmp.A', '1', '1', '0'),
+                    ('cmp.B', '1', '1', '0'),
+                    ('cmp.C', '1', '1', '0'),
+                ]
+            ),
+        ).rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
+        asset.generate_cmp_sample(sample_size=10)
+        return asset
+
     def test___init__(self, loss_model):
         assert loss_model.log
         assert loss_model.ds_model
@@ -81,8 +104,20 @@ class TestLossModel(TestPelicunModel):
         assert loss_model.ds_model.decision_variables == dvs
         assert loss_model.lf_model.decision_variables == dvs
 
-    def TODO_test_add_loss_map(self):
-        pass
+    def test_add_loss_map(self, loss_model, asset_model_A):
+
+        loss_model._asmnt.asset = asset_model_A
+
+        loss_map = loss_map = pd.DataFrame(
+            {
+                'Repair': ['consequence.A', 'consequence.B'],
+            },
+            index=['cmp.A', 'cmp.B'],
+        )
+        loss_model.add_loss_map(loss_map)
+        pd.testing.assert_frame_equal(loss_model._loss_map, loss_map)
+        for model in loss_model._loss_models:
+            pd.testing.assert_frame_equal(model._loss_map, loss_map)
 
     def TODO_test_load_model_parameters(self):
         pass
