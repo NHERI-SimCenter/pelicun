@@ -196,8 +196,33 @@ class TestRepairModel_Base(TestPelicunModel):
             pd.DataFrame(index=[f'consequence_{x}' for x in ('A', 'B')]),
         )
 
-    def TODO_test__remove_incomplete_components(self):
-        pass
+    def test__remove_incomplete_components(self, assessment_instance):
+        model = RepairModel_Base(assessment_instance)
+        # without loss_params, it should do nothing
+        model._remove_incomplete_components()
+        # without incomplete, it should do nothing
+        loss_params = pd.DataFrame(
+            index=[f'consequence_{x}' for x in ('A', 'B', 'C', 'D')]
+        )
+        model.loss_params = loss_params
+        model._remove_incomplete_components()
+        pd.testing.assert_frame_equal(
+            model.loss_params,
+            loss_params,
+        )
+        model.loss_params = pd.DataFrame(
+            {('Incomplete', ''): [0, 0, 0, 1]},
+            index=[f'consequence_{x}' for x in ('A', 'B', 'C', 'D')],
+        )
+        # Now entry D should be gone
+        model._remove_incomplete_components()
+        pd.testing.assert_frame_equal(
+            model.loss_params,
+            pd.DataFrame(
+                {('Incomplete', ''): [0, 0, 0]},
+                index=[f'consequence_{x}' for x in ('A', 'B', 'C')],
+            ),
+        )
 
     def TODO_test__get_available(self):
         pass
