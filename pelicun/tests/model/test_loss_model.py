@@ -260,9 +260,40 @@ def test__prep_bounded_multilinear_median_DV():
         f(None)
 
 
-def TODO_test__is_for_lf_model():
-    pass
+def test__is_for_lf_model():
 
+    positive_case = pd.DataFrame(
+        {
+            ('LossFunction', 'Theta_0'): [0.5],
+        },
+        index=pd.Index(['cmp.1'], name='ID'),
+    )
 
-def TODO_test__is_for_ds_model():
-    pass
+    negative_case = pd.DataFrame(
+        {
+            ('DS1', 'Theta_0'): [0.50],
+        },
+        index=pd.Index(['cmp.1'], name='ID'),
+    )
+
+    assert _is_for_lf_model(positive_case) is True
+    assert _is_for_lf_model(negative_case) is False
+
+def test__is_for_ds_model():
+
+    positive_case = pd.DataFrame(
+        {
+            ('DS1', 'Theta_0'): [0.50],
+        },
+        index=pd.Index(['cmp.1'], name='ID'),
+    )
+
+    negative_case = pd.DataFrame(
+        {
+            ('LossFunction', 'Theta_0'): [0.5],
+        },
+        index=pd.Index(['cmp.1'], name='ID'),
+    )
+
+    assert _is_for_ds_model(positive_case) is True
+    assert _is_for_ds_model(negative_case) is False
