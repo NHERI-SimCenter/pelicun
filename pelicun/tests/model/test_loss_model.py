@@ -177,8 +177,24 @@ class TestRepairModel_Base(TestPelicunModel):
     def TODO_test__load_model_parameters(self):
         pass
 
-    def TODO_test__drop_unused_loss_parameters(self):
-        pass
+    def test__drop_unused_loss_parameters(self, assessment_instance):
+        model = RepairModel_Base(assessment_instance)
+        loss_map = loss_map = pd.DataFrame(
+            {
+                'Repair': ['consequence_A', 'consequence_B'],
+            },
+            index=['cmp_A', 'cmp_B'],
+        )
+        # without loss_params, it should do nothing
+        model._drop_unused_loss_parameters(loss_map)
+        model.loss_params = pd.DataFrame(
+            index=[f'consequence_{x}' for x in ('A', 'B', 'C', 'D')]
+        )
+        model._drop_unused_loss_parameters(loss_map)
+        pd.testing.assert_frame_equal(
+            model.loss_params,
+            pd.DataFrame(index=[f'consequence_{x}' for x in ('A', 'B')]),
+        )
 
     def TODO_test__remove_incomplete_components(self):
         pass
@@ -278,6 +294,7 @@ def test__is_for_lf_model():
 
     assert _is_for_lf_model(positive_case) is True
     assert _is_for_lf_model(negative_case) is False
+
 
 def test__is_for_ds_model():
 
