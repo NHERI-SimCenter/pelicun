@@ -158,7 +158,9 @@ class TestLossModel(TestPelicunModel):
             ),
         )
         with pytest.warns(PelicunWarning) as record:
-            loss_model.load_model_parameters([ds_loss_parameters, lf_loss_parameters])
+            loss_model.load_model_parameters(
+                [ds_loss_parameters, lf_loss_parameters]
+            )
 
         loss_model.ds_model.loss_params
         loss_model.lf_model.loss_params
@@ -266,11 +268,10 @@ class TestLossModel(TestPelicunModel):
 
 
 class TestRepairModel_Base(TestPelicunModel):
-    def TODO_test___init__(self):
-        pass
-
-    def TODO_test__load_model_parameters(self):
-        pass
+    def test___init__(self, assessment_instance):
+        model = RepairModel_Base(assessment_instance)
+        with pytest.raises(AttributeError):
+            model.xyz = 123
 
     def test__drop_unused_loss_parameters(self, assessment_instance):
         model = RepairModel_Base(assessment_instance)
