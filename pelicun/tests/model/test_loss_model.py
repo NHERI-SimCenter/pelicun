@@ -235,8 +235,37 @@ class TestRepairModel_DS(TestRepairModel_Base):
     def TODO_test__aggregate_losses(self):
         pass
 
-    def TODO_test__convert_loss_parameter_units(self):
-        pass
+    def test__convert_loss_parameter_units(self, assessment_instance):
+        model = RepairModel_DS(assessment_instance)
+        model.loss_params = pd.DataFrame(
+            {
+                ('Quantity', 'Unit'): ['1 test_two', '1 EA'],
+                ('DV', 'Unit'): ['test_three', 'test_three'],
+                ('DS1', 'Theta_0'): ['200.00,100.00|10.00,20.00', '100.00'],
+                ('DS1', 'Theta_1'): [0.20, None],
+                ('DS1', 'Family'): ['lognormal', None],
+            },
+            index=pd.MultiIndex.from_tuples([('cmpA', 'Cost'), ('cmpB', 'Cost')]),
+        )
+
+        model._convert_loss_parameter_units()
+
+        # DVs are scaled by 3/2, quantities by 2
+        pd.testing.assert_frame_equal(
+            model.loss_params,
+            pd.DataFrame(
+                {
+                    ('Quantity', 'Unit'): ['1 test_two', '1 EA'],
+                    ('DV', 'Unit'): ['test_three', 'test_three'],
+                    ('DS1', 'Theta_0'): ['300,150|20,40', 300.0],
+                    ('DS1', 'Theta_1'): [0.20, None],
+                    ('DS1', 'Family'): ['lognormal', None],
+                },
+                index=pd.MultiIndex.from_tuples(
+                    [('cmpA', 'Cost'), ('cmpB', 'Cost')]
+                ),
+            ),
+        )
 
     def test__drop_unused_damage_states(self, assessment_instance):
         model = RepairModel_DS(assessment_instance)
@@ -266,8 +295,38 @@ class TestRepairModel_LF(TestRepairModel_Base):
     def TODO_test__calculate(self):
         pass
 
-    def TODO_test__convert_loss_parameter_units(self):
-        pass
+    def test__convert_loss_parameter_units(self, assessment_instance):
+        model = RepairModel_LF(assessment_instance)
+        model.loss_params = pd.DataFrame(
+            {
+                ('Demand', 'Unit'): ['inps2', 'g'],
+                ('DV', 'Unit'): ['test_three', 'test_three'],
+                ('LossFunction', 'Theta_0'): [
+                    '1.00,1.00|1.00,1.00',
+                    '1.00,1.00|1.00,1.00',
+                ],
+            },
+            index=pd.MultiIndex.from_tuples([('cmpA', 'Cost'), ('cmpB', 'Cost')]),
+        )
+
+        model._convert_loss_parameter_units()
+
+        pd.testing.assert_frame_equal(
+            model.loss_params,
+            pd.DataFrame(
+                {
+                    ('Demand', 'Unit'): ['inps2', 'g'],
+                    ('DV', 'Unit'): ['test_three', 'test_three'],
+                    ('LossFunction', 'Theta_0'): [
+                        '3,3|0.0254,0.0254',
+                        '3,3|9.80665,9.80665',
+                    ],
+                },
+                index=pd.MultiIndex.from_tuples(
+                    [('cmpA', 'Cost'), ('cmpB', 'Cost')]
+                ),
+            ),
+        )
 
     def TODO_test__calc_median_consequence(self):
         pass
