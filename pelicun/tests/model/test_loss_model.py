@@ -238,8 +238,22 @@ class TestRepairModel_DS(TestRepairModel_Base):
     def TODO_test__convert_loss_parameter_units(self):
         pass
 
-    def TODO_test__drop_unused_damage_states(self):
-        pass
+    def test__drop_unused_damage_states(self, assessment_instance):
+        model = RepairModel_DS(assessment_instance)
+        loss_params = pd.DataFrame(
+            {
+                ('DS1', 'Theta_0'): [1.0, 1.0, 1.0, 1.0],
+                ('DS2', 'Theta_0'): [1.0, 1.0, 1.0, None],
+                ('DS3', 'Theta_0'): [1.0, 1.0, None, None],
+                ('DS4', 'Theta_0'): [1.0, None, None, None],
+                ('DS5', 'Theta_0'): [None, None, None, None],
+                ('DS6', 'Theta_0'): [None, None, None, None],
+                ('DS7', 'Theta_0'): [None, None, None, None],
+            }
+        )
+        model.loss_params = loss_params
+        model._drop_unused_damage_states()
+        pd.testing.assert_frame_equal(model.loss_params, loss_params.iloc[0:4, :])
 
     def TODO_test__create_DV_RVs(self):
         pass
