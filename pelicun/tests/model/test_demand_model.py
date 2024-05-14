@@ -63,7 +63,7 @@ class TestDemandModel(TestModelModule):
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/data/model/'
-            'test_DemandModel_load_sample/demand_sample_A.csv'
+            'test_DemandModel/load_sample/demand_sample_A.csv'
         )
         return deepcopy(mdl)
 
@@ -90,7 +90,7 @@ class TestDemandModel(TestModelModule):
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/data/model/'
-            'test_DemandModel_load_sample/demand_sample_B.csv'
+            'test_DemandModel/load_sample/demand_sample_B.csv'
         )
         return deepcopy(mdl)
 
@@ -99,7 +99,7 @@ class TestDemandModel(TestModelModule):
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/data/model/'
-            'test_DemandModel_load_sample/demand_sample_C.csv'
+            'test_DemandModel/load_sample/demand_sample_C.csv'
         )
         return deepcopy(mdl)
 
@@ -108,7 +108,7 @@ class TestDemandModel(TestModelModule):
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/data/model/'
-            'test_DemandModel_load_sample/demand_sample_D.csv'
+            'test_DemandModel/load_sample/demand_sample_D.csv'
         )
         return deepcopy(mdl)
 
@@ -404,7 +404,7 @@ class TestDemandModel(TestModelModule):
         # PGA-0-1 is not cloned.
         mdl.load_sample(
             'pelicun/tests/data/model/'
-            'test_DemandModel_generate_sample_with_demand_cloning/sample.csv'
+            'test_DemandModel/generate_sample_with_demand_cloning/sample.csv'
         )
         demand_model.calibrate_model(
             {
