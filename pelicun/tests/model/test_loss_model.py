@@ -203,7 +203,8 @@ class TestLossModel(TestPelicunModel):
         )
 
         with pytest.warns(PelicunWarning) as record:
-            missing = model._ensure_loss_parameter_availability()
+            model._ensure_loss_parameter_availability()
+            missing = model._missing
         assert missing == {('consequence_E', 'DecisionVariableXYZ')}
         assert len(record) == 1
         assert (

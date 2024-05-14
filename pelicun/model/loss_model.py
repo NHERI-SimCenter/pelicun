@@ -284,9 +284,7 @@ class LossModel(PelicunModel):
             'availability for all components in the asset model.',
             prepend_timestamp=False,
         )
-        missing = self._ensure_loss_parameter_availability()
-
-        self._missing = missing
+        self._ensure_loss_parameter_availability()
 
     def calculate(self):
         """
@@ -555,7 +553,7 @@ class LossModel(PelicunModel):
             )
             self.log.emit_warnings()
 
-        return missing_set
+        self._missing = missing_set
 
 
 class RepairModel_Base(PelicunModel):
