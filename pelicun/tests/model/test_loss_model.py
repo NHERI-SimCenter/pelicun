@@ -476,6 +476,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
             names=['cmp', 'loc', 'dir', 'uid', 'ds'],
         )
         rv_reg = model._create_DV_RVs(cases)
+
         assert rv_reg is None
 
     def test__calc_median_consequence_no_locs(self, assessment_instance):
@@ -653,8 +654,149 @@ class TestRepairModel_LF(TestRepairModel_Base):
             ),
         )
 
-    def TODO_test__calc_median_consequence(self):
-        pass
+    def test__calc_median_consequence(self, assessment_instance):
+
+        model = RepairModel_LF(assessment_instance)
+
+        performance_group = pd.DataFrame(
+            {
+                'Blocks': [1],
+            },
+            index=pd.MultiIndex.from_tuples([(('cmp.A', 'dv.A'), '0', '1', '0')]),
+        )
+        loss_map = {'cmp.A': 'cmp.A'}
+        required_edps = {(('cmp.A', 'dv.A'), '0', '1', '0'): 'PFA-1-1'}
+        demand_dict = {'PFA-1-1': np.array((1.00, 2.00, 3.00))}
+        cmp_sample = {
+            ('cmp.A', '0', '1', '0'): pd.Series(
+                np.array((10.00, 20.00, 30.00)), name=('cmp.A', '0', '1', '0')
+            )
+        }
+        model.loss_params = pd.DataFrame(
+            {
+                ('LossFunction', 'Theta_0'): ['0.00,1.00|0.00,10.00'],
+            },
+            index=pd.MultiIndex.from_tuples(
+                [('cmp.A', 'dv.A')], names=['Loss Driver', 'Decsision Variable']
+            ),
+        )
+        medians = model._calc_median_consequence(
+            performance_group, loss_map, required_edps, demand_dict, cmp_sample
+        )
+        pd.testing.assert_frame_equal(
+            medians,
+            pd.DataFrame(
+                {('dv.A', 'cmp.A', 'cmp.A', '0', '1', '0', '0'): [1.0, 4.0, 9.0]},
+            ).rename_axis(
+                columns=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid', 'block']
+            ),
+        )
+        # test small interpolation domain warning
+        demand_dict = {'PFA-1-1': np.array((1.00, 2.00, 1e3))}
+        with pytest.raises(ValueError) as record:
+            model._calc_median_consequence(
+                performance_group, loss_map, required_edps, demand_dict, cmp_sample
+            )
+        assert (
+            'Loss function for consequence `cmp.A-dv.A` '
+            'has an insufficiently small interpolation domain.'
+        ) in str(record.value)
+
+    def test__create_DV_RVs(self, assessment_instance):
+
+        assessment_instance.options.rho_cost_time = 0.50
+        model = RepairModel_LF(assessment_instance)
+        model.decision_variables = ('Cost', 'Time')
+        model._missing = set()
+        model._loss_map = pd.DataFrame(
+            {
+                'Repair': ['cmp.A', 'cmp.B'],
+            },
+            index=['cmp.A', 'cmp.B'],
+        )
+        model.loss_params = pd.DataFrame(
+            {
+                ('DV', 'Unit'): ['1 EA', '1 EA', '1 EA'],
+                ('Quantity', 'Unit'): ['1 EA', '1 EA', '1 EA'],
+                ('LossFunction', 'Family'): ['normal', 'normal', None],
+                ('LossFunction', 'Theta_0'): ['0.0,1.0|0.0,1.0', '0.0,1.0|0.0,1.0', '0.0,1.0|0.0,1.0'],
+                ('LossFunction', 'Theta_1'): [0.3, 0.3, None],
+            },
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('cmp.A', 'Cost'),
+                    ('cmp.A', 'Time'),
+                    ('cmp.B', 'Cost'),
+                ]
+            ),
+        ).rename_axis(index=['Loss Driver', 'Decision Variable'])
+
+        cases = pd.MultiIndex.from_tuples(
+            [
+                ('Cost', 'cmp.A', 'cmp.A', '0', '1', '0', '1'),
+                ('Time', 'cmp.A', 'cmp.A', '0', '1', '0', '1'),
+                ('Cost', 'cmp.B', 'cmp.B', '0', '1', '0', '1'),
+            ],
+            names=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid', 'block'],
+        )
+        rv_reg = model._create_DV_RVs(cases)
+        for key in (
+            'Cost-cmp.A-cmp.A-0-1-0-1',
+            'Time-cmp.A-cmp.A-0-1-0-1',
+        ):
+            assert key in rv_reg.RV
+        assert len(rv_reg.RV) == 2
+        assert isinstance(rv_reg.RV['Cost-cmp.A-cmp.A-0-1-0-1'], uq.NormalRandomVariable)
+        assert isinstance(rv_reg.RV['Time-cmp.A-cmp.A-0-1-0-1'], uq.NormalRandomVariable)
+        assert np.all(
+            rv_reg.RV['Cost-cmp.A-cmp.A-0-1-0-1'].theta[0:2] == np.array((1.0, 0.3))
+        )
+        assert np.all(
+            rv_reg.RV['Time-cmp.A-cmp.A-0-1-0-1'].theta[0:2] == np.array((1.0, 0.3))
+        )
+        assert 'DV-cmp.A-cmp.A-0-1-0-1_set' in rv_reg.RV_set
+        np.all(
+            rv_reg.RV_set['DV-cmp.A-cmp.A-0-1-0-1_set'].Rho()
+            == np.array(((1.0, 0.5), (0.5, 1.0)))
+        )
+        assert len(rv_reg.RV_set) == 1
+
+    def test__create_DV_RVs_no_rv_case(self, assessment_instance):
+
+        # Special case where there is no need for RVs
+
+        model = RepairModel_LF(assessment_instance)
+        model.decision_variables = ('Cost', 'Time')
+        model._missing = set()
+        model._loss_map = pd.DataFrame(
+            {
+                'Repair': ['cmp.B'],
+            },
+            index=['cmp.B'],
+        )
+        model.loss_params = pd.DataFrame(
+            {
+                ('DV', 'Unit'): ['1 EA'],
+                ('Quantity', 'Unit'): ['1 EA'],
+                ('LossFunction', 'Family'): [None],
+                ('LossFunction', 'Theta_0'): ['0.0,1.0|0.0,1.0'],
+                ('LossFunction', 'Theta_1'): [None],
+            },
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('cmp.B', 'Cost'),
+                ]
+            ),
+        ).rename_axis(index=['Loss Driver', 'Decision Variable'])
+
+        cases = pd.MultiIndex.from_tuples(
+            [
+                ('Cost', 'cmp.B', 'cmp.B', '0', '1', '0', '1'),
+            ],
+            names=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid', 'block'],
+        )
+        rv_reg = model._create_DV_RVs(cases)
+        assert rv_reg is None
 
 
 def test__prep_constant_median_DV():
