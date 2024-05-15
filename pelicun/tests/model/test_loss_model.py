@@ -45,6 +45,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from pelicun import model
+from pelicun import uq
 from pelicun import assessment
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 from pelicun.model.loss_model import LossModel
@@ -379,19 +380,83 @@ class TestRepairModel_DS(TestRepairModel_Base):
         model._drop_unused_damage_states()
         pd.testing.assert_frame_equal(model.loss_params, loss_params.iloc[0:4, :])
 
-    def TODO_test__create_DV_RVs(self):
-        pass
+    def test__create_DV_RVs(self, assessment_instance):
 
-    def test__calc_median_consequence(self, assessment_instance):
+        assessment_instance.options.rho_cost_time = 0.30
         model = RepairModel_DS(assessment_instance)
-        eco_qnt = pd.DataFrame(
+        model.decision_variables = ('Cost', 'Time')
+        model._missing = {('cmp.B', 'Cost'), ('cmp.B', 'Time')}
+        model._loss_map = pd.DataFrame(
             {
-                ('cmp.A', '0'): [0.00, 0.00, 1.00],
-                ('cmp.A', '1'): [1.00, 0.00, 0.00],
-                ('cmp.A', '2'): [0.00, 1.00, 0.00],
-            }
-        ).rename_axis(columns=['cmp', 'ds'])
-        model.decision_variables = ('my_DV',)
+                'Repair': ['cmp.A', 'cmp.B', 'cmp.C', 'cmp.D', 'cmp.E'],
+            },
+            index=['cmp.A', 'cmp.B', 'cmp.C', 'cmp.D', 'cmp.E'],
+        )
+        # cmp.B is marked as missing, cmp.C is intended for the LF
+        # model.
+        # cmp.D has `|` in Theta_0 which should be treated as 1.00
+        # cmp.E has deterministic loss.
+        model.loss_params = pd.DataFrame(
+            {
+                ('DV', 'Unit'): ['1 EA', '1 EA', '1 EA', '1 EA'],
+                ('Quantity', 'Unit'): ['1 EA', '1 EA', '1 EA', '1 EA'],
+                ('DS1', 'Family'): ['normal', 'normal', 'normal', None],
+                ('DS1', 'Theta_0'): [1.00, 1.00, '4.0,2.0|5.0,1.0', 1.00],
+                ('DS1', 'Theta_1'): [1.00, 1.00, '4.0,2.0|5.0,1.0', None],
+            },
+            index=pd.MultiIndex.from_tuples(
+                [
+                    ('cmp.A', 'Cost'),
+                    ('cmp.A', 'Time'),
+                    ('cmp.D', 'Cost'),
+                    ('cmp.E', 'Cost'),
+                ]
+            ),
+        ).rename_axis(index=['Loss Driver', 'Decision Variable'])
+
+        cases = pd.MultiIndex.from_tuples(
+            [
+                ('cmp.A', '0', '1', '0', '1'),
+                ('cmp.B', '0', '1', '0', '1'),  # marked as missing
+                ('cmp.C', '0', '1', '0', '1'),  # no loss parameters
+                ('cmp.D', '0', '1', '0', '1'),  # `|` in Theta_0
+                ('cmp.E', '0', '1', '0', '1'),  # Deterministic loss
+            ],
+            names=['cmp', 'loc', 'dir', 'uid', 'ds'],
+        )
+        rv_reg = model._create_DV_RVs(cases)
+        for key in (
+            'Cost-cmp.A-1-0-1-0',
+            'Time-cmp.A-1-0-1-0',
+            'Cost-cmp.D-1-0-1-0',
+        ):
+            assert key in rv_reg.RV
+        assert len(rv_reg.RV) == 3
+        assert isinstance(rv_reg.RV['Cost-cmp.A-1-0-1-0'], uq.NormalRandomVariable)
+        assert isinstance(rv_reg.RV['Time-cmp.A-1-0-1-0'], uq.NormalRandomVariable)
+        assert isinstance(rv_reg.RV['Cost-cmp.D-1-0-1-0'], uq.NormalRandomVariable)
+        assert np.all(
+            rv_reg.RV['Cost-cmp.A-1-0-1-0'].theta[0:2] == np.array((1.0, 1.0))
+        )
+        assert np.all(
+            rv_reg.RV['Time-cmp.A-1-0-1-0'].theta[0:2] == np.array((1.0, 1.0))
+        )
+        assert np.all(
+            rv_reg.RV['Cost-cmp.D-1-0-1-0'].theta[0:2]
+            == np.array(['1.0', '4.0,2.0|5.0,1.0'], dtype='<U32')
+        )
+        assert 'DV-cmp.A-1-0-1-0_set' in rv_reg.RV_set
+        np.all(
+            rv_reg.RV_set['DV-cmp.A-1-0-1-0_set'].Rho()
+            == np.array(((1.0, 0.3), (0.3, 1.0)))
+        )
+        assert len(rv_reg.RV_set) == 1
+
+    def test__create_DV_RVs_all_deterministic(self, assessment_instance):
+
+        model = RepairModel_DS(assessment_instance)
+        model.decision_variables = ('myRV',)
+        model._missing = set()
         model._loss_map = pd.DataFrame(
             {'Repair': ['cmp.A']},
             index=['cmp.A'],
@@ -400,8 +465,141 @@ class TestRepairModel_DS(TestRepairModel_Base):
             {
                 ('DV', 'Unit'): ['1 EA'],
                 ('Quantity', 'Unit'): ['1 EA'],
+                ('DS1', 'Family'): [None],
+                ('DS1', 'Theta_0'): [1.00],
+            },
+            index=pd.MultiIndex.from_tuples([('cmp.A', 'myRV')]),
+        ).rename_axis(index=['Loss Driver', 'Decision Variable'])
+
+        cases = pd.MultiIndex.from_tuples(
+            [('cmp.A', '0', '1', '0', '1')],
+            names=['cmp', 'loc', 'dir', 'uid', 'ds'],
+        )
+        rv_reg = model._create_DV_RVs(cases)
+        assert rv_reg is None
+
+    def test__calc_median_consequence_no_locs(self, assessment_instance):
+
+        # Test the method when the eco_qnt dataframe's columns do not
+        # contain `loc` information.
+
+        model = RepairModel_DS(assessment_instance)
+        eco_qnt = pd.DataFrame(
+            {
+                ('cmp.A', '0'): [0.00, 0.00, 1.00],
+                ('cmp.A', '1'): [1.00, 0.00, 0.00],
+                ('cmp.A', '2'): [0.00, 1.00, 0.00],
+                ('cmp.B', '1'): [0.00, 1.00, 0.00],
+                ('cmp.B', '2'): [1.00, 0.00, 0.00],
+            }
+        ).rename_axis(columns=['cmp', 'ds'])
+        model.decision_variables = ('my_DV',)
+        # cmp.A should be available and we should get medians.
+        # missing_cmp will be marked as missing
+        # is_for_LF_model represents a component->consequence pair
+        # that is intended for processing by the loss function model
+        # and should be ignored by the damage state model.
+        model._loss_map = pd.DataFrame(
+            {
+                'Repair': ['cmp.A', 'cmp.B', 'missing_cmp', 'is_for_LF_model'],
+            },
+            index=['cmp.A', 'cmp.B', 'missing_consequence', 'LF_consequence'],
+        )
+
+        # DS3 is in the loss parameters but has not been triggered.
+        model.loss_params = pd.DataFrame(
+            {
+                ('DV', 'Unit'): ['1 EA', '1 EA'],
+                ('Quantity', 'Unit'): ['1 EA', '1 EA'],
+                ('DS1', 'Family'): [None, 'normal'],
+                ('DS1', 'Theta_0'): [100.00, 12345.00],
+                ('DS1', 'Theta_1'): [None, 0.30],
+                ('DS2', 'Family'): [None, 'normal'],
+                ('DS2', 'Theta_0'): [200.00, '2.00,1.00|5.00,10.00'],
+                ('DS2', 'Theta_1'): [None, 0.30],
+                ('DS3', 'Family'): [None, 'normal'],
+                ('DS3', 'Theta_0'): [200.00, '2.00,1.00|5.00,10.00'],
+                ('DS3', 'Theta_1'): [None, 0.30],
+            },
+            index=pd.MultiIndex.from_tuples(
+                [('cmp.A', 'my_DV'), ('cmp.B', 'my_DV')]
+            ),
+        ).rename_axis(index=['Loss Driver', 'Decision Variable'])
+        model._missing = {('missing_cmp', 'my_DV')}
+        medians = model._calc_median_consequence(eco_qnt)
+        assert len(medians) == 1 and 'my_DV' in medians
+        pd.testing.assert_frame_equal(
+            medians['my_DV'],
+            pd.DataFrame(
+                {
+                    ('cmp.A', '1'): [100.00, 100.00, 100.00],
+                    ('cmp.A', '2'): [200.00, 200.00, 200.00],
+                    ('cmp.B', '1'): [1.00, 1.00, 1.00],
+                    ('cmp.B', '2'): [2.00, 2.00, 2.00],
+                }
+            ).rename_axis(columns=['cmp', 'ds']),
+        )
+
+        #
+        # edge cases
+        #
+
+        # random variable not supported
+        model.loss_params = pd.DataFrame(
+            {
+                ('DV', 'Unit'): ['1 EA'],
+                ('Quantity', 'Unit'): ['1 EA'],
+                ('DS1', 'Family'): ['multilinear_CDF'],
+                ('DS1', 'Theta_0'): ['0.00,1.00|0.00,1.00'],
+                ('DS1', 'Theta_1'): [0.30],
+            },
+            index=pd.MultiIndex.from_tuples([('cmp.A', 'my_DV')]),
+        ).rename_axis(index=['Loss Driver', 'Decision Variable'])
+        with pytest.raises(ValueError) as record:
+            model._calc_median_consequence(eco_qnt)
+        assert 'Loss Distribution of type multilinear_CDF not supported.' in str(
+            record.value
+        )
+
+    def test__calc_median_consequence_locs(self, assessment_instance):
+
+        # Test the method when the eco_qnt dataframe's columns contain
+        # `loc` information.
+
+        model = RepairModel_DS(assessment_instance)
+        eco_qnt = pd.DataFrame(
+            {
+                ('cmp.A', '0', '1'): [0.00, 0.00, 1.00],
+                ('cmp.A', '1', '1'): [1.00, 0.00, 0.00],
+            }
+        ).rename_axis(columns=['cmp', 'ds', 'loc'])
+        model.decision_variables = ('my_DV',)
+        # cmp.A should be available and we should get medians.
+        # missing_cmp will be marked as missing
+        # is_for_LF_model represents a component->consequence pair
+        # that is intended for processing by the loss function model
+        # and should be ignored by the damage state model.
+        model._loss_map = pd.DataFrame(
+            {
+                'Repair': ['cmp.A'],
+            },
+            index=['cmp.A'],
+        )
+
+        # DS3 is in the loss parameters but has not been triggered.
+        model.loss_params = pd.DataFrame(
+            {
+                ('DV', 'Unit'): ['1 EA'],
+                ('Quantity', 'Unit'): ['1 EA'],
+                ('DS1', 'Family'): [None],
                 ('DS1', 'Theta_0'): [100.00],
+                ('DS1', 'Theta_1'): [None],
+                ('DS2', 'Family'): [None],
                 ('DS2', 'Theta_0'): [200.00],
+                ('DS2', 'Theta_1'): [None],
+                ('DS3', 'Family'): [None],
+                ('DS3', 'Theta_0'): [200.00],
+                ('DS3', 'Theta_1'): [None],
             },
             index=pd.MultiIndex.from_tuples([('cmp.A', 'my_DV')]),
         ).rename_axis(index=['Loss Driver', 'Decision Variable'])
@@ -412,10 +610,9 @@ class TestRepairModel_DS(TestRepairModel_Base):
             medians['my_DV'],
             pd.DataFrame(
                 {
-                    ('cmp.A', '1'): [100.00, 100.00, 100.00],
-                    ('cmp.A', '2'): [200.00, 200.00, 200.00],
+                    ('cmp.A', '1', '1'): [100.00, 100.00, 100.00],
                 }
-            ).rename_axis(columns=['cmp', 'ds']),
+            ).rename_axis(columns=['cmp', 'ds', 'loc']),
         )
 
 

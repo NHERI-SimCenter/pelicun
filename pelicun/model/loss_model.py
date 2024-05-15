@@ -321,7 +321,11 @@ class LossModel(PelicunModel):
             )
         self.ds_model._calculate(dmg_quantities)
         self.lf_model._calculate(
-            demand, cmp_sample, cmp_marginal_params, demand_offset
+            demand,
+            cmp_sample,
+            cmp_marginal_params,
+            demand_offset,
+            nondirectional_multipliers,
         )
         self.log.msg("Loss calculation successful.")
 
@@ -717,12 +721,8 @@ class RepairModel_DS(RepairModel_Base):
 
         if self._asmnt.options.eco_scale["AcrossFloors"]:
             if self._asmnt.options.eco_scale["AcrossDamageStates"]:
-                eco_levels = [
-                    0,
-                ]
-                eco_columns = [
-                    'cmp',
-                ]
+                eco_levels = [0]
+                eco_columns = ['cmp']
 
             else:
                 eco_levels = [0, 4]
@@ -1000,16 +1000,16 @@ class RepairModel_DS(RepairModel_Base):
 
         self.loss_params.drop(columns=ds_to_drop, level=0, inplace=True)
 
-    def _create_DV_RVs(self, case_list):
+    def _create_DV_RVs(self, cases):
         """
         Prepare the random variables associated with decision
         variables, such as repair cost and time.
 
         Parameters
         ----------
-        case_list: MultiIndex
-            Index with cmp-loc-dir-ds descriptions that identify the
-            RVs we need for the simulation.
+        cases: MultiIndex
+            Index with cmp-loc-uid-dir-ds descriptions that identify
+            the RVs we need for the simulation.
 
         Returns
         -------
@@ -1028,7 +1028,7 @@ class RepairModel_DS(RepairModel_Base):
         """
 
         # Convert the MultiIndex to a DataFrame
-        case_df = pd.DataFrame(index=case_list).reset_index()
+        case_df = pd.DataFrame(index=cases).reset_index()
         # maps `cmp` to array of damage states
         damage_states = case_df.groupby('cmp')['ds'].unique().to_dict()
         # maps `cmp`-`ds` to tuple of `loc`-`dir`-`uid` tuples
@@ -1066,8 +1066,12 @@ class RepairModel_DS(RepairModel_Base):
                 ]
 
                 for ds in damage_states[component]:
-                    if ds == '0':
-                        continue
+
+                    # if ds == '0':
+                    #     continue
+                    # Wed May 15 04:45:09 AM PDT 2024
+                    # Commenting this out. Why would DS0 be in the
+                    # loss parameters?
 
                     ds_family = parameters.at[(f'DS{ds}', 'Family')]
                     ds_theta = [
@@ -1191,8 +1195,11 @@ class RepairModel_DS(RepairModel_Base):
 
                     ds_id = ds[2:]
 
-                    if ds_id == '0':
-                        continue
+                    # if ds_id == '0':
+                    #     continue
+                    # Tue May 14 04:55:03 PM PDT 2024
+                    # Commenting this out. Why would DS0 be in the
+                    # loss parameters?
 
                     loss_params_DS = self.loss_params.loc[
                         (loss_cmp_name, decision_variable), ds
@@ -1201,8 +1208,10 @@ class RepairModel_DS(RepairModel_Base):
                     # check if theta_0 is defined
                     theta_0 = loss_params_DS.get('Theta_0', np.nan)
 
-                    if pd.isna(theta_0):
-                        continue
+                    # if pd.isna(theta_0):
+                    #     continue
+                    # Commenting this out. This should probably
+                    # trigger an error.
 
                     # check if the distribution type is supported
                     family = loss_params_DS.get('Family', np.nan)
@@ -1278,11 +1287,10 @@ class RepairModel_DS(RepairModel_Base):
                     result.columns = result.columns.droplevel('del')
 
                 # name the remaining column header levels
-                if self._asmnt.options.eco_scale["AcrossFloors"] is True:
-                    result.columns.names = ['cmp', 'ds']
-
-                else:
+                if eco_qnt.columns.names == ['cmp', 'ds', 'loc']:
                     result.columns.names = ['cmp', 'ds', 'loc']
+                else:
+                    result.columns.names = ['cmp', 'ds']
 
                 # save the results to the returned dictionary
                 medians.update({decision_variable: result})
@@ -1302,8 +1310,8 @@ class RepairModel_LF(RepairModel_Base):
     def _calculate(
         self,
         demand_sample,
-        component_sample,
-        component_marginal_parameters,
+        cmp_sample,
+        cmp_marginal_params,
         demand_offset,
         nondirectional_multipliers,
     ):
