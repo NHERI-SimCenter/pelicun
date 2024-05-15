@@ -176,15 +176,6 @@ class TestLossModel(TestPelicunModel):
             "model: [('consequence.F', 'my_RV')]."
         ) in str(record[-1].message)
 
-    def TODO_test_save_sample(self):
-        pass
-
-    def TODO_test_load_sample(self):
-        pass
-
-    def TODO_test_aggregate_losses(self):
-        pass
-
     def test__loss_models(self, loss_model):
         models = loss_model._loss_models
         assert len(models) == 2
@@ -325,12 +316,6 @@ class TestRepairModel_Base(TestPelicunModel):
 
 
 class TestRepairModel_DS(TestRepairModel_Base):
-    def TODO_test__calculate(self):
-        pass
-
-    def TODO_test__aggregate_losses(self):
-        pass
-
     def test__convert_loss_parameter_units(self, assessment_instance):
         model = RepairModel_DS(assessment_instance)
         model.loss_params = pd.DataFrame(
@@ -618,8 +603,6 @@ class TestRepairModel_DS(TestRepairModel_Base):
 
 
 class TestRepairModel_LF(TestRepairModel_Base):
-    def TODO_test__calculate(self):
-        pass
 
     def test__convert_loss_parameter_units(self, assessment_instance):
         model = RepairModel_LF(assessment_instance)
@@ -719,7 +702,11 @@ class TestRepairModel_LF(TestRepairModel_Base):
                 ('DV', 'Unit'): ['1 EA', '1 EA', '1 EA'],
                 ('Quantity', 'Unit'): ['1 EA', '1 EA', '1 EA'],
                 ('LossFunction', 'Family'): ['normal', 'normal', None],
-                ('LossFunction', 'Theta_0'): ['0.0,1.0|0.0,1.0', '0.0,1.0|0.0,1.0', '0.0,1.0|0.0,1.0'],
+                ('LossFunction', 'Theta_0'): [
+                    '0.0,1.0|0.0,1.0',
+                    '0.0,1.0|0.0,1.0',
+                    '0.0,1.0|0.0,1.0',
+                ],
                 ('LossFunction', 'Theta_1'): [0.3, 0.3, None],
             },
             index=pd.MultiIndex.from_tuples(
@@ -746,8 +733,12 @@ class TestRepairModel_LF(TestRepairModel_Base):
         ):
             assert key in rv_reg.RV
         assert len(rv_reg.RV) == 2
-        assert isinstance(rv_reg.RV['Cost-cmp.A-cmp.A-0-1-0-1'], uq.NormalRandomVariable)
-        assert isinstance(rv_reg.RV['Time-cmp.A-cmp.A-0-1-0-1'], uq.NormalRandomVariable)
+        assert isinstance(
+            rv_reg.RV['Cost-cmp.A-cmp.A-0-1-0-1'], uq.NormalRandomVariable
+        )
+        assert isinstance(
+            rv_reg.RV['Time-cmp.A-cmp.A-0-1-0-1'], uq.NormalRandomVariable
+        )
         assert np.all(
             rv_reg.RV['Cost-cmp.A-cmp.A-0-1-0-1'].theta[0:2] == np.array((1.0, 0.3))
         )
