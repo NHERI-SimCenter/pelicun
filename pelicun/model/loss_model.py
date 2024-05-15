@@ -1067,11 +1067,8 @@ class RepairModel_DS(RepairModel_Base):
 
                 for ds in damage_states[component]:
 
-                    # if ds == '0':
-                    #     continue
-                    # Wed May 15 04:45:09 AM PDT 2024
-                    # Commenting this out. Why would DS0 be in the
-                    # loss parameters?
+                    if ds == '0':
+                        continue
 
                     ds_family = parameters.at[(f'DS{ds}', 'Family')]
                     ds_theta = [
@@ -1195,11 +1192,8 @@ class RepairModel_DS(RepairModel_Base):
 
                     ds_id = ds[2:]
 
-                    # if ds_id == '0':
-                    #     continue
-                    # Tue May 14 04:55:03 PM PDT 2024
-                    # Commenting this out. Why would DS0 be in the
-                    # loss parameters?
+                    if ds_id == '0':
+                        continue
 
                     loss_params_DS = self.loss_params.loc[
                         (loss_cmp_name, decision_variable), ds
@@ -1208,10 +1202,8 @@ class RepairModel_DS(RepairModel_Base):
                     # check if theta_0 is defined
                     theta_0 = loss_params_DS.get('Theta_0', np.nan)
 
-                    # if pd.isna(theta_0):
-                    #     continue
-                    # Commenting this out. This should probably
-                    # trigger an error.
+                    if pd.isna(theta_0):
+                        continue
 
                     # check if the distribution type is supported
                     family = loss_params_DS.get('Family', np.nan)
