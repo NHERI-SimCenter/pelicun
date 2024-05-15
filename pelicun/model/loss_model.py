@@ -1536,14 +1536,14 @@ class RepairModel_LF(RepairModel_Base):
 
         return medians
 
-    def _create_DV_RVs(self, case_list):
+    def _create_DV_RVs(self, cases):
         """
         Prepare the random variables associated with decision
         variables, such as repair cost and time.
 
         Parameters
         ----------
-        case_list: MultiIndex
+        cases: MultiIndex
             Index with `dv`-`loss`-`dmg`-`loc`-`dir`-`uid`
             entries that identify the RVs we need for the
             simulation (columns of the `medians` dataframe).
@@ -1571,7 +1571,7 @@ class RepairModel_LF(RepairModel_Base):
             direction,
             uid,
             block,
-        ) in case_list:
+        ) in cases:
 
             # load the corresponding parameters
             parameters = self.loss_params.loc[(consequence, decision_variable), :]
