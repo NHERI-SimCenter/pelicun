@@ -38,6 +38,10 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
+"""
+These are unit and integration tests on the asset model of pelicun.
+"""
+
 import tempfile
 from copy import deepcopy
 import pytest

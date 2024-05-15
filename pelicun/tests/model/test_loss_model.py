@@ -38,15 +38,16 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-import os
-import tempfile
+"""
+These are unit and integration tests on the loss model of pelicun.
+"""
+
 from copy import deepcopy
 import pytest
 import numpy as np
 import pandas as pd
 from pelicun import model
 from pelicun import uq
-from pelicun import assessment
 from pelicun.tests.model.test_pelicun_model import TestPelicunModel
 from pelicun.model.loss_model import LossModel
 from pelicun.model.loss_model import RepairModel_Base
@@ -56,7 +57,9 @@ from pelicun.model.loss_model import _is_for_ds_model
 from pelicun.model.loss_model import _is_for_lf_model
 from pelicun.warnings import PelicunWarning
 
+# pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
+# pylint: disable=missing-return-doc,missing-return-type-doc
 
 
 class TestLossModel(TestPelicunModel):
@@ -117,8 +120,8 @@ class TestLossModel(TestPelicunModel):
         )
         loss_model.add_loss_map(loss_map)
         pd.testing.assert_frame_equal(loss_model._loss_map, loss_map)
-        for model in loss_model._loss_models:
-            pd.testing.assert_frame_equal(model._loss_map, loss_map)
+        for contained_model in loss_model._loss_models:
+            pd.testing.assert_frame_equal(contained_model._loss_map, loss_map)
 
     def test_load_model_parameters(self, loss_model, asset_model_A):
 
@@ -163,13 +166,10 @@ class TestLossModel(TestPelicunModel):
                 [ds_loss_parameters, lf_loss_parameters]
             )
 
-        loss_model.ds_model.loss_params
-        loss_model.lf_model.loss_params
-        loss_model._missing
-
         # assert len(record) == 1
         # TODO: re-enable the line above once we address other
         # warnings, and change indexing to [0] below.
+
         assert (
             "The loss model does not provide loss information "
             "for the following component(s) in the asset "
@@ -193,8 +193,8 @@ class TestLossModel(TestPelicunModel):
         loss_model._loss_map = loss_map
         # test getter
         pd.testing.assert_frame_equal(loss_model._loss_map, loss_map)
-        for model in loss_model._loss_models:
-            pd.testing.assert_frame_equal(model._loss_map, loss_map)
+        for contained_model in loss_model._loss_models:
+            pd.testing.assert_frame_equal(contained_model._loss_map, loss_map)
 
     def test__missing(self, loss_model):
         missing = {
@@ -205,14 +205,14 @@ class TestLossModel(TestPelicunModel):
         loss_model._missing = missing
         # test getter
         assert loss_model._missing == missing
-        for model in loss_model._loss_models:
-            assert model._missing == missing
+        for contained_model in loss_model._loss_models:
+            assert contained_model._missing == missing
 
     def test__ensure_loss_parameter_availability(self, assessment_instance):
-        model = LossModel(assessment_instance)
+        loss_model = LossModel(assessment_instance)
 
         # Only consider `DecisionVariableXYZ`
-        model.decision_variables = ('DecisionVariableXYZ',)
+        loss_model.decision_variables = ('DecisionVariableXYZ',)
 
         # A, B should be in the ds model
         # C, D should be in the lf model
@@ -225,9 +225,9 @@ class TestLossModel(TestPelicunModel):
             index=[f'cmp_{x}' for x in ('A', 'B', 'C', 'D', 'E')],
         )
 
-        model._loss_map = loss_map
+        loss_model._loss_map = loss_map
 
-        model.ds_model.loss_params = pd.DataFrame(
+        loss_model.ds_model.loss_params = pd.DataFrame(
             index=pd.MultiIndex.from_tuples(
                 [
                     ('consequence_A', 'DecisionVariableXYZ'),
@@ -235,7 +235,7 @@ class TestLossModel(TestPelicunModel):
                 ]
             )
         )
-        model.lf_model.loss_params = pd.DataFrame(
+        loss_model.lf_model.loss_params = pd.DataFrame(
             index=pd.MultiIndex.from_tuples(
                 [
                     ('consequence_C', 'DecisionVariableXYZ'),
@@ -245,8 +245,8 @@ class TestLossModel(TestPelicunModel):
         )
 
         with pytest.warns(PelicunWarning) as record:
-            model._ensure_loss_parameter_availability()
-            missing = model._missing
+            loss_model._ensure_loss_parameter_availability()
+            missing = loss_model._missing
         assert missing == {('consequence_E', 'DecisionVariableXYZ')}
         assert len(record) == 1
         assert (
@@ -258,12 +258,13 @@ class TestLossModel(TestPelicunModel):
 
 class TestRepairModel_Base(TestPelicunModel):
     def test___init__(self, assessment_instance):
-        model = RepairModel_Base(assessment_instance)
+        repair_model = RepairModel_Base(assessment_instance)
         with pytest.raises(AttributeError):
-            model.xyz = 123
+            # pylint: disable=assigning-non-slot
+            repair_model.xyz = 123
 
     def test__drop_unused_loss_parameters(self, assessment_instance):
-        model = RepairModel_Base(assessment_instance)
+        base_model = RepairModel_Base(assessment_instance)
         loss_map = loss_map = pd.DataFrame(
             {
                 'Repair': ['consequence_A', 'consequence_B'],
@@ -271,38 +272,38 @@ class TestRepairModel_Base(TestPelicunModel):
             index=['cmp_A', 'cmp_B'],
         )
         # without loss_params, it should do nothing
-        model._drop_unused_loss_parameters(loss_map)
-        model.loss_params = pd.DataFrame(
+        base_model._drop_unused_loss_parameters(loss_map)
+        base_model.loss_params = pd.DataFrame(
             index=[f'consequence_{x}' for x in ('A', 'B', 'C', 'D')]
         )
-        model._drop_unused_loss_parameters(loss_map)
+        base_model._drop_unused_loss_parameters(loss_map)
         pd.testing.assert_frame_equal(
-            model.loss_params,
+            base_model.loss_params,
             pd.DataFrame(index=[f'consequence_{x}' for x in ('A', 'B')]),
         )
 
     def test__remove_incomplete_components(self, assessment_instance):
-        model = RepairModel_Base(assessment_instance)
+        base_model = RepairModel_Base(assessment_instance)
         # without loss_params, it should do nothing
-        model._remove_incomplete_components()
+        base_model._remove_incomplete_components()
         # without incomplete, it should do nothing
         loss_params = pd.DataFrame(
             index=[f'consequence_{x}' for x in ('A', 'B', 'C', 'D')]
         )
-        model.loss_params = loss_params
-        model._remove_incomplete_components()
+        base_model.loss_params = loss_params
+        base_model._remove_incomplete_components()
         pd.testing.assert_frame_equal(
-            model.loss_params,
+            base_model.loss_params,
             loss_params,
         )
-        model.loss_params = pd.DataFrame(
+        base_model.loss_params = pd.DataFrame(
             {('Incomplete', ''): [0, 0, 0, 1]},
             index=[f'consequence_{x}' for x in ('A', 'B', 'C', 'D')],
         )
         # Now entry D should be gone
-        model._remove_incomplete_components()
+        base_model._remove_incomplete_components()
         pd.testing.assert_frame_equal(
-            model.loss_params,
+            base_model.loss_params,
             pd.DataFrame(
                 {('Incomplete', ''): [0, 0, 0]},
                 index=[f'consequence_{x}' for x in ('A', 'B', 'C')],
@@ -310,15 +311,15 @@ class TestRepairModel_Base(TestPelicunModel):
         )
 
     def test__get_available(self, assessment_instance):
-        model = RepairModel_Base(assessment_instance)
-        model.loss_params = pd.DataFrame(index=['cmp.A', 'cmp.B', 'cmp.C'])
-        assert model._get_available() == {'cmp.A', 'cmp.B', 'cmp.C'}
+        base_model = RepairModel_Base(assessment_instance)
+        base_model.loss_params = pd.DataFrame(index=['cmp.A', 'cmp.B', 'cmp.C'])
+        assert base_model._get_available() == {'cmp.A', 'cmp.B', 'cmp.C'}
 
 
 class TestRepairModel_DS(TestRepairModel_Base):
     def test__convert_loss_parameter_units(self, assessment_instance):
-        model = RepairModel_DS(assessment_instance)
-        model.loss_params = pd.DataFrame(
+        ds_model = RepairModel_DS(assessment_instance)
+        ds_model.loss_params = pd.DataFrame(
             {
                 ('Quantity', 'Unit'): ['1 test_two', '1 EA'],
                 ('DV', 'Unit'): ['test_three', 'test_three'],
@@ -329,11 +330,11 @@ class TestRepairModel_DS(TestRepairModel_Base):
             index=pd.MultiIndex.from_tuples([('cmpA', 'Cost'), ('cmpB', 'Cost')]),
         )
 
-        model._convert_loss_parameter_units()
+        ds_model._convert_loss_parameter_units()
 
         # DVs are scaled by 3/2, quantities by 2
         pd.testing.assert_frame_equal(
-            model.loss_params,
+            ds_model.loss_params,
             pd.DataFrame(
                 {
                     ('Quantity', 'Unit'): ['1 test_two', '1 EA'],
@@ -349,7 +350,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
         )
 
     def test__drop_unused_damage_states(self, assessment_instance):
-        model = RepairModel_DS(assessment_instance)
+        ds_model = RepairModel_DS(assessment_instance)
         loss_params = pd.DataFrame(
             {
                 ('DS1', 'Theta_0'): [1.0, 1.0, 1.0, 1.0],
@@ -361,17 +362,17 @@ class TestRepairModel_DS(TestRepairModel_Base):
                 ('DS7', 'Theta_0'): [None, None, None, None],
             }
         )
-        model.loss_params = loss_params
-        model._drop_unused_damage_states()
-        pd.testing.assert_frame_equal(model.loss_params, loss_params.iloc[0:4, :])
+        ds_model.loss_params = loss_params
+        ds_model._drop_unused_damage_states()
+        pd.testing.assert_frame_equal(ds_model.loss_params, loss_params.iloc[0:4, :])
 
     def test__create_DV_RVs(self, assessment_instance):
 
         assessment_instance.options.rho_cost_time = 0.30
-        model = RepairModel_DS(assessment_instance)
-        model.decision_variables = ('Cost', 'Time')
-        model._missing = {('cmp.B', 'Cost'), ('cmp.B', 'Time')}
-        model._loss_map = pd.DataFrame(
+        ds_model = RepairModel_DS(assessment_instance)
+        ds_model.decision_variables = ('Cost', 'Time')
+        ds_model._missing = {('cmp.B', 'Cost'), ('cmp.B', 'Time')}
+        ds_model._loss_map = pd.DataFrame(
             {
                 'Repair': ['cmp.A', 'cmp.B', 'cmp.C', 'cmp.D', 'cmp.E'],
             },
@@ -381,7 +382,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
         # model.
         # cmp.D has `|` in Theta_0 which should be treated as 1.00
         # cmp.E has deterministic loss.
-        model.loss_params = pd.DataFrame(
+        ds_model.loss_params = pd.DataFrame(
             {
                 ('DV', 'Unit'): ['1 EA', '1 EA', '1 EA', '1 EA'],
                 ('Quantity', 'Unit'): ['1 EA', '1 EA', '1 EA', '1 EA'],
@@ -409,7 +410,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
             ],
             names=['cmp', 'loc', 'dir', 'uid', 'ds'],
         )
-        rv_reg = model._create_DV_RVs(cases)
+        rv_reg = ds_model._create_DV_RVs(cases)
         for key in (
             'Cost-cmp.A-1-0-1-0',
             'Time-cmp.A-1-0-1-0',
@@ -439,14 +440,14 @@ class TestRepairModel_DS(TestRepairModel_Base):
 
     def test__create_DV_RVs_all_deterministic(self, assessment_instance):
 
-        model = RepairModel_DS(assessment_instance)
-        model.decision_variables = ('myRV',)
-        model._missing = set()
-        model._loss_map = pd.DataFrame(
+        ds_model = RepairModel_DS(assessment_instance)
+        ds_model.decision_variables = ('myRV',)
+        ds_model._missing = set()
+        ds_model._loss_map = pd.DataFrame(
             {'Repair': ['cmp.A']},
             index=['cmp.A'],
         )
-        model.loss_params = pd.DataFrame(
+        ds_model.loss_params = pd.DataFrame(
             {
                 ('DV', 'Unit'): ['1 EA'],
                 ('Quantity', 'Unit'): ['1 EA'],
@@ -460,7 +461,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
             [('cmp.A', '0', '1', '0', '1')],
             names=['cmp', 'loc', 'dir', 'uid', 'ds'],
         )
-        rv_reg = model._create_DV_RVs(cases)
+        rv_reg = ds_model._create_DV_RVs(cases)
 
         assert rv_reg is None
 
@@ -469,7 +470,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
         # Test the method when the eco_qnt dataframe's columns do not
         # contain `loc` information.
 
-        model = RepairModel_DS(assessment_instance)
+        ds_model = RepairModel_DS(assessment_instance)
         eco_qnt = pd.DataFrame(
             {
                 ('cmp.A', '0'): [0.00, 0.00, 1.00],
@@ -479,13 +480,13 @@ class TestRepairModel_DS(TestRepairModel_Base):
                 ('cmp.B', '2'): [1.00, 0.00, 0.00],
             }
         ).rename_axis(columns=['cmp', 'ds'])
-        model.decision_variables = ('my_DV',)
+        ds_model.decision_variables = ('my_DV',)
         # cmp.A should be available and we should get medians.
         # missing_cmp will be marked as missing
         # is_for_LF_model represents a component->consequence pair
         # that is intended for processing by the loss function model
         # and should be ignored by the damage state model.
-        model._loss_map = pd.DataFrame(
+        ds_model._loss_map = pd.DataFrame(
             {
                 'Repair': ['cmp.A', 'cmp.B', 'missing_cmp', 'is_for_LF_model'],
             },
@@ -493,7 +494,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
         )
 
         # DS3 is in the loss parameters but has not been triggered.
-        model.loss_params = pd.DataFrame(
+        ds_model.loss_params = pd.DataFrame(
             {
                 ('DV', 'Unit'): ['1 EA', '1 EA'],
                 ('Quantity', 'Unit'): ['1 EA', '1 EA'],
@@ -511,8 +512,8 @@ class TestRepairModel_DS(TestRepairModel_Base):
                 [('cmp.A', 'my_DV'), ('cmp.B', 'my_DV')]
             ),
         ).rename_axis(index=['Loss Driver', 'Decision Variable'])
-        model._missing = {('missing_cmp', 'my_DV')}
-        medians = model._calc_median_consequence(eco_qnt)
+        ds_model._missing = {('missing_cmp', 'my_DV')}
+        medians = ds_model._calc_median_consequence(eco_qnt)
         assert len(medians) == 1 and 'my_DV' in medians
         pd.testing.assert_frame_equal(
             medians['my_DV'],
@@ -531,7 +532,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
         #
 
         # random variable not supported
-        model.loss_params = pd.DataFrame(
+        ds_model.loss_params = pd.DataFrame(
             {
                 ('DV', 'Unit'): ['1 EA'],
                 ('Quantity', 'Unit'): ['1 EA'],
@@ -542,7 +543,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
             index=pd.MultiIndex.from_tuples([('cmp.A', 'my_DV')]),
         ).rename_axis(index=['Loss Driver', 'Decision Variable'])
         with pytest.raises(ValueError) as record:
-            model._calc_median_consequence(eco_qnt)
+            ds_model._calc_median_consequence(eco_qnt)
         assert 'Loss Distribution of type multilinear_CDF not supported.' in str(
             record.value
         )
@@ -552,20 +553,20 @@ class TestRepairModel_DS(TestRepairModel_Base):
         # Test the method when the eco_qnt dataframe's columns contain
         # `loc` information.
 
-        model = RepairModel_DS(assessment_instance)
+        ds_model = RepairModel_DS(assessment_instance)
         eco_qnt = pd.DataFrame(
             {
                 ('cmp.A', '0', '1'): [0.00, 0.00, 1.00],
                 ('cmp.A', '1', '1'): [1.00, 0.00, 0.00],
             }
         ).rename_axis(columns=['cmp', 'ds', 'loc'])
-        model.decision_variables = ('my_DV',)
+        ds_model.decision_variables = ('my_DV',)
         # cmp.A should be available and we should get medians.
         # missing_cmp will be marked as missing
         # is_for_LF_model represents a component->consequence pair
         # that is intended for processing by the loss function model
         # and should be ignored by the damage state model.
-        model._loss_map = pd.DataFrame(
+        ds_model._loss_map = pd.DataFrame(
             {
                 'Repair': ['cmp.A'],
             },
@@ -573,7 +574,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
         )
 
         # DS3 is in the loss parameters but has not been triggered.
-        model.loss_params = pd.DataFrame(
+        ds_model.loss_params = pd.DataFrame(
             {
                 ('DV', 'Unit'): ['1 EA'],
                 ('Quantity', 'Unit'): ['1 EA'],
@@ -589,8 +590,8 @@ class TestRepairModel_DS(TestRepairModel_Base):
             },
             index=pd.MultiIndex.from_tuples([('cmp.A', 'my_DV')]),
         ).rename_axis(index=['Loss Driver', 'Decision Variable'])
-        model._missing = set()
-        medians = model._calc_median_consequence(eco_qnt)
+        ds_model._missing = set()
+        medians = ds_model._calc_median_consequence(eco_qnt)
         assert len(medians) == 1 and 'my_DV' in medians
         pd.testing.assert_frame_equal(
             medians['my_DV'],
@@ -605,8 +606,8 @@ class TestRepairModel_DS(TestRepairModel_Base):
 class TestRepairModel_LF(TestRepairModel_Base):
 
     def test__convert_loss_parameter_units(self, assessment_instance):
-        model = RepairModel_LF(assessment_instance)
-        model.loss_params = pd.DataFrame(
+        lf_model = RepairModel_LF(assessment_instance)
+        lf_model.loss_params = pd.DataFrame(
             {
                 ('Demand', 'Unit'): ['inps2', 'g'],
                 ('DV', 'Unit'): ['test_three', 'test_three'],
@@ -618,10 +619,10 @@ class TestRepairModel_LF(TestRepairModel_Base):
             index=pd.MultiIndex.from_tuples([('cmpA', 'Cost'), ('cmpB', 'Cost')]),
         )
 
-        model._convert_loss_parameter_units()
+        lf_model._convert_loss_parameter_units()
 
         pd.testing.assert_frame_equal(
-            model.loss_params,
+            lf_model.loss_params,
             pd.DataFrame(
                 {
                     ('Demand', 'Unit'): ['inps2', 'g'],
@@ -639,7 +640,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
 
     def test__calc_median_consequence(self, assessment_instance):
 
-        model = RepairModel_LF(assessment_instance)
+        lf_model = RepairModel_LF(assessment_instance)
 
         performance_group = pd.DataFrame(
             {
@@ -655,7 +656,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
                 np.array((10.00, 20.00, 30.00)), name=('cmp.A', '0', '1', '0')
             )
         }
-        model.loss_params = pd.DataFrame(
+        lf_model.loss_params = pd.DataFrame(
             {
                 ('LossFunction', 'Theta_0'): ['0.00,1.00|0.00,10.00'],
             },
@@ -663,7 +664,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
                 [('cmp.A', 'dv.A')], names=['Loss Driver', 'Decsision Variable']
             ),
         )
-        medians = model._calc_median_consequence(
+        medians = lf_model._calc_median_consequence(
             performance_group, loss_map, required_edps, demand_dict, cmp_sample
         )
         pd.testing.assert_frame_equal(
@@ -677,7 +678,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
         # test small interpolation domain warning
         demand_dict = {'PFA-1-1': np.array((1.00, 2.00, 1e3))}
         with pytest.raises(ValueError) as record:
-            model._calc_median_consequence(
+            lf_model._calc_median_consequence(
                 performance_group, loss_map, required_edps, demand_dict, cmp_sample
             )
         assert (
@@ -688,16 +689,16 @@ class TestRepairModel_LF(TestRepairModel_Base):
     def test__create_DV_RVs(self, assessment_instance):
 
         assessment_instance.options.rho_cost_time = 0.50
-        model = RepairModel_LF(assessment_instance)
-        model.decision_variables = ('Cost', 'Time')
-        model._missing = set()
-        model._loss_map = pd.DataFrame(
+        lf_model = RepairModel_LF(assessment_instance)
+        lf_model.decision_variables = ('Cost', 'Time')
+        lf_model._missing = set()
+        lf_model._loss_map = pd.DataFrame(
             {
                 'Repair': ['cmp.A', 'cmp.B'],
             },
             index=['cmp.A', 'cmp.B'],
         )
-        model.loss_params = pd.DataFrame(
+        lf_model.loss_params = pd.DataFrame(
             {
                 ('DV', 'Unit'): ['1 EA', '1 EA', '1 EA'],
                 ('Quantity', 'Unit'): ['1 EA', '1 EA', '1 EA'],
@@ -726,7 +727,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
             ],
             names=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid', 'block'],
         )
-        rv_reg = model._create_DV_RVs(cases)
+        rv_reg = lf_model._create_DV_RVs(cases)
         for key in (
             'Cost-cmp.A-cmp.A-0-1-0-1',
             'Time-cmp.A-cmp.A-0-1-0-1',
@@ -756,16 +757,16 @@ class TestRepairModel_LF(TestRepairModel_Base):
 
         # Special case where there is no need for RVs
 
-        model = RepairModel_LF(assessment_instance)
-        model.decision_variables = ('Cost', 'Time')
-        model._missing = set()
-        model._loss_map = pd.DataFrame(
+        lf_model = RepairModel_LF(assessment_instance)
+        lf_model.decision_variables = ('Cost', 'Time')
+        lf_model._missing = set()
+        lf_model._loss_map = pd.DataFrame(
             {
                 'Repair': ['cmp.B'],
             },
             index=['cmp.B'],
         )
-        model.loss_params = pd.DataFrame(
+        lf_model.loss_params = pd.DataFrame(
             {
                 ('DV', 'Unit'): ['1 EA'],
                 ('Quantity', 'Unit'): ['1 EA'],
@@ -786,7 +787,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
             ],
             names=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid', 'block'],
         )
-        rv_reg = model._create_DV_RVs(cases)
+        rv_reg = lf_model._create_DV_RVs(cases)
         assert rv_reg is None
 
 

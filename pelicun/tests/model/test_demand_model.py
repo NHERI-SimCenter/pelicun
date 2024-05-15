@@ -38,6 +38,10 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
+"""
+These are unit and integration tests on the demand model of pelicun.
+"""
+
 import os
 import tempfile
 import warnings

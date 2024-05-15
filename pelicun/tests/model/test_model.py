@@ -38,6 +38,10 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
+"""
+This file defines a clas used by the model unit tests.
+"""
+
 from copy import deepcopy
 import pytest
 from pelicun import assessment

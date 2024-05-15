@@ -39,7 +39,7 @@
 # John Vouvakis Manousakis
 
 """
-These are unit and integration tests on the model module of pelicun.
+These are unit and integration tests on the damage model of pelicun.
 """
 
 from copy import deepcopy
@@ -58,7 +58,6 @@ from pelicun.warnings import PelicunWarning
 
 # pylint: disable=missing-function-docstring
 # pylint: disable=missing-class-docstring
-# pylint: disable=arguments-renamed
 # pylint: disable=missing-return-doc,missing-return-type-doc
 
 
