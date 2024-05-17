@@ -216,7 +216,7 @@ class DamageModel(PelicunModel):
             )
 
         # obtain damage states for applicable components
-        ds_sample = self.ds_model._obtain_ds_sample(
+        self.ds_model._obtain_ds_sample(
             demand_sample=self._asmnt.demand.sample,
             component_blocks=component_blocks,
             block_batch_size=block_batch_size,
@@ -234,14 +234,13 @@ class DamageModel(PelicunModel):
 
             # Perform damage tasks in the sorted order
             for task in dmg_process.items():
-                self.ds_model._perform_dmg_task(task, ds_sample)
+                self.ds_model._perform_dmg_task(task)
 
             self.log.msg(
                 "Damage processes successfully applied.", prepend_timestamp=False
             )
 
         qnt_sample = self.ds_model._prepare_dmg_quantities(
-            ds_sample,
             self._asmnt.asset.cmp_sample,
             self._asmnt.asset.cmp_marginal_params,
             dropzero=False,
@@ -597,7 +596,42 @@ class DamageModel_DS(DamageModel_Base):
 
     """
 
-    __slots__ = []
+    __slots__ = ['ds_sample']
+
+    def __init__(self, assessment):
+        super().__init__(assessment)
+        self.ds_sample = None
+
+    def probabilities(self):
+        """
+        Returns the probability of each observed damage state in the
+        sample.
+
+        Returns
+        -------
+        pd.DataFrame
+            Dataframe with the probability of each damage state for
+            each component block.
+
+        """
+        sample = self.ds_sample
+
+        probabilities = {}
+
+        for col in sample.columns:
+            values = sample[col]
+            # skip NA cases that are the result of damage processes
+            values = values[values != -1]
+            if len(values) == 0:
+                # can't determine without a sample
+                probabilities[col] = np.nan
+            else:
+                vcounts = values.value_counts() / len(values)
+                probabilities[col] = vcounts
+
+        return pd.DataFrame(probabilities).T.rename_axis(
+            index=['cmp', 'loc', 'dir', 'uid', 'block'], columns='Damage State'
+        ).sort_index(axis=1).sort_index(axis=0)
 
     def _obtain_ds_sample(
         self,
@@ -696,11 +730,9 @@ class DamageModel_DS(DamageModel_Base):
 
             ds_samples.append(ds_sample)
 
-        ds_sample = pd.concat(ds_samples, axis=1)
+        self.ds_sample = pd.concat(ds_samples, axis=1)
 
         self.log.msg("Damage state calculation successful.", prepend_timestamp=False)
-
-        return ds_sample
 
     def _handle_operation(self, initial_value, operation, other_value):
         """
@@ -1281,7 +1313,6 @@ class DamageModel_DS(DamageModel_Base):
 
     def _prepare_dmg_quantities(
         self,
-        damage_state_sample,
         component_sample,
         component_marginal_parameters,
         dropzero=True,
@@ -1296,9 +1327,6 @@ class DamageModel_DS(DamageModel_Base):
 
         Parameters
         ----------
-        damage_state_sample: pd.DataFrame
-            A DataFrame that assigns a damage state to each component
-            block in the asset model.
         component_quantities: pd.DataFrame
             Component quantity sample from the AssetModel.
         component_marginal_parameters: pd.DataFrame
@@ -1345,7 +1373,7 @@ class DamageModel_DS(DamageModel_Base):
                 return 1.00
 
         # ('cmp', 'loc', 'dir', 'uid', 'block') -> damage state series
-        damage_state_sample_dict = damage_state_sample.to_dict('series')
+        damage_state_sample_dict = self.ds_sample.to_dict('series')
 
         dmg_qnt_series_collection = {}
         for key, damage_state_series in damage_state_sample_dict.items():
@@ -1385,7 +1413,7 @@ class DamageModel_DS(DamageModel_Base):
 
         return damage_quantities
 
-    def _perform_dmg_task(self, task, ds_sample):
+    def _perform_dmg_task(self, task):
         """
         Perform a task from a damage process.
 
@@ -1417,11 +1445,6 @@ class DamageModel_DS(DamageModel_Base):
                 ['1_CMP.A', {'DS1': ['CMP.B_DS1', 'CMP.C_DS2']}]
                 ['1_CMP.A', {'DS1': 'CMP.B_DS1', 'DS2': 'CMP.B_DS2'}]
                 ['1_CMP.A-LOC', {'DS1': 'CMP.B_DS1'}]
-        ds_sample : pandas DataFrame
-            A DataFrame representing the damage state of the
-            components. It is modified in place to represent the
-            damage states of the components after the task has been
-            performed.
 
         Raises
         ------
@@ -1447,7 +1470,7 @@ class DamageModel_DS(DamageModel_Base):
 
         # check if the source component exists in the damage state
         # dataframe
-        if source_cmp not in ds_sample.columns.get_level_values('cmp'):
+        if source_cmp not in self.ds_sample.columns.get_level_values('cmp'):
             self.log.add_warning(
                 f"Source component `{source_cmp}` in the prescribed "
                 "damage process not found among components in the damage "
@@ -1480,7 +1503,7 @@ class DamageModel_DS(DamageModel_Base):
                 target_cmp, target_event = target_info.split('_')
 
                 if (target_cmp != 'ALL') and (
-                    target_cmp not in ds_sample.columns.get_level_values('cmp')
+                    target_cmp not in self.ds_sample.columns.get_level_values('cmp')
                 ):
                     self.log.add_warning(
                         f"Target component `{target_cmp}` in the prescribed "
@@ -1511,12 +1534,12 @@ class DamageModel_DS(DamageModel_Base):
 
                 if match_locations:
                     self._perform_dmg_event_loc(
-                        ds_sample, source_cmp, ds_source, target_cmp, ds_target
+                        source_cmp, ds_source, target_cmp, ds_target
                     )
 
                 else:
                     self._perform_dmg_event(
-                        ds_sample, source_cmp, ds_source, target_cmp, ds_target
+                        source_cmp, ds_source, target_cmp, ds_target
                     )
 
         if self._asmnt.log.verbose:
@@ -1524,9 +1547,7 @@ class DamageModel_DS(DamageModel_Base):
                 'Damage process task successfully applied.', prepend_timestamp=False
             )
 
-    def _perform_dmg_event(
-        self, ds_sample, source_cmp, ds_source, target_cmp, ds_target
-    ):
+    def _perform_dmg_event(self, source_cmp, ds_source, target_cmp, ds_target):
         """
         Perform a damage event.
         See `_perform_dmg_task`.
@@ -1537,23 +1558,21 @@ class DamageModel_DS(DamageModel_Base):
         row_selection = np.where(
             # for many instances of source_cmp, we
             # consider the highest damage state
-            ds_sample[source_cmp].max(axis=1).values
+            self.ds_sample[source_cmp].max(axis=1).values
             == ds_source
         )[0]
         # affected columns
         if target_cmp == 'ALL':
             column_selection = np.where(
-                ds_sample.columns.get_level_values('cmp') != source_cmp
+                self.ds_sample.columns.get_level_values('cmp') != source_cmp
             )[0]
         else:
             column_selection = np.where(
-                ds_sample.columns.get_level_values('cmp') == target_cmp
+                self.ds_sample.columns.get_level_values('cmp') == target_cmp
             )[0]
-        ds_sample.iloc[row_selection, column_selection] = ds_target
+        self.ds_sample.iloc[row_selection, column_selection] = ds_target
 
-    def _perform_dmg_event_loc(
-        self, ds_sample, source_cmp, ds_source, target_cmp, ds_target
-    ):
+    def _perform_dmg_event_loc(self, source_cmp, ds_source, target_cmp, ds_target):
         """
         Perform a damage event matching locations.
         See `_perform_dmg_task`.
@@ -1561,13 +1580,13 @@ class DamageModel_DS(DamageModel_Base):
         """
 
         # get locations of source component
-        source_locs = set(ds_sample[source_cmp].columns.get_level_values('loc'))
+        source_locs = set(self.ds_sample[source_cmp].columns.get_level_values('loc'))
         for loc in source_locs:
             # apply damage task matching locations
             row_selection = np.where(
                 # for many instances of source_cmp, we
                 # consider the highest damage state
-                ds_sample[source_cmp, loc].max(axis=1).values
+                self.ds_sample[source_cmp, loc].max(axis=1).values
                 == ds_source
             )[0]
 
@@ -1575,18 +1594,18 @@ class DamageModel_DS(DamageModel_Base):
             if target_cmp == 'ALL':
                 column_selection = np.where(
                     np.logical_and(
-                        ds_sample.columns.get_level_values('cmp') != source_cmp,
-                        ds_sample.columns.get_level_values('loc') == loc,
+                        self.ds_sample.columns.get_level_values('cmp') != source_cmp,
+                        self.ds_sample.columns.get_level_values('loc') == loc,
                     )
                 )[0]
             else:
                 column_selection = np.where(
                     np.logical_and(
-                        ds_sample.columns.get_level_values('cmp') == target_cmp,
-                        ds_sample.columns.get_level_values('loc') == loc,
+                        self.ds_sample.columns.get_level_values('cmp') == target_cmp,
+                        self.ds_sample.columns.get_level_values('loc') == loc,
                     )
                 )[0]
-            ds_sample.iloc[row_selection, column_selection] = ds_target
+            self.ds_sample.iloc[row_selection, column_selection] = ds_target
 
     def _complete_ds_cols(self, dmg_sample):
         """

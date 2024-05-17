@@ -50,7 +50,6 @@ This file defines Loss model objects and their methods.
 """
 
 from __future__ import annotations
-from pathlib import Path
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -303,23 +302,22 @@ class LossModel(PelicunModel):
         # Get the damaged quantities in each damage state for each
         # component of interest.
         # TODO: FIND A WAY to avoid making a copy of this.
-        dmg_quantities = self._asmnt.damage.ds_model.sample.copy()
         demand = self._asmnt.demand.sample
         demand_offset = self._asmnt.options.demand_offset
         nondirectional_multipliers = self._asmnt.options.nondir_multi_dict
-        cmp_sample = self._asmnt.asset.cmp_sample.to_dict(
-            'series'
-        )  # this needs to become an argument
-        cmp_marginal_params = (
-            self._asmnt.asset.cmp_marginal_params
-        )  # this needs to become an argument
-        if len(demand) != len(dmg_quantities):
-            raise ValueError(
-                f'The demand sample contains {len(demand)} realizations, '
-                f'but the damage sample contains {len(dmg_quantities)}. '
-                f'Loss calculation cannot proceed when these numbers are different. '
-            )
-        self.ds_model._calculate(dmg_quantities)
+        cmp_sample = self._asmnt.asset.cmp_sample.to_dict('series')
+        cmp_marginal_params = self._asmnt.asset.cmp_marginal_params
+        if self._asmnt.damage.ds_model.sample is not None:
+            dmg_quantities = self._asmnt.damage.ds_model.sample.copy()
+            if len(demand) != len(dmg_quantities):
+                raise ValueError(
+                    f'The demand sample contains {len(demand)} realizations, '
+                    f'but the damage sample contains {len(dmg_quantities)}. '
+                    f'Loss calculation cannot proceed when '
+                    f'these numbers are different. '
+                )
+            self.ds_model._calculate(dmg_quantities)
+
         self.lf_model._calculate(
             demand,
             cmp_sample,
@@ -327,6 +325,33 @@ class LossModel(PelicunModel):
             demand_offset,
             nondirectional_multipliers,
         )
+
+        #
+        # handle `replacement`
+        #
+
+        if self.ds_model.sample is not None:
+
+            # columns that correspond to the replacement consequence
+            replacement_columns = []
+            # rows where replacement is non-zero
+            replacement_rows = []
+
+            replacement_columns = (
+                self.ds_model.sample.columns.get_level_values('loss')
+                == 'replacement'
+            )
+            rows_df = self.ds_model.sample.iloc[:, replacement_columns]
+
+            if not rows_df.empty:
+                replacement_rows = (
+                    np.argwhere(np.any(rows_df.values > 0.0, axis=1))
+                    .reshape(-1)
+                    .tolist()
+                )
+            self.ds_model.sample.iloc[replacement_rows, ~replacement_columns] = 0.00
+            self.lf_model.sample.iloc[replacement_rows, :] = 0.00
+
         self.log.msg("Loss calculation successful.")
 
     def save_sample(self, filepath=None, save_units=False):
@@ -371,45 +396,52 @@ class LossModel(PelicunModel):
             Raises an IOError if there is an issue saving the file to
             the specified `filepath`.
         """
-        self.log.div()
-        if filepath is not None:
-            self.log.msg('Saving loss sample...')
-            ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
 
-        # DS model
+        raise NotImplementedError('In progress...')
 
-        cmp_units = self.ds_model.loss_params[('DV', 'Unit')]
-        dv_units = pd.Series(
-            index=self.ds_model.sample.columns, name='Units', dtype='object'
-        )
+        # self.log.div()
+        # if filepath is not None:
+        #     self.log.msg('Saving loss sample...')
+        #     ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
+        #     lf_filepath = f'{Path(filepath).parent}/LF_{Path(filepath).name}'
+        # else:
+        #     ds_filepath = lf_filepath = None
 
-        valid_dv_types = dv_units.index.unique(level=0)
-        valid_cmp_ids = dv_units.index.unique(level=1)
+        # if self.ds_model.sample is not None:
+        #     cmp_units = self.ds_model.loss_params[('DV', 'Unit')]
+        #     dv_units = pd.Series(
+        #         index=self.ds_model.sample.columns, name='Units', dtype='object'
+        #     )
 
-        for cmp_id, dv_type in cmp_units.index:
-            if (dv_type in valid_dv_types) and (cmp_id in valid_cmp_ids):
-                dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
+        #     res_ds = file_io.save_to_csv(
+        #         self.ds_model.sample,
+        #         ds_filepath,
+        #         use_simpleindex=(filepath is not None),
+        #         log=self._asmnt.log,
+        #     )
 
-        res = file_io.save_to_csv(
-            self.ds_model.sample,
-            ds_filepath,
-            units=dv_units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
-            use_simpleindex=(filepath is not None),
-            log=self._asmnt.log,
-        )
+        # if self.lf_model.sample is not None:
 
-        if filepath is not None:
-            self.log.msg('Loss sample successfully saved.', prepend_timestamp=False)
-            return None
+        #     res_lf = file_io.save_to_csv(
+        #         self.lf_model.sample,
+        #         lf_filepath,
+        #         use_simpleindex=(filepath is not None),
+        #         log=self._asmnt.log,
+        #     )
 
-        units = res.loc["Units"]
-        res.drop("Units", inplace=True)
+        # if filepath is not None:
+        #     self.log.msg(
+        #         'Loss sample successfully saved.', prepend_timestamp=False
+        #     )
+        #     return None
 
-        if save_units:
-            return {'DS': (res.astype(float), units)}
+        # units = res.loc["Units"]
+        # res.drop("Units", inplace=True)
 
-        return {'DS': res.astype(float)}
+        # if save_units:
+        #     return {'DS': (res.astype(float), units)}
+
+        # return {'DS': res.astype(float)}
 
     def load_sample(self, filepath):
         """
@@ -422,47 +454,83 @@ class LossModel(PelicunModel):
             prefix is added internally for each loss model.
 
         """
-        self.log.div()
-        self.log.msg('Loading loss sample...')
+        raise NotImplementedError('In progress...')
 
-        ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
-        self.ds_model.sample = file_io.load_data(
-            ds_filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
-        )
+        # self.log.div()
+        # self.log.msg('Loading loss sample...')
 
-        self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
+        # ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
+        # self.ds_model.sample = file_io.load_data(
+        #     ds_filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
+        # )
+
+        # self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
     def aggregate_losses(self):
         """
-        Aggregates repair consequences across components.
+        Aggregates the losses produced by each component.
 
         Returns
         -------
-        DataFrame
-            A DataFrame containing aggregated repair
-            consequences. Columns include:
-            - 'repair_cost': Total repair costs across all components.
-            - 'repair_time-parallel': Minimum possible repair time
-              assuming repairs are conducted in parallel.
-            - 'repair_time-sequential': Maximum possible repair time
-              assuming sequential repairs.
-            - 'repair_carbon': Total carbon emissions associated with
-              repairs.
-            - 'repair_energy': Total energy usage associated with
-              repairs.
-            Each of these columns is summed or calculated based on the
-            repair data available.
+        pd.DataFrame
+            The aggregated loss of each realization.
 
         """
 
-        self.log.div()
-        self.log.msg("Aggregating repair consequences...")
+        # combine samples
 
-        ds_model_losses = self.ds_model._aggregate_losses()
+        # levels to preserve (this aggregates `ds` for the ds_model)
+        column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
+        samples = [
+            model.sample.groupby(by=column_levels, axis=1).sum()
+            for model in self._loss_models
+            if model.sample is not None
+        ]
+        if not samples:
+            self.log.msg("There are no losses.")
+            return None
 
-        self.log.msg("Repair consequences successfully aggregated.")
+        sample = pd.concat(samples, axis=1)
 
-        return ds_model_losses
+        # group results by DV type and location
+        aggregated = sample.groupby(level=['dv', 'loc'], axis=1).sum()
+
+        # Note: The `Time` DV receives special treatment.
+
+        # create the summary DF
+        columns = [
+            f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time'
+        ]
+        if 'Time' in self.decision_variables:
+            columns.extend(('repair_time-sequential', 'repair_time-parallel'))
+        df_agg = pd.DataFrame(index=sample.index, columns=columns)
+
+        for decision_variable in self.decision_variables:
+
+            # Time ..
+            if decision_variable == 'Time' and 'Time' in aggregated.columns:
+                df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
+
+                df_agg['repair_time-parallel'] = aggregated['Time'].max(axis=1)
+            elif decision_variable == 'Time' and 'Time' not in aggregated.columns:
+                df_agg = df_agg.drop(
+                    ['repair_time-parallel', 'repair_time-sequential'], axis=1
+                )
+            # All other ..
+            elif decision_variable in aggregated.columns:
+                df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
+                    decision_variable
+                ].sum(axis=1)
+            else:
+                df_agg = df_agg.drop(f'repair_{decision_variable.lower()}', axis=1)
+
+        # TODO: implement conversion of loss values to any desired
+        # unit other than the base loss units
+
+        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
+        df_agg.sort_index(axis=1, inplace=True)
+
+        return df_agg
 
     @property
     def _loss_models(self):
@@ -903,71 +971,16 @@ class RepairModel_DS(RepairModel_Base):
 
         DV_sample = DV_sample.fillna(0).convert_dtypes()
 
-        # Get the flags for replacement consequence trigger
-        DV_sum = DV_sample.groupby(level=[1], axis=1).sum()
-        if 'replacement' in DV_sum.columns:
-            # When the 'replacement' consequence is triggered, all
-            # local repair consequences are discarded. Note that
-            # global consequences are assigned to location '0'.
-
-            id_replacement = DV_sum['replacement'] > 0
-
-            # get the list of non-zero locations
-            locs = DV_sample.columns.get_level_values('loc').unique().values
-            locs = locs[locs != '0']
-
-            DV_sample.loc[id_replacement, idx[:, :, :, :, locs]] = 0.0
-
         self.log.msg("Successfully obtained DV sample.", prepend_timestamp=False)
         self.sample = DV_sample
-
-    def _aggregate_losses(self):
-
-        # group results by DV type and location
-        aggregated = self.sample.groupby(level=[0, 4], axis=1).sum()
-
-        # Note: The `Time` DV receives special treatment.
-
-        # create the summary DF
-        columns = [
-            f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time'
-        ]
-        if 'Time' in self.decision_variables:
-            columns.extend(('repair_time-sequential', 'repair_time-parallel'))
-        df_agg = pd.DataFrame(index=self.sample.index, columns=columns)
-
-        for decision_variable in self.decision_variables:
-
-            # Time ..
-            if decision_variable == 'Time' and 'Time' in aggregated.columns:
-                df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
-
-                df_agg['repair_time-parallel'] = aggregated['Time'].max(axis=1)
-            elif decision_variable == 'Time' and 'Time' not in aggregated.columns:
-                df_agg = df_agg.drop(
-                    ['repair_time-parallel', 'repair_time-sequential'], axis=1
-                )
-            # All other ..
-            elif decision_variable in aggregated.columns:
-                df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
-                    decision_variable
-                ].sum(axis=1)
-            else:
-                df_agg = df_agg.drop(f'repair_{decision_variable.lower()}', axis=1)
-
-        # TODO: implement conversion of loss values to any desired
-        # unit other than the base loss units
-
-        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
-        df_agg.sort_index(axis=1, inplace=True)
-
-        return df_agg
 
     def _convert_loss_parameter_units(self):
         """
         Converts previously loaded loss parameters to base units.
 
         """
+        if self.loss_params is None:
+            return
         units = self.loss_params[('DV', 'Unit')]
         arg_units = self.loss_params[('Quantity', 'Unit')]
         for column in self.loss_params.columns.unique(level=0):
@@ -983,7 +996,8 @@ class RepairModel_DS(RepairModel_Base):
         to unused damage states.
 
         """
-
+        if self.loss_params is None:
+            return
         first_level = self.loss_params.columns.get_level_values(0).unique().to_list()
         ds_list = [x for x in first_level if x.startswith('DS')]
         ds_to_drop = []
@@ -1345,6 +1359,13 @@ class RepairModel_LF(RepairModel_Base):
                     ((component, decision_variable), location, direction, uid)
                 ] = num_blocks
 
+        if not performance_group_dict:
+            self.log.msg(
+                "No loss function-driven components---LF sample is set to None.",
+                prepend_timestamp=False,
+            )
+            return
+
         performance_group = pd.DataFrame(
             performance_group_dict.values(),
             index=performance_group_dict.keys(),
@@ -1418,16 +1439,16 @@ class RepairModel_LF(RepairModel_Base):
                 'block',
             ]
             std_sample.sort_index(axis=1, inplace=True)
+            sample = (medians * std_sample).combine_first(medians)
 
         else:
-            std_sample = None
+            sample = medians
 
         self.log.msg(
             f"\nSuccessfully generated {sample_size} realizations of "
             "deviation from the median consequences.",
             prepend_timestamp=False,
         )
-        sample = (medians * std_sample).combine_first(medians)
 
         # sum up the block losses
         sample = sample.groupby(
@@ -1509,9 +1530,11 @@ class RepairModel_LF(RepairModel_Base):
                 median_loss = base.stringterpolation(loss_function_str)(edp_values)
             except ValueError as exc:
                 raise ValueError(
-                    f'Loss function for consequence '
-                    f'`{consequence}-{decision_variable}` '
-                    f'has an insufficiently small interpolation domain.'
+                    f'Loss function intepolation for consequence '
+                    f'`{consequence}-{decision_variable}` has failed. '
+                    f'Ensure a sufficient interpolation domain  '
+                    f'for the X values (those after the `|` symbol)  '
+                    f'and verify the X-value and Y-value lengths match.'
                 ) from exc
             for block in range(blocks):
                 medians_dict[

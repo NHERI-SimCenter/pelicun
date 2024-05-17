@@ -407,9 +407,7 @@ class DemandModel(PelicunModel):
         """
 
         if self.calibrated:
-            self.log.add_warning(
-                'DemandModel has been previously calibrated.'
-            )
+            self.log.add_warning('DemandModel has been previously calibrated.')
             self.log.emit_warnings()
 
         def parse_settings(settings, demand_type):
@@ -1162,6 +1160,12 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset=None):
         # Concatenate the EDP type, offset, and direction to form
         # the EDP key
         EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
+        if int(PG[1]) + offset < 0:
+            raise ValueError(
+                f'Negative location encountered for component '
+                f'(cmp, loc, dir, uid)=`{PG}`. Would require `{EDP}`. '
+                f'Please update the location of the component.'
+            )
 
         # If the EDP key is not already in the `required_edps`
         # dictionary, add it and initialize it with an empty list

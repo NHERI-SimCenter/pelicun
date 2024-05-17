@@ -682,8 +682,11 @@ class TestRepairModel_LF(TestRepairModel_Base):
                 performance_group, loss_map, required_edps, demand_dict, cmp_sample
             )
         assert (
-            'Loss function for consequence `cmp.A-dv.A` '
-            'has an insufficiently small interpolation domain.'
+            'Loss function intepolation for consequence '
+            '`cmp.A-dv.A` has failed. Ensure a sufficient '
+            'interpolation domain  for the X values '
+            '(those after the `|` symbol)  and verify '
+            'the X-value and Y-value lengths match.'
         ) in str(record.value)
 
     def test__create_DV_RVs(self, assessment_instance):
