@@ -1071,58 +1071,6 @@ def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def process_loc(string, stories):
-    """
-    Parses the 'location' parameter from input to determine the
-    specific locations to be processed. This function interprets
-    various string formats to output a list of integers representing
-    locations.
-
-    Parameters
-    ----------
-    string : str
-        A string that describes the location or range of locations of
-        the asset.  It can be a single number, a range (e.g., '3-7'),
-        'all', 'top', 'roof', or 'last'.
-    stories : int
-        The total number of locations in the asset, used to interpret
-        relative terms like 'top' or 'roof', or to generate a range
-        for 'all'.
-
-    Returns
-    -------
-    list of int or None
-        A list of integers representing each floor specified by the
-        string. Returns None if the string does not conform to
-        expected formats.
-
-    Raises
-    ------
-    ValueError
-        Raises an exception if the string contains a range that is not
-        interpretable (e.g., non-integer values or logical
-        inconsistencies in the range).
-    """
-    try:
-        res = int(string)
-        return [
-            res,
-        ]
-    except ValueError as exc:
-        if "-" in string:
-            s_low, s_high = string.split('-')
-            s_low = process_loc(s_low, stories)
-            s_high = process_loc(s_high, stories)
-            return list(range(s_low[0], s_high[0] + 1))
-        if string == "all":
-            return list(range(1, stories + 1))
-        if string in {"top", "roof", "last"}:
-            return [
-                stories,
-            ]
-        raise ValueError(f'Invalid string: {string}') from exc
-
-
 def dedupe_index(dataframe, dtype=str):
     """
     Modifies the index of a DataFrame to ensure all index elements are

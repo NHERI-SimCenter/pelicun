@@ -602,33 +602,6 @@ def test_with_parsed_str_na_values():
     )
 
 
-def test_process_loc():
-    # Test when string can be converted to an int
-    assert base.process_loc('5', 10) == [
-        5,
-    ]
-
-    # Test when string is in the form 'low-high'
-    assert base.process_loc('2-5', 10) == [2, 3, 4, 5]
-
-    # Test when string is 'all'
-    assert base.process_loc('all', 10) == list(range(1, 11))
-
-    # Test when string is 'top'
-    assert base.process_loc('top', 10) == [
-        10,
-    ]
-
-    # Test when string is 'roof'
-    assert base.process_loc('roof', 10) == [
-        10,
-    ]
-
-    # Test when string cannot be converted to an int or recognized
-    with pytest.raises(ValueError):
-        base.process_loc('abc', 10)
-
-
 def test_run_input_specs():
     assert os.path.basename(base.pelicun_path) == 'pelicun'
 
