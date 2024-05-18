@@ -51,10 +51,10 @@ This file defines the DemandModel object and its methods.
 
 import numpy as np
 import pandas as pd
-from .pelicun_model import PelicunModel
-from .. import base
-from .. import uq
-from .. import file_io
+from pelicun.model.pelicun_model import PelicunModel
+from pelicun import base
+from pelicun import uq
+from pelicun import file_io
 
 
 idx = base.idx
@@ -93,6 +93,16 @@ class DemandModel(PelicunModel):
 
     """
 
+    __slots__ = [
+        'marginal_params',
+        'correlation',
+        'empirical_data',
+        'units',
+        'calibrated',
+        '_RVs',
+        'sample',
+    ]
+
     def __init__(self, assessment):
         super().__init__(assessment)
 
@@ -126,9 +136,9 @@ class DemandModel(PelicunModel):
             the specified `filepath`.
         """
 
-        self.log_div()
+        self.log.div()
         if filepath is not None:
-            self.log_msg('Saving demand sample...')
+            self.log.msg('Saving demand sample...')
 
         res = file_io.save_to_csv(
             self.sample,
@@ -140,7 +150,9 @@ class DemandModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg('Demand sample successfully saved.', prepend_timestamp=False)
+            self.log.msg(
+                'Demand sample successfully saved.', prepend_timestamp=False
+            )
             return None
 
         # else:
@@ -204,7 +216,7 @@ class DemandModel(PelicunModel):
             # currently not used. We remove it if it was in the raw data.
             if old_MI.nlevels == 4:
                 if self._asmnt.log.verbose:
-                    self.log_msg(
+                    self.log.msg(
                         'Removing event_ID from header...', prepend_timestamp=False
                     )
 
@@ -220,7 +232,7 @@ class DemandModel(PelicunModel):
             # Remove whitespace to avoid ambiguity
 
             if self._asmnt.log.verbose:
-                self.log_msg(
+                self.log.msg(
                     'Removing whitespace from header...', prepend_timestamp=False
                 )
 
@@ -236,8 +248,8 @@ class DemandModel(PelicunModel):
 
             return new_MI
 
-        self.log_div()
-        self.log_msg('Loading demand data...')
+        self.log.div()
+        self.log.msg('Loading demand data...')
 
         demand_data, units = file_io.load_data(
             filepath,
@@ -254,7 +266,7 @@ class DemandModel(PelicunModel):
 
         # Remove errors, if needed
         if 'ERROR' in parsed_data.columns.get_level_values(0):
-            self.log_msg(
+            self.log.msg(
                 'Removing errors from the raw data...', prepend_timestamp=False
             )
 
@@ -263,7 +275,7 @@ class DemandModel(PelicunModel):
             parsed_data = parsed_data.loc[~error_list, :].copy()
             parsed_data.drop('ERROR', level=0, axis=1, inplace=True)
 
-            self.log_msg(
+            self.log.msg(
                 "\nBased on the values in the ERROR column, "
                 f"{np.sum(error_list)} demand samples were removed.\n",
                 prepend_timestamp=False,
@@ -271,14 +283,14 @@ class DemandModel(PelicunModel):
 
         self.sample = parsed_data
 
-        self.log_msg('Demand data successfully parsed.', prepend_timestamp=False)
+        self.log.msg('Demand data successfully parsed.', prepend_timestamp=False)
 
         # parse the index for the units
         units.index = parse_header(units.index)
 
         self.units = units
 
-        self.log_msg('Demand units successfully parsed.', prepend_timestamp=False)
+        self.log.msg('Demand units successfully parsed.', prepend_timestamp=False)
 
     def estimate_RID(self, demands, params, method='FEMA P58'):
         """
@@ -395,10 +407,8 @@ class DemandModel(PelicunModel):
         """
 
         if self.calibrated:
-            self.log_msg(
-                'WARNING: DemandModel has been previously calibrated.',
-                prepend_timestamp=False,
-            )
+            self.log.add_warning('DemandModel has been previously calibrated.')
+            self.log.emit_warnings()
 
         def parse_settings(settings, demand_type):
             def parse_str_to_float(in_str, context_string):
@@ -408,11 +418,11 @@ class DemandModel(PelicunModel):
                     out_float = float(in_str)
 
                 except ValueError:
-                    self.log_msg(
-                        f"WARNING: Could not parse {in_str} provided as "
-                        f"{context_string}. Using NaN instead.",
-                        prepend_timestamp=False,
+                    self.log.add_warning(
+                        f"Could not parse {in_str} provided as "
+                        f"{context_string}. Using NaN instead."
                     )
+                    self.log.emit_warnings()
 
                     out_float = np.nan
 
@@ -483,8 +493,8 @@ class DemandModel(PelicunModel):
 
             return np.all([lower_mask, upper_mask], axis=0)
 
-        self.log_div()
-        self.log_msg('Calibrating demand model...')
+        self.log.div()
+        self.log.msg('Calibrating demand model...')
 
         demand_sample = self.sample
 
@@ -515,12 +525,12 @@ class DemandModel(PelicunModel):
                 parse_settings(config[demand_type], demand_type)
 
         if self._asmnt.log.verbose:
-            self.log_msg(
+            self.log.msg(
                 "\nCalibration settings successfully parsed:\n" + str(cal_df),
                 prepend_timestamp=False,
             )
         else:
-            self.log_msg(
+            self.log.msg(
                 "\nCalibration settings successfully parsed:\n",
                 prepend_timestamp=False,
             )
@@ -541,7 +551,7 @@ class DemandModel(PelicunModel):
 
             demand_sample = demand_sample.loc[censor_mask, :]
 
-            self.log_msg(
+            self.log.msg(
                 "\nBased on the provided censoring limits, "
                 f"{censored_count} samples were censored.",
                 prepend_timestamp=False,
@@ -563,7 +573,7 @@ class DemandModel(PelicunModel):
             if truncated_count > 0:
                 demand_sample = demand_sample.loc[truncate_mask, :]
 
-                self.log_msg(
+                self.log.msg(
                     "\nBased on the provided truncation limits, "
                     f"{truncated_count} samples were removed before demand "
                     "calibration.",
@@ -589,13 +599,13 @@ class DemandModel(PelicunModel):
         cal_df = cal_df.drop(empirical_edps, axis=0)
 
         if self._asmnt.log.verbose:
-            self.log_msg(
+            self.log.msg(
                 f"\nDemand data used for calibration:\n{demand_sample}",
                 prepend_timestamp=False,
             )
 
         # fit the joint distribution
-        self.log_msg(
+        self.log.msg(
             "\nFitting the prescribed joint demand distribution...",
             prepend_timestamp=False,
         )
@@ -610,7 +620,7 @@ class DemandModel(PelicunModel):
             logger_object=self._asmnt.log,
         )
         # fit the joint distribution
-        self.log_msg(
+        self.log.msg(
             "\nCalibration successful, processing results...",
             prepend_timestamp=False,
         )
@@ -620,7 +630,7 @@ class DemandModel(PelicunModel):
 
         # increase the variance of the marginal distributions, if needed
         if ~np.all(pd.isna(model_params.loc[:, 'SigIncrease'].values)):
-            self.log_msg("\nIncreasing demand variance...", prepend_timestamp=False)
+            self.log.msg("\nIncreasing demand variance...", prepend_timestamp=False)
 
             sig_inc = np.nan_to_num(model_params.loc[:, 'SigIncrease'].values)
             sig_0 = model_params.loc[:, 'Theta_1'].values
@@ -638,8 +648,9 @@ class DemandModel(PelicunModel):
 
         self.marginal_params = model_params
 
-        self.log_msg(
-            "\nCalibrated demand model marginal distributions:\n" + str(model_params),
+        self.log.msg(
+            "\nCalibrated demand model marginal distributions:\n"
+            + str(model_params),
             prepend_timestamp=False,
         )
 
@@ -648,8 +659,9 @@ class DemandModel(PelicunModel):
             demand_rho, columns=cal_df.index, index=cal_df.index
         )
 
-        self.log_msg(
-            "\nCalibrated demand model correlation matrix:\n" + str(self.correlation),
+        self.log.msg(
+            "\nCalibrated demand model correlation matrix:\n"
+            + str(self.correlation),
             prepend_timestamp=False,
         )
 
@@ -661,8 +673,8 @@ class DemandModel(PelicunModel):
 
         """
 
-        self.log_div()
-        self.log_msg('Saving demand model...')
+        self.log.div()
+        self.log.msg('Saving demand model...')
 
         # save the correlation and empirical data
         file_io.save_to_csv(self.correlation, file_prefix + '_correlation.csv')
@@ -699,7 +711,7 @@ class DemandModel(PelicunModel):
             log=self._asmnt.log,
         )
 
-        self.log_msg('Demand model successfully saved.', prepend_timestamp=False)
+        self.log.msg('Demand model successfully saved.', prepend_timestamp=False)
 
     def load_model(self, data_source):
         """
@@ -716,8 +728,8 @@ class DemandModel(PelicunModel):
             'correlation'. The value under each key shall be a DataFrame.
         """
 
-        self.log_div()
-        self.log_msg('Loading demand model...')
+        self.log.div()
+        self.log.msg('Loading demand model...')
 
         # prepare the marginal data source variable to load the data
         if isinstance(data_source, dict):
@@ -766,12 +778,14 @@ class DemandModel(PelicunModel):
         )
         marginal_params.index.set_names(['type', 'loc', 'dir'], inplace=True)
 
-        marginal_params = self.convert_marginal_params(marginal_params.copy(), units)
+        marginal_params = self._convert_marginal_params(
+            marginal_params.copy(), units
+        )
 
         self.marginal_params = marginal_params
         self.units = units
 
-        self.log_msg('Demand model successfully loaded.', prepend_timestamp=False)
+        self.log.msg('Demand model successfully loaded.', prepend_timestamp=False)
 
     def _create_RVs(self, preserve_order=False):
         """
@@ -818,7 +832,7 @@ class DemandModel(PelicunModel):
                     )
                 )
 
-        self.log_msg(
+        self.log.msg(
             f"\n{self.marginal_params.shape[0]} random variables created.",
             prepend_timestamp=False,
         )
@@ -838,7 +852,7 @@ class DemandModel(PelicunModel):
                 )
             )
 
-            self.log_msg(
+            self.log.msg(
                 f"\nCorrelations between {len(rv_set_tags)} random variables "
                 "successfully defined.",
                 prepend_timestamp=False,
@@ -911,12 +925,12 @@ class DemandModel(PelicunModel):
                 warn_columns.append(column)
         if warn_columns:
             warn_columns = ['-'.join(x) for x in warn_columns]
-            self.log_msg(
-                "\nWARNING: The demand cloning configuration lists "
+            self.log.add_warning(
+                "The demand cloning configuration lists "
                 "columns that are not present in the original demand sample's "
-                f"columns: {warn_columns}.\n",
-                prepend_timestamp=False,
+                f"columns: {warn_columns}."
             )
+            self.log.emit_warnings()
 
         # we iterate over the existing columns of the sample and try
         # to locate columns that need to be copied as required by the
@@ -1002,8 +1016,8 @@ class DemandModel(PelicunModel):
                 'model using raw demand data.'
             )
 
-        self.log_div()
-        self.log_msg('Generating sample from demand variables...')
+        self.log.div()
+        self.log.msg('Generating sample from demand variables...')
 
         self._create_RVs(preserve_order=config.get('PreserveRawOrder', False))
 
@@ -1027,7 +1041,262 @@ class DemandModel(PelicunModel):
         if config.get('DemandCloning', False):
             self.clone_demands(config['DemandCloning'])
 
-        self.log_msg(
+        self.log.msg(
             f"\nSuccessfully generated {sample_size} realizations.",
             prepend_timestamp=False,
         )
+
+
+def _get_required_demand_type(model_parameters, PGB, demand_offset=None):
+    """
+    Returns the id of the demand needed to calculate damage or
+    loss of a component.
+
+    This method returns the demand type and its properties
+    required to calculate the the damage or loss of a
+    component. The properties include whether the demand is
+    directional, the offset, and the type of the demand. The
+    method takes as input a dataframe `PGB` that contains
+    information about the component groups in the asset. For each
+    performance group PG in the PGB dataframe, the method
+    retrieves the relevant parameters from the model_params
+    dataframe and parses the demand type into its properties. If
+    the demand type has a subtype, the method splits it and adds
+    the subtype to the demand type to form the EDP type. The
+    method also considers the default offset for the demand type,
+    if it is specified in the options attribute of the assessment,
+    and adds the offset to the EDP. If the demand is directional,
+    the direction is added to the EDP. The method collects all the
+    unique EDPs for each component group and returns them as a
+    dictionary where each key is an EDP and its value is a list of
+    component groups that require that EDP.
+
+    Parameters
+    ----------
+    model_parameters: pd.DataFrame
+        Model parameters. Damage model parameters, or
+        loss-function loss model parameters.
+    PGB: pd.DataFrame
+        A pandas DataFrame with the block information for
+        each component
+    demand_offset: dict, optional
+        Specifies an additional location offset for specific
+        demand types. Example:
+        {'PFA': -1, 'PFV': +2}.
+
+    Returns
+    -------
+    dict
+        A dictionary of EDP requirements, where each key is the EDP
+        string (e.g., "PGA-0-1"), and the
+        corresponding value is a list of tuples (component_id,
+        location, direction)
+
+    """
+
+    # Assign default demand_offset to empty dict.
+    if not demand_offset:
+        demand_offset = {}
+
+    required_edps = {}
+
+    for PG in PGB.index:
+        # Get the component name from the first element of the
+        # `PG` tuple
+        cmp = PG[0]
+
+        # Get the directional, offset, and demand_type parameters
+        # from the `model_parameters` DataFrame
+        directional = model_parameters.at[cmp, ('Demand', 'Directional')]
+        offset = model_parameters.at[cmp, ('Demand', 'Offset')]
+        demand_type = model_parameters.at[cmp, ('Demand', 'Type')]
+
+        # Parse the demand type
+
+        # Check if there is a subtype included in the demand_type
+        # string
+        if '|' in demand_type:
+            # If there is a subtype, split the demand_type string
+            # on the '|' character
+            demand_type, subtype = demand_type.split('|')
+            # Convert the demand type to the corresponding EDP
+            # type using `base.EDP_to_demand_type`
+            demand_type = base.EDP_to_demand_type[demand_type]
+            # Concatenate the demand type and subtype to form the
+            # EDP type
+            EDP_type = f'{demand_type}_{subtype}'
+        else:
+            # If there is no subtype, convert the demand type to
+            # the corresponding EDP type using
+            # `base.EDP_to_demand_type`
+            demand_type = base.EDP_to_demand_type[demand_type]
+            # Assign the EDP type to be equal to the demand type
+            EDP_type = demand_type
+
+        # Consider the default offset, if needed
+        if demand_type in demand_offset.keys():
+            # If the demand type has a default offset in
+            # `demand_offset`, add the offset
+            # to the default offset
+            offset = int(offset + demand_offset[demand_type])
+        else:
+            # If the demand type does not have a default offset in
+            # `demand_offset`, convert the
+            # offset to an integer
+            offset = int(offset)
+
+        # Determine the direction
+        if directional:
+            # If the demand is directional, use the third element
+            # of the `PG` tuple as the direction
+            direction = PG[2]
+        else:
+            # If the demand is not directional, use '0' as the
+            # direction
+            direction = '0'
+
+        # Concatenate the EDP type, offset, and direction to form
+        # the EDP key
+        EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
+        if int(PG[1]) + offset < 0:
+            raise ValueError(
+                f'Negative location encountered for component '
+                f'(cmp, loc, dir, uid)=`{PG}`. Would require `{EDP}`. '
+                f'Please update the location of the component.'
+            )
+
+        # If the EDP key is not already in the `required_edps`
+        # dictionary, add it and initialize it with an empty list
+        if EDP not in required_edps:
+            required_edps.update({EDP: []})
+
+        # Add the current PG (performance group) to the list of
+        # PGs associated with the current EDP key
+        required_edps[EDP].append(PG)
+
+    # Return the required EDPs
+    return required_edps
+
+
+def _assemble_required_demand_data(
+    required_edps, nondirectional_multipliers, demand_sample
+):
+    """
+    Assembles demand data for damage state determination.
+
+    The method takes the maximum of all available directions for
+    non-directional demand, scaling it using the non-directional
+    multiplier specified in self._asmnt.options, and returning the
+    result as a dictionary with keys in the format of
+    '<demand_type>-<location>-<direction>' and values as arrays of
+    demand values. If demand data is not found, logs a warning
+    message and skips the corresponding damages calculation.
+
+    Parameters
+    ----------
+    required_edps: set
+        Set of required EDPs
+    nondirectional_multipliers: dict
+        Nondirectional components are sensitive to demands coming
+        in any direction. Results are typically available in two
+        orthogonal directions. FEMA P-58 suggests using the
+        formula `max(dir_1, dir_2) * 1.2` to estimate the demand
+        for such components. This parameter allows modifying the
+        1.2 multiplier with a user-specified value. The change can
+        be applied to "ALL" EDPs, or for specific EDPs, such as
+        "PFA", "PFV", etc. Examples:
+            1) {'PFA': 1.2, 'PID': 1.00}
+            2) {'ALL': 1.0}
+    demand_sample: pd.DataFrame
+        Dataframe containing the demand sample, realizations of EDPs
+        (or/and IMs) that are used for damage and loss calculations.
+
+    Returns
+    -------
+    demand_dict : dict
+        A dictionary of assembled demand data for calculation
+
+    Raises
+    ------
+    ValueError
+        If demand data for a given EDP cannot be found
+
+    """
+
+    demand_dict = {}
+
+    for edp in required_edps:
+        edp_type, location, direction = edp.split('-')
+
+        if direction == '0':
+
+            # non-directional
+            demand = demand_sample.loc[:, (edp_type, location)].max(axis=1).values
+
+            if edp_type in nondirectional_multipliers:
+                multiplier = nondirectional_multipliers[edp_type]
+
+            elif 'ALL' in nondirectional_multipliers:
+                multiplier = nondirectional_multipliers['ALL']
+
+            else:
+                raise ValueError(
+                    f"Peak orthogonal EDP multiplier "
+                    f"for non-directional demand "
+                    f"calculation of `{edp_type}` not specified."
+                )
+
+            demand = demand * multiplier
+
+        else:
+
+            # directional
+            demand = demand_sample[(edp_type, location, direction)].values
+
+        demand_dict.update({f'{edp_type}-{location}-{direction}': demand})
+
+    return demand_dict
+
+
+def _verify_edps_available(available_edps, required):
+    """
+    Verifies that the required EDPs are available and raises
+    appropriate errors otherwise.
+
+    Parameters
+    ----------
+    available_edps: dict
+        Dictionary mapping (`edp_type`-`cmp`-`dir`) to
+        list of `loc`s where values are available.
+    required: set
+        Set of required EDPs, expressed as
+        `edp_type`-`loc-`dir`. Direction `0` has special
+        meaning: It is used for directional demands.
+
+    Raises
+    ------
+    ValueError
+        When the verification fails.
+
+    """
+    # Verify that the required EDPs are available in the
+    # demand sample
+    for EDP in required:
+        edp_type, location, direction = EDP.split('-')
+        if (edp_type, location) not in available_edps:
+            raise ValueError(
+                f'Unable to locate `{edp_type}` at location '
+                f'{location} in demand sample.'
+            )
+        # if non-directional demand is requested, ensure there
+        # are entries (all directions accepted)
+        num_entries = len(available_edps[(edp_type, location)])
+        if EDP[2] == '0' and num_entries == 0:
+            raise ValueError(
+                f'Unable to locate any `{edp_type}` '
+                f'at location {location} and direction {direction}.'
+            )
+        if EDP[2] != '0' and num_entries == 0:
+            raise ValueError(
+                f'Unable to locate `{edp_type}-{location}-{direction}`.'
+            )

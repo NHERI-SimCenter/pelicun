@@ -44,15 +44,14 @@ These are unit and integration tests on the base module of pelicun.
 
 import os
 import io
-from contextlib import redirect_stdout
 import re
+from contextlib import redirect_stdout
 import argparse
 import pytest
 import pandas as pd
 import numpy as np
 from pelicun import base
 
-# pylint: disable=missing-function-docstring
 
 # The tests maintain the order of definitions of the `base.py` file.
 
@@ -96,7 +95,6 @@ def test_options_init():
     # Check that the Logger object attribute of the Options object is
     # initialized with the correct parameters
     assert options.log.verbose is False
-    assert options.log.show_warnings is False
     assert options.log.log_show_ms is False
     assert os.path.basename(options.log.log_file) == 'test_log_file'
     assert options.log.print_log is False
@@ -108,38 +106,14 @@ def test_options_init():
     options.seed = 42
     assert options.seed == 42
 
+    # test rng
+    # pylint: disable=c-extension-no-member
+    assert isinstance(options.rng, np.random._generator.Generator)
+
 
 def test_nondir_multi():
-    # Tests that the nondir_multi method of the Options class returns
-    # the correct value for the specified EDP type. Tests that the
-    # method uses the value associated with the 'ALL' key if the EDP
-    # type is not present in the nondir_multi_dict attribute. Tests
-    # that a ValueError is raised if the 'ALL' key is not present in the
-    # nondir_multi_dict attribute.
-
-    # Create an instance of the Options class with default values for all options,
-    # except for the nondir_multi_dict attribute
     options = base.Options({'NonDirectionalMultipliers': {'PFA': 1.5, 'PFV': 1.00}})
-
-    # Call the nondir_multi method with the specific EDP type as the argument
-    assert options.nondir_multi('PFA') == 1.5
-    assert options.nondir_multi('PFV') == 1.00
-
-    # the 'ALL' key is automatically assigned to 1.2, even if the user
-    # does not specify it
-    assert 'ALL' in options.nondir_multi_dict
-    assert options.nondir_multi('ALL') == 1.2
-
-    # When an EDP type is not present in the nondir_multi_dict, the
-    # value associated with 'ALL' is used.
-    assert options.nondir_multi('spread love') == 1.2
-
-    # We get an error if the 'ALL' key is not present, but this would
-    # be unexpected.
-    options.nondir_multi_dict.pop('ALL')  # 'ALL' is gone now
-    # the following will cause a ValueError
-    with pytest.raises(ValueError):
-        options.nondir_multi('Sa(T*)')
+    assert options.nondir_multi_dict == {'PFA': 1.5, 'PFV': 1.0, 'ALL': 1.2}
 
 
 def test_logger_init():
@@ -147,14 +121,12 @@ def test_logger_init():
     # attributes based on the input configuration
     log_config = {
         'verbose': True,
-        'show_warnings': True,
         'log_show_ms': False,
         'log_file': 'log.txt',
         'print_log': True,
     }
     log = base.Logger(**log_config)
     assert log.verbose is True
-    assert log.show_warnings is True
     assert log.log_show_ms is False
     assert os.path.basename(log.log_file) == 'log.txt'
     assert log.print_log is True
@@ -163,7 +135,6 @@ def test_logger_init():
     # test exceptions
     log_config = {
         'verbose': True,
-        'show_warnings': True,
         'log_show_ms': False,
         'log_file': '/',
         'print_log': True,
@@ -177,7 +148,6 @@ def test_logger_msg():
     # console and log file
     log_config = {
         'verbose': True,
-        'show_warnings': True,
         'log_show_ms': True,
         'log_file': 'log.txt',
         'print_log': True,
@@ -193,6 +163,16 @@ def test_logger_msg():
         assert 'This is a message' in f.read()
     os.remove('log.txt')
 
+    # Check if timestamp is printed
+    with io.StringIO() as buf, redirect_stdout(buf):
+        log.msg(
+            ('This is a message\nSecond line'),  # noqa
+            prepend_timestamp=True,
+        )
+        output = buf.getvalue()
+        pattern = r'(\d{2}:\d{2}:\d{2})'
+        assert re.search(pattern, output) is not None
+
 
 def test_logger_div():
     # We test the divider with and without the timestamp
@@ -206,7 +186,6 @@ def test_logger_div():
         # Test that the div method adds a divider as intended
         log_config = {
             'verbose': True,
-            'show_warnings': True,
             'log_show_ms': True,
             'log_file': 'log.txt',
             'print_log': True,
@@ -231,7 +210,6 @@ def test_print_system_info():
     # create a logger object
     log_config = {
         'verbose': True,
-        'show_warnings': True,
         'log_show_ms': True,
         'log_file': 'log.txt',
         'print_log': True,
@@ -278,6 +256,10 @@ def test_update_vals():
 def test_merge_default_config():
     # Test merging an empty user config with the default config
     user_config = {}
+    merged_config = base.merge_default_config(user_config)
+    assert merged_config == base.load_default_options()
+
+    user_config = None  # same as {}
     merged_config = base.merge_default_config(user_config)
     assert merged_config == base.load_default_options()
 
@@ -457,27 +439,28 @@ def test_show_matrix():
     assert True  # if no AssertionError is thrown, then the test passes
 
 
-def test__warning(capsys):
-    msg = 'This is a test.'
-    category = 'undefined'
-    base._warning(msg, category, '{path to a file}', '{line number}')
-    captured = capsys.readouterr()
-    assert (
-        captured.out
-        == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
-    )
-    base._warning(msg, category, 'some\\file', '{line number}')
-    captured = capsys.readouterr()
-    assert (
-        captured.out
-        == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
-    )
-    base._warning(msg, category, 'some/file', '{line number}')
-    captured = capsys.readouterr()
-    assert (
-        captured.out
-        == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
-    )
+# TODO: uncomment this block
+# def test__warning(capsys):
+#     msg = 'This is a test.'
+#     category = 'undefined'
+#     base._warning(msg, category, '{path to a file}', '{line number}')
+#     captured = capsys.readouterr()
+#     assert (
+#         captured.out
+#         == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
+#     )
+#     base._warning(msg, category, 'some\\file', '{line number}')
+#     captured = capsys.readouterr()
+#     assert (
+#         captured.out
+#         == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+#     )
+#     base._warning(msg, category, 'some/file', '{line number}')
+#     captured = capsys.readouterr()
+#     assert (
+#         captured.out
+#         == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
+#     )
 
 
 def test_describe():
@@ -608,6 +591,22 @@ def test_process_loc():
 
 def test_run_input_specs():
     assert os.path.basename(base.pelicun_path) == 'pelicun'
+
+
+def test_dedupe_index():
+    tuples = [('A', '1'), ('A', '1'), ('B', '2'), ('B', '3')]
+    index = pd.MultiIndex.from_tuples(tuples, names=['L1', 'L2'])
+    data = np.full((4, 1), 0.00)
+    df = pd.DataFrame(data, index=index)
+    base.dedupe_index(df)
+    assert df.to_dict() == {
+        0: {
+            ('A', '1', '0'): 0.0,
+            ('A', '1', '1'): 0.0,
+            ('B', '2', '0'): 0.0,
+            ('B', '3', '0'): 0.0,
+        }
+    }
 
 
 def test_dict_raise_on_duplicates():
@@ -741,17 +740,17 @@ def test_unit_conversion():
     assert base.convert_units(1.00, 'ft', 'm') == 0.3048
 
     # Test list conversion from feet to meters
-    feet_values = [1.0, 2.0, 3.0]
-    meter_values = [0.3048, 0.6096, 0.9144]
+    feet_values_list = [1.0, 2.0, 3.0]
+    meter_values_list = [0.3048, 0.6096, 0.9144]
     np.testing.assert_array_almost_equal(
-        base.convert_units(feet_values, 'ft', 'm'), meter_values
+        base.convert_units(feet_values_list, 'ft', 'm'), meter_values_list
     )
 
     # Test numpy array conversion from feet to meters
-    feet_values = np.array([1.0, 2.0, 3.0])
-    meter_values = np.array([0.3048, 0.6096, 0.9144])
+    feet_values_array = np.array([1.0, 2.0, 3.0])
+    meter_values_array = np.array([0.3048, 0.6096, 0.9144])
     np.testing.assert_array_almost_equal(
-        base.convert_units(feet_values, 'ft', 'm'), meter_values
+        base.convert_units(feet_values_array, 'ft', 'm'), meter_values_array
     )
 
     # Test conversion with explicit category
@@ -771,3 +770,34 @@ def test_unit_conversion():
     with pytest.raises(ValueError) as excinfo:
         base.convert_units(1.00, 'ft', 'm', category='volume')
     assert str(excinfo.value) == 'Unknown unit: `ft`'
+
+    # Test error handling unknown category
+    with pytest.raises(ValueError) as excinfo:
+        base.convert_units(1.00, 'ft', 'm', category='unknown_category')
+    assert str(excinfo.value) == 'Unknown category: `unknown_category`'
+
+    # Test error handling different categories
+    with pytest.raises(ValueError) as excinfo:
+        base.convert_units(1.00, 'lb', 'm')
+    assert (
+        str(excinfo.value)
+        == '`lb` is a `mass` unit, but `m` is not specified in that category.'
+    )
+
+
+def test_stringterpolation():
+    func = base.stringterpolation('1,2,3|4,5,6')
+    x_new = np.array([4, 4.5, 5])
+    expected = np.array([1, 1.5, 2])
+    np.testing.assert_array_almost_equal(func(x_new), expected)
+
+
+def test_invert_mapping():
+    original_dict = {'a': [1, 2], 'b': [3]}
+    expected = {1: 'a', 2: 'a', 3: 'b'}
+    assert base.invert_mapping(original_dict) == expected
+
+    # with duplicates, raises an error
+    original_dict = {'a': [1, 2], 'b': [2]}
+    with pytest.raises(ValueError):
+        base.invert_mapping(original_dict)

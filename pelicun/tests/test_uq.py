@@ -55,7 +55,6 @@ from pelicun import uq
 from pelicun.tests.util import import_pickle
 from pelicun.tests.util import export_pickle
 
-# pylint: disable=missing-function-docstring
 
 # The tests maintain the order of definitions of the `uq.py` file.
 
@@ -804,6 +803,11 @@ def test_NormalRandomVariable():
     assert np.all(np.isnan(rv.truncation_limits))
     assert rv.RV_set is None
     assert rv.sample_DF is None
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
+        # thanks pylint, we are aware of this.
+        rv.xyz = 123
 
 
 def test_NormalRandomVariable_cdf():
@@ -901,6 +905,10 @@ def test_LogNormalRandomVariable_cdf():
         theta=(1.0, 1.0),
         truncation_limits=np.array((0.10, np.nan)),
     )
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
+        rv.xyz = 123
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
     assert np.allclose(cdf, (0.0, 0.0, 0.23597085, 0.49461712, 0.75326339), rtol=1e-5)
@@ -963,6 +971,10 @@ def test_LogNormalRandomVariable_inverse_transform():
 def test_UniformRandomVariable_cdf():
     # uniform, both theta values
     rv = uq.UniformRandomVariable('test_rv', theta=(0.0, 1.0))
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
+        rv.xyz = 123
     x = (-1.0, 0.0, 0.5, 1.0, 2.0)
     cdf = rv.cdf(x)
     assert np.allclose(cdf, (0.0, 0.0, 0.5, 1.0, 1.0), rtol=1e-5)
@@ -1096,6 +1108,10 @@ def test_MultilinearCDFRandomVariable_cdf():
     y_values = (0.00, 0.20, 0.30, 0.80, 1.00)
     values = np.column_stack((x_values, y_values))
     rv = uq.MultilinearCDFRandomVariable('test_rv', theta=values)
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
+        rv.xyz = 123
     x = (-100.00, 0.00, 0.50, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 100.00)
     cdf = rv.cdf(x)
 
@@ -1125,22 +1141,28 @@ def test_MultilinearCDFRandomVariable_inverse_transform():
 def test_EmpiricalRandomVariable_inverse_transform():
     samples = np.array((0.10, 0.20, 0.30))
 
-    rv = uq.EmpiricalRandomVariable('test_rv', raw_samples=(1.00, 2.00, 3.00, 4.00))
+    rv_empirical = uq.EmpiricalRandomVariable(
+        'test_rv_empirical', raw_samples=(1.00, 2.00, 3.00, 4.00)
+    )
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
+        rv_empirical.xyz = 123
 
     samples = np.array((0.10, 0.50, 0.90))
 
-    rv.uni_sample = samples
-    rv.inverse_transform_sampling()
-    inverse_transform = rv.sample
+    rv_empirical.uni_sample = samples
+    rv_empirical.inverse_transform_sampling()
+    inverse_transform = rv_empirical.sample
 
     assert np.allclose(inverse_transform, np.array((1.00, 3.00, 4.00)), rtol=1e-5)
 
-    rv = uq.CoupledEmpiricalRandomVariable(
-        'test_rv',
+    rv_coupled = uq.CoupledEmpiricalRandomVariable(
+        'test_rv_coupled',
         raw_samples=np.array((1.00, 2.00, 3.00, 4.00)),
     )
-    rv.inverse_transform_sampling(sample_size=6)
-    inverse_transform = rv.sample
+    rv_coupled.inverse_transform_sampling(sample_size=6)
+    inverse_transform = rv_coupled.sample
 
     assert np.allclose(
         inverse_transform, np.array((1.00, 2.00, 3.00, 4.00, 1.00, 2.00)), rtol=1e-5
@@ -1170,6 +1192,20 @@ def test_RandomVariable_Set():
     rv_set = uq.RandomVariableSet(  # noqa: F841
         'test_set', (rv_1,), np.array(((1.0, 0.50),))
     )
+
+
+def test_RandomVariable_perfect_correlation():
+
+    # Test that the `.anchor` attribute is propagated correctly
+    rv_1 = uq.NormalRandomVariable('rv1', theta=(1.0, 1.0))
+    rv_2 = uq.NormalRandomVariable('rv2', theta=(1.0, 1.0), anchor=rv_1)
+    rv_1.uni_sample = np.random.random(size=10)
+    assert np.all(rv_2.uni_sample == rv_1.uni_sample)
+
+    rv_1 = uq.NormalRandomVariable('rv1', theta=(1.0, 1.0))
+    rv_2 = uq.NormalRandomVariable('rv2', theta=(1.0, 1.0))
+    rv_1.uni_sample = np.random.random(size=10)
+    assert rv_2.uni_sample is None
 
 
 def test_RandomVariable_Set_apply_correlation(reset=False):
@@ -1293,7 +1329,7 @@ def test_RandomVariable_Set_orthotope_density(reset=False):
         res = rv_set.orthotope_density(lower, upper, var_subset=var_subset)
         # check that the density is equal to the expected value
         # construct a filepath for the results
-        filename = f'{data_dir}/test_{i+1}.pcl'
+        filename = f'{data_dir}/test_{i + 1}.pcl'
         # overwrite results if needed
         if reset:
             export_pickle(filename, res)
@@ -1369,7 +1405,7 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         rv_registry.generate_sample(10, method=method)
 
         # verify that all samples have been generated as expected
-        for rv_name in (f'rv{i+1}' for i in range(5)):
+        for rv_name in (f'rv{i + 1}' for i in range(5)):
             res = rv_registry.RV_sample[rv_name]
             file_incr += 1
             filename = f'{data_dir}/test_{file_incr}.pcl'

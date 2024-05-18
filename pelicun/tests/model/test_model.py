@@ -36,34 +36,31 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
-import pandas as pd
-import sys
-import argparse
-from pathlib import Path
+"""
+This file defines a clas used by the model unit tests.
+"""
 
+from copy import deepcopy
+import pytest
+from pelicun import assessment
 
-def convert_HDF(HDF_path):
-    HDF_ext = HDF_path.split('.')[-1]
-    CSV_base = HDF_path[: -len(HDF_ext) - 1]
-
-    HDF_path = Path(HDF_path).resolve()
-
-    store = pd.HDFStore(HDF_path)
-
-    for key in store.keys():
-
-        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/", "_")}.csv')
-
-    store.close()
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-class-docstring
+# pylint: disable=missing-return-doc,missing-return-type-doc
 
 
-if __name__ == '__main__':
-    args = sys.argv[1:]
+class TestModelModule:
+    @pytest.fixture
+    def assessment_factory(self):
+        def create_instance(verbose):
+            x = assessment.Assessment()
+            x.log.verbose = verbose
+            return x
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('HDF_path')
+        return create_instance
 
-    args = parser.parse_args(args)
-
-    convert_HDF(args.HDF_path)
+    @pytest.fixture(params=[True, False])
+    def assessment_instance(self, request, assessment_factory):
+        return deepcopy(assessment_factory(request.param))

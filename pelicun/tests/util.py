@@ -48,6 +48,7 @@ import os
 # pylint: disable=useless-suppression
 # pylint: disable=unused-variable
 # pylint: disable=pointless-statement
+# pylint: disable=missing-return-doc,missing-return-type-doc
 
 
 def export_pickle(filepath, obj, makedirs=True):

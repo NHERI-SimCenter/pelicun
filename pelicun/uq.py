@@ -66,6 +66,11 @@ from scipy.linalg import cholesky, svd
 from scipy.optimize import minimize
 import numpy as np
 import pandas as pd
+import colorama
+from colorama import Fore
+from colorama import Style
+
+colorama.init()
 
 
 def scale_distribution(scale_factor, family, theta, truncation_limits=None):
@@ -931,16 +936,17 @@ def fit_distribution_to_sample(
         np.fill_diagonal(rho_hat, 1.0)
 
         if logger_object:
-            logger_object.msg(
-                "\nWARNING: Demand sample size too small to reliably estimate "
-                "the correlation matrix. Assuming uncorrelated demands.",
-                prepend_timestamp=False,
-                prepend_blank_space=False,
+            logger_object.add_warning(
+                "Demand sample size too small to reliably estimate "
+                "the correlation matrix. Assuming uncorrelated demands."
             )
+            logger_object.emit_warnings()
         else:
             print(
-                "\nWARNING: Demand sample size too small to reliably estimate "
-                "the correlation matrix. Assuming uncorrelated demands."
+                f"\n{Fore.RED}WARNING: Demand sample size "
+                f"too small to reliably estimate "
+                f"the correlation matrix. Assuming "
+                f"uncorrelated demands.{Style.RESET_ALL}"
             )
 
     for d_i, distr in enumerate(dist_list):
@@ -1091,6 +1097,17 @@ class BaseRandomVariable(ABC):
 
     """
 
+    __slots__ = [
+        'name',
+        'distribution',
+        'f_map',
+        '_uni_samples',
+        'RV_set',
+        '_sample_DF',
+        '_sample',
+        'anchor',
+    ]
+
     def __init__(
         self,
         name,
@@ -1210,6 +1227,8 @@ class RandomVariable(BaseRandomVariable):
     Random variable that needs `values` in `inverse_transform`
     """
 
+    __slots__ = []
+
     @abstractmethod
     def __init__(
         self,
@@ -1278,6 +1297,8 @@ class UtilityRandomVariable(BaseRandomVariable):
     Random variable that needs `sample_size` in `inverse_transform`
     """
 
+    __slots__ = []
+
     @abstractmethod
     def __init__(
         self,
@@ -1329,6 +1350,8 @@ class NormalRandomVariable(RandomVariable):
     Normal random variable.
 
     """
+
+    __slots__ = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1452,6 +1475,8 @@ class LogNormalRandomVariable(RandomVariable):
 
     """
 
+    __slots__ = ['theta', 'truncation_limits']
+
     def __init__(
         self,
         name,
@@ -1568,6 +1593,8 @@ class UniformRandomVariable(RandomVariable):
 
     """
 
+    __slots__ = ['theta', 'truncation_limits']
+
     def __init__(
         self,
         name,
@@ -1656,6 +1683,8 @@ class MultilinearCDFRandomVariable(RandomVariable):
     linear interpolation between them.
 
     """
+
+    __slots__ = ['theta']
 
     def __init__(
         self,
@@ -1780,6 +1809,8 @@ class EmpiricalRandomVariable(RandomVariable):
 
     """
 
+    __slots__ = ['_raw_samples']
+
     def __init__(
         self,
         name,
@@ -1834,6 +1865,8 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
     Coupled empirical random variable.
 
     """
+
+    __slots__ = ['_raw_samples']
 
     def __init__(
         self,
@@ -1917,6 +1950,8 @@ class DeterministicRandomVariable(UtilityRandomVariable):
 
     """
 
+    __slots__ = ['theta']
+
     def __init__(
         self,
         name,
@@ -1992,6 +2027,8 @@ class MultinomialRandomVariable(RandomVariable):
     Multinomial random variable.
 
     """
+
+    __slots__ = ['theta']
 
     def __init__(
         self,
@@ -2073,6 +2110,8 @@ class RandomVariableSet:
         the random variables in the set. Currently, only the Gaussian copula
         is supported.
     """
+
+    __slots__ = ['name', '_variables', '_Rho']
 
     def __init__(self, name, RV_list, Rho):
         self.name = name
@@ -2276,6 +2315,8 @@ class RandomVariableRegistry:
     ----------
 
     """
+
+    __slots__ = ['_rng', '_variables', '_sets']
 
     def __init__(self, rng):
         """
