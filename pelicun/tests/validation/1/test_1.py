@@ -44,6 +44,7 @@ component.
 
 """
 
+import tempfile
 import numpy as np
 import pandas as pd
 import pelicun
@@ -159,6 +160,7 @@ def test_validation_ds_probabilities():
     asmnt.damage.ds_model.sample = asmnt.damage.ds_model.sample.iloc[0:100, :]
     # (we reduce the number of realizations to conserve resources)
     before = asmnt.damage.ds_model.sample.copy()
-    asmnt.damage.save_sample('/tmp/mdl.csv')
-    asmnt.damage.load_sample('/tmp/mdl.csv')
+    temp_dir = tempfile.mkdtemp()
+    asmnt.damage.save_sample(f'{temp_dir}/mdl.csv')
+    asmnt.damage.load_sample(f'{temp_dir}/mdl.csv')
     pd.testing.assert_frame_equal(before, asmnt.damage.ds_model.sample)
