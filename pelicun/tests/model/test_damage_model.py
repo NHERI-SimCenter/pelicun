@@ -620,7 +620,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('A', '0', '1', '0', '1'): [-1, 0, 1, 2, 3],  # block 1
                 ('A', '0', '1', '0', '2'): [3, -1, 0, 1, 2],  # block 2
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block'])
 
         component_sample = pd.DataFrame(
@@ -667,7 +666,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
             {
                 ('A', '0', '1', '0', '1'): [-1, 0, 1, 2, 3],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block'])
 
         component_sample = pd.DataFrame(
@@ -707,7 +705,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('A', '0', '1', '0', '1'): [-1, 0],
                 ('A', '0', '1', '1', '1'): [1, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block'])
 
         component_sample = pd.DataFrame(
@@ -764,7 +761,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS4"}}
@@ -780,7 +776,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('CMP.B', '1', '1', '0'): [0, 0, 1],
                     ('CMP.B', '1', '1', '1'): [1, 0, 0],
                 },
-                dtype='int32',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
         )
 
@@ -795,7 +790,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
@@ -811,7 +805,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('CMP.B', '1', '1', '0'): [0, 0, 1],
                     ('CMP.B', '1', '1', '1'): [1, 0, 0],
                 },
-                dtype='int32',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
         )
 
@@ -828,7 +821,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
                 ('CMP.B', '2', '1', '0'): [1, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_DS4"}}
@@ -844,7 +836,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('CMP.B', '1', '1', '0'): [0, 0, 1],
                     ('CMP.B', '2', '1', '0'): [1, 0, 0],
                 },
-                dtype='int32',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
         )
 
@@ -862,7 +853,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.C', '1', '1', '0'): [0, 0, 0],
                 ('CMP.D', '1', '1', '0'): [0, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.A": {"DS1": "ALL_DS2"}}
@@ -878,7 +868,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('CMP.C', '1', '1', '0'): [2, 0, 0],
                     ('CMP.D', '1', '1', '0'): [2, 0, 0],
                 },
-                dtype='int32',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
         )
 
@@ -895,7 +884,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
                 ('CMP.B', '1', '1', '1'): [1, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
@@ -911,7 +899,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('CMP.B', '1', '1', '0'): [0, 0, 1],
                     ('CMP.B', '1', '1', '1'): [1, 0, 0],
                 },
-                dtype='int32',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
         )
 
@@ -926,7 +913,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.B', '1', '1', '0'): [0, 0, 1],
                 ('CMP.B', '2', '1', '0'): [1, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_NA"}}
@@ -942,7 +928,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('CMP.B', '1', '1', '0'): [0, 0, 1],
                     ('CMP.B', '2', '1', '0'): [1, 0, 0],
                 },
-                dtype='int32',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
         )
 
@@ -959,7 +944,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.C', '1', '1', '0'): [0, 0, 0],
                 ('CMP.C', '2', '1', '0'): [0, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.A-LOC": {"DS1": "ALL_NA"}}
@@ -977,7 +961,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                     ('CMP.C', '1', '1', '0'): [0, 0, -1],
                     ('CMP.C', '2', '1', '0'): [-1, 0, 0],
                 },
-                dtype='int32',
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid']),
         )
 
@@ -989,7 +972,6 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('CMP.A', '1', '1', '0'): [0, 0, 0],
                 ('CMP.B', '1', '1', '1'): [0, 0, 0],
             },
-            dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
         dmg_process = {"1_CMP.C": {"DS1": "CMP.A_DS4"}}
