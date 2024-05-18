@@ -400,7 +400,7 @@ class LossModel(PelicunModel):
                     .tolist()
                 )
             self.ds_model.sample.iloc[replacement_rows, ~replacement_columns] = 0.00
-            if self.lf_model.sample:
+            if self.lf_model.sample is not None:
                 self.lf_model.sample.iloc[replacement_rows, :] = 0.00
 
         self.log.msg("Loss calculation successful.")
