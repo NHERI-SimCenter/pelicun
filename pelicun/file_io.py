@@ -432,7 +432,7 @@ def load_data(
 
     # reindex the data, if needed
     if reindex:
-        data.index = np.arange(data.shape[0])
+        data.index = pd.RangeIndex(start=0, stop=data.shape[0], step=1)
     else:
         # convert index to MultiIndex if needed
         data = base.convert_to_MultiIndex(data, axis=0)
