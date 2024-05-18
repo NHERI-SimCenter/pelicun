@@ -401,7 +401,7 @@ class Logger:
 
     def warn(self, msg):
         """
-        Add an emmit a warning immediatelly.
+        Add an emit a warning immediatelly.
 
         Parameters
         ----------
@@ -458,7 +458,7 @@ def control_warnings():
         # Here we specify *specific* warnings to ignore.
         # 'message' -- a regex that the warning message must match
 
-        # Note: we ignore known warnings emmited from our dependencies
+        # Note: we ignore known warnings emitted from our dependencies
         # and plan to address them soon.
 
         warnings.filterwarnings(

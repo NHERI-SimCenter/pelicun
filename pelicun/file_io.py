@@ -158,8 +158,7 @@ def save_to_csv(
 
     if data is None:
         if log:
-            log.add_warning('Data was empty, no file saved.')
-            log.emit_warnings()
+            log.warn('Data was empty, no file saved.')
         return None
 
     # make sure we do not modify the original data

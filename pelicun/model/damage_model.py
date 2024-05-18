@@ -386,12 +386,11 @@ class DamageModel(PelicunModel):
         ]
 
         if missing_components:
-            self.log.add_warning(
+            self.log.warn(
                 f"The damage model does not provide "
                 f"damage information for the following component(s) "
                 f"in the asset model: {missing_components}."
             )
-            self.log.emit_warnings()
 
         return missing_components
 
@@ -1248,12 +1247,11 @@ class DamageModel_DS(DamageModel_Base):
                                 capacity_adjustment_operation[1],
                             )
                         else:
-                            self.log.add_warning(
+                            self.log.warn(
                                 f'Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
                             )
-                            self.log.emit_warnings()
 
                     tr_lims = [
                         frg_params_LS.get(f"Truncate{side}", np.nan)
@@ -1504,13 +1502,12 @@ class DamageModel_DS(DamageModel_Base):
         # check if the source component exists in the damage state
         # dataframe
         if source_cmp not in self.ds_sample.columns.get_level_values('cmp'):
-            self.log.add_warning(
+            self.log.warn(
                 f"Source component `{source_cmp}` in the prescribed "
                 "damage process not found among components in the damage "
                 "sample. The corresponding part of the damage process is "
                 "skipped."
             )
-            self.log.emit_warnings()
             return
 
         # execute the events pres prescribed in the damage task
@@ -1536,13 +1533,12 @@ class DamageModel_DS(DamageModel_Base):
                 if (target_cmp != 'ALL') and (
                     target_cmp not in self.ds_sample.columns.get_level_values('cmp')
                 ):
-                    self.log.add_warning(
+                    self.log.warn(
                         f"Target component `{target_cmp}` in the prescribed "
                         "damage process not found among components in the damage "
                         "sample. The corresponding part of the damage process is "
                         "skipped."
                     )
-                    self.log.emit_warnings()
                     continue
 
                 # trigger a damage state

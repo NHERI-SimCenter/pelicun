@@ -936,11 +936,10 @@ def fit_distribution_to_sample(
         np.fill_diagonal(rho_hat, 1.0)
 
         if logger_object:
-            logger_object.add_warning(
+            logger_object.warn(
                 "Demand sample size too small to reliably estimate "
                 "the correlation matrix. Assuming uncorrelated demands."
             )
-            logger_object.emit_warnings()
         else:
             print(
                 f"\n{Fore.RED}WARNING: Demand sample size "

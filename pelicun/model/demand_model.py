@@ -407,8 +407,7 @@ class DemandModel(PelicunModel):
         """
 
         if self.calibrated:
-            self.log.add_warning('DemandModel has been previously calibrated.')
-            self.log.emit_warnings()
+            self.log.warn('DemandModel has been previously calibrated.')
 
         def parse_settings(settings, demand_type):
             def parse_str_to_float(in_str, context_string):
@@ -418,11 +417,10 @@ class DemandModel(PelicunModel):
                     out_float = float(in_str)
 
                 except ValueError:
-                    self.log.add_warning(
+                    self.log.warn(
                         f"Could not parse {in_str} provided as "
                         f"{context_string}. Using NaN instead."
                     )
-                    self.log.emit_warnings()
 
                     out_float = np.nan
 
@@ -927,12 +925,11 @@ class DemandModel(PelicunModel):
                 warn_columns.append(column)
         if warn_columns:
             warn_columns = ['-'.join(x) for x in warn_columns]
-            self.log.add_warning(
+            self.log.warn(
                 "The demand cloning configuration lists "
                 "columns that are not present in the original demand sample's "
                 f"columns: {warn_columns}."
             )
-            self.log.emit_warnings()
 
         # we iterate over the existing columns of the sample and try
         # to locate columns that need to be copied as required by the
