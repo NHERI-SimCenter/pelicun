@@ -1198,7 +1198,9 @@ class DamageModel_DS(DamageModel_Base):
         for PG in PGB.index:
             # determine demand capacity adjustment operation, if required
             cmp_loc_dir = '-'.join(PG[0:3])
-            capacity_adjustment_operation = scaling_specification.get(cmp_loc_dir, None)
+            capacity_adjustment_operation = scaling_specification.get(
+                cmp_loc_dir, None
+            )
 
             cmp_id = PG[0]
             blocks = PGB.loc[PG, 'Blocks']
@@ -1673,7 +1675,9 @@ class DamageModel_DS(DamageModel_Base):
 
         # Get the header for the results that we can use to identify
         # cmp-loc-dir-uid sets
-        dmg_header = dmg_sample.groupby(level=[0, 1, 2, 3], axis=1).first().iloc[:2, :]
+        dmg_header = (
+            dmg_sample.groupby(level=[0, 1, 2, 3], axis=1).first().iloc[:2, :]
+        )
 
         # get the number of possible limit states
         ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
@@ -1704,7 +1708,9 @@ class DamageModel_DS(DamageModel_Base):
 
                     else:
                         # or if there are more than one, how many
-                        ds_count += len(cmp_data[(ls, 'DamageStateWeights')].split('|'))
+                        ds_count += len(
+                            cmp_data[(ls, 'DamageStateWeights')].split('|')
+                        )
 
             # get the list of valid cmp-loc-dir-uid sets
             cmp_header = dmg_header.loc[

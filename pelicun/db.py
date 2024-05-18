@@ -1929,8 +1929,8 @@ def create_Hazus_EQ_repair_db(
                 ds_i = DS_i
 
             df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = (
-                f"{S_data['Repair_cost'][occ_type][ds_i - 1] / 100.00:.3f}"
-            )  # Convert percentage to ratio.
+                f"{S_data['Repair_cost'][occ_type][ds_i - 1] / 100.00:.3f}"  # Convert percentage to ratio.
+            )
 
             df_db.loc[(cmp_id, 'Time'), f'DS{DS_i}-Theta_0'] = S_data['Repair_time'][
                 occ_type
@@ -1970,8 +1970,8 @@ def create_Hazus_EQ_repair_db(
             )
 
             df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = (
-                f"{NSD_data['Repair_cost'][occ_type][DS_i - 1] / 100.00:.3f}"
-            )  # Convert percentage to ratio.
+                f"{NSD_data['Repair_cost'][occ_type][DS_i - 1] / 100.00:.3f}"  # Convert percentage to ratio.
+            )
 
         # store metadata
         meta_dict.update({cmp_id: cmp_meta})
@@ -2007,8 +2007,8 @@ def create_Hazus_EQ_repair_db(
             )
 
             df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = (
-                f"{NSA_data['Repair_cost'][occ_type][DS_i - 1] / 100.00:.3f}"
-            )  # Convert percentage to ratio.
+                f"{NSA_data['Repair_cost'][occ_type][DS_i - 1] / 100.00:.3f}"  # Convert percentage to ratio.
+            )
 
         # store metadata
         meta_dict.update({cmp_id: cmp_meta})
@@ -2051,8 +2051,8 @@ def create_Hazus_EQ_repair_db(
                 )
 
                 df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = (
-                    f"{LF_data['Repair_cost'][occ_type][ds_i - 1] / 100.00:.3f}"
-                )  # Convert percentage to ratio.
+                    f"{LF_data['Repair_cost'][occ_type][ds_i - 1] / 100.00:.3f}"  # Convert percentage to ratio.
+                )
 
                 df_db.loc[(cmp_id, 'Time'), f'DS{DS_i}-Theta_0'] = LF_data[
                     'Repair_time'

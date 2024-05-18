@@ -69,6 +69,7 @@ class AssetModel(PelicunModel):
     ----------
 
     """
+
     __slots__ = ['cmp_marginal_params', 'cmp_units', 'cmp_sample', '_cmp_RVs']
 
     def __init__(self, assessment):
@@ -523,7 +524,9 @@ class AssetModel(PelicunModel):
         cmp_marginal_param_series = []
         for col, cmp_marginal_param in cmp_marginal_param_dct.items():
             cmp_marginal_param_series.append(
-                pd.Series(cmp_marginal_param, dtype=dtypes[col], name=col, index=index)
+                pd.Series(
+                    cmp_marginal_param, dtype=dtypes[col], name=col, index=index
+                )
             )
 
         cmp_marginal_params = pd.concat(cmp_marginal_param_series, axis=1)
@@ -662,7 +665,8 @@ class AssetModel(PelicunModel):
                 uq.rv_class_map(family)(
                     name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
                     theta=[
-                        getattr(rv_params, f"Theta_{t_i}", np.nan) for t_i in range(3)
+                        getattr(rv_params, f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
                     ],
                     truncation_limits=[
                         getattr(rv_params, f"Truncate{side}", np.nan)

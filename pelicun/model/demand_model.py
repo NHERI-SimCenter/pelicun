@@ -615,7 +615,9 @@ class DemandModel(PelicunModel):
             distribution=cal_df.loc[:, 'Family'].values,
             censored_count=censored_count,
             detection_limits=cal_df.loc[:, ['CensorLower', 'CensorUpper']].values,
-            truncation_limits=cal_df.loc[:, ['TruncateLower', 'TruncateUpper']].values,
+            truncation_limits=cal_df.loc[
+                :, ['TruncateLower', 'TruncateUpper']
+            ].values,
             multi_fit=False,
             logger_object=self._asmnt.log,
         )

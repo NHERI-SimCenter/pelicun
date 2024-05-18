@@ -405,18 +405,20 @@ def load_data(
 
             conversion_factors = units.map(
                 lambda unit: (
-                    1.00 if pd.isna(unit) else unit_conversion_factors.get(unit, 1.00)
+                    1.00
+                    if pd.isna(unit)
+                    else unit_conversion_factors.get(unit, 1.00)
                 )
             )
 
             if orientation == 1:
-                data.loc[:, numeric_elements] = data.loc[:, numeric_elements].multiply(
-                    conversion_factors, axis=axis[orientation]
-                )
+                data.loc[:, numeric_elements] = data.loc[
+                    :, numeric_elements
+                ].multiply(conversion_factors, axis=axis[orientation])
             else:
-                data.loc[numeric_elements, :] = data.loc[numeric_elements, :].multiply(
-                    conversion_factors, axis=axis[orientation]
-                )
+                data.loc[numeric_elements, :] = data.loc[
+                    numeric_elements, :
+                ].multiply(conversion_factors, axis=axis[orientation])
 
         if log:
             log.msg('Unit conversion successful.', prepend_timestamp=False)
@@ -486,7 +488,8 @@ def load_from_file(filepath, log=None):
 
     if not filepath.is_file():
         raise FileNotFoundError(
-            f"The filepath provided does not point to an existing " f"file: {filepath}"
+            f"The filepath provided does not point to an existing "
+            f"file: {filepath}"
         )
 
     if filepath.suffix == '.csv':
