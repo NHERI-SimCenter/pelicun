@@ -994,6 +994,54 @@ def int_or_None(string):
         return None
 
 
+def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Given a dataframe, this function identifies values that have
+    string type and can be interpreted as N/A, and replaces them with
+    actual NA's.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        Dataframe to process
+
+    Returns
+    -------
+    pd.DataFrame
+        The dataframe with proper N/A values.
+
+    """
+    na_vals = {
+        '',
+        'N/A',
+        '-1.#QNAN',
+        'null',
+        'None',
+        '<NA>',
+        'nan',
+        '-NaN',
+        '1.#IND',
+        'NaN',
+        '#NA',
+        '1.#QNAN',
+        'NULL',
+        '-nan',
+        '#N/A',
+        '#N/A N/A',
+        'n/a',
+        '-1.#IND',
+        'NA',
+    }
+    # obtained from Pandas' internal STR_NA_VALUES variable.
+
+    # Replace string NA values with actual NaNs
+    return df.apply(
+        lambda col: col.map(
+            lambda x: np.nan if isinstance(x, str) and x in na_vals else x
+        )
+    )
+
+
 def process_loc(string, stories):
     """
     Parses the 'location' parameter from input to determine the

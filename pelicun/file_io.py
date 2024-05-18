@@ -375,7 +375,7 @@ def load_data(
     if isinstance(data_source, pd.DataFrame):
         # store it at proceed (copying is needed to avoid changing the
         # original)
-        data = data_source.copy()
+        data = base.with_parsed_str_na_values(data_source.copy())
     elif isinstance(data_source, str):
         # otherwise, load the data from a file
         data = load_from_file(data_source)
