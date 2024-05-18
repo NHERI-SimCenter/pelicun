@@ -568,6 +568,28 @@ def test_int_or_None():
     assert base.int_or_None('') is None
 
 
+def test_with_parsed_str_na_values():
+    df = pd.DataFrame(
+        {
+            'A': [1.00, 2.00, 'N/A', 4.00, 5.00],
+            'B': ['foo', 'bar', 'NA', 'baz', 'qux'],
+            'C': [1, 2, 3, 4, 5],
+        }
+    )
+
+    res = base.with_parsed_str_na_values(df)
+    pd.testing.assert_frame_equal(
+        res,
+        pd.DataFrame(
+            {
+                'A': [1.00, 2.00, np.nan, 4.00, 5.00],
+                'B': ['foo', 'bar', np.nan, 'baz', 'qux'],
+                'C': [1, 2, 3, 4, 5],
+            }
+        ),
+    )
+
+
 def test_process_loc():
     # Test when string can be converted to an int
     assert base.process_loc('5', 10) == [
