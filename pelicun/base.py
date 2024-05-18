@@ -289,11 +289,18 @@ class Logger:
 
         if log_file is None:
             self.log_file = None
+            self.warning_file = None
         else:
             try:
-                filepath = Path(log_file).resolve()
-                self.log_file = str(filepath)
-                with open(filepath, 'w', encoding='utf-8') as f:
+                path = Path(log_file)
+                self.log_file = str(path.resolve())
+                name, extension = split_file_name(self.log_file)
+                self.warning_file = (
+                    path.parent / (name + '_warnings' + extension)
+                ).resolve()
+                with open(self.log_file, 'w', encoding='utf-8') as f:
+                    f.write('')
+                with open(self.warning_file, 'w', encoding='utf-8') as f:
                     f.write('')
             except BaseException as err:
                 print(
@@ -396,6 +403,14 @@ class Logger:
         for message in self.warning_stack:
             if message not in self.emitted:
                 warnings.warn(message, PelicunWarning)
+                if self.warning_file is not None:
+                    with open(self.warning_file, 'a', encoding='utf-8') as f:
+                        f.write(
+                            message.replace(Fore.RED, '')
+                            .replace(Style.RESET_ALL, '')
+                            .replace(self.spaces, '')
+                        )
+
         self.emitted = self.emitted.union(set(self.warning_stack))
         self.warning_stack = []
 
@@ -443,6 +458,18 @@ class Logger:
 
 # get the absolute path of the pelicun directory
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
+
+
+def split_file_name(file_path: str):
+    """
+    Separates a file name from the extension accounting for the case
+    where the file name itself contains periods.
+
+    """
+    path = Path(file_path)
+    name = path.stem
+    extension = path.suffix
+    return name, extension
 
 
 def control_warnings():

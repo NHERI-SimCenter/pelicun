@@ -206,6 +206,18 @@ def test_logger_div():
         os.remove('log.txt')
 
 
+def test_split_file_name():
+    file_path = "example.file.name.txt"
+    name, extension = base.split_file_name(file_path)
+    assert name == 'example.file.name'
+    assert extension == '.txt'
+
+    file_path = "example"
+    name, extension = base.split_file_name(file_path)
+    assert name == 'example'
+    assert extension == ''
+
+
 def test_print_system_info():
     # create a logger object
     log_config = {
