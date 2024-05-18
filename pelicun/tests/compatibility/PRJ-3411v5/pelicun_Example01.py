@@ -18,7 +18,9 @@ from pelicun.assessment import Assessment
 def test_compatibility_DesignSafe_PRJ_3411_Example01():
 
     sample_size = 10000
-    raw_demands = pd.read_csv('demand_data.csv', index_col=0)
+    raw_demands = pd.read_csv(
+        'pelicun/tests/compatibility/PRJ-3411v5/demand_data.csv', index_col=0
+    )
     raw_demands = convert_to_MultiIndex(raw_demands, axis=0)
     raw_demands.index.names = ['stripe', 'type', 'loc', 'dir']
     stripe = '3'
@@ -54,7 +56,9 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
 
     PAL.demand.load_sample(demand_sample_ext)
 
-    cmp_marginals = pd.read_csv('CMP_marginals.csv', index_col=0)
+    cmp_marginals = pd.read_csv(
+        'pelicun/tests/compatibility/PRJ-3411v5CMP_marginals.csv', index_col=0
+    )
 
     PAL.stories = 4
     PAL.asset.load_cmp_model({'marginals': cmp_marginals})
