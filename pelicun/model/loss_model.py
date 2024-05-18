@@ -537,24 +537,25 @@ class LossModel(PelicunModel):
             for model in self._loss_models
             if model.sample is not None
         ]
-        if not samples:
-            self.log.msg("There are no losses.")
-            return None
-
-        sample = pd.concat(samples, axis=1)
-
-        # group results by DV type and location
-        aggregated = sample.groupby(level=['dv', 'loc'], axis=1).sum()
 
         # Note: The `Time` DV receives special treatment.
-
         # create the summary DF
         columns = [
             f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time'
         ]
         if 'Time' in self.decision_variables:
             columns.extend(('repair_time-sequential', 'repair_time-parallel'))
+
+        if not samples:
+            self.log.msg("There are no losses.")
+            df_agg = pd.DataFrame(0.00, index=[0], columns=columns)
+            return df_agg
+
+        sample = pd.concat(samples, axis=1)
         df_agg = pd.DataFrame(index=sample.index, columns=columns)
+
+        # group results by DV type and location
+        aggregated = sample.groupby(level=['dv', 'loc'], axis=1).sum()
 
         for decision_variable in self.decision_variables:
 

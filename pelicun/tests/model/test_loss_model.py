@@ -255,6 +255,25 @@ class TestLossModel(TestPelicunModel):
             "[('consequence_E', 'DecisionVariableXYZ')]"
         ) in str(record[0].message)
 
+    def test_aggregate_losses_when_no_loss(self, assessment_instance):
+
+        # tests that aggregate losses works when there is no loss.
+        loss_model = LossModel(assessment_instance)
+        df_agg = loss_model.aggregate_losses()
+        pd.testing.assert_frame_equal(
+            df_agg,
+            pd.DataFrame(
+                {
+                    'repair_carbon': 0.0,
+                    'repair_cost': 0.00,
+                    'repair_energy': 0.00,
+                    'repair_time-sequential': 0.00,
+                    'repair_time-parallel': 0.00,
+                },
+                index=[0],
+            ),
+        )
+
 
 class TestRepairModel_Base(TestPelicunModel):
     def test___init__(self, assessment_instance):
