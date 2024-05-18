@@ -100,6 +100,26 @@ class LossModel(PelicunModel):
         self.decision_variables = decision_variables
 
     @property
+    def sample(self):
+        """
+        <backwards compatibility>
+
+        Returns
+        -------
+        pd.DataFrame
+            The damage state-driven component loss sample.
+
+        """
+        self.log.warn(
+            '`{loss model}.sample` is deprecated and will be dropped in '
+            'future versions of pelicun. '
+            'Please use `{loss model}.ds_model.sample` '
+            'or `{loss model}.lf_model.sample` instead. '
+            'Now returning {loss model}.ds_model.sample`.'
+        )
+        return self.ds_model.sample
+
+    @property
     def decision_variables(self):
         """
         Retrieves the decision variables to be used in the loss
@@ -174,6 +194,16 @@ class LossModel(PelicunModel):
                 reindex=False,
                 log=self._asmnt.log,
             )
+            # <backwards compatibility>
+            if np.any(['DMG' in x for x in loss_map.index]):
+                self.log.warn(
+                    'The `DMG-` flag in the loss_map index is deprecated '
+                    'and no longer necessary. '
+                    'Please do not prepend `DMG-` before the component '
+                    'names in the loss map.'
+                )
+                loss_map.index = pd.Index([x[1] for x in loss_map.index])
+
         else:
             self.log.msg('Using default loss map.', prepend_timestamp=False)
             # Instantiate an empty loss map.
@@ -198,6 +228,19 @@ class LossModel(PelicunModel):
         self._loss_map = loss_map
 
         self.log.msg('Loss map loaded successfully.', prepend_timestamp=True)
+
+    def load_model(self, data_paths, loss_map):
+        """
+        <backwards compatibility>
+
+        """
+        self.log.warn(
+            '`load_model` is deprecated and will be dropped in '
+            'future versions of pelicun. '
+            'Please use `load_model_parameters` instead.'
+        )
+        self.add_loss_map(loss_map)
+        self.load_model_parameters(data_paths)
 
     def load_model_parameters(self, data_paths):
         """
@@ -231,6 +274,13 @@ class LossModel(PelicunModel):
         #
 
         for data_path in data_paths:
+            if 'bldg_repair_DB' in data_path:
+                data_path = data_path.replace('bldg_repair_DB', 'loss_repair_DB')
+                self.log.warn(
+                    '`bldg_repair_DB` is deprecated and will '
+                    'be dropped in future versions of pelicun. '
+                    'Please use `loss_repair_DB` instead.'
+                )
             data = file_io.load_data(
                 data_path, None, orientation=1, reindex=False, log=self._asmnt.log
             )
@@ -350,7 +400,8 @@ class LossModel(PelicunModel):
                     .tolist()
                 )
             self.ds_model.sample.iloc[replacement_rows, ~replacement_columns] = 0.00
-            self.lf_model.sample.iloc[replacement_rows, :] = 0.00
+            if self.lf_model.sample:
+                self.lf_model.sample.iloc[replacement_rows, :] = 0.00
 
         self.log.msg("Loss calculation successful.")
 
@@ -697,6 +748,16 @@ class RepairModel_Base(PelicunModel):
 
         if self.loss_params is None:
             return
+
+        # <backwards compatibility>
+        if 'BldgRepair' in loss_map.columns:
+            loss_map['Repair'] = loss_map['BldgRepair']
+            loss_map.drop('BldgRepair', axis=1, inplace=True)
+            self.log.warn(
+                '`BldgRepair` as a loss map column name is '
+                'deprecated and will be dropped in '
+                'future versions of pelicun. Please use `Repair` instead.'
+            )
 
         # get a list of unique component IDs
         cmp_set = set(loss_map['Repair'].unique())
@@ -1337,6 +1398,10 @@ class RepairModel_LF(RepairModel_Base):
             When any Loss Driver is not recognized.
 
         """
+
+        if self.loss_params is None:
+            return None
+
         loss_map = self._loss_map['Repair'].to_dict()
         sample_size = len(demand_sample)
 
@@ -1364,7 +1429,7 @@ class RepairModel_LF(RepairModel_Base):
                 "No loss function-driven components---LF sample is set to None.",
                 prepend_timestamp=False,
             )
-            return
+            return None
 
         performance_group = pd.DataFrame(
             performance_group_dict.values(),
@@ -1458,17 +1523,22 @@ class RepairModel_LF(RepairModel_Base):
         self.log.msg("Successfully obtained DV sample.", prepend_timestamp=False)
         self.sample = sample
 
+        return None
+
     def _convert_loss_parameter_units(self):
         """
         Converts previously loaded loss parameters to base units.
 
         """
+        if self.loss_params is None:
+            return None
         units = self.loss_params[('DV', 'Unit')]
         arg_units = self.loss_params[('Demand', 'Unit')]
         column = 'LossFunction'
         self.loss_params.loc[:, column] = self._convert_marginal_params(
             self.loss_params[column].copy(), units, arg_units, divide_units=False
         ).values
+        return None
 
     def _calc_median_consequence(
         self, performance_group, loss_map, required_edps, demand_dict, cmp_sample

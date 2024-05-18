@@ -53,106 +53,79 @@ import pelicun
 from pelicun import assessment
 
 
-idx = pd.IndexSlice
-sample_size = 100000
+def test_validation_loss_function():
 
-# initialize a pelicun assessment
-assessment = assessment.Assessment({"PrintLog": False, "Seed": 42})
+    sample_size = 100000
 
-#
-# Demands
-#
+    # initialize a pelicun assessment
+    asmnt = assessment.Assessment({"PrintLog": False, "Seed": 42})
 
-demands = pd.DataFrame(
-    {
-        'Theta_0': [0.50],
-        'Theta_1': [0.90],
-        'Family': ['lognormal'],
-        'Units': ['g'],
-    },
-    index=pd.MultiIndex.from_tuples(
-        [
-            ('PFA', '0', '1'),
-        ],
-    ),
-)
+    #
+    # Demands
+    #
 
-# load the demand model
-assessment.demand.load_model({'marginals': demands})
+    demands = pd.DataFrame(
+        {
+            'Theta_0': [0.50],
+            'Theta_1': [0.90],
+            'Family': ['lognormal'],
+            'Units': ['g'],
+        },
+        index=pd.MultiIndex.from_tuples(
+            [
+                ('PFA', '0', '1'),
+            ],
+        ),
+    )
 
-# generate samples
-assessment.demand.generate_sample({"SampleSize": sample_size})
+    asmnt.demand.load_model({'marginals': demands})
 
-#
-# Asset
-#
+    asmnt.demand.generate_sample({"SampleSize": sample_size})
 
-# specify number of stories
-assessment.stories = 1
+    #
+    # Asset
+    #
 
-# load component definitions
-cmp_marginals = pd.read_csv(
-    'pelicun/tests/validation/0/data/CMP_marginals.csv', index_col=0
-)
-cmp_marginals['Blocks'] = cmp_marginals['Blocks']
-assessment.asset.load_cmp_model({'marginals': cmp_marginals})
+    asmnt.stories = 1
 
-# generate sample
-assessment.asset.generate_cmp_sample(sample_size)
+    cmp_marginals = pd.read_csv(
+        'pelicun/tests/validation/0/data/CMP_marginals.csv', index_col=0
+    )
+    cmp_marginals['Blocks'] = cmp_marginals['Blocks']
+    asmnt.asset.load_cmp_model({'marginals': cmp_marginals})
 
-#
-# Damage
-#
+    asmnt.asset.generate_cmp_sample(sample_size)
 
-# load the models into pelicun
-# assessment.damage.load_model_parameters(
-#     [
-#         additional_damage_db,
-#     ],
-#     assessment.asset.list_unique_component_ids(as_set=True),
-# )
+    #
+    # Damage
+    #
 
-# assessment.damage.calculate()
+    # nothing to do here.
 
-#
-# Losses
-#
+    #
+    # Losses
+    #
 
-loss_functions = pelicun.file_io.load_data(
-    'pelicun/tests/validation/0/data/loss_functions.csv',
-    reindex=False,
-    unit_conversion_factors=assessment.unit_conversion_factors,
-)
+    asmnt.loss.decision_variables = ('Cost',)
 
+    loss_map = pd.DataFrame(['cmp.A'], columns=['Repair'], index=['cmp.A'])
+    asmnt.loss.add_loss_map(loss_map)
 
-# create the loss map
-loss_map = pd.DataFrame(['cmp.A'], columns=['Repair'], index=['cmp.A'])
+    loss_functions = pelicun.file_io.load_data(
+        'pelicun/tests/validation/0/data/loss_functions.csv',
+        reindex=False,
+        unit_conversion_factors=asmnt.unit_conversion_factors,
+    )
+    asmnt.loss.load_model_parameters([loss_functions])
+    asmnt.loss.calculate()
 
-# load the loss model
+    loss = asmnt.loss.aggregate_losses()['repair_cost'].values
 
-assessment.loss.decision_variables = ('Cost',)
+    # sample median should be close to 0.50
+    assert np.allclose(np.median(loss), 0.50, atol=1e-2)
+    # dispersion should be close to 0.9
+    assert np.allclose(np.log(loss).std(), 0.90, atol=1e-2)
 
-assessment.loss.add_loss_map(loss_map)
-
-assessment.loss.load_model_parameters(
-    [
-        loss_functions,
-    ]
-)
-
-# perform the calculation
-assessment.loss.calculate()
-
-# get the aggregate losses
-loss = assessment.loss.aggregate_losses()['repair_cost'].values
-
-# sample median should be close to 0.50
-assert np.allclose(np.median(loss), 0.50, atol=1e-2)
-
-# dispersion should be close to 0.9
-assert np.allclose(np.log(loss).std(), 0.90, atol=1e-2)
-
-
-# # TODO also test save/load sample
-# assessment.loss.save_sample('/tmp/sample.csv')
-# assessment.loss.load_sample('/tmp/sample.csv')
+    # # TODO also test save/load sample
+    # asmnt.loss.save_sample('/tmp/sample.csv')
+    # asmnt.loss.load_sample('/tmp/sample.csv')

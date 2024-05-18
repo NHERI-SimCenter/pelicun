@@ -90,6 +90,23 @@ class DamageModel(PelicunModel):
         """
         return (self.ds_model,)
 
+    def load_damage_model(self, data_paths):
+        """
+        <backwards compatibility>
+
+        """
+        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+        self.load_model_parameters(data_paths, cmp_set)
+        self.log.warn(
+            '`load_damage_model` is deprecated and will be '
+            'dropped in future versions of pelicun. '
+            'Please use `load_model_parameters` instead, '
+            'like so: \n`cmp_set = {your_assessment_obj}.'
+            'list_unique_component_ids(as_set=True)`, '
+            'and then \n`{your_assessment_obj}.damage.'
+            'load_model_parameters(data_paths, cmp_set)`.'
+        )
+
     def load_model_parameters(self, data_paths, cmp_set):
         """
         Load damage model parameters.
@@ -118,6 +135,17 @@ class DamageModel(PelicunModel):
 
         self.log.div()
         self.log.msg('Loading damage model...', prepend_timestamp=False)
+
+        # <backwards compatibility>
+        for i, path in enumerate(data_paths):
+            if 'fragility_DB' in path:
+                path = path.replace('fragility_DB', 'damage_DB')
+                self.log.warn(
+                    '`fragility_DB` is deprecated and will '
+                    'be dropped in future versions of pelicun. '
+                    'Please use `damage_DB` instead.'
+                )
+                data_paths[i] = path
 
         # replace default flag with default data path
         data_paths = file_io.substitute_default_path(data_paths)
@@ -629,9 +657,14 @@ class DamageModel_DS(DamageModel_Base):
                 vcounts = values.value_counts() / len(values)
                 probabilities[col] = vcounts
 
-        return pd.DataFrame(probabilities).T.rename_axis(
-            index=['cmp', 'loc', 'dir', 'uid', 'block'], columns='Damage State'
-        ).sort_index(axis=1).sort_index(axis=0)
+        return (
+            pd.DataFrame(probabilities)
+            .T.rename_axis(
+                index=['cmp', 'loc', 'dir', 'uid', 'block'], columns='Damage State'
+            )
+            .sort_index(axis=1)
+            .sort_index(axis=0)
+        )
 
     def _obtain_ds_sample(
         self,

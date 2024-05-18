@@ -306,6 +306,7 @@ class Logger:
 
         self.print_log = str2bool(print_log)
         self.warning_stack = []
+        self.emitted = set()
         self.reset_log_strings()
         control_warnings()
 
@@ -394,8 +395,23 @@ class Logger:
 
         """
         for message in self.warning_stack:
-            warnings.warn(message, PelicunWarning)
+            if message not in self.emitted:
+                warnings.warn(message, PelicunWarning)
+        self.emitted = self.emitted.union(set(self.warning_stack))
         self.warning_stack = []
+
+    def warn(self, msg):
+        """
+        Add an emmit a warning immediatelly.
+
+        Parameters
+        ----------
+        msg: str
+            Warning message
+
+        """
+        self.add_warning(msg)
+        self.emit_warnings()
 
     def div(self, prepend_timestamp=False):
         """

@@ -116,6 +116,25 @@ class Assessment:
         self.damage: model.DamageModel = model.DamageModel(self)
         self.loss: model.LossModel = model.LossModel(self)
 
+    @property
+    def bldg_repair(self):
+        """
+        <backwards compatibility>
+
+        Returns
+        -------
+        model.LossModel
+            The loss model.
+
+        """
+        self.log.warn(
+            '`.bldg_repair` is deprecated and will be dropped in '
+            'future versions of pelicun. '
+            'Please use `.loss` instead.'
+        )
+
+        return self.loss
+
     def get_default_data(self, data_name):
         """
         Loads a default data file by name and returns it. This method
@@ -136,6 +155,23 @@ class Assessment:
             The DataFrame containing the data loaded from the
             specified CSV file.
         """
+
+        # <backwards compatibility>
+        if 'fragility_DB' in data_name:
+            data_name = data_name.replace('fragility_DB', 'damage_DB')
+            self.log.warn(
+                '`fragility_DB` is deprecated and will be dropped in '
+                'future versions of pelicun. '
+                'Please use `damage_DB` instead.'
+            )
+        if 'bldg_repair_DB' in data_name:
+            data_name = data_name.replace('bldg_repair_DB', 'loss_repair_DB')
+            self.log.warn(
+                '`bldg_repair_DB` is deprecated and will be dropped in '
+                'future versions of pelicun. '
+                'Please use `loss_repair_DB` instead.'
+            )
+
         data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/{data_name}.csv'
 
         return file_io.load_data(
@@ -158,6 +194,13 @@ class Assessment:
 
         """
 
+        # <backwards compatibility>
+        if 'fragility_DB' in data_name:
+            data_name = data_name.replace('fragility_DB', 'damage_DB')
+            self.log.warn(
+                '`fragility_DB` is deprecated and will be dropped in '
+                'future versions of pelicun. Please use `damage_DB` instead.'
+            )
         data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/{data_name}.json'
 
         with open(data_path, 'r', encoding='utf-8') as f:
