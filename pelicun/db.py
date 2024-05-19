@@ -59,7 +59,7 @@ import json
 from pathlib import Path
 from copy import deepcopy
 import numpy as np
-from scipy.stats import norm
+from scipy.stats import norm  # type: ignore
 import pandas as pd
 
 from pelicun import base
@@ -2648,6 +2648,7 @@ def create_Hazus_HU_fragility_db(
 
     for fragility_id in fragility_data['ID'].to_list():
         class_type = find_class_type(fragility_id)
+        assert class_type is not None
 
         class_type_human_readable = class_types[class_type]
 

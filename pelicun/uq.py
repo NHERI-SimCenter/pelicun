@@ -59,11 +59,11 @@ quantification in pelicun.
 """
 
 from abc import ABC, abstractmethod
-from scipy.stats import uniform, norm
-from scipy.stats import multivariate_normal as mvn
-from scipy.stats._mvn import mvndst  # pylint: disable=no-name-in-module
-from scipy.linalg import cholesky, svd
-from scipy.optimize import minimize
+from scipy.stats import uniform, norm  # type: ignore
+from scipy.stats import multivariate_normal as mvn  # type: ignore
+from scipy.stats._mvn import mvndst  # type: ignore # pylint: disable=no-name-in-module # noqa # lol
+from scipy.linalg import cholesky, svd  # type: ignore
+from scipy.optimize import minimize  # type: ignore
 import numpy as np
 import pandas as pd
 import colorama
@@ -1226,7 +1226,7 @@ class RandomVariable(BaseRandomVariable):
     Random variable that needs `values` in `inverse_transform`
     """
 
-    __slots__ = []
+    __slots__: list[str] = []
 
     @abstractmethod
     def __init__(
@@ -1296,7 +1296,7 @@ class UtilityRandomVariable(BaseRandomVariable):
     Random variable that needs `sample_size` in `inverse_transform`
     """
 
-    __slots__ = []
+    __slots__: list[str] = []
 
     @abstractmethod
     def __init__(

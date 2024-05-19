@@ -93,10 +93,12 @@ flake8 pelicun
 # Linting with pylint:
 pylint pelicun
 
+# Type checking with mypy:
+mypy pelicun --no-namespace-packages
+
 # Running the tests:
 python -m pytest pelicun/tests --cov=pelicun --cov-report html
 # Open `htmlcov/index.html`in a browser to see coverage results.
-
 
 ```
 

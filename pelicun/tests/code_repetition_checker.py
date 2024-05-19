@@ -43,7 +43,7 @@ A utility script for detecting duplicated blocks of lines across
 Python test files.
 """
 
-from glob2 import glob
+from glob2 import glob  # type: ignore
 
 # pylint: disable=missing-any-param-doc
 

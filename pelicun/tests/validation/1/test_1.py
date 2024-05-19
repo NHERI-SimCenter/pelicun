@@ -49,7 +49,7 @@ import numpy as np
 import pandas as pd
 import pelicun
 from pelicun import assessment
-from scipy.stats import norm
+from scipy.stats import norm  # type: ignore
 
 
 def test_validation_ds_probabilities():

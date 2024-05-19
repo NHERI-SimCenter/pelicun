@@ -52,6 +52,7 @@ setup(
         'development': [
             'flake8',
             'pylint',
+            'mypy',
             'black',
             'pytest',
             'pytest-cov',
@@ -63,6 +64,8 @@ setup(
             'nbsphinx',
             'flake8-rst',
             'flake8-rst-docstrings',
+            'pandas-stubs',
+            'types-colorama',
         ],
     },
     classifiers=[

@@ -50,6 +50,7 @@ This file defines Loss model objects and their methods.
 """
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -60,6 +61,8 @@ from pelicun import base
 from pelicun import uq
 from pelicun import file_io
 
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 idx = base.idx
 
@@ -75,9 +78,12 @@ class LossModel(PelicunModel):
 
     __slots__ = ['ds_model', 'lf_model']
 
+    # pylint: disable=dangerous-default-value
     def __init__(
-        self, assessment, decision_variables=('Carbon', 'Cost', 'Energy', 'Time')
-    ):
+        self,
+        assessment: Assessment,
+        decision_variables: list[str] = ['Carbon', 'Cost', 'Energy', 'Time'],
+    ) -> None:
         """
         Initializes LossModel objects.
 
@@ -85,7 +91,7 @@ class LossModel(PelicunModel):
         ----------
         assessment: pelicun.Assessment
             Parent assessment
-        decision_variables: tuple
+        decision_variables: list
             Defines the decision variables to be included in the loss
             calculations. Defaults to those supported, but fewer can be
             used if desired. When fewer are used, the loss parameters for
@@ -1289,7 +1295,7 @@ class RepairModel_DS(RepairModel_Base):
             components and damage states, appropriately grouped to
             account for economies of scale.
 
-        decision_variables: tuple
+        decision_variables: list
             Defines the decision variables to be included in the loss
             calculations. Defaults to those supported, but fewer can be
             used if desired. When fewer are used, the loss parameters for

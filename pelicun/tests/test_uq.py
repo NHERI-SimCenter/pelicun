@@ -49,8 +49,8 @@ reset from the `reset_all_test_data` function in `reset_tests.py`.
 import warnings
 import pytest
 import numpy as np
-from scipy.stats import norm
-from scipy.stats import lognorm
+from scipy.stats import norm  # type: ignore
+from scipy.stats import lognorm  # type: ignore
 from pelicun import uq
 from pelicun.tests.util import import_pickle
 from pelicun.tests.util import export_pickle

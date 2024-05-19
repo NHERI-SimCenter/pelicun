@@ -50,6 +50,7 @@ This file defines the DamageModel object and its methods.
 """
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -59,6 +60,9 @@ from pelicun.model.demand_model import _verify_edps_available
 from pelicun import base
 from pelicun import uq
 from pelicun import file_io
+
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 idx = base.idx
 
@@ -71,7 +75,7 @@ class DamageModel(PelicunModel):
 
     __slots__ = ['ds_model', 'missing_components']
 
-    def __init__(self, assessment):
+    def __init__(self, assessment: Assessment) -> None:
         super().__init__(assessment)
 
         self.ds_model: DamageModel_DS = DamageModel_DS(assessment)

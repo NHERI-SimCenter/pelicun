@@ -43,7 +43,7 @@ import argparse
 from pathlib import Path
 import pandas as pd
 
-from pelicun.db import convert_Series_to_dict
+from pelicun.db import convert_Series_to_dict  # type: ignore
 
 
 def export_DB(data_path, target_dir):

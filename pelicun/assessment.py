@@ -50,11 +50,12 @@ This module has classes and methods that control the performance assessment.
 """
 
 from __future__ import annotations
+from typing import Any
 import json
 from pelicun import base
 from pelicun import file_io
 from pelicun import model
-from pelicun.__init__ import __version__ as pelicun_version
+from pelicun.__init__ import __version__ as pelicun_version  # type: ignore
 
 
 class Assessment:
@@ -88,7 +89,7 @@ class Assessment:
         'loss',
     ]
 
-    def __init__(self, config_options=None):
+    def __init__(self, config_options: dict[str, Any] | None = None) -> None:
         """
         Initializes an Assessment object.
 

@@ -77,7 +77,7 @@ from pathlib import Path
 import argparse
 import pprint
 import numpy as np
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d  # type: ignore
 import pandas as pd
 import colorama
 from colorama import Fore
@@ -90,7 +90,7 @@ colorama.init()
 pp = pprint.PrettyPrinter(indent=2, width=80 - 24)
 
 pd.options.display.max_rows = 20
-pd.options.display.max_columns = None
+pd.options.display.max_columns = None  # type: ignore
 pd.options.display.expand_frame_repr = True
 pd.options.display.width = 300
 
@@ -1481,7 +1481,7 @@ def convert_units(
 
 def stringterpolation(
     arguments: str,
-) -> tuple[Callable[np.array, np.array]]:
+) -> Callable[[np.ndarray], np.ndarray]:
     """
     Turns a string of specially formatted arguments into a multilinear
     interpolating funciton.
