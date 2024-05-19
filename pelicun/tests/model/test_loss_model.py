@@ -42,6 +42,7 @@
 These are unit and integration tests on the loss model of pelicun.
 """
 
+from itertools import product
 from copy import deepcopy
 import pytest
 import numpy as np
@@ -90,6 +91,75 @@ class TestLossModel(TestPelicunModel):
         ).rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
         asset.generate_cmp_sample(sample_size=10)
         return asset
+
+    @pytest.fixture
+    def loss_model_with_ones(self, assessment_instance):
+        loss_model = assessment_instance.loss
+
+        # add artificial values to the samples
+        data_ds = {}
+        for (
+            decision_variable,
+            consequence,
+            component,
+            damage_state,
+            location,
+            direction,
+            uid,
+        ) in product(
+            ('dv1', 'dv2'),
+            ('cons1', 'cons2'),
+            ('cmp1', 'cmp2'),
+            ('ds1', 'ds2'),
+            ('loc1', 'loc2'),
+            ('dir1', 'dir2'),
+            ('uid1', 'uid2'),
+        ):
+            data_ds[
+                (
+                    decision_variable,
+                    consequence,
+                    component,
+                    damage_state,
+                    location,
+                    direction,
+                    uid,
+                )
+            ] = [1.00, 1.00, 1.00]
+        loss_model.ds_model.sample = pd.DataFrame(data_ds).rename_axis(
+            columns=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'uid']
+        )
+        data_lf = {}
+        for (
+            decision_variable,
+            consequence,
+            component,
+            location,
+            direction,
+            uid,
+        ) in product(
+            ('dv1', 'dv2'),
+            ('cons1', 'cons2'),
+            ('cmp1', 'cmp2'),
+            ('loc1', 'loc2'),
+            ('dir1', 'dir2'),
+            ('uid1', 'uid2'),
+        ):
+            data_lf[
+                (
+                    decision_variable,
+                    consequence,
+                    component,
+                    location,
+                    direction,
+                    uid,
+                )
+            ] = [1.00, 1.00, 1.00]
+        loss_model.lf_model.sample = pd.DataFrame(data_lf).rename_axis(
+            columns=['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
+        )
+
+        return loss_model
 
     def test___init__(self, loss_model):
         assert loss_model.log
@@ -273,6 +343,36 @@ class TestLossModel(TestPelicunModel):
                 index=[0],
             ),
         )
+
+    def test_consequence_scaling(self, loss_model_with_ones):
+
+        # When only `dv` is provided
+        scaling_conditions = {'dv': 'dv1'}
+        scaling_factor = 2.00
+
+        loss_model_with_ones.apply_consequence_scaling(
+            scaling_conditions, scaling_factor
+        )
+
+        for loss_model in loss_model_with_ones._loss_models:
+            mask = (loss_model.sample.columns.get_level_values('dv') == 'dv1')
+            assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
+            assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
+            loss_model.sample.iloc[:, :] = 1.00
+
+        scaling_conditions = {'dv': 'dv2', 'loc': 'loc1', 'uid': 'uid2'}
+        scaling_factor = 2.00
+        loss_model_with_ones.apply_consequence_scaling(
+            scaling_conditions, scaling_factor
+        )
+
+        for loss_model in loss_model_with_ones._loss_models:
+            mask = np.full(len(loss_model.sample.columns), True)
+            mask &= (loss_model.sample.columns.get_level_values('dv') == 'dv2')
+            mask &= (loss_model.sample.columns.get_level_values('loc') == 'loc1')
+            mask &= (loss_model.sample.columns.get_level_values('uid') == 'uid2')
+            assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
+            assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
 
 
 class TestRepairModel_Base(TestPelicunModel):

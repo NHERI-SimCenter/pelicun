@@ -405,6 +405,76 @@ class LossModel(PelicunModel):
 
         self.log.msg("Loss calculation successful.")
 
+    def apply_consequence_scaling(self, scaling_conditions, scaling_factor):
+        """
+        Applies a scaling factor to selected columns of the loss
+        samples.
+
+        The scaling conditiones are passed as a dictionary mapping
+        level names with their required value for the condition to be
+        met. It has to contain `dv` as one of its keys, defining the
+        decision variable where the factors should be applied. Other
+        valid levels include:
+        - `dmg`: containing a source component name,
+        - `loc`: containing a location,
+        - `dir`: containing a direction,
+        - `uid`: containing a Unique Component ID (UID).
+
+        If any of the keys is missing, it is assumed that the scaling
+        factor should be applied to all relevant consequences (those
+        matching the remaining values of the hierarchical index).
+
+        Parameters
+        ----------
+        scaling_conditions: dict
+            A dictionary mapping level names with a single value. Only the
+            rows where the index levels have the provided values will be
+            affected. The dictionary can be empty, in which case all rows
+            will be affected, or contain only some levels and values, in
+            which case only the matching rows will be affected.
+        scaling_factor: float
+            Scaling factor to use.
+
+        Raises
+        ------
+        ValueError
+            If the scaling_conditions dictionary does not contain a
+            `dv` key.
+
+        """
+
+        # make sure we won't apply the same factor to all DVs at once,
+        # highly unlikely anyone would actually want to do this.
+        if 'dv' not in scaling_conditions:
+            raise ValueError(
+                'The index of the `scaling_conditions` dictionary '
+                'should contain a level named `dv` listing the '
+                'relevant decision variable.'
+            )
+
+        for model in self._loss_models:
+
+            # check if it's empty
+            if model.sample is None:
+                continue
+
+            # ensure the levels exist (but don't check if speicfied
+            # values exist yet)
+            for name in scaling_conditions:
+                if name not in model.sample.columns.names:
+                    raise ValueError(
+                        f'`scaling_factors` contains an unknown level: `{name}`.'
+                    )
+
+            # apply scaling factors
+            base.multiply_factor_multiple_levels(
+                model.sample,
+                scaling_conditions,
+                scaling_factor,
+                axis=1,
+                raise_missing=True,
+            )
+
     def save_sample(self, filepath=None, save_units=False):
         """
         Saves the loss sample to a CSV file or returns it as a

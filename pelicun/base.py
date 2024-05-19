@@ -465,6 +465,19 @@ def split_file_name(file_path: str):
     Separates a file name from the extension accounting for the case
     where the file name itself contains periods.
 
+    Parameters
+    ----------
+    file_path: str
+        Original file path.
+
+    Returns
+    -------
+    tuple
+        name: str
+            Name of the file.
+        extension: str
+            File extension.
+
     """
     path = Path(file_path)
     name = path.stem
@@ -833,6 +846,64 @@ def show_matrix(data, use_describe=False):
         )
     else:
         pp.pprint(pd.DataFrame(data))
+
+
+def multiply_factor_multiple_levels(
+    df, conditions, factor, axis=0, raise_missing=True
+):
+    """
+    Multiply a value to selected rows of a DataFrame that is indexed
+    with a hierarchical index (pd.MultiIndex). The change is done in
+    place.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The DataFrame to be modified.
+    conditions: dict
+        A dictionary mapping level names with a single value. Only the
+        rows where the index levels have the provided values will be
+        affected. The dictionary can be empty, in which case all rows
+        will be affected, or contain only some levels and values, in
+        which case only the matching rows will be affected.
+    factor: float
+        Scaling factor to use.
+    axis: int
+        With 0 the condition is checked against the DataFrame's index,
+        otherwise with 1 it is checked against the DataFrame's
+        columns.
+
+    Raises
+    ------
+    ValueError
+        If the provided `axis` values is not either 0 or 1.
+    ValueError
+        If there are no rows matching the conditions and raise_missing
+        is True.
+
+    """
+
+    if axis == 0:
+        idx_to_use = df.index
+    elif axis == 1:
+        idx_to_use = df.columns
+    else:
+        raise ValueError(f'Invalid axis: `{axis}`')
+
+    mask = pd.Series(True, index=idx_to_use)
+
+    # Apply each condition to update the mask
+    for level, value in conditions.items():
+        mask &= idx_to_use.get_level_values(level) == value
+
+    # pylint: disable=singleton-comparison
+    if np.all(mask == False) and raise_missing:  # noqa
+        raise ValueError(f'No rows found matching the conditions: `{conditions}`')
+
+    if axis == 0:
+        df.iloc[mask.values] *= factor
+    else:
+        df.iloc[:, mask.values] *= factor
 
 
 def _warning(message, category, filename, lineno, file=None, line=None):

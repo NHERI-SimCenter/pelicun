@@ -455,28 +455,144 @@ def test_show_matrix():
     assert True  # if no AssertionError is thrown, then the test passes
 
 
-# TODO: uncomment this block
-# def test__warning(capsys):
-#     msg = 'This is a test.'
-#     category = 'undefined'
-#     base._warning(msg, category, '{path to a file}', '{line number}')
-#     captured = capsys.readouterr()
-#     assert (
-#         captured.out
-#         == 'WARNING in {path to a file} at line {line number}\nThis is a test.\n\n'
-#     )
-#     base._warning(msg, category, 'some\\file', '{line number}')
-#     captured = capsys.readouterr()
-#     assert (
-#         captured.out
-#         == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
-#     )
-#     base._warning(msg, category, 'some/file', '{line number}')
-#     captured = capsys.readouterr()
-#     assert (
-#         captured.out
-#         == 'WARNING in some/file at line {line number}\nThis is a test.\n\n'
-#     )
+def test_multiply_factor_multiple_levels():
+    # Original DataFrame definition
+    df = pd.DataFrame(
+        np.full((5, 3), 1.00),
+        index=pd.MultiIndex.from_tuples(
+            [
+                ('A', 'X', 'K'),
+                ('A', 'X', 'L'),
+                ('A', 'Y', 'M'),
+                ('B', 'X', 'K'),
+                ('B', 'Y', 'M'),
+            ],
+            names=['lv1', 'lv2', 'lv3'],
+        ),
+        columns=['col1', 'col2', 'col3'],
+    )
+
+    # Test 1: Basic multiplication on rows
+    result_df = pd.DataFrame(
+        np.array(
+            [
+                [2.0, 2.0, 2.0],
+                [2.0, 2.0, 2.0],
+                [1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0],
+            ]
+        ),
+        index=pd.MultiIndex.from_tuples(
+            [
+                ('A', 'X', 'K'),
+                ('A', 'X', 'L'),
+                ('A', 'Y', 'M'),
+                ('B', 'X', 'K'),
+                ('B', 'Y', 'M'),
+            ],
+            names=['lv1', 'lv2', 'lv3'],
+        ),
+        columns=['col1', 'col2', 'col3'],
+    )
+    pd.testing.assert_frame_equal(
+        base.multiply_factor_multiple_levels(df.copy(), {'lv1': 'A', 'lv2': 'X'}, 2),
+        result_df,
+    )
+
+    # Test 2: Multiplication on all rows
+    result_df_all = pd.DataFrame(
+        np.full((5, 3), 3.00),
+        index=pd.MultiIndex.from_tuples(
+            [
+                ('A', 'X', 'K'),
+                ('A', 'X', 'L'),
+                ('A', 'Y', 'M'),
+                ('B', 'X', 'K'),
+                ('B', 'Y', 'M'),
+            ],
+            names=['lv1', 'lv2', 'lv3'],
+        ),
+        columns=['col1', 'col2', 'col3'],
+    )
+    pd.testing.assert_frame_equal(
+        base.multiply_factor_multiple_levels(df.copy(), {}, 3), result_df_all
+    )
+
+    # Original DataFrame definition for columns test
+    df_columns = pd.DataFrame(
+        np.ones((3, 5)),
+        index=['row1', 'row2', 'row3'],
+        columns=pd.MultiIndex.from_tuples(
+            [
+                ('A', 'X', 'K'),
+                ('A', 'X', 'L'),
+                ('A', 'Y', 'M'),
+                ('B', 'X', 'K'),
+                ('B', 'Y', 'M'),
+            ],
+            names=['lv1', 'lv2', 'lv3'],
+        ),
+    )
+
+    # Test 3: Multiplication on columns
+    result_df_columns = pd.DataFrame(
+        np.array(
+            [
+                [2.0, 2.0, 1.0, 2.0, 1.0],
+                [2.0, 2.0, 1.0, 2.0, 1.0],
+                [2.0, 2.0, 1.0, 2.0, 1.0],
+            ]
+        ),
+        index=['row1', 'row2', 'row3'],
+        columns=pd.MultiIndex.from_tuples(
+            [
+                ('A', 'X', 'K'),
+                ('A', 'X', 'L'),
+                ('A', 'Y', 'M'),
+                ('B', 'X', 'K'),
+                ('B', 'Y', 'M'),
+            ],
+            names=['lv1', 'lv2', 'lv3'],
+        ),
+    )
+    pd.testing.assert_frame_equal(
+        base.multiply_factor_multiple_levels(
+            df_columns.copy(), {'lv2': 'X'}, 2, axis=1
+        ),
+        result_df_columns,
+    )
+
+    # Test 4: Multiplication with no matching conditions
+    with pytest.raises(ValueError) as excinfo:
+        base.multiply_factor_multiple_levels(df.copy(), {'lv1': 'C'}, 2)
+    assert (
+        str(excinfo.value) == "No rows found matching the conditions: `{'lv1': 'C'}`"
+    )
+
+    # Test 5: Invalid axis
+    with pytest.raises(ValueError) as excinfo:
+        base.multiply_factor_multiple_levels(df.copy(), {'lv1': 'A'}, 2, axis=2)
+    assert str(excinfo.value) == "Invalid axis: `2`"
+
+    # Test 6: Empty conditions affecting all rows
+    result_df_empty = pd.DataFrame(
+        np.full((5, 3), 4.00),
+        index=pd.MultiIndex.from_tuples(
+            [
+                ('A', 'X', 'K'),
+                ('A', 'X', 'L'),
+                ('A', 'Y', 'M'),
+                ('B', 'X', 'K'),
+                ('B', 'Y', 'M'),
+            ],
+            names=['lv1', 'lv2', 'lv3'],
+        ),
+        columns=['col1', 'col2', 'col3'],
+    )
+    pd.testing.assert_frame_equal(
+        base.multiply_factor_multiple_levels(df.copy(), {}, 4), result_df_empty
+    )
 
 
 def test_describe():
