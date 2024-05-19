@@ -355,7 +355,7 @@ class TestLossModel(TestPelicunModel):
         )
 
         for loss_model in loss_model_with_ones._loss_models:
-            mask = (loss_model.sample.columns.get_level_values('dv') == 'dv1')
+            mask = loss_model.sample.columns.get_level_values('dv') == 'dv1'
             assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
             assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
             loss_model.sample.iloc[:, :] = 1.00
@@ -368,9 +368,9 @@ class TestLossModel(TestPelicunModel):
 
         for loss_model in loss_model_with_ones._loss_models:
             mask = np.full(len(loss_model.sample.columns), True)
-            mask &= (loss_model.sample.columns.get_level_values('dv') == 'dv2')
-            mask &= (loss_model.sample.columns.get_level_values('loc') == 'loc1')
-            mask &= (loss_model.sample.columns.get_level_values('uid') == 'uid2')
+            mask &= loss_model.sample.columns.get_level_values('dv') == 'dv2'
+            mask &= loss_model.sample.columns.get_level_values('loc') == 'loc1'
+            mask &= loss_model.sample.columns.get_level_values('uid') == 'uid2'
             assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
             assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
 
