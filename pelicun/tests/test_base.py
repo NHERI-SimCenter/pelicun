@@ -42,6 +42,7 @@
 These are unit and integration tests on the base module of pelicun.
 """
 
+from __future__ import annotations
 import os
 import io
 import re

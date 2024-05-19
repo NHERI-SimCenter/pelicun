@@ -89,7 +89,7 @@ class Assessment:
         'loss',
     ]
 
-    def __init__(self, config_options: dict[str, Any] | None = None) -> None:
+    def __init__(self, config_options: dict[str, Any] | None = None):
         """
         Initializes an Assessment object.
 

@@ -42,6 +42,7 @@
 These are unit and integration tests on the loss model of pelicun.
 """
 
+from __future__ import annotations
 from itertools import product
 from copy import deepcopy
 import pytest

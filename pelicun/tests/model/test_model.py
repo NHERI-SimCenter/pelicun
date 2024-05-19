@@ -42,6 +42,7 @@
 This file defines a clas used by the model unit tests.
 """
 
+from __future__ import annotations
 from copy import deepcopy
 import pytest
 from pelicun import assessment

@@ -2107,7 +2107,7 @@ def create_Hazus_HU_fragility_db(
         'damage_DB_SimCenter_Hazus_HU_bldg_template.json'
     ),
     target_meta_file: str = 'damage_DB_SimCenter_Hazus_HU_bldg.json',
-) -> None:
+):
     """
     Create a database metadata file for the HAZUS Hurricane fragilities.
 

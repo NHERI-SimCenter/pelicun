@@ -42,6 +42,7 @@
 These are unit and integration tests on the assessment module of pelicun.
 """
 
+from __future__ import annotations
 import pytest
 from pelicun import assessment
 

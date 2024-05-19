@@ -48,6 +48,7 @@ This module has classes and methods that auto-populate DL models.
 
 """
 
+from __future__ import annotations
 import sys
 import importlib
 from pathlib import Path

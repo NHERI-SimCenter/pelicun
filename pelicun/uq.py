@@ -58,6 +58,8 @@ quantification in pelicun.
 
 """
 
+from __future__ import annotations
+from collections.abc import Callable
 from abc import ABC, abstractmethod
 from scipy.stats import uniform, norm  # type: ignore
 from scipy.stats import multivariate_normal as mvn  # type: ignore
@@ -1109,9 +1111,9 @@ class BaseRandomVariable(ABC):
 
     def __init__(
         self,
-        name,
-        f_map=None,
-        anchor=None,
+        name: str,
+        f_map: Callable | None = None,
+        anchor: BaseRandomVariable | None = None,
     ):
         """
         Initializes a RandomVariable object.
@@ -1138,12 +1140,12 @@ class BaseRandomVariable(ABC):
         """
 
         self.name = name
-        self.distribution = None
+        self.distribution: str | None = None
         self.f_map = f_map
-        self._uni_samples = None
-        self.RV_set = None
+        self._uni_samples: np.ndarray | None = None
+        self.RV_set: RandomVariableSet | None = None
         self._sample_DF = None
-        self._sample = None
+        self._sample: np.ndarray | None = None
         if anchor is None:
             self.anchor = self
         else:
@@ -1231,11 +1233,11 @@ class RandomVariable(BaseRandomVariable):
     @abstractmethod
     def __init__(
         self,
-        name,
-        theta,
-        truncation_limits=np.array((np.nan, np.nan)),
-        f_map=None,
-        anchor=None,
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        f_map: Callable | None = None,
+        anchor: BaseRandomVariable | None = None,
     ):
         """
         Instantiates a normal random variable.
@@ -1301,9 +1303,9 @@ class UtilityRandomVariable(BaseRandomVariable):
     @abstractmethod
     def __init__(
         self,
-        name,
-        f_map=None,
-        anchor=None,
+        name: str,
+        f_map: Callable | None = None,
+        anchor: BaseRandomVariable | None = None,
     ):
         """
         Instantiates a normal random variable.
@@ -1354,9 +1356,9 @@ class NormalRandomVariable(RandomVariable):
 
     def __init__(
         self,
-        name,
-        theta,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1478,8 +1480,8 @@ class LogNormalRandomVariable(RandomVariable):
 
     def __init__(
         self,
-        name,
-        theta,
+        name: str,
+        theta: np.ndarray,
         truncation_limits=np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
@@ -1596,9 +1598,9 @@ class UniformRandomVariable(RandomVariable):
 
     def __init__(
         self,
-        name,
-        theta,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1687,9 +1689,9 @@ class MultilinearCDFRandomVariable(RandomVariable):
 
     def __init__(
         self,
-        name,
-        theta,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1812,9 +1814,9 @@ class EmpiricalRandomVariable(RandomVariable):
 
     def __init__(
         self,
-        name,
-        raw_samples,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name: str,
+        raw_samples: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1869,9 +1871,9 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
 
     def __init__(
         self,
-        name,
-        raw_samples,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name: str,
+        raw_samples: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -1955,9 +1957,9 @@ class DeterministicRandomVariable(UtilityRandomVariable):
 
     def __init__(
         self,
-        name,
-        theta,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -2033,9 +2035,9 @@ class MultinomialRandomVariable(RandomVariable):
 
     def __init__(
         self,
-        name,
-        theta,
-        truncation_limits=np.array((np.nan, np.nan)),
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
         f_map=None,
         anchor=None,
     ):
@@ -2114,7 +2116,7 @@ class RandomVariableSet:
 
     __slots__ = ['name', '_variables', '_Rho']
 
-    def __init__(self, name, RV_list, Rho):
+    def __init__(self, name: str, RV_list: list[RandomVariable], Rho: np.ndarray):
         self.name = name
 
         if len(RV_list) > 1:

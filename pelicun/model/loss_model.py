@@ -83,7 +83,7 @@ class LossModel(PelicunModel):
         self,
         assessment: Assessment,
         decision_variables: list[str] = ['Carbon', 'Cost', 'Energy', 'Time'],
-    ) -> None:
+    ):
         """
         Initializes LossModel objects.
 
@@ -763,7 +763,7 @@ class RepairModel_Base(PelicunModel):
 
     __slots__ = ['loss_params', 'sample', 'consequence']
 
-    def __init__(self, assessment):
+    def __init__(self, assessment: Assessment):
         """
         Initializes RepairModel_Base objects.
 

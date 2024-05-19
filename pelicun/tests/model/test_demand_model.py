@@ -42,6 +42,7 @@
 These are unit and integration tests on the demand model of pelicun.
 """
 
+from __future__ import annotations
 import os
 import tempfile
 import warnings

@@ -70,7 +70,7 @@ class PelicunModel:
 
     __slots__ = ['_asmnt', 'log']
 
-    def __init__(self, assessment: Assessment) -> None:
+    def __init__(self, assessment: Assessment):
         # link the PelicunModel object to its Assessment object
         self._asmnt: Assessment = assessment
 

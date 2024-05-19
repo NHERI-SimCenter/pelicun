@@ -42,6 +42,7 @@
 These are unit and integration tests on the file_io module of pelicun.
 """
 
+from __future__ import annotations
 import tempfile
 import os
 import pytest

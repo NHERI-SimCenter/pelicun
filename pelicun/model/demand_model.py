@@ -49,6 +49,8 @@ This file defines the DemandModel object and its methods.
 
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -56,6 +58,8 @@ from pelicun import base
 from pelicun import uq
 from pelicun import file_io
 
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 idx = base.idx
 
@@ -103,7 +107,7 @@ class DemandModel(PelicunModel):
         'sample',
     ]
 
-    def __init__(self, assessment):
+    def __init__(self, assessment: Assessment):
         super().__init__(assessment)
 
         self.marginal_params = None

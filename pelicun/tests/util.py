@@ -42,6 +42,7 @@
 These are utility functions for the unit and integration tests.
 """
 
+from __future__ import annotations
 import pickle
 import os
 

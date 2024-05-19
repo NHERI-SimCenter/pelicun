@@ -42,6 +42,7 @@
 These are unit and integration tests on the PelicunModel class.
 """
 
+from __future__ import annotations
 from copy import deepcopy
 import pytest
 import numpy as np

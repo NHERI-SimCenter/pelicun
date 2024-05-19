@@ -37,6 +37,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
+from __future__ import annotations
 import pandas as pd
 import sys
 import argparse

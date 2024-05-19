@@ -37,6 +37,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
+from __future__ import annotations
 import sys
 import json
 import argparse

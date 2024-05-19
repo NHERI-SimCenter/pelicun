@@ -42,6 +42,7 @@
 These are unit and integration tests on the asset model of pelicun.
 """
 
+from __future__ import annotations
 import tempfile
 from copy import deepcopy
 import pytest

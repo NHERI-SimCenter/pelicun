@@ -67,6 +67,8 @@ This module defines constants, basic classes and methods for pelicun.
 """
 
 from __future__ import annotations
+from typing import Any
+from typing import TYPE_CHECKING
 from collections.abc import Callable
 import os
 import sys
@@ -83,6 +85,9 @@ import colorama
 from colorama import Fore
 from colorama import Style
 from pelicun.warnings import PelicunWarning
+
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 
 colorama.init()
@@ -164,7 +169,11 @@ class Options:
 
     """
 
-    def __init__(self, user_config_options, assessment=None):
+    def __init__(
+        self,
+        user_config_options: dict[str, Any] | None,
+        assessment: Assessment | None = None,
+    ):
         """
         Initializes an Options object.
 
@@ -275,7 +284,9 @@ class Logger:
 
     """
 
-    def __init__(self, verbose, log_show_ms, log_file, print_log):
+    def __init__(
+        self, verbose: bool, log_show_ms: bool, log_file: str | None, print_log: bool
+    ):
         """
         Initializes a Logger object.
 
@@ -312,8 +323,8 @@ class Logger:
                 raise
 
         self.print_log = str2bool(print_log)
-        self.warning_stack = []
-        self.emitted = set()
+        self.warning_stack: list[str] = []
+        self.emitted: set[str] = set()
         self.reset_log_strings()
         control_warnings()
 

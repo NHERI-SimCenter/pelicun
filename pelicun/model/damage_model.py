@@ -75,7 +75,7 @@ class DamageModel(PelicunModel):
 
     __slots__ = ['ds_model', 'missing_components']
 
-    def __init__(self, assessment: Assessment) -> None:
+    def __init__(self, assessment: Assessment):
         super().__init__(assessment)
 
         self.ds_model: DamageModel_DS = DamageModel_DS(assessment)
@@ -417,7 +417,7 @@ class DamageModel_Base(PelicunModel):
 
     __slots__ = ['damage_params', 'sample']
 
-    def __init__(self, assessment):
+    def __init__(self, assessment: Assessment):
         super().__init__(assessment)
 
         self.damage_params = None
@@ -629,7 +629,7 @@ class DamageModel_DS(DamageModel_Base):
 
     __slots__ = ['ds_sample']
 
-    def __init__(self, assessment):
+    def __init__(self, assessment: Assessment):
         super().__init__(assessment)
         self.ds_sample = None
 

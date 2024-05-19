@@ -37,6 +37,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
+from __future__ import annotations
 from time import gmtime
 from time import strftime
 import sys

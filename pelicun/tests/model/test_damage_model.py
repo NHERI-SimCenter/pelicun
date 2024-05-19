@@ -42,6 +42,7 @@
 These are unit and integration tests on the damage model of pelicun.
 """
 
+from __future__ import annotations
 from copy import deepcopy
 import warnings
 import pytest

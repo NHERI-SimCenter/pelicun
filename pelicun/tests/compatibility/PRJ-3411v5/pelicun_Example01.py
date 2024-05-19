@@ -9,6 +9,7 @@ want to confirm that executing this code does not raise an error.
 
 """
 
+from __future__ import annotations
 import numpy as np
 import pandas as pd
 from pelicun.base import convert_to_MultiIndex

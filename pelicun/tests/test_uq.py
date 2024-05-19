@@ -46,6 +46,7 @@ from a file should include a reset=False argument to enable automatic
 reset from the `reset_all_test_data` function in `reset_tests.py`.
 """
 
+from __future__ import annotations
 import warnings
 import pytest
 import numpy as np

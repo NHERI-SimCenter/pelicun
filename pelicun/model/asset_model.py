@@ -49,6 +49,8 @@ This file defines the AssetModel object and its methods.
 
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from itertools import product
 import numpy as np
 import pandas as pd
@@ -57,6 +59,8 @@ from pelicun import base
 from pelicun import uq
 from pelicun import file_io
 
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 idx = base.idx
 
@@ -72,7 +76,7 @@ class AssetModel(PelicunModel):
 
     __slots__ = ['cmp_marginal_params', 'cmp_units', 'cmp_sample', '_cmp_RVs']
 
-    def __init__(self, assessment):
+    def __init__(self, assessment: Assessment):
         super().__init__(assessment)
 
         self.cmp_marginal_params = None
