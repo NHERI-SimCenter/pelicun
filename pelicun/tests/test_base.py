@@ -211,6 +211,7 @@ def test_logger_div():
             # simply check that it is not empty
             assert f.read()
 
+
 def test_split_file_name():
     file_path = "example.file.name.txt"
     name, extension = base.split_file_name(file_path)

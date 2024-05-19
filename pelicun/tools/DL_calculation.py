@@ -440,7 +440,7 @@ def run_pelicun(
 
                 config_ap['DL']['Outputs']['Settings'].update(
                     regional_out_config['Settings']
-                )            
+                )
 
             # save the extended config to a file
             config_ap_path = Path(config_path.stem + '_ap.json').resolve()
