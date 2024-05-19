@@ -121,10 +121,13 @@ def test_nondir_multi():
 def test_logger_init():
     # Test that the Logger object is initialized with the correct
     # attributes based on the input configuration
+
+    temp_dir = tempfile.mkdtemp()
+
     log_config = {
         'verbose': True,
         'log_show_ms': False,
-        'log_file': 'log.txt',
+        'log_file': f'{temp_dir}/log.txt',
         'print_log': True,
     }
     log = base.Logger(**log_config)
@@ -132,7 +135,6 @@ def test_logger_init():
     assert log.log_show_ms is False
     assert os.path.basename(log.log_file) == 'log.txt'
     assert log.print_log is True
-    os.remove('log.txt')
 
     # test exceptions
     log_config = {
@@ -146,12 +148,15 @@ def test_logger_init():
 
 
 def test_logger_msg():
+
+    temp_dir = tempfile.mkdtemp()
+
     # Test that the msg method prints the correct message to the
     # console and log file
     log_config = {
         'verbose': True,
         'log_show_ms': True,
-        'log_file': 'log.txt',
+        'log_file': f'{temp_dir}/log.txt',
         'print_log': True,
     }
     log = base.Logger(**log_config)
@@ -161,9 +166,8 @@ def test_logger_msg():
         output = buf.getvalue()
     assert 'This is a message' in output
     # Check that the message is written to the log file
-    with open('log.txt', 'r', encoding='utf-8') as f:
+    with open(f'{temp_dir}/log.txt', 'r', encoding='utf-8') as f:
         assert 'This is a message' in f.read()
-    os.remove('log.txt')
 
     # Check if timestamp is printed
     with io.StringIO() as buf, redirect_stdout(buf):
@@ -177,6 +181,9 @@ def test_logger_msg():
 
 
 def test_logger_div():
+
+    temp_dir = tempfile.mkdtemp()
+
     # We test the divider with and without the timestamp
     prepend_timestamp_args = (True, False)
     patterns = (
@@ -189,7 +196,7 @@ def test_logger_div():
         log_config = {
             'verbose': True,
             'log_show_ms': True,
-            'log_file': 'log.txt',
+            'log_file': f'{temp_dir}/log.txt',
             'print_log': True,
         }
         log = base.Logger(**log_config)
@@ -200,13 +207,9 @@ def test_logger_div():
             output = buf.getvalue()
         assert pattern.match(output)
         # check log file
-        with open('log.txt', 'r', encoding='utf-8') as f:
+        with open(f'{temp_dir}/log.txt', 'r', encoding='utf-8') as f:
             # simply check that it is not empty
             assert f.read()
-
-        # remove the created log file
-        os.remove('log.txt')
-
 
 def test_split_file_name():
     file_path = "example.file.name.txt"
@@ -221,11 +224,14 @@ def test_split_file_name():
 
 
 def test_print_system_info():
+
+    temp_dir = tempfile.mkdtemp()
+
     # create a logger object
     log_config = {
         'verbose': True,
         'log_show_ms': True,
-        'log_file': 'log.txt',
+        'log_file': f'{temp_dir}/log.txt',
         'print_log': True,
     }
     log = base.Logger(**log_config)
@@ -237,9 +243,6 @@ def test_print_system_info():
 
     # verify the contents of the output
     assert 'System Information:\n' in output
-
-    # remove the created log file
-    os.remove('log.txt')
 
 
 def test_update_vals():
