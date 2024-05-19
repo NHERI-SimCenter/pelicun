@@ -46,6 +46,7 @@ from __future__ import annotations
 import os
 import io
 import re
+import tempfile
 from contextlib import redirect_stdout
 import argparse
 import pytest
@@ -58,12 +59,15 @@ from pelicun import base
 
 
 def test_options_init():
+
+    temp_dir = tempfile.mkdtemp()
+
     # Create a sample user_config_options dictionary
     user_config_options = {
         "Verbose": False,
         "Seed": None,
         "LogShowMS": False,
-        "LogFile": 'test_log_file',
+        "LogFile": f'{temp_dir}/test_log_file',
         "PrintLog": False,
         "DemandOffset": {"PFA": -1, "PFV": -1},
         "Sampling": {
@@ -99,9 +103,6 @@ def test_options_init():
     assert options.log.log_show_ms is False
     assert os.path.basename(options.log.log_file) == 'test_log_file'
     assert options.log.print_log is False
-
-    # remove the log file that was created
-    os.remove('test_log_file')
 
     # test seed property and setter
     options.seed = 42
