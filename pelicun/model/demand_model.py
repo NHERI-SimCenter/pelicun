@@ -404,7 +404,7 @@ class DemandModel(PelicunModel):
         Parameters
         ----------
         config: dict
-            A dictionary, typically read from a json file, that specifies the
+            A dictionary, typically read from a JSON file, that specifies the
             distribution family, truncation and censoring limits, and other
             settings for the calibration.
 
@@ -921,8 +921,8 @@ class DemandModel(PelicunModel):
 
         demand_cloning = turn_to_tuples(demand_cloning)
 
-        # The demand cloning confuguration should not include
-        # columns that are not present in the orignal sample.
+        # The demand cloning configuration should not include
+        # columns that are not present in the original sample.
         warn_columns = []
         for column in demand_cloning:
             if column not in self.sample.columns:

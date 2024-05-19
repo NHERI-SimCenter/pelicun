@@ -134,17 +134,17 @@ class TestDamageModel(TestPelicunModel):
         assert damage_model.ds_model.damage_params.empty
 
     def test_calculate(self):
-        # User-facing methods are coupled with other assessment objets
+        # User-facing methods are coupled with other assessment objects
         # and are tested in the verification examples.
         pass
 
     def test_save_sample(self):
-        # User-facing methods are coupled with other assessment objets
+        # User-facing methods are coupled with other assessment objects
         # and are tested in the verification examples.
         pass
 
     def test_load_sample(self):
-        # User-facing methods are coupled with other assessment objets
+        # User-facing methods are coupled with other assessment objects
         # and are tested in the verification examples.
         pass
 

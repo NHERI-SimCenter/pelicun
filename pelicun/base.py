@@ -455,7 +455,7 @@ class Logger:
 
     def warn(self, msg):
         """
-        Add an emit a warning immediatelly.
+        Add an emit a warning immediately.
 
         Parameters
         ----------
@@ -634,7 +634,7 @@ def update_vals(update, primary, update_path, primary_path):
                     f'{primary_path}["{key}"] = {primary[key]}. '
                     f'Please revise {update_path}["{key}"].'
                 )
-            # With both being dictionaries, we recurse.
+            # With both being dictionaries, we use recursion.
             update_vals(
                 update[key],
                 primary[key],
@@ -1076,7 +1076,7 @@ def str2bool(v):
         value, an error is raised indicating that a boolean value was
         expected.
     """
-    # courtesy of Maxim @ stackoverflow
+    # courtesy of Maxim @ Stackoverflow
 
     if isinstance(v, bool):
         return v
@@ -1523,7 +1523,7 @@ def stringterpolation(
 ) -> Callable[[np.ndarray], np.ndarray]:
     """
     Turns a string of specially formatted arguments into a multilinear
-    interpolating funciton.
+    interpolating function.
 
     Parameters
     ----------

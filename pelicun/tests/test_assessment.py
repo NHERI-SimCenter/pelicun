@@ -96,7 +96,7 @@ def test_assessment_get_default_metadata():
 
     for data_source in data_sources:
         # here we just test that we can load the data file, without
-        # checking the contens.
+        # checking the contents.
         asmt.get_default_data(data_source)
         asmt.get_default_metadata(data_source)
 

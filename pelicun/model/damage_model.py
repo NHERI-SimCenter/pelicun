@@ -238,7 +238,7 @@ class DamageModel(PelicunModel):
                 .astype('int64')
             )
         else:
-            # Otherwise asume 1.00 for the number of blocks and
+            # Otherwise assume 1.00 for the number of blocks and
             # initialize `component_blocks` using the columns of `cmp_sample`.
             component_blocks = pd.DataFrame(
                 np.ones(self._asmnt.asset.cmp_sample.shape[1]),
@@ -425,7 +425,7 @@ class DamageModel_Base(PelicunModel):
 
     def _load_model_parameters(self, data):
         """
-        Load model parameters from a dataframe, extending those
+        Load model parameters from a DataFrame, extending those
         already available. Parameters already defined take precedence,
         i.e. redefinitions of parameters are ignored.
 
@@ -506,14 +506,14 @@ class DamageModel_Base(PelicunModel):
         The method takes as input the block_batch_size, which
         specifies the maximum number of blocks per batch. The method
         first checks if performance groups have been defined in the
-        cmp_marginal_params dataframe, and if so, it uses the 'Blocks'
+        cmp_marginal_params DataFrame, and if so, it uses the 'Blocks'
         column as the performance group information. If performance
         groups have not been defined in cmp_marginal_params, the
-        method uses the cmp_sample dataframe to define the performance
+        method uses the cmp_sample DataFrame to define the performance
         groups, with each performance group having a single block.
 
         The method then checks if the performance groups are available
-        in the damage parameters dataframe, and removes any
+        in the damage parameters DataFrame, and removes any
         performance groups that are not found in the damage
         parameters. The method then groups the performance groups
         based on the locations and directions of the components, and
@@ -522,14 +522,14 @@ class DamageModel_Base(PelicunModel):
         batches of size specified by block_batch_size and assigns a
         batch number to each group. Finally, the method groups the
         performance groups by batch number, component, location, and
-        direction, and returns a dataframe that shows the number of
+        direction, and returns a DataFrame that shows the number of
         blocks for each batch.
 
         Parameters
         ----------
 
         component_blocks: pd.DataFrame
-            Dataframe containing a singe column, `Blocks`, which lists
+            DataFrame containing a singe column, `Blocks`, which lists
             the number of blocks for each (`cmp`-`loc`-`dir`-`uid`).
         block_batch_size: int
             Maximum number of components in each batch.
@@ -543,7 +543,7 @@ class DamageModel_Base(PelicunModel):
             A DataFrame indexed by batch number, component identifier,
             location, direction, and unique ID, with a column
             indicating the number of blocks assigned to each
-            batch. This dataframe facilitates the management and
+            batch. This DataFrame facilitates the management and
             execution of damage assessment tasks by grouping
             components into manageable batches based on the specified
             block batch size.
@@ -641,7 +641,7 @@ class DamageModel_DS(DamageModel_Base):
         Returns
         -------
         pd.DataFrame
-            Dataframe with the probability of each damage state for
+            DataFrame with the probability of each damage state for
             each component block.
 
         """
@@ -926,7 +926,7 @@ class DamageModel_DS(DamageModel_Base):
         if self._asmnt.log.verbose:
             self.log.msg('Evaluating damage states...', prepend_timestamp=True)
 
-        # Create an empty dataframe with columns and index taken from
+        # Create an empty DataFrame with columns and index taken from
         # the input capacity sample
         dmg_eval = pd.DataFrame(
             columns=capacity_sample.columns, index=capacity_sample.index
@@ -946,7 +946,7 @@ class DamageModel_DS(DamageModel_Base):
                 [dmg_eval.loc[:1, PG_i] for PG_i in PG_list], axis=1, keys=PG_list
             ).columns
             PG_cols.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
-            # Create a dataframe with demand values repeated for the
+            # Create a DataFrame with demand values repeated for the
             # number of PGs and assign the columns as PG_cols
             demand_df.append(
                 pd.concat(
@@ -954,9 +954,9 @@ class DamageModel_DS(DamageModel_Base):
                 )
             )
 
-        # Concatenate all demand dataframes into a single dataframe
+        # Concatenate all demand DataFrames into a single DataFrame
         demand_df = pd.concat(demand_df, axis=1)
-        # Sort the columns of the demand dataframe
+        # Sort the columns of the demand DataFrame
         demand_df.sort_index(axis=1, inplace=True)
 
         # Evaluate the damage exceedance by subtracting demand from
@@ -964,7 +964,7 @@ class DamageModel_DS(DamageModel_Base):
         dmg_eval = (capacity_sample - demand_df) < 0
 
         # Remove any columns with NaN values from the damage
-        # exceedance dataframe
+        # exceedance DataFrame
         dmg_eval.dropna(axis=1, inplace=True)
 
         # initialize the DataFrames that store the damage states and
@@ -1018,7 +1018,7 @@ class DamageModel_DS(DamageModel_Base):
         The method initializes two random variable registries,
         capacity_RV_reg and lsds_RV_reg, and loops through each
         performance group in the input performance group batch (PGB)
-        dataframe. For each performance group, it retrieves the
+        DataFrame. For each performance group, it retrieves the
         component sample and blocks and checks if the limit state is
         defined for the component. If the limit state is defined, the
         method gets the list of limit states and the parameters for
@@ -1178,7 +1178,7 @@ class DamageModel_DS(DamageModel_Base):
                 css = 'capacity adjustment specification'
                 if not isinstance(value, str):
                     raise ValueError(
-                        f'Invalud entry in {css}: {value}. It has to be a string. '
+                        f'Invalid entry in {css}: {value}. It has to be a string. '
                         f'See docstring of DamageModel._create_dmg_RVs.'
                     )
                 capacity_adjustment_operation = value[0]
@@ -1504,7 +1504,7 @@ class DamageModel_DS(DamageModel_Base):
             match_locations = False
 
         # check if the source component exists in the damage state
-        # dataframe
+        # DataFrame
         if source_cmp not in self.ds_sample.columns.get_level_values('cmp'):
             self.log.warn(
                 f"Source component `{source_cmp}` in the prescribed "
@@ -1639,7 +1639,7 @@ class DamageModel_DS(DamageModel_Base):
 
     def _complete_ds_cols(self, dmg_sample):
         """
-        Completes the damage sample dataframe with all possible damage
+        Completes the damage sample DataFrame with all possible damage
         states for each component.
 
         Parameters
@@ -1682,7 +1682,7 @@ class DamageModel_DS(DamageModel_Base):
         # get the number of possible limit states
         ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
 
-        # initialize the result dataframe
+        # initialize the result DataFrame
         res = pd.DataFrame()
 
         # TODO: For the code below, store the number of damage states
@@ -1720,7 +1720,7 @@ class DamageModel_DS(DamageModel_Base):
                 ],
             ]
 
-            # Create a dataframe where they are repeated ds_count times in the
+            # Create a DataFrame where they are repeated ds_count times in the
             # columns. The keys put the DS id in the first level of the
             # multiindexed column
             cmp_headers = pd.concat(
@@ -1730,10 +1730,10 @@ class DamageModel_DS(DamageModel_Base):
             )
             cmp_headers.columns.names = ['ds', *cmp_headers.columns.names[1::]]
 
-            # add these new columns to the result dataframe
+            # add these new columns to the result DataFrame
             res = pd.concat([res, cmp_headers], axis=1)
 
-        # Fill the result dataframe with zeros and reorder its columns to have
+        # Fill the result DataFrame with zeros and reorder its columns to have
         # the damage states at the lowest like - matching the dmg_sample input
         res = pd.DataFrame(
             0.0,

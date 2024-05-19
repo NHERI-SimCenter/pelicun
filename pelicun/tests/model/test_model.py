@@ -39,7 +39,7 @@
 # John Vouvakis Manousakis
 
 """
-This file defines a clas used by the model unit tests.
+This file defines a class used by the model unit tests.
 """
 
 from __future__ import annotations

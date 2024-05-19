@@ -358,7 +358,7 @@ def test_convert_dtypes():
         check_column_type=False,
     )
 
-    # Empty dataframe
+    # Empty DataFrame
 
     df_input = pd.DataFrame({})
     df_expected = pd.DataFrame({})
@@ -626,7 +626,7 @@ def test_describe():
     )
 
     # case 1:
-    # passing a dataframe
+    # passing a DataFrame
 
     df = pd.DataFrame(
         ((1.00, 2.00, 3.00), (4.00, 5.00, 6.00)), columns=['A', 'B', 'C']

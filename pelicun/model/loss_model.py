@@ -416,7 +416,7 @@ class LossModel(PelicunModel):
         Applies a scaling factor to selected columns of the loss
         samples.
 
-        The scaling conditiones are passed as a dictionary mapping
+        The scaling conditions are passed as a dictionary mapping
         level names with their required value for the condition to be
         met. It has to contain `dv` as one of its keys, defining the
         decision variable where the factors should be applied. Other
@@ -464,7 +464,7 @@ class LossModel(PelicunModel):
             if model.sample is None:
                 continue
 
-            # ensure the levels exist (but don't check if speicfied
+            # ensure the levels exist (but don't check if specified
             # values exist yet)
             for name in scaling_conditions:
                 if name not in model.sample.columns.names:
@@ -673,7 +673,7 @@ class LossModel(PelicunModel):
             The loss map.
 
         """
-        # Retrieve the dataframe from one of the included loss models.
+        # Retrieve the DataFrame from one of the included loss models.
         # We use a single loss map for all.
         return self.ds_model._loss_map
 
@@ -688,7 +688,7 @@ class LossModel(PelicunModel):
             The loss map.
 
         """
-        # Add the dataframe to the included loss models.
+        # Add the DataFrame to the included loss models.
         # We use a single loss map for all.
         for model in self._loss_models:
             model._loss_map = loss_map
@@ -781,7 +781,7 @@ class RepairModel_Base(PelicunModel):
 
     def _load_model_parameters(self, data):
         """
-        Load model parameters from a dataframe, extending those
+        Load model parameters from a DataFrame, extending those
         already available. Parameters already defined take precedence,
         i.e. redefinitions of parameters are ignored.
 
@@ -1481,7 +1481,7 @@ class RepairModel_LF(RepairModel_Base):
         loss_map = self._loss_map['Repair'].to_dict()
         sample_size = len(demand_sample)
 
-        # TODO: this can be taken out and simly passed as blocks in
+        # TODO: this can be taken out and simply passed as blocks in
         # the arguments, and cast to a dict in here. Index can be
         # obtained from there.
         index = [

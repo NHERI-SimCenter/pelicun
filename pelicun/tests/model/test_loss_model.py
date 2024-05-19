@@ -802,7 +802,7 @@ class TestRepairModel_LF(TestRepairModel_Base):
                 performance_group, loss_map, required_edps, demand_dict, cmp_sample
             )
         assert (
-            'Loss function intepolation for consequence '
+            'Loss function interpolation for consequence '
             '`cmp.A-dv.A` has failed. Ensure a sufficient '
             'interpolation domain  for the X values '
             '(those after the `|` symbol)  and verify '

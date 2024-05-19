@@ -86,8 +86,8 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 idx = pd.IndexSlice
 
 # TODO: separate Damage Processes for
-#       Hazus Earthquake - Buildings and - Transportation
-# TODO: Loss map for Hazus EQ Transportation
+#       HAZUS Earthquake - Buildings and - Transportation
+# TODO: Loss map for HAZUS EQ Transportation
 
 damage_processes = {
     'FEMA P-58': {

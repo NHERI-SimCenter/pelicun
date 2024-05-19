@@ -167,7 +167,7 @@ def test__get_theta():
         res, np.array(((2.71828183, 2.71828183), (1.82436064, 0.82436064)))
     )
 
-    # check that it failes for invalid inputs
+    # check that it fails for invalid inputs
     with pytest.raises(ValueError):
         uq._get_theta(np.array((1.00,)), np.array((1.00,)), 'not_a_distribution')
 
@@ -337,7 +337,7 @@ def test__mvn_scale():
 
 
 def test__neg_log_likelihood():
-    # Parameters not whithin the pre-defined bounds should yield a
+    # Parameters not within the pre-defined bounds should yield a
     # large value to discourage the optimization algorithm from going
     # in that direction.
     res = uq._neg_log_likelihood(

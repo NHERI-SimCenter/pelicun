@@ -2113,7 +2113,7 @@ def create_Hazus_HU_fragility_db(
 
     This method was developed to add a json file with metadata
     accompanying `damage_DB_SimCenter_Hazus_HU_bldg.csv`. That file
-    contains fragility curves fitted to Hazus Hurricane data relaetd
+    contains fragility curves fitted to Hazus Hurricane data related
     to the Hazus Hurricane Technical Manual v4.2.
 
     Parameters
@@ -2213,7 +2213,7 @@ def create_Hazus_HU_fragility_db(
     masonry_reinforcing = {
         '1': 'Has masonry reinforcing.',
         '0': 'No masonry reinforcing.',
-        'null': 'Unknown information on masonry reinfocing.',
+        'null': 'Unknown information on masonry reinforcing.',
     }
 
     roof_frame_type = {
@@ -2222,7 +2222,7 @@ def create_Hazus_HU_fragility_db(
     }
 
     wind_debris_environment = {
-        'A': 'Residentiao/commercial wind debris environment.',
+        'A': 'Residential/commercial wind debris environment.',
         'B': 'Wind debris environment varies by direction.',
         'C': 'Residential wind debris environment.',
         'D': 'No wind debris environment.',

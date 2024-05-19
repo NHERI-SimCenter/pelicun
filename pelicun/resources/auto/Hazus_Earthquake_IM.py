@@ -214,7 +214,7 @@ def convertTunnelToHAZUSclass(AIM):
     elif ("Cut" in AIM["ConstructType"]) or ("Cover" in AIM["ConstructType"]):
         return "HTU2"
     else:
-        # Select HTU2 for unclassfied tunnels because it is more conservative.
+        # Select HTU2 for unclassified tunnels because it is more conservative.
         return "HTU2"
 
 
