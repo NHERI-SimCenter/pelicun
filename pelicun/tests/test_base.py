@@ -496,8 +496,10 @@ def test_multiply_factor_multiple_levels():
         ),
         columns=['col1', 'col2', 'col3'],
     )
+    test_df = df.copy()
+    base.multiply_factor_multiple_levels(test_df, {'lv1': 'A', 'lv2': 'X'}, 2)
     pd.testing.assert_frame_equal(
-        base.multiply_factor_multiple_levels(df.copy(), {'lv1': 'A', 'lv2': 'X'}, 2),
+        test_df,
         result_df,
     )
 
@@ -516,9 +518,9 @@ def test_multiply_factor_multiple_levels():
         ),
         columns=['col1', 'col2', 'col3'],
     )
-    pd.testing.assert_frame_equal(
-        base.multiply_factor_multiple_levels(df.copy(), {}, 3), result_df_all
-    )
+    test_df = df.copy()
+    base.multiply_factor_multiple_levels(test_df, {}, 3)
+    pd.testing.assert_frame_equal(test_df, result_df_all)
 
     # Original DataFrame definition for columns test
     df_columns = pd.DataFrame(
@@ -557,10 +559,10 @@ def test_multiply_factor_multiple_levels():
             names=['lv1', 'lv2', 'lv3'],
         ),
     )
+    test_df = df_columns.copy()
+    base.multiply_factor_multiple_levels(test_df, {'lv2': 'X'}, 2, axis=1)
     pd.testing.assert_frame_equal(
-        base.multiply_factor_multiple_levels(
-            df_columns.copy(), {'lv2': 'X'}, 2, axis=1
-        ),
+        test_df,
         result_df_columns,
     )
 
@@ -591,9 +593,9 @@ def test_multiply_factor_multiple_levels():
         ),
         columns=['col1', 'col2', 'col3'],
     )
-    pd.testing.assert_frame_equal(
-        base.multiply_factor_multiple_levels(df.copy(), {}, 4), result_df_empty
-    )
+    testing_df = df.copy()
+    base.multiply_factor_multiple_levels(testing_df, {}, 4)
+    pd.testing.assert_frame_equal(testing_df, result_df_empty)
 
 
 def test_describe():

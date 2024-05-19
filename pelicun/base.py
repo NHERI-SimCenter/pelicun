@@ -169,6 +169,21 @@ class Options:
 
     """
 
+    __slots__ = [
+        '_asmnt',
+        'defaults',
+        'sampling_method',
+        'list_all_ds',
+        '_seed',
+        '_rng',
+        'units_file',
+        'demand_offset',
+        'nondir_multi_dict',
+        'rho_cost_time',
+        'eco_scale',
+        'log',
+    ]
+
     def __init__(
         self,
         user_config_options: dict[str, Any] | None,
@@ -283,6 +298,19 @@ class Logger:
         (see settings/default_config.json in the pelicun source code).
 
     """
+
+    __slots__ = [
+        'verbose',
+        'log_show_ms',
+        'log_file',
+        'warning_file',
+        'print_log',
+        'warning_stack',
+        'emitted',
+        'log_time_format',
+        'spaces',
+        'log_div',
+    ]
 
     def __init__(
         self, verbose: bool, log_show_ms: bool, log_file: str | None, print_log: bool
