@@ -1676,7 +1676,7 @@ class RepairModel_LF(RepairModel_Base):
                 median_loss = base.stringterpolation(loss_function_str)(edp_values)
             except ValueError as exc:
                 raise ValueError(
-                    f'Loss function intepolation for consequence '
+                    f'Loss function interpolation for consequence '
                     f'`{consequence}-{decision_variable}` has failed. '
                     f'Ensure a sufficient interpolation domain  '
                     f'for the X values (those after the `|` symbol)  '
