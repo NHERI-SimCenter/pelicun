@@ -51,6 +51,7 @@ This file defines Loss model objects and their methods.
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from itertools import product
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -411,7 +412,119 @@ class LossModel(PelicunModel):
 
         self.log.msg("Loss calculation successful.")
 
-    def apply_consequence_scaling(self, scaling_conditions, scaling_factor):
+    def consequence_scaling(self, scaling_specification):
+        """
+        Applies scaling factors to the loss sample according to the
+        given scaling specification.
+
+        The scaling specification should be a path to a CSV file. It
+        should contain a `Decision Variable` column with a specified
+        decision variable in each row. Other optional columns are
+        `Component`, `Location`, `Direction`. Each row acts as an
+        independent scaling operation, with the scaling factor defined
+        in the `Scaling Factor` column, which is required. If any
+        value is missing in the optional columns, it is assumed that
+        the scaling factor should be applied to all entries of the
+        loss sample where the other column values match. For example,
+        if the specification has a single row with `Decision Variable`
+        set to 'Cost', `Scaling Factor` set to 2.0, and no other
+        columns, this will double the 'Cost' DV. If instead `Location`
+        was also set to `1`, it would double the Cost of all
+        components that have that location. The columns `Location` and
+        `Direction` can contain ranges, like this: `1--3` means
+        `1`, `2`, and `3`. If a range is used in both `Location` and
+        `Direction`, the factor of that row will be applied once to
+        all combinations.
+
+        Parameters
+        ----------
+        scaling_specification: str
+            Path to a CSV file containing the scaling specification.
+
+        Raises
+        ------
+        ValueError
+            If required columns are missing or contain NaNs.
+
+        """
+
+        # Specify expected dtypes from the start.
+        dtypes = {
+            'Decision Variable': 'str',
+            'Component': 'str',
+            'Location': 'str',
+            'Direction': 'str',
+            'Scaling Factor': 'float64',
+        }
+
+        scaling_specification_df = pd.read_csv(scaling_specification, dtype=dtypes)
+
+        if (
+            'Decision Variable' not in scaling_specification_df.columns
+            or scaling_specification_df['Decision Variable'].isna().any()
+        ):
+            raise ValueError(
+                'The `Decision Variable` column is missing '
+                'from the scaling specification or contains NaN values.'
+            )
+        if (
+            'Scaling Factor' not in scaling_specification_df.columns
+            or scaling_specification_df['Scaling Factor'].isna().any()
+        ):
+            raise ValueError(
+                'The `Scaling Factor` column is missing '
+                'from the scaling specification or contains NaN values.'
+            )
+
+        # Add missing optional columns with NaN values
+        optional_cols = ['Component', 'Location', 'Direction']
+        for col in optional_cols:
+            if col not in scaling_specification_df.columns:
+                scaling_specification_df[col] = np.nan
+
+        # Rename the columns to the internally used values
+        name_map = {
+            'Decision Variable': 'dv',
+            'Component': 'dmg',
+            'Location': 'loc',
+            'Direction': 'dir',
+            'Scaling Factor': 'scaling',
+        }
+        scaling_specification_df.rename(columns=name_map, inplace=True)
+
+        # Expand ranges in 'loc' and 'dir'
+        def expand_range(col):
+            if pd.isna(col):
+                return [col]
+            if '--' in col:
+                start, end = map(int, col.split('--'))
+                return list(map(str, range(start, end + 1)))
+            return [col]
+
+        # Generate all combinations of loc and dir ranges
+        expanded_df = scaling_specification_df.apply(
+            lambda row: pd.DataFrame(
+                list(product(expand_range(row['loc']), expand_range(row['dir']))),
+                columns=['loc', 'dir'],
+            ).assign(dv=row['dv'], dmg=row['dmg'], scaling=row['scaling']),
+            axis=1,
+        )
+
+        expanded_df = pd.concat(expanded_df.values)
+
+        # Now, for each unique combination in expanded_df, apply
+        # consequence scaling
+        for _, row in expanded_df.iterrows():
+            scaling_conditions = {
+                k: row[k] for k in ['dv', 'dmg', 'loc', 'dir'] if not pd.isna(row[k])
+            }
+            self._apply_consequence_scaling(
+                scaling_conditions, row['scaling'], raise_missing=False
+            )
+
+    def _apply_consequence_scaling(
+        self, scaling_conditions, scaling_factor, raise_missing=True
+    ):
         """
         Applies a scaling factor to selected columns of the loss
         samples.
@@ -469,7 +582,7 @@ class LossModel(PelicunModel):
             for name in scaling_conditions:
                 if name not in model.sample.columns.names:
                     raise ValueError(
-                        f'`scaling_factors` contains an unknown level: `{name}`.'
+                        f'`scaling_conditions` contains an unknown level: `{name}`.'
                     )
 
             # apply scaling factors
@@ -478,7 +591,7 @@ class LossModel(PelicunModel):
                 scaling_conditions,
                 scaling_factor,
                 axis=1,
-                raise_missing=True,
+                raise_missing=raise_missing,
             )
 
     def save_sample(self, filepath=None, save_units=False):

@@ -911,6 +911,8 @@ def multiply_factor_multiple_levels(
         With 0 the condition is checked against the DataFrame's index,
         otherwise with 1 it is checked against the DataFrame's
         columns.
+    raise_missing: bool
+        Raise an error if no rows are matching the given conditions.
 
     Raises
     ------

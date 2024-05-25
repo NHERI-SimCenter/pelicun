@@ -108,12 +108,12 @@ class TestLossModel(TestPelicunModel):
             direction,
             uid,
         ) in product(
-            ('dv1', 'dv2'),
-            ('cons1', 'cons2'),
-            ('cmp1', 'cmp2'),
-            ('ds1', 'ds2'),
-            ('loc1', 'loc2'),
-            ('dir1', 'dir2'),
+            ('Cost', 'Carbon'),
+            ('cmp.A.consequence', 'cmp.B.consequence'),
+            ('cmp.A', 'cmp.B'),
+            ('DS1', 'DS2'),
+            ('1', '2'),  # loc
+            ('1', '2'),  # dir
             ('uid1', 'uid2'),
         ):
             data_ds[
@@ -139,11 +139,11 @@ class TestLossModel(TestPelicunModel):
             direction,
             uid,
         ) in product(
-            ('dv1', 'dv2'),
-            ('cons1', 'cons2'),
-            ('cmp1', 'cmp2'),
-            ('loc1', 'loc2'),
-            ('dir1', 'dir2'),
+            ('Cost', 'Carbon'),
+            ('cmp.A.consequence', 'cmp.B.consequence'),
+            ('cmp.A', 'cmp.B'),
+            ('1', '2'),  # loc
+            ('1', '2'),  # dir
             ('uid1', 'uid2'),
         ):
             data_lf[
@@ -345,35 +345,82 @@ class TestLossModel(TestPelicunModel):
             ),
         )
 
-    def test_consequence_scaling(self, loss_model_with_ones):
+    def test__apply_consequence_scaling(self, loss_model_with_ones):
 
         # When only `dv` is provided
-        scaling_conditions = {'dv': 'dv1'}
+        scaling_conditions = {'dv': 'Cost'}
         scaling_factor = 2.00
 
-        loss_model_with_ones.apply_consequence_scaling(
+        loss_model_with_ones._apply_consequence_scaling(
             scaling_conditions, scaling_factor
         )
 
         for loss_model in loss_model_with_ones._loss_models:
-            mask = loss_model.sample.columns.get_level_values('dv') == 'dv1'
+            mask = loss_model.sample.columns.get_level_values('dv') == 'Cost'
             assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
             assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
             loss_model.sample.iloc[:, :] = 1.00
 
-        scaling_conditions = {'dv': 'dv2', 'loc': 'loc1', 'uid': 'uid2'}
+        scaling_conditions = {'dv': 'Carbon', 'loc': '1', 'uid': 'uid2'}
         scaling_factor = 2.00
-        loss_model_with_ones.apply_consequence_scaling(
+        loss_model_with_ones._apply_consequence_scaling(
             scaling_conditions, scaling_factor
         )
 
         for loss_model in loss_model_with_ones._loss_models:
             mask = np.full(len(loss_model.sample.columns), True)
-            mask &= loss_model.sample.columns.get_level_values('dv') == 'dv2'
-            mask &= loss_model.sample.columns.get_level_values('loc') == 'loc1'
+            mask &= loss_model.sample.columns.get_level_values('dv') == 'Carbon'
+            mask &= loss_model.sample.columns.get_level_values('loc') == '1'
             mask &= loss_model.sample.columns.get_level_values('uid') == 'uid2'
             assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
             assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
+
+    def test_consequence_scaling(self, loss_model_with_ones):
+
+        loss_model_with_ones.consequence_scaling(
+            'pelicun/tests/data/model/test_LossModel/scaling_specification.csv'
+        )
+
+        expected_ds = (
+            pd.read_csv(
+                'pelicun/tests/data/model/test_LossModel/scaled_losses_ds.csv',
+                dtype={
+                    'dv': str,
+                    'loss': str,
+                    'dmg': str,
+                    'ds': str,
+                    'loc': str,
+                    'dir': str,
+                    'uid': str,
+                },
+            )
+            .set_index(['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'uid'])
+            .T.astype(float)
+        )
+        expected_ds.index = pd.RangeIndex(range(len(expected_ds)))
+        pd.testing.assert_frame_equal(
+            loss_model_with_ones.ds_model.sample, expected_ds
+        )
+
+        expected_lf = (
+            pd.read_csv(
+                'pelicun/tests/data/model/test_LossModel/scaled_losses_lf.csv',
+                dtype={
+                    'dv': str,
+                    'loss': str,
+                    'dmg': str,
+                    'loc': str,
+                    'dir': str,
+                    'uid': str,
+                },
+            )
+            .set_index(['dv', 'loss', 'dmg', 'loc', 'dir', 'uid'])
+            .T.astype(float)
+        )
+        expected_lf.index = pd.RangeIndex(range(len(expected_lf)))
+        pd.testing.assert_frame_equal(
+            loss_model_with_ones.lf_model.sample, expected_lf
+        )
 
 
 class TestRepairModel_Base(TestPelicunModel):
