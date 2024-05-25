@@ -46,12 +46,17 @@ setup(
         'scipy>=1.7.0, <2.0',
         'pandas>=1.4.0, <3.0',
         'colorama>=0.4.0, <0.5.0',
-        #'tables>=3.7.0',
+        # 'tables>=3.7.0',
     ],
     extras_require={
         'development': [
             'flake8',
+            'flake8-bugbear',
+            'flake8-rst',
+            'flake8-rst-docstrings',
             'pylint',
+            'pylint-pytest',
+            'pydocstyle',
             'mypy',
             'black',
             'pytest',
