@@ -168,9 +168,14 @@ class LossModel(PelicunModel):
             Path to a csv file or DataFrame object that maps
             components IDs to their loss parameter definitions.
         loss_map_policy: str or None
-            If None, does not modify the loss map.
-            If set to `fill`, each component ID that is present in the
-            asset model but not in the loss map is mapped to itself.
+            - If None, does not modify the loss map.
+            - If set to `fill`, each component ID that is present in
+            the asset model but not in the loss map is mapped to
+            itself, but `excessiveRID` is excluded.
+            - If set to `fill_all`, each component ID that is present in
+            the asset model but not in the loss map is mapped to
+            itself without exceptions.
+
 
         Raises
         ------
@@ -217,10 +222,12 @@ class LossModel(PelicunModel):
             loss_map = pd.DataFrame({'Repair': pd.Series(dtype='object')})
             loss_map.index = loss_map.index.astype('object')
 
-        if loss_map_policy == 'fill':
+        if loss_map_policy in {'fill', 'fill_all'}:
             # Populate missing rows with cmp_id -> cmp_id
             for component in cmp_set:
                 if component not in loss_map.index:
+                    if loss_map_policy == 'fill' and component == 'excessiveRID':
+                        continue
                     loss_map.loc[component, :] = component
 
         elif loss_map_policy is None:
@@ -346,6 +353,11 @@ class LossModel(PelicunModel):
         """
         Calculate the loss of each component block.
 
+        Note: This method simply calculates the loss of each component
+        block without any special treatment to `replacement`
+        consequences. This can be done at a later step with the
+        `aggregate_losses` method.
+
         Raises
         ------
         ValueError
@@ -382,33 +394,6 @@ class LossModel(PelicunModel):
             demand_offset,
             nondirectional_multipliers,
         )
-
-        #
-        # handle `replacement`
-        #
-
-        if self.ds_model.sample is not None:
-
-            # columns that correspond to the replacement consequence
-            replacement_columns = []
-            # rows where replacement is non-zero
-            replacement_rows = []
-
-            replacement_columns = (
-                self.ds_model.sample.columns.get_level_values('loss')
-                == 'replacement'
-            )
-            rows_df = self.ds_model.sample.iloc[:, replacement_columns]
-
-            if not rows_df.empty:
-                replacement_rows = (
-                    np.argwhere(np.any(rows_df.values > 0.0, axis=1))
-                    .reshape(-1)
-                    .tolist()
-                )
-            self.ds_model.sample.iloc[replacement_rows, ~replacement_columns] = 0.00
-            if self.lf_model.sample is not None:
-                self.lf_model.sample.iloc[replacement_rows, :] = 0.00
 
         self.log.msg("Loss calculation successful.")
 
@@ -706,41 +691,166 @@ class LossModel(PelicunModel):
 
         # self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
-    def aggregate_losses(self):
+    def aggregate_losses(self, replacement_thresholds=None):
         """
         Aggregates the losses produced by each component.
 
+        Parameters
+        ----------
+        replacement_thresholds: dict, optional
+            Dictionary defining a building replacement threshold for
+            any desired decision variable. If the aggregated value for
+            the decision variable conditioned on no replacement
+            exceeds the threshold, then replacement is triggered. This
+            can happen for multuple decision variables at the same
+            realization. The consequence keyword `replacement` is
+            reserved to represent exclusive triggering of the
+            replacement consequences, and other consequences are
+            ignored for those realizations where replacement is
+            triggered. If the dictionary is empty, then `replacement`
+            is still treated as an exclusive consequence (other
+            consequences are set to zero when replacement is nonzero)
+            but it is not being additinally triggered by the
+            exceedance of any thresholds. If not None, then the
+            aggregated loss sample conains an additional column with
+            information on whether replacement was already present or
+            triggered by a threshold exceedance for each realization.
+
+        Note: Regardless of the value of `replacement_thresholds`,
+        this method does not alter the state of the loss model, i.e.,
+        it does not modify the values of the `.sample` attributes.
+
         Returns
         -------
-        pd.DataFrame
-            The aggregated loss of each realization.
+        tuple
+            Dataframe with the aggregated loss of each realization,
+            and another boolean dataframe with information on which DV
+            thresholds were exceeded in each realization, triggering
+            replacement. If no thresholds are specified it only
+            contains False values.
 
         """
+
+        # debug
+        replacement_thresholds = {'Cost': 141540, 'Time': 500.00}
+
+        # validate input
+        if replacement_thresholds is not None:
+            for key, _value in replacement_thresholds.items():
+                if key not in self.decision_variables:
+                    raise ValueError(
+                        f'`replacement_thresholds` contains the key '
+                        f'`{key}` which is not found in the active '
+                        f'decision variables. These are: '
+                        f'{self.decision_variables}.'
+                    )
+                if not isinstance(_value, (float, int)):
+                    raise ValueError(
+                        f'Invalid type for replacement threshold of '
+                        f'`{key}`: {type(_value)}. It should be a float.'
+                    )
+
+        #
+        # operate on copes of the loss samples to avoid altering them.
+        #
+
+        if self.ds_model.sample is not None:
+            ds_sample = self.ds_model.sample.copy()
+        else:
+            ds_sample = None
+        if self.lf_model.sample is not None:
+            lf_sample = self.ds_model.sample.copy()
+        else:
+            lf_sample = None
+
+        def construct_columns():
+            columns = [
+                f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time'
+            ]
+            # Note: The `Time` DV gets special treatment.
+            # create the summary DF
+            if 'Time' in self.decision_variables:
+                columns.extend(('repair_time-sequential', 'repair_time-parallel'))
+
+        if ds_sample is None and lf_sample is None:
+            self.log.msg("There are no losses.")
+            df_agg = pd.DataFrame(0.00, index=[0], columns=construct_columns())
+            return df_agg
+
+        #
+        # first handle `replacement`, regardless of whether
+        # `replacement_thresholds` is empty.
+        #
+
+        if ds_sample is not None:
+            self._make_replacement_exclusive(ds_sample, lf_sample)
 
         # combine samples
 
         # levels to preserve (this aggregates `ds` for the ds_model)
         column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
         samples = [
-            model.sample.groupby(by=column_levels, axis=1).sum()
-            for model in self._loss_models
-            if model.sample is not None
+            sample.groupby(by=column_levels, axis=1).sum()
+            for sample in (ds_sample, lf_sample)
+            if sample is not None
         ]
-
-        # Note: The `Time` DV receives special treatment.
-        # create the summary DF
-        columns = [
-            f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time'
-        ]
-        if 'Time' in self.decision_variables:
-            columns.extend(('repair_time-sequential', 'repair_time-parallel'))
-
-        if not samples:
-            self.log.msg("There are no losses.")
-            df_agg = pd.DataFrame(0.00, index=[0], columns=columns)
-            return df_agg
-
         sample = pd.concat(samples, axis=1)
+
+        #
+        # now consider replacement threshold values
+        #
+
+        replacement_realizations = {}
+
+        sample.index.name = 'realizations'
+        sample_dv = sample.stack('dv')
+        sample_dv.index = sample_dv.index.reorder_levels(['dv', 'realizations'])
+        sample_dv.sort_index(inplace=True)
+        # condition on no replacement
+        no_replacement_mask = ~(sample_dv['replacement'] > 0.00).any(axis=1).values
+        no_replacement_columns = (
+            sample_dv.columns.get_level_values('loss') != 'replacement'
+        )
+        consequence_sum_given_no_replacement = sample_dv.iloc[
+            no_replacement_mask, no_replacement_columns
+        ].sum(axis=1)
+
+        for dv, _value in replacement_thresholds.items():
+            exceedance_mask = consequence_sum_given_no_replacement[dv] > _value
+            exceedance_realizations = exceedance_mask[exceedance_mask].index
+            replacement_realizations[dv] = exceedance_realizations
+            if len(exceedance_realizations) == 0:
+                continue
+            for d2 in self.decision_variables:
+                sample.loc[exceedance_realizations, (d2)] = 0.00
+                if (
+                    d2,
+                    'replacement',
+                    'threshold_exceedance',
+                    '0',
+                    '1',
+                    '0',
+                ) not in sample.columns:
+                    sample[
+                        (d2, 'replacement', 'threshold_exceedance', '0', '1', '0')
+                    ] = 0.00
+                    sample = sample.sort_index(axis=1)
+                sample.loc[
+                    exceedance_realizations,
+                    (d2, 'replacement', 'threshold_exceedance', '0', '1', '0'),
+                ] = self.ds_model.RV_reg.RV[f'{d2}-replacement'].sample[
+                    exceedance_realizations
+                ]
+
+        exceedance_bool_df = pd.DataFrame(
+            False,
+            index=sample.index,
+            columns=replacement_thresholds.keys(),
+            dtype=bool,
+        )
+        for dv, realizations in replacement_realizations.items():
+            exceedance_bool_df.loc[realizations, dv] = True
+
         df_agg = pd.DataFrame(index=sample.index, columns=columns)
 
         # group results by DV type and location
@@ -771,7 +881,43 @@ class LossModel(PelicunModel):
         df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
         df_agg.sort_index(axis=1, inplace=True)
 
-        return df_agg
+        return df_agg, exceedance_bool_df
+
+    def extracted_method(self, column_levels, ds_sample, lf_sample):
+        samples = [
+            sample.groupby(by=column_levels, axis=1).sum()
+            for sample in (ds_sample, lf_sample)
+            if sample is not None
+        ]
+        return samples
+
+    def _make_replacement_exclusive(self, ds_sample, lf_sample):
+        """
+        If `replacement` columns exist in `ds_sample`, this method
+        treats all nonzero loss values driven by `replacement` as
+        exclusive and zeroes-out the loss values of all other columns
+        for the applicable rows.
+        """
+        
+        # columns that correspond to the replacement consequence
+        replacement_columns = []
+        # rows where replacement is non-zero
+        replacement_rows = []
+
+        replacement_columns = (
+            ds_sample.columns.get_level_values('loss') == 'replacement'
+        )
+        rows_df = ds_sample.iloc[:, replacement_columns]
+
+        if not rows_df.empty:
+            replacement_rows = (
+                np.argwhere(np.any(rows_df.values > 0.0, axis=1))
+                .reshape(-1)
+                .tolist()
+            )
+        ds_sample.iloc[replacement_rows, ~replacement_columns] = 0.00
+        if lf_sample is not None:
+            lf_sample.iloc[replacement_rows, :] = 0.00
 
     @property
     def _loss_models(self):
@@ -1001,7 +1147,7 @@ class RepairModel_DS(RepairModel_Base):
 
     """
 
-    __slots__ = ['decision_variables', '_loss_map', '_missing']
+    __slots__ = ['decision_variables', '_loss_map', '_missing', 'RV_reg']
 
     def _calculate(self, dmg_quantities):
         """
@@ -1084,18 +1230,18 @@ class RepairModel_DS(RepairModel_Base):
         )
 
         self.log.msg(
-            "Preparing random variables for repair cost and time...",
+            "Preparing random variables for repair consequences...",
             prepend_timestamp=False,
         )
-        RV_reg = self._create_DV_RVs(dmg_quantities.columns)
+        self.RV_reg = self._create_DV_RVs(dmg_quantities.columns)
 
-        if RV_reg is not None:
-            RV_reg.generate_sample(
+        if self.RV_reg is not None:
+            self.RV_reg.generate_sample(
                 sample_size=sample_size, method=self._asmnt.options.sampling_method
             )
 
             std_sample = base.convert_to_MultiIndex(
-                pd.DataFrame(RV_reg.RV_sample), axis=1
+                pd.DataFrame(self.RV_reg.RV_sample), axis=1
             )
             std_sample.columns.names = ['dv', 'cmp', 'ds', 'loc', 'dir', 'uid']
             std_sample.sort_index(axis=1, inplace=True)
@@ -1301,6 +1447,7 @@ class RepairModel_DS(RepairModel_Base):
             .apply(lambda x: tuple(zip(x['loc'], x['dir'], x['uid'])))
             .to_dict()
         )
+        damaged_components = set(cases.get_level_values('cmp'))
 
         RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
@@ -1308,6 +1455,12 @@ class RepairModel_DS(RepairModel_Base):
 
         # for each component in the loss map
         for component, consequence in self._loss_map['Repair'].items():
+
+            # if that component does not have realized damage states,
+            # skip it (e.g., this can happen when there is only
+            # `collapse`).
+            if component not in damaged_components:
+                continue
 
             # for each DV
             for decision_variable in self.decision_variables:
@@ -1365,6 +1518,43 @@ class RepairModel_DS(RepairModel_Base):
                             )
                         )
                         rv_count += 1
+
+        # add `replacement` consequences if applicable, to sample from
+        # in case of the exceedance of a loss threshold in
+        # `aggregate_losses`.
+
+        if 'replacement' in self.loss_params.index:
+            for decision_variable in self.decision_variables:
+                parameters = (
+                    self.loss_params.loc[('replacement', decision_variable), :]
+                    .dropna()
+                    .to_dict()
+                )
+                ds_family = parameters.get(('DS1', 'Family'), 'deterministic')
+                ds_theta_0 = parameters.get(('DS1', 'Theta_0'), None)
+                if ds_theta_0 is None:
+                    raise ValueError(
+                        'The replacement consequence requires a `Theta_0` value.'
+                    )
+                ds_theta_1 = parameters.get(('DS1', 'Theta_1'), np.nan)
+                ds_theta_2 = parameters.get(('DS1', 'Theta_2'), np.nan)
+                if ds_family == 'normal':
+                    RV_reg.add_RV(
+                        uq.rv_class_map(ds_family)(
+                            name=(f'{decision_variable}-replacement'),
+                            theta=np.array((ds_theta_0, ds_theta_1, ds_theta_2)),
+                            truncation_limits=np.array((0.00, np.nan)),
+                        )
+                    )
+                    rv_count += 1
+                else:
+                    RV_reg.add_RV(
+                        uq.rv_class_map(ds_family)(
+                            name=(f'{decision_variable}-replacement'),
+                            theta=np.array((ds_theta_0, ds_theta_1, ds_theta_2)),
+                        )
+                    )
+                    rv_count += 1
 
         # assign Time-Cost correlation whenever applicable
         rho = self._asmnt.options.rho_cost_time
