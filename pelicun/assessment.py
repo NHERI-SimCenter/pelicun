@@ -136,6 +136,24 @@ class Assessment:
 
         return self.loss
 
+    @property
+    def repair(self):
+        """
+        <backwards compatibility>
+
+        Returns
+        -------
+        RepairModel_DS
+            The damage state-driven component loss model.
+
+        """
+        self.log.warn(
+            '`.repair` is deprecated and will be dropped in '
+            'future versions of pelicun. '
+            'Please use `.loss` instead.'
+        )
+        return self.loss
+
     def get_default_data(self, data_name):
         """
         Loads a default data file by name and returns it. This method

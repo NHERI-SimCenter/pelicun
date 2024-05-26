@@ -242,7 +242,7 @@ class LossModel(PelicunModel):
 
         self.log.msg('Loss map loaded successfully.', prepend_timestamp=True)
 
-    def load_model(self, data_paths, loss_map):
+    def load_model(self, data_paths, loss_map, decision_variables=None):
         """
         <backwards compatibility>
 
@@ -253,9 +253,9 @@ class LossModel(PelicunModel):
             'Please use `load_model_parameters` instead.'
         )
         self.add_loss_map(loss_map)
-        self.load_model_parameters(data_paths)
+        self.load_model_parameters(data_paths, decision_variables)
 
-    def load_model_parameters(self, data_paths):
+    def load_model_parameters(self, data_paths, decision_variables):
         """
         Load loss model parameters.
 
@@ -276,6 +276,18 @@ class LossModel(PelicunModel):
             specified paths.
 
         """
+
+        if decision_variables is not None:
+            # <backwards compatibility>
+            self.decision_variables = set(decision_variables)
+            self.log.warn(
+                'The `decision_variables` argument has been removed. '
+                'Please set your desired decision variables like so: '
+                '{assessment object}.loss.decision_variables '
+                '= (\'dv1\', \'dv2\', ...) before calling '
+                '{assessment object}.add_loss_map().'
+            )
+
         self.log.div()
         self.log.msg('Loading loss parameters...')
 
@@ -348,7 +360,7 @@ class LossModel(PelicunModel):
         )
         self._ensure_loss_parameter_availability()
 
-    def calculate(self):
+    def calculate(self, sample_size=None):
         """
         Calculate the loss of each component block.
 
@@ -580,115 +592,31 @@ class LossModel(PelicunModel):
 
     def save_sample(self, filepath=None, save_units=False):
         """
-        Saves the loss sample to a CSV file or returns it as a
-        DataFrame with optional units.
+        <backwards compatibility>
 
-        This method handles the storage of a sample of loss estimates,
-        which can either be saved directly to a file or returned as a
-        DataFrame for further manipulation. When saving to a file,
-        additional information such as unit conversion factors and
-        column units can be included. If the data is not being saved
-        to a file, the method can return the DataFrame with or without
-        units as specified.
+        Saves the sample of the `ds_model`.
 
-        Parameters
-        ----------
-        filepath : str, optional
-            The path where the loss samples should be saved. If not
-            provided, the samples are not saved to disk but
-            returned. A prefix is added internally for each loss
-            model.
-        save_units : bool, default: False
-            Indicates whether to include a row with unit information
-            in the returned DataFrame. This parameter is ignored if a
-            file path is provided.
-
-        Returns
-        -------
-        None or dict
-            If `filepath` is provided, the function returns None after
-            saving the data.
-            If no `filepath` is specified, returns a dictionary with
-            the following data for each loss model:
-            * DataFrame containing the loss sample.
-            * Optionally, a Series containing the units for each
-            column if `save_units` is True.
-
-        Raises
-        ------
-        IOError
-            Raises an IOError if there is an issue saving the file to
-            the specified `filepath`.
         """
-
-        raise NotImplementedError('In progress...')
-
-        # self.log.div()
-        # if filepath is not None:
-        #     self.log.msg('Saving loss sample...')
-        #     ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
-        #     lf_filepath = f'{Path(filepath).parent}/LF_{Path(filepath).name}'
-        # else:
-        #     ds_filepath = lf_filepath = None
-
-        # if self.ds_model.sample is not None:
-        #     cmp_units = self.ds_model.loss_params[('DV', 'Unit')]
-        #     dv_units = pd.Series(
-        #         index=self.ds_model.sample.columns, name='Units', dtype='object'
-        #     )
-
-        #     res_ds = file_io.save_to_csv(
-        #         self.ds_model.sample,
-        #         ds_filepath,
-        #         use_simpleindex=(filepath is not None),
-        #         log=self._asmnt.log,
-        #     )
-
-        # if self.lf_model.sample is not None:
-
-        #     res_lf = file_io.save_to_csv(
-        #         self.lf_model.sample,
-        #         lf_filepath,
-        #         use_simpleindex=(filepath is not None),
-        #         log=self._asmnt.log,
-        #     )
-
-        # if filepath is not None:
-        #     self.log.msg(
-        #         'Loss sample successfully saved.', prepend_timestamp=False
-        #     )
-        #     return None
-
-        # units = res.loc["Units"]
-        # res.drop("Units", inplace=True)
-
-        # if save_units:
-        #     return {'DS': (res.astype(float), units)}
-
-        # return {'DS': res.astype(float)}
+        self.log.warn(
+            '`{loss model}.save_sample` is deprecated and will raise '
+            'in future versions of pelicun. Please use '
+            '{loss model}.ds_model.save_sample instead.'
+        )
+        return self.ds_model.save_sample(filepath=filepath, save_units=save_units)
 
     def load_sample(self, filepath):
         """
-        Load loss sample data.
+        <backwards compatibility>
 
-        Parameters
-        ----------
-        filepath: str
-            The path where the loss samples should be loaded from. A
-            prefix is added internally for each loss model.
+        Saves the sample of the `ds_model`.
 
         """
-        raise NotImplementedError('In progress...')
-
-        # self.log.div()
-        # self.log.msg('Loading loss sample...')
-
-        # ds_filepath = f'{Path(filepath).parent}/DS_{Path(filepath).name}'
-        # self.ds_model.sample = file_io.load_data(
-        #     ds_filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
-        # )
-
-        # self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
+        self.log.warn(
+            '`{loss model}.load_sample` is deprecated and will raise '
+            'in future versions of pelicun. Please use '
+            '{loss model}.ds_model.load_sample instead.'
+        )
+        self.ds_model.load_sample(filepath=filepath)
 
     def aggregate_losses(self, replacement_thresholds=None, future=False):
         """
@@ -1200,6 +1128,97 @@ class RepairModel_DS(RepairModel_Base):
 
     __slots__ = ['decision_variables', '_loss_map', '_missing', 'RV_reg']
 
+    def save_sample(self, filepath=None, save_units=False):
+        """
+        Saves the loss sample to a CSV file or returns it as a
+        DataFrame with optional units.
+
+        This method handles the storage of a sample of loss estimates,
+        which can either be saved directly to a file or returned as a
+        DataFrame for further manipulation. When saving to a file,
+        additional information such as unit conversion factors and
+        column units can be included. If the data is not being saved
+        to a file, the method can return the DataFrame with or without
+        units as specified.
+
+        Parameters
+        ----------
+        filepath : str, optional
+            The path to the file where the loss sample should be
+            saved. If not provided, the sample is not saved to disk
+            but returned.
+        save_units : bool, default: False
+            Indicates whether to include a row with unit information
+            in the returned DataFrame. This parameter is ignored if a
+            file path is provided.
+
+        Returns
+        -------
+        None or tuple
+            If `filepath` is provided, the function returns None after
+            saving the data.
+            If no `filepath` is specified, returns:
+            * DataFrame containing the loss sample.
+            * Optionally, a Series containing the units for each
+              column if `save_units` is True.
+
+        Raises
+        ------
+        IOError
+            Raises an IOError if there is an issue saving the file to
+            the specified `filepath`.
+
+        """
+
+        self.log.div()
+        if filepath is not None:
+            self.log.msg('Saving loss sample...')
+
+        cmp_units = self.loss_params[('DV', 'Unit')]
+        dv_units = pd.Series(index=self.sample.columns, name='Units', dtype='object')
+
+        valid_dv_types = dv_units.index.unique(level=0)
+        valid_cmp_ids = dv_units.index.unique(level=1)
+
+        for cmp_id, dv_type in cmp_units.index:
+            if (dv_type in valid_dv_types) and (cmp_id in valid_cmp_ids):
+                dv_units.loc[(dv_type, cmp_id)] = cmp_units.at[(cmp_id, dv_type)]
+
+        res = file_io.save_to_csv(
+            self.sample,
+            filepath,
+            units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=(filepath is not None),
+            log=self._asmnt.log,
+        )
+
+        if filepath is not None:
+            self.log.msg('Loss sample successfully saved.', prepend_timestamp=False)
+            return None
+
+        units = res.loc["Units"]
+        res.drop("Units", inplace=True)
+
+        if save_units:
+            return res.astype(float), units
+
+        return res.astype(float)
+
+    def load_sample(self, filepath):
+        """
+        Load damage sample data.
+
+        """
+        self.log.div()
+        self.log.msg('Loading loss sample...')
+
+        self.sample = file_io.load_data(
+            filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
+        )
+
+        self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
+
     def _calculate(self, dmg_quantities):
         """
         Calculate the consequences of each damage state-driven
@@ -1529,23 +1548,25 @@ class RepairModel_DS(RepairModel_Base):
                     continue
 
                 # load the corresponding parameters
-                parameters = self.loss_params.loc[
-                    (consequence, decision_variable), :
-                ]
+                parameters = (
+                    self.loss_params.loc[(consequence, decision_variable), :]
+                    .dropna()
+                    .to_dict()
+                )
 
                 for ds in damage_states[component]:
 
                     if ds == '0':
                         continue
 
-                    ds_family = parameters.at[(f'DS{ds}', 'Family')]
+                    ds_family = parameters.get((f'DS{ds}', 'Family'))
                     ds_theta = [
                         parameters.get((f'DS{ds}', f'Theta_{t_i}'), np.nan)
                         for t_i in range(3)
                     ]
 
                     # If there is no RV family we don't need an RV
-                    if pd.isna(ds_family):
+                    if ds_family is None:
                         continue
 
                     # If the first parameter is controlled by a function, we use
@@ -1576,6 +1597,8 @@ class RepairModel_DS(RepairModel_Base):
 
         if 'replacement' in self.loss_params.index:
             for decision_variable in self.decision_variables:
+                if ('replacement', decision_variable) in self._missing:
+                    continue
                 parameters = (
                     self.loss_params.loc[('replacement', decision_variable), :]
                     .dropna()
@@ -1592,7 +1615,7 @@ class RepairModel_DS(RepairModel_Base):
                 if ds_family == 'normal':
                     RV_reg.add_RV(
                         uq.rv_class_map(ds_family)(
-                            name=(f'{decision_variable}-replacement'),
+                            name=(f'{decision_variable}-replacement-0-0-0-0'),
                             theta=np.array((ds_theta_0, ds_theta_1, ds_theta_2)),
                             truncation_limits=np.array((0.00, np.nan)),
                         )
@@ -1601,7 +1624,7 @@ class RepairModel_DS(RepairModel_Base):
                 else:
                     RV_reg.add_RV(
                         uq.rv_class_map(ds_family)(
-                            name=(f'{decision_variable}-replacement'),
+                            name=(f'{decision_variable}-replacement-0-0-0-0'),
                             theta=np.array((ds_theta_0, ds_theta_1, ds_theta_2)),
                         )
                     )

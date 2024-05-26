@@ -106,6 +106,7 @@ class DamageModel(PelicunModel):
             'dropped in future versions of pelicun. '
             'Please use `load_model_parameters` instead, '
             'like so: \n`cmp_set = {your_assessment_obj}.'
+            'asset.'
             'list_unique_component_ids(as_set=True)`, '
             'and then \n`{your_assessment_obj}.damage.'
             'load_model_parameters(data_paths, cmp_set)`.'
@@ -239,6 +240,7 @@ class DamageModel(PelicunModel):
 
     def calculate(
         self,
+        sample_size=None,
         dmg_process=None,
         block_batch_size=1000,
         scaling_specification=None,
@@ -247,6 +249,7 @@ class DamageModel(PelicunModel):
         Calculate the damage of each component block.
 
         """
+
         self.log.div()
         self.log.msg('Calculating damages...')
 
