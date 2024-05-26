@@ -115,9 +115,9 @@ class AssetModel(PelicunModel):
             If `filepath` is provided, the function returns None after
             saving the data.
             If no `filepath` is specified, returns:
-            - DataFrame containing the component quantity sample.
-            - Optionally, a Series containing the units for each
-              column if `save_units` is True.
+            * DataFrame containing the component quantity sample.
+            * Optionally, a Series containing the units for each
+            column if `save_units` is True.
 
         Raises
         ------

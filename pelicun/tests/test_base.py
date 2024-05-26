@@ -851,7 +851,7 @@ def test_parse_units():
     # Test that an exception is raised if the additional units file is
     # not a valid JSON file
     invalid_json_file = 'pelicun/tests/data/base/test_parse_units/invalid.json'
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         units = base.parse_units(invalid_json_file)
 
     # Test that an exception is raised if a unit is defined twice in

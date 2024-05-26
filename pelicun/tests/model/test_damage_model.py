@@ -97,7 +97,7 @@ class TestDamageModel(TestPelicunModel):
         cmp_set = {'component.A', 'component.B', 'component.incomplete'}
         # (Omit component.C)
         with warnings.catch_warnings(record=True) as w:
-            damage_model.load_model_parameters([path], cmp_set)
+            damage_model.load_model_parameters([path], cmp_set, warn_missing=True)
         assert len(w) == 1
         assert (
             "The damage model does not provide damage information "
@@ -124,7 +124,7 @@ class TestDamageModel(TestPelicunModel):
         # parameters, no damage parameters are loaded for it.
         cmp_set = {'not.exist'}
         with warnings.catch_warnings(record=True) as w:
-            damage_model.load_model_parameters([path], cmp_set)
+            damage_model.load_model_parameters([path], cmp_set, warn_missing=True)
         assert len(w) == 1
         assert (
             "The damage model does not provide damage "
@@ -184,7 +184,7 @@ class TestDamageModel(TestPelicunModel):
 
         with pytest.warns(PelicunWarning) as record:
             missing_components = damage_model._ensure_damage_parameter_availability(
-                cmp_list
+                cmp_list, warn_missing=True
             )
         assert missing_components == expected_missing_components
         assert len(record) == 1
@@ -684,7 +684,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             True,
         )
 
-        # Realization 0: Expect zeros
+        # Realization 0: Expect NaNs
         # Realization 1: Expect zeros
         # Realization 2: Expect q=6 at DS1
         # Realization 3: Expect q=8 at DS2
@@ -693,9 +693,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             res,
             pd.DataFrame(
                 {
-                    ('A', '0', '1', '0', '1'): [0.0, 0.0, 6.0, 0.0, 0.0],
-                    ('A', '0', '1', '0', '2'): [0.0, 0.0, 0.0, 8.0, 0.0],
-                    ('A', '0', '1', '0', '3'): [0.0, 0.0, 0.0, 0.0, 10.0],
+                    ('A', '0', '1', '0', '1'): [np.nan, 0.0, 6.0, 0.0, 0.0],
+                    ('A', '0', '1', '0', '2'): [np.nan, 0.0, 0.0, 8.0, 0.0],
+                    ('A', '0', '1', '0', '3'): [np.nan, 0.0, 0.0, 0.0, 10.0],
                 }
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
         )
@@ -744,7 +744,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             res,
             pd.DataFrame(
                 {
-                    ('A', '0', '1', '0', '0'): [0.0, 4.0],  # returned
+                    ('A', '0', '1', '0', '0'): [np.nan, 4.0],  # returned
                     ('A', '0', '1', '1', '0'): [0.0, 8.0],  # returned
                     ('A', '0', '1', '1', '1'): [6.0, 0.0],
                 }

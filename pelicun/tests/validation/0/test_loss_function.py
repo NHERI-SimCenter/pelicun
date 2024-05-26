@@ -121,12 +121,14 @@ def test_validation_loss_function():
     asmnt.loss.load_model_parameters([loss_functions])
     asmnt.loss.calculate()
 
-    loss = asmnt.loss.aggregate_losses()['repair_cost'].values
+    loss, _ = asmnt.loss.aggregate_losses(future=True)
+
+    loss_vals = loss['repair_cost'].values
 
     # sample median should be close to 0.50
-    assert np.allclose(np.median(loss), 0.50, atol=1e-2)
+    assert np.allclose(np.median(loss_vals), 0.50, atol=1e-2)
     # dispersion should be close to 0.9
-    assert np.allclose(np.log(loss).std(), 0.90, atol=1e-2)
+    assert np.allclose(np.log(loss_vals).std(), 0.90, atol=1e-2)
 
     # # TODO also test save/load sample
     # asmnt.loss.save_sample('/tmp/sample.csv')

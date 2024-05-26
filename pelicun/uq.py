@@ -101,9 +101,10 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
     tuple
         A tuple containing the scaled parameters and truncation
         limits:
-        - theta_new (float ndarray of length 2): Scaled parameters of
+
+        * theta_new (float ndarray of length 2): Scaled parameters of
           the distribution.
-        - truncation_limits (float ndarray of length 2 or None):
+        * truncation_limits (float ndarray of length 2 or None):
           Scaled truncation limits for the distribution, or None if no
           truncation is applied.
 
@@ -1235,7 +1236,7 @@ class RandomVariable(BaseRandomVariable):
         self,
         name: str,
         theta: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map: Callable | None = None,
         anchor: BaseRandomVariable | None = None,
     ):
@@ -1264,6 +1265,8 @@ class RandomVariable(BaseRandomVariable):
             identical.
 
         """
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             f_map=f_map,
@@ -1358,10 +1361,12 @@ class NormalRandomVariable(RandomVariable):
         self,
         name: str,
         theta: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map=None,
         anchor=None,
     ):
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             theta=theta,
@@ -1482,10 +1487,12 @@ class LogNormalRandomVariable(RandomVariable):
         self,
         name: str,
         theta: np.ndarray,
-        truncation_limits=np.array((np.nan, np.nan)),
+        truncation_limits=None,
         f_map=None,
         anchor=None,
     ):
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             theta=theta,
@@ -1600,10 +1607,12 @@ class UniformRandomVariable(RandomVariable):
         self,
         name: str,
         theta: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map=None,
         anchor=None,
     ):
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             theta=theta,
@@ -1691,10 +1700,12 @@ class MultilinearCDFRandomVariable(RandomVariable):
         self,
         name: str,
         theta: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map=None,
         anchor=None,
     ):
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             theta=theta,
@@ -1816,10 +1827,12 @@ class EmpiricalRandomVariable(RandomVariable):
         self,
         name: str,
         raw_samples: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map=None,
         anchor=None,
     ):
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             theta=raw_samples,
@@ -1873,7 +1886,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
         self,
         name: str,
         raw_samples: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map=None,
         anchor=None,
     ):
@@ -1904,6 +1917,8 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
           When truncation limits are provided
 
         """
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             f_map=f_map,
@@ -1959,7 +1974,7 @@ class DeterministicRandomVariable(UtilityRandomVariable):
         self,
         name: str,
         theta: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map=None,
         anchor=None,
     ):
@@ -1992,6 +2007,8 @@ class DeterministicRandomVariable(UtilityRandomVariable):
           When truncation limits are provided
 
         """
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             f_map=f_map,
@@ -2037,10 +2054,12 @@ class MultinomialRandomVariable(RandomVariable):
         self,
         name: str,
         theta: np.ndarray,
-        truncation_limits: np.ndarray = np.array((np.nan, np.nan)),
+        truncation_limits: np.ndarray | None = None,
         f_map=None,
         anchor=None,
     ):
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
         super().__init__(
             name=name,
             theta=theta,
@@ -2227,7 +2246,7 @@ class RandomVariableSet:
 
             UC_RV = norm.cdf(NC_RV)
 
-        for (RV_name, RV), uc_RV in zip(self.RV.items(), UC_RV):
+        for RV, uc_RV in zip(self.RV.values(), UC_RV):
             RV.uni_sample = uc_RV
 
     def orthotope_density(self, lower=np.nan, upper=np.nan, var_subset=None):

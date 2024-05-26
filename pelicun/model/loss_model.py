@@ -79,11 +79,10 @@ class LossModel(PelicunModel):
 
     __slots__ = ['ds_model', 'lf_model']
 
-    # pylint: disable=dangerous-default-value
     def __init__(
         self,
         assessment: Assessment,
-        decision_variables: list[str] = ['Carbon', 'Cost', 'Energy', 'Time'],
+        decision_variables: tuple[str] = ('Carbon', 'Cost', 'Energy', 'Time'),
     ):
         """
         Initializes LossModel objects.
@@ -92,7 +91,7 @@ class LossModel(PelicunModel):
         ----------
         assessment: pelicun.Assessment
             Parent assessment
-        decision_variables: list
+        decision_variables: tuple
             Defines the decision variables to be included in the loss
             calculations. Defaults to those supported, but fewer can be
             used if desired. When fewer are used, the loss parameters for
@@ -168,11 +167,11 @@ class LossModel(PelicunModel):
             Path to a csv file or DataFrame object that maps
             components IDs to their loss parameter definitions.
         loss_map_policy: str or None
-            - If None, does not modify the loss map.
-            - If set to `fill`, each component ID that is present in
+            If None, does not modify the loss map.
+            If set to `fill`, each component ID that is present in
             the asset model but not in the loss map is mapped to
             itself, but `excessiveRID` is excluded.
-            - If set to `fill_all`, each component ID that is present in
+            If set to `fill_all`, each component ID that is present in
             the asset model but not in the loss map is mapped to
             itself without exceptions.
 
@@ -478,18 +477,18 @@ class LossModel(PelicunModel):
         scaling_specification_df.rename(columns=name_map, inplace=True)
 
         # Expand ranges in 'loc' and 'dir'
-        def expand_range(col):
+        def _expand_range(col):
             if pd.isna(col):
                 return [col]
             if '--' in col:
-                start, end = map(int, col.split('--'))
-                return list(map(str, range(start, end + 1)))
+                start, end = [int(x) for x in col.split('--')]
+                return [str(x) for x in range(start, end + 1)]
             return [col]
 
         # Generate all combinations of loc and dir ranges
         expanded_df = scaling_specification_df.apply(
             lambda row: pd.DataFrame(
-                list(product(expand_range(row['loc']), expand_range(row['dir']))),
+                list(product(_expand_range(row['loc']), _expand_range(row['dir']))),
                 columns=['loc', 'dir'],
             ).assign(dv=row['dv'], dmg=row['dmg'], scaling=row['scaling']),
             axis=1,
@@ -501,7 +500,7 @@ class LossModel(PelicunModel):
         # consequence scaling
         for _, row in expanded_df.iterrows():
             scaling_conditions = {
-                k: row[k] for k in ['dv', 'dmg', 'loc', 'dir'] if not pd.isna(row[k])
+                k: row[k] for k in ('dv', 'dmg', 'loc', 'dir') if not pd.isna(row[k])
             }
             self._apply_consequence_scaling(
                 scaling_conditions, row['scaling'], raise_missing=False
@@ -611,9 +610,9 @@ class LossModel(PelicunModel):
             saving the data.
             If no `filepath` is specified, returns a dictionary with
             the following data for each loss model:
-            - DataFrame containing the loss sample.
-            - Optionally, a Series containing the units for each
-              column if `save_units` is True.
+            * DataFrame containing the loss sample.
+            * Optionally, a Series containing the units for each
+            column if `save_units` is True.
 
         Raises
         ------
@@ -691,7 +690,7 @@ class LossModel(PelicunModel):
 
         # self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
-    def aggregate_losses(self, replacement_thresholds=None):
+    def aggregate_losses(self, replacement_thresholds=None, future=False):
         """
         Aggregates the losses produced by each component.
 
@@ -716,9 +715,11 @@ class LossModel(PelicunModel):
             information on whether replacement was already present or
             triggered by a threshold exceedance for each realization.
 
-        Note: Regardless of the value of `replacement_thresholds`,
-        this method does not alter the state of the loss model, i.e.,
-        it does not modify the values of the `.sample` attributes.
+        Note
+        ----
+        Regardless of the value of `replacement_thresholds`, this
+        method does not alter the state of the loss model, i.e., it
+        does not modify the values of the `.sample` attributes.
 
         Returns
         -------
@@ -729,10 +730,16 @@ class LossModel(PelicunModel):
             replacement. If no thresholds are specified it only
             contains False values.
 
-        """
+        Raises
+        ------
+        ValueError
+            If the `replacement_thresholds` dictionary contains an
+            unknown DV in its keys.
+        ValueError
+            If a `replacement_thresholds` value has an incompatible
+            type. It should be float or int.
 
-        # debug
-        replacement_thresholds = {'Cost': 141540, 'Time': 500.00}
+        """
 
         # validate input
         if replacement_thresholds is not None:
@@ -759,11 +766,11 @@ class LossModel(PelicunModel):
         else:
             ds_sample = None
         if self.lf_model.sample is not None:
-            lf_sample = self.ds_model.sample.copy()
+            lf_sample = self.lf_model.sample.copy()
         else:
             lf_sample = None
 
-        def construct_columns():
+        def _construct_columns():
             columns = [
                 f'repair_{x.lower()}' for x in self.decision_variables if x != 'Time'
             ]
@@ -771,10 +778,11 @@ class LossModel(PelicunModel):
             # create the summary DF
             if 'Time' in self.decision_variables:
                 columns.extend(('repair_time-sequential', 'repair_time-parallel'))
+            return columns
 
         if ds_sample is None and lf_sample is None:
             self.log.msg("There are no losses.")
-            df_agg = pd.DataFrame(0.00, index=[0], columns=construct_columns())
+            df_agg = pd.DataFrame(0.00, index=[0], columns=_construct_columns())
             return df_agg
 
         #
@@ -799,6 +807,91 @@ class LossModel(PelicunModel):
         #
         # now consider replacement threshold values
         #
+
+        # extract replacement loss realization values from the RV
+        # registry of the `ds_model`.
+        replacement_loss_values = {}
+        if replacement_thresholds is not None:
+            for dv in replacement_thresholds:
+                replacement_loss_values[dv] = self.ds_model.RV_reg.RV[
+                    f'{dv}-replacement'
+                ]
+
+        sample, exceedance_bool_df = self._apply_replacement_thresholds(
+            sample, replacement_thresholds, replacement_loss_values
+        )
+
+        df_agg = self._aggregate_sample(sample, _construct_columns())
+
+        if not future:
+            self.log.warn(
+                '`aggregate_losses` has been expanded to support the '
+                'consideration of the exceedance of loss threshold '
+                'values leading to asset replacement '
+                '(like excessive repair costs). The new implementation '
+                'returns a tuple where the first element is the '
+                'aggregated losses and the second contains information '
+                'on which decision variables triggered replacement '
+                'considering the specified replacement trhesholds. '
+                'To obtain the new output and silence this warning, '
+                'please specify `future=True` as an argument to this method.'
+            )
+            return df_agg
+
+        return df_agg, exceedance_bool_df
+
+    def _aggregate_sample(self, sample, columns):
+        df_agg = pd.DataFrame(index=sample.index, columns=columns)
+        # group results by DV type and location
+        aggregated = sample.groupby(level=['dv', 'loc'], axis=1).sum()
+
+        for decision_variable in self.decision_variables:
+
+            # Time ..
+            if decision_variable == 'Time' and 'Time' in aggregated.columns:
+                df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
+
+                df_agg['repair_time-parallel'] = aggregated['Time'].max(axis=1)
+            elif decision_variable == 'Time' and 'Time' not in aggregated.columns:
+                df_agg = df_agg.drop(
+                    ['repair_time-parallel', 'repair_time-sequential'], axis=1
+                )
+            # All other ..
+            elif decision_variable in aggregated.columns:
+                df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
+                    decision_variable
+                ].sum(axis=1)
+            else:
+                df_agg = df_agg.drop(f'repair_{decision_variable.lower()}', axis=1)
+
+        # TODO: implement conversion of loss values to any desired
+        # unit other than the base loss units
+
+        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
+        df_agg.sort_index(axis=1, inplace=True)
+        return df_agg
+
+    def _apply_replacement_thresholds(
+        self, sample, replacement_thresholds, replacement_loss_values
+    ):
+
+        # If there are no `replacement_thresholds`, simply return.
+        if replacement_thresholds is None or not replacement_thresholds:
+            # `exceedance_bool_df` is empty in this case.
+            exceedance_bool_df = pd.DataFrame(index=sample.index, dtype=bool)
+            return sample, exceedance_bool_df
+
+        # otherwise we initialize it with False
+        exceedance_bool_df = pd.DataFrame(
+            False,
+            index=sample.index,
+            columns=replacement_thresholds.keys(),
+            dtype=bool,
+        )
+
+        # If there is no `replacement` in the sample, simply return.
+        if 'replacement' not in sample.columns.get_level_values('loss'):
+            return sample, exceedance_bool_df
 
         replacement_realizations = {}
 
@@ -835,61 +928,15 @@ class LossModel(PelicunModel):
                         (d2, 'replacement', 'threshold_exceedance', '0', '1', '0')
                     ] = 0.00
                     sample = sample.sort_index(axis=1)
+                replacement_loss_value = replacement_loss_values[f'{d2}-replacement']
                 sample.loc[
                     exceedance_realizations,
                     (d2, 'replacement', 'threshold_exceedance', '0', '1', '0'),
-                ] = self.ds_model.RV_reg.RV[f'{d2}-replacement'].sample[
-                    exceedance_realizations
-                ]
+                ] = replacement_loss_value.sample[exceedance_realizations]
 
-        exceedance_bool_df = pd.DataFrame(
-            False,
-            index=sample.index,
-            columns=replacement_thresholds.keys(),
-            dtype=bool,
-        )
         for dv, realizations in replacement_realizations.items():
             exceedance_bool_df.loc[realizations, dv] = True
-
-        df_agg = pd.DataFrame(index=sample.index, columns=columns)
-
-        # group results by DV type and location
-        aggregated = sample.groupby(level=['dv', 'loc'], axis=1).sum()
-
-        for decision_variable in self.decision_variables:
-
-            # Time ..
-            if decision_variable == 'Time' and 'Time' in aggregated.columns:
-                df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
-
-                df_agg['repair_time-parallel'] = aggregated['Time'].max(axis=1)
-            elif decision_variable == 'Time' and 'Time' not in aggregated.columns:
-                df_agg = df_agg.drop(
-                    ['repair_time-parallel', 'repair_time-sequential'], axis=1
-                )
-            # All other ..
-            elif decision_variable in aggregated.columns:
-                df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
-                    decision_variable
-                ].sum(axis=1)
-            else:
-                df_agg = df_agg.drop(f'repair_{decision_variable.lower()}', axis=1)
-
-        # TODO: implement conversion of loss values to any desired
-        # unit other than the base loss units
-
-        df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
-        df_agg.sort_index(axis=1, inplace=True)
-
-        return df_agg, exceedance_bool_df
-
-    def extracted_method(self, column_levels, ds_sample, lf_sample):
-        samples = [
-            sample.groupby(by=column_levels, axis=1).sum()
-            for sample in (ds_sample, lf_sample)
-            if sample is not None
-        ]
-        return samples
+        return sample, exceedance_bool_df
 
     def _make_replacement_exclusive(self, ds_sample, lf_sample):
         """
@@ -898,7 +945,7 @@ class LossModel(PelicunModel):
         exclusive and zeroes-out the loss values of all other columns
         for the applicable rows.
         """
-        
+
         # columns that correspond to the replacement consequence
         replacement_columns = []
         # rows where replacement is non-zero
@@ -926,6 +973,8 @@ class LossModel(PelicunModel):
     @property
     def _loss_map(self):
         """
+        Returns the loss map.
+
         Returns
         -------
         pd.DataFrame
@@ -955,6 +1004,8 @@ class LossModel(PelicunModel):
     @property
     def _missing(self):
         """
+        Returns the missing components.
+
         Returns
         -------
         set

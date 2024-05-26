@@ -977,12 +977,12 @@ class DemandModel(PelicunModel):
         config : dict
             A dictionary containing configuration options for the
             sample generation. Key options include:
-            - 'SampleSize': The number of samples to generate.
-            - 'PreserveRawOrder': Boolean indicating whether to
-              preserve the order of the raw data. Defaults to False.
-            - 'DemandCloning': Specifies if and how demand cloning
-              should be applied. Can be a boolean or a detailed
-              configuration.
+            * 'SampleSize': The number of samples to generate.
+            * 'PreserveRawOrder': Boolean indicating whether to
+            preserve the order of the raw data. Defaults to False.
+            * 'DemandCloning': Specifies if and how demand cloning
+            should be applied. Can be a boolean or a detailed
+            configuration.
 
         Raises
         ------
@@ -1208,8 +1208,8 @@ def _assemble_required_demand_data(
         1.2 multiplier with a user-specified value. The change can
         be applied to "ALL" EDPs, or for specific EDPs, such as
         "PFA", "PFV", etc. Examples:
-            1) {'PFA': 1.2, 'PID': 1.00}
-            2) {'ALL': 1.0}
+        #. {'PFA': 1.2, 'PID': 1.00}
+        #. {'ALL': 1.0}
     demand_sample: pd.DataFrame
         Dataframe containing the demand sample, realizations of EDPs
         (or/and IMs) that are used for damage and loss calculations.
@@ -1269,12 +1269,12 @@ def _verify_edps_available(available_edps, required):
     Parameters
     ----------
     available_edps: dict
-        Dictionary mapping (`edp_type`-`cmp`-`dir`) to
-        list of `loc`s where values are available.
+        Dictionary mapping (`edp_type`-`cmp`-`dir`) to list of `loc`
+        where values are available.
     required: set
         Set of required EDPs, expressed as
-        `edp_type`-`loc-`dir`. Direction `0` has special
-        meaning: It is used for directional demands.
+        `edp_type`-`loc`-`dir`. Direction `0` has special meaning: It
+        is used for directional demands.
 
     Raises
     ------

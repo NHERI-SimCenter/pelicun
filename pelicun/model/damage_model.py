@@ -94,13 +94,13 @@ class DamageModel(PelicunModel):
         """
         return (self.ds_model,)
 
-    def load_damage_model(self, data_paths):
+    def load_damage_model(self, data_paths, warn_missing=False):
         """
         <backwards compatibility>
 
         """
         cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
-        self.load_model_parameters(data_paths, cmp_set)
+        self.load_model_parameters(data_paths, cmp_set, warn_missing)
         self.log.warn(
             '`load_damage_model` is deprecated and will be '
             'dropped in future versions of pelicun. '
@@ -111,7 +111,26 @@ class DamageModel(PelicunModel):
             'load_model_parameters(data_paths, cmp_set)`.'
         )
 
-    def load_model_parameters(self, data_paths, cmp_set):
+    @property
+    def sample(self):
+        """
+        <backwards compatibility>
+
+        Returns
+        -------
+        pd.DataFrame
+            The damage sample of the `ds_model`.
+
+        """
+        self.log.warn(
+            '`{damage model}.sample` is deprecated and will be '
+            'dropped in future versions of pelicun. '
+            'Please use `{damage model}.ds_model.sample` instead. '
+            'Now returning `{damage model}.ds_model.sample`.'
+        )
+        return self.ds_model.sample
+
+    def load_model_parameters(self, data_paths, cmp_set, warn_missing=False):
         """
         Load damage model parameters.
 
@@ -128,6 +147,12 @@ class DamageModel(PelicunModel):
             Set of component IDs that are present in the asset model.
             Damage parameters in the input files for components
             outside of that set are omitted for performance.
+        warn_missing: bool
+            Wether to check if there are components in the asset model
+            that do not have specified damage parameters. Should be
+            set to True if all components in the asset model are
+            damage state-driven, or if only a damage estimation is
+            performed, without a subsequent loss estimation.
 
         Raises
         ------
@@ -206,7 +231,9 @@ class DamageModel(PelicunModel):
             'availability for all components in the asset model.',
             prepend_timestamp=False,
         )
-        missing_components = self._ensure_damage_parameter_availability(cmp_set)
+        missing_components = self._ensure_damage_parameter_availability(
+            cmp_set, warn_missing
+        )
 
         self.missing_components = missing_components
 
@@ -316,7 +343,7 @@ class DamageModel(PelicunModel):
             If no `filepath` is specified, returns:
             - DataFrame containing the damage sample.
             - Optionally, a Series containing the units for each
-              column if `save_units` is True.
+            column if `save_units` is True.
         """
         self.log.div()
         self.log.msg('Saving damage sample...')
@@ -370,9 +397,16 @@ class DamageModel(PelicunModel):
 
         self.log.msg('Damage sample successfully loaded.', prepend_timestamp=False)
 
-    def _ensure_damage_parameter_availability(self, cmp_list):
+    def _ensure_damage_parameter_availability(self, cmp_list, warn_missing):
         """
         Makes sure that all components have damage parameters.
+
+        Parameters
+        ----------
+        cmp_list: list
+            List of component IDs in the asset model.
+        warn_missing: bool
+            Wether to issue a warning if missing components are found.
 
         Returns
         -------
@@ -389,7 +423,7 @@ class DamageModel(PelicunModel):
             if component not in available_components
         ]
 
-        if missing_components:
+        if missing_components and warn_missing:
             self.log.warn(
                 f"The damage model does not provide "
                 f"damage information for the following component(s) "
@@ -779,11 +813,11 @@ class DamageModel_DS(DamageModel_Base):
         Parameters
         ----------
         initial_value: float
-          Value before operation
+            Value before operation
         operation: str
-          Any of +, -, *, /
+            Any of `+`, `-`, `*`, `/`
         other_value: float
-          Value used to apply the operation
+            Value used to apply the operation
 
         Returns
         -------
@@ -1441,10 +1475,12 @@ class DamageModel_DS(DamageModel_Base):
         )
         damage_quantities.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ds']
 
-        # sum up block quantities
+        # min_count=1 is specified so that the sum cross all NaNs will
+        # result in NaN instead of zero.
+        # https://stackoverflow.com/questions/33448003/sum-across-all-nans-in-pandas-returns-zero
         damage_quantities = damage_quantities.groupby(
             level=['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
-        ).sum()
+        ).sum(min_count=1)
 
         return damage_quantities
 
@@ -1466,20 +1502,21 @@ class DamageModel_DS(DamageModel_Base):
             A list representing a task from the damage process. The
             list contains two elements:
             - The first element is a string representing the source
-              component, e.g., `'1_CMP_A'`. The number in the beginning
-              is used to order the tasks and is not considered here.
+            component, e.g., `'1_CMP_A'`. The number in the beginning
+            is used to order the tasks and is not considered here.
             - The second element is a dictionary representing the
-              events triggered by the damage state of the source
-              component. The keys of the dictionary are strings that
-              represent the damage state of the source component,
-              e.g., `'DS1'`. The values are lists of strings
-              representing the target component(s) and event(s), e.g.,
-              `['CMP_B.DS1', 'CMP_C.DS1']`. They could also be a
-              single element instead of a list.
-              Examples of a task:
-                ['1_CMP.A', {'DS1': ['CMP.B_DS1', 'CMP.C_DS2']}]
-                ['1_CMP.A', {'DS1': 'CMP.B_DS1', 'DS2': 'CMP.B_DS2'}]
-                ['1_CMP.A-LOC', {'DS1': 'CMP.B_DS1'}]
+            events triggered by the damage state of the source
+            component. The keys of the dictionary are strings that
+            represent the damage state of the source component,
+            e.g., `'DS1'`. The values are lists of strings
+            representing the target component(s) and event(s), e.g.,
+            `['CMP_B.DS1', 'CMP_C.DS1']`. They could also be a
+            single element instead of a list.
+
+            Examples of a task:
+              ['1_CMP.A', {'DS1': ['CMP.B_DS1', 'CMP.C_DS2']}]
+              ['1_CMP.A', {'DS1': 'CMP.B_DS1', 'DS2': 'CMP.B_DS2'}]
+              ['1_CMP.A-LOC', {'DS1': 'CMP.B_DS1'}]
 
         Raises
         ------
@@ -1678,6 +1715,7 @@ class DamageModel_DS(DamageModel_Base):
         dmg_header = (
             dmg_sample.groupby(level=[0, 1, 2, 3], axis=1).first().iloc[:2, :]
         )
+        damaged_components = set(dmg_header.columns.get_level_values('cmp'))
 
         # get the number of possible limit states
         ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
@@ -1713,12 +1751,9 @@ class DamageModel_DS(DamageModel_Base):
                         )
 
             # get the list of valid cmp-loc-dir-uid sets
-            cmp_header = dmg_header.loc[
-                :,
-                [
-                    cmp_id,
-                ],
-            ]
+            if cmp_id not in damaged_components:
+                continue
+            cmp_header = dmg_header.loc[:, [cmp_id]]
 
             # Create a DataFrame where they are repeated ds_count times in the
             # columns. The keys put the DS id in the first level of the

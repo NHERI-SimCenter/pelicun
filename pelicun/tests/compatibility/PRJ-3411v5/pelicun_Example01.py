@@ -58,7 +58,7 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
     PAL.demand.load_sample(demand_sample_ext)
 
     cmp_marginals = pd.read_csv(
-        'pelicun/tests/compatibility/PRJ-3411v5CMP_marginals.csv', index_col=0
+        'pelicun/tests/compatibility/PRJ-3411v5/CMP_marginals.csv', index_col=0
     )
 
     PAL.stories = 4

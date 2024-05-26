@@ -55,6 +55,7 @@ import os
 def export_pickle(filepath, obj, makedirs=True):
     """
     Auxiliary function to export a pickle object.
+
     Parameters
     ----------
     filepath: str
@@ -65,6 +66,7 @@ def export_pickle(filepath, obj, makedirs=True):
     makedirs: bool
       If True, then the directories preceding the filename
       will be created if they do not exist.
+
     """
     # extract the directory name
     dirname = os.path.dirname(filepath)
@@ -83,6 +85,7 @@ def export_pickle(filepath, obj, makedirs=True):
 def import_pickle(filepath):
     """
     Auxiliary function to import a pickle object.
+
     Parameters
     ----------
     filepath: str

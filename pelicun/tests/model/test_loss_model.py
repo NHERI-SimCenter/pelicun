@@ -174,7 +174,7 @@ class TestLossModel(TestPelicunModel):
         assert len(loss_model._loss_models) == 2
 
     def test_decision_variables(self, loss_model):
-        dvs = ['Carbon', 'Cost', 'Energy', 'Time']
+        dvs = ('Carbon', 'Cost', 'Energy', 'Time')
         assert loss_model.decision_variables == dvs
         assert loss_model.ds_model.decision_variables == dvs
         assert loss_model.lf_model.decision_variables == dvs

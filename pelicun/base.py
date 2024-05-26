@@ -441,7 +441,7 @@ class Logger:
         """
         for message in self.warning_stack:
             if message not in self.emitted:
-                warnings.warn(message, PelicunWarning)
+                warnings.warn(message, PelicunWarning, stacklevel=2)
                 if self.warning_file is not None:
                     with open(self.warning_file, 'a', encoding='utf-8') as f:
                         f.write(
@@ -869,6 +869,7 @@ def convert_dtypes(dataframe):
 def show_matrix(data, use_describe=False):
     """
     Print a matrix in a nice way using a DataFrame.
+
     Parameters
     ----------
     data : array-like
@@ -878,6 +879,7 @@ def show_matrix(data, use_describe=False):
         If True, provides a descriptive statistical summary of the
         matrix including specified percentiles.
         If False, simply prints the matrix as is.
+
     """
     if use_describe:
         pp.pprint(
