@@ -1250,6 +1250,15 @@ class RepairModel_DS(RepairModel_Base):
         self.sample = file_io.load_data(
             filepath, self._asmnt.unit_conversion_factors, log=self._asmnt.log
         )
+        self.sample.columns.names = [
+            'dv',
+            'loss',
+            'dmg',
+            'loc',
+            'dir',
+            'uid',
+            'block',
+        ]
 
         self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 

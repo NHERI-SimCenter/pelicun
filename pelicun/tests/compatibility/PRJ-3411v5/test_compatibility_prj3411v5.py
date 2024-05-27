@@ -12,6 +12,8 @@ want to confirm that executing this code does not raise an error.
 from __future__ import annotations
 import numpy as np
 import pandas as pd
+import pytest
+from pelicun.warnings import PelicunWarning
 from pelicun.base import convert_to_MultiIndex
 from pelicun.assessment import Assessment
 
@@ -68,7 +70,8 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
     cmp_sample = PAL.asset.save_cmp_sample()
     assert cmp_sample is not None
 
-    P58_data = PAL.get_default_data('fragility_DB_FEMA_P58_2nd')
+    with pytest.warns(PelicunWarning):
+        P58_data = PAL.get_default_data('fragility_DB_FEMA_P58_2nd')
 
     cmp_list = cmp_marginals.index.unique().values[:-3]
     P58_data_for_this_assessment = P58_data.loc[cmp_list, :].sort_values(
@@ -129,9 +132,10 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
     ] = ['lognormal', 1.35, 0.5]
     additional_fragility_db['Incomplete'] = 0
 
-    PAL.damage.load_damage_model(
-        [additional_fragility_db, 'PelicunDefault/fragility_DB_FEMA_P58_2nd.csv']
-    )
+    with pytest.warns(PelicunWarning):
+        PAL.damage.load_damage_model(
+            [additional_fragility_db, 'PelicunDefault/fragility_DB_FEMA_P58_2nd.csv']
+        )
 
     # FEMA P58 uses the following process:
     dmg_process = {
@@ -150,11 +154,12 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
     loss_models += ['replacement'] * 2
     loss_map = pd.DataFrame(loss_models, columns=['BldgRepair'], index=drivers)
 
-    P58_data = PAL.get_default_data('bldg_repair_DB_FEMA_P58_2nd')
+    with pytest.warns(PelicunWarning):
+        P58_data = PAL.get_default_data('bldg_repair_DB_FEMA_P58_2nd')
 
     P58_data_for_this_assessment = P58_data.loc[
         loss_map['BldgRepair'].values[:-2], :
-    ]
+        ]
 
     additional_consequences = pd.DataFrame(
         columns=pd.MultiIndex.from_tuples(
@@ -182,15 +187,18 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
         12500,
     ]
 
-    PAL.bldg_repair.load_model(
-        [additional_consequences, "PelicunDefault/bldg_repair_DB_FEMA_P58_2nd.csv"],
-        loss_map,
-    )
+    with pytest.warns(PelicunWarning):
+        PAL.bldg_repair.load_model(
+            [additional_consequences, "PelicunDefault/bldg_repair_DB_FEMA_P58_2nd.csv"],
+            loss_map,
+        )
 
     PAL.bldg_repair.calculate()
 
-    loss_sample = PAL.bldg_repair.sample
+    with pytest.warns(PelicunWarning):
+        loss_sample = PAL.bldg_repair.sample
     assert loss_sample is not None
 
-    agg_DF = PAL.bldg_repair.aggregate_losses()
+    with pytest.warns(PelicunWarning):
+        agg_DF = PAL.bldg_repair.aggregate_losses()
     assert agg_DF is not None
