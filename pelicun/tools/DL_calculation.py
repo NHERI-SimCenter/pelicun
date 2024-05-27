@@ -37,6 +37,12 @@
 # Contributors:
 # Adam Zsarnóczay
 
+"""
+This module provides the main functionality to run a pelicun
+calculation from the command line.
+
+"""
+
 from __future__ import annotations
 from time import gmtime
 from time import strftime
@@ -64,18 +70,29 @@ from pelicun.file_io import load_data
 from pelicun.assessment import Assessment
 
 
-# this is exceptional code
-# (so let's run pylint everywhere /except/ here.)
 # pylint: disable=consider-using-namedtuple-or-dataclass
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
 # pylint: disable=too-many-nested-blocks
 # pylint: disable=too-many-branches
+# pylint: disable=too-many-arguments
+# pylint: disable=else-if-used
+# pylint: disable=unused-argument
 
 # pd.set_option('display.max_rows', None)
 
 
 def log_msg(msg):
+    """
+    Prints a formatted string to stdout in the form of a log. Includes
+    a timestamp.
+
+    Parameters
+    ----------
+    msg: str
+        The message to be printed.
+
+    """
     formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
 
     print(formatted_msg)
@@ -123,6 +140,7 @@ default_DBs = {
         'Hazus Hurricane': 'loss_repair_DB_SimCenter_Hazus_HU_bldg.csv',
     },
 }
+
 # list of output files help perform safe initialization of output dir
 output_files = [
     "DEM_sample.zip",
@@ -200,6 +218,42 @@ pbe_settings = {
 
 
 def convert_df_to_dict(df, axis=1):
+    """
+    Convert a pandas DataFrame to a dictionary.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame to be converted.
+    axis : int, optional
+        The axis to consider for the conversion.
+        * If 1 (default), the DataFrame is used as-is.
+        * If 0, the DataFrame is transposed before conversion.
+
+    Returns
+    -------
+    dict
+        A dictionary representation of the DataFrame. The structure of
+        the dictionary depends on the levels in the DataFrame's
+        MultiIndex columns.
+
+    Raises
+    ------
+    ValueError
+        If the axis is not 0 or 1.
+
+    Notes
+    -----
+    * If the columns have multiple levels, the function will
+      recursively convert sub-DataFrames.
+    * If the column labels at any level are numeric, they will be
+      converted to a list of floats.
+    * If the column labels are non-numeric, a dictionary will be
+      created with the index labels as keys and the corresponding data
+      as values.
+
+    """
+
     out_dict = {}
 
     if axis == 1:
@@ -207,8 +261,7 @@ def convert_df_to_dict(df, axis=1):
     elif axis == 0:
         df_in = df.T
     else:
-        pass
-        # TODO: raise error
+        raise ValueError('`axis` must be `0` or `1`')
 
     MI = df_in.columns
 
@@ -241,6 +294,22 @@ def convert_df_to_dict(df, axis=1):
 
 
 def add_units(raw_demands, length_unit):
+    """
+    Add units to demand columns in a DataFrame.
+
+    Parameters
+    ----------
+    raw_demands : pd.DataFrame
+        The raw demand data to which units will be added.
+    length_unit : str
+        The unit of length to be used (e.g., 'in' for inches).
+
+    Returns
+    -------
+    pd.DataFrame
+        The DataFrame with units added to the appropriate demand columns.
+
+    """
     demands = raw_demands.T
 
     demands.insert(0, "Units", np.nan)
@@ -301,7 +370,10 @@ def add_units(raw_demands, length_unit):
 
 
 def regional_output_demand():
-    pass
+    """
+    Does nothing at all.
+
+    """
 
 
 def run_pelicun(
@@ -337,16 +409,25 @@ def run_pelicun(
         Path pointing to the location of a Python script with an auto_populate
         method that automatically creates the performance model using data
         provided in the AIM JSON file.
+    detailed_results: bool, optional
+        If False, only the main statistics are saved.
+    regional: bool
+        Currently unused.
+    output_format: str
+        Type of output format, JSON or CSV.
     custom_model_dir: string, optional
         Path pointing to a directory with files that define user-provided model
         parameters for a customized damage and loss assessment.
-    detailed_results: bool, optional
-        If False, only the main statistics are saved.
     color_warnings: bool, optional
         If True, warnings are printed in red on the console. If output
         is redirected to a file, it will contain ANSI codes. When
         viewed on the console with `cat`, `less`, or similar utilites,
         the color will be shown.
+
+    Returns
+    -------
+    bool
+       0 if the calculation was ran successfully, or -1 otherwise.
 
     """
 
@@ -373,13 +454,13 @@ def run_pelicun(
         output_path = Path(output_path)
 
     # Initialize the array that we'll use to collect the output file names
-    output_files = []
+    out_files = []
 
     # Initialize the output folder - i.e., remove existing output files from
     # there
     files = os.listdir(output_path)
     for filename in files:
-        if filename in output_files:
+        if filename in out_files:
             os.remove(output_path / filename)
             # TODO: show some kind of a warning here if os.remove fails
 
@@ -445,7 +526,7 @@ def run_pelicun(
             # save the extended config to a file
             config_ap_path = Path(config_path.stem + '_ap.json').resolve()
 
-            with open(config_ap_path, 'w') as f:
+            with open(config_ap_path, 'w', encoding='utf-8') as f:
                 json.dump(config_ap, f, indent=2)
 
             config['DL'] = config_ap.get('DL', None)
@@ -634,16 +715,12 @@ def run_pelicun(
 
             RID = pd.concat(RID_list, axis=1)
             RID_units = pd.Series(
-                [
-                    'unitless',
-                ]
-                * RID.shape[1],
+                ['unitless'] * RID.shape[1],
                 index=RID.columns,
                 name='Units',
             )
-        RID_sample = pd.concat([RID, RID_units.to_frame().T])
-
-        demand_sample = pd.concat([demand_sample, RID_sample], axis=1)
+            RID_sample = pd.concat([RID, RID_units.to_frame().T])
+            demand_sample = pd.concat([demand_sample, RID_sample], axis=1)
 
     # add a constant one demand
     demand_sample[('ONE', '0', '1')] = np.ones(demand_sample.shape[0])
@@ -669,9 +746,9 @@ def run_pelicun(
                 demand_sample_s.to_csv(
                     output_path / "DEM_sample.zip",
                     index_label=demand_sample_s.columns.name,
-                    compression=dict(method='zip', archive_name='DEM_sample.csv'),
+                    compression={'method': 'zip', 'archive_name': 'DEM_sample.csv'},
                 )
-                output_files.append('DEM_sample.zip')
+                out_files.append('DEM_sample.zip')
 
             if 'Statistics' in out_reqs:
                 demand_stats = describe(demand_sample)
@@ -681,35 +758,7 @@ def run_pelicun(
                     output_path / "DEM_stats.csv",
                     index_label=demand_stats.columns.name,
                 )
-                output_files.append('DEM_stats.csv')
-
-        # - - - - -
-        # This is almost surely not needed any more
-        """
-        if regional == True:
-
-            demand_sample = PAL.demand.save_sample()
-
-            mean = demand_sample.mean()
-            median = demand_sample.median()
-            std = demand_sample.std()
-            beta = np.log(demand_sample).std()
-
-            res = pd.concat([mean,std,median,beta],
-                keys=['mean','std','median','beta']).to_frame().T
-
-            res = res.reorder_levels([1,2,3,0], axis=1)
-
-            res.sort_index(axis=1, inplace=True)
-
-            res.dropna(axis=1, how='all', inplace=True)
-
-            res.columns.rename(['type', 'loc', 'dir', 'stat'], inplace=True)
-
-            res.to_csv(output_path/"EDP.csv", index_label=res.columns.name)
-            output_files.append('EDP.csv')
-        """
-        # - - - - -
+                out_files.append('DEM_stats.csv')
 
     # Asset Definition ------------------------------------------------------------
 
@@ -730,12 +779,10 @@ def run_pelicun(
         # add component(s) to support collapse calculation
         if 'CollapseFragility' in config['DL']['Damage'].keys():
             coll_DEM = config['DL']['Damage']['CollapseFragility']["DemandType"]
-            if coll_DEM.startswith('SA'):
-                # we have a global demand and evaluate collapse directly
-                pass
-
-            else:
+            if not coll_DEM.startswith('SA'):
                 # we need story-specific collapse assessment
+                # (otherwise we have a global demand and evaluate
+                # collapse directly, so this code should be skipped)
 
                 if coll_DEM in DEM_types:
                     # excessive coll_DEM is added on every floor to detect large RIDs
@@ -759,6 +806,7 @@ def run_pelicun(
                         f'demands. Collapse '
                         f'cannot be evaluated.{csuff}'
                     )
+
         # always add a component to support basic collapse calculation
         cmp_marginals.loc['collapse', 'Units'] = 'ea'
         cmp_marginals.loc['collapse', 'Location'] = 0
@@ -835,9 +883,9 @@ def run_pelicun(
                 cmp_sample_s.to_csv(
                     output_path / "CMP_sample.zip",
                     index_label=cmp_sample_s.columns.name,
-                    compression=dict(method='zip', archive_name='CMP_sample.csv'),
+                    compression={'method': 'zip', 'archive_name': 'CMP_sample.csv'},
                 )
-                output_files.append('CMP_sample.zip')
+                out_files.append('CMP_sample.zip')
 
             if 'Statistics' in out_reqs:
                 cmp_stats = describe(cmp_sample)
@@ -847,50 +895,14 @@ def run_pelicun(
                 cmp_stats.to_csv(
                     output_path / "CMP_stats.csv", index_label=cmp_stats.columns.name
                 )
-                output_files.append('CMP_stats.csv')
-
-        # - - - - -
-        # This is almost surely not needed any more
-        """
-        if regional == True:
-
-            #flatten the dictionary
-            AIM_flat_dict = {}
-            for key, item in GI_config.items():
-                if isinstance(item, dict):
-                    if key not in ['units', 'location']:
-                        for sub_key, sub_item in item.items():
-                            AIM_flat_dict.update({f'{key}_{sub_key}': sub_item})
-                else:
-                    AIM_flat_dict.update({key: [item,]})
-
-
-            # do not save polygons
-            for header_to_remove in ['geometry', 'Footprint']:
-                try:
-                    AIM_flat_dict.pop(header_to_remove)
-                except:
-                    pass
-
-            # create the output DF
-            df_res = pd.DataFrame.from_dict(AIM_flat_dict)
-
-            df_res.dropna(axis=1, how='all', inplace=True)
-
-            df_res.to_csv(output_path/'AIM.csv')
-            output_files.append('AIM.csv')
-        """
-        # - - - - -
+                out_files.append('CMP_stats.csv')
 
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
     if 'Damage' in config['DL']:
         # load the fragility information
-        if (
-            config['DL']['Asset']['ComponentDatabase']
-            in default_DBs['fragility'].keys()
-        ):
+        if config['DL']['Asset']['ComponentDatabase'] in default_DBs['fragility']:
             component_db = [
                 'PelicunDefault/'
                 + default_DBs['fragility'][
@@ -1181,11 +1193,12 @@ def run_pelicun(
                     damage_sample_s.to_csv(
                         output_path / "DMG_sample.zip",
                         index_label=damage_sample_s.columns.name,
-                        compression=dict(
-                            method='zip', archive_name='DMG_sample.csv'
-                        ),
+                        compression={
+                            'method': 'zip',
+                            'archive_name': 'DMG_sample.csv',
+                        },
                     )
-                    output_files.append('DMG_sample.zip')
+                    out_files.append('DMG_sample.zip')
 
                 if 'Statistics' in out_reqs:
                     damage_stats = describe(damage_sample)
@@ -1196,7 +1209,7 @@ def run_pelicun(
                         output_path / "DMG_stats.csv",
                         index_label=damage_stats.columns.name,
                     )
-                    output_files.append('DMG_stats.csv')
+                    out_files.append('DMG_stats.csv')
 
                 if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
                     if (
@@ -1276,11 +1289,12 @@ def run_pelicun(
                         grp_damage_s.to_csv(
                             output_path / "DMG_grp.zip",
                             index_label=grp_damage_s.columns.name,
-                            compression=dict(
-                                method='zip', archive_name='DMG_grp.csv'
-                            ),
+                            compression={
+                                'method': 'zip',
+                                'archive_name': 'DMG_grp.csv',
+                            },
                         )
-                        output_files.append('DMG_grp.zip')
+                        out_files.append('DMG_grp.zip')
 
                     if 'GroupedStatistics' in out_reqs:
                         grp_stats = describe(grp_damage)
@@ -1291,33 +1305,7 @@ def run_pelicun(
                             output_path / "DMG_grp_stats.csv",
                             index_label=grp_stats.columns.name,
                         )
-                        output_files.append('DMG_grp_stats.csv')
-
-            # - - - - -
-            # This is almost surely not needed any more
-            """
-            if regional == True:
-
-                damage_sample = PAL.damage.save_sample()
-
-                # first, get the collapse probability
-                df_res_c = pd.DataFrame([0,],
-                    columns=pd.MultiIndex.from_tuples([('probability',' '),]),
-                    index=[0, ])
-
-                if ("collapse", 0, 1, 1) in damage_sample.columns:
-                    df_res_c['probability'] = (
-                        damage_sample[("collapse", 0, 1, 1)].mean())
-
-                else:
-                    df_res_c['probability'] = 0.0
-
-                df_res = pd.concat([df_res_c,], axis=1, keys=['collapse',])
-
-                df_res.to_csv(output_path/'DM.csv')
-                output_files.append('DM.csv')
-            """
-            # - - - - -
+                        out_files.append('DMG_grp_stats.csv')
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -1339,7 +1327,7 @@ def run_pelicun(
             repair_config = config['DL']['Losses']['Repair']
 
             # load the fragility information
-            if repair_config['ConsequenceDatabase'] in default_DBs['repair'].keys():
+            if repair_config['ConsequenceDatabase'] in default_DBs['repair']:
                 consequence_db = [
                     'PelicunDefault/'
                     + default_DBs['repair'][repair_config['ConsequenceDatabase']],
@@ -1423,7 +1411,7 @@ def run_pelicun(
                     adf.loc[rc, ('DS1', 'Theta_0')] = 0
 
                 # for Hazus EQ and HU, use 1.0 as a loss_ratio
-                elif DL_method in ['Hazus Earthquake', 'Hazus Hurricane']:
+                elif DL_method in {'Hazus Earthquake', 'Hazus Hurricane'}:
                     adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
                     adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
 
@@ -1549,7 +1537,7 @@ def run_pelicun(
                 drivers = []
                 loss_models = []
 
-                if DL_method in ['FEMA P-58', 'Hazus Hurricane']:
+                if DL_method in {'FEMA P-58', 'Hazus Hurricane'}:
                     # with these methods, we assume fragility and consequence data
                     # have the same IDs
 
@@ -1561,10 +1549,10 @@ def run_pelicun(
                             drivers.append(f'DMG-{dmg_cmp}')
                             loss_models.append(dmg_cmp)
 
-                elif DL_method in [
+                elif DL_method in {
                     'Hazus Earthquake',
                     'Hazus Earthquake Transportation',
-                ]:
+                }:
                     # with Hazus Earthquake we assume that consequence
                     # archetypes are only differentiated by occupancy type
                     occ_type = config['DL']['Asset'].get('OccupancyType', None)
@@ -1677,12 +1665,12 @@ def run_pelicun(
                         repair_sample_s.to_csv(
                             output_path / "DV_repair_sample.zip",
                             index_label=repair_sample_s.columns.name,
-                            compression=dict(
-                                method='zip',
-                                archive_name='DV_repair_sample.csv',
-                            ),
+                            compression={
+                                'method': 'zip',
+                                'archive_name': 'DV_repair_sample.csv',
+                            },
                         )
-                        output_files.append('DV_repair_sample.zip')
+                        out_files.append('DV_repair_sample.zip')
 
                     if 'Statistics' in out_reqs:
                         repair_stats = describe(repair_sample)
@@ -1693,7 +1681,7 @@ def run_pelicun(
                             output_path / "DV_repair_stats.csv",
                             index_label=repair_stats.columns.name,
                         )
-                        output_files.append('DV_repair_stats.csv')
+                        out_files.append('DV_repair_stats.csv')
 
                     if np.any(
                         np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)
@@ -1719,12 +1707,12 @@ def run_pelicun(
                             grp_repair_s.to_csv(
                                 output_path / "DV_repair_grp.zip",
                                 index_label=grp_repair_s.columns.name,
-                                compression=dict(
-                                    method='zip',
-                                    archive_name='DV_repair_grp.csv',
-                                ),
+                                compression={
+                                    'method': 'zip',
+                                    'archive_name': 'DV_repair_grp.csv',
+                                },
                             )
-                            output_files.append('DV_repair_grp.zip')
+                            out_files.append('DV_repair_grp.zip')
 
                         if 'GroupedStatistics' in out_reqs:
                             grp_stats = describe(grp_repair)
@@ -1735,7 +1723,7 @@ def run_pelicun(
                                 output_path / "DV_repair_grp_stats.csv",
                                 index_label=grp_stats.columns.name,
                             )
-                            output_files.append('DV_repair_grp_stats.csv')
+                            out_files.append('DV_repair_grp_stats.csv')
 
                     if np.any(
                         np.isin(['AggregateSample', 'AggregateStatistics'], out_reqs)
@@ -1745,12 +1733,12 @@ def run_pelicun(
                             agg_repair_s.to_csv(
                                 output_path / "DV_repair_agg.zip",
                                 index_label=agg_repair_s.columns.name,
-                                compression=dict(
-                                    method='zip',
-                                    archive_name='DV_repair_agg.csv',
-                                ),
+                                compression={
+                                    'method': 'zip',
+                                    'archive_name': 'DV_repair_agg.csv',
+                                },
                             )
-                            output_files.append('DV_repair_agg.zip')
+                            out_files.append('DV_repair_agg.zip')
 
                         if 'AggregateStatistics' in out_reqs:
                             agg_stats = convert_to_SimpleIndex(
@@ -1760,7 +1748,7 @@ def run_pelicun(
                                 output_path / "DV_repair_agg_stats.csv",
                                 index_label=agg_stats.columns.name,
                             )
-                            output_files.append('DV_repair_agg_stats.csv')
+                            out_files.append('DV_repair_agg_stats.csv')
 
     # Result Summary -----------------------------------------------------------
 
@@ -1797,15 +1785,15 @@ def run_pelicun(
 
     # save summary sample
     summary.to_csv(output_path / "DL_summary.csv", index_label='#')
-    output_files.append('DL_summary.csv')
+    out_files.append('DL_summary.csv')
 
     # save summary statistics
     summary_stats.to_csv(output_path / "DL_summary_stats.csv")
-    output_files.append('DL_summary_stats.csv')
+    out_files.append('DL_summary_stats.csv')
 
     # create json outputs if needed
     if config['DL']['Outputs']['Format']['JSON'] is True:
-        for filename in output_files:
+        for filename in out_files:
             filename_json = filename[:-3] + 'json'
 
             if (
@@ -1839,12 +1827,12 @@ def run_pelicun(
             else:
                 out_dict = convert_df_to_dict(df)
 
-            with open(output_path / filename_json, 'w') as f:
+            with open(output_path / filename_json, 'w', encoding='utf-8') as f:
                 json.dump(out_dict, f, indent=2)
 
     # remove csv outputs if they were not requested
     if config['DL']['Outputs']['Format']['CSV'] is False:
-        for filename in output_files:
+        for filename in out_files:
             # keep the DL_summary and DL_summary_stats files
             if 'DL_summary' in filename:
                 continue
@@ -1855,6 +1843,10 @@ def run_pelicun(
 
 
 def main():
+    """
+    Main method to parse arguments and run the pelicun calculation.
+
+    """
     args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
