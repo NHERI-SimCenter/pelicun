@@ -255,7 +255,7 @@ class LossModel(PelicunModel):
         self.add_loss_map(loss_map)
         self.load_model_parameters(data_paths, decision_variables)
 
-    def load_model_parameters(self, data_paths, decision_variables):
+    def load_model_parameters(self, data_paths, decision_variables=None):
         """
         Load loss model parameters.
 
