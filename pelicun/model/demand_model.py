@@ -691,26 +691,17 @@ class DemandModel(PelicunModel):
                 log=self._asmnt.log,
             )
 
-        # the log standard deviations in the marginal parameters need to be
-        # scaled up before feeding to the saving method where they will be
-        # scaled back down and end up being saved unscaled to the target file
-
-        marginal_params = self.marginal_params.copy()
-
-        log_rows = marginal_params['Family'] == 'lognormal'
-        log_demands = marginal_params.loc[log_rows, :]
-
-        for label in log_demands.index:
-            if label in self.user_units.index:
-                unit_factor = self._asmnt.calc_unit_scale_factor(self.user_units[label])
-
-                marginal_params.loc[label, 'Theta_1'] *= unit_factor
+        # Converting the marginal parameters requires special
+        # treatment, so we can't rely on file_io's universal unit
+        # conversion functionality. We do it manually here instead.
+        marginal_params_user_units = self._convert_marginal_params(
+            self.marginal_params.copy(), self.user_units, inverse_conversion=True
+        )
+        marginal_params_user_units['Units'] = self.user_units
 
         file_io.save_to_csv(
-            marginal_params,
+            marginal_params_user_units,
             file_prefix + '_marginals.csv',
-            units=self.user_units,
-            unit_conversion_factors=self._asmnt.unit_conversion_factors,
             orientation=1,
             log=self._asmnt.log,
         )
@@ -766,10 +757,6 @@ class DemandModel(PelicunModel):
             self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
         else:
             self.correlation = None
-
-        # the log standard deviations in the marginal parameters need to be
-        # adjusted after getting the data from the loading method where they
-        # were scaled according to the units of the corresponding variable
 
         # Note that a data source without marginal information is not valid
         marginal_params, units = file_io.load_data(

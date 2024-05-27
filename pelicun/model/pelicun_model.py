@@ -79,7 +79,12 @@ class PelicunModel:
         self.log = self._asmnt.log
 
     def _convert_marginal_params(
-        self, marginal_params, units, arg_units=None, divide_units=True
+        self,
+        marginal_params,
+        units,
+        arg_units=None,
+        divide_units=True,
+        inverse_conversion=False,
     ):
         """
         Converts the parameters of marginal distributions in a model to SI units.
@@ -110,6 +115,11 @@ class PelicunModel:
             should be True when the arg units represent the quantity
             corresponding to the primary parameters, and False
             otherwise.
+        inverse_conversion: bool
+            If True, converts from user-defined units to internal. If
+            False, converts from internal units to
+            user-defined. Defaults to False, since the method is
+            mostly applied on user-defined data.
 
         Returns
         -------
@@ -211,11 +221,13 @@ class PelicunModel:
                             if isinstance(arg, np.ndarray):
                                 args[a_i] = arg * arg_unit_factor
 
-                # convert the distribution parameters to SI
+                # convert units
                 if divide_units:
                     conversion_factor = unit_factor / arg_unit_factor
                 else:
                     conversion_factor = unit_factor
+                if inverse_conversion:
+                    conversion_factor = 1.00 / conversion_factor
                 theta, tr_limits = uq.scale_distribution(
                     conversion_factor, family, theta, tr_limits
                 )
@@ -325,9 +337,7 @@ class PelicunModel:
             if loc_str == "roof":
                 return np.array([stories + 1]).astype(str)
 
-            raise ValueError(
-                f"Cannot parse location string: " f"{loc_str}"
-            ) from exc
+            raise ValueError(f"Cannot parse location string: " f"{loc_str}") from exc
 
     def _get_directions(self, dir_str):
         """
