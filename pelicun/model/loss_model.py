@@ -792,8 +792,37 @@ class LossModel(PelicunModel):
             else:
                 df_agg = df_agg.drop(f'repair_{decision_variable.lower()}', axis=1)
 
-        # TODO: implement conversion of loss values to any desired
-        # unit other than the base loss units
+        cmp_units = {}
+        if self.ds_model.loss_params is not None:
+            cmp_units.update(
+                self.ds_model.loss_params[('DV', 'Unit')]
+                .groupby(level=[1])
+                .agg(lambda x: x.value_counts().index[0])
+                .to_dict()
+            )
+        if self.lf_model.loss_params is not None:
+            cmp_units.update(
+                self.lf_model.loss_params[('DV', 'Unit')]
+                .groupby(level=[1])
+                .agg(lambda x: x.value_counts().index[0])
+                .to_dict()
+            )
+
+        column_measures = [
+            x.replace('repair_', '') for x in df_agg.columns.get_level_values(0)
+        ]
+        column_units = [cmp_units[x.title()] for x in column_measures]
+        dv_units = pd.Series(column_units, index=df_agg.columns, name='Units')
+        df_agg = file_io.save_to_csv(
+            df_agg,
+            None,
+            units=dv_units,
+            unit_conversion_factors=self._asmnt.unit_conversion_factors,
+            use_simpleindex=False,
+            log=self._asmnt.log,
+        )
+        df_agg.drop("Units", inplace=True)
+        df_agg = df_agg.astype(float)
 
         df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
         df_agg.sort_index(axis=1, inplace=True)
