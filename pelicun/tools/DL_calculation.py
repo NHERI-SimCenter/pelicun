@@ -1428,7 +1428,7 @@ def run_pelicun(
                     adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
 
                     # store the replacement cost that corresponds to total loss
-                    adf.loc[rc, ('DS1', 'Theta_0')] = 100.0
+                    adf.loc[rc, ('DS1', 'Theta_0')] = 1.00
 
                 # otherwise, use 1 (and expect to have it defined by the user)
                 else:
@@ -1617,10 +1617,7 @@ def run_pelicun(
                 DV_list = None
 
             PAL.repair.load_model(
-                consequence_db
-                + [
-                    adf,
-                ],
+                consequence_db + [adf],
                 loss_map,
                 decision_variables=DV_list,
             )
