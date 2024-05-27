@@ -775,7 +775,7 @@ class LossModel(PelicunModel):
 
         for decision_variable in self.decision_variables:
 
-            # Time ..
+            # Time
             if decision_variable == 'Time' and 'Time' in aggregated.columns:
                 df_agg['repair_time-sequential'] = aggregated['Time'].sum(axis=1)
 
@@ -784,7 +784,7 @@ class LossModel(PelicunModel):
                 df_agg = df_agg.drop(
                     ['repair_time-parallel', 'repair_time-sequential'], axis=1
                 )
-            # All other ..
+            # All other
             elif decision_variable in aggregated.columns:
                 df_agg[f'repair_{decision_variable.lower()}'] = aggregated[
                     decision_variable
@@ -808,8 +808,12 @@ class LossModel(PelicunModel):
                 .to_dict()
             )
 
+        # Convert units ..
         column_measures = [
-            x.replace('repair_', '') for x in df_agg.columns.get_level_values(0)
+            x.replace('repair_', '')
+            .replace('-sequential', '')
+            .replace('-parallel', '')
+            for x in df_agg.columns.get_level_values(0)
         ]
         column_units = [cmp_units[x.title()] for x in column_measures]
         dv_units = pd.Series(column_units, index=df_agg.columns, name='Units')
@@ -823,6 +827,7 @@ class LossModel(PelicunModel):
         )
         df_agg.drop("Units", inplace=True)
         df_agg = df_agg.astype(float)
+        # ouch..
 
         df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
         df_agg.sort_index(axis=1, inplace=True)
