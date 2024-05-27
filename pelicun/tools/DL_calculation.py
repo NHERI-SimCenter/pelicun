@@ -462,7 +462,6 @@ def run_pelicun(
     for filename in files:
         if filename in out_files:
             os.remove(output_path / filename)
-            # TODO: show some kind of a warning here if os.remove fails
 
     # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
