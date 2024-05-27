@@ -240,7 +240,6 @@ class DamageModel(PelicunModel):
 
     def calculate(
         self,
-        sample_size=None,
         dmg_process=None,
         block_batch_size=1000,
         scaling_specification=None,

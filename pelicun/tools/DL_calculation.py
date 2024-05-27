@@ -1138,7 +1138,7 @@ def run_pelicun(
                 )
 
         # calculate damages
-        PAL.damage.calculate(sample_size, dmg_process=dmg_process)
+        PAL.damage.calculate(dmg_process=dmg_process)
 
         # if requested, save results
         if 'Damage' in config['DL']['Outputs']:
@@ -1622,7 +1622,7 @@ def run_pelicun(
                 decision_variables=DV_list,
             )
 
-            PAL.repair.calculate(sample_size)
+            PAL.repair.calculate()
 
             agg_repair = PAL.repair.aggregate_losses()
 

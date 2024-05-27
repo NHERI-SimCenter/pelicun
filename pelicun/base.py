@@ -441,7 +441,7 @@ class Logger:
         """
         for message in self.warning_stack:
             if message not in self.emitted:
-                warnings.warn(message, PelicunWarning)
+                warnings.warn(message, PelicunWarning, stacklevel=2)
                 if self.warning_file is not None:
                     with open(self.warning_file, 'a', encoding='utf-8') as f:
                         f.write(

@@ -360,7 +360,7 @@ class LossModel(PelicunModel):
         )
         self._ensure_loss_parameter_availability()
 
-    def calculate(self, sample_size=None):
+    def calculate(self):
         """
         Calculate the loss of each component block.
 
@@ -595,6 +595,11 @@ class LossModel(PelicunModel):
         <backwards compatibility>
 
         Saves the sample of the `ds_model`.
+
+        Returns
+        -------
+        tuple
+            The output of {loss model}.ds_model.save_sample.
 
         """
         self.log.warn(
@@ -1194,7 +1199,7 @@ class RepairModel_DS(RepairModel_Base):
             If no `filepath` is specified, returns:
             * DataFrame containing the loss sample.
             * Optionally, a Series containing the units for each
-              column if `save_units` is True.
+            column if `save_units` is True.
 
         Raises
         ------

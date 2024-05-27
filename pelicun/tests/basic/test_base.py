@@ -856,18 +856,24 @@ def test_parse_units():
 
     # Test that an exception is raised if a unit is defined twice in
     # the additional units file
-    duplicate_units_file = 'pelicun/tests/basic/data/base/test_parse_units/duplicate2.json'
+    duplicate_units_file = (
+        'pelicun/tests/basic/data/base/test_parse_units/duplicate2.json'
+    )
     with pytest.raises(ValueError):
         units = base.parse_units(duplicate_units_file)
 
     # Test that an exception is raised if a unit conversion factor is not a float
-    invalid_units_file = 'pelicun/tests/basic/data/base/test_parse_units/not_float.json'
+    invalid_units_file = (
+        'pelicun/tests/basic/data/base/test_parse_units/not_float.json'
+    )
     with pytest.raises(TypeError):
         units = base.parse_units(invalid_units_file)
 
     # Test that we get an error if some first-level key does not point
     # to a dictionary
-    invalid_units_file = 'pelicun/tests/basic/data/base/test_parse_units/not_dict.json'
+    invalid_units_file = (
+        'pelicun/tests/basic/data/base/test_parse_units/not_dict.json'
+    )
     with pytest.raises(ValueError):
         units = base.parse_units(invalid_units_file)
 

@@ -159,7 +159,7 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
 
     P58_data_for_this_assessment = P58_data.loc[
         loss_map['BldgRepair'].values[:-2], :
-        ]
+    ]
 
     additional_consequences = pd.DataFrame(
         columns=pd.MultiIndex.from_tuples(
@@ -189,7 +189,10 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
 
     with pytest.warns(PelicunWarning):
         PAL.bldg_repair.load_model(
-            [additional_consequences, "PelicunDefault/bldg_repair_DB_FEMA_P58_2nd.csv"],
+            [
+                additional_consequences,
+                "PelicunDefault/bldg_repair_DB_FEMA_P58_2nd.csv",
+            ],
             loss_map,
         )
 

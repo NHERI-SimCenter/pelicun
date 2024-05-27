@@ -220,7 +220,8 @@ class TestAssetModel(TestPelicunModel):
 
     def test_load_cmp_model_exceptions(self, asset_model):
         cmp_marginals = pd.read_csv(
-            'pelicun/tests/basic/data/model/test_AssetModel/CMP_marginals_invalid_loc.csv',
+            'pelicun/tests/basic/data/model/test_AssetModel/'
+            'CMP_marginals_invalid_loc.csv',
             index_col=0,
         )
         asset_model._asmnt.stories = 4
@@ -228,7 +229,8 @@ class TestAssetModel(TestPelicunModel):
             asset_model.load_cmp_model({'marginals': cmp_marginals})
 
         cmp_marginals = pd.read_csv(
-            'pelicun/tests/basic/data/model/test_AssetModel/CMP_marginals_invalid_dir.csv',
+            'pelicun/tests/basic/data/model/test_AssetModel/'
+            'CMP_marginals_invalid_dir.csv',
             index_col=0,
         )
         asset_model._asmnt.stories = 4
