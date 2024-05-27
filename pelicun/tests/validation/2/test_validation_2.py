@@ -83,7 +83,7 @@ def test_combined_workflow():
 
         """
         # Add residual drift and Sa
-        demand_sample = asmnt.demand.save_sample()
+        demand_sample, demand_units = asmnt.demand.save_sample(save_units=True)
 
         # RIDs are all fixed for testing.
         RID = pd.concat(

@@ -101,7 +101,7 @@ class DemandModel(PelicunModel):
         'marginal_params',
         'correlation',
         'empirical_data',
-        'units',
+        'user_units',
         'calibrated',
         '_RVs',
         'sample',
@@ -113,7 +113,7 @@ class DemandModel(PelicunModel):
         self.marginal_params = None
         self.correlation = None
         self.empirical_data = None
-        self.units = None
+        self.user_units = None
         self.calibrated = False
 
         self._RVs = None
@@ -147,7 +147,7 @@ class DemandModel(PelicunModel):
         res = file_io.save_to_csv(
             self.sample,
             filepath,
-            units=self.units,
+            units=self.user_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=(filepath is not None),
             log=self._asmnt.log,
@@ -292,7 +292,7 @@ class DemandModel(PelicunModel):
         # parse the index for the units
         units.index = parse_header(units.index)
 
-        self.units = units
+        self.user_units = units
 
         self.log.msg('Demand units successfully parsed.', prepend_timestamp=False)
 
@@ -686,7 +686,7 @@ class DemandModel(PelicunModel):
             file_io.save_to_csv(
                 self.empirical_data,
                 file_prefix + '_empirical.csv',
-                units=self.units,
+                units=self.user_units,
                 unit_conversion_factors=self._asmnt.unit_conversion_factors,
                 log=self._asmnt.log,
             )
@@ -701,15 +701,15 @@ class DemandModel(PelicunModel):
         log_demands = marginal_params.loc[log_rows, :]
 
         for label in log_demands.index:
-            if label in self.units.index:
-                unit_factor = self._asmnt.calc_unit_scale_factor(self.units[label])
+            if label in self.user_units.index:
+                unit_factor = self._asmnt.calc_unit_scale_factor(self.user_units[label])
 
                 marginal_params.loc[label, 'Theta_1'] *= unit_factor
 
         file_io.save_to_csv(
             marginal_params,
             file_prefix + '_marginals.csv',
-            units=self.units,
+            units=self.user_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             orientation=1,
             log=self._asmnt.log,
@@ -787,7 +787,7 @@ class DemandModel(PelicunModel):
         )
 
         self.marginal_params = marginal_params
-        self.units = units
+        self.user_units = units
 
         self.log.msg('Demand model successfully loaded.', prepend_timestamp=False)
 
@@ -957,8 +957,8 @@ class DemandModel(PelicunModel):
         # update the column index
         self.sample.columns = pd.MultiIndex.from_tuples(column_values)
         # update units
-        self.units = self.units.iloc[column_index]
-        self.units.index = self.sample.columns
+        self.user_units = self.user_units.iloc[column_index]
+        self.user_units.index = self.sample.columns
 
     def generate_sample(self, config):
         """

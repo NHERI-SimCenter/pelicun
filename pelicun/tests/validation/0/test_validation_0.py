@@ -71,7 +71,7 @@ def test_validation_loss_function():
             'Theta_0': [0.50],
             'Theta_1': [0.90],
             'Family': ['lognormal'],
-            'Units': ['g'],
+            'Units': ['mps2'],
         },
         index=pd.MultiIndex.from_tuples(
             [
@@ -125,8 +125,8 @@ def test_validation_loss_function():
 
     loss_vals = loss['repair_cost'].values
 
-    # sample median should be close to 0.50
-    assert np.allclose(np.median(loss_vals), 0.50, atol=1e-2)
+    # sample median should be close to 0.05
+    assert np.allclose(np.median(loss_vals), 0.05, atol=1e-2)
     # dispersion should be close to 0.9
     assert np.allclose(np.log(loss_vals).std(), 0.90, atol=1e-2)
 

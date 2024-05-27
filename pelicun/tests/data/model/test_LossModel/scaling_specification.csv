@@ -1,5 +1,0 @@
-Decision Variable,Component,Location,Direction,Scaling Factor
-Cost,cmp.A,,,2
-Cost,cmp.B,1--2,,3
-Cost,cmp.B,1,,4
-Cost,missing,,,5
