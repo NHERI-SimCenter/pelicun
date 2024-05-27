@@ -1,0 +1,5 @@
+ID,Demand-Directional,Demand-Offset,Demand-Type,Demand-Unit,Incomplete-,LS1-DamageStateWeights,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS2-DamageStateWeights,LS2-Family,LS2-Theta_0,LS2-Theta_1,LS3-DamageStateWeights,LS3-Family,LS3-Theta_0,LS3-Theta_1,LS4-DamageStateWeights,LS4-Family,LS4-Theta_0,LS4-Theta_1
+cmp.A,0,0,Peak Floor Acceleration,g,0,0.20 | 0.80,,4.00,,,,,,,,,,,,,
+cmp.B,1,0,Peak Floor Acceleration,g,0,,,4.00,,,,8.00,,,,,,,,,
+cmp.C,1,0,Peak Floor Acceleration,g,0,,,4.00,,,,,,,,,,,,,
+cmp.D,1,0,Peak Floor Acceleration,g,0,,,4.00,,,,,,,,,,,,,

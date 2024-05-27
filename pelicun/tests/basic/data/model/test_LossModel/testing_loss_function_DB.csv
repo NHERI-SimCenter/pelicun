@@ -1,0 +1,5 @@
+-,DV-Unit,Demand-Directional,Demand-Offset,Demand-Type,Demand-Unit,LossFunction-Theta_0,LossFunction-Theta_1,LossFunction-Family
+cmp.lf.A-Cost,USD_2011,0,0,Peak Floor Acceleration,g,"0.00,1.00|0.00,10.00",,
+cmp.lf.A-Time,worker_day,0,0,Peak Floor Acceleration,g,"0.00,1.00|0.00,10.00",,
+cmp.lf.B-Cost,USD_2011,0,0,Peak Floor Acceleration,g,"0.00,1.00|0.00,10.00",,
+cmp.lf.B-Time,worker_day,0,0,Peak Floor Acceleration,g,"0.00,1.00|0.00,10.00",,
