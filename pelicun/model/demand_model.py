@@ -51,6 +51,7 @@ This file defines the DemandModel object and its methods.
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import os
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -737,12 +738,15 @@ class DemandModel(PelicunModel):
             correlation_data_source = data_source + '_correlation.csv'
 
         if empirical_data_source is not None:
-            self.empirical_data = file_io.load_data(
-                empirical_data_source,
-                self._asmnt.unit_conversion_factors,
-                log=self._asmnt.log,
-            )
-            self.empirical_data.columns.names = ('type', 'loc', 'dir')
+            if isinstance(empirical_data_source, str) and os.path.exists(
+                empirical_data_source
+            ):
+                self.empirical_data = file_io.load_data(
+                    empirical_data_source,
+                    self._asmnt.unit_conversion_factors,
+                    log=self._asmnt.log,
+                )
+                self.empirical_data.columns.names = ('type', 'loc', 'dir')
         else:
             self.empirical_data = None
 

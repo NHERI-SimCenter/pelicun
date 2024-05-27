@@ -304,43 +304,39 @@ class TestDemandModel(TestModelModule):
             check_column_type=False,
         )
 
-    # # TODO: this currently fails
-    # def test_save_load_model_without_empirical(
-    #     self, demand_model_with_sample_C, assessment_instance
-    # ):
-    #     # a model that does not have empirical marginal parameters
-    #     temp_dir = tempfile.mkdtemp()
-    #     config = {
-    #         "ALL": {
-    #             "DistributionFamily": "normal",
-    #             "AddUncertainty": 0.00,
-    #         },
-    #         "PID": {
-    #             "DistributionFamily": "lognormal",
-    #             "TruncateUpper": "0.04",
-    #         },
-    #     }
-    #     demand_model_with_sample_C.calibrate_model(config)
-    #     demand_model_with_sample_C.save_model(f'{temp_dir}/temp')
-    #     assert os.path.exists(f'{temp_dir}/temp_marginals.csv')
-    #     assert os.path.exists(f'{temp_dir}/temp_empirical.csv')
-    #     assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
+    def test_save_load_model_without_empirical(
+        self, demand_model_with_sample_C, assessment_instance
+    ):
+        # a model that does not have empirical marginal parameters
+        temp_dir = tempfile.mkdtemp()
+        config = {
+            "ALL": {
+                "DistributionFamily": "normal",
+                "AddUncertainty": 0.00,
+            },
+            "PID": {
+                "DistributionFamily": "lognormal",
+                "TruncateUpper": "0.04",
+            },
+        }
+        demand_model_with_sample_C.calibrate_model(config)
+        demand_model_with_sample_C.save_model(f'{temp_dir}/temp')
+        assert os.path.exists(f'{temp_dir}/temp_marginals.csv')
+        assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
 
-    #     # Load model to a different DemandModel instance to verify
-    #     new_demand_model = assessment_instance.demand
-    #     new_demand_model.load_model(f'{temp_dir}/temp')
-    #     pd.testing.assert_frame_equal(
-    #         demand_model_with_sample_C.marginal_params,
-    #         new_demand_model.marginal_params,
-    #     )
-    #     pd.testing.assert_frame_equal(
-    #         demand_model_with_sample_C.correlation,
-    #         new_demand_model.correlation
-    #     )
-    #     pd.testing.assert_frame_equal(
-    #         demand_model_with_sample_C.empirical_data,
-    #         new_demand_model.empirical_data,
-    #     )
+        # Load model to a different DemandModel instance to verify
+        new_demand_model = assessment_instance.demand
+        new_demand_model.load_model(f'{temp_dir}/temp')
+        pd.testing.assert_frame_equal(
+            demand_model_with_sample_C.marginal_params,
+            new_demand_model.marginal_params,
+        )
+        pd.testing.assert_frame_equal(
+            demand_model_with_sample_C.correlation,
+            new_demand_model.correlation
+        )
+        assert demand_model_with_sample_C.empirical_data is None
+        assert new_demand_model.empirical_data is None
 
     def test_generate_sample_exceptions(self, demand_model):
         # generating a sample from a non calibrated model should fail
