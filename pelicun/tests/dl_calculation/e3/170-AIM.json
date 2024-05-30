@@ -1,0 +1,158 @@
+{
+  "RandomVariables": [],
+  "GeneralInformation": {
+    "AIM_id": "170",
+    "location": {
+      "latitude": 37.8720785,
+      "longitude": -122.271291
+    },
+    "Latitude": 37.8720785,
+    "Longitude": -122.271291,
+    "ReplacementCost": 32923670.0,
+    "PlanArea": 253259.0,
+    "YearBuilt": 1987,
+    "NumberOfStories": 5,
+    "OccupancyClass": "RES3",
+    "StructureType": "RM1",
+    "Footprint": "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-122.271843,37.872178],[-122.271797,37.871878],[-122.270739,37.871979],[-122.270785,37.872279],[-122.271843,37.872178]]]},\"properties\":{}}",
+    "units": {
+      "force": "N",
+      "length": "m",
+      "time": "sec"
+    }
+  },
+  "DefaultValues": {
+    "driverFile": "driver",
+    "edpFiles": [
+      "EDP.json"
+    ],
+    "filenameDL": "BIM.json",
+    "filenameEDP": "EDP.json",
+    "filenameEVENT": "EVENT.json",
+    "filenameSAM": "SAM.json",
+    "filenameSIM": "SIM.json",
+    "rvFiles": [
+      "SAM.json",
+      "EVENT.json",
+      "SIM.json"
+    ],
+    "workflowInput": "scInput.json",
+    "workflowOutput": "EDP.json"
+  },
+  "commonFileDir": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+  "remoteAppDir": "/Users/adamzs/SimCenter",
+  "localAppDir": "/Users/adamzs/SimCenter",
+  "units": {
+    "force": "N",
+    "length": "m",
+    "time": "sec"
+  },
+  "outputs": {
+    "AIM": false,
+    "DM": true,
+    "DV": true,
+    "EDP": true,
+    "IM": false
+  },
+  "RegionalEvent": {
+    "eventFile": "EventGrid.csv",
+    "eventFilePath": "/Users/adamzs/Examples/R2D/00_Built_ins/E3PhysicsBasedGroundMotions/input_data/SW4_filtered",
+    "units": {
+      "TH_file": "mps2"
+    }
+  },
+  "assetType": "Buildings",
+  "Applications": {
+    "Events": [
+      {
+        "Application": "SimCenterEvent",
+        "ApplicationData": {},
+        "EventClassification": "Earthquake"
+      }
+    ],
+    "Modeling": {
+      "Application": "MDOF-LU",
+      "ApplicationData": {}
+    },
+    "EDP": {
+      "Application": "StandardEarthquakeEDP",
+      "ApplicationData": {}
+    },
+    "Simulation": {
+      "Application": "OpenSees-Simulation",
+      "ApplicationData": {}
+    },
+    "UQ": {
+      "Application": "Dakota-UQ",
+      "ApplicationData": {}
+    },
+    "DL": {
+      "Application": "Pelicun3",
+      "ApplicationData": {
+        "DL_Method": "HAZUS MH EQ Story",
+        "Realizations": 1000,
+        "auto_script": "PelicunDefault/Hazus_Earthquake_Story.py",
+        "coupled_EDP": false,
+        "detailed_results": false,
+        "ground_failure": false,
+        "log_file": true,
+        "regional": "true"
+      }
+    }
+  },
+  "Modeling": {
+    "hazusData": "HazusData.txt",
+    "pathToHazusFile": "/Users/adamzs/Examples/R2D/00_Built_ins/E3PhysicsBasedGroundMotions/input_data",
+    "stdDamping": 0.1,
+    "stdStiffness": 0.1
+  },
+  "Simulation": {
+    "Application": "OpenSees-Simulation",
+    "algorithm": "Newton",
+    "analysis": "Transient -numSubLevels 2 -numSubSteps 10",
+    "convergenceTest": "NormUnbalance 1.0e-2 10",
+    "dampingModel": "Rayleigh Damping",
+    "firstMode": 1,
+    "integration": "Newmark 0.5 0.25",
+    "modalRayleighTangentRatio": 0,
+    "numModesModal": 1,
+    "rayleighTangent": "Initial",
+    "secondMode": -1,
+    "solver": "Umfpack"
+  },
+  "UQ": {
+    "parallelExecution": true,
+    "samplingMethodData": {
+      "method": "LHS",
+      "samples": 10,
+      "seed": 2
+    },
+    "saveWorkDir": true,
+    "uqType": "Forward Propagation"
+  },
+  "DL": {},
+  "Events": [
+    {
+      "EventFolderPath": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+      "Events": [
+        [
+          "S_20_20x00000",
+          1.0
+        ],
+        [
+          "S_21_20x00001",
+          1.0
+        ],
+        [
+          "S_20_20x00002",
+          1.0
+        ],
+        [
+          "S_20_20x00003",
+          1.0
+        ]
+      ],
+      "type": "timeHistory"
+    }
+  ]
+}
