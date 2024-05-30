@@ -44,7 +44,6 @@
 # Tracy Kijewski-Correa
 
 import random
-import numpy as np
 import datetime
 
 
@@ -82,23 +81,25 @@ def MLRM_config(BIM):
 
     # Shutters
     # IRC 2000-2015:
-    # R301.2.1.2 in NJ IRC 2015 says protection of openings required for
-    # buildings located in WindBorneDebris regions, mentions impact-rated protection for
-    # glazing, impact-resistance for garage door glazed openings, and finally
-    # states that wood structural panels with a thickness > 7/16" and a
-    # span <8' can be used, as long as they are precut, attached to the framing
-    # surrounding the opening, and the attachments are resistant to corrosion
-    # and are able to resist component and cladding loads;
+    # R301.2.1.2 in NJ IRC 2015 says protection of openings required
+    # for buildings located in WindBorneDebris regions, mentions
+    # impact-rated protection for glazing, impact-resistance for
+    # garage door glazed openings, and finally states that wood
+    # structural panels with a thickness > 7/16" and a span <8' can be
+    # used, as long as they are precut, attached to the framing
+    # surrounding the opening, and the attachments are resistant to
+    # corrosion and are able to resist component and cladding loads;
     # Earlier IRC editions provide similar rules.
     shutters = BIM['WindBorneDebris']
 
     # Masonry Reinforcing (MR)
-    # R606.6.4.1.2 Metal Reinforcement states that walls other than interior
-    # non-load-bearing walls shall be anchored at vertical intervals of not
-    # more than 8 inches with joint reinforcement of not less than 9 gage.
-    # Therefore this ruleset assumes that all exterior or load-bearing masonry
-    # walls will have reinforcement. Since our considerations deal with wind
-    # speed, I made the assumption that only exterior walls are being taken
+    # R606.6.4.1.2 Metal Reinforcement states that walls other than
+    # interior non-load-bearing walls shall be anchored at vertical
+    # intervals of not more than 8 inches with joint reinforcement of
+    # not less than 9 gage.  Therefore this ruleset assumes that all
+    # exterior or load-bearing masonry walls will have
+    # reinforcement. Since our considerations deal with wind speed, I
+    # made the assumption that only exterior walls are being taken
     # into consideration.
     MR = True
 

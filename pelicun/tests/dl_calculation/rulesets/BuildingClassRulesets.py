@@ -43,10 +43,6 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import random
-import numpy as np
-import datetime
-
 
 def building_class(BIM, hazard):
     """
@@ -84,7 +80,9 @@ def building_class(BIM, hazard):
                     BIM['RoofShape'] == 'flt'
                 ):  # checking if there is a misclassication
                     BIM['RoofShape'] = (
-                        'gab'  # ensure the WSF has gab (by default, note gab is more vulneable than hip)
+                        # ensure the WSF has gab (by default, note gab
+                        # is more vulneable than hip)
+                        'gab'
                     )
                 bldg_class = 'WSF'
             else:
@@ -227,15 +225,26 @@ def building_class(BIM, hazard):
                 # BuildingType = 3004
                 # Low-Rise Masonry Strip Mall (MLRM1 or MLRM2)
                 bldg_class = 'MLRM'
+            # elif (
+            #     BIM['OccupancyClass']
+            #     in [
+            #         'RES3A',
+            #         'RES3B',
+            #         'RES3C',
+            #         'RES3D',
+            #         'RES3E',
+            #         'RES3F',
+            #         'RES5',
+            #         'RES6',
+            #         'COM8',
+            #     ]
+            # ) and (BIM['DesignLevel'] in ['NE', 'ME']):
+            #     # BuildingType = 3004
+            #     # Masonry Multi-Unit Hotel/Motel Non-Engineered
+            #     # (MMUH1NE, MMUH2NE, or MMUH3NE)
+            #     return 'MMUHNE'
             else:
                 bldg_class = 'MECB'  # for others not covered by the above
-            # elif ((BIM['OccupancyClass'] in ['RES3A', 'RES3B', 'RES3C', 'RES3D',
-            #                                'RES3E', 'RES3F', 'RES5', 'RES6',
-            #                                'COM8']) and (BIM['DesignLevel'] in ['NE', 'ME'])):
-            #    # BuildingType = 3004
-            #    # Masonry Multi-Unit Hotel/Motel Non-Engineered
-            #    # (MMUH1NE, MMUH2NE, or MMUH3NE)
-            #    return 'MMUHNE'
         elif BIM['BuildingType'] == 'Manufactured':
             bldg_class = 'MH'
 

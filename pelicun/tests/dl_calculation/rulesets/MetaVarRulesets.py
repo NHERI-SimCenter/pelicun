@@ -115,13 +115,14 @@ def parse_BIM(BIM_in, location, hazards):
         ap_RoofSystem = {'Wood': 'trs', 'OWSJ': 'ows', 'N/A': 'trs'}
         roof_system = BIM_in.get('RoofSystem', 'Wood')
 
-        # maps number of units to the internal representation
-        ap_NoUnits = {
-            'Single': 'sgl',
-            'Multiple': 'mlt',
-            'Multi': 'mlt',
-            'nav': 'nav',
-        }
+        # flake8 - unused variable: `ap_NoUnits`.
+        # # maps number of units to the internal representation
+        # ap_NoUnits = {
+        #     'Single': 'sgl',
+        #     'Multiple': 'mlt',
+        #     'Multi': 'mlt',
+        #     'nav': 'nav',
+        # }
 
         # Average January Temp.
         ap_ajt = {'Above': 'above', 'Below': 'below'}
@@ -224,7 +225,8 @@ def parse_BIM(BIM_in, location, hazards):
             # standard input should provide the building type as a string
             buildingtype = BIM_in['BuildingType']
 
-        # maps for design level (Marginal Engineered is mapped to Engineered as default)
+        # maps for design level (Marginal Engineered is mapped to
+        # Engineered as defauplt)
         ap_DesignLevel = {'E': 'E', 'NE': 'NE', 'PE': 'PE', 'ME': 'E'}
         design_level = BIM_in.get('DesignLevel', 'E')
 
@@ -269,33 +271,36 @@ def parse_BIM(BIM_in, location, hazards):
         # number of units
         nunits = BIM_in.get('NoUnits', 1)
 
-        # maps for flood zone
-        ap_FloodZone = {
-            # Coastal areas with a 1% or greater chance of flooding and an
-            # additional hazard associated with storm waves.
-            6101: 'VE',
-            6102: 'VE',
-            6103: 'AE',
-            6104: 'AE',
-            6105: 'AO',
-            6106: 'AE',
-            6107: 'AH',
-            6108: 'AO',
-            6109: 'A',
-            6110: 'X',
-            6111: 'X',
-            6112: 'X',
-            6113: 'OW',
-            6114: 'D',
-            6115: 'NA',
-            6119: 'NA',
-        }
-        if type(BIM_in['FloodZone']) == int:
-            # NJDEP code for flood zone (conversion to the FEMA designations)
-            floodzone_fema = ap_FloodZone[BIM_in['FloodZone']]
-        else:
-            # standard input should follow the FEMA flood zone designations
-            floodzone_fema = BIM_in['FloodZone']
+        # flake8 - unused variable: `ap_FloodZone`.
+        # # maps for flood zone
+        # ap_FloodZone = {
+        #     # Coastal areas with a 1% or greater chance of flooding and an
+        #     # additional hazard associated with storm waves.
+        #     6101: 'VE',
+        #     6102: 'VE',
+        #     6103: 'AE',
+        #     6104: 'AE',
+        #     6105: 'AO',
+        #     6106: 'AE',
+        #     6107: 'AH',
+        #     6108: 'AO',
+        #     6109: 'A',
+        #     6110: 'X',
+        #     6111: 'X',
+        #     6112: 'X',
+        #     6113: 'OW',
+        #     6114: 'D',
+        #     6115: 'NA',
+        #     6119: 'NA',
+        # }
+
+        # flake8 - unused variable: `floodzone_fema`.
+        # if isinstance(BIM_in['FloodZone'], int):
+        #     # NJDEP code for flood zone (conversion to the FEMA designations)
+        #     floodzone_fema = ap_FloodZone[BIM_in['FloodZone']]
+        # else:
+        #     # standard input should follow the FEMA flood zone designations
+        #     floodzone_fema = BIM_in['FloodZone']
 
         # add the parsed data to the BIM dict
         BIM.update(
@@ -365,21 +370,23 @@ def parse_BIM(BIM_in, location, hazards):
         # suburban (0.35) = 35
         # light trees (0.70) = 70
         # trees (1.00) = 100
-        # Mapped to Land Use Categories in NJ (see https://www.state.nj.us/dep/gis/
-        # digidownload/metadata/lulc02/anderson2002.html) by T. Wu group
-        # (see internal report on roughness calculations, Table 4).
-        # These are mapped to Hazus defintions as follows:
-        # Open Water (5400s) with zo=0.01 and barren land (7600) with zo=0.04 assume Open
-        # Open Space Developed, Low Intensity Developed, Medium Intensity Developed
-        # (1110-1140) assumed zo=0.35-0.4 assume Suburban
-        # High Intensity Developed (1600) with zo=0.6 assume Lt. Tree
-        # Forests of all classes (4100-4300) assumed zo=0.6 assume Lt. Tree
-        # Shrub (4400) with zo=0.06 assume Open
-        # Grasslands, pastures and agricultural areas (2000 series) with
-        # zo=0.1-0.15 assume Lt. Suburban
-        # Woody Wetlands (6250) with zo=0.3 assume suburban
-        # Emergent Herbaceous Wetlands (6240) with zo=0.03 assume Open
-        # Note: HAZUS category of trees (1.00) does not apply to any LU/LC in NJ
+        # Mapped to Land Use Categories in NJ (see
+        # https://www.state.nj.us/dep/gis/
+        # digidownload/metadata/lulc02/anderson2002.html) by T. Wu
+        # group (see internal report on roughness calculations, Table
+        # 4).  These are mapped to Hazus defintions as follows: Open
+        # Water (5400s) with zo=0.01 and barren land (7600) with
+        # zo=0.04 assume Open Open Space Developed, Low Intensity
+        # Developed, Medium Intensity Developed (1110-1140) assumed
+        # zo=0.35-0.4 assume Suburban High Intensity Developed (1600)
+        # with zo=0.6 assume Lt. Tree Forests of all classes
+        # (4100-4300) assumed zo=0.6 assume Lt. Tree Shrub (4400) with
+        # zo=0.06 assume Open Grasslands, pastures and agricultural
+        # areas (2000 series) with zo=0.1-0.15 assume Lt. Suburban
+        # Woody Wetlands (6250) with zo=0.3 assume suburban Emergent
+        # Herbaceous Wetlands (6240) with zo=0.03 assume Open
+        # Note: HAZUS category of trees (1.00) does not apply to any
+        # LU/LC in NJ
         terrain = 15  # Default in Reorganized Rulesets - WIND
         if location == "NJ":
             if BIM['FloodZone'].startswith('V') or BIM['FloodZone'] in [
@@ -445,9 +452,11 @@ def parse_BIM(BIM_in, location, hazards):
         BIM.update(
             dict(
                 # Flood Risk
-                # Properties in the High Water Zone (within 1 mile of the coast) are at
-                # risk of flooding and other wind-borne debris action.
-                FloodRisk=True,  # TODO: need high water zone for this and move it to inputs!
+                # Properties in the High Water Zone (within 1 mile of
+                # the coast) are at risk of flooding and other
+                # wind-borne debris action.
+                # TODO: need high water zone for this and move it to inputs!
+                FloodRisk=True,
             )
         )
 

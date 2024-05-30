@@ -43,11 +43,8 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import random
 import numpy as np
 import pandas as pd
-import datetime
-import math
 
 
 def parse_BIM(BIM_in, location, hazards):
@@ -117,15 +114,17 @@ def parse_BIM(BIM_in, location, hazards):
         if pd.isna(roof_system):
             roof_system = 'Wood'
 
-        # maps number of units to the internal representation
-        ap_NoUnits = {
-            'Single': 'sgl',
-            'Multiple': 'mlt',
-            'Multi': 'mlt',
-            'nav': 'nav',
-        }
+        # flake8 - unused variable: `ap_NoUnits`.
+        # # maps number of units to the internal representation
+        # ap_NoUnits = {
+        #     'Single': 'sgl',
+        #     'Multiple': 'mlt',
+        #     'Multi': 'mlt',
+        #     'nav': 'nav',
+        # }
 
-        # maps for design level (Marginal Engineered is mapped to Engineered as default)
+        # maps for design level (Marginal Engineered is mapped to
+        # Engineered as default)
         ap_DesignLevel = {'E': 'E', 'NE': 'NE', 'PE': 'PE', 'ME': 'E'}
         design_level = BIM_in.get('DesignLevel', 'E')
         if pd.isna(design_level):
@@ -139,7 +138,7 @@ def parse_BIM(BIM_in, location, hazards):
         yearbuilt = None
         try:
             yearbuilt = BIM_in['YearBuilt']
-        except:
+        except KeyError:
             for i in alname_yearbuilt:
                 if i in BIM_in.keys():
                     yearbuilt = BIM_in[i]
@@ -233,7 +232,7 @@ def parse_BIM(BIM_in, location, hazards):
             6115: 'NA',
             6119: 'NA',
         }
-        if type(BIM_in['FloodZone']) == int:
+        if isinstance(BIM_in['FloodZone'], int):
             # NJDEP code for flood zone (conversion to the FEMA designations)
             floodzone_fema = ap_FloodZone[BIM_in['FloodZone']]
         else:
@@ -263,7 +262,8 @@ def parse_BIM(BIM_in, location, hazards):
                 OccupancyClass=str(oc),
                 BuildingType=buildingtype,
                 YearBuilt=int(yearbuilt),
-                # double check with Tracy for format - (NumberStories0 is 4-digit code)
+                # double check with Tracy for format - (NumberStories0
+                # is 4-digit code)
                 # (NumberStories1 is image-processed story number)
                 NumberOfStories=int(nstories),
                 PlanArea=float(area),
@@ -325,7 +325,7 @@ def parse_BIM(BIM_in, location, hazards):
             6115: 'NA',
             6119: 'NA',
         }
-        if type(BIM_in['FloodZone']) == int:
+        if isinstance(BIM_in['FloodZone'], int):
             # NJDEP code for flood zone (conversion to the FEMA designations)
             floodzone_fema = ap_FloodZone[BIM_in['FloodZone']]
         else:
@@ -405,16 +405,16 @@ def parse_BIM(BIM_in, location, hazards):
         # digidownload/metadata/lulc02/anderson2002.html) by T. Wu group
         # (see internal report on roughness calculations, Table 4).
         # These are mapped to Hazus defintions as follows:
-        # Open Water (5400s) with zo=0.01 and barren land (7600) with zo=0.04 assume Open
-        # Open Space Developed, Low Intensity Developed, Medium Intensity Developed
-        # (1110-1140) assumed zo=0.35-0.4 assume Suburban
-        # High Intensity Developed (1600) with zo=0.6 assume Lt. Tree
-        # Forests of all classes (4100-4300) assumed zo=0.6 assume Lt. Tree
-        # Shrub (4400) with zo=0.06 assume Open
-        # Grasslands, pastures and agricultural areas (2000 series) with
-        # zo=0.1-0.15 assume Lt. Suburban
-        # Woody Wetlands (6250) with zo=0.3 assume suburban
-        # Emergent Herbaceous Wetlands (6240) with zo=0.03 assume Open
+        # Open Water (5400s) with zo=0.01 and barren land (7600) with
+        # zo=0.04 assume Open Open Space Developed, Low Intensity
+        # Developed, Medium Intensity Developed (1110-1140) assumed
+        # zo=0.35-0.4 assume Suburban High Intensity Developed (1600)
+        # with zo=0.6 assume Lt. Tree Forests of all classes
+        # (4100-4300) assumed zo=0.6 assume Lt. Tree Shrub (4400) with
+        # zo=0.06 assume Open Grasslands, pastures and agricultural
+        # areas (2000 series) with zo=0.1-0.15 assume Lt. Suburban
+        # Woody Wetlands (6250) with zo=0.3 assume suburban Emergent
+        # Herbaceous Wetlands (6240) with zo=0.03 assume Open
         # Note: HAZUS category of trees (1.00) does not apply to any LU/LC in NJ
         terrain = 15  # Default in Reorganized Rulesets - WIND
         LULC = BIM_ap['LULC']
@@ -479,9 +479,11 @@ def parse_BIM(BIM_in, location, hazards):
         BIM_ap.update(
             dict(
                 # Flood Risk
-                # Properties in the High Water Zone (within 1 mile of the coast) are at
-                # risk of flooding and other wind-borne debris action.
-                FloodRisk=True,  # TODO: need high water zone for this and move it to inputs!
+                # Properties in the High Water Zone (within 1 mile of
+                # the coast) are at risk of flooding and other
+                # wind-borne debris action.
+                # TODO: need high water zone for this and move it to inputs!
+                FloodRisk=True,
             )
         )
 

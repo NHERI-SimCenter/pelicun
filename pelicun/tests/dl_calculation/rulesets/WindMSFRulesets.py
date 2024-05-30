@@ -79,13 +79,14 @@ def MSF_config(BIM):
 
     # Shutters
     # IRC 2000-2015:
-    # R301.2.1.2 in NJ IRC 2015 says protection of openings required for
-    # buildings located in WindBorneDebris regions, mentions impact-rated protection for
-    # glazing, impact-resistance for garage door glazed openings, and finally
-    # states that wood structural panels with a thickness > 7/16" and a
-    # span <8' can be used, as long as they are precut, attached to the framing
-    # surrounding the opening, and the attachments are resistant to corrosion
-    # and are able to resist component and cladding loads;
+    # R301.2.1.2 in NJ IRC 2015 says protection of openings required
+    # for buildings located in WindBorneDebris regions, mentions
+    # impact-rated protection for glazing, impact-resistance for
+    # garage door glazed openings, and finally states that wood
+    # structural panels with a thickness > 7/16" and a span <8' can be
+    # used, as long as they are precut, attached to the framing
+    # surrounding the opening, and the attachments are resistant to
+    # corrosion and are able to resist component and cladding loads;
     # Earlier IRC editions provide similar rules.
     if year >= 2000:
         shutters = BIM['WindBorneDebris']

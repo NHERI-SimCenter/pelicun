@@ -44,8 +44,6 @@
 # Tracy Kijewski-Correa
 
 import random
-import numpy as np
-import datetime
 
 
 def MH_config(BIM):

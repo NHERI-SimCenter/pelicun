@@ -73,11 +73,12 @@ def FL_config(BIM):
     else:
         flood_type = 'cvz'  # Default
 
-    # First Floor Elevation (FFE)
-    if flood_type in ['raz', 'caz']:
-        FFE = BIM['FirstFloorElevation']
-    else:
-        FFE = BIM['FirstFloorElevation'] - 1.0
+    # flake8 - unused variable: `FFE`
+    # # First Floor Elevation (FFE)
+    # if flood_type in ['raz', 'caz']:
+    #     FFE = BIM['FirstFloorElevation']
+    # else:
+    #     FFE = BIM['FirstFloorElevation'] - 1.0
 
     # PostFIRM
     PostFIRM = False  # Default
@@ -146,64 +147,66 @@ def FL_config(BIM):
     else:
         bmt_type = 'bw'  # Default
 
-    # Duration
-    dur = 'short'
+    # flake8 - unused variable: `dur`.
+    # # Duration
+    # dur = 'short'
 
-    # Occupancy Type
-    if BIM['OccupancyClass'] == 'RES1':
-        if BIM['NumberOfStories'] == 1:
-            if flood_type == 'raz':
-                OT = 'SF1XA'
-            elif flood_type == 'cvz':
-                OT = 'SF1XV'
-        else:
-            if bmt_type == 'nav':
-                if flood_type == 'raz':
-                    OT = 'SF2XA'
-                elif flood_type == 'cvz':
-                    OT = 'SF2XV'
-            elif bmt_type == 'bmt':
-                if flood_type == 'raz':
-                    OT = 'SF2BA'
-                elif flood_type == 'cvz':
-                    OT = 'SF2BV'
-            elif bmt_type == 'spt':
-                if flood_type == 'raz':
-                    OT = 'SF2SA'
-                elif flood_type == 'cvz':
-                    OT = 'SF2SV'
-    elif 'RES3' in BIM['OccupancyClass']:
-        OT = 'APT'
-    else:
-        ap_OT = {
-            'RES2': 'MH',
-            'RES4': 'HOT',
-            'RES5': 'NURSE',
-            'RES6': 'NURSE',
-            'COM1': 'RETAL',
-            'COM2': 'WHOLE',
-            'COM3': 'SERVICE',
-            'COM4': 'OFFICE',
-            'COM5': 'BANK',
-            'COM6': 'HOSP',
-            'COM7': 'MED',
-            'COM8': 'REC',
-            'COM9': 'THEAT',
-            'COM10': 'GARAGE',
-            'IND1': 'INDH',
-            'IND2': 'INDL',
-            'IND3': 'CHEM',
-            'IND4': 'PROC',
-            'IND5': 'CHEM',
-            'IND6': 'CONST',
-            'AGR1': 'AGRI',
-            'REL1': 'RELIG',
-            'GOV1': 'CITY',
-            'GOV2': 'EMERG',
-            'EDU1': 'SCHOOL',
-            'EDU2': 'SCHOOL',
-        }
-        ap_OT[BIM['OccupancyClass']]
+    # flake8: unused variable: `OT`
+    # # Occupancy Type
+    # if BIM['OccupancyClass'] == 'RES1':
+    #     if BIM['NumberOfStories'] == 1:
+    #         if flood_type == 'raz':
+    #             OT = 'SF1XA'
+    #         elif flood_type == 'cvz':
+    #             OT = 'SF1XV'
+    #     else:
+    #         if bmt_type == 'nav':
+    #             if flood_type == 'raz':
+    #                 OT = 'SF2XA'
+    #             elif flood_type == 'cvz':
+    #                 OT = 'SF2XV'
+    #         elif bmt_type == 'bmt':
+    #             if flood_type == 'raz':
+    #                 OT = 'SF2BA'
+    #             elif flood_type == 'cvz':
+    #                 OT = 'SF2BV'
+    #         elif bmt_type == 'spt':
+    #             if flood_type == 'raz':
+    #                 OT = 'SF2SA'
+    #             elif flood_type == 'cvz':
+    #                 OT = 'SF2SV'
+    # elif 'RES3' in BIM['OccupancyClass']:
+    #     OT = 'APT'
+    # else:
+    #     ap_OT = {
+    #         'RES2': 'MH',
+    #         'RES4': 'HOT',
+    #         'RES5': 'NURSE',
+    #         'RES6': 'NURSE',
+    #         'COM1': 'RETAL',
+    #         'COM2': 'WHOLE',
+    #         'COM3': 'SERVICE',
+    #         'COM4': 'OFFICE',
+    #         'COM5': 'BANK',
+    #         'COM6': 'HOSP',
+    #         'COM7': 'MED',
+    #         'COM8': 'REC',
+    #         'COM9': 'THEAT',
+    #         'COM10': 'GARAGE',
+    #         'IND1': 'INDH',
+    #         'IND2': 'INDL',
+    #         'IND3': 'CHEM',
+    #         'IND4': 'PROC',
+    #         'IND5': 'CHEM',
+    #         'IND6': 'CONST',
+    #         'AGR1': 'AGRI',
+    #         'REL1': 'RELIG',
+    #         'GOV1': 'CITY',
+    #         'GOV2': 'EMERG',
+    #         'EDU1': 'SCHOOL',
+    #         'EDU2': 'SCHOOL',
+    #     }
+    #     ap_OT[BIM['OccupancyClass']]
 
     if not (BIM['OccupancyClass'] in ['RES1', 'RES2']):
         if 'RES3' in BIM['OccupancyClass']:
