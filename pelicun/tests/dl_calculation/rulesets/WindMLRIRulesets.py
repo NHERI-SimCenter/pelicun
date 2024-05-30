@@ -47,6 +47,7 @@ import random
 import numpy as np
 import datetime
 
+
 def MLRI_config(BIM):
     """
     Rules to identify a HAZUS MLRI configuration based on BIM data
@@ -63,7 +64,7 @@ def MLRI_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt'] # just for the sake of brevity
+    year = BIM['YearBuilt']  # just for the sake of brevity
 
     # MR
     MR = True
@@ -85,7 +86,7 @@ def MLRI_config(BIM):
 
     if BIM['RoofShape'] in ['gab', 'hip']:
         roof_cover = 'null'
-        roof_quality = 'god' # default supported by HAZUS
+        roof_quality = 'god'  # default supported by HAZUS
     else:
         if year >= 1975:
             roof_cover = 'spm'
@@ -100,22 +101,25 @@ def MLRI_config(BIM):
                 roof_quality = 'god'
             else:
                 roof_quality = 'por'
-    
-    # extend the BIM dictionary
-    BIM.update(dict(
-        RoofCover = roof_cover,
-        RoofQuality = roof_quality,
-        RoofDeckAttachmentM = MRDA,
-        Shutters = shutters,
-        MasonryReinforcing = MR,
-        ))
 
-    bldg_config = f"M.LRI." \
-                  f"{int(shutters)}." \
-                  f"{int(MR)}." \
-                  f"{roof_quality}." \
-                  f"{MRDA}." \
-                  f"{int(BIM['TerrainRoughness'])}"
+    # extend the BIM dictionary
+    BIM.update(
+        dict(
+            RoofCover=roof_cover,
+            RoofQuality=roof_quality,
+            RoofDeckAttachmentM=MRDA,
+            Shutters=shutters,
+            MasonryReinforcing=MR,
+        )
+    )
+
+    bldg_config = (
+        f"M.LRI."
+        f"{int(shutters)}."
+        f"{int(MR)}."
+        f"{roof_quality}."
+        f"{MRDA}."
+        f"{int(BIM['TerrainRoughness'])}"
+    )
 
     return bldg_config
-

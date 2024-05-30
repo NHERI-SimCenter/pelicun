@@ -46,6 +46,7 @@
 import random
 import datetime
 
+
 def MSF_config(BIM):
     """
     Rules to identify a HAZUS MSF configuration based on BIM data
@@ -62,7 +63,7 @@ def MSF_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt'] # just for the sake of brevity
+    year = BIM['YearBuilt']  # just for the sake of brevity
 
     # Roof-Wall Connection (RWC)
     if BIM['HazardProneRegion']:
@@ -103,7 +104,6 @@ def MSF_config(BIM):
         else:
             shutters = False
 
-
     if BIM['RoofSystem'] == 'trs':
 
         # Roof Deck Attachment (RDA)
@@ -114,13 +114,13 @@ def MSF_config(BIM):
         # codes. Commentary for Table R602.3(1) indicates 8d nails with 6”/6”
         # spacing (enhanced roof spacing) for ultimate wind speeds greater than
         # a speed_lim. speed_lim depends on the year of construction
-        RDA = '6d' # Default (aka A) in Reorganized Rulesets - WIND
+        RDA = '6d'  # Default (aka A) in Reorganized Rulesets - WIND
         if year >= 2016:
             # IRC 2015
-            speed_lim = 130.0 # mph
+            speed_lim = 130.0  # mph
         else:
             # IRC 2000 - 2009
-            speed_lim = 100.0 # mph
+            speed_lim = 100.0  # mph
         if BIM['V_ult'] > speed_lim:
             RDA = '8s'  # 8d @ 6"/6" ('D' in the Reorganized Rulesets - WIND)
         else:
@@ -152,21 +152,21 @@ def MSF_config(BIM):
         else:
             if year > (datetime.datetime.now().year - 30):
                 if BIM['Garage'] < 1:
-                    garage = 'no' # None
+                    garage = 'no'  # None
                 else:
                     if shutters:
-                        garage = 'sup' # SFBC 1994
+                        garage = 'sup'  # SFBC 1994
                     else:
-                        garage = 'std' # Standard
+                        garage = 'std'  # Standard
             else:
                 # year <= current year - 30
                 if BIM['Garage'] < 1:
-                    garage = 'no' # None
+                    garage = 'no'  # None
                 else:
                     if shutters:
                         garage = 'sup'
                     else:
-                        garage = 'wkd' # Weak
+                        garage = 'wkd'  # Weak
 
         # Masonry Reinforcing (MR)
         # R606.6.4.1.2 Metal Reinforcement states that walls other than interior
@@ -181,27 +181,31 @@ def MSF_config(BIM):
         stories = min(BIM['NumberOfStories'], 2)
 
         # extend the BIM dictionary
-        BIM.update(dict(
-            SecondaryWaterResistance = SWR,
-            RoofDeckAttachmentW = RDA,
-            RoofToWallConnection = RWC,
-            Shutters = shutters,
-            AugmentGarage = garage,
-            MasonryReinforcing = MR,
-            ))
+        BIM.update(
+            dict(
+                SecondaryWaterResistance=SWR,
+                RoofDeckAttachmentW=RDA,
+                RoofToWallConnection=RWC,
+                Shutters=shutters,
+                AugmentGarage=garage,
+                MasonryReinforcing=MR,
+            )
+        )
 
-        bldg_config = f"M.SF." \
-                      f"{int(stories)}." \
-                      f"{BIM['RoofShape']}." \
-                      f"{RWC}." \
-                      f"{RFT}." \
-                      f"{RDA}." \
-                      f"{int(shutters)}." \
-                      f"{int(SWR)}." \
-                      f"{garage}." \
-                      f"{int(MR)}." \
-                      f"null." \
-                      f"{int(BIM['TerrainRoughness'])}"
+        bldg_config = (
+            f"M.SF."
+            f"{int(stories)}."
+            f"{BIM['RoofShape']}."
+            f"{RWC}."
+            f"{RFT}."
+            f"{RDA}."
+            f"{int(shutters)}."
+            f"{int(SWR)}."
+            f"{garage}."
+            f"{int(MR)}."
+            f"null."
+            f"{int(BIM['TerrainRoughness'])}"
+        )
 
     else:
         # Roof system = OSJW
@@ -220,43 +224,50 @@ def MSF_config(BIM):
         # NJ IBC 1507.4.5 (for smtl)
         # high wind attachment are required for DSWII > 142 mph
         if BIM['V_ult'] > 142.0:
-            RDA = 'sup' # superior
+            RDA = 'sup'  # superior
         else:
-            RDA = 'std' # standard
+            RDA = 'std'  # standard
 
         # Secondary Water Resistance (SWR)
         # Minimum drainage recommendations are in place in NJ (See below).
         # However, SWR indicates a code-plus practice.
-        SWR = 'null' # Default
+        SWR = 'null'  # Default
         if BIM['RoofShape'] == 'flt':
             SWR = int(True)
-        elif ((BIM['RoofShape'] in ['hip', 'gab']) and 
-              (roof_cover=='cshl') and (RDA=='sup')):
+        elif (
+            (BIM['RoofShape'] in ['hip', 'gab'])
+            and (roof_cover == 'cshl')
+            and (RDA == 'sup')
+        ):
             SWR = int(random.random() < 0.6)
 
         stories = min(BIM['NumberOfStories'], 2)
 
         # extend the BIM dictionary
-        BIM.update(dict(
-            SecondaryWaterResistance = SWR,
-            RoofDeckAttachmentW = RDA,
-            RoofToWallConnection = RWC,
-            Shutters = shutters,
-            AugmentGarage = garage,
-            MasonryReinforcing = MR,
-            ))
+        BIM.update(
+            dict(
+                SecondaryWaterResistance=SWR,
+                RoofDeckAttachmentW=RDA,
+                RoofToWallConnection=RWC,
+                Shutters=shutters,
+                AugmentGarage=garage,
+                MasonryReinforcing=MR,
+            )
+        )
 
-        bldg_config = f"M.SF." \
-                      f"{int(stories)}." \
-                      f"{BIM['RoofShape']}." \
-                      f"{RWC}." \
-                      f"{RFT}." \
-                      f"{RDA}." \
-                      f"{int(shutters)}." \
-                      f"{SWR}." \
-                      f"null." \
-                      f"null." \
-                      f"{roof_cover}." \
-                      f"{int(BIM['TerrainRoughness'])}"
+        bldg_config = (
+            f"M.SF."
+            f"{int(stories)}."
+            f"{BIM['RoofShape']}."
+            f"{RWC}."
+            f"{RFT}."
+            f"{RDA}."
+            f"{int(shutters)}."
+            f"{SWR}."
+            f"null."
+            f"null."
+            f"{roof_cover}."
+            f"{int(BIM['TerrainRoughness'])}"
+        )
 
     return bldg_config

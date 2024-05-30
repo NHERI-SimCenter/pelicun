@@ -46,6 +46,7 @@
 import random
 import datetime
 
+
 def WMUH_config(BIM):
     """
     Rules to identify a HAZUS WMUH configuration based on BIM data
@@ -65,15 +66,15 @@ def WMUH_config(BIM):
     year = BIM['YearBuilt']  # just for the sake of brevity
 
     # Secondary Water Resistance (SWR)
-    SWR = 0 # Default
+    SWR = 0  # Default
     if year > 2000:
         if BIM['RoofShape'] == 'flt':
-            SWR = 'null' # because SWR is not a question for flat roofs
-        elif BIM['RoofShape'] in ['gab','hip']:
+            SWR = 'null'  # because SWR is not a question for flat roofs
+        elif BIM['RoofShape'] in ['gab', 'hip']:
             SWR = int(random.random() < 0.6)
     elif year > 1987:
         if BIM['RoofShape'] == 'flt':
-            SWR = 'null' # because SWR is not a question for flat roofs
+            SWR = 'null'  # because SWR is not a question for flat roofs
         elif (BIM['RoofShape'] == 'gab') or (BIM['RoofShape'] == 'hip'):
             if BIM['RoofSlope'] < 0.33:
                 SWR = int(True)
@@ -82,7 +83,7 @@ def WMUH_config(BIM):
     else:
         # year <= 1987
         if BIM['RoofShape'] == 'flt':
-            SWR = 'null' # because SWR is not a question for flat roofs
+            SWR = 'null'  # because SWR is not a question for flat roofs
         else:
             SWR = int(random.random() < 0.3)
 
@@ -139,7 +140,7 @@ def WMUH_config(BIM):
     # The base rule was then extended to the exposures closest to suburban and
     # light suburban, even though these are not considered by the code.
     if year > 2009:
-        if BIM['TerrainRoughness'] >= 35: # suburban or light trees
+        if BIM['TerrainRoughness'] >= 35:  # suburban or light trees
             if BIM['V_ult'] > 168.0:
                 RDA = '8s'  # 8d @ 6"/6" 'D'
             else:
@@ -165,7 +166,7 @@ def WMUH_config(BIM):
     # Attachment requirements are given based on sheathing thickness, basic
     # wind speed, and the mean roof height of the building.
     elif year > 1996:
-        if (BIM['V_ult'] >= 103 ) and (BIM['MeanRoofHt'] >= 25.0):
+        if (BIM['V_ult'] >= 103) and (BIM['MeanRoofHt'] >= 25.0):
             RDA = '8s'  # 8d @ 6"/6" 'D'
         else:
             RDA = '8d'  # 8d @ 6"/12" 'B'
@@ -182,9 +183,9 @@ def WMUH_config(BIM):
     else:
         # year <= 1993
         if BIM['SheathingThickness'] <= 0.5:
-            RDA = '6d' # 6d @ 6"/12" 'A'
+            RDA = '6d'  # 6d @ 6"/12" 'A'
         else:
-            RDA = '8d' # 8d @ 6"/12" 'B'
+            RDA = '8d'  # 8d @ 6"/12" 'B'
 
     # Roof-Wall Connection (RWC)
     # IRC 2000-2015:
@@ -249,25 +250,28 @@ def WMUH_config(BIM):
     stories = min(BIM['NumberOfStories'], 3)
 
     # extend the BIM dictionary
-    BIM.update(dict(
-        SecondaryWaterResistance = SWR,
-        RoofCover = roof_cover,
-        RoofQuality = roof_quality,
-        RoofDeckAttachmentW = RDA,
-        RoofToWallConnection = RWC,
-        Shutters = shutters
-        ))
+    BIM.update(
+        dict(
+            SecondaryWaterResistance=SWR,
+            RoofCover=roof_cover,
+            RoofQuality=roof_quality,
+            RoofDeckAttachmentW=RDA,
+            RoofToWallConnection=RWC,
+            Shutters=shutters,
+        )
+    )
 
-    bldg_config = f"W.MUH." \
-                  f"{int(stories)}." \
-                  f"{BIM['RoofShape']}." \
-                  f"{roof_cover}." \
-                  f"{roof_quality}." \
-                  f"{SWR}." \
-                  f"{RDA}." \
-                  f"{RWC}." \
-                  f"{int(shutters)}." \
-                  f"{int(BIM['TerrainRoughness'])}"
+    bldg_config = (
+        f"W.MUH."
+        f"{int(stories)}."
+        f"{BIM['RoofShape']}."
+        f"{roof_cover}."
+        f"{roof_quality}."
+        f"{SWR}."
+        f"{RDA}."
+        f"{RWC}."
+        f"{int(shutters)}."
+        f"{int(BIM['TerrainRoughness'])}"
+    )
 
     return bldg_config
-

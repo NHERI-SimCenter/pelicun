@@ -47,6 +47,7 @@ import random
 import numpy as np
 import datetime
 
+
 def CECB_config(BIM):
     """
     Rules to identify a HAZUS CECB configuration based on BIM data
@@ -63,7 +64,7 @@ def CECB_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt'] # just for the sake of brevity
+    year = BIM['YearBuilt']  # just for the sake of brevity
 
     # Roof cover
     if BIM['RoofShape'] in ['gab', 'hip']:
@@ -96,14 +97,13 @@ def CECB_config(BIM):
 
     # Wind Debris (widd in HAZSU)
     # HAZUS A: Res/Comm, B: Varies by direction, C: Residential, D: None
-    WIDD = 'C' # residential (default)
-    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C',
-                                  'RES3D']:
-        WIDD = 'C' # residential
+    WIDD = 'C'  # residential (default)
+    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D']:
+        WIDD = 'C'  # residential
     elif BIM['OccupancyClass'] == 'AGR1':
-        WIDD = 'D' # None
+        WIDD = 'D'  # None
     else:
-        WIDD = 'A' # Res/Comm
+        WIDD = 'A'  # Res/Comm
 
     # Window area ratio
     if BIM['WindowArea'] < 0.33:
@@ -121,19 +121,22 @@ def CECB_config(BIM):
         bldg_tag = 'C.ECB.H'
 
     # extend the BIM dictionary
-    BIM.update(dict(
-        RoofCover = roof_cover,
-        Shutters = shutters,
-        WindowAreaRatio = WWR,
-        WindDebrisClass = WIDD
-        ))
+    BIM.update(
+        dict(
+            RoofCover=roof_cover,
+            Shutters=shutters,
+            WindowAreaRatio=WWR,
+            WindDebrisClass=WIDD,
+        )
+    )
 
-    bldg_config = f"{bldg_tag}." \
-                  f"{roof_cover}." \
-                  f"{int(shutters)}." \
-                  f"{WIDD}." \
-                  f"{WWR}." \
-                  f"{int(BIM['TerrainRoughness'])}"
+    bldg_config = (
+        f"{bldg_tag}."
+        f"{roof_cover}."
+        f"{int(shutters)}."
+        f"{WIDD}."
+        f"{WWR}."
+        f"{int(BIM['TerrainRoughness'])}"
+    )
 
     return bldg_config
-

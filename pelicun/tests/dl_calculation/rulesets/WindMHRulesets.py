@@ -47,6 +47,7 @@ import random
 import numpy as np
 import datetime
 
+
 def MH_config(BIM):
     """
     Rules to identify a HAZUS WSF configuration based on BIM data
@@ -63,7 +64,7 @@ def MH_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt'] # just for the sake of brevity
+    year = BIM['YearBuilt']  # just for the sake of brevity
     if year <= 1976:
         # MHPHUD
         bldg_tag = 'MH.PHUD'
@@ -99,15 +100,18 @@ def MH_config(BIM):
         bldg_tag = 'MH.94HUD' + BIM['WindZone']
 
     # extend the BIM dictionary
-    BIM.update(dict(
-        TieDowns = TD,
-        Shutters = shutters,
-        ))
+    BIM.update(
+        dict(
+            TieDowns=TD,
+            Shutters=shutters,
+        )
+    )
 
-    bldg_config = f"{bldg_tag}." \
-                  f"{int(shutters)}." \
-                  f"{int(TD)}." \
-                  f"{int(BIM['TerrainRoughness'])}"
+    bldg_config = (
+        f"{bldg_tag}."
+        f"{int(shutters)}."
+        f"{int(TD)}."
+        f"{int(BIM['TerrainRoughness'])}"
+    )
 
     return bldg_config
-

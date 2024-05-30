@@ -45,6 +45,7 @@
 
 import numpy as np
 
+
 def FL_config(BIM):
     """
     Rules to identify the flood vunerability category
@@ -60,17 +61,17 @@ def FL_config(BIM):
         A string that identifies a specific configration within this buidling
         class.
     """
-    year = BIM['YearBuilt'] # just for the sake of brevity
+    year = BIM['YearBuilt']  # just for the sake of brevity
 
     # Flood Type
     if BIM['FloodZone'] == 'AO':
-        flood_type = 'raz' # Riverline/A-Zone
+        flood_type = 'raz'  # Riverline/A-Zone
     elif BIM['FloodZone'] in ['A', 'AE']:
-        flood_type = 'cvz' # Costal-Zone
+        flood_type = 'cvz'  # Costal-Zone
     elif BIM['FloodZone'].startswith('V'):
-        flood_type = 'cvz' # Costal-Zone
+        flood_type = 'cvz'  # Costal-Zone
     else:
-        flood_type = 'cvz' # Default
+        flood_type = 'cvz'  # Default
 
     # First Floor Elevation (FFE)
     if flood_type in ['raz', 'caz']:
@@ -79,29 +80,71 @@ def FL_config(BIM):
         FFE = BIM['FirstFloorElevation'] - 1.0
 
     # PostFIRM
-    PostFIRM = False # Default
-    city_list = ['Absecon', 'Atlantic', 'Brigantine', 'Buena', 'Buena Vista',
-                 'Corbin City', 'Egg Harbor City', 'Egg Harbor', 'Estell Manor',
-                 'Folsom', 'Galloway', 'Hamilton', 'Hammonton', 'Linwood',
-                 'Longport', 'Margate City', 'Mullica', 'Northfield',
-                 'Pleasantville', 'Port Republic', 'Somers Point',
-                 'Ventnor City', 'Weymouth']
-    year_list = [1976, 1971, 1971, 1983, 1979, 1981, 1982, 1983, 1978, 1982,
-                 1983, 1977, 1982, 1983, 1974, 1974, 1982, 1979, 1983, 1983,
-                 1982, 1971, 1979]
-    for i in range(0,22):
-        PostFIRM = (((BIM['City'] == city_list[i]) and (year > year_list[i])) or \
-                    PostFIRM)
+    PostFIRM = False  # Default
+    city_list = [
+        'Absecon',
+        'Atlantic',
+        'Brigantine',
+        'Buena',
+        'Buena Vista',
+        'Corbin City',
+        'Egg Harbor City',
+        'Egg Harbor',
+        'Estell Manor',
+        'Folsom',
+        'Galloway',
+        'Hamilton',
+        'Hammonton',
+        'Linwood',
+        'Longport',
+        'Margate City',
+        'Mullica',
+        'Northfield',
+        'Pleasantville',
+        'Port Republic',
+        'Somers Point',
+        'Ventnor City',
+        'Weymouth',
+    ]
+    year_list = [
+        1976,
+        1971,
+        1971,
+        1983,
+        1979,
+        1981,
+        1982,
+        1983,
+        1978,
+        1982,
+        1983,
+        1977,
+        1982,
+        1983,
+        1974,
+        1974,
+        1982,
+        1979,
+        1983,
+        1983,
+        1982,
+        1971,
+        1979,
+    ]
+    for i in range(0, 22):
+        PostFIRM = (
+            (BIM['City'] == city_list[i]) and (year > year_list[i])
+        ) or PostFIRM
 
     # Basement Type
     if BIM['SplitLevel'] and (BIM['FoundationType'] == 3504):
-        bmt_type = 'spt' # Split-Level Basement
+        bmt_type = 'spt'  # Split-Level Basement
     elif BIM['FoundationType'] in [3501, 3502, 3503, 3505, 3506, 3507]:
-        bmt_type = 'bn' # No Basement
+        bmt_type = 'bn'  # No Basement
     elif (not BIM['SplitLevel']) and (BIM['FoundationType'] == 3504):
-        bmt_type = 'bw' # Basement
+        bmt_type = 'bw'  # Basement
     else:
-        bmt_type = 'bw' # Default
+        bmt_type = 'bw'  # Default
 
     # Duration
     dur = 'short'
@@ -158,42 +201,43 @@ def FL_config(BIM):
             'GOV1': 'CITY',
             'GOV2': 'EMERG',
             'EDU1': 'SCHOOL',
-            'EDU2': 'SCHOOL'
+            'EDU2': 'SCHOOL',
         }
         ap_OT[BIM['OccupancyClass']]
 
-
     if not (BIM['OccupancyClass'] in ['RES1', 'RES2']):
         if 'RES3' in BIM['OccupancyClass']:
-            fl_config = f"{'fl'}_" \
-                        f"{'RES3'}"
+            fl_config = f"{'fl'}_" f"{'RES3'}"
         else:
-            fl_config = f"{'fl'}_" \
-                        f"{BIM['OccupancyClass']}"
+            fl_config = f"{'fl'}_" f"{BIM['OccupancyClass']}"
     elif BIM['OccupancyClass'] == 'RES2':
-        fl_config = f"{'fl'}_" \
-                    f"{BIM['OccupancyClass']}_" \
-                    f"{flood_type}"
+        fl_config = f"{'fl'}_" f"{BIM['OccupancyClass']}_" f"{flood_type}"
     else:
         if bmt_type == 'spt':
-            fl_config = f"{'fl'}_" \
-                        f"{BIM['OccupancyClass']}_" \
-                        f"{'sl'}_" \
-                        f"{'bw'}_" \
-                        f"{flood_type}"
+            fl_config = (
+                f"{'fl'}_"
+                f"{BIM['OccupancyClass']}_"
+                f"{'sl'}_"
+                f"{'bw'}_"
+                f"{flood_type}"
+            )
         else:
-            st = 's'+str(np.min([BIM['NumberOfStories'],3]))
-            fl_config = f"{'fl'}_" \
-                        f"{BIM['OccupancyClass']}_" \
-                        f"{st}_" \
-                        f"{bmt_type}_" \
-                        f"{flood_type}"
+            st = 's' + str(np.min([BIM['NumberOfStories'], 3]))
+            fl_config = (
+                f"{'fl'}_"
+                f"{BIM['OccupancyClass']}_"
+                f"{st}_"
+                f"{bmt_type}_"
+                f"{flood_type}"
+            )
 
     # extend the BIM dictionary
-    BIM.update(dict(
-        FloodType = flood_type,
-        BasementType=bmt_type,
-        PostFIRM=PostFIRM,
-        ))
+    BIM.update(
+        dict(
+            FloodType=flood_type,
+            BasementType=bmt_type,
+            PostFIRM=PostFIRM,
+        )
+    )
 
     return fl_config

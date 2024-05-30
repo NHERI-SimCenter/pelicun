@@ -46,6 +46,7 @@
 import random
 import datetime
 
+
 def MMUH_config(BIM):
     """
     Rules to identify a HAZUS MMUH configuration based on BIM data
@@ -62,13 +63,13 @@ def MMUH_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt'] # just for the sake of brevity
+    year = BIM['YearBuilt']  # just for the sake of brevity
 
     # Secondary Water Resistance (SWR)
     # Minimum drainage recommendations are in place in NJ (See below).
     # However, SWR indicates a code-plus practice.
 
-    SWR = "null" # Default
+    SWR = "null"  # Default
     if BIM['RoofShape'] == 'flt':
         SWR = 'null'
     elif BIM['RoofShape'] in ['hip', 'gab']:
@@ -127,7 +128,7 @@ def MMUH_config(BIM):
     # roughness length in the ruleset herein.
     # The base rule was then extended to the exposures closest to suburban and
     # light suburban, even though these are not considered by the code.
-    if BIM['TerrainRoughness'] >= 35: # suburban or light trees
+    if BIM['TerrainRoughness'] >= 35:  # suburban or light trees
         if BIM['V_ult'] > 130.0:
             RDA = '8s'  # 8d @ 6"/6" 'D'
         else:
@@ -184,26 +185,30 @@ def MMUH_config(BIM):
     stories = min(BIM['NumberOfStories'], 3)
 
     # extend the BIM dictionary
-    BIM.update(dict(
-        SecondaryWaterResistance = SWR,
-        RoofCover = roof_cover,
-        RoofQuality = roof_quality,
-        RoofDeckAttachmentW = RDA,
-        RoofToWallConnection = RWC,
-        Shutters = shutters,
-        MasonryReinforcing = MR,
-        ))
+    BIM.update(
+        dict(
+            SecondaryWaterResistance=SWR,
+            RoofCover=roof_cover,
+            RoofQuality=roof_quality,
+            RoofDeckAttachmentW=RDA,
+            RoofToWallConnection=RWC,
+            Shutters=shutters,
+            MasonryReinforcing=MR,
+        )
+    )
 
-    bldg_config = f"M.MUH." \
-                  f"{int(stories)}." \
-                  f"{BIM['RoofShape']}." \
-                  f"{int(SWR)}." \
-                  f"{roof_cover}." \
-                  f"{roof_quality}." \
-                  f"{RDA}." \
-                  f"{RWC}." \
-                  f"{int(shutters)}." \
-                  f"{int(MR)}." \
-                  f"{int(BIM['TerrainRoughness'])}"
+    bldg_config = (
+        f"M.MUH."
+        f"{int(stories)}."
+        f"{BIM['RoofShape']}."
+        f"{int(SWR)}."
+        f"{roof_cover}."
+        f"{roof_quality}."
+        f"{RDA}."
+        f"{RWC}."
+        f"{int(shutters)}."
+        f"{int(MR)}."
+        f"{int(BIM['TerrainRoughness'])}"
+    )
 
     return bldg_config

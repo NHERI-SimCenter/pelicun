@@ -47,6 +47,7 @@ import random
 import numpy as np
 import datetime
 
+
 def MLRM_config(BIM):
     """
     Rules to identify a HAZUS MLRM configuration based on BIM data
@@ -63,7 +64,7 @@ def MLRM_config(BIM):
         class.
     """
 
-    year = BIM['YearBuilt'] # just for the sake of brevity
+    year = BIM['YearBuilt']  # just for the sake of brevity
 
     # Note the only roof option for commercial masonry in NJ appraisers manual
     # is OSWJ, so this suggests they do not even see alternate roof system
@@ -103,18 +104,17 @@ def MLRM_config(BIM):
 
     # Wind Debris (widd in HAZSU)
     # HAZUS A: Res/Comm, B: Varies by direction, C: Residential, D: None
-    WIDD = 'C' # residential (default)
-    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C',
-                                 'RES3D']:
-        WIDD = 'C' # residential
+    WIDD = 'C'  # residential (default)
+    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D']:
+        WIDD = 'C'  # residential
     elif BIM['OccupancyClass'] == 'AGR1':
-        WIDD = 'D' # None
+        WIDD = 'D'  # None
     else:
-        WIDD = 'A' # Res/Comm
+        WIDD = 'A'  # Res/Comm
 
     if BIM['RoofSystem'] == 'ows':
         # RDA
-        RDA = 'null' # Doesn't apply to OWSJ
+        RDA = 'null'  # Doesn't apply to OWSJ
 
         # Roof deck age (DQ)
         # Average lifespan of a steel joist roof is roughly 50 years according
@@ -122,9 +122,9 @@ def MLRM_config(BIM):
         # current year, the roof deck should be considered old.
         # https://www.metalroofing.systems/metal-roofing-pros-cons/
         if year >= (datetime.datetime.now().year - 50):
-            DQ = 'god' # new or average
+            DQ = 'god'  # new or average
         else:
-            DQ = 'por' # old
+            DQ = 'por'  # old
 
         # RWC
         RWC = 'null'  # Doesn't apply to OWSJ
@@ -144,7 +144,7 @@ def MLRM_config(BIM):
     elif BIM['RoofSystem'] == 'trs':
         # This clause should not be activated for NJ
         # RDA
-        if BIM['TerrainRoughness'] >= 35: # suburban or light trees
+        if BIM['TerrainRoughness'] >= 35:  # suburban or light trees
             if BIM['V_ult'] > 130.0:
                 RDA = '8s'  # 8d @ 6"/6" 'D'
             else:
@@ -156,10 +156,10 @@ def MLRM_config(BIM):
                 RDA = '8d'  # 8d @ 6"/12" 'B'
 
         #  Metal RDA
-        MRDA = 'null' # Doesn't apply to Wood Truss
+        MRDA = 'null'  # Doesn't apply to Wood Truss
 
         # Roof deck agea (DQ)
-        DQ = 'null' # Doesn't apply to Wood Truss
+        DQ = 'null'  # Doesn't apply to Wood Truss
 
         # RWC
         if BIM['V_ult'] > 110:
@@ -178,29 +178,33 @@ def MLRM_config(BIM):
 
     if BIM['MeanRoofHt'] < 15.0:
         # extend the BIM dictionary
-        BIM.update(dict(
-            RoofCover = roof_cover,
-            RoofDeckAttachmentW = RDA,
-            RoofDeckAttachmentM = MRDA,
-            RoofDeckAge = DQ,
-            RoofToWallConnection = RWC,
-            Shutters = shutters,
-            MasonryReinforcing = MR,
-            WindowAreaRatio = WIDD
-            ))
+        BIM.update(
+            dict(
+                RoofCover=roof_cover,
+                RoofDeckAttachmentW=RDA,
+                RoofDeckAttachmentM=MRDA,
+                RoofDeckAge=DQ,
+                RoofToWallConnection=RWC,
+                Shutters=shutters,
+                MasonryReinforcing=MR,
+                WindowAreaRatio=WIDD,
+            )
+        )
 
         # if it's MLRM1, configure outputs
-        bldg_config = f"M.LRM.1." \
-                      f"{roof_cover}." \
-                      f"{int(shutters)}." \
-                      f"{int(MR)}." \
-                      f"{WIDD}." \
-                      f"{BIM['RoofSystem']}." \
-                      f"{RDA}." \
-                      f"{RWC}." \
-                      f"{DQ}." \
-                      f"{MRDA}." \
-                      f"{int(BIM['TerrainRoughness'])}"
+        bldg_config = (
+            f"M.LRM.1."
+            f"{roof_cover}."
+            f"{int(shutters)}."
+            f"{int(MR)}."
+            f"{WIDD}."
+            f"{BIM['RoofSystem']}."
+            f"{RDA}."
+            f"{RWC}."
+            f"{DQ}."
+            f"{MRDA}."
+            f"{int(BIM['TerrainRoughness'])}"
+        )
 
     else:
         unit_tag = 'null'
@@ -217,30 +221,34 @@ def MLRM_config(BIM):
                 unit_tag = 'mlt'
 
         # extend the BIM dictionary
-        BIM.update(dict(
-            RoofCover = roof_cover,
-            RoofDeckAttachmentW = RDA,
-            RoofDeckAttachmentM = MRDA,
-            RoofDeckAge = DQ,
-            RoofToWallConnection = RWC,
-            Shutters = shutters,
-            MasonryReinforcing = MR,
-            WindDebrisClass = WIDD,
-            UnitType=unit_tag
-            ))
+        BIM.update(
+            dict(
+                RoofCover=roof_cover,
+                RoofDeckAttachmentW=RDA,
+                RoofDeckAttachmentM=MRDA,
+                RoofDeckAge=DQ,
+                RoofToWallConnection=RWC,
+                Shutters=shutters,
+                MasonryReinforcing=MR,
+                WindDebrisClass=WIDD,
+                UnitType=unit_tag,
+            )
+        )
 
-        bldg_config = f"M.LRM.2." \
-                      f"{roof_cover}." \
-                      f"{int(shutters)}." \
-                      f"{int(MR)}." \
-                      f"{WIDD}." \
-                      f"{BIM['RoofSystem']}." \
-                      f"{RDA}." \
-                      f"{RWC}." \
-                      f"{DQ}." \
-                      f"{MRDA}." \
-                      f"{unit_tag}." \
-                      f"{joist_spacing}." \
-                      f"{int(BIM['TerrainRoughness'])}"
-        
+        bldg_config = (
+            f"M.LRM.2."
+            f"{roof_cover}."
+            f"{int(shutters)}."
+            f"{int(MR)}."
+            f"{WIDD}."
+            f"{BIM['RoofSystem']}."
+            f"{RDA}."
+            f"{RWC}."
+            f"{DQ}."
+            f"{MRDA}."
+            f"{unit_tag}."
+            f"{joist_spacing}."
+            f"{int(BIM['TerrainRoughness'])}"
+        )
+
     return bldg_config
