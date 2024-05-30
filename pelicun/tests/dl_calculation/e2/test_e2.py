@@ -13,7 +13,14 @@ from pelicun.warnings import PelicunWarning
 from pelicun.tools.DL_calculation import run_pelicun
 
 
-def test_dl_calculation_2():
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-yield-doc
+# pylint: disable=missing-yield-type-doc
+# pylint: disable=redefined-outer-name
+
+
+@pytest.fixture
+def obtain_temp_dir():
 
     # get the path of this file
     this_file = __file__
@@ -21,18 +28,28 @@ def test_dl_calculation_2():
     initial_dir = os.getcwd()
     this_dir = str(Path(this_file).parent)
 
+    temp_dir = tempfile.mkdtemp()
+
+    yield this_dir, temp_dir
+
+    # go back to the right directory, otherwise any tests that follow
+    # could have issues.
+    os.chdir(initial_dir)
+
+
+def test_dl_calculation_2(obtain_temp_dir):
+
+    this_dir, temp_dir = obtain_temp_dir
+
     # Copy all input files to a temporary directory.
     # All outputs will also go there.
     # This approach is more robust to changes in the output files over
     # time.
-
     os.chdir(this_dir)
     temp_dir = tempfile.mkdtemp()
     # copy input files
     for file_name in ('1-AIM.json', 'response.csv'):
         shutil.copy(f'{this_dir}/{file_name}', f'{temp_dir}/{file_name}')
-
-    # change directory to there
     os.chdir(temp_dir)
 
     # run
@@ -109,7 +126,3 @@ def test_dl_calculation_2():
     )
 
     pd.testing.assert_frame_equal(df, expected, rtol=0.5)
-
-    # go back to the right directory, otherwise any tests that follow
-    # could have issues.
-    os.chdir(initial_dir)

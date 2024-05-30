@@ -13,13 +13,33 @@ from pelicun.warnings import PelicunWarning
 from pelicun.tools.DL_calculation import run_pelicun
 
 
-def test_dl_calculation_1():
+# pylint: disable=missing-function-docstring
+# pylint: disable=missing-yield-doc
+# pylint: disable=missing-yield-type-doc
+# pylint: disable=redefined-outer-name
+
+
+@pytest.fixture
+def obtain_temp_dir():
 
     # get the path of this file
     this_file = __file__
 
     initial_dir = os.getcwd()
     this_dir = str(Path(this_file).parent)
+
+    temp_dir = tempfile.mkdtemp()
+
+    yield this_dir, temp_dir
+
+    # go back to the right directory, otherwise any tests that follow
+    # could have issues.
+    os.chdir(initial_dir)
+
+
+def test_dl_calculation_1(obtain_temp_dir):
+
+    this_dir, temp_dir = obtain_temp_dir
 
     # Copy all input files to a temporary directory.
     # All outputs will also go there.
@@ -110,7 +130,3 @@ def test_dl_calculation_1():
     )
 
     pd.testing.assert_frame_equal(df, expected, rtol=0.5)
-
-    # go back to the right directory, otherwise any tests that follow
-    # could have issues.
-    os.chdir(initial_dir)
