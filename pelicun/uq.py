@@ -83,18 +83,21 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
     ----------
     scale_factor: float
         Value by which to scale the parameters.
-    family: {'normal', 'lognormal', 'uniform'}
-        Defines the type of probability distribution for the random variable.
+    family: {'normal' (or 'normal_CSV'), 'normal_STD', 'lognormal',
+        'uniform'}
+        Defines the type of probability distribution for the random
+        variable.
     theta: float ndarray of length 2
-        Set of parameters that define the cumulative distribution function of
-        the variable given its distribution type. See the expected parameters
-        explained in the RandomVariable class. Each parameter can be defined by
-        one or more values. If a set of values are provided for one parameter,
-        they define ordinates of a multilinear function that is used to get
-        the parameter values given an independent variable.
+        Set of parameters that define the cumulative distribution
+        function of the variable given its distribution type. See the
+        expected parameters explained in the RandomVariable
+        class. Each parameter can be defined by one or more values. If
+        a set of values are provided for one parameter, they define
+        ordinates of a multilinear function that is used to get the
+        parameter values given an independent variable.
     truncation_limits: float ndarray of length 2, default: None
-        Defines the [a,b] truncation limits for the distribution. Use None to
-        assign no limit in one direction.
+        Defines the [a,b] truncation limits for the distribution. Use
+        None to assign no limit in one direction.
 
     Returns
     -------
@@ -123,9 +126,13 @@ def scale_distribution(scale_factor, family, theta, truncation_limits=None):
         family = 'deterministic'
 
     theta_new = np.full_like(theta, np.nan)
-    if family == 'normal':
+    if family in {'normal', 'normal_COV'}:
         theta_new[0] = theta[0] * scale_factor
         theta_new[1] = theta[1]  # because we use cov instead of std
+
+    elif family == 'normal_STD':
+        theta_new[0] = theta[0] * scale_factor
+        theta_new[1] = theta[1] * scale_factor
 
     elif family == 'lognormal':
         theta_new[0] = theta[0] * scale_factor
@@ -268,7 +275,7 @@ def _get_theta(params, inits, dist_list):
     theta = np.zeros(inits.shape)
 
     for i, (params_i, inits_i, dist_i) in enumerate(zip(params, inits, dist_list)):
-        if dist_i in {'normal', 'lognormal'}:
+        if dist_i in {'normal', 'normal_COV', 'normal_STD', 'lognormal'}:
             # Note that the standard deviation is fit in log space, hence the
             # unusual-looking transformation here
             sig = np.exp(np.log(inits_i[1]) + params_i[1])
@@ -310,7 +317,7 @@ def _get_limit_probs(limits, distribution, theta):
 
     """
 
-    if distribution in {'normal', 'normal-stdev', 'lognormal'}:
+    if distribution in {'normal', 'normal_COV', 'normal_STD', 'lognormal'}:
         a, b = limits
         mu = theta[0]
         sig = theta[1]
@@ -367,7 +374,7 @@ def _get_std_samples(samples, theta, tr_limits, dist_list):
     for i, (samples_i, theta_i, tr_lim_i, dist_i) in enumerate(
         zip(samples, theta, tr_limits, dist_list)
     ):
-        if dist_i in {'normal', 'normal-stdev', 'lognormal'}:
+        if dist_i in {'normal','normal_COV', 'normal_STD', 'lognormal'}:
             lim_low = tr_lim_i[0]
             lim_high = tr_lim_i[1]
 
@@ -769,9 +776,10 @@ def fit_distribution_to_sample(
     if (dist_list.shape[0] == 1) and (n_dims != 1):
         dist_list = np.tile(dist_list[0], n_dims)
 
-    # Convert samples and limits to log space if the distribution is lognormal
     for d_i, distr in enumerate(dist_list):
         if distr == 'lognormal':
+
+            # Convert samples and limits to log space
             samples[d_i] = np.log(samples[d_i])
 
             for lim in range(2):
@@ -788,7 +796,7 @@ def fit_distribution_to_sample(
     sig_init = np.ones_like(mu_init) * np.nan
 
     for d_i, distr in enumerate(dist_list):
-        if distr in {'normal', 'normal-stdev', 'lognormal'}:
+        if distr in {'normal', 'normal_COV', 'normal_STD', 'lognormal'}:
             # use the first two moments
             mu_init[d_i] = np.mean(samples[d_i])
 
@@ -952,20 +960,25 @@ def fit_distribution_to_sample(
             )
 
     for d_i, distr in enumerate(dist_list):
-        # Convert mean back to linear space if the distribution is lognormal
         if distr == 'lognormal':
+            # Convert mean back to linear space
+            # Dispersion is equal to standard normal std, so it is
+            # left unchanged.
             theta[d_i][0] = np.exp(theta[d_i][0])
-            # theta_mod = theta.T.copy()
-            # theta_mod[0] = np.exp(theta_mod[0])
-            # theta = theta_mod.T
-        # Convert the std to cov if the distribution is normal
-        elif distr == 'normal':
+
+        elif distr in {'normal', 'normal_COV'}:
+            # Convert the std to cov
             # replace standard deviation with coefficient of variation
             # note: this results in cov=inf if the mean is zero.
             if np.abs(theta[d_i][0]) < 1.0e-40:
                 theta[d_i][1] = np.inf
             else:
                 theta[d_i][1] = theta[d_i][1] / np.abs(theta[d_i][0])
+        elif distr == 'normal':
+            # No action is needed
+            pass
+        else:
+            raise ValueError(f'Invalid distribution: `{distr}`.')
 
     return theta, rho_hat
 
