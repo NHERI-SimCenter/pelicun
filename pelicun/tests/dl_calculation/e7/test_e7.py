@@ -72,7 +72,7 @@ def test_dl_calculation_7(obtain_temp_dir):
             config_path='1-AIM.json',
             output_path=None,
             coupled_EDP=True,
-            realizations='10',
+            realizations='100',
             auto_script_path='auto_HU_NJ.py',
             detailed_results=False,
             regional=True,

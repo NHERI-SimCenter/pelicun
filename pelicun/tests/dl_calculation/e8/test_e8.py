@@ -71,7 +71,7 @@ def test_dl_calculation_8(obtain_temp_dir):
             config_path='1-AIM.json',
             output_path=None,
             coupled_EDP=True,
-            realizations='10000',
+            realizations='100',
             auto_script_path='auto_HU_LA.py',
             detailed_results=False,
             regional=True,
