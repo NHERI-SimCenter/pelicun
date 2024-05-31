@@ -44,20 +44,14 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import random
-import numpy as np
 import pandas as pd
-import datetime
-import math
 
 from WindMetaVarRulesets import parse_BIM
 from BuildingClassRulesets import building_class
 from FloodAssmRulesets import Assm_config
 from FloodClassRulesets import FL_config
-from FloodRulesets import FL_config
 from WindCECBRulesets import CECB_config
 from WindCERBRulesets import CERB_config
-from WindEFRulesets import HUEFFS_config, HUEFSS_config, HUEFH_config, HUEFS_config
 from WindMECBRulesets import MECB_config
 from WindMERBRulesets import MERB_config
 from WindMHRulesets import MH_config
@@ -70,6 +64,7 @@ from WindSERBRulesets import SERB_config
 from WindSPMBRulesets import SPMB_config
 from WindWMUHRulesets import WMUH_config
 from WindWSFRulesets import WSF_config
+
 
 def auto_populate(AIM):
     """
@@ -99,7 +94,7 @@ def auto_populate(AIM):
     GI = AIM.get('GeneralInformation', None)
 
     # parse the GI data
-    GI_ap = parse_BIM(GI, location="NJ", hazards=['wind','inundation'])
+    GI_ap = parse_BIM(GI, location="NJ", hazards=['wind', 'inundation'])
 
     # identify the building class
     bldg_class = building_class(GI_ap, hazard='wind')
@@ -147,36 +142,35 @@ def auto_populate(AIM):
 
     # prepare the component assignment
     CMP = pd.DataFrame(
-                {f'{bldg_config}': [  'ea',         1,          1,        1,   'N/A'],
-                 f'{fld_config}':  [  'ea',         1,          1,        1,   'N/A']},
-                index = [          'Units','Location','Direction','Theta_0','Family']
-            ).T
+        {
+            f'{bldg_config}': ['ea', 1, 1, 1, 'N/A'],
+            f'{fld_config}': ['ea', 1, 1, 1, 'N/A'],
+        },
+        index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
+    ).T
 
     DL_ap = {
-            "Asset": {
-                "ComponentAssignmentFile": "CMP_QNT.csv",
-                "ComponentDatabase": "Hazus Hurricane",
-                "NumberOfStories": f"{GI_ap['NumberOfStories']}",
-                "OccupancyType": f"{GI_ap['OccupancyClass']}",
-                "PlanArea": f"{GI_ap['PlanArea']}"
-            },
-            "Damage": {
-                "DamageProcess": "Hazus Hurricane"
-            },
-            "Demands": {        
-            },
-            "Losses": {
-                "BldgRepair": {
-                    "ConsequenceDatabase": "Hazus Hurricane",
-                    "MapApproach": "Automatic",
-                    "DecisionVariables": {
-                        "Cost": True,
-                        "Carbon": False,
-                        "Energy": False,
-                        "Time": False
-                    }
-                }
+        "Asset": {
+            "ComponentAssignmentFile": "CMP_QNT.csv",
+            "ComponentDatabase": "Hazus Hurricane",
+            "NumberOfStories": f"{GI_ap['NumberOfStories']}",
+            "OccupancyType": f"{GI_ap['OccupancyClass']}",
+            "PlanArea": f"{GI_ap['PlanArea']}",
+        },
+        "Damage": {"DamageProcess": "Hazus Hurricane"},
+        "Demands": {},
+        "Losses": {
+            "BldgRepair": {
+                "ConsequenceDatabase": "Hazus Hurricane",
+                "MapApproach": "Automatic",
+                "DecisionVariables": {
+                    "Cost": True,
+                    "Carbon": False,
+                    "Energy": False,
+                    "Time": False,
+                },
             }
-        }
+        },
+    }
 
     return GI_ap, DL_ap, CMP
