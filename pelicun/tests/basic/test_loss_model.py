@@ -375,6 +375,9 @@ class TestLossModel(TestPelicunModel):
             assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
             assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
 
+    def test_aggregate_losses_combination(self, loss_model):
+        pass
+
     def test_consequence_scaling(self, loss_model_with_ones):
 
         loss_model_with_ones.consequence_scaling(
