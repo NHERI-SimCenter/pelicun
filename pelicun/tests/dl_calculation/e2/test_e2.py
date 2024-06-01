@@ -8,7 +8,6 @@ import os
 import shutil
 from pathlib import Path
 import pytest
-import pandas as pd
 from pelicun.warnings import PelicunWarning
 from pelicun.tools.DL_calculation import run_pelicun
 
