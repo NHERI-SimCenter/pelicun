@@ -52,8 +52,10 @@ This file defines Loss model objects and their methods.
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from itertools import product
+from collections import defaultdict
 import numpy as np
 import pandas as pd
+from scipy.interpolate import RegularGridInterpolator
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun.model.demand_model import _get_required_demand_type
 from pelicun.model.demand_model import _assemble_required_demand_data
@@ -623,7 +625,9 @@ class LossModel(PelicunModel):
         )
         self.ds_model.load_sample(filepath=filepath)
 
-    def aggregate_losses(self, replacement_thresholds=None, future=False):
+    def aggregate_losses(
+        self, replacement_thresholds=None, loss_combination=None, future=False
+    ):
         """
         Aggregates the losses produced by each component.
 
@@ -647,12 +651,33 @@ class LossModel(PelicunModel):
             aggregated loss sample conains an additional column with
             information on whether replacement was already present or
             triggered by a threshold exceedance for each realization.
+        loss_combination: dict, optional
+            Dictionary defining how losses for specific components
+            should be aggregated for a given decision variable. It has
+            the following structure: {`dv`: {(`c1`, `c2`): `arr`,
+            ...}, ...}, where `dv` is some decision variable, (`c1`,
+            `c2`) is a tuple defining a component pair, `arr` is a NxN
+            numpy array defining a combination table, and `...` means
+            that more key-value pairs with the same schema can exist
+            in the dictionaries.  The loss sample is expected to
+            contain columns that include both `c1` and `c2` listed as
+            the component. The combination is applied to all pairs of
+            columns where the components are `c1` and `c2`, and all of
+            the rest of the multiindex levels match (`loc`, `dir`,
+            `uid`). This means, for example, that when combining wind
+            and flood losses, the asset model should contain both a
+            wind and a flood component defined at the same
+            location-direction.  `arr` can also be an M-dimensional
+            numpy array where each dimension has length N (NxNx...xN).
+            This structure allows for the loss combination of M
+            components.  In this case the (`c1`, `c2`) tuple should
+            contain M elements instead of two.
 
         Note
         ----
-        Regardless of the value of `replacement_thresholds`, this
-        method does not alter the state of the loss model, i.e., it
-        does not modify the values of the `.sample` attributes.
+        Regardless of the value of the arguments, this method does not
+        alter the state of the loss model, i.e., it does not modify
+        the values of the `.sample` attributes.
 
         Returns
         -------
@@ -666,29 +691,21 @@ class LossModel(PelicunModel):
         Raises
         ------
         ValueError
-            If the `replacement_thresholds` dictionary contains an
-            unknown DV in its keys.
-        ValueError
-            If a `replacement_thresholds` value has an incompatible
-            type. It should be float or int.
+            When inputs are invalid.
 
         """
 
+        # TODO
+        # When we start working on the documentation, simplify the
+        # docstring above and point the relevant detailed section in
+        # the documentation.
+
         # validate input
         if replacement_thresholds is not None:
-            for key, _value in replacement_thresholds.items():
-                if key not in self.decision_variables:
-                    raise ValueError(
-                        f'`replacement_thresholds` contains the key '
-                        f'`{key}` which is not found in the active '
-                        f'decision variables. These are: '
-                        f'{self.decision_variables}.'
-                    )
-                if not isinstance(_value, (float, int)):
-                    raise ValueError(
-                        f'Invalid type for replacement threshold of '
-                        f'`{key}`: {type(_value)}. It should be a float.'
-                    )
+            self._validate_input_replacement_thresholds(replacement_thresholds)
+        # validate loss_combination input
+        if loss_combination is not None:
+            self._validate_input_loss_combination(loss_combination)
 
         #
         # operate on copes of the loss samples to avoid altering them.
@@ -719,14 +736,17 @@ class LossModel(PelicunModel):
             return df_agg
 
         #
-        # first handle `replacement`, regardless of whether
-        # `replacement_thresholds` is empty.
+        #  handle `replacement`, regardless of whether
+        # `replacement_thresholds` is empty. (if `replacement`
+        # occurs, we ignore the losses from other componnets)
         #
 
         if ds_sample is not None:
             self._make_replacement_exclusive(ds_sample, lf_sample)
 
+        #
         # combine samples
+        #
 
         # levels to preserve (this aggregates `ds` for the ds_model)
         column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
@@ -738,7 +758,15 @@ class LossModel(PelicunModel):
         sample = pd.concat(samples, axis=1)
 
         #
-        # now consider replacement threshold values
+        # perform loss combinations (special non-additive
+        # aggregations, e.g., Wind + Flood)
+        #
+
+        if loss_combination is not None:
+            sample = self._apply_loss_combinations(loss_combination, sample)
+
+        #
+        # consider replacement threshold values
         #
 
         # extract replacement loss realization values from the RV
@@ -754,6 +782,7 @@ class LossModel(PelicunModel):
             sample, replacement_thresholds, replacement_loss_values
         )
 
+        # Sum-up component losses
         df_agg = self._aggregate_sample(sample, _construct_columns())
 
         if not future:
@@ -773,7 +802,321 @@ class LossModel(PelicunModel):
 
         return df_agg, exceedance_bool_df
 
+    def _validate_input_loss_combination(self, loss_combination):
+        for dv, combinations in loss_combination.items():
+            if dv not in self.decision_variables:
+                raise ValueError(
+                    f'`loss_combination` contains the key '
+                    f'`{dv}` which is not found in the active '
+                    f'decision variables. These are: '
+                    f'{self.decision_variables}.'
+                )
+            for components, array in combinations.items():
+                if not isinstance(components, tuple):
+                    raise ValueError(
+                        f'Invalid type for components in loss combination '
+                        f'for `{dv}`: {type(components)}. It should be a tuple.'
+                    )
+                if not all(isinstance(c, str) for c in components):
+                    raise ValueError(
+                        f'All elements of the components tuple in loss '
+                        f'combination for `{dv}` should be strings.'
+                    )
+                if not isinstance(array, np.ndarray):
+                    raise ValueError(
+                        f'Invalid type for array in loss combination '
+                        f'for `{dv}`: {type(array)}. It should be a numpy array.'
+                    )
+
+    def _validate_input_replacement_thresholds(self, replacement_thresholds):
+        for key, _value in replacement_thresholds.items():
+            if key not in self.decision_variables:
+                raise ValueError(
+                    f'`replacement_thresholds` contains the key '
+                    f'`{key}` which is not found in the active '
+                    f'decision variables. These are: '
+                    f'{self.decision_variables}.'
+                )
+            if not isinstance(_value, (float, int)):
+                raise ValueError(
+                    f'Invalid type for replacement threshold of '
+                    f'`{key}`: {type(_value)}. It should be a float.'
+                )
+
+    def _apply_loss_combinations(self, loss_combination, sample):
+        """
+        Performs non-additive loss combinations of specified
+        components.
+
+        This function deconstructs the loss combination arrays,
+        identifies the combinable components, and applies the
+        specified loss combinations to the sample data. The
+        transformed sample, including the combined columns, is
+        returned as a new DataFrame.
+
+        Parameters
+        ----------
+        loss_combination : dict
+            A dictionary containing the loss combination
+            information. The structure is nested dictionaries where
+            the outer keys are decision variables, inner keys are
+            components to combine, and the values are array objects
+            representing the combination data.
+
+        sample : pandas.DataFrame
+            The input DataFrame containing the sample data. The
+            columns are assumed to be a MultiIndex with at least the
+            levels (decision_variable, loss_id, component_id,
+            location, direction, uid).
+
+        Returns
+        -------
+        pandas.DataFrame
+            A new DataFrame with the combined loss data.
+
+        """
+
+        # deconstruct combination arrays to extract the input domains
+        loss_combination_converted = self._deconstruct_loss_combination_arrays(
+            loss_combination
+        )
+
+        # initialize variables
+
+        # sample as dictionary for fast column retrieval
+        dsample = {col: sample[col] for col in sample.columns}
+
+        # Transformed sample (includes the combined columns), as
+        # dictionary. Will be turned into a dataframe in the end.
+        # This avoids manipulating the original sample dataframe which
+        # would be slow.
+        dcsample = {}
+
+        # add columns to the new sample dictionary.
+        # those that should be combined
+        self._loss_combination_add_combinable(
+            dsample, loss_combination_converted, dcsample
+        )
+        # and the remaining
+        for col in dsample:
+            dcsample[col] = dsample[col]
+
+        # turn into a dataframe
+        sample = pd.DataFrame(dcsample).rename_axis(columns=sample.columns.names)
+        return sample
+
+    def _loss_combination_add_combinable(
+        self, dsample, loss_combination_converted, dcsample
+    ):
+        """
+        Adds combinable loss data.
+
+        This function identifies groups of `loc`-`dir`-`uid` that can
+        be combined for each decision variable and computes the
+        combined loss using interpolation functions. It modifies the
+        given datasets `dsample` and `dcsample` in-place, removing
+        combinable columns from dsample and adding the combined losses
+        to dcsample.
+
+        Parameters
+        ----------
+        dsample : dict
+            A dictionary representing the loss sample data, where keys
+            are tuples of the form (decision_variable, loss_id,
+            component_id, location, direction, uid) and values are the
+            corresponding data arrays.
+
+        loss_combination_converted : dict
+            A dictionary containing loss combination data. The
+            structure is nested dictionaries where the outer keys are
+            decision variables, inner keys are components to combine,
+            and the values are tuples of combination parameters
+            (domains and reference values).
+
+        dcsample : dict
+            A dictionary to store the combined loss data, where keys
+            are tuples of the form (decision_variable, 'combination',
+            combined_component_string, location, direction, uid) and
+            values are the combined loss data arrays.
+
+        """
+        dmg_to_loss = self._map_component_ids_to_loss_ids(dsample)
+
+        # identify all `loc`-`dir`-`uid`s that can be grouped for each
+        # decision variable.
+        potential_groups = self._identify_potential_groups(dsample)
+
+        # cache already defined interpolation functions. This obviates
+        # the need to define all of them and we can just define them
+        # on the spot when needed, and reuse them if available.
+        interpolation_function_cache = {}
+
+        for (
+            decision_variable,
+            combination_data,
+        ) in loss_combination_converted.items():
+            for (
+                components_to_combine,
+                combination_parameters,
+            ) in combination_data.items():
+                # determine if the components to combine are part of
+                # an available group
+                target_group = None
+                for available_group in potential_groups[decision_variable]:
+                    # check if `components_to_combine` is a subset of
+                    # that available group
+                    if frozenset(components_to_combine) <= available_group:
+                        target_group = available_group
+                        break
+                # construct relevant loss sample columns
+                for loc_dir_uid in potential_groups[decision_variable][target_group]:
+                    cols = [
+                        (decision_variable, dmg_to_loss[x], x, *loc_dir_uid)
+                        for x in target_group
+                    ]
+                    values = np.column_stack([dsample[col] for col in cols])
+                    # define/get interpolation function
+                    if (
+                        interpolation_function_cache.get(components_to_combine)
+                        is not None
+                    ):
+                        interp_func = interpolation_function_cache.get(
+                            components_to_combine
+                        )
+                    else:
+                        domains, reference_values = combination_parameters
+                        interp_func = RegularGridInterpolator(
+                            domains, reference_values
+                        )
+                    combined_loss = interp_func(values)
+                    combined_loss_col = (
+                        decision_variable,
+                        'combination',
+                        '(' + ', '.join(components_to_combine) + ')',
+                        *loc_dir_uid,
+                    )
+                    dcsample[combined_loss_col] = combined_loss
+                    for col in cols:
+                        dsample.pop(col)
+
+    def _identify_potential_groups(self, dsample):
+        """
+        Identifies potential groups of `loc`-`dir`-`uid` for each
+        decision variable.
+
+        This function identifies all combinations of `loc`-`dir`-`uid`
+        that can be grouped for each decision variable based on the
+        provided data sample.
+
+        Parameters
+        ----------
+        dsample : iterable
+            An iterable where each containing tuple contains
+            information about the components and their attributes. The
+            expected format of each tuple is (decision_variable,
+            loss_id, component_id, location, direction, uid).
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are decision variables and values
+            are nested dictionaries. The nested dictionaries map
+            frozensets of component IDs to lists of (location,
+            direction, uid) tuples.
+
+        """
+        grouped = defaultdict(defaultdict(list).copy)
+        for col in dsample:
+            c_dv, _, c_dmg, c_loc, c_dir, c_uid = col
+            grouped[c_dv][c_loc, c_dir, c_uid].append(c_dmg)
+        # invert so that we have component sets mapped to
+        # `loc`-`dir`-`uid`s.
+        inverted = defaultdict(defaultdict(list).copy)
+        for c_dv in grouped:
+            for loc_dir_uid, component_set in grouped[c_dv].items():
+                inverted[c_dv][frozenset(component_set)].append(loc_dir_uid)
+        return inverted
+
+    def _map_component_ids_to_loss_ids(self, dsample):
+        """
+        Maps component IDs to loss IDs.
+
+        This function maps components to losses based on the loss
+        sample's columns. It assumes that multiple component IDs can
+        have the same loss ID, but the same component ID cannot have
+        multiple loss IDs.
+
+        Parameters
+        ----------
+        dsample : tuple dictionary keys
+            Each tuple contains information about the components and
+            corresponding losses.
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are component IDs and values are
+            loss IDs.
+
+        """
+        dmg_to_loss = {}
+        for col in dsample:
+            c_loss = col[1]
+            c_dmg = col[2]
+            dmg_to_loss[c_dmg] = c_loss
+        return dmg_to_loss
+
+    def _deconstruct_loss_combination_arrays(self, loss_combination):
+        """
+        Deconstruct loss combination arrays.
+
+        This function converts a nested dictionary of loss combination
+        arrays into a format suitable for further processing. It
+        extracts the array values and the index information from each
+        array.
+
+        Parameters
+        ----------
+        loss_combination : dict
+           A dictionary where keys are decision variables and values
+           are another dictionary. The inner dictionary has keys as
+           components to combine and values as numpy array
+           objects representing the combination data.
+
+        Returns
+        -------
+        dict
+            A dictionary with the same structure as the input
+            `loss_combination`.  For each decision variable and
+            component combination, the array is replaced with a
+            tuple containing the combination domain and the combination
+            array itself.
+
+        """
+        loss_combination_converted = {}
+        for decision_variable, combination_data in loss_combination.items():
+            loss_combination_converted[decision_variable] = {}
+            for (
+                components_to_combine,
+                combination_array,
+            ) in combination_data.items():
+                combination_index = (
+                    combination_array[:, 0],
+                    combination_array[0, :],
+                )
+                loss_combination_converted[decision_variable][
+                    components_to_combine
+                ] = (
+                    combination_index,
+                    combination_array,
+                )
+        return loss_combination_converted
+
     def _aggregate_sample(self, sample, columns):
+        """
+        Sums up component losses.
+
+        """
         df_agg = pd.DataFrame(index=sample.index, columns=columns)
         # group results by DV type and location
         aggregated = sample.groupby(level=['dv', 'loc'], axis=1).sum()
@@ -836,6 +1179,7 @@ class LossModel(PelicunModel):
 
         df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
         df_agg.sort_index(axis=1, inplace=True)
+        df_agg = df_agg.reset_index(drop=True)
         return df_agg
 
     def _apply_replacement_thresholds(
@@ -1914,6 +2258,10 @@ class RepairModel_LF(RepairModel_Base):
             for x in cmp_marginal_params.index.get_level_values(0)
             if loss_map.get(x) in self.loss_params.index
         ]
+        # If `Blocks` information is unspecified add one block per
+        # component.
+        if 'Blocks' not in cmp_marginal_params.columns:
+            cmp_marginal_params['Blocks'] = 1
         blocks = cmp_marginal_params.loc[index, 'Blocks'].to_dict()
 
         performance_group_dict = {}
@@ -2170,6 +2518,9 @@ class RepairModel_LF(RepairModel_Base):
             # load the corresponding parameters
             parameters = self.loss_params.loc[(consequence, decision_variable), :]
 
+            if ('LossFunction', 'Family') not in parameters:
+                # Everything is deterministic, no need to create RVs.
+                continue
             family = parameters.at[('LossFunction', 'Family')]
             theta = [
                 parameters.get(('LossFunction', f'Theta_{t_i}'), np.nan)

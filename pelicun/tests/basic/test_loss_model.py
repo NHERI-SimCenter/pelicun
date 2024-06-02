@@ -375,8 +375,94 @@ class TestLossModel(TestPelicunModel):
             assert np.all(loss_model.sample.iloc[:, mask] == 2.00)
             assert np.all(loss_model.sample.iloc[:, ~mask] == 1.00)
 
-    def test_aggregate_losses_combination(self, loss_model):
-        pass
+    def test_aggregate_losses_combination(self, assessment_instance):
+
+        # The test sets up a very simple loss calculation from
+        # scratch, only defining essential parameters.
+
+        # demand
+        sample_size = 5
+        demand_marginal_parameters = pd.DataFrame(
+            {
+                ('PIH', '0', '1'): ['in', 7.00],
+                ('PWS', '0', '1'): ['mph', 50.0],
+            },
+            index=['Units', 'Theta_0'],
+        ).T
+        perfect_CORR = pd.DataFrame(
+            np.ones((2, 2)),
+            columns=demand_marginal_parameters.index,
+            index=demand_marginal_parameters.index,
+        )
+        assessment_instance.demand.load_model(
+            {'marginals': demand_marginal_parameters, 'correlation': perfect_CORR}
+        )
+        assessment_instance.demand.generate_sample({"SampleSize": sample_size})
+
+        # asset
+        assessment_instance.asset.cmp_marginal_params = pd.DataFrame(
+            {
+                'Theta_0': (1.0, 1.0),
+            },
+            index=pd.MultiIndex.from_tuples(
+                (('wind.comp', '0', '1', '0'), ('flood.comp', '0', '1', '0')),
+                names=('cmp', 'loc', 'dir', 'uid'),
+            ),
+        )
+        assessment_instance.asset.generate_cmp_sample()
+
+        # no damage estimation needed since we only use loss functions
+
+        # loss
+
+        assessment_instance.loss.decision_variables = ('Cost',)
+        assessment_instance.loss.add_loss_map(loss_map_policy='fill')
+        assessment_instance.loss.load_model_parameters(
+            [
+                (
+                    'pelicun/tests/basic/data/model/'
+                    'test_LossModel/loss_function_wind.csv'
+                ),
+                (
+                    'pelicun/tests/basic/data/model/'
+                    'test_LossModel/loss_function_flood.csv'
+                ),
+            ]
+        )
+
+        assessment_instance.loss.calculate()
+
+        # individual losses
+        l1, l2 = assessment_instance.loss.lf_model.sample.iloc[0, :]
+        # combined loss, result of interpolation
+        l_comb = 0.904
+
+        combination_array = pd.read_csv(
+            (
+                'pelicun/resources/SimCenterDBDL/combined_loss_matrices/'
+                'Wind_Flood_Hazus_HU_bldg.csv'
+            ),
+            index_col=None,
+            header=None,
+        ).values
+        loss_combination = {
+            'Cost': {
+                ('wind.comp', 'flood.comp'): combination_array,
+            },
+        }
+
+        agg_df, _ = assessment_instance.loss.aggregate_losses(
+            loss_combination=loss_combination, future=True
+        )
+        pd.testing.assert_frame_equal(
+            agg_df, pd.DataFrame([l_comb] * 5, columns=['repair_cost'])
+        )
+
+        # verify interpolation with some manual checks
+        lower, higher = combination_array[8:10, 4]
+        assert lower <= l_comb <= higher
+        assert l2 == combination_array[0, 4]
+        assert combination_array[8, 0] <= l1 <= combination_array[9, 0]
 
     def test_consequence_scaling(self, loss_model_with_ones):
 
