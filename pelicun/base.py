@@ -206,11 +206,11 @@ class Options:
 
         self._asmnt = assessment
 
-        self.defaults = None
-        self.sampling_method = None
-        self.list_all_ds = None
+        self.defaults: dict[str, Any] | None = None
+        self.sampling_method: str | None = None
+        self.list_all_ds: bool | None = None
 
-        self._seed = None
+        self._seed: float | None = None
 
         self._rng = np.random.default_rng()
         merged_config_options = merge_default_config(user_config_options)
@@ -235,7 +235,7 @@ class Options:
         )
 
     @property
-    def seed(self):
+    def seed(self) -> float | None:
         """
         Seed property
 
@@ -247,15 +247,15 @@ class Options:
         return self._seed
 
     @seed.setter
-    def seed(self, value):
+    def seed(self, value: float) -> None:
         """
         seed property setter
         """
         self._seed = value
-        self._rng = np.random.default_rng(self._seed)
+        self._rng = np.random.default_rng(self._seed)  # type: ignore
 
     @property
-    def rng(self):
+    def rng(self) -> np.random.Generator:
         """
         rng property
 
@@ -356,7 +356,7 @@ class Logger:
         self.reset_log_strings()
         control_warnings()
 
-    def reset_log_strings(self):
+    def reset_log_strings(self) -> None:
         """
         Populates the string-related attributes of the logger
         """
@@ -372,7 +372,12 @@ class Logger:
             self.spaces = ' ' * 9
             self.log_div = '-' * (80 - 10)
 
-    def msg(self, msg='', prepend_timestamp=True, prepend_blank_space=True):
+    def msg(
+        self,
+        msg: str = '',
+        prepend_timestamp: bool = True,
+        prepend_blank_space: bool = True,
+    ) -> None:
         """
         Writes a message in the log file with the current time as prefix
 
@@ -411,7 +416,7 @@ class Logger:
                 with open(self.log_file, 'a', encoding='utf-8') as f:
                     f.write('\n' + formatted_msg)
 
-    def add_warning(self, msg):
+    def add_warning(self, msg: str) -> None:
         """
         Adds a warning to the warning stack.
 
@@ -434,7 +439,7 @@ class Logger:
         if formatted_msg not in self.warning_stack:
             self.warning_stack.append(formatted_msg)
 
-    def emit_warnings(self):
+    def emit_warnings(self) -> None:
         """
         Issues all warnings and clears the warning stack.
 
@@ -453,7 +458,7 @@ class Logger:
         self.emitted = self.emitted.union(set(self.warning_stack))
         self.warning_stack = []
 
-    def warn(self, msg):
+    def warn(self, msg: str) -> None:
         """
         Add an emit a warning immediately.
 
@@ -466,7 +471,7 @@ class Logger:
         self.add_warning(msg)
         self.emit_warnings()
 
-    def div(self, prepend_timestamp=False):
+    def div(self, prepend_timestamp: bool = False) -> None:
         """
         Adds a divider line in the log file
         """
@@ -477,7 +482,7 @@ class Logger:
             msg = '-' * 80
         self.msg(msg, prepend_timestamp=prepend_timestamp)
 
-    def print_system_info(self):
+    def print_system_info(self) -> None:
         """
         Writes system information in the log.
         """
@@ -499,7 +504,7 @@ class Logger:
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
 
-def split_file_name(file_path: str):
+def split_file_name(file_path: str) -> tuple[str, str]:
     """
     Separates a file name from the extension accounting for the case
     where the file name itself contains periods.
@@ -524,7 +529,7 @@ def split_file_name(file_path: str):
     return name, extension
 
 
-def control_warnings():
+def control_warnings() -> None:
     """
     Convenience function to turn warnings on/off
 
@@ -560,7 +565,7 @@ def control_warnings():
         )
 
 
-def load_default_options():
+def load_default_options() -> dict:
     """
     Load the default_config.json file to set options to default values
 
@@ -579,7 +584,9 @@ def load_default_options():
     return default_options
 
 
-def update_vals(update, primary, update_path, primary_path):
+def update_vals(
+    update: dict, primary: dict, update_path: str, primary_path: str
+) -> None:
     """
     Updates the values of the `update` nested dictionary with
     those provided in the `primary` nested dictionary. If a key
@@ -663,7 +670,7 @@ def update_vals(update, primary, update_path, primary_path):
     # pylint: enable=else-if-used
 
 
-def merge_default_config(user_config):
+def merge_default_config(user_config: dict | None) -> dict:
     """
     Merge the user-specified config with the configuration defined in
     the default_config.json file. If the user-specified config does
@@ -695,7 +702,9 @@ def merge_default_config(user_config):
     return config
 
 
-def convert_to_SimpleIndex(data, axis=0, inplace=False):
+def convert_to_SimpleIndex(
+    data: pd.DataFrame, axis: int = 0, inplace: bool = False
+) -> pd.DataFrame:
     """
     Converts the index of a DataFrame to a simple, one-level index
 
@@ -741,7 +750,7 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
                     '-'.join([str(id_i) for id_i in id]) for id in data.index
                 ]
 
-                data_mod.index = simple_index
+                data_mod.index = pd.Index(simple_index, name=simple_name)
                 data_mod.index.name = simple_name
 
         elif axis == 1:
@@ -754,7 +763,7 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
                     '-'.join([str(id_i) for id_i in id]) for id in data.columns
                 ]
 
-                data_mod.columns = simple_index
+                data_mod.columns = pd.Index(simple_index, name=simple_name)
                 data_mod.columns.name = simple_name
 
     else:
@@ -763,7 +772,9 @@ def convert_to_SimpleIndex(data, axis=0, inplace=False):
     return data_mod
 
 
-def convert_to_MultiIndex(data, axis=0, inplace=False):
+def convert_to_MultiIndex(
+    data: pd.DataFrame, axis: int = 0, inplace: bool = False
+) -> pd.DataFrame:
     """
     Converts the index of a DataFrame to a MultiIndex
 
@@ -818,26 +829,26 @@ def convert_to_MultiIndex(data, axis=0, inplace=False):
             ] * (max_lbl_len - len(labels))
             index_labels[l_i] = labels
 
-    index_labels = np.array(index_labels)
+    index_labels_np = np.array(index_labels)
 
-    if index_labels.shape[1] > 1:
+    if index_labels_np.shape[1] > 1:
         if inplace:
             data_mod = data
         else:
             data_mod = data.copy()
 
         if axis == 0:
-            data_mod.index = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.index = pd.MultiIndex.from_arrays(index_labels_np.T)
 
         else:
-            data_mod.columns = pd.MultiIndex.from_arrays(index_labels.T)
+            data_mod.columns = pd.MultiIndex.from_arrays(index_labels_np.T)
 
         return data_mod
 
     return data
 
 
-def convert_dtypes(dataframe):
+def convert_dtypes(dataframe: pd.DataFrame) -> pd.DataFrame:
     """
     Convert columns to a numeric datatype whenever possible. The
     function replaces None with NA otherwise columns containing None
@@ -863,7 +874,9 @@ def convert_dtypes(dataframe):
     # `errors='ignore'` does.
     # See:
     # https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html
-    return dataframe.apply(lambda x: pd.to_numeric(x, errors='ignore'), axis=0)
+    return dataframe.apply(
+        lambda x: pd.to_numeric(x, errors='ignore'), axis=0  # type:ignore
+    )
 
 
 def show_matrix(data, use_describe=False):
@@ -890,8 +903,12 @@ def show_matrix(data, use_describe=False):
 
 
 def multiply_factor_multiple_levels(
-    df, conditions, factor, axis=0, raise_missing=True
-):
+    df: pd.DataFrame,
+    conditions: dict,
+    factor: float,
+    axis: int = 0,
+    raise_missing: bool = True,
+) -> None:
     """
     Multiply a value to selected rows of a DataFrame that is indexed
     with a hierarchical index (pd.MultiIndex). The change is done in
@@ -944,12 +961,19 @@ def multiply_factor_multiple_levels(
         raise ValueError(f'No rows found matching the conditions: `{conditions}`')
 
     if axis == 0:
-        df.iloc[mask.values] *= factor
+        df.iloc[mask.to_numpy()] *= factor
     else:
-        df.iloc[:, mask.values] *= factor
+        df.iloc[:, mask.to_numpy()] *= factor
 
 
-def _warning(message, category, filename, lineno, file=None, line=None):
+def _warning(
+    message: str,
+    category: type[Warning],
+    filename: str,
+    lineno: int,
+    file: Any = None,
+    line: Any = None,
+) -> None:
     """
     Custom warning function to format and print warnings more
     attractively. This function modifies how warning messages are
@@ -993,11 +1017,22 @@ def _warning(message, category, filename, lineno, file=None, line=None):
         print(message)
 
 
-warnings.showwarning = _warning
+warnings.showwarning = _warning  # type: ignore
 
 
 def describe(
-    df, percentiles=(0.001, 0.023, 0.10, 0.159, 0.5, 0.841, 0.90, 0.977, 0.999)
+    df,
+    percentiles=(
+        0.001,
+        0.023,
+        0.10,
+        0.159,
+        0.5,
+        0.841,
+        0.90,
+        0.977,
+        0.999,
+    ),
 ):
     """
     Provides extended descriptive statistics for given data, including
@@ -1034,11 +1069,11 @@ def describe(
         else:
             df = pd.DataFrame(vals, columns=cols)
 
-    # cast Series into a DataFrame
+    # convert Series into a DataFrame
     if isinstance(df, pd.Series):
         df = pd.DataFrame(df)
 
-    desc = df.describe(percentiles).T
+    desc = df.describe(list(percentiles)).T
 
     # add log standard deviation to the stats
     desc.insert(3, "log_std", np.nan)
@@ -1051,7 +1086,7 @@ def describe(
     return desc
 
 
-def str2bool(v):
+def str2bool(v: str | bool) -> bool:
     """
     Converts a string representation of truth to boolean True or
     False.
@@ -1091,7 +1126,7 @@ def str2bool(v):
     raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-def float_or_None(string):
+def float_or_None(string: str) -> float | None:
     """
     This is a convenience function for converting strings to float or
     None
@@ -1114,7 +1149,7 @@ def float_or_None(string):
         return None
 
 
-def int_or_None(string):
+def int_or_None(string: str) -> int | None:
     """
     This is a convenience function for converting strings to int or
     None
@@ -1185,7 +1220,7 @@ def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def dedupe_index(dataframe, dtype=str):
+def dedupe_index(dataframe: pd.DataFrame, dtype: type = str) -> None:
     """
     Modifies the index of a DataFrame to ensure all index elements are
     unique by adding an extra level.  Assumes that the DataFrame's
@@ -1255,7 +1290,7 @@ EDP_to_demand_type = {
 }
 
 
-def dict_raise_on_duplicates(ordered_pairs):
+def dict_raise_on_duplicates(ordered_pairs: list[tuple]) -> dict:
     """
     Constructs a dictionary from a list of key-value pairs, raising an
     exception if duplicate keys are found.
@@ -1303,7 +1338,9 @@ def dict_raise_on_duplicates(ordered_pairs):
     return d
 
 
-def parse_units(custom_file=None, preserve_categories=False):
+def parse_units(
+    custom_file: str | None = None, preserve_categories: bool = False
+) -> dict:
     """
     Parse the unit conversion factor JSON file and return a dictionary.
 
@@ -1511,7 +1548,7 @@ def convert_units(
     # convert units
     from_factor = units[unit]
     to_factor = units[to_unit]
-    new_values = vals * from_factor / to_factor
+    new_values = vals * float(from_factor) / float(to_factor)
 
     # return the results in the same type as that of the provided
     # values
@@ -1552,7 +1589,7 @@ def stringterpolation(
     return interp1d(x=x, y=y, kind='linear')
 
 
-def invert_mapping(original_dict):
+def invert_mapping(original_dict: dict) -> dict:
     """
     Inverts a dictionary mapping from key to list of values.
 

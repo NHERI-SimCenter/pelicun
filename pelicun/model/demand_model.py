@@ -51,12 +51,12 @@ This file defines the DemandModel object and its methods.
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
-import numexpr as ne
 import re
 import os
 from collections import defaultdict
 import numpy as np
 import pandas as pd
+import numexpr as ne
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun import base
 from pelicun import uq
@@ -123,7 +123,9 @@ class DemandModel(PelicunModel):
         self._RVs = None
         self.sample = None
 
-    def save_sample(self, filepath=None, save_units=False):
+    def save_sample(
+        self, filepath: str | None = None, save_units: bool = False
+    ) -> None | tuple[pd.DataFrame, pd.Series]:
         """
         Save demand sample to a csv file or return it in a DataFrame
 
@@ -173,7 +175,7 @@ class DemandModel(PelicunModel):
         # else:
         return res.astype(float)
 
-    def load_sample(self, filepath):
+    def load_sample(self, filepath: str | pd.DataFrame) -> None:
         """
         Load demand sample data and parse it.
 
@@ -300,7 +302,9 @@ class DemandModel(PelicunModel):
 
         self.log.msg('Demand units successfully parsed.', prepend_timestamp=False)
 
-    def estimate_RID(self, demands, params, method='FEMA P58'):
+    def estimate_RID(
+        self, demands: pd.DataFrame, params: dict, method: str = 'FEMA P58'
+    ) -> pd.DataFrame:
         """
         Estimates residual inter-story drift (RID) realizations based
         on peak inter-story drift (PID) and other demand parameters
@@ -396,7 +400,7 @@ class DemandModel(PelicunModel):
         # return the generated drift realizations
         return RID
 
-    def calibrate_model(self, config):
+    def calibrate_model(self, config: dict) -> None:
         """
         Calibrate a demand model to describe the raw demand data
 
@@ -675,7 +679,7 @@ class DemandModel(PelicunModel):
 
         self.calibrated = True
 
-    def save_model(self, file_prefix):
+    def save_model(self, file_prefix: str) -> None:
         """
         Save parameters of the demand model to a set of csv files
 
@@ -712,7 +716,7 @@ class DemandModel(PelicunModel):
 
         self.log.msg('Demand model successfully saved.', prepend_timestamp=False)
 
-    def load_model(self, data_source):
+    def load_model(self, data_source: str | dict) -> None:
         """
         Load the model that describes demands on the asset.
 
@@ -785,7 +789,7 @@ class DemandModel(PelicunModel):
 
         self.log.msg('Demand model successfully loaded.', prepend_timestamp=False)
 
-    def _create_RVs(self, preserve_order=False):
+    def _create_RVs(self, preserve_order: bool = False) -> None:
         """
         Create a random variable registry for the joint distribution of demands.
 
@@ -858,7 +862,7 @@ class DemandModel(PelicunModel):
 
         self._RVs = RV_reg
 
-    def clone_demands(self, demand_cloning):
+    def clone_demands(self, demand_cloning: dict) -> None:
         """
         Clones demands. This means copying over columns of the
         original demand sample and assigning given names to them. The
@@ -954,7 +958,7 @@ class DemandModel(PelicunModel):
         self.user_units = self.user_units.iloc[column_index]
         self.user_units.index = self.sample.columns
 
-    def generate_sample(self, config):
+    def generate_sample(self, config: dict) -> None:
         """
         Generates a sample of random variables (RVs) based on the
         specified configuration for demand modeling.
@@ -1044,7 +1048,11 @@ class DemandModel(PelicunModel):
         )
 
 
-def _get_required_demand_type(model_parameters, pgb, demand_offset=None):
+def _get_required_demand_type(
+    model_parameters: pd.DataFrame,
+    pgb: pd.DataFrame,
+    demand_offset: dict | None = None,
+) -> dict:
     """
     Returns the id of the demand needed to calculate damage or
     loss of a component.
@@ -1101,7 +1109,7 @@ def _get_required_demand_type(model_parameters, pgb, demand_offset=None):
 
     for pg in pgb.index:
 
-        cmp, loc, dir, uid = pg
+        cmp = pg[0]
 
         # Get the directional, offset, and demand_type parameters
         # from the `model_parameters` DataFrame
@@ -1191,8 +1199,8 @@ def _get_required_demand_type(model_parameters, pgb, demand_offset=None):
 
 
 def _assemble_required_demand_data(
-    required_edps, nondirectional_multipliers, demand_sample
-):
+    required_edps: set, nondirectional_multipliers: dict, demand_sample: pd.DataFrame
+) -> dict:
     """
     Assembles demand data for damage state determination.
 
@@ -1332,7 +1340,7 @@ def _clean_up_expression(expression: str) -> str:
     return expression
 
 
-def _verify_edps_available(available_edps, required):
+def _verify_edps_available(available_edps: dict, required: set) -> None:
     """
     Verifies that the required EDPs are available and raises
     appropriate errors otherwise.

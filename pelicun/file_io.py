@@ -93,14 +93,14 @@ HAZUS_occ_converter = {
 
 
 def save_to_csv(
-    data,
-    filepath,
-    units=None,
-    unit_conversion_factors=None,
-    orientation=0,
-    use_simpleindex=True,
-    log=None,
-):
+    data: pd.DataFrame,
+    filepath_str: str | None,
+    units: pd.Series | None = None,
+    unit_conversion_factors: dict | None = None,
+    orientation: int = 0,
+    use_simpleindex: bool = True,
+    log: base.Logger | None = None,
+) -> pd.DataFrame | None:
     """
     Saves data to a CSV file following the standard SimCenter schema.
 
@@ -150,12 +150,12 @@ def save_to_csv(
         None after saving the data to a CSV file.
     """
 
-    if filepath is None:
+    if filepath_str is None:
         if log:
             log.msg('Preparing data ...', prepend_timestamp=False)
 
     elif log:
-        log.msg(f'Saving data to `{filepath}`...', prepend_timestamp=False)
+        log.msg(f'Saving data to `{filepath_str}`...', prepend_timestamp=False)
 
     if data is None:
         if log:
@@ -179,8 +179,8 @@ def save_to_csv(
 
         # if the orientation is 1, we might not need to scale all columns
         if orientation == 1:
-            cols_to_scale = [dt in [float, int] for dt in data.dtypes]
-            cols_to_scale = data.columns[cols_to_scale]
+            cols_to_scale_bool = [dt in [float, int] for dt in data.dtypes]
+            cols_to_scale = data.columns[cols_to_scale_bool]
 
         labels_to_keep = []
 
@@ -206,17 +206,19 @@ def save_to_csv(
                         active_labels.append(label)
 
                 if len(active_labels) > 0:
-                    data.loc[active_labels, cols_to_scale] *= unit_factor
+                    data.loc[
+                        np.array(active_labels), np.array(cols_to_scale)
+                    ] *= unit_factor
 
             labels_to_keep += active_labels
 
-        units = units.loc[labels_to_keep].to_frame()
+        units_df = units.loc[labels_to_keep].to_frame()
 
         if orientation == 0:
-            data = pd.concat([units.T, data], axis=0)
+            data = pd.concat([units_df.T, data], axis=0)
             data.sort_index(axis=1, inplace=True)
         else:
-            data = pd.concat([units, data], axis=1)
+            data = pd.concat([units_df, data], axis=1)
             data.sort_index(inplace=True)
 
         if log:
@@ -231,9 +233,9 @@ def save_to_csv(
         if isinstance(data.columns, pd.MultiIndex):
             data = base.convert_to_SimpleIndex(data, axis=1)
 
-    if filepath is not None:
+    if filepath_str is not None:
 
-        filepath = Path(filepath).resolve()
+        filepath = Path(filepath_str).resolve()
         if filepath.suffix == '.csv':
 
             # save the contents of the DataFrame into a csv
@@ -254,7 +256,7 @@ def save_to_csv(
     return data
 
 
-def substitute_default_path(data_paths):
+def substitute_default_path(data_paths: list[str]) -> list[str]:
     """
     Substitutes the default directory path in a list of data paths
     with a specified path.
@@ -313,13 +315,13 @@ def substitute_default_path(data_paths):
 
 
 def load_data(
-    data_source,
-    unit_conversion_factors,
-    orientation=0,
-    reindex=True,
-    return_units=False,
-    log=None,
-):
+    data_source: str | pd.DataFrame,
+    unit_conversion_factors: dict | None,
+    orientation: int = 0,
+    reindex: bool = True,
+    return_units: bool = False,
+    log: base.Logger | None = None,
+) -> tuple[pd.DataFrame, pd.Series] | pd.DataFrame:
     """
     Loads data assuming it follows standard SimCenter tabular schema.
 
@@ -390,7 +392,7 @@ def load_data(
     # and optionally apply conversions to all numeric values
     if 'Units' in the_index:
         units = data['Units'] if orientation == 1 else data.loc['Units']
-        data.drop('Units', axis=orientation, inplace=True)
+        data.drop(['Units'], axis=orientation, inplace=True)  # type: ignore
         data = base.convert_dtypes(data)
 
         if unit_conversion_factors is not None:
@@ -414,11 +416,15 @@ def load_data(
             if orientation == 1:
                 data.loc[:, numeric_elements] = data.loc[
                     :, numeric_elements
-                ].multiply(conversion_factors, axis=axis[orientation])
+                ].multiply(
+                    conversion_factors, axis=axis[orientation]
+                )  # type: ignore
             else:
                 data.loc[numeric_elements, :] = data.loc[
                     numeric_elements, :
-                ].multiply(conversion_factors, axis=axis[orientation])
+                ].multiply(
+                    conversion_factors, axis=axis[orientation]
+                )  # type: ignore
 
         if log:
             log.msg('Unit conversion successful.', prepend_timestamp=False)
@@ -442,7 +448,7 @@ def load_data(
     if return_units:
         if units is not None:
             # convert index in units Series to MultiIndex if needed
-            units = base.convert_to_MultiIndex(units, axis=0).dropna()
+            units = base.convert_to_MultiIndex(units, axis=0).dropna()  # type: ignore
             units.sort_index(inplace=True)
         output = data, units
     else:
@@ -451,7 +457,7 @@ def load_data(
     return output
 
 
-def load_from_file(filepath, log=None):
+def load_from_file(filepath: str, log: base.Logger | None = None) -> pd.DataFrame:
     """
     Loads data from a file and stores it in a DataFrame.
 
@@ -484,19 +490,19 @@ def load_from_file(filepath, log=None):
         log.msg(f'Loading data from {filepath}...')
 
     # check if the filepath is valid
-    filepath = Path(filepath).resolve()
+    filepath_path = Path(filepath).resolve()
 
-    if not filepath.is_file():
+    if not filepath_path.is_file():
         raise FileNotFoundError(
             f"The filepath provided does not point to an existing "
-            f"file: {filepath}"
+            f"file: {filepath_path}"
         )
 
-    if filepath.suffix == '.csv':
+    if filepath_path.suffix == '.csv':
         # load the contents of the csv into a DataFrame
 
         data = pd.read_csv(
-            filepath,
+            filepath_path,
             header=0,
             index_col=0,
             low_memory=False,
@@ -509,7 +515,7 @@ def load_from_file(filepath, log=None):
     else:
         raise ValueError(
             f'ERROR: Unexpected file type received when trying '
-            f'to load from csv: {filepath}'
+            f'to load from csv: {filepath_path}'
         )
 
     return data

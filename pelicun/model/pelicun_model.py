@@ -80,12 +80,12 @@ class PelicunModel:
 
     def _convert_marginal_params(
         self,
-        marginal_params,
-        units,
-        arg_units=None,
-        divide_units=True,
-        inverse_conversion=False,
-    ):
+        marginal_params: pd.DataFrame,
+        units: pd.Series,
+        arg_units: pd.Series | None = None,
+        divide_units: bool = True,
+        inverse_conversion: bool = False,
+    ) -> pd.DataFrame:
         """
         Converts the parameters of marginal distributions in a model to SI units.
 
@@ -256,7 +256,7 @@ class PelicunModel:
 
         return marginal_params
 
-    def _get_locations(self, loc_str):
+    def _get_locations(self, loc_str: str) -> np.ndarray:
         """
         Parses a location string to determine specific sections of
         an asset to be processed.
@@ -339,7 +339,7 @@ class PelicunModel:
 
             raise ValueError(f"Cannot parse location string: " f"{loc_str}") from exc
 
-    def _get_directions(self, dir_str):
+    def _get_directions(self, dir_str: str | None) -> np.ndarray:
         """
         Parses a direction string to determine specific
         orientations or directions applicable within an asset.
