@@ -63,6 +63,7 @@ from collections.abc import Callable
 from abc import ABC, abstractmethod
 from scipy.stats import uniform, norm  # type: ignore
 from scipy.stats import multivariate_normal as mvn  # type: ignore
+from scipy.stats import weibull_min
 from scipy.stats._mvn import mvndst  # type: ignore # pylint: disable=no-name-in-module # noqa # lol
 from scipy.linalg import cholesky, svd  # type: ignore
 from scipy.optimize import minimize  # type: ignore
@@ -1709,6 +1710,125 @@ class UniformRandomVariable(RandomVariable):
         return result
 
 
+class WeibullRandomVariable(RandomVariable):
+    """
+    Weibull random variable.
+
+    """
+
+    __slots__ = ['theta', 'truncation_limits']
+
+    def __init__(
+        self,
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray | None = None,
+        f_map: Callable | None = None,
+        anchor: BaseRandomVariable | None = None,
+    ):
+        if truncation_limits is None:
+            truncation_limits = np.array((np.nan, np.nan))
+        super().__init__(
+            name=name,
+            theta=theta,
+            truncation_limits=truncation_limits,
+            f_map=f_map,
+            anchor=anchor,
+        )
+        self.distribution = 'weibull'
+        self.theta = np.atleast_1d(theta)
+        self.truncation_limits = truncation_limits
+
+    def cdf(self, values: np.ndarray) -> np.ndarray:
+        """
+        Returns the Cumulative Density Function (CDF) at the specified
+        values.
+
+        Parameters
+        ----------
+        values: 1D float ndarray
+            Values for which to evaluate the CDF.
+
+        Returns
+        -------
+        ndarray
+            CDF values.
+
+        """
+        lambda_, kappa = self.theta[:2]
+
+        if np.any(~np.isnan(self.truncation_limits)):
+            a, b = self.truncation_limits
+
+            if np.isnan(a):
+                # Weibull is not defined for negative values
+                a = 0.0
+            if np.isnan(b):
+                b = np.inf
+
+            p_a, p_b = [weibull_min.cdf(lim, kappa, scale=lambda_) for lim in (a, b)]
+
+            # cap the values at the truncation limits
+            values = np.minimum(np.maximum(values, a), b)
+
+            # get the cdf from a non-truncated weibull
+            p_vals = weibull_min.cdf(values, kappa, scale=lambda_)
+
+            # adjust for truncation
+            result = (p_vals - p_a) / (p_b - p_a)
+
+        else:
+            values = np.maximum(
+                values, 0.0
+            )  # Weibull is not defined for negative values
+
+            result = weibull_min.cdf(values, kappa, scale=lambda_)
+
+        return result
+
+    def inverse_transform(self, values: np.ndarray) -> np.ndarray:
+        """
+        Evaluates the inverse of the Cumulative Density Function (CDF)
+        for the given values.  Used to generate random variable
+        realizations.
+
+        Parameters
+        ----------
+        values: 1D float ndarray
+            Values for which to evaluate the inverse CDF.
+
+        Returns
+        -------
+        ndarray
+            Inverse CDF values.
+
+        """
+
+        lambda_, kappa = self.theta[:2]
+
+        if np.any(~np.isnan(self.truncation_limits)):
+            a, b = self.truncation_limits
+
+            if np.isnan(a):
+                a = 0.0  # Weibull is not defined for negative values
+            else:
+                a = np.maximum(0.0, a)
+
+            if np.isnan(b):
+                b = np.inf
+
+            p_a, p_b = [weibull_min.cdf(lim, kappa, scale=lambda_) for lim in (a, b)]
+
+            result = weibull_min.ppf(
+                values * (p_b - p_a) + p_a, kappa, scale=lambda_
+            )
+
+        else:
+            result = weibull_min.ppf(values, kappa, scale=lambda_)
+
+        return result
+
+
 class MultilinearCDFRandomVariable(RandomVariable):
     """
     Multilinear CDF random variable. This RV is defined by specifying
@@ -2561,6 +2681,7 @@ def rv_class_map(distribution_name: str) -> type[BaseRandomVariable]:
         'normal': NormalRandomVariable,
         'lognormal': LogNormalRandomVariable,
         'uniform': UniformRandomVariable,
+        'weibull': WeibullRandomVariable,
         'multilinear_CDF': MultilinearCDFRandomVariable,
         'empirical': EmpiricalRandomVariable,
         'coupled_empirical': CoupledEmpiricalRandomVariable,
