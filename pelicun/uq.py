@@ -89,7 +89,7 @@ def scale_distribution(
     ----------
     scale_factor: float
         Value by which to scale the parameters.
-    family: {'normal' (or 'normal_CSV'), 'normal_STD', 'lognormal',
+    family: {'normal' (or 'normal_cov'), 'normal_std', 'lognormal',
         'uniform'}
         Defines the type of probability distribution for the random
         variable.
@@ -132,13 +132,13 @@ def scale_distribution(
         family = 'deterministic'
 
     theta_new = np.full_like(theta, np.nan)
-    if family in {'normal', 'normal_COV'}:
-        theta_new[0] = theta[0] * scale_factor
-        theta_new[1] = theta[1]  # because we use cov instead of std
+    if family == 'normal_std':
+        theta_new[0] = theta[0] * scale_factor  # mean
+        theta_new[1] = theta[1] * scale_factor  # STD
 
-    elif family == 'normal_STD':
+    elif family in {'normal', 'normal_cov'}:
         theta_new[0] = theta[0] * scale_factor
-        theta_new[1] = theta[1] * scale_factor
+        theta_new[1] = theta[1]  # because it is CoV
 
     elif family == 'lognormal':
         theta_new[0] = theta[0] * scale_factor
@@ -162,7 +162,7 @@ def scale_distribution(
 
 def mvn_orthotope_density(
     mu: float | np.ndarray,
-    COV: np.ndarray,
+    cov: np.ndarray,
     lower: float | np.ndarray = np.nan,
     upper: float | np.ndarray = np.nan,
 ) -> tuple[float, float]:
@@ -178,7 +178,7 @@ def mvn_orthotope_density(
     ----------
     mu: float scalar or ndarray
         Mean(s) of the non-truncated distribution.
-    COV: float ndarray
+    cov: float ndarray
         Covariance matrix of the non-truncated distribution
     lower: float vector, optional, default: np.nan
         Lower bound(s) for the truncated distributions. A scalar value can be
@@ -205,10 +205,10 @@ def mvn_orthotope_density(
 
     # process the inputs and get the number of dimensions
     mu = np.atleast_1d(mu)
-    COV = np.atleast_2d(COV)
+    cov = np.atleast_2d(cov)
 
-    sig = np.sqrt(np.diag(COV))
-    corr = COV / np.outer(sig, sig)
+    sig = np.sqrt(np.diag(cov))
+    corr = cov / np.outer(sig, sig)
 
     ndim = mu.size
 
@@ -260,22 +260,22 @@ def _get_theta(
     """
     Returns the parameters of the target distributions.
 
-    Uses the parameter values from the optimization algorithm (that are relative
-    to the initial values) and the initial values to transform them to the
-    parameters of the target distributions.
+    Uses the parameter values from the optimization algorithm (that
+    are relative to the initial values) and the initial values to
+    transform them to the parameters of the target distributions.
 
     Parameters
     ----------
     params: float ndarray, Nx2
-      Numpy array containing the parameter values
+      Numpy array containing the parameter values.
     inits: float ndarray, Nx2
-      Numpy array containing the initial values
+      Numpy array containing the initial values.
     dist_list: str ndarray
       Array of strings containing the names of the distributions.
 
     Returns
     -------
-    Theta
+    theta: float ndarray
       The estimated parameters.
 
     Raises
@@ -288,9 +288,26 @@ def _get_theta(
     theta = np.zeros(inits.shape)
 
     for i, (params_i, inits_i, dist_i) in enumerate(zip(params, inits, dist_list)):
-        if dist_i in {'normal', 'normal_COV', 'normal_STD', 'lognormal'}:
-            # Note that the standard deviation is fit in log space, hence the
-            # unusual-looking transformation here
+
+        if dist_i in {'normal', 'normal_std', 'lognormal'}:
+
+            # Standard deviation is used directly for 'normal' and
+            # 'lognormal'
+            sig = (
+                np.exp(np.log(inits_i[1]) + params_i[1])
+                if dist_i == 'lognormal'
+                else inits_i[1] + params_i[1]
+            )
+
+            # The mean uses the standard transformation
+            mu = inits_i[0] + params_i[0]
+
+            theta[i, 0] = mu
+            theta[i, 1] = sig
+
+        elif dist_i == 'normal_cov':
+
+            # Note that the CoV is used for 'normal_cov'
             sig = np.exp(np.log(inits_i[1]) + params_i[1])
 
             # The mean uses the standard transformation
@@ -332,10 +349,10 @@ def _get_limit_probs(
 
     """
 
-    if distribution in {'normal', 'normal_COV', 'normal_STD', 'lognormal'}:
+    if distribution in {'normal', 'normal_std', 'normal_cov', 'lognormal'}:
         a, b = limits
         mu = theta[0]
-        sig = theta[1]
+        sig = theta[1] if distribution != 'normal_COV' else np.abs(mu) * theta[1]
 
         if np.isnan(a):
             p_a = 0.0
@@ -368,12 +385,12 @@ def _get_std_samples(
       2D array of samples. Each row represents a sample.
     theta: float ndarray Dx2
       2D array of theta values that represent each dimension of the
-      samples
+      samples.
     tr_limits: float ndarray Dx2
       2D array with rows that represent [a, b] pairs of truncation
-      limits
+      limits.
     dist_list: str ndarray of length D
-      1D array containing the names of the distributions
+      1D array containing the names of the distributions.
 
     Returns
     -------
@@ -394,7 +411,7 @@ def _get_std_samples(
     for i, (samples_i, theta_i, tr_lim_i, dist_i) in enumerate(
         zip(samples, theta, tr_limits, dist_list)
     ):
-        if dist_i in {'normal','normal_COV', 'normal_STD', 'lognormal'}:
+        if dist_i in {'normal', 'normal_std', 'normal_cov', 'lognormal'}:
             lim_low = tr_lim_i[0]
             lim_high = tr_lim_i[1]
 
@@ -621,7 +638,7 @@ def _neg_log_likelihood(
         # Calculate the likelihood for each available sample
         # Note that we are performing this without any transformation to be able
         # to respect truncation limits
-        if dist_i in {'normal', 'lognormal'}:
+        if dist_i in {'normal', 'normal_std', 'normal_cov', 'lognormal'}:
             likelihoods[i] = (
                 norm.pdf(samples_i, loc=theta_i[0], scale=theta_i[1]) / tr_alpha
             )
@@ -768,9 +785,10 @@ def fit_distribution_to_sample(
         theta: float ndarray
             Estimates of the parameters of the fitted probability
             distribution in each dimension. The following parameters
-            are returned for the supported distributions: normal -
-            mean, coefficient of variation; lognormal - median, log
-            standard deviation;
+            are returned for the supported distributions: normal,
+            normal_cov - mean, coefficient of variation; normal_std -
+            mean, standard deviation; lognormal - median, log standard
+            deviation;
         Rho: float 2D ndarray, optional
             In the multivariate case, returns the estimate of the
             correlation matrix.
@@ -797,10 +815,9 @@ def fit_distribution_to_sample(
     if (dist_list.shape[0] == 1) and (n_dims != 1):
         dist_list = np.tile(dist_list[0], n_dims)
 
+    # Convert samples and limits to log space if the distribution is lognormal
     for d_i, distr in enumerate(dist_list):
         if distr == 'lognormal':
-
-            # Convert samples and limits to log space
             samples[d_i] = np.log(samples[d_i])
 
             for lim in range(2):
@@ -817,7 +834,7 @@ def fit_distribution_to_sample(
     sig_init = np.ones_like(mu_init) * np.nan
 
     for d_i, distr in enumerate(dist_list):
-        if distr in {'normal', 'normal_COV', 'normal_STD', 'lognormal'}:
+        if distr in {'normal', 'normal_cov', 'normal_std', 'lognormal'}:
             # use the first two moments
             mu_init[d_i] = np.mean(samples[d_i])
 
@@ -979,25 +996,20 @@ def fit_distribution_to_sample(
             )
 
     for d_i, distr in enumerate(dist_list):
+        # Convert mean back to linear space if the distribution is lognormal
         if distr == 'lognormal':
-            # Convert mean back to linear space
-            # Dispersion is equal to standard normal std, so it is
-            # left unchanged.
             theta[d_i][0] = np.exp(theta[d_i][0])
-
-        elif distr in {'normal', 'normal_COV'}:
-            # Convert the std to cov
+            # theta_mod = theta.T.copy()
+            # theta_mod[0] = np.exp(theta_mod[0])
+            # theta = theta_mod.T
+        # Convert the std to cov if the distribution is normal_cov
+        elif distr in {'normal', 'normal_cov'}:
             # replace standard deviation with coefficient of variation
             # note: this results in cov=inf if the mean is zero.
             if np.abs(theta[d_i][0]) < 1.0e-40:
                 theta[d_i][1] = np.inf
             else:
                 theta[d_i][1] = theta[d_i][1] / np.abs(theta[d_i][0])
-        elif distr == 'normal':
-            # No action is needed
-            pass
-        else:
-            raise ValueError(f'Invalid distribution: `{distr}`.')
 
     return theta, rho_hat
 
@@ -1431,8 +1443,7 @@ class NormalRandomVariable(RandomVariable):
           1D float ndarray containing CDF values
 
         """
-        mu, cov = self.theta[:2]
-        sig = np.abs(mu) * cov
+        mu, sig = self.theta[:2]
 
         if np.any(~np.isnan(self.truncation_limits)):
             a, b = self.truncation_limits
@@ -1477,13 +1488,12 @@ class NormalRandomVariable(RandomVariable):
         Raises
         ------
         ValueError
-          If the probability massss within the truncation limits is
+          If the probability mass within the truncation limits is
           too small
 
         """
 
-        mu, cov = self.theta[:2]
-        sig = np.abs(mu) * cov
+        mu, sig = self.theta[:2]
 
         if np.any(~np.isnan(self.truncation_limits)):
             a, b = self.truncation_limits
@@ -1510,6 +1520,59 @@ class NormalRandomVariable(RandomVariable):
             result = norm.ppf(values, loc=mu, scale=sig)
 
         return result
+
+
+class Normal_STD(NormalRandomVariable):
+    """
+    Normal random variable with standard deviation.
+
+    This class represents a normal random variable defined by mean and
+    standard deviation.
+
+    """
+
+    __slots__ = []
+
+    def __init__(
+        self,
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray | None = None,
+        f_map: Callable | None = None,
+        anchor: BaseRandomVariable | None = None,
+    ):
+        mean, std = theta[:2]
+        theta = np.array([mean, std])
+        super().__init__(name, theta, truncation_limits, f_map, anchor)
+
+
+class Normal_COV(NormalRandomVariable):
+    """
+    Normal random variable with coefficient of variation.
+
+    This class represents a normal random variable defined by mean and
+    coefficient of variation.
+
+    """
+
+    __slots__ = []
+
+    def __init__(
+        self,
+        name: str,
+        theta: np.ndarray,
+        truncation_limits: np.ndarray | None = None,
+        f_map: Callable | None = None,
+        anchor: BaseRandomVariable | None = None,
+    ):
+        mean, cov = theta[:2]
+
+        if np.abs(mean) < 1e-40:
+            raise ValueError('The mean of Normal_COV RVs cannot be zero.')
+
+        std = mean * cov
+        theta = np.array([mean, std])
+        super().__init__(name, theta, truncation_limits, f_map, anchor)
 
 
 class LogNormalRandomVariable(RandomVariable):
@@ -2485,7 +2548,7 @@ class RandomVariableSet:
         OD = [
             mvn_orthotope_density(
                 mu=np.zeros(len(variables)),
-                COV=self.Rho(var_subset),
+                cov=self.Rho(var_subset),
                 lower=l_i,
                 upper=u_i,
             )[0]
@@ -2686,12 +2749,13 @@ def rv_class_map(distribution_name: str) -> type[BaseRandomVariable]:
       If the given distribution name does not correspond to a
       distribution class.
 
-
     """
     if pd.isna(distribution_name):
         distribution_name = 'deterministic'
     distribution_map = {
-        'normal': NormalRandomVariable,
+        'normal': Normal_COV,
+        'normal_std': Normal_STD,
+        'normal_cov': Normal_COV,
         'lognormal': LogNormalRandomVariable,
         'uniform': UniformRandomVariable,
         'weibull': WeibullRandomVariable,

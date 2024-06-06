@@ -644,7 +644,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
                 ('Quantity', 'Unit'): ['1 EA', '1 EA', '1 EA', '1 EA'],
                 ('DS1', 'Family'): ['normal', 'normal', 'normal', None],
                 ('DS1', 'Theta_0'): [1.00, 1.00, '4.0,2.0|5.0,1.0', 1.00],
-                ('DS1', 'Theta_1'): [1.00, 1.00, '4.0,2.0|5.0,1.0', None],
+                ('DS1', 'Theta_1'): [1.00, 1.00, 1.00, None],
             },
             index=pd.MultiIndex.from_tuples(
                 [
@@ -685,7 +685,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
         )
         assert np.all(
             rv_reg.RV['Cost-cmp.D-1-0-1-0'].theta[0:2]
-            == np.array(['1.0', '4.0,2.0|5.0,1.0'], dtype='<U32')
+            == np.array([1.0, 1.0])
         )
         assert 'DV-cmp.A-1-0-1-0_set' in rv_reg.RV_set
         np.all(

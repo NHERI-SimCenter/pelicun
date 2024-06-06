@@ -81,18 +81,30 @@ def test_scale_distribution():
     assert np.allclose(res[1], np.array((-4.00, 4.00)))  # truncation_limits
 
     # case 2:
+    # normal_std distribution, factor of two
+    res = uq.scale_distribution(2.00, 'normal_std', theta, trunc)
+    assert np.allclose(res[0], np.array((-2.00, 2.00)))  # theta_new
+    assert np.allclose(res[1], np.array((-4.00, 4.00)))  # truncation_limits
+
+    # case 3:
+    # normal_cov distribution, factor of two
+    res = uq.scale_distribution(2.00, 'normal_cov', theta, trunc)
+    assert np.allclose(res[0], np.array((-2.00, 1.00)))  # theta_new
+    assert np.allclose(res[1], np.array((-4.00, 4.00)))  # truncation_limits
+
+    # case 4:
     # lognormal distribution, factor of two
     res = uq.scale_distribution(2.00, 'lognormal', theta, trunc)
     assert np.allclose(res[0], np.array((-2.00, 1.00)))  # theta_new
     assert np.allclose(res[1], np.array((-4.00, 4.00)))  # truncation_limits
 
-    # case 3:
+    # case 5:
     # uniform distribution, factor of two
     res = uq.scale_distribution(2.00, 'uniform', theta, trunc)
     assert np.allclose(res[0], np.array((-2.00, 2.00)))  # theta_new
     assert np.allclose(res[1], np.array((-4.00, 4.00)))  # truncation_limits
 
-    # case 4: unsupported distribution
+    # case 6: unsupported distribution
     with pytest.raises(ValueError):
         uq.scale_distribution(0.50, 'benktander-weibull', np.array((1.00, 10.00)))
 
@@ -156,19 +168,22 @@ def test_mvn_orthotope_density():
 
 
 def test__get_theta():
-    # evaluate uq._get_theta() for some valid inputs
+
+    # Evaluate uq._get_theta() for some valid inputs
     res = uq._get_theta(
-        np.array(((1.00, 1.00), (1.00, 0.5))),
-        np.array(((0.00, 1.00), (1.00, 0.5))),
-        ['normal', 'lognormal'],
+        np.array(((1.00, 1.00), (1.00, 0.5), (0.00, 0.3), (1.50, 0.2))),
+        np.array(((0.00, 1.00), (1.00, 0.5), (0.00, 0.3), (1.00, 0.2))),
+        ['normal', 'lognormal', 'normal_std', 'normal_cov'],
     )
 
-    # check that the expected output is obtained
-    assert np.allclose(
-        res, np.array(((2.71828183, 2.71828183), (1.82436064, 0.82436064)))
+    # Check that the expected output is obtained for each distribution type
+    expected_res = np.array(
+        ((1.00, 2.00), (2.00, 0.82436064), (0.00, 0.60), (1.36642083, 0.24428055))
     )
 
-    # check that it fails for invalid inputs
+    assert np.allclose(res, expected_res)
+
+    # Check that it fails for invalid inputs
     with pytest.raises(ValueError):
         uq._get_theta(np.array((1.00,)), np.array((1.00,)), 'not_a_distribution')
 
@@ -399,20 +414,28 @@ def test_fit_distribution_to_sample_univariate():
     assert np.isclose(res[0][0, 0], np.mean(sample_vec))
     assert np.isclose(res[0][0, 1], np.inf)
     assert np.isclose(res[1][0, 0], 1.00)
-    res = uq.fit_distribution_to_sample(sample_vec, 'normal-stdev')
+    res = uq.fit_distribution_to_sample(sample_vec, 'normal_std')
     assert np.isclose(res[0][0, 0], np.mean(sample_vec))
     assert np.isclose(res[0][0, 1], 2.0)
+    assert np.isclose(res[1][0, 0], 1.00)
+    res = uq.fit_distribution_to_sample(sample_vec, 'normal_cov')
+    assert np.isclose(res[0][0, 0], np.mean(sample_vec))
+    assert np.isclose(res[0][0, 1], np.inf)
     assert np.isclose(res[1][0, 0], 1.00)
 
     # baseline case where the cov=mu/sigma is defined
     sample_vec += 10.00
-    res = uq.fit_distribution_to_sample(sample_vec, 'normal')
+    res = uq.fit_distribution_to_sample(sample_vec, 'normal_cov')
     assert np.isclose(res[0][0, 0], np.mean(sample_vec))
     assert np.isclose(res[0][0, 1], np.std(sample_vec) / np.mean(sample_vec))
     assert np.isclose(res[1][0, 0], 1.00)
-    res = uq.fit_distribution_to_sample(sample_vec, 'normal-stdev')
+    res = uq.fit_distribution_to_sample(sample_vec, 'normal_std')
     assert np.isclose(res[0][0, 0], np.mean(sample_vec))
     assert np.isclose(res[0][0, 1], np.std(sample_vec))
+    assert np.isclose(res[1][0, 0], 1.00)
+    res = uq.fit_distribution_to_sample(sample_vec, 'normal')
+    assert np.isclose(res[0][0, 0], np.mean(sample_vec))
+    assert np.isclose(res[0][0, 1], np.std(sample_vec) / np.mean(sample_vec))
     assert np.isclose(res[1][0, 0], 1.00)
 
     # lognormal
@@ -456,12 +479,27 @@ def test_fit_distribution_to_sample_univariate():
     usable_sample = usable_sample.reshape((1, -1))
     res_a = uq.fit_distribution_to_sample(
         usable_sample,
-        'normal',
+        'normal_cov',
         censored_count=c_count,
         detection_limits=[c_lower, c_upper],
     )
     compare_a = (
         np.array(((1.13825975, 0.46686491))),
+        np.array(
+            ((1.00,)),
+        ),
+    )
+    assert np.allclose(res_a[0], compare_a[0])
+    assert np.allclose(res_a[1], compare_a[1])
+
+    res_a = uq.fit_distribution_to_sample(
+        usable_sample,
+        'normal_std',
+        censored_count=c_count,
+        detection_limits=[c_lower, c_upper],
+    )
+    compare_a = (
+        np.array(((1.13825975, 0.53141375))),
         np.array(
             ((1.00,)),
         ),
@@ -480,7 +518,7 @@ def test_fit_distribution_to_sample_univariate():
     usable_sample = usable_sample.reshape((1, -1))
     res_b = uq.fit_distribution_to_sample(
         usable_sample,
-        'normal',
+        'normal_cov',
         censored_count=c_count,
         detection_limits=[c_lower, c_upper],
     )
@@ -504,7 +542,7 @@ def test_fit_distribution_to_sample_univariate():
     usable_sample = usable_sample.reshape((1, -1))
     res_c = uq.fit_distribution_to_sample(
         usable_sample,
-        'normal',
+        'normal_cov',
         censored_count=c_count,
         detection_limits=[c_lower, c_upper],
     )
@@ -529,7 +567,7 @@ def test_fit_distribution_to_sample_univariate():
     )
     with pytest.raises(ValueError):
         res = uq.fit_distribution_to_sample(
-            sample_vec, 'normal', truncation_limits=[t_lower, t_upper]
+            sample_vec, 'normal_cov', truncation_limits=[t_lower, t_upper]
         )
 
     # truncated data, only lower, expect failure
@@ -540,7 +578,7 @@ def test_fit_distribution_to_sample_univariate():
     )
     with pytest.raises(ValueError):
         res = uq.fit_distribution_to_sample(
-            sample_vec, 'normal', truncation_limits=[t_lower, t_upper]
+            sample_vec, 'normal_cov', truncation_limits=[t_lower, t_upper]
         )
 
     # truncated data, only upper, expect failure
@@ -551,7 +589,7 @@ def test_fit_distribution_to_sample_univariate():
     )
     with pytest.raises(ValueError):
         res = uq.fit_distribution_to_sample(
-            sample_vec, 'normal', truncation_limits=[t_lower, t_upper]
+            sample_vec, 'normal_cov', truncation_limits=[t_lower, t_upper]
         )
 
     # truncated data, lower and upper
@@ -560,7 +598,7 @@ def test_fit_distribution_to_sample_univariate():
     t_upper = +4.50
     sample_vec = np.array((0.00, 1.00, 2.00, 3.00, 4.00)).reshape((1, -1))
     res_a = uq.fit_distribution_to_sample(
-        sample_vec, 'normal', truncation_limits=[t_lower, t_upper]
+        sample_vec, 'normal_cov', truncation_limits=[t_lower, t_upper]
     )
     compare_a = (
         np.array(((1.99999973, 2.2639968))),
@@ -579,7 +617,7 @@ def test_fit_distribution_to_sample_univariate():
         (1, -1)
     )
     res_b = uq.fit_distribution_to_sample(
-        sample_vec, 'normal', truncation_limits=[t_lower, t_upper]
+        sample_vec, 'normal_cov', truncation_limits=[t_lower, t_upper]
     )
     compare_b = (np.array(((-0.09587816, 21.95601487))), np.array(((1.00,))))
     assert np.allclose(res_b[0], compare_b[0])
@@ -593,7 +631,7 @@ def test_fit_distribution_to_sample_univariate():
         (1, -1)
     )
     res_c = uq.fit_distribution_to_sample(
-        sample_vec, 'normal', truncation_limits=[t_lower, t_upper]
+        sample_vec, 'normal_cov', truncation_limits=[t_lower, t_upper]
     )
     compare_c = (
         np.array(((0.09587811, 21.95602574))),
@@ -618,7 +656,7 @@ def test_fit_distribution_to_sample_multivariate():
     np.random.seed(40)
     # note: distribution can be specified once, implying that it is
     # the same for all random variables.
-    res = uq.fit_distribution_to_sample(sample, ['normal'])
+    res = uq.fit_distribution_to_sample(sample, ['normal_cov'])
     compare = (
         np.array(((0.9909858, 1.01732669), (0.99994493, 0.99588164))),
         np.array(((1.00, 0.0092258), (0.0092258, 1.00))),
@@ -632,7 +670,7 @@ def test_fit_distribution_to_sample_multivariate():
         (1.00, 1.00), np.array(((1.00, 0.70), (0.70, 1.00))), size=10000
     ).T
     np.random.seed(40)
-    res = uq.fit_distribution_to_sample(sample, ['normal', 'normal'])
+    res = uq.fit_distribution_to_sample(sample, ['normal_cov', 'normal_cov'])
     compare = (
         np.array(((1.00833201, 1.0012552), (1.00828936, 0.99477853))),
         np.array(((1.00, 0.70623679), (0.70623679, 1.00))),
@@ -648,7 +686,7 @@ def test_fit_distribution_to_sample_multivariate():
     np.random.seed(40)
     res = uq.fit_distribution_to_sample(
         sample,
-        ['normal', 'normal'],
+        ['normal_cov', 'normal_cov'],
         truncation_limits=np.array((-5.00, 6.00)),
         detection_limits=np.array((0.20, 1.80)),
     )
@@ -666,7 +704,7 @@ def test_fit_distribution_to_sample_multivariate():
         3.14,
     )
     np.random.seed(40)
-    res = uq.fit_distribution_to_sample(sample, ['normal', 'normal'])
+    res = uq.fit_distribution_to_sample(sample, ['normal_cov', 'normal_cov'])
     compare = (
         np.array(((3.14, 1.0e-6), (3.14, 1.0e-6))),
         np.array(((1.00, 0.00), (0.00, 1.00))),
@@ -701,7 +739,7 @@ def test_fit_distribution_to_sample_multivariate():
     )
     np.random.seed(40)
     with pytest.raises(IndexError):
-        res = uq.fit_distribution_to_sample(sample, ['normal', 'normal'])
+        res = uq.fit_distribution_to_sample(sample, ['normal_cov', 'normal_cov'])
 
     # extreme examples:
     # for these we just ensure that the function works without
@@ -715,14 +753,14 @@ def test_fit_distribution_to_sample_multivariate():
     ).T
     sample = np.exp(sample)
     sample += np.random.uniform(-10.00, 10.00, size=sample.shape)
-    res = uq.fit_distribution_to_sample(sample, ['normal', 'normal'])
+    res = uq.fit_distribution_to_sample(sample, ['normal_cov', 'normal_cov'])
     for res_i in res:
         assert not np.any(np.isinf(res_i))
         assert not np.any(np.isnan(res_i))
 
     # 2) very noisy input data, normal fit
     sample = np.random.uniform(-10.00, 10.00, size=sample.shape)
-    res = uq.fit_distribution_to_sample(sample, ['normal', 'normal'])
+    res = uq.fit_distribution_to_sample(sample, ['normal_cov', 'normal_cov'])
     for res_i in res:
         assert not np.any(np.isinf(res_i))
         assert not np.any(np.isnan(res_i))
@@ -743,7 +781,7 @@ def test_fit_distribution_to_sample_multivariate():
             (np.random.normal(0.00, 1.00, size=100000), np.array((np.inf,)))
         )
         with pytest.raises(ValueError):
-            uq.fit_distribution_to_sample(sample, ['normal'])
+            uq.fit_distribution_to_sample(sample, ['normal_cov'])
 
 
 def test_fit_distribution_to_percentiles():
@@ -814,6 +852,30 @@ def test_NormalRandomVariable():
         rv.xyz = 123
 
 
+def test_Normal_STD():
+    rv = uq.Normal_STD('rv_name', theta=np.array((0.00, 1.00)))
+    assert rv.name == 'rv_name'
+    np.testing.assert_allclose(rv.theta, np.array((0.00, 1.00)))
+    assert np.all(np.isnan(rv.truncation_limits))
+    assert rv.RV_set is None
+    assert rv.sample_DF is None
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
+
+
+def test_Normal_COV():
+    with pytest.raises(ValueError):
+        rv = uq.Normal_COV('rv_name', theta=np.array((0.00, 1.00)))
+    rv = uq.Normal_COV('rv_name', theta=np.array((2.00, 1.00)))
+    assert rv.name == 'rv_name'
+    np.testing.assert_allclose(rv.theta, np.array((2.00, 2.00)))
+    assert np.all(np.isnan(rv.truncation_limits))
+    assert rv.RV_set is None
+    assert rv.sample_DF is None
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
+
+
 def test_NormalRandomVariable_cdf():
     # test CDF method
     rv = uq.NormalRandomVariable(
@@ -840,6 +902,30 @@ def test_NormalRandomVariable_cdf():
     assert np.allclose(
         cdf, (0.02275013, 0.15865525, 0.30853754, 0.5, 0.84134475), rtol=1e-5
     )
+
+
+def test_Normal_STD_cdf():
+    rv = uq.Normal_STD(
+        'test_rv',
+        theta=(1.0, 1.0),
+        truncation_limits=np.array((0.00, np.nan)),
+    )
+
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+    assert np.allclose(cdf, (0.0, 0.0, 0.1781461, 0.40571329, 0.81142658), rtol=1e-5)
+
+
+def test_Normal_COV_cdf():
+    rv = uq.Normal_COV(
+        'test_rv',
+        theta=(1.0, 1.0),
+        truncation_limits=np.array((0.00, np.nan)),
+    )
+
+    x = (-1.0, 0.0, 0.5, 1.0, 2.0)
+    cdf = rv.cdf(x)
+    assert np.allclose(cdf, (0.0, 0.0, 0.1781461, 0.40571329, 0.81142658), rtol=1e-5)
 
 
 def test_NormalRandomVariable_inverse_transform():
@@ -900,6 +986,28 @@ def test_NormalRandomVariable_inverse_transform():
     rv.uni_sample = samples
     with pytest.raises(ValueError):
         rv.inverse_transform_sampling()
+
+
+def test_Normal_STD_inverse_transform():
+    samples = np.array((0.10, 0.20, 0.30))
+    rv = uq.Normal_STD('test_rv', theta=(1.0, 0.5))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform, np.array((0.35922422, 0.57918938, 0.73779974)), rtol=1e-5
+    )
+
+
+def test_Normal_COV_inverse_transform():
+    samples = np.array((0.10, 0.20, 0.30))
+    rv = uq.Normal_COV('test_rv', theta=(1.0, 0.5))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    assert np.allclose(
+        inverse_transform, np.array((0.35922422, 0.57918938, 0.73779974)), rtol=1e-5
+    )
 
 
 def test_LogNormalRandomVariable_cdf():
@@ -1360,7 +1468,7 @@ def test_RandomVariable_Set_orthotope_density(reset=False):
     )
 
     # create some random variables
-    rv_1 = uq.NormalRandomVariable(
+    rv_1 = uq.Normal_COV(
         'rv1', theta=[5.0, 0.1], truncation_limits=np.array((np.nan, 10.0))
     )
     rv_2 = uq.LogNormalRandomVariable('rv2', theta=[10.0, 0.2])
@@ -1458,7 +1566,7 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         # create a random variable registry and add some random variables to it
         rng = np.random.default_rng(4)
         rv_registry = uq.RandomVariableRegistry(rng)
-        rv_1 = uq.NormalRandomVariable('rv1', theta=[5.0, 0.1])
+        rv_1 = uq.Normal_COV('rv1', theta=[5.0, 0.1])
         rv_2 = uq.LogNormalRandomVariable('rv2', theta=[10.0, 0.2])
         rv_3 = uq.UniformRandomVariable('rv3', theta=[13.0, 17.0])
         rv_registry.add_RV(rv_1)
@@ -1474,8 +1582,8 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
         rv_registry.add_RV_set(rv_set)
 
         # add some more random variables that are not part of the set
-        rv_4 = uq.NormalRandomVariable('rv4', theta=[14.0, 0.30])
-        rv_5 = uq.NormalRandomVariable('rv5', theta=[15.0, 0.50])
+        rv_4 = uq.Normal_COV('rv4', theta=[14.0, 0.30])
+        rv_5 = uq.Normal_COV('rv5', theta=[15.0, 0.50])
         rv_registry.add_RV(rv_4)
         rv_registry.add_RV(rv_5)
 
@@ -1499,8 +1607,8 @@ def test_RandomVariableRegistry_generate_sample(reset=False):
 
 
 def test_rv_class_map():
-    rv_class = uq.rv_class_map('normal')
-    assert rv_class.__name__ == 'NormalRandomVariable'
+    rv_class = uq.rv_class_map('normal_std')
+    assert rv_class.__name__ == 'Normal_STD'
 
     with pytest.raises(ValueError):
         uq.rv_class_map('<unsupported>')
