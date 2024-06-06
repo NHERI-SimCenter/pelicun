@@ -796,7 +796,7 @@ class LossModel(PelicunModel):
         if replacement_thresholds is not None:
             for dv in replacement_thresholds:
                 replacement_loss_values[dv] = self.ds_model.RV_reg.RV[
-                    f'{dv}-replacement'
+                    f'{dv}-replacement-0-0-0-0'
                 ]
 
         sample, exceedance_bool_df = self._apply_replacement_thresholds(
@@ -1267,7 +1267,8 @@ class LossModel(PelicunModel):
                         (d2, 'replacement', 'threshold_exceedance', '0', '1', '0')
                     ] = 0.00
                     sample = sample.sort_index(axis=1)
-                replacement_loss_value = replacement_loss_values[f'{d2}-replacement']
+
+                replacement_loss_value = replacement_loss_values[dv]
                 sample.loc[
                     exceedance_realizations,
                     (d2, 'replacement', 'threshold_exceedance', '0', '1', '0'),
