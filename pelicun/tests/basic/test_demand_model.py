@@ -43,6 +43,7 @@ These are unit and integration tests on the demand model of pelicun.
 """
 
 from __future__ import annotations
+from collections import defaultdict
 import os
 import tempfile
 import warnings
@@ -51,6 +52,8 @@ import pytest
 import numpy as np
 import pandas as pd
 from pelicun.tests.basic.test_model import TestModelModule
+from pelicun.model.demand_model import _get_required_demand_type
+from pelicun.model.demand_model import _assemble_required_demand_data
 
 # pylint: disable=unused-argument
 # pylint: disable=missing-function-docstring
@@ -332,8 +335,7 @@ class TestDemandModel(TestModelModule):
             new_demand_model.marginal_params,
         )
         pd.testing.assert_frame_equal(
-            demand_model_with_sample_C.correlation,
-            new_demand_model.correlation
+            demand_model_with_sample_C.correlation, new_demand_model.correlation
         )
         assert demand_model_with_sample_C.empirical_data is None
         assert new_demand_model.empirical_data is None
@@ -463,3 +465,93 @@ class TestDemandModel(TestModelModule):
                     },
                 }
             )
+
+    def test__get_required_demand_type(self, assessment_instance):
+
+        # Simple case: single demand
+        damage_model = assessment_instance.damage
+        cmp_set = {'testing.component'}
+        damage_model.load_model_parameters(
+            [
+                'pelicun/tests/basic/data/model/test_DemandModel/'
+                '_get_required_demand_type/damage_db_testing_single.csv'
+            ],
+            cmp_set,
+        )
+        pgb = pd.DataFrame(
+            {('testing.component', '1', '1', '1'): [1]}, index=['Blocks']
+        ).T.rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
+        demand_offset = {'PFA': 0}
+        required = _get_required_demand_type(
+            damage_model.ds_model.damage_params, pgb, demand_offset
+        )
+        expected = defaultdict(
+            list,
+            {(('PID-1-1',), None): [('testing.component', '1', '1', '1')]},
+        )
+        assert required == expected
+
+        # Utility demand case: two demands are required
+        damage_model = assessment_instance.damage
+        cmp_set = {'testing.component'}
+        damage_model.load_model_parameters(
+            [
+                'pelicun/tests/basic/data/model/test_DemandModel/'
+                '_get_required_demand_type/damage_db_testing_utility.csv'
+            ],
+            cmp_set,
+        )
+        pgb = pd.DataFrame(
+            {('testing.component', '1', '1', '1'): [1]}, index=['Blocks']
+        ).T.rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
+        demand_offset = {'PFA': 0}
+        required = _get_required_demand_type(
+            damage_model.ds_model.damage_params, pgb, demand_offset
+        )
+        expected = defaultdict(
+            list,
+            {
+                (('PID-1-1', 'PFA-1-1'), 'sqrt(X1^2+X2^2)'): [
+                    ('testing.component', '1', '1', '1')
+                ]
+            },
+        )
+        assert required == expected
+
+    def test__assemble_required_demand_data(self, assessment_instance):
+
+        damage_model = assessment_instance.damage
+        cmp_set = {'testing.component'}
+        damage_model.load_model_parameters(
+            [
+                'pelicun/tests/basic/data/model/test_DemandModel/'
+                '_get_required_demand_type/damage_db_testing_single.csv'
+            ],
+            cmp_set,
+        )
+        required_edps = defaultdict(
+            list,
+            {
+                (('PID-1-1', 'PFA-1-1'), 'sqrt(X1^2+X2^2)'): [
+                    ('testing.component', '1', '1', '1')
+                ]
+            },
+        )
+        nondirectional_multipliers = {'ALL': 1.00}
+        demand_sample = pd.DataFrame(
+            {
+                ('PID', '1', '1'): np.full(5, 3.00),
+                ('PFA', '1', '1'): np.full(5, 4.00),
+            }
+        )
+        demand_data = _assemble_required_demand_data(
+            required_edps, nondirectional_multipliers, demand_sample
+        )
+        expected = {
+            (('PID-1-1', 'PFA-1-1'), 'sqrt(X1^2+X2^2)'): np.array(
+                [5.0, 5.0, 5.0, 5.0, 5.0]
+            )
+        }
+        assert demand_data.keys() == expected.keys()
+        for key in demand_data:
+            assert np.all(demand_data[key] == expected[key])

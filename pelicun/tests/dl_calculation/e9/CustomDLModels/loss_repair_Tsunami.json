@@ -1,0 +1,61 @@
+{
+  "_GeneralInformation": {
+    "ShortName": "Tsunami Consequence Models from Suppasri et al. 2018",
+    "Description": "The models in this dataset are based on Suppasri et al. 2018",
+    "Version": "1.0",
+    "DecisionVariables": {
+      "Cost": "Repair costs are measured by loss ratios as percentage of replacement cost.",
+    }
+  },
+  "1": {
+    "Description": "1-story building",
+    "Comments": "INCORE reference id: 5bbbafcdec2309046c2745ca",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "DamageStates": {
+      "DS1": {
+        "Description": "Major Damage"
+      },
+      "DS2": {
+        "Description": "Complete Damage"        
+      },
+      "DS3": {
+        "Description": "Collapse"         
+      }
+    }
+  },
+  "2": {
+    "Description": "2-story building",
+    "Comments": "INCORE reference id: 5bbbb077ec2309046c2745cc",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "DamageStates": {
+      "DS1": {
+        "Description": "Major Damage"
+      },
+      "DS2": {
+        "Description": "Complete Damage"        
+      },
+      "DS3": {
+        "Description": "Collapse"         
+      }
+    }
+  },
+  "3andAbove": {
+    "Description": "Building with 3 or more stories",
+    "Comments": "INCORE reference id: 5bbbb021ec2309046c2745cb",
+    "SuggestedComponentBlockSize": "1 EA",
+    "RoundUpToIntegerQuantity": "True",
+    "DamageStates": {
+      "DS1": {
+        "Description": "Major Damage"
+      },
+      "DS2": {
+        "Description": "Complete Damage"        
+      },
+      "DS3": {
+        "Description": "Collapse"         
+      }
+    }
+  }
+}

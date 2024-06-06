@@ -617,7 +617,7 @@ def run_pelicun(
 
             # add the demand information
             update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
-            update(config_ap, '/DL/Demands/SampleSize', realizations)
+            update(config_ap, '/DL/Demands/SampleSize', str(realizations))
 
             if coupled_EDP is True:
                 update(config_ap, 'DL/Demands/CoupledDemands', True)
@@ -695,10 +695,8 @@ def run_pelicun(
             config,
             'DL/Outputs/Format',
             {
-                'Format': {
-                    'CSV': 'csv' in output_format,
-                    'JSON': 'json' in output_format,
-                }
+                'CSV': 'csv' in output_format,
+                'JSON': 'json' in output_format,
             },
         )
 

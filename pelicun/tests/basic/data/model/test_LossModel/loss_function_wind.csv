@@ -1,0 +1,2 @@
+ID,Incomplete,Demand-Type,Demand-Unit,Demand-Offset,Demand-Directional,DV-Unit,LossFunction-Theta_0
+wind.comp-Cost,0,Peak Gust Wind Speed,mph,0,0,loss_ratio,"0.00,1.00|0.00,150.00"

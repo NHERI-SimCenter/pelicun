@@ -1,0 +1,157 @@
+{
+  "RandomVariables": [],
+  "GeneralInformation": {
+    "AIM_id": "1",
+    "location": {
+      "latitude": 61.21700019,
+      "longitude": -149.9083196
+    },
+    "Latitude": 61.21700019,
+    "Longitude": -149.9083196,
+    "NumberOfStories": 2,
+    "YearBuilt": 1983,
+    "OccupancyClass": "RES1",
+    "PlanArea": 3059,
+    "StructureType": "W1",
+    "Footprint": "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-149.908450,61.217076],[-149.908450,61.217100],[-149.908506,61.217100],[-149.908506,61.217076],[-149.908450,61.217076]]]},\"properties\":{}}",
+    "units": {
+      "force": "kips",
+      "length": "ft",
+      "time": "sec"
+    }
+  },
+  "DefaultValues": {
+    "driverFile": "driver",
+    "edpFiles": [
+      "EDP.json"
+    ],
+    "filenameDL": "BIM.json",
+    "filenameEDP": "EDP.json",
+    "filenameEVENT": "EVENT.json",
+    "filenameSAM": "SAM.json",
+    "filenameSIM": "SIM.json",
+    "rvFiles": [
+      "SAM.json",
+      "EVENT.json",
+      "SIM.json"
+    ],
+    "workflowInput": "scInput.json",
+    "workflowOutput": "EDP.json"
+  },
+  "commonFileDir": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+  "remoteAppDir": "/Users/adamzs/SimCenter",
+  "localAppDir": "/Users/adamzs/SimCenter",
+  "units": {
+    "force": "kips",
+    "length": "ft",
+    "time": "sec"
+  },
+  "outputs": {
+    "AIM": false,
+    "DM": true,
+    "DV": true,
+    "EDP": true,
+    "IM": false
+  },
+  "RegionalEvent": {
+    "eventFile": "EventGrid.csv",
+    "eventFilePath": "/Users/adamzs/Examples/R2D/00_Built_ins/E2MDOFBuildingResponse/input_data/records",
+    "units": {
+      "TH_file": "mps2"
+    }
+  },
+  "assetType": "Buildings",
+  "Applications": {
+    "Events": [
+      {
+        "Application": "SimCenterEvent",
+        "ApplicationData": {},
+        "EventClassification": "Earthquake"
+      }
+    ],
+    "Modeling": {
+      "Application": "MDOF-LU",
+      "ApplicationData": {}
+    },
+    "EDP": {
+      "Application": "StandardEarthquakeEDP",
+      "ApplicationData": {}
+    },
+    "Simulation": {
+      "Application": "OpenSees-Simulation",
+      "ApplicationData": {}
+    },
+    "UQ": {
+      "Application": "Dakota-UQ",
+      "ApplicationData": {}
+    },
+    "DL": {
+      "Application": "Pelicun3",
+      "ApplicationData": {
+        "DL_Method": "HAZUS MH EQ Story",
+        "Realizations": 1000,
+        "auto_script": "PelicunDefault/Hazus_Earthquake_Story.py",
+        "coupled_EDP": false,
+        "detailed_results": false,
+        "ground_failure": false,
+        "log_file": true,
+        "regional": "true"
+      }
+    }
+  },
+  "Modeling": {
+    "hazusData": "HazusData.txt",
+    "pathToHazusFile": "input_data",
+    "stdDamping": 0.1,
+    "stdStiffness": 0.2
+  },
+  "Simulation": {
+    "Application": "OpenSees-Simulation",
+    "algorithm": "Newton",
+    "analysis": "Transient -numSubLevels 2 -numSubSteps 10",
+    "convergenceTest": "NormUnbalance 1.0e-2 10",
+    "dampingModel": "Rayleigh Damping",
+    "firstMode": 1,
+    "integration": "Newmark 0.5 0.25",
+    "modalRayleighTangentRatio": 0,
+    "numModesModal": 1,
+    "rayleighTangent": "Initial",
+    "secondMode": -1,
+    "solver": "Umfpack"
+  },
+  "UQ": {
+    "parallelExecution": true,
+    "samplingMethodData": {
+      "method": "LHS",
+      "samples": 10,
+      "seed": 100
+    },
+    "saveWorkDir": true,
+    "uqType": "Forward Propagation"
+  },
+  "DL": {},
+  "Events": [
+    {
+      "EventFolderPath": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+      "Events": [
+        [
+          "site_2716x00000",
+          1.0
+        ],
+        [
+          "site_8040x00001",
+          1.0
+        ],
+        [
+          "site_8040x00002",
+          1.0
+        ],
+        [
+          "site_8040x00003",
+          1.0
+        ]
+      ],
+      "type": "timeHistory"
+    }
+  ]
+}

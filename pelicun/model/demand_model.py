@@ -51,9 +51,12 @@ This file defines the DemandModel object and its methods.
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import re
 import os
+from collections import defaultdict
 import numpy as np
 import pandas as pd
+import numexpr as ne
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun import base
 from pelicun import uq
@@ -120,7 +123,9 @@ class DemandModel(PelicunModel):
         self._RVs = None
         self.sample = None
 
-    def save_sample(self, filepath=None, save_units=False):
+    def save_sample(
+        self, filepath: str | None = None, save_units: bool = False
+    ) -> None | tuple[pd.DataFrame, pd.Series]:
         """
         Save demand sample to a csv file or return it in a DataFrame
 
@@ -170,13 +175,13 @@ class DemandModel(PelicunModel):
         # else:
         return res.astype(float)
 
-    def load_sample(self, filepath):
+    def load_sample(self, filepath: str | pd.DataFrame) -> None:
         """
         Load demand sample data and parse it.
 
-        Besides parsing the sample, the method also reads and saves the units
-        specified for each demand variable. If no units are specified, Standard
-        Units are assumed.
+        Besides parsing the sample, the method also reads and saves
+        the units specified for each demand variable. If no units are
+        specified, base units are assumed.
 
         Parameters
         ----------
@@ -297,7 +302,9 @@ class DemandModel(PelicunModel):
 
         self.log.msg('Demand units successfully parsed.', prepend_timestamp=False)
 
-    def estimate_RID(self, demands, params, method='FEMA P58'):
+    def estimate_RID(
+        self, demands: pd.DataFrame, params: dict, method: str = 'FEMA P58'
+    ) -> pd.DataFrame:
         """
         Estimates residual inter-story drift (RID) realizations based
         on peak inter-story drift (PID) and other demand parameters
@@ -393,7 +400,7 @@ class DemandModel(PelicunModel):
         # return the generated drift realizations
         return RID
 
-    def calibrate_model(self, config):
+    def calibrate_model(self, config: dict) -> None:
         """
         Calibrate a demand model to describe the raw demand data
 
@@ -672,7 +679,7 @@ class DemandModel(PelicunModel):
 
         self.calibrated = True
 
-    def save_model(self, file_prefix):
+    def save_model(self, file_prefix: str) -> None:
         """
         Save parameters of the demand model to a set of csv files
 
@@ -709,7 +716,7 @@ class DemandModel(PelicunModel):
 
         self.log.msg('Demand model successfully saved.', prepend_timestamp=False)
 
-    def load_model(self, data_source):
+    def load_model(self, data_source: str | dict) -> None:
         """
         Load the model that describes demands on the asset.
 
@@ -782,7 +789,7 @@ class DemandModel(PelicunModel):
 
         self.log.msg('Demand model successfully loaded.', prepend_timestamp=False)
 
-    def _create_RVs(self, preserve_order=False):
+    def _create_RVs(self, preserve_order: bool = False) -> None:
         """
         Create a random variable registry for the joint distribution of demands.
 
@@ -855,7 +862,7 @@ class DemandModel(PelicunModel):
 
         self._RVs = RV_reg
 
-    def clone_demands(self, demand_cloning):
+    def clone_demands(self, demand_cloning: dict) -> None:
         """
         Clones demands. This means copying over columns of the
         original demand sample and assigning given names to them. The
@@ -951,7 +958,7 @@ class DemandModel(PelicunModel):
         self.user_units = self.user_units.iloc[column_index]
         self.user_units.index = self.sample.columns
 
-    def generate_sample(self, config):
+    def generate_sample(self, config: dict) -> None:
         """
         Generates a sample of random variables (RVs) based on the
         specified configuration for demand modeling.
@@ -1005,7 +1012,7 @@ class DemandModel(PelicunModel):
 
         if self.marginal_params is None:
             raise ValueError(
-                'Model parameters have not been specified. Either'
+                'Model parameters have not been specified. Either '
                 'load parameters from a file or calibrate the '
                 'model using raw demand data.'
             )
@@ -1041,7 +1048,11 @@ class DemandModel(PelicunModel):
         )
 
 
-def _get_required_demand_type(model_parameters, PGB, demand_offset=None):
+def _get_required_demand_type(
+    model_parameters: pd.DataFrame,
+    pgb: pd.DataFrame,
+    demand_offset: dict | None = None,
+) -> dict:
     """
     Returns the id of the demand needed to calculate damage or
     loss of a component.
@@ -1070,7 +1081,7 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset=None):
     model_parameters: pd.DataFrame
         Model parameters. Damage model parameters, or
         loss-function loss model parameters.
-    PGB: pd.DataFrame
+    pgb: pd.DataFrame
         A pandas DataFrame with the block information for
         each component
     demand_offset: dict, optional
@@ -1088,16 +1099,17 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset=None):
 
     """
 
+    model_parameters = model_parameters.sort_index(axis=1)
+
     # Assign default demand_offset to empty dict.
     if not demand_offset:
         demand_offset = {}
 
-    required_edps = {}
+    required_edps = defaultdict(list)
 
-    for PG in PGB.index:
-        # Get the component name from the first element of the
-        # `PG` tuple
-        cmp = PG[0]
+    for pg in pgb.index:
+
+        cmp = pg[0]
 
         # Get the directional, offset, and demand_type parameters
         # from the `model_parameters` DataFrame
@@ -1105,76 +1117,90 @@ def _get_required_demand_type(model_parameters, PGB, demand_offset=None):
         offset = model_parameters.at[cmp, ('Demand', 'Offset')]
         demand_type = model_parameters.at[cmp, ('Demand', 'Type')]
 
+        # Utility Demand: if there is an `Expression`, then load the
+        # rest of the demand types.
+        expression = model_parameters.loc[cmp, :].get(('Demand', 'Expression'))
+        if expression is not None:
+            demand_types = []
+            for row, value in model_parameters.loc[cmp, 'Demand'].dropna().items():
+                if isinstance(row, str) and row.startswith('Type'):
+                    demand_types.append(value)
+        else:
+            demand_types = [demand_type]
+
         # Parse the demand type
 
-        # Check if there is a subtype included in the demand_type
-        # string
-        if '|' in demand_type:
-            # If there is a subtype, split the demand_type string
-            # on the '|' character
-            demand_type, subtype = demand_type.split('|')
-            # Convert the demand type to the corresponding EDP
-            # type using `base.EDP_to_demand_type`
-            demand_type = base.EDP_to_demand_type[demand_type]
-            # Concatenate the demand type and subtype to form the
-            # EDP type
-            EDP_type = f'{demand_type}_{subtype}'
-        else:
-            # If there is no subtype, convert the demand type to
-            # the corresponding EDP type using
-            # `base.EDP_to_demand_type`
-            demand_type = base.EDP_to_demand_type[demand_type]
-            # Assign the EDP type to be equal to the demand type
-            EDP_type = demand_type
+        edps = []
+        for demand_type in demand_types:
 
-        # Consider the default offset, if needed
-        if demand_type in demand_offset.keys():
-            # If the demand type has a default offset in
-            # `demand_offset`, add the offset
-            # to the default offset
-            offset = int(offset + demand_offset[demand_type])
-        else:
-            # If the demand type does not have a default offset in
-            # `demand_offset`, convert the
-            # offset to an integer
-            offset = int(offset)
+            # Check if there is a subtype included in the demand_type
+            # string
+            if '|' in demand_type:
+                # If there is a subtype, split the demand_type string
+                # on the '|' character
+                demand_type, subtype = demand_type.split('|')
+                # Convert the demand type to the corresponding EDP
+                # type using `base.EDP_to_demand_type`
+                demand_type = base.EDP_to_demand_type[demand_type]
+                # Concatenate the demand type and subtype to form the
+                # EDP type
+                EDP_type = f'{demand_type}_{subtype}'
+            else:
+                # If there is no subtype, convert the demand type to
+                # the corresponding EDP type using
+                # `base.EDP_to_demand_type`
+                demand_type = base.EDP_to_demand_type[demand_type]
+                # Assign the EDP type to be equal to the demand type
+                EDP_type = demand_type
 
-        # Determine the direction
-        if directional:
-            # If the demand is directional, use the third element
-            # of the `PG` tuple as the direction
-            direction = PG[2]
-        else:
-            # If the demand is not directional, use '0' as the
-            # direction
-            direction = '0'
+            # Consider the default offset, if needed
+            if demand_type in demand_offset.keys():
+                # If the demand type has a default offset in
+                # `demand_offset`, add the offset
+                # to the default offset
+                offset = int(offset + demand_offset[demand_type])
+            else:
+                # If the demand type does not have a default offset in
+                # `demand_offset`, convert the
+                # offset to an integer
+                offset = int(offset)
 
-        # Concatenate the EDP type, offset, and direction to form
-        # the EDP key
-        EDP = f"{EDP_type}-{str(int(PG[1]) + offset)}-{direction}"
-        if int(PG[1]) + offset < 0:
-            raise ValueError(
-                f'Negative location encountered for component '
-                f'(cmp, loc, dir, uid)=`{PG}`. Would require `{EDP}`. '
-                f'Please update the location of the component.'
-            )
+            # Determine the direction
+            if directional:
+                # If the demand is directional, use the third element
+                # of the `PG` tuple as the direction
+                direction = pg[2]
+            else:
+                # If the demand is not directional, use '0' as the
+                # direction
+                direction = '0'
 
-        # If the EDP key is not already in the `required_edps`
-        # dictionary, add it and initialize it with an empty list
-        if EDP not in required_edps:
-            required_edps.update({EDP: []})
+            # Concatenate the EDP type, offset, and direction to form
+            # the EDP key
+            edp = f"{EDP_type}-{str(int(pg[1]) + offset)}-{direction}"
+
+            if int(pg[1]) + offset < 0:
+                raise ValueError(
+                    f'Negative location encountered for component '
+                    f'(cmp, loc, dir, uid)=`{pg}`. Would require `{edp}`. '
+                    f'Please update the location of the component.'
+                )
+
+            edps.append(edp)
+
+        edps_t = tuple(edps)  # makes it hashable
 
         # Add the current PG (performance group) to the list of
         # PGs associated with the current EDP key
-        required_edps[EDP].append(PG)
+        required_edps[(edps_t, expression)].append(pg)
 
     # Return the required EDPs
     return required_edps
 
 
 def _assemble_required_demand_data(
-    required_edps, nondirectional_multipliers, demand_sample
-):
+    required_edps: set, nondirectional_multipliers: dict, demand_sample: pd.DataFrame
+) -> dict:
     """
     Assembles demand data for damage state determination.
 
@@ -1183,8 +1209,7 @@ def _assemble_required_demand_data(
     multiplier specified in self._asmnt.options, and returning the
     result as a dictionary with keys in the format of
     '<demand_type>-<location>-<direction>' and values as arrays of
-    demand values. If demand data is not found, logs a warning
-    message and skips the corresponding damages calculation.
+    demand values.
 
     Parameters
     ----------
@@ -1219,40 +1244,103 @@ def _assemble_required_demand_data(
 
     demand_dict = {}
 
-    for edp in required_edps:
-        edp_type, location, direction = edp.split('-')
+    for edps, expression in required_edps:
 
-        if direction == '0':
+        edp_values = {}
 
-            # non-directional
-            demand = demand_sample.loc[:, (edp_type, location)].max(axis=1).values
+        for edp in edps:
 
-            if edp_type in nondirectional_multipliers:
-                multiplier = nondirectional_multipliers[edp_type]
+            edp_type, location, direction = edp.split('-')
 
-            elif 'ALL' in nondirectional_multipliers:
-                multiplier = nondirectional_multipliers['ALL']
+            if direction == '0':
 
-            else:
-                raise ValueError(
-                    f"Peak orthogonal EDP multiplier "
-                    f"for non-directional demand "
-                    f"calculation of `{edp_type}` not specified."
+                # non-directional
+                demand = (
+                    demand_sample.loc[:, (edp_type, location)].max(axis=1).values
                 )
 
-            demand = demand * multiplier
+                if edp_type in nondirectional_multipliers:
+                    multiplier = nondirectional_multipliers[edp_type]
 
-        else:
+                elif 'ALL' in nondirectional_multipliers:
+                    multiplier = nondirectional_multipliers['ALL']
 
-            # directional
-            demand = demand_sample[(edp_type, location, direction)].values
+                else:
+                    raise ValueError(
+                        f"Peak orthogonal EDP multiplier "
+                        f"for non-directional demand "
+                        f"calculation of `{edp_type}` not specified."
+                    )
 
-        demand_dict.update({f'{edp_type}-{location}-{direction}': demand})
+                demand = demand * multiplier
+
+            else:
+
+                # directional
+                demand = demand_sample[(edp_type, location, direction)].values
+
+            edp_values[edp] = demand
+
+        # evaluate expression
+        if expression is not None:
+            # build a dict of values
+            value_dict = {}
+            for i, edp_value in enumerate(edp_values.values()):
+                value_dict[f'X{i+1}'] = edp_value
+            demand = ne.evaluate(
+                _clean_up_expression(expression), local_dict=value_dict
+            )
+        demand_dict[(edps, expression)] = demand
 
     return demand_dict
 
 
-def _verify_edps_available(available_edps, required):
+def _clean_up_expression(expression: str) -> str:
+    """
+    Cleans up the given mathematical expression by ensuring it
+    contains only allowed characters and replaces the caret (^)
+    exponentiation operator with the double asterisk (**) operator.
+
+    Parameters
+    ----------
+    expression : str
+        The mathematical expression to clean up.
+
+    Returns
+    -------
+    str
+        The cleaned-up mathematical expression.
+
+    Raises
+    ------
+    ValueError
+        If the expression contains invalid characters.
+
+    Examples
+    --------
+    >>> _clean_up_expression('3 + 5 * 2')
+    '3 + 5 * 2'
+    >>> _clean_up_expression('2^3')
+    '2**3'
+    >>> _clean_up_expression('2 ** 3')
+    '2 ** 3'
+    >>> _clean_up_expression(
+    ...     "[o.fork() for (o,i) in "
+    ...     "[(__import__('os'), __import__('itertools'))] "
+    ...     "for x in i.repeat(0)]"
+    ... )
+    Traceback (most recent call last): ...
+    """
+    allowed_chars = re.compile(r'^[0-9a-zA-Z\^\+\-\*/\(\)\s]*$')
+    if not bool(allowed_chars.match(expression)):
+        raise ValueError(f'Invalid expression: {expression}')
+    # replace exponantiation with `^` with the native `**` in case `^`
+    # was used. But please use `**`..
+    expression = expression.replace('^', '**')
+    return expression
+
+
+def _verify_edps_available(available_edps: dict, required: set) -> None:
     """
     Verifies that the required EDPs are available and raises
     appropriate errors otherwise.
@@ -1275,22 +1363,23 @@ def _verify_edps_available(available_edps, required):
     """
     # Verify that the required EDPs are available in the
     # demand sample
-    for EDP in required:
-        edp_type, location, direction = EDP.split('-')
-        if (edp_type, location) not in available_edps:
-            raise ValueError(
-                f'Unable to locate `{edp_type}` at location '
-                f'{location} in demand sample.'
-            )
-        # if non-directional demand is requested, ensure there
-        # are entries (all directions accepted)
-        num_entries = len(available_edps[(edp_type, location)])
-        if EDP[2] == '0' and num_entries == 0:
-            raise ValueError(
-                f'Unable to locate any `{edp_type}` '
-                f'at location {location} and direction {direction}.'
-            )
-        if EDP[2] != '0' and num_entries == 0:
-            raise ValueError(
-                f'Unable to locate `{edp_type}-{location}-{direction}`.'
-            )
+    for edps, _ in required:
+        for edp in edps:
+            edp_type, location, direction = edp.split('-')
+            if (edp_type, location) not in available_edps:
+                raise ValueError(
+                    f'Unable to locate `{edp_type}` at location '
+                    f'{location} in demand sample.'
+                )
+            # if non-directional demand is requested, ensure there
+            # are entries (all directions accepted)
+            num_entries = len(available_edps[(edp_type, location)])
+            if edp[2] == '0' and num_entries == 0:
+                raise ValueError(
+                    f'Unable to locate any `{edp_type}` '
+                    f'at location {location} and direction {direction}.'
+                )
+            if edp[2] != '0' and num_entries == 0:
+                raise ValueError(
+                    f'Unable to locate `{edp_type}-{location}-{direction}`.'
+                )

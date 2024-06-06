@@ -50,6 +50,7 @@ This file defines the AssetModel object and its methods.
 """
 
 from __future__ import annotations
+from typing import Any
 from typing import TYPE_CHECKING
 from itertools import product
 import numpy as np
@@ -85,7 +86,7 @@ class AssetModel(PelicunModel):
 
         self._cmp_RVs = None
 
-    def save_cmp_sample(self, filepath=None, save_units=False):
+    def save_cmp_sample(self, filepath: str | None = None, save_units: bool = False) -> pd.DataFrame | tuple[pd.DataFrame, pd.Series] | None:
         """
         Saves the component quantity sample to a CSV file or returns
         it as a DataFrame with optional units.
@@ -167,7 +168,7 @@ class AssetModel(PelicunModel):
 
         return res.astype(float)
 
-    def load_cmp_sample(self, filepath):
+    def load_cmp_sample(self, filepath: str) -> None:
         """
         Loads a component quantity sample from a specified CSV file
         into the system.
@@ -222,7 +223,7 @@ class AssetModel(PelicunModel):
             'Asset components sample successfully loaded.', prepend_timestamp=False
         )
 
-    def load_cmp_model(self, data_source):
+    def load_cmp_model(self, data_source: str | dict[str, pd.DataFrame]) -> None:
         """
         Loads the model describing component quantities in an asset
         from specified data sources.
@@ -400,7 +401,7 @@ class AssetModel(PelicunModel):
 
         # the empirical data and correlation files can be added later, if needed
 
-    def list_unique_component_ids(self, as_set=False):
+    def list_unique_component_ids(self, as_set: bool = False) -> list[str] | set[str]:
         """
         Returns unique component IDs.
 
@@ -420,7 +421,7 @@ class AssetModel(PelicunModel):
             return set(cmp_list)
         return cmp_list
 
-    def generate_cmp_sample(self, sample_size=None):
+    def generate_cmp_sample(self, sample_size: int | None = None) -> None:
         """
         Generates a sample of component quantity realizations based on
         predefined model parameters and optionally specified sample
@@ -479,7 +480,7 @@ class AssetModel(PelicunModel):
             prepend_timestamp=False,
         )
 
-    def _create_cmp_RVs(self):
+    def _create_cmp_RVs(self) -> None:
         """
         Defines the RVs used for sampling component quantities.
         """

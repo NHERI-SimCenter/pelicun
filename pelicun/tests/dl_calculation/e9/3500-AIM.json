@@ -1,0 +1,149 @@
+{
+  "RandomVariables": [],
+  "GeneralInformation": {
+    "AIM_id": "3500",
+    "location": {
+      "latitude": 45.99862463501656,
+      "longitude": -123.92472997373451
+    },
+    "Longitude": -123.92472997373451,
+    "Latitude": 45.99862463501656,
+    "AREA": 5000.03963,
+    "PERIMETER": 300.00066,
+    "TAX_": 22449,
+    "TAX_ID": 22449,
+    "X_COORD": 7331926.547,
+    "Y_COORD": 868660.96,
+    "GIS_ACRES": 0.1,
+    "AV": 135257.0,
+    "AV_IMPROVE": 72644.0,
+    "AV_LAND": 62613.0,
+    "PROPERTY_C": 101,
+    "RMV": 234509.0,
+    "RMV_IMPROV": 79865.0,
+    "RMV_LAND": 154644.0,
+    "STAT_CLASS": 120,
+    "MA": 3,
+    "NH": "G",
+    "TAXMAPNUM": "6_10_16DD",
+    "X_UTM": 428394.34799099993,
+    "Y_UTM": 5094310.35306,
+    "Type": 0,
+    "Zone": 1,
+    "bldg_typ": 1.0,
+    "num_floors": 1,
+    "data_sourc": 1,
+    "NumberOfStories": 1,
+    "year_built": 1959,
+    "struct_typ": "W1",
+    "dgn_lvl": "Pre - Code",
+    "guid": "ef751380-811b-428b-b8c0-21353ad518c6",
+    "units": {
+      "force": "N",
+      "length": "m",
+      "time": "sec"
+    }
+  },
+  "DefaultValues": {
+    "driverFile": "driver",
+    "edpFiles": [
+      "EDP.json"
+    ],
+    "filenameDL": "BIM.json",
+    "filenameEDP": "EDP.json",
+    "filenameEVENT": "EVENT.json",
+    "filenameSAM": "SAM.json",
+    "filenameSIM": "SIM.json",
+    "rvFiles": [
+      "SAM.json",
+      "EVENT.json",
+      "SIM.json"
+    ],
+    "workflowInput": "scInput.json",
+    "workflowOutput": "EDP.json"
+  },
+  "commonFileDir": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+  "remoteAppDir": "/Users/adamzs/SimCenter",
+  "localAppDir": "/Users/adamzs/SimCenter",
+  "units": {
+    "force": "N",
+    "length": "m",
+    "time": "sec"
+  },
+  "outputs": {
+    "AIM": false,
+    "DM": true,
+    "DV": true,
+    "EDP": true,
+    "IM": false
+  },
+  "RegionalEvent": {
+    "eventFile": "EventGrid.csv",
+    "eventFilePath": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+    "intensityLabels": [
+      "PIH"
+    ],
+    "intensityMeasures": [
+      "PIH"
+    ],
+    "units": {
+      "PIH": "m"
+    }
+  },
+  "assetType": "Buildings",
+  "Applications": {
+    "Events": [
+      {
+        "Application": "SimCenterEvent",
+        "ApplicationData": {},
+        "EventClassification": "Earthquake"
+      }
+    ],
+    "Modeling": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "Simulation": {
+      "Application": "IMasEDP",
+      "ApplicationData": {}
+    },
+    "UQ": {
+      "Application": "None",
+      "ApplicationData": {}
+    },
+    "DL": {
+      "Application": "Pelicun3",
+      "ApplicationData": {
+        "DL_Method": "User-provided Models",
+        "Realizations": 500,
+        "auto_script": "custom_pop.py",
+        "coupled_EDP": true,
+        "custom_model_dir": "CustomDLModels",
+        "detailed_results": false,
+        "ground_failure": false,
+        "log_file": true,
+        "path_to_auto_script": "/Users/adamzs/Examples/R2D/00_Built_ins/E9Tsunami/input_data/ruleset",
+        "path_to_custom_model_dir": "/Users/adamzs/Examples/R2D/00_Built_ins/E9Tsunami/input_data/DL_Models",
+        "regional": "true"
+      }
+    }
+  },
+  "Modeling": {},
+  "Simulation": {
+    "type": "IMasEDP"
+  },
+  "UQ": {},
+  "DL": {},
+  "Events": [
+    {
+      "EventFolderPath": "/Users/adamzs/Documents/R2D/LocalWorkDir/tmp.SimCenter/input_data",
+      "Events": [
+        [
+          "Site_0.csvx0x00000",
+          1.0
+        ]
+      ],
+      "type": "intensityMeasure"
+    }
+  ]
+}

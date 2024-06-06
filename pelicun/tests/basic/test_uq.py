@@ -52,6 +52,7 @@ import pytest
 import numpy as np
 from scipy.stats import norm  # type: ignore
 from scipy.stats import lognorm  # type: ignore
+from scipy.stats import weibull_min  # type: ignore
 from pelicun import uq
 from pelicun.tests.util import import_pickle
 from pelicun.tests.util import export_pickle
@@ -1062,6 +1063,65 @@ def test_UniformRandomVariable_inverse_transform():
     rv = uq.UniformRandomVariable('test_rv', theta=(0.0, 1.0))
     with pytest.raises(ValueError):
         rv.inverse_transform_sampling()
+
+
+def test_WeibullRandomVariable():
+    rv = uq.WeibullRandomVariable('rv_name', theta=np.array((1.5, 2.0)))
+    assert rv.name == 'rv_name'
+    np.testing.assert_allclose(rv.theta, np.array((1.5, 2.0)))
+    assert np.all(np.isnan(rv.truncation_limits))
+    assert rv.RV_set is None
+    assert rv.sample_DF is None
+    with pytest.raises(AttributeError):
+        rv.xyz = 123
+
+
+def test_WeibullRandomVariable_cdf():
+    rv = uq.WeibullRandomVariable(
+        'test_rv',
+        theta=(1.5, 2.0),
+        truncation_limits=np.array((0.5, 2.5)),
+    )
+
+    x = (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0)
+    cdf = rv.cdf(x)
+
+    expected_cdf = np.array([0.0, 0.0, 0.30463584, 0.63286108, 0.87169261, 1.0, 1.0])
+    assert np.allclose(cdf, expected_cdf, rtol=1e-5)
+
+    rv = uq.WeibullRandomVariable('test_rv', theta=(1.5, 2.0))
+    cdf = rv.cdf(x)
+    expected_cdf_no_trunc = weibull_min.cdf(x, 2.0, scale=1.5)
+    assert np.allclose(cdf, expected_cdf_no_trunc, rtol=1e-5)
+
+
+def test_WeibullRandomVariable_inverse_transform():
+    samples = np.array((0.10, 0.20, 0.30))
+
+    rv = uq.WeibullRandomVariable('test_rv', theta=(1.5, 2.0))
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    expected_samples = weibull_min.ppf(samples, 2.0, scale=1.5)
+    assert np.allclose(inverse_transform, expected_samples, rtol=1e-5)
+
+    rv = uq.WeibullRandomVariable(
+        'test_rv', theta=(1.5, 2.0), truncation_limits=(0.5, 2.5)
+    )
+    rv.uni_sample = samples
+    rv.inverse_transform_sampling()
+    inverse_transform = rv.sample
+    truncated_samples = weibull_min.ppf(
+        samples
+        * (
+            weibull_min.cdf(2.5, 2.0, scale=1.5)
+            - weibull_min.cdf(0.5, 2.0, scale=1.5)
+        )
+        + weibull_min.cdf(0.5, 2.0, scale=1.5),
+        2.0,
+        scale=1.5,
+    )
+    assert np.allclose(inverse_transform, truncated_samples, rtol=1e-5)
 
 
 def test_MultinomialRandomVariable():

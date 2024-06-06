@@ -52,8 +52,10 @@ This file defines Loss model objects and their methods.
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from itertools import product
+from collections import defaultdict
 import numpy as np
 import pandas as pd
+from scipy.interpolate import RegularGridInterpolator
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun.model.demand_model import _get_required_demand_type
 from pelicun.model.demand_model import _assemble_required_demand_data
@@ -82,7 +84,7 @@ class LossModel(PelicunModel):
     def __init__(
         self,
         assessment: Assessment,
-        decision_variables: tuple[str] = ('Carbon', 'Cost', 'Energy', 'Time'),
+        decision_variables: tuple[str, ...] = ('Carbon', 'Cost', 'Energy', 'Time'),
     ):
         """
         Initializes LossModel objects.
@@ -155,7 +157,11 @@ class LossModel(PelicunModel):
         for model in self._loss_models:
             model.decision_variables = decision_variables
 
-    def add_loss_map(self, loss_map_path=None, loss_map_policy=None):
+    def add_loss_map(
+        self,
+        loss_map_path: str | pd.DataFrame | None = None,
+        loss_map_policy: str | None = None,
+    ) -> None:
         """
         Add a loss map to the loss model. A loss map defines what loss
         parameter definition should be used for each component ID in
@@ -242,7 +248,12 @@ class LossModel(PelicunModel):
 
         self.log.msg('Loss map loaded successfully.', prepend_timestamp=True)
 
-    def load_model(self, data_paths, loss_map, decision_variables=None):
+    def load_model(
+        self,
+        data_paths: list[str | pd.DataFrame],
+        loss_map: str | pd.DataFrame,
+        decision_variables: tuple[str, ...] | None = None,
+    ) -> None:
         """
         <backwards compatibility>
 
@@ -255,7 +266,11 @@ class LossModel(PelicunModel):
         self.add_loss_map(loss_map)
         self.load_model_parameters(data_paths, decision_variables)
 
-    def load_model_parameters(self, data_paths, decision_variables=None):
+    def load_model_parameters(
+        self,
+        data_paths: list[str | pd.DataFrame],
+        decision_variables: tuple[str, ...] | None = None,
+    ) -> None:
         """
         Load loss model parameters.
 
@@ -360,7 +375,7 @@ class LossModel(PelicunModel):
         )
         self._ensure_loss_parameter_availability()
 
-    def calculate(self):
+    def calculate(self) -> None:
         """
         Calculate the loss of each component block.
 
@@ -408,7 +423,7 @@ class LossModel(PelicunModel):
 
         self.log.msg("Loss calculation successful.")
 
-    def consequence_scaling(self, scaling_specification):
+    def consequence_scaling(self, scaling_specification: str) -> None:
         """
         Applies scaling factors to the loss sample according to the
         given scaling specification.
@@ -519,8 +534,11 @@ class LossModel(PelicunModel):
             )
 
     def _apply_consequence_scaling(
-        self, scaling_conditions, scaling_factor, raise_missing=True
-    ):
+        self,
+        scaling_conditions: dict,
+        scaling_factor: float,
+        raise_missing: bool = True,
+    ) -> None:
         """
         Applies a scaling factor to selected columns of the loss
         samples.
@@ -590,7 +608,9 @@ class LossModel(PelicunModel):
                 raise_missing=raise_missing,
             )
 
-    def save_sample(self, filepath=None, save_units=False):
+    def save_sample(
+        self, filepath: str | None = None, save_units: bool = False
+    ) -> None | tuple[pd.DataFrame, pd.Series]:
         """
         <backwards compatibility>
 
@@ -609,7 +629,7 @@ class LossModel(PelicunModel):
         )
         return self.ds_model.save_sample(filepath=filepath, save_units=save_units)
 
-    def load_sample(self, filepath):
+    def load_sample(self, filepath: str | pd.DataFrame) -> None:
         """
         <backwards compatibility>
 
@@ -623,7 +643,12 @@ class LossModel(PelicunModel):
         )
         self.ds_model.load_sample(filepath=filepath)
 
-    def aggregate_losses(self, replacement_thresholds=None, future=False):
+    def aggregate_losses(
+        self,
+        replacement_thresholds: dict | None = None,
+        loss_combination: dict | None = None,
+        future: bool = False,
+    ) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
         """
         Aggregates the losses produced by each component.
 
@@ -647,12 +672,33 @@ class LossModel(PelicunModel):
             aggregated loss sample conains an additional column with
             information on whether replacement was already present or
             triggered by a threshold exceedance for each realization.
+        loss_combination: dict, optional
+            Dictionary defining how losses for specific components
+            should be aggregated for a given decision variable. It has
+            the following structure: {`dv`: {(`c1`, `c2`): `arr`,
+            ...}, ...}, where `dv` is some decision variable, (`c1`,
+            `c2`) is a tuple defining a component pair, `arr` is a NxN
+            numpy array defining a combination table, and `...` means
+            that more key-value pairs with the same schema can exist
+            in the dictionaries.  The loss sample is expected to
+            contain columns that include both `c1` and `c2` listed as
+            the component. The combination is applied to all pairs of
+            columns where the components are `c1` and `c2`, and all of
+            the rest of the multiindex levels match (`loc`, `dir`,
+            `uid`). This means, for example, that when combining wind
+            and flood losses, the asset model should contain both a
+            wind and a flood component defined at the same
+            location-direction.  `arr` can also be an M-dimensional
+            numpy array where each dimension has length N (NxNx...xN).
+            This structure allows for the loss combination of M
+            components.  In this case the (`c1`, `c2`) tuple should
+            contain M elements instead of two.
 
         Note
         ----
-        Regardless of the value of `replacement_thresholds`, this
-        method does not alter the state of the loss model, i.e., it
-        does not modify the values of the `.sample` attributes.
+        Regardless of the value of the arguments, this method does not
+        alter the state of the loss model, i.e., it does not modify
+        the values of the `.sample` attributes.
 
         Returns
         -------
@@ -666,29 +712,21 @@ class LossModel(PelicunModel):
         Raises
         ------
         ValueError
-            If the `replacement_thresholds` dictionary contains an
-            unknown DV in its keys.
-        ValueError
-            If a `replacement_thresholds` value has an incompatible
-            type. It should be float or int.
+            When inputs are invalid.
 
         """
 
+        # TODO
+        # When we start working on the documentation, simplify the
+        # docstring above and point the relevant detailed section in
+        # the documentation.
+
         # validate input
         if replacement_thresholds is not None:
-            for key, _value in replacement_thresholds.items():
-                if key not in self.decision_variables:
-                    raise ValueError(
-                        f'`replacement_thresholds` contains the key '
-                        f'`{key}` which is not found in the active '
-                        f'decision variables. These are: '
-                        f'{self.decision_variables}.'
-                    )
-                if not isinstance(_value, (float, int)):
-                    raise ValueError(
-                        f'Invalid type for replacement threshold of '
-                        f'`{key}`: {type(_value)}. It should be a float.'
-                    )
+            self._validate_input_replacement_thresholds(replacement_thresholds)
+        # validate loss_combination input
+        if loss_combination is not None:
+            self._validate_input_loss_combination(loss_combination)
 
         #
         # operate on copes of the loss samples to avoid altering them.
@@ -719,14 +757,17 @@ class LossModel(PelicunModel):
             return df_agg
 
         #
-        # first handle `replacement`, regardless of whether
-        # `replacement_thresholds` is empty.
+        #  handle `replacement`, regardless of whether
+        # `replacement_thresholds` is empty. (if `replacement`
+        # occurs, we ignore the losses from other componnets)
         #
 
         if ds_sample is not None:
             self._make_replacement_exclusive(ds_sample, lf_sample)
 
+        #
         # combine samples
+        #
 
         # levels to preserve (this aggregates `ds` for the ds_model)
         column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
@@ -738,7 +779,15 @@ class LossModel(PelicunModel):
         sample = pd.concat(samples, axis=1)
 
         #
-        # now consider replacement threshold values
+        # perform loss combinations (special non-additive
+        # aggregations, e.g., Wind + Flood)
+        #
+
+        if loss_combination is not None:
+            sample = self._apply_loss_combinations(loss_combination, sample)
+
+        #
+        # consider replacement threshold values
         #
 
         # extract replacement loss realization values from the RV
@@ -747,13 +796,14 @@ class LossModel(PelicunModel):
         if replacement_thresholds is not None:
             for dv in replacement_thresholds:
                 replacement_loss_values[dv] = self.ds_model.RV_reg.RV[
-                    f'{dv}-replacement'
+                    f'{dv}-replacement-0-0-0-0'
                 ]
 
         sample, exceedance_bool_df = self._apply_replacement_thresholds(
             sample, replacement_thresholds, replacement_loss_values
         )
 
+        # Sum-up component losses
         df_agg = self._aggregate_sample(sample, _construct_columns())
 
         if not future:
@@ -773,7 +823,325 @@ class LossModel(PelicunModel):
 
         return df_agg, exceedance_bool_df
 
-    def _aggregate_sample(self, sample, columns):
+    def _validate_input_loss_combination(self, loss_combination: dict) -> None:
+        for dv, combinations in loss_combination.items():
+            if dv not in self.decision_variables:
+                raise ValueError(
+                    f'`loss_combination` contains the key '
+                    f'`{dv}` which is not found in the active '
+                    f'decision variables. These are: '
+                    f'{self.decision_variables}.'
+                )
+            for components, array in combinations.items():
+                if not isinstance(components, tuple):
+                    raise ValueError(
+                        f'Invalid type for components in loss combination '
+                        f'for `{dv}`: {type(components)}. It should be a tuple.'
+                    )
+                if not all(isinstance(c, str) for c in components):
+                    raise ValueError(
+                        f'All elements of the components tuple in loss '
+                        f'combination for `{dv}` should be strings.'
+                    )
+                if not isinstance(array, np.ndarray):
+                    raise ValueError(
+                        f'Invalid type for array in loss combination '
+                        f'for `{dv}`: {type(array)}. It should be a numpy array.'
+                    )
+
+    def _validate_input_replacement_thresholds(
+        self, replacement_thresholds: dict
+    ) -> None:
+        for key, _value in replacement_thresholds.items():
+            if key not in self.decision_variables:
+                raise ValueError(
+                    f'`replacement_thresholds` contains the key '
+                    f'`{key}` which is not found in the active '
+                    f'decision variables. These are: '
+                    f'{self.decision_variables}.'
+                )
+            if not isinstance(_value, (float, int)):
+                raise ValueError(
+                    f'Invalid type for replacement threshold of '
+                    f'`{key}`: {type(_value)}. It should be a float.'
+                )
+
+    def _apply_loss_combinations(
+        self, loss_combination: dict, sample: pd.DataFrame
+    ) -> pd.DataFrame:
+        """
+        Performs non-additive loss combinations of specified
+        components.
+
+        This function deconstructs the loss combination arrays,
+        identifies the combinable components, and applies the
+        specified loss combinations to the sample data. The
+        transformed sample, including the combined columns, is
+        returned as a new DataFrame.
+
+        Parameters
+        ----------
+        loss_combination : dict
+            A dictionary containing the loss combination
+            information. The structure is nested dictionaries where
+            the outer keys are decision variables, inner keys are
+            components to combine, and the values are array objects
+            representing the combination data.
+
+        sample : pandas.DataFrame
+            The input DataFrame containing the sample data. The
+            columns are assumed to be a MultiIndex with at least the
+            levels (decision_variable, loss_id, component_id,
+            location, direction, uid).
+
+        Returns
+        -------
+        pandas.DataFrame
+            A new DataFrame with the combined loss data.
+
+        """
+
+        # deconstruct combination arrays to extract the input domains
+        loss_combination_converted = self._deconstruct_loss_combination_arrays(
+            loss_combination
+        )
+
+        # initialize variables
+
+        # sample as dictionary for fast column retrieval
+        dsample = {col: sample[col] for col in sample.columns}
+
+        # Transformed sample (includes the combined columns), as
+        # dictionary. Will be turned into a dataframe in the end.
+        # This avoids manipulating the original sample dataframe which
+        # would be slow.
+        dcsample = {}
+
+        # add columns to the new sample dictionary.
+        # those that should be combined
+        self._loss_combination_add_combinable(
+            dsample, loss_combination_converted, dcsample
+        )
+        # and the remaining
+        for col in dsample:
+            dcsample[col] = dsample[col]
+
+        # turn into a dataframe
+        sample = pd.DataFrame(dcsample).rename_axis(columns=sample.columns.names)
+        return sample
+
+    def _loss_combination_add_combinable(
+        self, dsample: dict, loss_combination_converted: dict, dcsample: dict
+    ) -> None:
+        """
+        Adds combinable loss data.
+
+        This function identifies groups of `loc`-`dir`-`uid` that can
+        be combined for each decision variable and computes the
+        combined loss using interpolation functions. It modifies the
+        given datasets `dsample` and `dcsample` in-place, removing
+        combinable columns from dsample and adding the combined losses
+        to dcsample.
+
+        Parameters
+        ----------
+        dsample : dict
+            A dictionary representing the loss sample data, where keys
+            are tuples of the form (decision_variable, loss_id,
+            component_id, location, direction, uid) and values are the
+            corresponding data arrays.
+
+        loss_combination_converted : dict
+            A dictionary containing loss combination data. The
+            structure is nested dictionaries where the outer keys are
+            decision variables, inner keys are components to combine,
+            and the values are tuples of combination parameters
+            (domains and reference values).
+
+        dcsample : dict
+            A dictionary to store the combined loss data, where keys
+            are tuples of the form (decision_variable, 'combination',
+            combined_component_string, location, direction, uid) and
+            values are the combined loss data arrays.
+
+        """
+        dmg_to_loss = self._map_component_ids_to_loss_ids(dsample)
+
+        # identify all `loc`-`dir`-`uid`s that can be grouped for each
+        # decision variable.
+        potential_groups = self._identify_potential_groups(dsample)
+
+        # cache already defined interpolation functions. This obviates
+        # the need to define all of them and we can just define them
+        # on the spot when needed, and reuse them if available.
+        interpolation_function_cache = {}
+
+        for (
+            decision_variable,
+            combination_data,
+        ) in loss_combination_converted.items():
+            for (
+                components_to_combine,
+                combination_parameters,
+            ) in combination_data.items():
+                # determine if the components to combine are part of
+                # an available group
+                target_group = None
+                for available_group in potential_groups[decision_variable]:
+                    # check if `components_to_combine` is a subset of
+                    # that available group
+                    if frozenset(components_to_combine) <= available_group:
+                        target_group = available_group
+                        break
+                # construct relevant loss sample columns
+                for loc_dir_uid in potential_groups[decision_variable][target_group]:
+                    cols = [
+                        (decision_variable, dmg_to_loss[x], x, *loc_dir_uid)
+                        for x in target_group
+                    ]
+                    values = np.column_stack([dsample[col] for col in cols])
+                    # define/get interpolation function
+                    if (
+                        interpolation_function_cache.get(components_to_combine)
+                        is not None
+                    ):
+                        interp_func = interpolation_function_cache.get(
+                            components_to_combine
+                        )
+                    else:
+                        domains, reference_values = combination_parameters
+                        interp_func = RegularGridInterpolator(
+                            domains, reference_values
+                        )
+                    combined_loss = interp_func(values)
+                    combined_loss_col = (
+                        decision_variable,
+                        'combination',
+                        '(' + ', '.join(components_to_combine) + ')',
+                        *loc_dir_uid,
+                    )
+                    dcsample[combined_loss_col] = combined_loss
+                    for col in cols:
+                        dsample.pop(col)
+
+    def _identify_potential_groups(self, dsample: dict) -> dict:
+        """
+        Identifies potential groups of `loc`-`dir`-`uid` for each
+        decision variable.
+
+        This function identifies all combinations of `loc`-`dir`-`uid`
+        that can be grouped for each decision variable based on the
+        provided data sample.
+
+        Parameters
+        ----------
+        dsample : iterable
+            An iterable where each containing tuple contains
+            information about the components and their attributes. The
+            expected format of each tuple is (decision_variable,
+            loss_id, component_id, location, direction, uid).
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are decision variables and values
+            are nested dictionaries. The nested dictionaries map
+            frozensets of component IDs to lists of (location,
+            direction, uid) tuples.
+
+        """
+        grouped = defaultdict(defaultdict(list).copy)
+        for col in dsample:
+            c_dv, _, c_dmg, c_loc, c_dir, c_uid = col
+            grouped[c_dv][c_loc, c_dir, c_uid].append(c_dmg)
+        # invert so that we have component sets mapped to
+        # `loc`-`dir`-`uid`s.
+        inverted = defaultdict(defaultdict(list).copy)
+        for c_dv in grouped:
+            for loc_dir_uid, component_set in grouped[c_dv].items():
+                inverted[c_dv][frozenset(component_set)].append(loc_dir_uid)
+        return inverted
+
+    def _map_component_ids_to_loss_ids(self, dsample: dict) -> dict:
+        """
+        Maps component IDs to loss IDs.
+
+        This function maps components to losses based on the loss
+        sample's columns. It assumes that multiple component IDs can
+        have the same loss ID, but the same component ID cannot have
+        multiple loss IDs.
+
+        Parameters
+        ----------
+        dsample : tuple dictionary keys
+            Each tuple contains information about the components and
+            corresponding losses.
+
+        Returns
+        -------
+        dict
+            A dictionary where keys are component IDs and values are
+            loss IDs.
+
+        """
+        dmg_to_loss = {}
+        for col in dsample:
+            c_loss = col[1]
+            c_dmg = col[2]
+            dmg_to_loss[c_dmg] = c_loss
+        return dmg_to_loss
+
+    def _deconstruct_loss_combination_arrays(self, loss_combination: dict) -> dict:
+        """
+        Deconstruct loss combination arrays.
+
+        This function converts a nested dictionary of loss combination
+        arrays into a format suitable for further processing. It
+        extracts the array values and the index information from each
+        array.
+
+        Parameters
+        ----------
+        loss_combination : dict
+           A dictionary where keys are decision variables and values
+           are another dictionary. The inner dictionary has keys as
+           components to combine and values as numpy array
+           objects representing the combination data.
+
+        Returns
+        -------
+        dict
+            A dictionary with the same structure as the input
+            `loss_combination`.  For each decision variable and
+            component combination, the array is replaced with a
+            tuple containing the combination domain and the combination
+            array itself.
+
+        """
+        loss_combination_converted = {}
+        for decision_variable, combination_data in loss_combination.items():
+            loss_combination_converted[decision_variable] = {}
+            for (
+                components_to_combine,
+                combination_array,
+            ) in combination_data.items():
+                combination_index = (
+                    combination_array[:, 0],
+                    combination_array[0, :],
+                )
+                loss_combination_converted[decision_variable][
+                    components_to_combine
+                ] = (
+                    combination_index,
+                    combination_array,
+                )
+        return loss_combination_converted
+
+    def _aggregate_sample(self, sample: pd.DataFrame, columns: list) -> pd.DataFrame:
+        """
+        Sums up component losses.
+
+        """
         df_agg = pd.DataFrame(index=sample.index, columns=columns)
         # group results by DV type and location
         aggregated = sample.groupby(level=['dv', 'loc'], axis=1).sum()
@@ -836,11 +1204,15 @@ class LossModel(PelicunModel):
 
         df_agg = base.convert_to_MultiIndex(df_agg, axis=1)
         df_agg.sort_index(axis=1, inplace=True)
+        df_agg = df_agg.reset_index(drop=True)
         return df_agg
 
     def _apply_replacement_thresholds(
-        self, sample, replacement_thresholds, replacement_loss_values
-    ):
+        self,
+        sample: pd.DataFrame,
+        replacement_thresholds: dict,
+        replacement_loss_values: dict,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
         # If there are no `replacement_thresholds`, simply return.
         if replacement_thresholds is None or not replacement_thresholds:
@@ -895,7 +1267,8 @@ class LossModel(PelicunModel):
                         (d2, 'replacement', 'threshold_exceedance', '0', '1', '0')
                     ] = 0.00
                     sample = sample.sort_index(axis=1)
-                replacement_loss_value = replacement_loss_values[f'{d2}-replacement']
+
+                replacement_loss_value = replacement_loss_values[dv]
                 sample.loc[
                     exceedance_realizations,
                     (d2, 'replacement', 'threshold_exceedance', '0', '1', '0'),
@@ -905,7 +1278,9 @@ class LossModel(PelicunModel):
             exceedance_bool_df.loc[realizations, dv] = True
         return sample, exceedance_bool_df
 
-    def _make_replacement_exclusive(self, ds_sample, lf_sample):
+    def _make_replacement_exclusive(
+        self, ds_sample: pd.DataFrame, lf_sample: pd.DataFrame | None
+    ) -> None:
         """
         If `replacement` columns exist in `ds_sample`, this method
         treats all nonzero loss values driven by `replacement` as
@@ -997,7 +1372,7 @@ class LossModel(PelicunModel):
         for model in self._loss_models:
             model._missing = missing
 
-    def _ensure_loss_parameter_availability(self):
+    def _ensure_loss_parameter_availability(self) -> list:
         """
         Makes sure that all components have loss parameters.
 
@@ -1056,7 +1431,7 @@ class RepairModel_Base(PelicunModel):
         self.sample = None
         self.consequence = 'Repair'
 
-    def _load_model_parameters(self, data):
+    def _load_model_parameters(self, data: pd.DataFrame) -> None:
         """
         Load model parameters from a DataFrame, extending those
         already available. Parameters already defined take precedence,
@@ -1083,7 +1458,7 @@ class RepairModel_Base(PelicunModel):
 
         self.loss_params = data
 
-    def _drop_unused_loss_parameters(self, loss_map):
+    def _drop_unused_loss_parameters(self, loss_map: pd.DataFrame) -> None:
         """
         Removes loss parameter definitions for component IDs not
         present in the loss map.
@@ -1118,7 +1493,7 @@ class RepairModel_Base(PelicunModel):
         cmp_mask = self.loss_params.index.get_level_values(0).isin(cmp_set, level=0)
         self.loss_params = self.loss_params.iloc[cmp_mask, :]
 
-    def _remove_incomplete_components(self):
+    def _remove_incomplete_components(self) -> None:
         """
         Removes components that have incomplete loss model
         definitions from the loss model parameters.
@@ -1147,7 +1522,7 @@ class RepairModel_Base(PelicunModel):
                 prepend_timestamp=False,
             )
 
-    def _get_available(self):
+    def _get_available(self) -> set:
         """
         Get a set of components for which loss parameters are
         available.
@@ -1167,7 +1542,9 @@ class RepairModel_DS(RepairModel_Base):
 
     __slots__ = ['decision_variables', '_loss_map', '_missing', 'RV_reg']
 
-    def save_sample(self, filepath=None, save_units=False):
+    def save_sample(
+        self, filepath: str | None = None, save_units: bool = False
+    ) -> None | tuple[pd.DataFrame, pd.Series]:
         """
         Saves the loss sample to a CSV file or returns it as a
         DataFrame with optional units.
@@ -1244,7 +1621,7 @@ class RepairModel_DS(RepairModel_Base):
 
         return res.astype(float)
 
-    def load_sample(self, filepath):
+    def load_sample(self, filepath: str | pd.DataFrame) -> None:
         """
         Load damage sample data.
 
@@ -1267,7 +1644,7 @@ class RepairModel_DS(RepairModel_Base):
 
         self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
-    def _calculate(self, dmg_quantities):
+    def _calculate(self, dmg_quantities: pd.DataFrame) -> None:
         """
         Calculate the consequences of each damage state-driven
         component block damage in the asset.
@@ -1488,7 +1865,7 @@ class RepairModel_DS(RepairModel_Base):
         self.log.msg("Successfully obtained DV sample.", prepend_timestamp=False)
         self.sample = DV_sample
 
-    def _convert_loss_parameter_units(self):
+    def _convert_loss_parameter_units(self) -> None:
         """
         Converts previously loaded loss parameters to base units.
 
@@ -1504,7 +1881,7 @@ class RepairModel_DS(RepairModel_Base):
                 self.loss_params.loc[:, column].copy(), units, arg_units
             ).values
 
-    def _drop_unused_damage_states(self):
+    def _drop_unused_damage_states(self) -> None:
         """
         Removes columns from the loss model parameters corresponding
         to unused damage states.
@@ -1528,7 +1905,9 @@ class RepairModel_DS(RepairModel_Base):
 
         self.loss_params.drop(columns=ds_to_drop, level=0, inplace=True)
 
-    def _create_DV_RVs(self, cases):
+    def _create_DV_RVs(
+        self, cases: pd.MultiIndex
+    ) -> uq.RandomVariableRegistry | None:
         """
         Prepare the random variables associated with decision
         variables, such as repair cost and time.
@@ -1707,7 +2086,7 @@ class RepairModel_DS(RepairModel_Base):
             return RV_reg
         return None
 
-    def _calc_median_consequence(self, eco_qnt):
+    def _calc_median_consequence(self, eco_qnt: pd.DataFrame) -> dict:
         """
         Calculates the median repair consequences for each loss
         component based on its quantity realizations and the
@@ -1877,12 +2256,12 @@ class RepairModel_LF(RepairModel_Base):
 
     def _calculate(
         self,
-        demand_sample,
-        cmp_sample,
-        cmp_marginal_params,
-        demand_offset,
-        nondirectional_multipliers,
-    ):
+        demand_sample: pd.DataFrame,
+        cmp_sample: dict,
+        cmp_marginal_params: pd.DataFrame,
+        demand_offset: dict,
+        nondirectional_multipliers: dict,
+    ) -> None:
         """
         Calculate the repair consequences of each loss function-driven
         component block in the asset.
@@ -1914,6 +2293,10 @@ class RepairModel_LF(RepairModel_Base):
             for x in cmp_marginal_params.index.get_level_values(0)
             if loss_map.get(x) in self.loss_params.index
         ]
+        # If `Blocks` information is unspecified add one block per
+        # component.
+        if 'Blocks' not in cmp_marginal_params.columns:
+            cmp_marginal_params['Blocks'] = 1
         blocks = cmp_marginal_params.loc[index, 'Blocks'].to_dict()
 
         performance_group_dict = {}
@@ -2026,7 +2409,7 @@ class RepairModel_LF(RepairModel_Base):
 
         return None
 
-    def _convert_loss_parameter_units(self):
+    def _convert_loss_parameter_units(self) -> None:
         """
         Converts previously loaded loss parameters to base units.
 
@@ -2042,8 +2425,13 @@ class RepairModel_LF(RepairModel_Base):
         return None
 
     def _calc_median_consequence(
-        self, performance_group, loss_map, required_edps, demand_dict, cmp_sample
-    ):
+        self,
+        performance_group: pd.DataFrame,
+        loss_map: dict,
+        required_edps: dict,
+        demand_dict: dict,
+        cmp_sample: dict,
+    ) -> pd.DataFrame:
         """
         Calculates the median repair consequences for each loss
         function-driven component based on its quantity realizations
@@ -2130,7 +2518,9 @@ class RepairModel_LF(RepairModel_Base):
 
         return medians
 
-    def _create_DV_RVs(self, cases):
+    def _create_DV_RVs(
+        self, cases: pd.MultiIndex
+    ) -> uq.RandomVariableRegistry | None:
         """
         Prepare the random variables associated with decision
         variables, such as repair cost and time.
@@ -2170,6 +2560,9 @@ class RepairModel_LF(RepairModel_Base):
             # load the corresponding parameters
             parameters = self.loss_params.loc[(consequence, decision_variable), :]
 
+            if ('LossFunction', 'Family') not in parameters:
+                # Everything is deterministic, no need to create RVs.
+                continue
             family = parameters.at[('LossFunction', 'Family')]
             theta = [
                 parameters.get(('LossFunction', f'Theta_{t_i}'), np.nan)
@@ -2233,7 +2626,7 @@ class RepairModel_LF(RepairModel_Base):
         return None
 
 
-def _prep_constant_median_DV(median):
+def _prep_constant_median_DV(median: float) -> callable:
     """
     Returns a constant median Decision Variable (DV) function.
 
@@ -2258,7 +2651,9 @@ def _prep_constant_median_DV(median):
     return f
 
 
-def _prep_bounded_multilinear_median_DV(medians, quantities):
+def _prep_bounded_multilinear_median_DV(
+    medians: np.ndarray, quantities: np.ndarray
+) -> callable:
     """
     Returns a bounded multilinear median Decision Variable (DV) function.
 
@@ -2303,7 +2698,7 @@ def _prep_bounded_multilinear_median_DV(medians, quantities):
     return f
 
 
-def _is_for_lf_model(data):
+def _is_for_lf_model(data: pd.DataFrame) -> bool:
     """
     Determines if the specified loss model parameters are for
     components modeled with Loss Functions (LF).
@@ -2311,7 +2706,7 @@ def _is_for_lf_model(data):
     return 'LossFunction' in data.columns.get_level_values(0)
 
 
-def _is_for_ds_model(data):
+def _is_for_ds_model(data: pd.DataFrame) -> bool:
     """
     Determines if the specified loss model parameters are for
     components modeled with discrete Damage States (DS).

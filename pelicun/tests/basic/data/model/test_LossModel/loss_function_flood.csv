@@ -1,0 +1,2 @@
+ID,Incomplete,Demand-Type,Demand-Unit,Demand-Offset,Demand-Directional,DV-Unit,LossFunction-Theta_0
+flood.comp-Cost,0,Peak Inundation Height,in,0,0,loss_ratio,"0.00,1.00|0.00,10.00"

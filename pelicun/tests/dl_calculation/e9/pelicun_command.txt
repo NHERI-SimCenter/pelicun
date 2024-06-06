@@ -1,0 +1,1 @@
+python3.9 <path_to>/DL_calculation.py --filenameDL 3500-AIM.json --demandFile response.csv --Realizations 500 --auto_script custom_pop.py --coupled_EDP True --custom_model_dir ./CustomDLModels --detailed_results False --ground_failure False --log_file True --regional true --resource_dir ./ --dirnameOutput ./
