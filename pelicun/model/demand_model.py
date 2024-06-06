@@ -179,9 +179,9 @@ class DemandModel(PelicunModel):
         """
         Load demand sample data and parse it.
 
-        Besides parsing the sample, the method also reads and saves the units
-        specified for each demand variable. If no units are specified, Standard
-        Units are assumed.
+        Besides parsing the sample, the method also reads and saves
+        the units specified for each demand variable. If no units are
+        specified, base units are assumed.
 
         Parameters
         ----------
@@ -1012,7 +1012,7 @@ class DemandModel(PelicunModel):
 
         if self.marginal_params is None:
             raise ValueError(
-                'Model parameters have not been specified. Either'
+                'Model parameters have not been specified. Either '
                 'load parameters from a file or calibrate the '
                 'model using raw demand data.'
             )
