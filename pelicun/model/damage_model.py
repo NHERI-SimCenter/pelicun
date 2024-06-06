@@ -102,8 +102,6 @@ class DamageModel(PelicunModel):
         <backwards compatibility>
 
         """
-        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
-        self.load_model_parameters(data_paths, cmp_set, warn_missing)
         self.log.warn(
             '`load_damage_model` is deprecated and will be '
             'dropped in future versions of pelicun. '
@@ -114,6 +112,8 @@ class DamageModel(PelicunModel):
             'and then \n`{your_assessment_obj}.damage.'
             'load_model_parameters(data_paths, cmp_set)`.'
         )
+        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+        self.load_model_parameters(data_paths, cmp_set, warn_missing)
 
     @property
     def sample(self) -> pd.DataFrame:
