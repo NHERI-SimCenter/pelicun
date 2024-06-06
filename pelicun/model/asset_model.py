@@ -50,7 +50,6 @@ This file defines the AssetModel object and its methods.
 """
 
 from __future__ import annotations
-from typing import Any
 from typing import TYPE_CHECKING
 from itertools import product
 import numpy as np
@@ -86,7 +85,9 @@ class AssetModel(PelicunModel):
 
         self._cmp_RVs = None
 
-    def save_cmp_sample(self, filepath: str | None = None, save_units: bool = False) -> pd.DataFrame | tuple[pd.DataFrame, pd.Series] | None:
+    def save_cmp_sample(
+        self, filepath: str | None = None, save_units: bool = False
+    ) -> pd.DataFrame | tuple[pd.DataFrame, pd.Series] | None:
         """
         Saves the component quantity sample to a CSV file or returns
         it as a DataFrame with optional units.
@@ -272,6 +273,7 @@ class AssetModel(PelicunModel):
         >>> model.load_cmp_model(data_dict)
 
         """
+
         def get_attribute(attribute_str, dtype=float, default=np.nan):
             # pylint: disable=missing-return-doc
             # pylint: disable=missing-return-type-doc
@@ -401,7 +403,9 @@ class AssetModel(PelicunModel):
 
         # the empirical data and correlation files can be added later, if needed
 
-    def list_unique_component_ids(self, as_set: bool = False) -> list[str] | set[str]:
+    def list_unique_component_ids(
+        self, as_set: bool = False
+    ) -> list[str] | set[str]:
         """
         Returns unique component IDs.
 

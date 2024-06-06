@@ -448,7 +448,7 @@ def load_data(
     if return_units:
         if units is not None:
             # convert index in units Series to MultiIndex if needed
-            units = base.convert_to_MultiIndex(units, axis=0).dropna()  # type: ignore
+            units = base.convert_to_MultiIndex(units, axis=0).dropna()  # type: ignore # noqa
             units.sort_index(inplace=True)
         output = data, units
     else:

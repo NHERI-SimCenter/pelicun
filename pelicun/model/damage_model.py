@@ -50,7 +50,6 @@ This file defines the DamageModel object and its methods.
 """
 
 from __future__ import annotations
-from typing import Any
 from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
@@ -720,7 +719,15 @@ class DamageModel_DS(DamageModel_Base):
             .sort_index(axis=0)
         )
 
-    def _obtain_ds_sample(self, demand_sample: pd.DataFrame, component_blocks: pd.DataFrame, block_batch_size: int, scaling_specification: dict | None, missing_components: list[str], nondirectional_multipliers: dict[str, float]) -> None:
+    def _obtain_ds_sample(
+        self,
+        demand_sample: pd.DataFrame,
+        component_blocks: pd.DataFrame,
+        block_batch_size: int,
+        scaling_specification: dict | None,
+        missing_components: list[str],
+        nondirectional_multipliers: dict[str, float],
+    ) -> None:
         """
         Obtain the damage state of each performance group in the
         model.
@@ -813,7 +820,9 @@ class DamageModel_DS(DamageModel_Base):
 
         self.log.msg("Damage state calculation successful.", prepend_timestamp=False)
 
-    def _handle_operation(self, initial_value: float, operation: str, other_value: float) -> float:
+    def _handle_operation(
+        self, initial_value: float, operation: str, other_value: float
+    ) -> float:
         """
         This method is used in `_create_dmg_RVs` to apply capacity
         adjustment operations whenever required. It is defined as a
@@ -849,7 +858,12 @@ class DamageModel_DS(DamageModel_Base):
             return initial_value / other_value
         raise ValueError(f'Invalid operation: `{operation}`')
 
-    def _generate_dmg_sample(self, sample_size: int, PGB: pd.DataFrame, scaling_specification: dict | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def _generate_dmg_sample(
+        self,
+        sample_size: int,
+        PGB: pd.DataFrame,
+        scaling_specification: dict | None = None,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         This method generates a damage sample by creating random
         variables (RVs) for capacities and limit-state-damage-states
@@ -940,7 +954,13 @@ class DamageModel_DS(DamageModel_Base):
 
         return capacity_sample, lsds_sample
 
-    def _evaluate_damage_state(self, demand_dict: dict[str, np.ndarray], required_edps: dict[str, list[tuple]], capacity_sample: pd.DataFrame, lsds_sample: pd.DataFrame) -> pd.DataFrame:
+    def _evaluate_damage_state(
+        self,
+        demand_dict: dict[str, np.ndarray],
+        required_edps: dict[str, list[tuple]],
+        capacity_sample: pd.DataFrame,
+        lsds_sample: pd.DataFrame,
+    ) -> pd.DataFrame:
         """
         Use the demand and LS capacity sample to evaluate damage states
 
@@ -1052,7 +1072,9 @@ class DamageModel_DS(DamageModel_Base):
 
         return ds_sample
 
-    def _create_dmg_RVs(self, PGB: pd.DataFrame, scaling_specification: dict | None = None) -> tuple[uq.RandomVariableRegistry, uq.RandomVariableRegistry]:
+    def _create_dmg_RVs(
+        self, PGB: pd.DataFrame, scaling_specification: dict | None = None
+    ) -> tuple[uq.RandomVariableRegistry, uq.RandomVariableRegistry]:
         """
         Creates random variables required later for the damage calculation.
 
@@ -1387,7 +1409,12 @@ class DamageModel_DS(DamageModel_Base):
 
         return capacity_RV_reg, lsds_RV_reg
 
-    def _prepare_dmg_quantities(self, component_sample: pd.DataFrame, component_marginal_parameters: pd.DataFrame, dropzero: bool = True) -> pd.DataFrame:
+    def _prepare_dmg_quantities(
+        self,
+        component_sample: pd.DataFrame,
+        component_marginal_parameters: pd.DataFrame,
+        dropzero: bool = True,
+    ) -> pd.DataFrame:
         """
         Combine component quantity and damage state information in one
         DataFrame.
@@ -1616,7 +1643,9 @@ class DamageModel_DS(DamageModel_Base):
                 'Damage process task successfully applied.', prepend_timestamp=False
             )
 
-    def _perform_dmg_event(self, source_cmp: str, ds_source: int, target_cmp: str, ds_target: int) -> None:
+    def _perform_dmg_event(
+        self, source_cmp: str, ds_source: int, target_cmp: str, ds_target: int
+    ) -> None:
         """
         Perform a damage event.
         See `_perform_dmg_task`.
@@ -1641,7 +1670,9 @@ class DamageModel_DS(DamageModel_Base):
             )[0]
         self.ds_sample.iloc[row_selection, column_selection] = ds_target
 
-    def _perform_dmg_event_loc(self, source_cmp: str, ds_source: int, target_cmp: str, ds_target: int) -> None:
+    def _perform_dmg_event_loc(
+        self, source_cmp: str, ds_source: int, target_cmp: str, ds_target: int
+    ) -> None:
         """
         Perform a damage event matching locations.
         See `_perform_dmg_task`.
