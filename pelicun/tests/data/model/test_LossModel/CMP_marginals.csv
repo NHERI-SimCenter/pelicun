@@ -1,0 +1,7 @@
+﻿,Units,Location,Direction,Theta_0,Blocks
+cmp.A,ea,0,0,1
+cmp.B,ea,0,1,1
+cmp.C,ea,0,2,1
+cmp.D,ea,1,1,1,4
+cmp.E,ea,1,1,2
+cmp.F,ea,1,1,2

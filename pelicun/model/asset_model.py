@@ -52,10 +52,10 @@ This file defines the AssetModel object and its methods.
 from itertools import product
 import numpy as np
 import pandas as pd
-from .pelicun_model import PelicunModel
-from .. import base
-from .. import uq
-from .. import file_io
+from pelicun.model.pelicun_model import PelicunModel
+from pelicun import base
+from pelicun import uq
+from pelicun import file_io
 
 
 idx = base.idx
@@ -69,53 +69,16 @@ class AssetModel(PelicunModel):
     ----------
 
     """
+    __slots__ = ['cmp_marginal_params', 'cmp_units', 'cmp_sample', '_cmp_RVs']
 
     def __init__(self, assessment):
         super().__init__(assessment)
 
         self.cmp_marginal_params = None
         self.cmp_units = None
+        self.cmp_sample = None
 
         self._cmp_RVs = None
-        self._cmp_sample = None
-
-    @property
-    def cmp_sample(self):
-        """
-        A property that gets or creates a DataFrame representing the
-        component sample for the current assessment.
-
-        If the component sample has not been previously set or
-        generated, this property will generate it by retrieving
-        samples from the component random variables (_cmp_RVs),
-        sorting the indexes, and converting the DataFrame to use a
-        MultiIndex. The component sample is structured to include
-        information on component ('cmp'), location ('loc'), direction
-        ('dir'), and unique identifier ('uid').
-
-        Returns
-        -------
-        DataFrame
-            A DataFrame containing the component samples, indexed and
-            sorted appropriately. The columns are multi-indexed to
-            represent various dimensions of the component data.
-
-        """
-        if self._cmp_sample is None:
-            cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
-            cmp_sample.sort_index(axis=0, inplace=True)
-            cmp_sample.sort_index(axis=1, inplace=True)
-
-            cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
-
-            cmp_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
-
-            self._cmp_sample = cmp_sample
-
-        else:
-            cmp_sample = self._cmp_sample
-
-        return cmp_sample
 
     def save_cmp_sample(self, filepath=None, save_units=False):
         """
@@ -163,9 +126,9 @@ class AssetModel(PelicunModel):
         completion of the saving process. It adjusts index types and
         handles unit conversions based on assessment configurations.
         """
-        self.log_div()
+        self.log.div()
         if filepath is not None:
-            self.log_msg('Saving asset components sample...')
+            self.log.msg('Saving asset components sample...')
 
         # prepare a units array
         sample = self.cmp_sample
@@ -185,7 +148,7 @@ class AssetModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg(
+            self.log.msg(
                 'Asset components sample successfully saved.',
                 prepend_timestamp=False,
             )
@@ -234,8 +197,8 @@ class AssetModel(PelicunModel):
         # This will load the component quantity sample into the model
         # from the specified file.
         """
-        self.log_div()
-        self.log_msg('Loading asset components sample...')
+        self.log.div()
+        self.log.msg('Loading asset components sample...')
 
         sample, units = file_io.load_data(
             filepath,
@@ -246,11 +209,11 @@ class AssetModel(PelicunModel):
 
         sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
 
-        self._cmp_sample = sample
+        self.cmp_sample = sample
 
         self.cmp_units = units.groupby(level=0).first()
 
-        self.log_msg(
+        self.log.msg(
             'Asset components sample successfully loaded.', prepend_timestamp=False
         )
 
@@ -482,8 +445,8 @@ class AssetModel(PelicunModel):
                 return default
             return dtype(attribute_str)
 
-        self.log_div()
-        self.log_msg('Loading component model...')
+        self.log.div()
+        self.log.msg('Loading component model...')
 
         # Currently, we assume independent component distributions are defined
         # throughout the building. Correlations may be added afterward or this
@@ -569,14 +532,14 @@ class AssetModel(PelicunModel):
 
         cmp_marginal_params.dropna(axis=1, how='all', inplace=True)
 
-        self.log_msg(
+        self.log.msg(
             "Model parameters successfully parsed. "
             f"{cmp_marginal_params.shape[0]} performance groups identified",
             prepend_timestamp=False,
         )
 
         # Now we can take care of converting the values to base units
-        self.log_msg(
+        self.log.msg(
             "Converting model parameters to internal units...",
             prepend_timestamp=False,
         )
@@ -585,54 +548,42 @@ class AssetModel(PelicunModel):
         # internal component uid
         base.dedupe_index(cmp_marginal_params)
 
-        cmp_marginal_params = self.convert_marginal_params(
+        cmp_marginal_params = self._convert_marginal_params(
             cmp_marginal_params, cmp_marginal_params['Units']
         )
 
         self.cmp_marginal_params = cmp_marginal_params.drop('Units', axis=1)
 
-        self.log_msg("Model parameters successfully loaded.", prepend_timestamp=False)
+        self.log.msg(
+            "Model parameters successfully loaded.", prepend_timestamp=False
+        )
 
-        self.log_msg(
+        self.log.msg(
             "\nComponent model marginal distributions:\n" + str(cmp_marginal_params),
             prepend_timestamp=False,
         )
 
         # the empirical data and correlation files can be added later, if needed
 
-    def _create_cmp_RVs(self):
+    def list_unique_component_ids(self, as_set=False):
         """
-        Defines the RVs used for sampling component quantities.
+        Returns unique component IDs.
+
+        Parameters
+        ----------
+        as_set: bool
+            Whether to cast the list into a set.
+
+        Returns
+        -------
+        list | set
+            Unique components in the asset model.
+
         """
-
-        # initialize the registry
-        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
-
-        # add a random variable for each component quantity variable
-        for rv_params in self.cmp_marginal_params.itertuples():
-            cmp = rv_params.Index
-
-            # create a random variable and add it to the registry
-            family = getattr(rv_params, "Family", 'deterministic')
-            RV_reg.add_RV(
-                uq.rv_class_map(family)(
-                    name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
-                    theta=[
-                        getattr(rv_params, f"Theta_{t_i}", np.nan) for t_i in range(3)
-                    ],
-                    truncation_limits=[
-                        getattr(rv_params, f"Truncate{side}", np.nan)
-                        for side in ("Lower", "Upper")
-                    ],
-                )
-            )
-
-        self.log_msg(
-            f"\n{self.cmp_marginal_params.shape[0]} random variables created.",
-            prepend_timestamp=False,
-        )
-
-        self._cmp_RVs = RV_reg
+        cmp_list = self.cmp_marginal_params.index.unique(level=0).to_list()
+        if as_set:
+            return set(cmp_list)
+        return cmp_list
 
     def generate_cmp_sample(self, sample_size=None):
         """
@@ -663,8 +614,8 @@ class AssetModel(PelicunModel):
                 'sample.'
             )
 
-        self.log_div()
-        self.log_msg('Generating sample from component quantity variables...')
+        self.log.div()
+        self.log.msg('Generating sample from component quantity variables...')
 
         if sample_size is None:
             if self._asmnt.demand.sample is None:
@@ -681,10 +632,48 @@ class AssetModel(PelicunModel):
             sample_size=sample_size, method=self._asmnt.options.sampling_method
         )
 
-        # replace the potentially existing sample with the generated one
-        self._cmp_sample = None
+        cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
+        cmp_sample.sort_index(axis=0, inplace=True)
+        cmp_sample.sort_index(axis=1, inplace=True)
+        cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
+        cmp_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        self.cmp_sample = cmp_sample
 
-        self.log_msg(
+        self.log.msg(
             f"\nSuccessfully generated {sample_size} realizations.",
             prepend_timestamp=False,
         )
+
+    def _create_cmp_RVs(self):
+        """
+        Defines the RVs used for sampling component quantities.
+        """
+
+        # initialize the registry
+        RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+
+        # add a random variable for each component quantity variable
+        for rv_params in self.cmp_marginal_params.itertuples():
+            cmp = rv_params.Index
+
+            # create a random variable and add it to the registry
+            family = getattr(rv_params, "Family", 'deterministic')
+            RV_reg.add_RV(
+                uq.rv_class_map(family)(
+                    name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
+                    theta=[
+                        getattr(rv_params, f"Theta_{t_i}", np.nan) for t_i in range(3)
+                    ],
+                    truncation_limits=[
+                        getattr(rv_params, f"Truncate{side}", np.nan)
+                        for side in ("Lower", "Upper")
+                    ],
+                )
+            )
+
+        self.log.msg(
+            f"\n{self.cmp_marginal_params.shape[0]} random variables created.",
+            prepend_timestamp=False,
+        )
+
+        self._cmp_RVs = RV_reg

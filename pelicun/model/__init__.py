@@ -41,9 +41,11 @@ Adam Zsarnóczay
 
 # flake8: noqa
 
-from .pelicun_model import PelicunModel
-from .demand_model import DemandModel
-from .asset_model import AssetModel
-from .damage_model import DamageModel
-from .loss_model import LossModel
-from .loss_model import RepairModel
+from pelicun.model.pelicun_model import PelicunModel
+from pelicun.model.demand_model import DemandModel
+from pelicun.model.asset_model import AssetModel
+from pelicun.model.damage_model import DamageModel
+from pelicun.model.damage_model import DamageModel_DS
+from pelicun.model.loss_model import LossModel
+from pelicun.model.loss_model import RepairModel_DS
+from pelicun.model.loss_model import RepairModel_LF

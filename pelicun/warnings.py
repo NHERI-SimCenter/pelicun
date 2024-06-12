@@ -36,34 +36,15 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
-import pandas as pd
-import sys
-import argparse
-from pathlib import Path
+"""
+This module defines pelicun warning classes and relevant methods
 
+"""
 
-def convert_HDF(HDF_path):
-    HDF_ext = HDF_path.split('.')[-1]
-    CSV_base = HDF_path[: -len(HDF_ext) - 1]
-
-    HDF_path = Path(HDF_path).resolve()
-
-    store = pd.HDFStore(HDF_path)
-
-    for key in store.keys():
-
-        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/", "_")}.csv')
-
-    store.close()
+from __future__ import annotations
 
 
-if __name__ == '__main__':
-    args = sys.argv[1:]
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('HDF_path')
-
-    args = parser.parse_args(args)
-
-    convert_HDF(args.HDF_path)
+class PelicunWarning(Warning):
+    """Custom warning for specific use in the Pelicun project."""

@@ -108,15 +108,6 @@ def save_to_csv(
     first column may be 'Units' to provide the units for the data in
     the file.
 
-    The following data types in pelicun can be saved with this
-    function:
-
-    Demand Data: Each column in a table corresponds to a demand type;
-    each row corresponds to a simulation/sample. The header identifies
-    each demand type. The user guide section of the documentation
-    provides more information about the header format. Target need to
-    be specified in the second row of the DataFrame.
-
     Parameters
     ----------
     data : DataFrame
@@ -163,100 +154,104 @@ def save_to_csv(
             log.msg('Preparing data ...', prepend_timestamp=False)
 
     elif log:
-        log.msg(f'Saving data to {filepath}...', prepend_timestamp=False)
+        log.msg(f'Saving data to `{filepath}`...', prepend_timestamp=False)
 
-    if data is not None:
-        # make sure we do not modify the original data
-        data = data.copy()
+    if data is None:
+        if log:
+            log.add_warning('Data was empty, no file saved.')
+            log.emit_warnings()
+        return None
 
-        # convert units and add unit information, if needed
-        if units is not None:
-            if unit_conversion_factors is None:
-                raise ValueError(
-                    'When units is not None, '
-                    'unit_conversion_factors must be provided'
-                )
+    # make sure we do not modify the original data
+    data = data.copy()
 
-            if log:
-                log.msg('Converting units...', prepend_timestamp=False)
+    # convert units and add unit information, if needed
+    if units is not None:
 
-            # if the orientation is 1, we might not need to scale all columns
-            if orientation == 1:
-                cols_to_scale = [dt in [float, int] for dt in data.dtypes]
-                cols_to_scale = data.columns[cols_to_scale]
+        if unit_conversion_factors is None:
+            raise ValueError(
+                'When `units` is not None, '
+                '`unit_conversion_factors` must be provided.'
+            )
 
-            labels_to_keep = []
+        if log:
+            log.msg('Converting units...', prepend_timestamp=False)
 
-            for unit_name in units.unique():
-                labels = units.loc[units == unit_name].index.values
+        # if the orientation is 1, we might not need to scale all columns
+        if orientation == 1:
+            cols_to_scale = [dt in [float, int] for dt in data.dtypes]
+            cols_to_scale = data.columns[cols_to_scale]
 
-                unit_factor = 1.0 / unit_conversion_factors[unit_name]
+        labels_to_keep = []
 
-                active_labels = []
+        for unit_name in units.unique():
 
-                if orientation == 0:
-                    for label in labels:
-                        if label in data.columns:
-                            active_labels.append(label)
+            labels = units.loc[units == unit_name].index.values
 
-                    if len(active_labels) > 0:
-                        data.loc[:, active_labels] *= unit_factor
+            unit_factor = 1.0 / unit_conversion_factors[unit_name]
 
-                else:  # elif orientation == 1:
-                    for label in labels:
-                        if label in data.index:
-                            active_labels.append(label)
-
-                    if len(active_labels) > 0:
-                        data.loc[active_labels, cols_to_scale] *= unit_factor
-
-                labels_to_keep += active_labels
-
-            units = units.loc[labels_to_keep].to_frame()
+            active_labels = []
 
             if orientation == 0:
-                data = pd.concat([units.T, data], axis=0)
-                data.sort_index(axis=1, inplace=True)
-            else:
-                data = pd.concat([units, data], axis=1)
-                data.sort_index(inplace=True)
+                for label in labels:
+                    if label in data.columns:
+                        active_labels.append(label)
+
+                if len(active_labels) > 0:
+                    data.loc[:, active_labels] *= unit_factor
+
+            else:  # elif orientation == 1:
+                for label in labels:
+                    if label in data.index:
+                        active_labels.append(label)
+
+                if len(active_labels) > 0:
+                    data.loc[active_labels, cols_to_scale] *= unit_factor
+
+            labels_to_keep += active_labels
+
+        units = units.loc[labels_to_keep].to_frame()
+
+        if orientation == 0:
+            data = pd.concat([units.T, data], axis=0)
+            data.sort_index(axis=1, inplace=True)
+        else:
+            data = pd.concat([units, data], axis=1)
+            data.sort_index(inplace=True)
+
+        if log:
+            log.msg('Unit conversion successful.', prepend_timestamp=False)
+
+    if use_simpleindex:
+        # convert MultiIndex to regular index with '-' separators
+        if isinstance(data.index, pd.MultiIndex):
+            data = base.convert_to_SimpleIndex(data)
+
+        # same thing for the columns
+        if isinstance(data.columns, pd.MultiIndex):
+            data = base.convert_to_SimpleIndex(data, axis=1)
+
+    if filepath is not None:
+
+        filepath = Path(filepath).resolve()
+        if filepath.suffix == '.csv':
+
+            # save the contents of the DataFrame into a csv
+            data.to_csv(filepath)
 
             if log:
-                log.msg('Unit conversion successful.', prepend_timestamp=False)
+                log.msg('Data successfully saved to file.', prepend_timestamp=False)
 
-        if use_simpleindex:
-            # convert MultiIndex to regular index with '-' separators
-            if isinstance(data.index, pd.MultiIndex):
-                data = base.convert_to_SimpleIndex(data)
+        else:
+            raise ValueError(
+                f'ERROR: Please use the `.csv` file extension. '
+                f'Received file name is `{filepath}`'
+            )
 
-            # same thing for the columns
-            if isinstance(data.columns, pd.MultiIndex):
-                data = base.convert_to_SimpleIndex(data, axis=1)
+        return None
 
-        if filepath is not None:
-            filepath = Path(filepath).resolve()
-            if filepath.suffix == '.csv':
-                # save the contents of the DataFrame into a csv
-                data.to_csv(filepath)
-
-                if log:
-                    log.msg('Data successfully saved to file.', prepend_timestamp=False)
-
-            else:
-                raise ValueError(
-                    f'ERROR: Unexpected file type received when trying '
-                    f'to save to csv: {filepath}'
-                )
-
-            return None
-
-        # at this line, filepath is None
-        return data
-
-    # at this line, data is None
-    if log:
-        log.msg('WARNING: Data was empty, no file saved.', prepend_timestamp=False)
-    return None
+    # at this line, filepath is None
+    return data
 
 
 def substitute_default_path(data_paths):
@@ -369,9 +364,12 @@ def load_data(
     Raises
     ------
     TypeError
-        If `data_source` is neither a string nor a DataFrame, a TypeError is raised.
+        If `data_source` is neither a string nor a DataFrame, a
+        TypeError is raised.
     ValueError
-        If `unit_conversion_factors` contains keys that do not correspond to any units in the data, a ValueError may be raised during processing.
+        If `unit_conversion_factors` contains keys that do not
+        correspond to any units in the data, a ValueError may be
+        raised during processing.
     """
 
     if isinstance(data_source, pd.DataFrame):
@@ -438,9 +436,6 @@ def load_data(
         # convert index to MultiIndex if needed
         data = base.convert_to_MultiIndex(data, axis=0)
         data.sort_index(inplace=True)
-
-    if log:
-        log.msg('Data successfully loaded from file.', prepend_timestamp=False)
 
     if return_units:
         if units is not None:

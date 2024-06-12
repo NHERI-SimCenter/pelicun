@@ -43,11 +43,10 @@ These are unit and integration tests on the assessment module of pelicun.
 """
 
 import pytest
-from pelicun import base
-from pelicun import model
 from pelicun import assessment
 
 # pylint: disable=missing-function-docstring
+# pylint: disable=missing-return-doc, missing-return-type-doc
 
 
 def create_assessment_obj(config=None):
@@ -60,27 +59,26 @@ def create_assessment_obj(config=None):
 
 def test_Assessment_init():
     asmt = create_assessment_obj()
-
-    assert asmt.stories is None
-
-    assert asmt.options
-    assert isinstance(asmt.options, base.Options)
-
-    assert asmt.unit_conversion_factors
-    assert isinstance(asmt.unit_conversion_factors, dict)
-
-    assert asmt.log
-    assert isinstance(asmt.log, base.Logger)
-
-    # test attributes defined as properties
-    assert asmt.demand
-    assert isinstance(asmt.demand, model.DemandModel)
-    assert asmt.asset
-    assert isinstance(asmt.asset, model.AssetModel)
-    assert asmt.damage
-    assert isinstance(asmt.damage, model.DamageModel)
-    assert asmt.repair
-    assert isinstance(asmt.repair, model.RepairModel)
+    # confirm attributes
+    for attribute in (
+        'asset',
+        'calc_unit_scale_factor',
+        'damage',
+        'demand',
+        'get_default_data',
+        'get_default_metadata',
+        'log',
+        'loss',
+        'options',
+        'scale_factor',
+        'stories',
+        'unit_conversion_factors',
+    ):
+        assert hasattr(asmt, attribute)
+    # confirm that creating an attribute on the fly is not allowed
+    with pytest.raises(AttributeError):
+        # pylint: disable=assigning-non-slot
+        asmt.my_attribute = 2
 
 
 def test_assessment_get_default_metadata():

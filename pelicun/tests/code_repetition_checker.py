@@ -45,6 +45,8 @@ Python test files.
 
 from glob2 import glob
 
+# pylint: disable=missing-any-param-doc
+
 
 def main(file):
     """

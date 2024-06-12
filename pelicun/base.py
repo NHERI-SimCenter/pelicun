@@ -67,6 +67,7 @@ This module defines constants, basic classes and methods for pelicun.
 """
 
 from __future__ import annotations
+from collections.abc import Callable
 import os
 import sys
 from datetime import datetime
@@ -76,9 +77,15 @@ from pathlib import Path
 import argparse
 import pprint
 import numpy as np
+from scipy.interpolate import interp1d
 import pandas as pd
+import colorama
+from colorama import Fore
+from colorama import Style
+from pelicun.warnings import PelicunWarning
 
 
+colorama.init()
 # set printing options
 pp = pprint.PrettyPrinter(indent=2, width=80 - 24)
 
@@ -198,50 +205,9 @@ class Options:
         # instantiate a Logger object with the finalized configuration
         self.log = Logger(
             merged_config_options['Verbose'],
-            merged_config_options['ShowWarnings'],
             merged_config_options['LogShowMS'],
             merged_config_options['LogFile'],
             merged_config_options['PrintLog'],
-        )
-
-    def nondir_multi(self, EDP_type):
-        """
-        Returns the multiplicative factor used in nondirectional
-        component demand generation. Read the description of the
-        nondir_multi_dict attribute of the Options class.
-
-        Parameters
-        ----------
-        EDP_type: str
-            EDP type (e.g. "PFA", "PFV", ..., "ALL")
-
-        Returns
-        -------
-        float
-            Nondirectional component multiplicative factor.
-
-        Raises
-        ------
-        ValueError
-            If the specified EDP type is not present in the
-            dictionary.  If this is the case, a value for that type
-            needs to be specified in the user's configuration
-            dictionary, under ['Options']['NonDirectionalMultipliers']
-            = {"edp_type": value, ...}
-        """
-
-        if EDP_type in self.nondir_multi_dict:
-            return self.nondir_multi_dict[EDP_type]
-
-        if 'ALL' in self.nondir_multi_dict:
-            return self.nondir_multi_dict['ALL']
-
-        raise ValueError(
-            f"Peak orthogonal EDP multiplier for non-directional demand "
-            f"calculation of {EDP_type} not specified.\n"
-            f"Please add {EDP_type} in the configuration dictionary "
-            f"under ['Options']['NonDirectionalMultipliers']"
-            " = {{'edp_type': value, ...}}"
         )
 
     @property
@@ -276,25 +242,6 @@ class Options:
         """
         return self._rng
 
-    @property
-    def units_file(self):
-        """
-        units file property
-
-        Returns
-        -------
-        str
-            Units file
-        """
-        return self._units_file
-
-    @units_file.setter
-    def units_file(self, value):
-        """
-        units file property setter
-        """
-        self._units_file = value
-
 
 class Logger:
     """
@@ -309,12 +256,6 @@ class Logger:
         value is specified in the user's configuration dictionary,
         otherwise left as provided in the default configuration file
         (see settings/default_config.json in the pelicun source code).
-    show_warnings: bool
-        If True, future, deprecation, and performance warnings from python
-        packages such as numpy and pandas are printed to the log file
-        (and also to the standard output). Otherwise, they are
-        suppressed. This setting does not affect warnings defined within
-        pelicun that are specific to the damage and loss calculation.
     log_show_ms: bool
         If True, the timestamps in the log file are in microsecond
         precision. The value is specified in the user's configuration
@@ -334,9 +275,7 @@ class Logger:
 
     """
 
-    # TODO: finalize docstring
-
-    def __init__(self, verbose, show_warnings, log_show_ms, log_file, print_log):
+    def __init__(self, verbose, log_show_ms, log_file, print_log):
         """
         Initializes a Logger object.
 
@@ -346,166 +285,46 @@ class Logger:
 
         """
         self.verbose = verbose
-        self.show_warnings = show_warnings
-        self.log_show_ms = log_show_ms
-        self.log_file = log_file
-        self.print_log = print_log
-        self.reset_log_strings()
+        self.log_show_ms = bool(log_show_ms)
 
-    @property
-    def verbose(self):
-        """
-        verbose property
-
-        Returns
-        -------
-        bool
-            Verbose property value
-        """
-        return self._verbose
-
-    @verbose.setter
-    def verbose(self, value):
-        """
-        verbose property setter
-        """
-        self._verbose = bool(value)
-
-    @property
-    def show_warnings(self):
-        """
-        show_warnings property
-
-        Returns
-        -------
-        bool
-            show_warnings value
-        """
-        return self._show_warnings
-
-    @show_warnings.setter
-    def show_warnings(self, value):
-        """
-        show_warnings property setter
-        """
-        self._show_warnings = bool(value)
-        # control warnings according to the desired setting
-        control_warnings(show=self._show_warnings)
-
-    @property
-    def log_show_ms(self):
-        """
-        log_show_ms property
-
-        Returns
-        bool
-            log_show_ms value
-        """
-        return self._log_show_ms
-
-    @log_show_ms.setter
-    def log_show_ms(self, value):
-        """
-        log_show_ms property setter
-        """
-        self._log_show_ms = bool(value)
-
-        self.reset_log_strings()
-
-    @property
-    def log_pref(self):
-        """
-        log_pref property
-
-        Returns
-        -------
-        str
-            log_pref value
-        """
-        return self._log_pref
-
-    @property
-    def log_div(self):
-        """
-        log_div property
-
-        Returns
-        -------
-        str
-            log_div value
-        """
-        return self._log_div
-
-    @property
-    def log_time_format(self):
-        """
-        log_time_format property
-        """
-        return self._log_time_format
-
-    @property
-    def log_file(self):
-        """
-        log_file property
-        """
-        return self._log_file
-
-    @log_file.setter
-    def log_file(self, value):
-        """
-        log_file property setter
-        """
-
-        if value is None:
-            self._log_file = None
-
+        if log_file is None:
+            self.log_file = None
         else:
             try:
-                filepath = Path(value).resolve()
-
-                self._log_file = str(filepath)
-
+                filepath = Path(log_file).resolve()
+                self.log_file = str(filepath)
                 with open(filepath, 'w', encoding='utf-8') as f:
                     f.write('')
-
             except BaseException as err:
                 print(
-                    f"WARNING: The filepath provided for the log file does "
-                    f"not point to a valid location: {value}. \nPelicun "
+                    f"{Fore.RED}WARNING: The filepath provided for the log file "
+                    f"does not point to a valid location: {log_file}. \nPelicun "
                     f"cannot print the log to a file.\n"
-                    f"The error was: '{err}'"
+                    f"The error was: '{err}'{Style.RESET_ALL}"
                 )
                 raise
 
-    @property
-    def print_log(self):
-        """
-        print_log property
-        """
-        return self._print_log
-
-    @print_log.setter
-    def print_log(self, value):
-        """
-        print_log property setter
-        """
-        self._print_log = str2bool(value)
+        self.print_log = str2bool(print_log)
+        self.warning_stack = []
+        self.emitted = set()
+        self.reset_log_strings()
+        control_warnings()
 
     def reset_log_strings(self):
         """
         Populates the string-related attributes of the logger
         """
 
-        if self._log_show_ms:
-            self._log_time_format = '%H:%M:%S:%f'
+        if self.log_show_ms:
+            self.log_time_format = '%H:%M:%S:%f'
             # the length of the time string in the log file
-            self._log_pref = ' ' * 16
+            self.spaces = ' ' * 16
             # to have a total length of 80 with the time added
-            self._log_div = '-' * (80 - 17)
+            self.log_div = '-' * (80 - 17)
         else:
-            self._log_time_format = '%H:%M:%S'
-            self._log_pref = ' ' * 9
-            self._log_div = '-' * (80 - 10)
+            self.log_time_format = '%H:%M:%S'
+            self.spaces = ' ' * 9
+            self.log_div = '-' * (80 - 10)
 
     def msg(self, msg='', prepend_timestamp=True, prepend_blank_space=True):
         """
@@ -533,9 +352,9 @@ class Logger:
                     datetime.now().strftime(self.log_time_format), msg_line
                 )
             elif prepend_timestamp:
-                formatted_msg = self.log_pref + msg_line
+                formatted_msg = self.spaces + msg_line
             elif prepend_blank_space:
-                formatted_msg = self.log_pref + msg_line
+                formatted_msg = self.spaces + msg_line
             else:
                 formatted_msg = msg_line
 
@@ -545,6 +364,53 @@ class Logger:
             if self.log_file is not None:
                 with open(self.log_file, 'a', encoding='utf-8') as f:
                     f.write('\n' + formatted_msg)
+
+    def add_warning(self, msg):
+        """
+        Adds a warning to the warning stack.
+
+        Note
+        ----
+        Warnings are only emitted when `emit_warnings` is called.
+
+        Parameters
+        ----------
+        msg: str
+            The warning message.
+
+        """
+        msg_lines = msg.split('\n')
+        formatted_msg = '\n'
+        for msg_line in msg_lines:
+            formatted_msg += (
+                self.spaces + Fore.RED + msg_line + Style.RESET_ALL + '\n'
+            )
+        if formatted_msg not in self.warning_stack:
+            self.warning_stack.append(formatted_msg)
+
+    def emit_warnings(self):
+        """
+        Issues all warnings and clears the warning stack.
+
+        """
+        for message in self.warning_stack:
+            if message not in self.emitted:
+                warnings.warn(message, PelicunWarning)
+        self.emitted = self.emitted.union(set(self.warning_stack))
+        self.warning_stack = []
+
+    def warn(self, msg):
+        """
+        Add an emmit a warning immediatelly.
+
+        Parameters
+        ----------
+        msg: str
+            Warning message
+
+        """
+        self.add_warning(msg)
+        self.emit_warnings()
 
     def div(self, prepend_timestamp=False):
         """
@@ -579,28 +445,40 @@ class Logger:
 pelicun_path = Path(os.path.dirname(os.path.abspath(__file__)))
 
 
-def control_warnings(show):
+def control_warnings():
     """
     Convenience function to turn warnings on/off
 
-    Parameters
-    ----------
-    show: bool
-        If True, warnings are set to the default level. If False,
-        warnings are ignored.
+        See also: `pelicun/pytest.ini`. Devs: make sure to update that
+        file when addressing & eliminating warnings.
 
     """
-    if show:
-        action = 'default'
-    else:
-        action = 'ignore'
-
     if not sys.warnoptions:
-        warnings.filterwarnings(category=FutureWarning, action=action)
 
-        warnings.filterwarnings(category=DeprecationWarning, action=action)
+        # Here we specify *specific* warnings to ignore.
+        # 'message' -- a regex that the warning message must match
 
-        warnings.filterwarnings(category=pd.errors.PerformanceWarning, action=action)
+        # Note: we ignore known warnings emmited from our dependencies
+        # and plan to address them soon.
+
+        warnings.filterwarnings(
+            action='ignore', message=".*Use to_numeric without passing `errors`.*"
+        )
+        warnings.filterwarnings(
+            action='ignore', message=".*errors='ignore' is deprecated.*"
+        )
+        warnings.filterwarnings(
+            action='ignore',
+            message=".*The previous implementation of stack is deprecated.*",
+        )
+        warnings.filterwarnings(
+            action='ignore',
+            message=".*Setting an item of incompatible dtype is deprecated.*",
+        )
+        warnings.filterwarnings(
+            action='ignore',
+            message=".*DataFrame.groupby with axis=1 is deprecated.*",
+        )
 
 
 def load_default_options():
@@ -915,9 +793,11 @@ def show_matrix(data, use_describe=False):
     Parameters
     ----------
     data : array-like
-        The matrix data to display. Can be any array-like structure that pandas can convert to a DataFrame.
+        The matrix data to display. Can be any array-like structure
+        that pandas can convert to a DataFrame.
     use_describe : bool, default: False
-        If True, provides a descriptive statistical summary of the matrix including specified percentiles.
+        If True, provides a descriptive statistical summary of the
+        matrix including specified percentiles.
         If False, simply prints the matrix as is.
     """
     if use_describe:
@@ -953,19 +833,21 @@ def _warning(message, category, filename, lineno, file=None, line=None):
         compatibility with standard warning signature).
     """
     # pylint:disable = unused-argument
-    if '\\' in filename:
-        file_path = filename.split('\\')
-    elif '/' in filename:
-        file_path = filename.split('/')
-    else:
-        file_path = None
+    if category != PelicunWarning:
+        if '\\' in filename:
+            file_path = filename.split('\\')
+        elif '/' in filename:
+            file_path = filename.split('/')
+        else:
+            file_path = None
 
-    if file_path is not None:
-        python_file = '/'.join(file_path[-3:])
+        if file_path is not None:
+            python_file = '/'.join(file_path[-3:])
+        else:
+            python_file = filename
+        print(f'WARNING in {python_file} at line {lineno}\n{message}\n')
     else:
-        python_file = filename
-
-    print(f'WARNING in {python_file} at line {lineno}\n{message}\n')
+        print(message)
 
 
 warnings.showwarning = _warning
@@ -1499,3 +1381,65 @@ def convert_units(
     if isinstance(values, list):
         return new_values.tolist()
     return new_values
+
+
+def stringterpolation(
+    arguments: str,
+) -> tuple[Callable[np.array, np.array]]:
+    """
+    Turns a string of specially formatted arguments into a multilinear
+    interpolating funciton.
+
+    Parameters
+    ----------
+    arguments: str
+        String of arguments containing Y values and X values,
+        separated by a pipe symbol (`|`). Individual values are
+        separated by commas (`,`). Example:
+        arguments = 'y1,y2,y3|x1,x2,x3'
+
+    Returns
+    -------
+    Callable
+        A callable interpolating function
+
+    """
+    split = arguments.split('|')
+    x_vals = split[1].split(',')
+    y_vals = split[0].split(',')
+    x = np.array(x_vals, dtype=float)
+    y = np.array(y_vals, dtype=float)
+
+    return interp1d(x=x, y=y, kind='linear')
+
+
+def invert_mapping(original_dict):
+    """
+    Inverts a dictionary mapping from key to list of values.
+
+    Parameters
+    ----------
+    original_dict : dict
+        Dictionary with values that are lists of hashable items.
+
+    Returns
+    -------
+    dict
+        New dictionary where each item in the original value lists
+        becomes a key and the original key becomes the corresponding
+        value.
+
+    Raises
+    ------
+    ValueError
+        If any value in the original dictionary's value lists appears
+        more than once.
+
+    """
+    inverted_dict = {}
+    for key, value_list in original_dict.items():
+        for value in value_list:
+            if value in inverted_dict:
+                raise ValueError('Cannot invert mapping with duplicate values.')
+            inverted_dict[value] = key
+    return inverted_dict
