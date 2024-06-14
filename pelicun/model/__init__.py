@@ -41,6 +41,7 @@ Adam Zsarnóczay
 
 # flake8: noqa
 
+from __future__ import annotations
 from pelicun.model.pelicun_model import PelicunModel
 from pelicun.model.demand_model import DemandModel
 from pelicun.model.asset_model import AssetModel

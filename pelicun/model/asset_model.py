@@ -49,6 +49,8 @@ This file defines the AssetModel object and its methods.
 
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from itertools import product
 import numpy as np
 import pandas as pd
@@ -57,6 +59,8 @@ from pelicun import base
 from pelicun import uq
 from pelicun import file_io
 
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 idx = base.idx
 
@@ -69,9 +73,10 @@ class AssetModel(PelicunModel):
     ----------
 
     """
+
     __slots__ = ['cmp_marginal_params', 'cmp_units', 'cmp_sample', '_cmp_RVs']
 
-    def __init__(self, assessment):
+    def __init__(self, assessment: Assessment):
         super().__init__(assessment)
 
         self.cmp_marginal_params = None
@@ -80,7 +85,9 @@ class AssetModel(PelicunModel):
 
         self._cmp_RVs = None
 
-    def save_cmp_sample(self, filepath=None, save_units=False):
+    def save_cmp_sample(
+        self, filepath: str | None = None, save_units: bool = False
+    ) -> pd.DataFrame | tuple[pd.DataFrame, pd.Series] | None:
         """
         Saves the component quantity sample to a CSV file or returns
         it as a DataFrame with optional units.
@@ -110,9 +117,9 @@ class AssetModel(PelicunModel):
             If `filepath` is provided, the function returns None after
             saving the data.
             If no `filepath` is specified, returns:
-            - DataFrame containing the component quantity sample.
-            - Optionally, a Series containing the units for each
-              column if `save_units` is True.
+            * DataFrame containing the component quantity sample.
+            * Optionally, a Series containing the units for each
+            column if `save_units` is True.
 
         Raises
         ------
@@ -162,7 +169,7 @@ class AssetModel(PelicunModel):
 
         return res.astype(float)
 
-    def load_cmp_sample(self, filepath):
+    def load_cmp_sample(self, filepath: str) -> None:
         """
         Loads a component quantity sample from a specified CSV file
         into the system.
@@ -217,7 +224,7 @@ class AssetModel(PelicunModel):
             'Asset components sample successfully loaded.', prepend_timestamp=False
         )
 
-    def load_cmp_model(self, data_source):
+    def load_cmp_model(self, data_source: str | dict[str, pd.DataFrame]) -> None:
         """
         Loads the model describing component quantities in an asset
         from specified data sources.
@@ -267,177 +274,6 @@ class AssetModel(PelicunModel):
 
         """
 
-        def get_locations(loc_str):
-            """
-            Parses a location string to determine specific sections of
-            an asset to be processed.
-
-            This function interprets various string formats to output
-            a list of strings representing sections or parts of the
-            asset.  It can handle single numbers, ranges (e.g.,
-            '3--7'), lists separated by commas (e.g., '1,2,5'), and
-            special keywords like 'all', 'top', or 'roof'.
-
-            Parameters
-            ----------
-            loc_str : str
-                A string that describes the location or range of
-                sections in the asset.  It can be a single number, a
-                range, a comma-separated list, 'all', 'top', or
-                'roof'.
-
-            Returns
-            -------
-            numpy.ndarray
-                An array of strings, each representing a section
-                number. These sections are processed based on the
-                input string, which can denote specific sections,
-                ranges of sections, or special keywords.
-
-            Raises
-            ------
-            ValueError
-                If the location string cannot be parsed into any
-                recognized format, a ValueError is raised with a
-                message indicating the problematic string.
-
-            Examples
-            --------
-            Given an asset with multiple sections:
-
-            >>> get_locations('5')
-            array(['5'])
-
-            >>> get_locations('3--7')
-            array(['3', '4', '5', '6', '7'])
-
-            >>> get_locations('1,2,5')
-            array(['1', '2', '5'])
-
-            >>> get_locations('all')
-            array(['1', '2', '3', ..., '10'])
-
-            >>> get_locations('top')
-            array(['10'])
-
-            >>> get_locations('roof')
-            array(['11'])
-            """
-            try:
-                res = str(int(loc_str))
-                return np.array([res])
-
-            except ValueError as exc:
-                stories = self._asmnt.stories
-
-                if "--" in loc_str:
-                    s_low, s_high = loc_str.split('--')
-                    s_low = get_locations(s_low)
-                    s_high = get_locations(s_high)
-                    return np.arange(int(s_low[0]), int(s_high[0]) + 1).astype(str)
-
-                if "," in loc_str:
-                    return np.array(loc_str.split(','), dtype=int).astype(str)
-
-                if loc_str == "all":
-                    return np.arange(1, stories + 1).astype(str)
-
-                if loc_str == "top":
-                    return np.array(
-                        [
-                            stories,
-                        ]
-                    ).astype(str)
-
-                if loc_str == "roof":
-                    return np.array(
-                        [
-                            stories + 1,
-                        ]
-                    ).astype(str)
-
-                raise ValueError(
-                    f"Cannot parse location string: " f"{loc_str}"
-                ) from exc
-
-        def get_directions(dir_str):
-            """
-            Parses a direction string to determine specific
-            orientations or directions applicable within an asset.
-
-            This function processes direction descriptions to output
-            an array of strings, each representing a specific
-            direction.  It can handle single numbers, ranges (e.g.,
-            '1--3'), lists separated by commas (e.g., '1,2,5'), and
-            null values that default to '1'.
-
-            Parameters
-            ----------
-            dir_str : str or None
-                A string that describes the direction or range of
-                directions in the asset. It can be a single number, a
-                range, a comma-separated list, or it can be null,
-                which defaults to representing a single default
-                direction ('1').
-
-            Returns
-            -------
-            numpy.ndarray
-                An array of strings, each representing a
-                direction. These directions are processed based on the
-                input string, which can denote specific directions,
-                ranges of directions, or a list.
-
-            Raises
-            ------
-            ValueError
-                If the direction string cannot be parsed into any
-                recognized format, a ValueError is raised with a
-                message indicating the problematic string.
-
-            Examples
-            --------
-            Given an asset with multiple potential orientations:
-
-            >>> get_directions(None)
-            array(['1'])
-
-            >>> get_directions('2')
-            array(['2'])
-
-            >>> get_directions('1--3')
-            array(['1', '2', '3'])
-
-            >>> get_directions('1,2,5')
-            array(['1', '2', '5'])
-            """
-            if pd.isnull(dir_str):
-                return np.ones(1).astype(str)
-
-            # else:
-            try:
-                res = str(int(dir_str))
-                return np.array(
-                    [
-                        res,
-                    ]
-                )
-
-            except ValueError as exc:
-                if "," in dir_str:
-                    return np.array(dir_str.split(','), dtype=int).astype(str)
-
-                if "--" in dir_str:
-                    d_low, d_high = dir_str.split('--')
-                    d_low = get_directions(d_low)
-                    d_high = get_directions(d_high)
-                    return np.arange(int(d_low[0]), int(d_high[0]) + 1).astype(str)
-
-                # else:
-                raise ValueError(
-                    f"Cannot parse direction string: " f"{dir_str}"
-                ) from exc
-
         def get_attribute(attribute_str, dtype=float, default=np.nan):
             # pylint: disable=missing-return-doc
             # pylint: disable=missing-return-type-doc
@@ -484,8 +320,8 @@ class AssetModel(PelicunModel):
         }
         index_list = []
         for row in marginal_params.itertuples():
-            locs = get_locations(row.Location)
-            dirs = get_directions(row.Direction)
+            locs = self._get_locations(row.Location)
+            dirs = self._get_directions(row.Direction)
             indices = list(product((row.Index,), locs, dirs))
             num_vals = len(indices)
             for col, cmp_marginal_param in cmp_marginal_param_dct.items():
@@ -523,7 +359,9 @@ class AssetModel(PelicunModel):
         cmp_marginal_param_series = []
         for col, cmp_marginal_param in cmp_marginal_param_dct.items():
             cmp_marginal_param_series.append(
-                pd.Series(cmp_marginal_param, dtype=dtypes[col], name=col, index=index)
+                pd.Series(
+                    cmp_marginal_param, dtype=dtypes[col], name=col, index=index
+                )
             )
 
         cmp_marginal_params = pd.concat(cmp_marginal_param_series, axis=1)
@@ -565,7 +403,9 @@ class AssetModel(PelicunModel):
 
         # the empirical data and correlation files can be added later, if needed
 
-    def list_unique_component_ids(self, as_set=False):
+    def list_unique_component_ids(
+        self, as_set: bool = False
+    ) -> list[str] | set[str]:
         """
         Returns unique component IDs.
 
@@ -585,7 +425,7 @@ class AssetModel(PelicunModel):
             return set(cmp_list)
         return cmp_list
 
-    def generate_cmp_sample(self, sample_size=None):
+    def generate_cmp_sample(self, sample_size: int | None = None) -> None:
         """
         Generates a sample of component quantity realizations based on
         predefined model parameters and optionally specified sample
@@ -644,7 +484,7 @@ class AssetModel(PelicunModel):
             prepend_timestamp=False,
         )
 
-    def _create_cmp_RVs(self):
+    def _create_cmp_RVs(self) -> None:
         """
         Defines the RVs used for sampling component quantities.
         """
@@ -662,7 +502,8 @@ class AssetModel(PelicunModel):
                 uq.rv_class_map(family)(
                     name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
                     theta=[
-                        getattr(rv_params, f"Theta_{t_i}", np.nan) for t_i in range(3)
+                        getattr(rv_params, f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
                     ],
                     truncation_limits=[
                         getattr(rv_params, f"Truncate{side}", np.nan)

@@ -50,11 +50,13 @@ This module has classes and methods that control the performance assessment.
 """
 
 from __future__ import annotations
+from typing import Any
 import json
+import pandas as pd
 from pelicun import base
 from pelicun import file_io
 from pelicun import model
-from pelicun.__init__ import __version__ as pelicun_version
+from pelicun.__init__ import __version__ as pelicun_version  # type: ignore
 
 
 class Assessment:
@@ -88,7 +90,7 @@ class Assessment:
         'loss',
     ]
 
-    def __init__(self, config_options=None):
+    def __init__(self, config_options: dict[str, Any] | None = None):
         """
         Initializes an Assessment object.
 
@@ -135,7 +137,25 @@ class Assessment:
 
         return self.loss
 
-    def get_default_data(self, data_name):
+    @property
+    def repair(self):
+        """
+        <backwards compatibility>
+
+        Returns
+        -------
+        RepairModel_DS
+            The damage state-driven component loss model.
+
+        """
+        self.log.warn(
+            '`.repair` is deprecated and will be dropped in '
+            'future versions of pelicun. '
+            'Please use `.loss` instead.'
+        )
+        return self.loss
+
+    def get_default_data(self, data_name: str) -> pd.DataFrame:
         """
         Loads a default data file by name and returns it. This method
         is specifically designed to access predefined CSV files from a
@@ -178,7 +198,7 @@ class Assessment:
             data_path, None, orientation=1, reindex=False, log=self.log
         )
 
-    def get_default_metadata(self, data_name):
+    def get_default_metadata(self, data_name: str) -> dict:
         """
         Load a default metadata file and pass it to the user.
 
@@ -208,7 +228,7 @@ class Assessment:
 
         return data
 
-    def calc_unit_scale_factor(self, unit):
+    def calc_unit_scale_factor(self, unit: str) -> float:
         """
         Determines the scale factor from input unit to the
         corresponding base unit
@@ -252,7 +272,7 @@ class Assessment:
 
         return scale_factor
 
-    def scale_factor(self, unit):
+    def scale_factor(self, unit: str | None) -> float:
         """
         Returns the scale factor of a given unit. If the unit is
         unknown it raises an error. If the unit is None it returns

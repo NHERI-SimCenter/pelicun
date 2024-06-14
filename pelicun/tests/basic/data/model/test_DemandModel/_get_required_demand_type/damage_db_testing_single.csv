@@ -1,0 +1,2 @@
+ID,Incomplete,Demand-Type,Demand-Unit,Demand-Offset,Demand-Directional,LS1-Family,LS1-Theta_0,LS1-Theta_1,LS1-DamageStateWeights,LS2-Family,LS2-Theta_0,LS2-Theta_1,LS2-DamageStateWeights,LS3-Family,LS3-Theta_0,LS3-Theta_1,LS3-DamageStateWeights,LS4-Family,LS4-Theta_0,LS4-Theta_1,LS4-DamageStateWeights
+testing.component,0,Peak Interstory Drift Ratio,unitless,0,1,lognormal,0.04,0.4,0.950000 | 0.050000,lognormal,0.08,0.4,,lognormal,0.11,0.4,,,,,

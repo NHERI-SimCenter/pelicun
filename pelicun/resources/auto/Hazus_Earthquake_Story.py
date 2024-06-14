@@ -37,6 +37,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
+from __future__ import annotations
 import pandas as pd
 
 ap_DesignLevel = {1940: 'LC', 1975: 'MC', 2100: 'HC'}

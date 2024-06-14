@@ -37,6 +37,7 @@
 # Contributors:
 # Adam Zsarnóczay
 
+from __future__ import annotations
 import pandas as pd
 import sys
 import argparse
@@ -64,6 +65,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('HDF_path')
 
-    args = parser.parse_args(args)
+    parser_args = parser.parse_args(args)
 
-    convert_HDF(args.HDF_path)
+    convert_HDF(parser_args.HDF_path)
