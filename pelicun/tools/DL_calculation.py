@@ -60,6 +60,9 @@ import colorama
 from colorama import Fore
 from colorama import Style
 
+import jsonschema
+from jsonschema import validate
+
 import pelicun
 from pelicun.auto import auto_populate
 from pelicun.base import str2bool
@@ -67,6 +70,7 @@ from pelicun.base import convert_to_MultiIndex
 from pelicun.base import convert_to_SimpleIndex
 from pelicun.base import describe
 from pelicun.base import EDP_to_demand_type
+from pelicun import base
 from pelicun.file_io import load_data
 from pelicun.assessment import Assessment
 
@@ -593,6 +597,15 @@ def run_pelicun(
     # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
+
+    # load the schema
+    with open(
+        f'{base.pelicun_path}/settings/schema.json', 'r', encoding='utf-8'
+    ) as f:
+        schema = json.load(f)
+
+    # Validate the configuration against the schema
+    validate(instance=config, schema=schema)
 
     # f"{config['commonFileDir']}/CustomDLModels/"
     custom_dl_file_path = custom_model_dir
