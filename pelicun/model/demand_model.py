@@ -401,6 +401,85 @@ class DemandModel(PelicunModel):
         # return the generated drift realizations
         return RID
 
+    def estimate_RID_and_adjust_sample(
+        self, params: dict, method: str = 'FEMA P58'
+    ) -> None:
+        """
+        Uses `self.estimate_RID` and adjusts the demand sample.
+        See the docstring of the `estimate_RID` method for details.
+
+        Parameters
+        ----------
+        params : dict
+            A dictionary containing parameters required for the
+            estimation method, such as 'yield_drift', which is the
+            drift at which yielding is expected to occur.
+        method : str, optional
+            The method used to estimate the RID values. Currently,
+            only 'FEMA P58' is implemented. Defaults to 'FEMA P58'.
+
+        Raises
+        ------
+        ValueError
+            If the method is called before a sample is generated.
+
+        """
+
+        if self.sample is None:
+            raise ValueError('Demand model does not have a sample yet.')
+
+        demand_sample, demand_units = self.save_sample(save_units=True)
+        pid = demand_sample['PID']
+        rid = self.estimate_RID(pid, params, method)
+        rid_units = pd.Series('rad', index=rid.columns)
+        demand_sample_ext = pd.concat([demand_sample, rid], axis=1)
+        units_ext = pd.concat([demand_units, rid_units])
+        demand_sample_ext.loc['Units', :] = units_ext
+        self.load_sample(demand_sample_ext)
+
+    def expand_sample(
+        self,
+        label: str,
+        value: float,
+        unit: str,
+        location='0',
+        direction='1'
+    ) -> None:
+        """
+        Adds an extra column to the demand sample.
+
+        The column comtains repeated instances of `value`, is accessed
+        via the multi-index (`label`-`location`-`direction`), and has
+        units of `unit`.
+
+        Parameters
+        ----------
+        label: str
+            Label to use to extend the MultiIndex of the demand sample.
+        value: float
+            Values to add to the rows of the additional column.
+        unit: str
+            Unit that corresponds to the additional column.
+        location: str, optional
+            Optional location, defaults to `0`.
+        direction: str, optional
+            Optional direction, defaults to `1`.
+
+        Raises
+        ------
+        ValueError
+            If the method is called before a sample is generated.
+
+        """
+        if self.sample is None:
+            raise ValueError('Demand model does not have a sample yet.')
+        demand_sample, demand_units = self.save_sample(save_units=True)
+        demand_sample[(label, location, direction)] = value
+        demand_units[(label, location, direction)] = unit
+        demand_sample.loc['Units', :] = demand_units
+        self.load_sample(demand_sample)
+        
+
     def calibrate_model(self, config: dict) -> None:
         """
         Calibrate a demand model to describe the raw demand data
