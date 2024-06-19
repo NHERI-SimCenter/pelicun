@@ -417,8 +417,76 @@
             "Options": {
               "type": "object",
               "properties": {
+                "Options": {
+                  "type": "boolean"
+                },
+                "Seed": {
+                  "type": "integer"
+                },
+                "LogShowMS": {
+                  "type": "boolean"
+                },
+                "LogFile": {
+                  "type": "string"
+                },
+                "UnitsFile": {
+                  "type": "string"
+                },
+                "PrintLog": {
+                  "type": "boolean"
+                },
+                "ShowWarnings": {
+                  "type": "boolean"
+                },
+                "DemandOffset": {
+                  "type": "object"
+                },
                 "ListAllDamageStates": {
                   "type": "boolean"
+                },
+                "NonDirectionalMultipliers": {
+                  "type": "object"
+                },
+                "EconomiesOfScale": {
+                  "type": "object",
+                  "properties": {
+                    "AcrossFlorrs": {
+                      "type": "boolean"
+                    },
+                    "AcrossDamageStates": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "Sampling": {
+                  "type": "object",
+                  "properties": {
+                    "SamplingMethod": {
+                      "type": "string"
+                    },
+                    "SampleSize": {
+                      "type": "integer"
+                    },
+                    "PreserveRawOrder": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "RepairCostAndTimeCorrelation": {
+                  "type": "number"
+                }
+              }
+            },
+            "DemandAssessment": {
+              "type": "object",
+              "properties": {
+                "Calibration": {
+                  "type": "object",
+                  "properties": {
+                    "Marginals": {
+                      "type": "object"
+                    }
+                  }
                 }
               }
             },
