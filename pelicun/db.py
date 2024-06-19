@@ -2877,8 +2877,6 @@ def create_Hazus_Flood_repair_db(source_file_dir: str, target_data_file: str):
             if elements:
                 lf_id += '.' + '_'.join(elements)
         lf_id += '-Cost'
-        # if '__' in lf_id:
-        #     breakpoint()
 
         lf_data.loc[row_index, 'ID'] = lf_id
 
