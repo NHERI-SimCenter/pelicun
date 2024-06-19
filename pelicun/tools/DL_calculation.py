@@ -750,10 +750,9 @@ def run_pelicun(
 
     # Demand Assessment -----------------------------------------------------------
 
-    # check if there is a demand file location specified in the config file
     _demand(config, config_path, length_unit, PAL, sample_size)
 
-    # if requested, save results
+    # if requested, save demand results
     if not is_unspecified(config, 'DL/Outputs/Demand'):
         demand_sample = _demand_save(config, PAL, output_path, out_files)
     else:
@@ -804,9 +803,69 @@ def run_pelicun(
 
     # Result Summary -----------------------------------------------------------
 
-    _summary(PAL, agg_repair, damage_sample, config, output_path, out_files)
+    summary, summary_stats = _summary(
+        PAL, agg_repair, damage_sample, config, output_path, out_files
+    )
+
+    # save summary sample
+    summary.to_csv(output_path / "DL_summary.csv", index_label='#')
+    out_files.append('DL_summary.csv')
+
+    # save summary statistics
+    summary_stats.to_csv(output_path / "DL_summary_stats.csv")
+    out_files.append('DL_summary_stats.csv')
+
+    # create json outputs if needed
+    if get(config, 'DL/Outputs/Format/JSON') is True:
+        write_json_files(out_files, config, output_path)
+
+    # remove csv outputs if they were not requested
+    if get(config, 'DL/Outputs/Format/CSV', default=False) is False:
+        for filename in out_files:
+            # keep the DL_summary and DL_summary_stats files
+            if 'DL_summary' in filename:
+                continue
+            os.remove(output_path / filename)
 
     return 0
+
+
+def write_json_files(out_files, config, output_path):
+    for filename in out_files:
+        filename_json = filename[:-3] + 'json'
+
+        if (
+            get(config, 'DL/Outputs/Settings/SimpleIndexInJSON', default=False)
+            is True
+        ):
+            df = pd.read_csv(output_path / filename, index_col=0)
+        else:
+            df = convert_to_MultiIndex(
+                pd.read_csv(output_path / filename, index_col=0), axis=1
+            )
+
+        if "Units" in df.index:
+            df_units = convert_to_SimpleIndex(
+                df.loc['Units', :].to_frame().T, axis=1
+            )
+
+            df.drop("Units", axis=0, inplace=True)
+
+            out_dict = convert_df_to_dict(df)
+
+            out_dict.update(
+                {
+                    "Units": {
+                        col: df_units.loc["Units", col] for col in df_units.columns
+                    }
+                }
+            )
+
+        else:
+            out_dict = convert_df_to_dict(df)
+
+        with open(output_path / filename_json, 'w', encoding='utf-8') as f:
+            json.dump(out_dict, f, indent=2)
 
 
 def _damage_save(PAL, config, output_path, out_files):
@@ -1049,7 +1108,13 @@ def _remove_existing_files(output_path):
     files = os.listdir(output_path)
     for filename in files:
         if filename in out_files:
-            os.remove(output_path / filename)
+            try:
+                os.remove(output_path / filename)
+            except OSError as exc:
+                raise OSError(
+                    f'Error occurred while removing '
+                    f'`{output_path / filename}`: {exc}'
+                ) from exc
     return out_files
 
 
@@ -1079,60 +1144,7 @@ def _summary(PAL, agg_repair, damage_sample, config, output_path, out_files):
 
     summary_stats = describe(summary)
 
-    # save summary sample
-    summary.to_csv(output_path / "DL_summary.csv", index_label='#')
-    out_files.append('DL_summary.csv')
-
-    # save summary statistics
-    summary_stats.to_csv(output_path / "DL_summary_stats.csv")
-    out_files.append('DL_summary_stats.csv')
-
-    # create json outputs if needed
-    if get(config, 'DL/Outputs/Format/JSON') is True:
-        for filename in out_files:
-            filename_json = filename[:-3] + 'json'
-
-            if (
-                get(config, 'DL/Outputs/Settings/SimpleIndexInJSON', default=False)
-                is True
-            ):
-                df = pd.read_csv(output_path / filename, index_col=0)
-            else:
-                df = convert_to_MultiIndex(
-                    pd.read_csv(output_path / filename, index_col=0), axis=1
-                )
-
-            if "Units" in df.index:
-                df_units = convert_to_SimpleIndex(
-                    df.loc['Units', :].to_frame().T, axis=1
-                )
-
-                df.drop("Units", axis=0, inplace=True)
-
-                out_dict = convert_df_to_dict(df)
-
-                out_dict.update(
-                    {
-                        "Units": {
-                            col: df_units.loc["Units", col]
-                            for col in df_units.columns
-                        }
-                    }
-                )
-
-            else:
-                out_dict = convert_df_to_dict(df)
-
-            with open(output_path / filename_json, 'w', encoding='utf-8') as f:
-                json.dump(out_dict, f, indent=2)
-
-    # remove csv outputs if they were not requested
-    if get(config, 'DL/Outputs/Format/CSV', default=False) is False:
-        for filename in out_files:
-            # keep the DL_summary and DL_summary_stats files
-            if 'DL_summary' in filename:
-                continue
-            os.remove(output_path / filename)
+    return summary, summary_stats
 
 
 def _demand(config, config_path, length_unit, PAL, sample_size):
