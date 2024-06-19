@@ -764,7 +764,7 @@ def run_pelicun(
     # set the number of stories
     cmp_marginals = _asset(config, PAL, demand_sample, cpref, csuff)
 
-    # if requested, save results
+    # if requested, save asset model results
     if get(config, 'DL/Outputs/Asset', default=False):
         _asset_save(PAL, config, output_path, out_files)
 
@@ -777,7 +777,7 @@ def run_pelicun(
 
             _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit)
 
-            # if requested, save results
+            # if requested, save damage results
             if not is_unspecified(config, 'DL/Outputs/Damage'):
                 damage_sample = _damage_save(PAL, config, output_path, out_files)
             else:
@@ -1609,8 +1609,7 @@ def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
     # if requested, calculate repair consequences
     if get(config, 'DL/Losses/Repair', default=False):
 
-        # load the fragility information
-        conseq_df, consequence_db = _load_fragility_info(
+        conseq_df, consequence_db = _load_consequence_info(
             config, PAL, custom_dl_file_path
         )
 
@@ -1688,7 +1687,7 @@ def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
     return None
 
 
-def _load_fragility_info(config, PAL, custom_dl_file_path):
+def _load_consequence_info(config, PAL, custom_dl_file_path):
     if get(config, 'DL/Losses/Repair/ConsequenceDatabase') in default_DBs['repair']:
         consequence_db = [
             'PelicunDefault/'

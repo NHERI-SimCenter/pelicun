@@ -425,20 +425,20 @@ class LossModel(PelicunModel):
 
     def consequence_scaling(self, scaling_specification: str) -> None:
         """
-        Applies scaling factors to the loss sample according to the
+        Applies scale factors to the loss sample according to the
         given scaling specification.
 
         The scaling specification should be a path to a CSV file. It
         should contain a `Decision Variable` column with a specified
         decision variable in each row. Other optional columns are
         `Component`, `Location`, `Direction`. Each row acts as an
-        independent scaling operation, with the scaling factor defined
-        in the `Scaling Factor` column, which is required. If any
+        independent scaling operation, with the scale factor defined
+        in the `Scale Factor` column, which is required. If any
         value is missing in the optional columns, it is assumed that
-        the scaling factor should be applied to all entries of the
+        the scale factor should be applied to all entries of the
         loss sample where the other column values match. For example,
         if the specification has a single row with `Decision Variable`
-        set to 'Cost', `Scaling Factor` set to 2.0, and no other
+        set to 'Cost', `Scale Factor` set to 2.0, and no other
         columns, this will double the 'Cost' DV. If instead `Location`
         was also set to `1`, it would double the Cost of all
         components that have that location. The columns `Location` and
@@ -465,7 +465,7 @@ class LossModel(PelicunModel):
             'Component': 'str',
             'Location': 'str',
             'Direction': 'str',
-            'Scaling Factor': 'float64',
+            'Scale Factor': 'float64',
         }
 
         scaling_specification_df = pd.read_csv(scaling_specification, dtype=dtypes)
@@ -479,11 +479,11 @@ class LossModel(PelicunModel):
                 'from the scaling specification or contains NaN values.'
             )
         if (
-            'Scaling Factor' not in scaling_specification_df.columns
-            or scaling_specification_df['Scaling Factor'].isna().any()
+            'Scale Factor' not in scaling_specification_df.columns
+            or scaling_specification_df['Scale Factor'].isna().any()
         ):
             raise ValueError(
-                'The `Scaling Factor` column is missing '
+                'The `Scale Factor` column is missing '
                 'from the scaling specification or contains NaN values.'
             )
 
@@ -499,7 +499,7 @@ class LossModel(PelicunModel):
             'Component': 'dmg',
             'Location': 'loc',
             'Direction': 'dir',
-            'Scaling Factor': 'scaling',
+            'Scale Factor': 'scaling',
         }
         scaling_specification_df.rename(columns=name_map, inplace=True)
 
@@ -536,11 +536,11 @@ class LossModel(PelicunModel):
     def _apply_consequence_scaling(
         self,
         scaling_conditions: dict,
-        scaling_factor: float,
+        scale_factor: float,
         raise_missing: bool = True,
     ) -> None:
         """
-        Applies a scaling factor to selected columns of the loss
+        Applies a scale factor to selected columns of the loss
         samples.
 
         The scaling conditions are passed as a dictionary mapping
@@ -565,8 +565,8 @@ class LossModel(PelicunModel):
             affected. The dictionary can be empty, in which case all rows
             will be affected, or contain only some levels and values, in
             which case only the matching rows will be affected.
-        scaling_factor: float
-            Scaling factor to use.
+        scale_factor: float
+            Scale factor to use.
 
         Raises
         ------
@@ -599,11 +599,11 @@ class LossModel(PelicunModel):
                         f'`scaling_conditions` contains an unknown level: `{name}`.'
                     )
 
-            # apply scaling factors
+            # apply scale factors
             base.multiply_factor_multiple_levels(
                 model.sample,
                 scaling_conditions,
-                scaling_factor,
+                scale_factor,
                 axis=1,
                 raise_missing=raise_missing,
             )
@@ -1646,8 +1646,8 @@ class RepairModel_DS(RepairModel_Base):
 
     def _calculate(self, dmg_quantities: pd.DataFrame) -> None:
         """
-        Calculate the consequences of each damage state-driven
-        component block damage in the asset.
+        Calculate the damage consequences of each damage state-driven
+        performance group in the asset.
 
         Parameters
         ----------

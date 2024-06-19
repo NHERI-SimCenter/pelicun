@@ -116,10 +116,10 @@ class PelicunModel:
             corresponding to the primary parameters, and False
             otherwise.
         inverse_conversion: bool
-            If True, converts from user-defined units to internal. If
-            False, converts from internal units to
-            user-defined. Defaults to False, since the method is
-            mostly applied on user-defined data.
+            If False, converts from user-defined units to internal. If
+            True, converts from internal units to user-defined.
+            Defaults to False, since the method is mostly applied on
+            user-defined data.
 
         Returns
         -------
