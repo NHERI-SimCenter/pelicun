@@ -354,10 +354,12 @@ class DemandModel(PelicunModel):
         ensures that the RID values do not exceed the corresponding
         PID values.
         """
-        if method == 'FEMA P58':
-            # method is described in FEMA P-58 Volume 1 Section 5.4 & Appendix C
+        if method in {'FEMA P58', 'FEMA P-58'}:
+            # method is described in FEMA P-58 Volume 1 Section 5.4 &
+            # Appendix C
 
-            # the provided demands shall be PID values at various loc-dir pairs
+            # the provided demands shall be PID values at various
+            # loc-dir pairs
             PID = demands
 
             # there's only one parameter needed: the yield drift
@@ -379,14 +381,13 @@ class DemandModel(PelicunModel):
             eps = rng.normal(scale=0.2, size=RID.shape)
             RID[RID > 0] = np.exp(np.log(RID[RID > 0]) + eps)
 
-            # finally, make sure the RID values are never larger than the PIDs
+            # finally, make sure the RID values are never larger than
+            # the PIDs
             RID = pd.DataFrame(
                 np.minimum(PID.values, RID.values),
                 columns=pd.DataFrame(
                     1,
-                    index=[
-                        'RID',
-                    ],
+                    index=['RID'],
                     columns=PID.columns,
                 )
                 .stack(level=[0, 1])
