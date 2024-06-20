@@ -645,7 +645,9 @@ class LossModel(PelicunModel):
 
     def aggregate_losses(
         self,
-        replacement_thresholds: dict | None = None,
+        replacement_configuration: (
+            tuple[uq.RandomVariableRegistry, dict[str, float]] | None
+        ) = None,
         loss_combination: dict | None = None,
         future: bool = False,
     ) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
@@ -654,24 +656,27 @@ class LossModel(PelicunModel):
 
         Parameters
         ----------
-        replacement_thresholds: dict, optional
-            Dictionary defining a building replacement threshold for
-            any desired decision variable. If the aggregated value for
-            the decision variable conditioned on no replacement
-            exceeds the threshold, then replacement is triggered. This
-            can happen for multuple decision variables at the same
+        replacement_configuration: Tuple, optional
+            Tuple containing a RandomVariableRegistry and a
+            dictionary. The RandomVariableRegistry is defining
+            building replacement consequence RVs for the active
+            decision variables. The dictionary defines exceedance
+            thresholds. If the aggregated value for a decision
+            variable (conditioned on no replacement) exceeds the
+            threshold, then replacement is triggered. This can happen
+            for multuple decision variables at the same
             realization. The consequence keyword `replacement` is
             reserved to represent exclusive triggering of the
             replacement consequences, and other consequences are
             ignored for those realizations where replacement is
-            triggered. If the dictionary is empty, then `replacement`
-            is still treated as an exclusive consequence (other
+            triggered. When assigned to None, then `replacement` is
+            still treated as an exclusive consequence (other
             consequences are set to zero when replacement is nonzero)
             but it is not being additinally triggered by the
-            exceedance of any thresholds. If not None, then the
-            aggregated loss sample conains an additional column with
-            information on whether replacement was already present or
-            triggered by a threshold exceedance for each realization.
+            exceedance of any thresholds. The aggregated loss sample
+            conains an additional column with information on whether
+            replacement was already present or triggered by a
+            threshold exceedance for each realization.
         loss_combination: dict, optional
             Dictionary defining how losses for specific components
             should be aggregated for a given decision variable. It has
@@ -722,8 +727,8 @@ class LossModel(PelicunModel):
         # the documentation.
 
         # validate input
-        if replacement_thresholds is not None:
-            self._validate_input_replacement_thresholds(replacement_thresholds)
+        if replacement_configuration is not None:
+            self._validate_input_replacement_thresholds(replacement_configuration)
         # validate loss_combination input
         if loss_combination is not None:
             self._validate_input_loss_combination(loss_combination)
@@ -777,6 +782,7 @@ class LossModel(PelicunModel):
             if sample is not None
         ]
         sample = pd.concat(samples, axis=1)
+        sample = sample.sort_index(axis=1)
 
         #
         # perform loss combinations (special non-additive
@@ -790,17 +796,8 @@ class LossModel(PelicunModel):
         # consider replacement threshold values
         #
 
-        # extract replacement loss realization values from the RV
-        # registry of the `ds_model`.
-        replacement_loss_values = {}
-        if replacement_thresholds is not None:
-            for dv in replacement_thresholds:
-                replacement_loss_values[dv] = self.ds_model.RV_reg.RV[
-                    f'{dv}-replacement-0-0-0-0'
-                ]
-
         sample, exceedance_bool_df = self._apply_replacement_thresholds(
-            sample, replacement_thresholds, replacement_loss_values
+            sample, replacement_configuration
         )
 
         # Sum-up component losses
@@ -850,20 +847,44 @@ class LossModel(PelicunModel):
                     )
 
     def _validate_input_replacement_thresholds(
-        self, replacement_thresholds: dict
+        self,
+        replacement_configuration: tuple[
+            uq.RandomVariableRegistry, dict[str, float]
+        ],
     ) -> None:
-        for key, _value in replacement_thresholds.items():
+        replacement_consequence_RV_reg, replacement_ratios = (
+            replacement_configuration
+        )
+        if not isinstance(replacement_consequence_RV_reg, uq.RandomVariableRegistry):
+            raise TypeError(
+                f'Invalid type for replacement consequence RV registry: '
+                f'{type(replacement_consequence_RV_reg)}. It should be '
+                f'uq.RandomVariableRegistry.'
+            )
+        for key in replacement_consequence_RV_reg.RV:
             if key not in self.decision_variables:
                 raise ValueError(
-                    f'`replacement_thresholds` contains the key '
+                    f'`replacement_consequence_RV_reg` contains the key '
                     f'`{key}` which is not found in the active '
                     f'decision variables. These are: '
                     f'{self.decision_variables}.'
                 )
-            if not isinstance(_value, (float, int)):
+        for key in replacement_ratios:
+            if key not in self.decision_variables:
                 raise ValueError(
-                    f'Invalid type for replacement threshold of '
-                    f'`{key}`: {type(_value)}. It should be a float.'
+                    f'`replacement_ratios` contains the key '
+                    f'`{key}` which is not found in the active '
+                    f'decision variables. These are: '
+                    f'{self.decision_variables}.'
+                )
+        # The replacement_consequence_RV_reg should contain an RV for
+        # all active DVs, regardless of whether there is a replacement
+        # threshold for that DV, becauase when replacememnt is
+        # triggered, we need to assign a consequence for all DVs.
+        for key in self.decision_variables:
+            if key not in replacement_consequence_RV_reg.RV:
+                raise ValueError(
+                    f'Missing replacement consequence RV ' f'for `{key}`.'
                 )
 
     def _apply_loss_combinations(
@@ -1180,6 +1201,16 @@ class LossModel(PelicunModel):
                 .agg(lambda x: x.value_counts().index[0])
                 .to_dict()
             )
+        # If the samples have been loaded to the loss model without
+        # loading loss parameter data, there will be no units here.
+        # In this case we assume default units.
+        if not cmp_units:
+            cmp_units = {
+                'Cost': 'USD_2011',
+                'Time': 'worker_day',
+                'Carbon': 'kg',
+                'Energy': 'MJ',
+            }
 
         # Convert units ..
         column_measures = [
@@ -1210,72 +1241,101 @@ class LossModel(PelicunModel):
     def _apply_replacement_thresholds(
         self,
         sample: pd.DataFrame,
-        replacement_thresholds: dict,
-        replacement_loss_values: dict,
+        replacement_configuration: (
+            tuple[uq.RandomVariableRegistry, dict[str, float]] | None
+        ),
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
-        # If there are no `replacement_thresholds`, simply return.
-        if replacement_thresholds is None or not replacement_thresholds:
+        # If there is no `replacement_configuration`, simply return.
+        if replacement_configuration is None:
             # `exceedance_bool_df` is empty in this case.
             exceedance_bool_df = pd.DataFrame(index=sample.index, dtype=bool)
             return sample, exceedance_bool_df
 
-        # otherwise we initialize it with False
+        replacement_consequence_RV_reg, replacement_ratios = (
+            replacement_configuration
+        )
         exceedance_bool_df = pd.DataFrame(
             False,
             index=sample.index,
-            columns=replacement_thresholds.keys(),
+            columns=replacement_consequence_RV_reg.RV.keys(),
             dtype=bool,
         )
 
-        # If there is no `replacement` in the sample, simply return.
-        if 'replacement' not in sample.columns.get_level_values('loss'):
-            return sample, exceedance_bool_df
+        # Sample replacement consequences from the registry
+        replacement_consequence_RV_reg.generate_sample(len(sample), 'MonteCarlo')
 
-        replacement_realizations = {}
+        sample_dvs = replacement_consequence_RV_reg.RV.keys()
+        for sample_dv in sample_dvs:
+            sub_sample = sample.loc[:, sample_dv]
+            if 'replacement' in sub_sample.columns.get_level_values('loss'):
+                # If `replacement` already exists as a consequence,
+                # determine the realizations where it is non-zero.
+                no_replacement_mask = (
+                    ~(sub_sample['replacement'] > 0.00).any(axis=1).values
+                )
+                no_replacement_columns = (
+                    sub_sample.columns.get_level_values('loss') != 'replacement'
+                )
+            else:
+                # Otherwise there is no row where we already have replacement
+                no_replacement_mask = np.full(len(sub_sample), True)
+                no_replacement_columns = np.full(len(sub_sample.columns), True)
+            # Get the sum to compare with the thresholds
+            consequence_sum_given_no_replacement = sub_sample.iloc[
+                no_replacement_mask, no_replacement_columns
+            ].sum(axis=1)
+            if not consequence_sum_given_no_replacement.empty:
+                consequence_values = replacement_consequence_RV_reg.RV[
+                    sample_dv
+                ].sample
+                exceedance_mask = (
+                    consequence_sum_given_no_replacement
+                    > consequence_values[no_replacement_mask]
+                    * replacement_ratios[sample_dv]
+                )
+                # Fill the remaining rows with False
+                if len(exceedance_mask) < len(sub_sample):
+                    exceedance_mask = exceedance_mask.reindex(
+                        sub_sample.index, fill_value=False
+                    )
+            else:
+                exceedance_mask = pd.Series(
+                    np.full(len(sub_sample), False), index=sub_sample.index
+                )
 
-        sample.index.name = 'realizations'
-        sample_dv = sample.stack('dv')
-        sample_dv.index = sample_dv.index.reorder_levels(['dv', 'realizations'])
-        sample_dv.sort_index(inplace=True)
-        # condition on no replacement
-        no_replacement_mask = ~(sample_dv['replacement'] > 0.00).any(axis=1).values
-        no_replacement_columns = (
-            sample_dv.columns.get_level_values('loss') != 'replacement'
-        )
-        consequence_sum_given_no_replacement = sample_dv.iloc[
-            no_replacement_mask, no_replacement_columns
-        ].sum(axis=1)
+            # Monitor triggering of replacement
+            exceedance_bool_df[sample_dv] = exceedance_mask
 
-        for dv, _value in replacement_thresholds.items():
-            exceedance_mask = consequence_sum_given_no_replacement[dv] > _value
-            exceedance_realizations = exceedance_mask[exceedance_mask].index
-            replacement_realizations[dv] = exceedance_realizations
-            if len(exceedance_realizations) == 0:
-                continue
-            for d2 in self.decision_variables:
-                sample.loc[exceedance_realizations, (d2)] = 0.00
-                if (
-                    d2,
-                    'replacement',
-                    'threshold_exceedance',
-                    '0',
-                    '1',
-                    '0',
-                ) not in sample.columns:
-                    sample[
-                        (d2, 'replacement', 'threshold_exceedance', '0', '1', '0')
-                    ] = 0.00
-                    sample = sample.sort_index(axis=1)
+        # Assign replacement consequences where the threshold has been
+        # exceeded.
+        exceedance_realizations = exceedance_bool_df.any(axis=1)
+        # Assign replacement consequences: needs to include all DVs
+        for other_dv in replacement_consequence_RV_reg.RV.keys():
+            col = (
+                other_dv,
+                'replacement',
+                'threshold_exceedance',
+                '0',
+                '1',
+                '0',
+            )
+            # If it doesn't exist, initialize and set to 0.00
+            if col not in sample:
+                sample[col] = 0.00
+                sample = sample.sort_index(axis=1)
+            # Assign replacement consequences
+            sample.loc[exceedance_realizations, col] = (
+                replacement_consequence_RV_reg.RV[other_dv].sample[
+                    exceedance_realizations
+                ]
+            )
+        # Remove all other realized consequences
+        sample.loc[
+            exceedance_realizations,
+            sample.columns.get_level_values('dmg') != 'threshold_exceedance',
+        ] = 0.00
 
-                replacement_loss_value = replacement_loss_values[dv]
-                sample.loc[
-                    exceedance_realizations,
-                    (d2, 'replacement', 'threshold_exceedance', '0', '1', '0'),
-                ] = replacement_loss_value.sample[exceedance_realizations]
-
-        for dv, realizations in replacement_realizations.items():
-            exceedance_bool_df.loc[realizations, dv] = True
         return sample, exceedance_bool_df
 
     def _make_replacement_exclusive(
@@ -2018,45 +2078,6 @@ class RepairModel_DS(RepairModel_Base):
                         )
                         rv_count += 1
 
-        # add `replacement` consequences if applicable, to sample from
-        # in case of the exceedance of a loss threshold in
-        # `aggregate_losses`.
-
-        if 'replacement' in self.loss_params.index:
-            for decision_variable in self.decision_variables:
-                if ('replacement', decision_variable) in self._missing:
-                    continue
-                parameters = (
-                    self.loss_params.loc[('replacement', decision_variable), :]
-                    .dropna()
-                    .to_dict()
-                )
-                ds_family = parameters.get(('DS1', 'Family'), 'deterministic')
-                ds_theta_0 = parameters.get(('DS1', 'Theta_0'), None)
-                if ds_theta_0 is None:
-                    raise ValueError(
-                        'The replacement consequence requires a `Theta_0` value.'
-                    )
-                ds_theta_1 = parameters.get(('DS1', 'Theta_1'), np.nan)
-                ds_theta_2 = parameters.get(('DS1', 'Theta_2'), np.nan)
-                if ds_family == 'normal':
-                    RV_reg.add_RV(
-                        uq.rv_class_map(ds_family)(
-                            name=(f'{decision_variable}-replacement-0-0-0-0'),
-                            theta=np.array((ds_theta_0, ds_theta_1, ds_theta_2)),
-                            truncation_limits=np.array((0.00, np.nan)),
-                        )
-                    )
-                    rv_count += 1
-                else:
-                    RV_reg.add_RV(
-                        uq.rv_class_map(ds_family)(
-                            name=(f'{decision_variable}-replacement-0-0-0-0'),
-                            theta=np.array((ds_theta_0, ds_theta_1, ds_theta_2)),
-                        )
-                    )
-                    rv_count += 1
-
         # assign Time-Cost correlation whenever applicable
         rho = self._asmnt.options.rho_cost_time
         if rho != 0.0:
@@ -2640,6 +2661,7 @@ def _prep_constant_median_DV(median: float) -> callable:
     callable
         A function that returns the constant median DV for all component
         quantities.
+
     """
 
     def f(*args):
