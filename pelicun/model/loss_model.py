@@ -427,7 +427,9 @@ class RepairModel(LossModel):
             # currently, we only support DMG-based loss calculations
             # but this will be extended in the very near future
             if driver_type != 'DMG':
-                raise ValueError(f"Loss Driver type not recognized: " f"{driver_type}")
+                raise ValueError(
+                    f"Loss Driver type not recognized: " f"{driver_type}"
+                )
 
             # load the parameters
             # TODO: remove specific DV_type references and make the code below
@@ -464,7 +466,8 @@ class RepairModel(LossModel):
 
                     cost_family = cost_params_DS.get('Family', np.nan)
                     cost_theta = [
-                        cost_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
+                        cost_params_DS.get(f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -482,7 +485,8 @@ class RepairModel(LossModel):
 
                     time_family = time_params_DS.get('Family', np.nan)
                     time_theta = [
-                        time_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
+                        time_params_DS.get(f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -500,7 +504,8 @@ class RepairModel(LossModel):
 
                     carbon_family = carbon_params_DS.get('Family', np.nan)
                     carbon_theta = [
-                        carbon_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
+                        carbon_params_DS.get(f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -518,7 +523,8 @@ class RepairModel(LossModel):
 
                     energy_family = energy_params_DS.get('Family', np.nan)
                     energy_theta = [
-                        energy_params_DS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
+                        energy_params_DS.get(f"Theta_{t_i}", np.nan)
+                        for t_i in range(3)
                     ]
 
                     # If the first parameter is controlled by a function, we use
@@ -547,7 +553,9 @@ class RepairModel(LossModel):
                 for loc, direction, uid in loc_dir_uid:
                     # assign cost RV
                     if pd.isna(cost_family) is False:
-                        cost_rv_tag = f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        cost_rv_tag = (
+                            f'Cost-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        )
 
                         RV_reg.add_RV(
                             uq.rv_class_map(cost_family)(
@@ -560,7 +568,9 @@ class RepairModel(LossModel):
 
                     # assign time RV
                     if pd.isna(time_family) is False:
-                        time_rv_tag = f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        time_rv_tag = (
+                            f'Time-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}'
+                        )
 
                         RV_reg.add_RV(
                             uq.rv_class_map(time_family)(
@@ -614,12 +624,16 @@ class RepairModel(LossModel):
                         RV_reg.add_RV_set(
                             uq.RandomVariableSet(
                                 f'DV-{loss_cmp_id}-{ds}-{loc}-{direction}-{uid}_set',
-                                list(RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()),
+                                list(
+                                    RV_reg.RVs([cost_rv_tag, time_rv_tag]).values()
+                                ),
                                 np.array([[1.0, rho], [rho, 1.0]]),
                             )
                         )
 
-        self.log_msg(f"\n{rv_count} random variables created.", prepend_timestamp=False)
+        self.log_msg(
+            f"\n{rv_count} random variables created.", prepend_timestamp=False
+        )
 
         if rv_count > 0:
             return RV_reg
@@ -703,7 +717,9 @@ class RepairModel(LossModel):
                     if ds_id == '0':
                         continue
 
-                    loss_params_DS = self.loss_params.loc[(loss_cmp_name, DV_type), ds]
+                    loss_params_DS = self.loss_params.loc[
+                        (loss_cmp_name, DV_type), ds
+                    ]
 
                     # check if theta_0 is defined
                     theta_0 = loss_params_DS.get('Theta_0', np.nan)
@@ -920,7 +936,9 @@ class RepairModel(LossModel):
         res_list = []
         key_list = []
 
-        dmg_quantities.columns = dmg_quantities.columns.reorder_levels([0, 4, 1, 2, 3])
+        dmg_quantities.columns = dmg_quantities.columns.reorder_levels(
+            [0, 4, 1, 2, 3]
+        )
         dmg_quantities.sort_index(axis=1, inplace=True)
 
         DV_types = self.loss_params.index.unique(level=1)
@@ -961,11 +979,13 @@ class RepairModel(LossModel):
                     loc_list = []
 
                     for loc_id, loc in enumerate(
-                        dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.unique(level=0)
+                        dmg_quantities.loc[:, (dmg_cmp_i, ds)].columns.unique(
+                            level=0
+                        )
                     ):
-                        if (self._asmnt.options.eco_scale["AcrossFloors"] is True) and (
-                            loc_id > 0
-                        ):
+                        if (
+                            self._asmnt.options.eco_scale["AcrossFloors"] is True
+                        ) and (loc_id > 0):
                             break
 
                         if self._asmnt.options.eco_scale["AcrossFloors"] is True:

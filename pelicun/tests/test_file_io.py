@@ -170,7 +170,9 @@ def test_load_data():
     assert isinstance(data.columns, pd.core.indexes.multi.MultiIndex)
     assert data.columns.nlevels == 4
 
-    _, units = file_io.load_data(filepath, unit_conversion_factors, return_units=True)
+    _, units = file_io.load_data(
+        filepath, unit_conversion_factors, return_units=True
+    )
 
     for item in unit_conversion_factors:
         assert item in units.unique()

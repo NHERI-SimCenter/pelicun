@@ -413,7 +413,9 @@ def create_FEMA_P58_fragility_db(
                         ls_meta.update(
                             {
                                 f"DS{ds_id}": {
-                                    "Description": cmp_meta[f"DS_{ds_id}_Description"],
+                                    "Description": cmp_meta[
+                                        f"DS_{ds_id}_Description"
+                                    ],
                                     "RepairAction": repair_action,
                                 }
                             }
@@ -1003,9 +1005,9 @@ def create_FEMA_P58_repair_db(
                     f"{cost_qnt_low:g},{cost_qnt_up:g}"
                 )
 
-                df_db.loc[
-                    (cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'
-                ] = f"{cost_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'] = (
+                    f"{cost_theta[1]:g}"
+                )
 
                 df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = family_hat
 
@@ -1014,33 +1016,37 @@ def create_FEMA_P58_repair_db(
                     f"{time_qnt_low:g},{time_qnt_up:g}"
                 )
 
-                df_db.loc[
-                    (cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'
-                ] = f"{time_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'] = (
+                    f"{time_theta[1]:g}"
+                )
 
                 df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = int(
                     time_vals[5] > 0
                 )
 
-                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = family_hat_carbon
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = (
+                    family_hat_carbon
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'
-                ] = f"{carbon_theta[0]:g}"
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'] = (
+                    f"{carbon_theta[0]:g}"
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_1'
-                ] = f"{carbon_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_1'] = (
+                    f"{carbon_theta[1]:g}"
+                )
 
-                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Family'] = family_hat_energy
+                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Family'] = (
+                    family_hat_energy
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Energy'), f'DS{DS_i}-Theta_0'
-                ] = f"{energy_theta[0]:g}"
+                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Theta_0'] = (
+                    f"{energy_theta[0]:g}"
+                )
 
-                df_db.loc[
-                    (cmp.Index, 'Energy'), f'DS{DS_i}-Theta_1'
-                ] = f"{energy_theta[1]:g}"
+                df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Theta_1'] = (
+                    f"{energy_theta[1]:g}"
+                )
 
                 if ds_map.count('1') == 1:
                     ds_pure_id = ds_map[::-1].find('1') + 1
@@ -1067,7 +1073,8 @@ def create_FEMA_P58_repair_db(
                     meta_data['DamageStates'].update(
                         {
                             f"DS{DS_i}": {
-                                "Description": 'Combination of ' + ' & '.join(ds_combo),
+                                "Description": 'Combination of '
+                                + ' & '.join(ds_combo),
                                 "RepairAction": 'Combination of pure DS repair '
                                 'actions.',
                             }
@@ -1080,9 +1087,9 @@ def create_FEMA_P58_repair_db(
             for DS_i in range(1, 6):
                 # cost
                 if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}')):
-                    df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = convert_family[
-                        getattr(cmp, f'Best_Fit_DS{DS_i}')
-                    ]
+                    df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}')]
+                    )
 
                     if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')):
                         theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}')
@@ -1091,7 +1098,9 @@ def create_FEMA_P58_repair_db(
                         qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}')
 
                         if theta_0_low == 0.0 and theta_0_up == 0.0:
-                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = np.nan
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Family'] = (
+                                np.nan
+                            )
 
                         else:
                             df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_0'] = (
@@ -1099,9 +1108,9 @@ def create_FEMA_P58_repair_db(
                                 f"{qnt_low:g},{qnt_up:g}"
                             )
 
-                            df_db.loc[
-                                (cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'
-                            ] = f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}'):g}"
+                            df_db.loc[(cmp.Index, 'Cost'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}'):g}"
+                            )
 
                     else:
                         incomplete_cost = True
@@ -1121,9 +1130,9 @@ def create_FEMA_P58_repair_db(
 
                 # time
                 if not pd.isna(getattr(cmp, f'Best_Fit_DS{DS_i}_1')):
-                    df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = convert_family[
-                        getattr(cmp, f'Best_Fit_DS{DS_i}_1')
-                    ]
+                    df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'Best_Fit_DS{DS_i}_1')]
+                    )
 
                     if not pd.isna(getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')):
                         theta_0_low = getattr(cmp, f'Lower_Qty_Mean_DS{DS_i}_1')
@@ -1132,7 +1141,9 @@ def create_FEMA_P58_repair_db(
                         qnt_up = getattr(cmp, f'Upper_Qty_Cutoff_DS{DS_i}_1')
 
                         if theta_0_low == 0.0 and theta_0_up == 0.0:
-                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = np.nan
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Family'] = (
+                                np.nan
+                            )
 
                         else:
                             df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_0'] = (
@@ -1140,12 +1151,12 @@ def create_FEMA_P58_repair_db(
                                 f"{qnt_low:g},{qnt_up:g}"
                             )
 
-                            df_db.loc[
-                                (cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'
-                            ] = f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}_2'):g}"
+                            df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-Theta_1'] = (
+                                f"{getattr(cmp, f'CV__Dispersion_DS{DS_i}_2'):g}"
+                            )
 
-                        df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = int(
-                            getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES'
+                        df_db.loc[(cmp.Index, 'Time'), f'DS{DS_i}-LongLeadTime'] = (
+                            int(getattr(cmp, f'DS_{DS_i}_Long_Lead_Time') == 'YES')
                         )
 
                     else:
@@ -1153,9 +1164,9 @@ def create_FEMA_P58_repair_db(
 
                 # Carbon
                 if not pd.isna(getattr(cmp, f'DS{DS_i}_Best_Fit')):
-                    df_db.loc[
-                        (cmp.Index, 'Carbon'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit')]
+                    df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit')]
+                    )
 
                     df_db.loc[(cmp.Index, 'Carbon'), f'DS{DS_i}-Theta_0'] = getattr(
                         cmp, f'DS{DS_i}_Embodied_Carbon_kg_CO2eq'
@@ -1167,9 +1178,9 @@ def create_FEMA_P58_repair_db(
 
                 # Energy
                 if not pd.isna(getattr(cmp, f'DS{DS_i}_Best_Fit_1')):
-                    df_db.loc[
-                        (cmp.Index, 'Energy'), f'DS{DS_i}-Family'
-                    ] = convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit_1')]
+                    df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Family'] = (
+                        convert_family[getattr(cmp, f'DS{DS_i}_Best_Fit_1')]
+                    )
 
                     df_db.loc[(cmp.Index, 'Energy'), f'DS{DS_i}-Theta_0'] = getattr(
                         cmp, f'DS{DS_i}_Embodied_Energy_MJ'
@@ -1279,9 +1290,13 @@ def create_Hazus_EQ_fragility_db(
         frag_meta = {}
 
     # prepare lists of labels for various building features
-    design_levels = list(raw_data['Structural_Fragility_Groups']['EDP_limits'].keys())
+    design_levels = list(
+        raw_data['Structural_Fragility_Groups']['EDP_limits'].keys()
+    )
 
-    building_types = list(raw_data['Structural_Fragility_Groups']['P_collapse'].keys())
+    building_types = list(
+        raw_data['Structural_Fragility_Groups']['P_collapse'].keys()
+    )
 
     convert_design_level = {
         'High_code': 'HC',
@@ -1383,7 +1398,9 @@ def create_Hazus_EQ_fragility_db(
                         "Description": (
                             frag_meta['Meta']['Collections']['STR']['Description']
                             + ", "
-                            + frag_meta['Meta']['StructuralSystems'][st]['Description']
+                            + frag_meta['Meta']['StructuralSystems'][st][
+                                'Description'
+                            ]
                             + ", "
                             + frag_meta['Meta']['HeightClasses'][hc]['Description']
                             + ", "
@@ -1411,7 +1428,9 @@ def create_Hazus_EQ_fragility_db(
                         "Description": (
                             frag_meta['Meta']['Collections']['STR']['Description']
                             + ", "
-                            + frag_meta['Meta']['StructuralSystems'][st]['Description']
+                            + frag_meta['Meta']['StructuralSystems'][st][
+                                'Description'
+                            ]
                             + ", "
                             + frag_meta['Meta']['DesignLevels'][
                                 convert_design_level[dl]
@@ -1435,18 +1454,18 @@ def create_Hazus_EQ_fragility_db(
                 ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
                 for LS_i in range(1, 5):
                     df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
-                    df_db.loc[counter, f'LS{LS_i}-Theta_0'] = S_data['EDP_limits'][dl][
-                        bt
-                    ][LS_i - 1]
-                    df_db.loc[counter, f'LS{LS_i}-Theta_1'] = S_data['Fragility_beta'][
+                    df_db.loc[counter, f'LS{LS_i}-Theta_0'] = S_data['EDP_limits'][
                         dl
-                    ]
+                    ][bt][LS_i - 1]
+                    df_db.loc[counter, f'LS{LS_i}-Theta_1'] = S_data[
+                        'Fragility_beta'
+                    ][dl]
 
                     if LS_i == 4:
                         p_coll = S_data['P_collapse'][bt]
-                        df_db.loc[
-                            counter, f'LS{LS_i}-DamageStateWeights'
-                        ] = f'{1.0 - p_coll} | {p_coll}'
+                        df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
+                            f'{1.0 - p_coll} | {p_coll}'
+                        )
 
                         cmp_meta["LimitStates"].update(
                             {
@@ -1461,7 +1480,9 @@ def create_Hazus_EQ_fragility_db(
                         cmp_meta["LimitStates"].update(
                             {
                                 f"LS{LS_i}": {
-                                    f"DS{LS_i}": {"Description": ds_meta[f"DS{LS_i}"]}
+                                    f"DS{LS_i}": {
+                                        "Description": ds_meta[f"DS{LS_i}"]
+                                    }
                                 }
                             }
                         )
@@ -1537,7 +1558,9 @@ def create_Hazus_EQ_fragility_db(
             "Comments": (
                 frag_meta['Meta']['Collections']['NSA']['Comment']
                 + "\n"
-                + frag_meta['Meta']['DesignLevels'][convert_design_level[dl]]['Comment']
+                + frag_meta['Meta']['DesignLevels'][convert_design_level[dl]][
+                    'Comment'
+                ]
             ),
             "SuggestedComponentBlockSize": "1 EA",
             "RoundUpToIntegerQuantity": "True",
@@ -1599,7 +1622,9 @@ def create_Hazus_EQ_fragility_db(
                                     'Description'
                                 ]
                                 + ", "
-                                + frag_meta['Meta']['HeightClasses'][hc]['Description']
+                                + frag_meta['Meta']['HeightClasses'][hc][
+                                    'Description'
+                                ]
                                 + ", "
                                 + frag_meta['Meta']['DesignLevels'][
                                     convert_design_level[dl]
@@ -1608,7 +1633,9 @@ def create_Hazus_EQ_fragility_db(
                             "Comments": (
                                 frag_meta['Meta']['Collections']['LF']['Comment']
                                 + "\n"
-                                + frag_meta['Meta']['StructuralSystems'][st]['Comment']
+                                + frag_meta['Meta']['StructuralSystems'][st][
+                                    'Comment'
+                                ]
                                 + "\n"
                                 + frag_meta['Meta']['HeightClasses'][hc]['Comment']
                                 + "\n"
@@ -1636,7 +1663,9 @@ def create_Hazus_EQ_fragility_db(
                             "Comments": (
                                 frag_meta['Meta']['Collections']['LF']['Comment']
                                 + "\n"
-                                + frag_meta['Meta']['StructuralSystems'][st]['Comment']
+                                + frag_meta['Meta']['StructuralSystems'][st][
+                                    'Comment'
+                                ]
                                 + "\n"
                                 + frag_meta['Meta']['DesignLevels'][
                                     convert_design_level[dl]
@@ -1648,21 +1677,23 @@ def create_Hazus_EQ_fragility_db(
                         }
 
                     # store the Limit State parameters
-                    ds_meta = frag_meta['Meta']['StructuralSystems'][st]['DamageStates']
+                    ds_meta = frag_meta['Meta']['StructuralSystems'][st][
+                        'DamageStates'
+                    ]
                     for LS_i in range(1, 5):
                         df_db.loc[counter, f'LS{LS_i}-Family'] = 'lognormal'
-                        df_db.loc[counter, f'LS{LS_i}-Theta_0'] = LF_data['EDP_limits'][
-                            dl
-                        ][bt][LS_i - 1]
+                        df_db.loc[counter, f'LS{LS_i}-Theta_0'] = LF_data[
+                            'EDP_limits'
+                        ][dl][bt][LS_i - 1]
                         df_db.loc[counter, f'LS{LS_i}-Theta_1'] = LF_data[
                             'Fragility_beta'
                         ][dl]
 
                         if LS_i == 4:
                             p_coll = LF_data['P_collapse'][bt]
-                            df_db.loc[
-                                counter, f'LS{LS_i}-DamageStateWeights'
-                            ] = f'{1.0 - p_coll} | {p_coll}'
+                            df_db.loc[counter, f'LS{LS_i}-DamageStateWeights'] = (
+                                f'{1.0 - p_coll} | {p_coll}'
+                            )
 
                             cmp_meta["LimitStates"].update(
                                 {
@@ -1726,9 +1757,9 @@ def create_Hazus_EQ_fragility_db(
                 f_depth
             ]
             p_complete = GF_data['P_Complete']
-            df_db.loc[
-                counter, 'LS1-DamageStateWeights'
-            ] = f'{1.0 - p_complete} | {p_complete}'
+            df_db.loc[counter, 'LS1-DamageStateWeights'] = (
+                f'{1.0 - p_complete} | {p_complete}'
+            )
 
             cmp_meta["LimitStates"].update(
                 {
@@ -1836,7 +1867,9 @@ def create_Hazus_EQ_repair_db(
     # create the MultiIndex
     cmp_types = ['STR', 'NSD', 'NSA', 'LF']
     comps = [
-        f'{cmp_type}.{occ_type}' for cmp_type in cmp_types for occ_type in occupancies
+        f'{cmp_type}.{occ_type}'
+        for cmp_type in cmp_types
+        for occ_type in occupancies
     ]
     DVs = ['Cost', 'Time']
     df_MI = pd.MultiIndex.from_product([comps, DVs], names=['ID', 'DV'])
@@ -1936,9 +1969,9 @@ def create_Hazus_EQ_repair_db(
                 {f"DS{DS_i}": {"Description": ds_meta[f"DS{DS_i}"]}}
             )
 
-            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSD_data['Repair_cost'][
-                occ_type
-            ][DS_i - 1]
+            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSD_data[
+                'Repair_cost'
+            ][occ_type][DS_i - 1]
 
         # store metadata
         meta_dict.update({cmp_id: cmp_meta})
@@ -1973,9 +2006,9 @@ def create_Hazus_EQ_repair_db(
                 {f"DS{DS_i}": {"Description": ds_meta[f"DS{DS_i}"]}}
             )
 
-            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSA_data['Repair_cost'][
-                occ_type
-            ][DS_i - 1]
+            df_db.loc[(cmp_id, 'Cost'), f'DS{DS_i}-Theta_0'] = NSA_data[
+                'Repair_cost'
+            ][occ_type][DS_i - 1]
 
         # store metadata
         meta_dict.update({cmp_id: cmp_meta})
@@ -2267,9 +2300,15 @@ def create_Hazus_HU_fragility_db(
             'Masonry, Engineered Residential Building, High-Rise (6+ Stories).'
         ),
         # ------------------------
-        'M.ECB.L': ('Masonry, Engineered Commercial Building, Low-Rise (1-2 Stories).'),
-        'M.ECB.M': ('Masonry, Engineered Commercial Building, Mid-Rise (3-5 Stories).'),
-        'M.ECB.H': ('Masonry, Engineered Commercial Building, High-Rise (6+ Stories).'),
+        'M.ECB.L': (
+            'Masonry, Engineered Commercial Building, Low-Rise (1-2 Stories).'
+        ),
+        'M.ECB.M': (
+            'Masonry, Engineered Commercial Building, Mid-Rise (3-5 Stories).'
+        ),
+        'M.ECB.H': (
+            'Masonry, Engineered Commercial Building, High-Rise (6+ Stories).'
+        ),
         # ------------------------
         'C.ERB.L': (
             'Concrete, Engineered Residential Building, Low-Rise (1-2 Stories).'

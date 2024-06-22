@@ -921,7 +921,9 @@ def show_matrix(data, use_describe=False):
         If False, simply prints the matrix as is.
     """
     if use_describe:
-        pp.pprint(pd.DataFrame(data).describe(percentiles=[0.01, 0.1, 0.5, 0.9, 0.99]))
+        pp.pprint(
+            pd.DataFrame(data).describe(percentiles=[0.01, 0.1, 0.5, 0.9, 0.99])
+        )
     else:
         pp.pprint(pd.DataFrame(data))
 

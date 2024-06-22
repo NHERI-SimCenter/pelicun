@@ -140,7 +140,9 @@ class DemandModel(PelicunModel):
         )
 
         if filepath is not None:
-            self.log_msg('Demand sample successfully saved.', prepend_timestamp=False)
+            self.log_msg(
+                'Demand sample successfully saved.', prepend_timestamp=False
+            )
             return None
 
         # else:
@@ -605,7 +607,9 @@ class DemandModel(PelicunModel):
             distribution=cal_df.loc[:, 'Family'].values,
             censored_count=censored_count,
             detection_limits=cal_df.loc[:, ['CensorLower', 'CensorUpper']].values,
-            truncation_limits=cal_df.loc[:, ['TruncateLower', 'TruncateUpper']].values,
+            truncation_limits=cal_df.loc[
+                :, ['TruncateLower', 'TruncateUpper']
+            ].values,
             multi_fit=False,
             logger_object=self._asmnt.log,
         )
@@ -639,7 +643,8 @@ class DemandModel(PelicunModel):
         self.marginal_params = model_params
 
         self.log_msg(
-            "\nCalibrated demand model marginal distributions:\n" + str(model_params),
+            "\nCalibrated demand model marginal distributions:\n"
+            + str(model_params),
             prepend_timestamp=False,
         )
 
@@ -649,7 +654,8 @@ class DemandModel(PelicunModel):
         )
 
         self.log_msg(
-            "\nCalibrated demand model correlation matrix:\n" + str(self.correlation),
+            "\nCalibrated demand model correlation matrix:\n"
+            + str(self.correlation),
             prepend_timestamp=False,
         )
 

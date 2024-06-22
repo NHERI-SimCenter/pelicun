@@ -243,10 +243,13 @@ class TestDemandModel(TestModelModule):
         res = demand_model_with_sample.estimate_RID(demands, params)
         assert list(res.columns) == [('RID', '1', '1')]
         assert (
-            demand_model_with_sample.estimate_RID(demands, params, method='xyz') is None
+            demand_model_with_sample.estimate_RID(demands, params, method='xyz')
+            is None
         )
 
-    def test_calibrate_model(self, calibrated_demand_model, demand_model_with_sample_C):
+    def test_calibrate_model(
+        self, calibrated_demand_model, demand_model_with_sample_C
+    ):
         assert calibrated_demand_model.marginal_params['Family'].to_list() == [
             'normal',
             'normal',
@@ -369,7 +372,9 @@ class TestDemandModel(TestModelModule):
     def test_generate_sample_exceptions(self, demand_model):
         # generating a sample from a non calibrated model should fail
         with pytest.raises(ValueError):
-            demand_model.generate_sample({"SampleSize": 3, 'PreserveRawOrder': False})
+            demand_model.generate_sample(
+                {"SampleSize": 3, 'PreserveRawOrder': False}
+            )
 
     def test_generate_sample(self, calibrated_demand_model):
         calibrated_demand_model.generate_sample(
@@ -512,7 +517,9 @@ class TestPelicunModel(TestModelModule):
         )
         units = pd.Series(['ea'], index=marginal_params.index)
         arg_units = None
-        res = pelicun_model.convert_marginal_params(marginal_params, units, arg_units)
+        res = pelicun_model.convert_marginal_params(
+            marginal_params, units, arg_units
+        )
 
         # >>> res
         #             Theta_0
@@ -550,7 +557,9 @@ class TestPelicunModel(TestModelModule):
         )
         units = pd.Series(['ea', 'ft', 'in', 'in2'], index=marginal_params.index)
         arg_units = None
-        res = pelicun_model.convert_marginal_params(marginal_params, units, arg_units)
+        res = pelicun_model.convert_marginal_params(
+            marginal_params, units, arg_units
+        )
 
         expected_df = pd.DataFrame(
             {
@@ -586,7 +595,9 @@ class TestPelicunModel(TestModelModule):
         )
         units = pd.Series(['test_three'], index=marginal_params.index)
         arg_units = pd.Series(['test_two'], index=marginal_params.index)
-        res = pelicun_model.convert_marginal_params(marginal_params, units, arg_units)
+        res = pelicun_model.convert_marginal_params(
+            marginal_params, units, arg_units
+        )
 
         # >>> res
         #                              Theta_0
@@ -695,7 +706,9 @@ class TestAssetModel(TestPelicunModel):
             check_dtype=False,
         )
 
-        expected_cmp_units = pd.Series(data=['ea'], index=['component_a'], name='Units')
+        expected_cmp_units = pd.Series(
+            data=['ea'], index=['component_a'], name='Units'
+        )
 
         pd.testing.assert_series_equal(
             expected_cmp_units,
@@ -1058,7 +1071,9 @@ class TestDamageModel(TestPelicunModel):
             check_index_type=False,
             check_column_type=False,
         )
-        _, units_from_variable = damage_model_with_sample.save_sample(save_units=True)
+        _, units_from_variable = damage_model_with_sample.save_sample(
+            save_units=True
+        )
         assert np.all(units_from_variable.to_numpy() == 'ea')
 
     def test_load_damage_model(self, damage_model_model_loaded):
@@ -1895,10 +1910,18 @@ class TestRepairModel(TestPelicunModel):
         for rv in rvs:
             print(rv.theta)
             assert rv.distribution == 'normal'
-        np.testing.assert_array_equal(rvs[0].theta, np.array((1.00, 0.390923, np.nan)))
-        np.testing.assert_array_equal(rvs[1].theta, np.array((1.00, 0.464027, np.nan)))
-        np.testing.assert_array_equal(rvs[2].theta, np.array((1.00, 0.390923, np.nan)))
-        np.testing.assert_array_equal(rvs[3].theta, np.array((1.00, 0.464027, np.nan)))
+        np.testing.assert_array_equal(
+            rvs[0].theta, np.array((1.00, 0.390923, np.nan))
+        )
+        np.testing.assert_array_equal(
+            rvs[1].theta, np.array((1.00, 0.464027, np.nan))
+        )
+        np.testing.assert_array_equal(
+            rvs[2].theta, np.array((1.00, 0.390923, np.nan))
+        )
+        np.testing.assert_array_equal(
+            rvs[3].theta, np.array((1.00, 0.464027, np.nan))
+        )
 
     def test__calc_median_consequence(self, repair_model, loss_params_A):
         repair_model.loss_params = loss_params_A
