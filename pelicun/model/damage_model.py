@@ -254,6 +254,22 @@ class DamageModel(PelicunModel):
         """
         Calculate the damage of each component block.
 
+        Parameters
+        ----------
+        dmg_process: dict, optional
+            Allows simulating damage processes, where damage to some
+            component can alter the damage state of other components.
+        block_batch_size: int
+            Maximum number of components in each batch.
+        scaling_specification: dict, optional
+            A dictionary defining the shift in median.
+            Example: {'CMP-1-1': '*1.2', 'CMP-1-2': '/1.4'}
+            The keys are individual components that should be present
+            in the `capacity_sample`.  The values should be strings
+            containing an operation followed by the value formatted as
+            a float.  The operation can be '+' for addition, '-' for
+            subtraction, '*' for multiplication, and '/' for division.
+        
         """
 
         self.log.div()
