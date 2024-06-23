@@ -591,17 +591,14 @@ def run_pelicun(
     else:
         output_path = Path(output_path)
 
-    # Initialize the array that we'll use to collect the output file names
-    out_files = _remove_existing_files(output_path)
+    out_files = []
 
     # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
     # load the schema
-    with open(
-        f'{base.pelicun_path}/settings/schema.json', 'r', encoding='utf-8'
-    ) as f:
+    with open(f'{base.pelicun_path}/settings/schema.json', 'r', encoding='utf-8') as f:
         schema = json.load(f)
 
     # Validate the configuration against the schema
@@ -1097,25 +1094,6 @@ def _demand_save(config, PAL, output_path, out_files):
             )
             out_files.append('DEM_stats.csv')
     return demand_sample
-
-
-def _remove_existing_files(output_path):
-    # Initialize the array that we'll use to collect the output file names
-    out_files = []
-
-    # Initialize the output folder - i.e., remove existing output files from
-    # there
-    files = os.listdir(output_path)
-    for filename in files:
-        if filename in out_files:
-            try:
-                os.remove(output_path / filename)
-            except OSError as exc:
-                raise OSError(
-                    f'Error occurred while removing '
-                    f'`{output_path / filename}`: {exc}'
-                ) from exc
-    return out_files
 
 
 def _summary(PAL, agg_repair, damage_sample, config, output_path, out_files):
