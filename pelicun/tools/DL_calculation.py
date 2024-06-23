@@ -598,7 +598,9 @@ def run_pelicun(
         config = json.load(f)
 
     # load the schema
-    with open(f'{base.pelicun_path}/settings/schema.json', 'r', encoding='utf-8') as f:
+    with open(
+        f'{base.pelicun_path}/settings/schema.json', 'r', encoding='utf-8'
+    ) as f:
         schema = json.load(f)
 
     # Validate the configuration against the schema
@@ -782,7 +784,9 @@ def run_pelicun(
         except ValueError:
             return -1
     else:
-        damage_sample, _ = PAL.damage.save_sample(save_units=True)
+        damage_sample, _ = PAL.damage.save_sample(
+            save_units=True
+        )  # TODO: look into this line.
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -814,7 +818,7 @@ def run_pelicun(
 
     # create json outputs if needed
     if get(config, 'DL/Outputs/Format/JSON') is True:
-        write_json_files(out_files, config, output_path)
+        _write_json_files(out_files, config, output_path)
 
     # remove csv outputs if they were not requested
     if get(config, 'DL/Outputs/Format/CSV', default=False) is False:
@@ -827,7 +831,7 @@ def run_pelicun(
     return 0
 
 
-def write_json_files(out_files, config, output_path):
+def _write_json_files(out_files, config, output_path):
     for filename in out_files:
         filename_json = filename[:-3] + 'json'
 
