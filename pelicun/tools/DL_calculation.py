@@ -611,7 +611,7 @@ def run_pelicun(
         output_path = Path(output_path)
 
     # parse the config file
-    config, custom_dl_file_path = _parse_config_file(
+    config = _parse_config_file(
         config_path,
         output_path,
         custom_model_dir,
@@ -651,7 +651,7 @@ def run_pelicun(
     # if a damage assessment is requested
     if is_specified(config, 'DL/Damage'):
 
-        _damage(config, custom_dl_file_path, assessment, cmp_marginals)
+        _damage(config, custom_model_dir, assessment, cmp_marginals)
 
         # if requested, save damage results
         if is_specified(config, 'DL/Outputs/Damage'):
@@ -669,7 +669,7 @@ def run_pelicun(
     # if a loss assessment is requested
     if is_specified(config, 'DL/Losses'):
         agg_repair = _loss(
-            config, assessment, custom_dl_file_path, output_path, out_files
+            config, assessment, custom_model_dir, output_path, out_files
         )
     else:
         agg_repair = None
@@ -730,8 +730,6 @@ def _parse_config_file(
         raise PelicunInvalidConfigError(
             "The provided config file does not conform to the schema."
         ) from exc
-
-    custom_dl_file_path = custom_model_dir
 
     if is_unspecified(config, 'DL'):
         log_msg("Damage and Loss configuration missing from config file. ")
@@ -869,7 +867,7 @@ def _parse_config_file(
         only_if_empty_or_none=True,
     )
 
-    return config, custom_dl_file_path
+    return config
 
 
 def _write_json_files(out_files, config, output_path):
@@ -1383,7 +1381,7 @@ def _asset(config, assessment, demand_sample, cpref, csuff):
     return cmp_marginals
 
 
-def _damage(config, custom_dl_file_path, assessment, cmp_marginals):
+def _damage(config, custom_model_dir, assessment, cmp_marginals):
 
     length_unit = get(config, 'GeneralInformation/units/length', default=None)
 
@@ -1401,12 +1399,10 @@ def _damage(config, custom_dl_file_path, assessment, cmp_marginals):
 
         if 'CustomDLDataFolder' in extra_comps:
             extra_comps = extra_comps.replace(
-                'CustomDLDataFolder', custom_dl_file_path
+                'CustomDLDataFolder', custom_model_dir
             )
 
-        component_db += [
-            extra_comps,
-        ]
+        component_db += [extra_comps]
     component_db = component_db[::-1]
 
     # prepare additional fragility data
@@ -1632,7 +1628,7 @@ def _damage(config, custom_dl_file_path, assessment, cmp_marginals):
     assessment.damage.calculate(dmg_process=dmg_process)
 
 
-def _loss(config, assessment, custom_dl_file_path, output_path, out_files):
+def _loss(config, assessment, custom_model_dir, output_path, out_files):
 
     # backwards-compatibility for v3.2 and earlier | remove after v4.0
     if get(config, 'DL/Losses/BldgRepair', default=False):
@@ -1648,7 +1644,7 @@ def _loss(config, assessment, custom_dl_file_path, output_path, out_files):
     if get(config, 'DL/Losses/Repair', default=False):
 
         conseq_df, consequence_db = _load_consequence_info(
-            config, assessment, custom_dl_file_path
+            config, assessment, custom_model_dir
         )
 
         # remove duplicates from conseq_df
@@ -1685,7 +1681,7 @@ def _loss(config, assessment, custom_dl_file_path, output_path, out_files):
             loss_map = _loss__map_auto(assessment, conseq_df, DL_method, config)
 
         elif get(config, 'DL/Losses/Repair/MapApproach') == "User Defined":
-            loss_map = _loss__map_user(custom_dl_file_path, config)
+            loss_map = _loss__map_user(custom_model_dir, config)
 
         # prepare additional loss map entries, if needed
         if 'DMG-collapse' not in loss_map.index:
@@ -1726,7 +1722,7 @@ def _loss(config, assessment, custom_dl_file_path, output_path, out_files):
     return None
 
 
-def _load_consequence_info(config, assessment, custom_dl_file_path):
+def _load_consequence_info(config, assessment, custom_model_dir):
     if get(config, 'DL/Losses/Repair/ConsequenceDatabase') in default_DBs['repair']:
         consequence_db = [
             'PelicunDefault/'
@@ -1753,7 +1749,7 @@ def _load_consequence_info(config, assessment, custom_dl_file_path):
 
         if 'CustomDLDataFolder' in extra_comps:
             extra_comps = extra_comps.replace(
-                'CustomDLDataFolder', custom_dl_file_path
+                'CustomDLDataFolder', custom_model_dir
             )
 
         consequence_db += [extra_comps]
@@ -1895,12 +1891,12 @@ def _loss_save(assessment, config, output_path, out_files, agg_repair):
                 out_files.append('DV_repair_agg_stats.csv')
 
 
-def _loss__map_user(custom_dl_file_path, config):
+def _loss__map_user(custom_model_dir, config):
     if get(config, 'DL/Losses/Repair/MapFilePath', default=False) is not False:
         loss_map_path = get(config, 'DL/Losses/Repair/MapFilePath')
 
         loss_map_path = loss_map_path.replace(
-            'CustomDLDataFolder', custom_dl_file_path
+            'CustomDLDataFolder', custom_model_dir
         )
 
     else:
