@@ -611,11 +611,7 @@ def run_pelicun(
         output_path = Path(output_path)
 
     # parse the config file
-    (
-        config,
-        config_path,
-        custom_dl_file_path,
-    ) = _parse_config_file(
+    config, custom_dl_file_path = _parse_config_file(
         config_path,
         output_path,
         custom_model_dir,
@@ -633,7 +629,7 @@ def run_pelicun(
 
     # Demand Assessment -----------------------------------------------------------
 
-    _demand(config, config_path, assessment)
+    _demand(config, assessment)
 
     # if requested, save demand results
     if is_specified(config, 'DL/Outputs/Demand'):
@@ -863,11 +859,17 @@ def _parse_config_file(
     update(
         config, 'DL/Options/ListAllDamageStates', True, only_if_empty_or_none=True
     )
-    return (
+
+    # if the demand file location is not specified in the config file
+    # assume there is a `response.csv` file next to the config file.
+    update(
         config,
-        config_path,
-        custom_dl_file_path,
+        'DL/Demands/DemandFilePath',
+        config_path.parent / 'response.csv',
+        only_if_empty_or_none=True,
     )
+
+    return config, custom_dl_file_path
 
 
 def _write_json_files(out_files, config, output_path):
@@ -1170,15 +1172,9 @@ def _summary(assessment, agg_repair, damage_sample, config, output_path, out_fil
     return summary, summary_stats
 
 
-def _demand(config, config_path, assessment):
+def _demand(config, assessment):
 
-    # check if there is a demand file location specified in the config file
-    if get(config, 'DL/Demands/DemandFilePath', default=False):
-        demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
-
-    else:
-        # otherwise assume that there is a response.csv file next to the config file
-        demand_path = config_path.parent / 'response.csv'
+    demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
 
     # try to load the demands
     raw_demands = pd.read_csv(demand_path, index_col=0)
