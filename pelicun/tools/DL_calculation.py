@@ -614,7 +614,6 @@ def run_pelicun(
     (
         config,
         config_path,
-        sample_size,
         out_files,
         custom_dl_file_path,
     ) = _parse_config_file(
@@ -633,7 +632,7 @@ def run_pelicun(
 
     # Demand Assessment -----------------------------------------------------------
 
-    _demand(config, config_path, assessment, sample_size)
+    _demand(config, config_path, assessment)
 
     # if requested, save demand results
     if is_specified(config, 'DL/Outputs/Demand'):
@@ -816,7 +815,8 @@ def _parse_config_file(
     if not sample_size_str:
         # give up
         raise PelicunInvalidConfigError('Sample size not provided in config file.')
-    sample_size = int(sample_size_str)
+    # add sample size at the expected location
+    update(config, 'Options/Sampling/SampleSize', int(sample_size_str))
 
     # provide all outputs if the files are not specified
     if is_unspecified(config, 'DL/Outputs'):
@@ -867,7 +867,6 @@ def _parse_config_file(
     return (
         config,
         config_path,
-        sample_size,
         out_files,
         custom_dl_file_path,
     )
@@ -1173,7 +1172,8 @@ def _summary(assessment, agg_repair, damage_sample, config, output_path, out_fil
     return summary, summary_stats
 
 
-def _demand(config, config_path, assessment, sample_size):
+def _demand(config, config_path, assessment):
+
     # check if there is a demand file location specified in the config file
     if get(config, 'DL/Demands/DemandFilePath', default=False):
         demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
@@ -1246,7 +1246,7 @@ def _demand(config, config_path, assessment, sample_size):
     # and generate a new demand sample
     assessment.demand.generate_sample(
         {
-            "SampleSize": sample_size,
+            "SampleSize": get(config, 'Options/Sampling/SampleSize'),
             'PreserveRawOrder': get(
                 config, 'DL/Demands/CoupledDemands', default=False
             ),
