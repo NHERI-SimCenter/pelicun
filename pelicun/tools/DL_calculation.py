@@ -73,6 +73,7 @@ from pelicun.base import EDP_to_demand_type
 from pelicun import base
 from pelicun.file_io import load_data
 from pelicun.assessment import Assessment
+from pelicun.warnings import PelicunInvalidConfigError
 
 
 # pylint: disable=consider-using-namedtuple-or-dataclass
@@ -567,10 +568,10 @@ def run_pelicun(
         viewed on the console with `cat`, `less`, or similar utilites,
         the color will be shown.
 
-    Returns
-    -------
-    bool
-       0 if the calculation was ran successfully, or -1 otherwise.
+    Raises
+    ------
+    PelicunInvalidConfigError:
+        When the config file is invalid or contains missing entries.
 
     """
 
@@ -604,9 +605,13 @@ def run_pelicun(
         schema = json.load(f)
 
     # Validate the configuration against the schema
-    validate(instance=config, schema=schema)
+    try:
+        validate(instance=config, schema=schema)
+    except jsonschema.exceptions.ValidationError as exc:
+        raise PelicunInvalidConfigError(
+            "The provided config file does not conform to the schema."
+        ) from exc
 
-    # f"{config['commonFileDir']}/CustomDLModels/"
     custom_dl_file_path = custom_model_dir
 
     if is_unspecified(config, 'DL'):
@@ -619,13 +624,11 @@ def run_pelicun(
 
             if is_unspecified(config_ap, 'DL'):
 
-                log_msg(
-                    "The prescribed auto-population script failed to identify "
+                raise PelicunInvalidConfigError(
+                    "No `DL` entry in config file, and "
+                    "the prescribed auto-population script failed to identify "
                     "a valid damage and loss configuration for this asset. "
-                    "Terminating analysis."
                 )
-
-                return -1
 
             # add the demand information
             update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
@@ -673,9 +676,7 @@ def run_pelicun(
             update(config, 'DL', get(config_ap, 'DL'))
 
         else:
-            log_msg("Terminating analysis.")
-
-            return -1
+            raise PelicunInvalidConfigError("No `DL` entry in config file.")
 
     #
     # sample size: backwards compatibility
@@ -689,8 +690,7 @@ def run_pelicun(
         sample_size_str = get(config, 'DL/Demands/SampleSize')
     if not sample_size_str:
         # give up
-        print('Sample size not provided in config file. Terminating analysis.')
-        return -1
+        raise PelicunInvalidConfigError('Sample size not provided in config file.')
     sample_size = int(sample_size_str)
 
     # provide all outputs if the files are not specified
@@ -701,7 +701,8 @@ def run_pelicun(
     if is_unspecified(config, 'DL/Outputs/Format'):
         update(config, 'DL/Outputs/Format', {'CSV': True, 'JSON': False})
 
-    # override file format specification if the output_format is provided
+    # override file format specification if the output_format is
+    # provided
     if output_format is not None:
         update(
             config,
@@ -717,22 +718,17 @@ def run_pelicun(
         update(config, 'DL/Outputs/Settings', pbe_settings)
 
     if is_unspecified(config, 'DL/Asset'):
-        log_msg("Asset configuration missing. Terminating analysis.")
-        return -1
+        raise PelicunInvalidConfigError("Asset configuration missing.")
 
     if is_unspecified(config, 'DL/Demands'):
-        log_msg("Demand configuration missing. Terminating analysis.")
-        return -1
+        raise PelicunInvalidConfigError("Demand configuration missing.")
 
     # get the length unit from the config file
-    try:
-        length_unit = get(config, 'GeneralInformation/units/length')
-    except KeyError:
-        log_msg(
-            "No default length unit provided in the input file. "
-            "Terminating analysis. "
+    length_unit = get(config, 'GeneralInformation/units/length', default=None)
+    if length_unit is None:
+        raise PelicunInvalidConfigError(
+            "No default length unit provided in the input file."
         )
-        return -1
 
     # initialize the Pelicun Assessement
     update(config, 'DL/Options/LogFile', 'pelicun_log.txt')
@@ -770,19 +766,15 @@ def run_pelicun(
 
     # if a damage assessment is requested
     if not is_unspecified(config, 'DL/Damage'):
-        # load the fragility information
-        try:
 
-            _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit)
+        _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit)
 
-            # if requested, save damage results
-            if not is_unspecified(config, 'DL/Outputs/Damage'):
-                damage_sample = _damage_save(PAL, config, output_path, out_files)
-            else:
-                damage_sample, _ = PAL.damage.save_sample(save_units=True)
+        # if requested, save damage results
+        if not is_unspecified(config, 'DL/Outputs/Damage'):
+            damage_sample = _damage_save(PAL, config, output_path, out_files)
+        else:
+            damage_sample, _ = PAL.damage.save_sample(save_units=True)
 
-        except ValueError:
-            return -1
     else:
         damage_sample, _ = PAL.damage.save_sample(
             save_units=True
@@ -792,13 +784,7 @@ def run_pelicun(
 
     # if a loss assessment is requested
     if not is_unspecified(config, 'DL/Losses'):
-        try:
-            agg_repair = _loss(
-                config, PAL, custom_dl_file_path, output_path, out_files
-            )
-        except ValueError as e:
-            print(f'Exception occurred: {str(e)}. Terminating analysis')
-            return -1
+        agg_repair = _loss(config, PAL, custom_dl_file_path, output_path, out_files)
     else:
         agg_repair = None
 
@@ -1020,6 +1006,7 @@ def _damage_save(PAL, config, output_path, out_files):
                     index_label=grp_stats.columns.name,
                 )
                 out_files.append('DMG_grp_stats.csv')
+
     return damage_sample
 
 
@@ -1097,6 +1084,7 @@ def _demand_save(config, PAL, output_path, out_files):
                 index_label=demand_stats.columns.name,
             )
             out_files.append('DEM_stats.csv')
+
     return demand_sample
 
 
@@ -1338,10 +1326,13 @@ def _asset(config, PAL, demand_sample, cpref, csuff):
     # if requested, load the quantity sample from a file
     elif get(config, 'DL/Asset/ComponentSampleFile', default=False):
         PAL.asset.load_cmp_sample(get(config, 'DL/Asset/ComponentSampleFile'))
+
     return cmp_marginals
 
 
 def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
+
+    # load the fragility information
     if get(config, 'DL/Asset/ComponentDatabase') in default_DBs['fragility']:
         component_db = [
             'PelicunDefault/'
@@ -1395,7 +1386,7 @@ def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
                 break
 
         if coll_DEM_name is None:
-            raise ValueError('`coll_DEM_name` cannot be None.')
+            raise PelicunInvalidConfigError('`coll_DEM_name` cannot be None.')
 
         if coll_DEM_spec is None:
             adf.loc[coll_CMP_name, ('Demand', 'Type')] = coll_DEM_name
@@ -1587,18 +1578,16 @@ def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
 
 
 def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     # backwards-compatibility for v3.2 and earlier | remove after v4.0
     if get(config, 'DL/Losses/BldgRepair', default=False):
         update(config, 'DL/Losses/Repair', get(config, 'DL/Losses/BldgRepair'))
-
     if get(config, 'DL/Outputs/Loss/BldgRepair', default=False):
         update(
             config,
             'DL/Outputs/Loss/Repair',
             get(config, 'DL/Outputs/Loss/BldgRepair'),
         )
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     # if requested, calculate repair consequences
     if get(config, 'DL/Losses/Repair', default=False):
@@ -1678,6 +1667,7 @@ def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
             _loss_save(PAL, config, output_path, out_files, agg_repair)
 
         return agg_repair
+
     return None
 
 
@@ -1726,6 +1716,7 @@ def _load_consequence_info(config, PAL, custom_dl_file_path):
             conseq_df = extra_conseq_df
 
     consequence_db = consequence_db[::-1]
+
     return conseq_df, consequence_db
 
 
@@ -1858,9 +1849,10 @@ def _loss__map_user(custom_dl_file_path, config):
         )
 
     else:
-        raise ValueError('Missing loss map path.')
+        raise PelicunInvalidConfigError('Missing loss map path.')
 
     loss_map = pd.read_csv(loss_map_path, index_col=0)
+
     return loss_map
 
 
@@ -1911,6 +1903,7 @@ def _loss__map_auto(PAL, conseq_df, DL_method, config):
                 loss_models.append(loss_cmp)
 
     loss_map = pd.DataFrame(loss_models, columns=['Repair'], index=drivers)
+
     return loss_map
 
 
@@ -2116,6 +2109,7 @@ def _get_color_codes(color_warnings):
         csuff = Style.RESET_ALL
     else:
         cpref = csuff = ''
+
     return cpref, csuff
 
 
@@ -2154,12 +2148,6 @@ def main():
     parser.add_argument(
         '--color_warnings', default=False, type=str2bool, nargs='?', const=False
     )
-    # parser.add_argument('-d', '--demandFile', default=None)
-    # parser.add_argument('--DL_Method', default = None)
-    # parser.add_argument('--outputBIM', default='BIM.csv')
-    # parser.add_argument('--outputEDP', default='EDP.csv')
-    # parser.add_argument('--outputDM', default='DM.csv')
-    # parser.add_argument('--outputDV', default='DV.csv')
 
     if not args:
         print(f'Welcome. This is pelicun version {pelicun.__version__}')
@@ -2173,10 +2161,9 @@ def main():
 
     args = parser.parse_args(args)
 
-    log_msg('Initializing pelicun calculation...')
+    log_msg('Initializing pelicun calculation.')
 
-    # print(args)
-    out = run_pelicun(
+    run_pelicun(
         args.filenameDL,
         demand_file=args.demandFile,
         output_path=args.dirnameOutput,
@@ -2194,10 +2181,7 @@ def main():
         output_format=args.output_format,
     )
 
-    if out == -1:
-        log_msg("pelicun calculation failed.")
-    else:
-        log_msg('pelicun calculation completed.')
+    log_msg('pelicun calculation completed.')
 
 
 if __name__ == '__main__':
