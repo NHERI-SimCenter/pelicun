@@ -211,11 +211,11 @@ def is_unspecified(d: dict[str, Any], path: str) -> bool:
     ...         }
     ...     }
     ... }
-    >>> is_none_or_empty(config, '/DL/Outputs/Format/JSON')
+    >>> is_unspecified(config, '/DL/Outputs/Format/JSON')
     False
-    >>> is_none_or_empty(config, '/DL/Outputs/Format/XML')
+    >>> is_unspecified(config, '/DL/Outputs/Format/XML')
     True
-    >>> is_none_or_empty(config, '/DL/Outputs/Format/EmptyDict')
+    >>> is_unspecified(config, '/DL/Outputs/Format/EmptyDict')
     True
 
     """
@@ -229,6 +229,26 @@ def is_unspecified(d: dict[str, Any], path: str) -> bool:
     if value == []:
         return True
     return False
+
+
+def is_specified(d: dict[str, Any], path: str) -> bool:
+    """
+    Opposite of `is_unspecified()`.
+
+    Parameters
+    ----------
+    d : dict
+        The dictionary to search.
+    path : str
+        The path to the desired value, with keys separated by '/'.
+
+    Returns
+    -------
+    bool
+        True if the value is specified, False otherwise.
+
+    """
+    return not is_unspecified(d, path)
 
 
 def log_msg(msg):
@@ -616,7 +636,7 @@ def run_pelicun(
     _demand(config, config_path, assessment, sample_size)
 
     # if requested, save demand results
-    if not is_unspecified(config, 'DL/Outputs/Demand'):
+    if is_specified(config, 'DL/Outputs/Demand'):
         demand_sample = _demand_save(config, assessment, output_path, out_files)
     else:
         demand_sample, _ = assessment.demand.save_sample(save_units=True)
@@ -633,12 +653,12 @@ def run_pelicun(
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
-    if not is_unspecified(config, 'DL/Damage'):
+    if is_specified(config, 'DL/Damage'):
 
         _damage(config, custom_dl_file_path, assessment, cmp_marginals)
 
         # if requested, save damage results
-        if not is_unspecified(config, 'DL/Outputs/Damage'):
+        if is_specified(config, 'DL/Outputs/Damage'):
             damage_sample = _damage_save(assessment, config, output_path, out_files)
         else:
             damage_sample, _ = assessment.damage.save_sample(save_units=True)
@@ -651,7 +671,7 @@ def run_pelicun(
     # Loss Assessment -----------------------------------------------------------
 
     # if a loss assessment is requested
-    if not is_unspecified(config, 'DL/Losses'):
+    if is_specified(config, 'DL/Losses'):
         agg_repair = _loss(
             config, assessment, custom_dl_file_path, output_path, out_files
         )
@@ -1329,7 +1349,7 @@ def _asset(config, assessment, demand_sample, cpref, csuff):
         cmp_marginals.loc['collapse', 'Theta_0'] = 1.0
 
         # add components to support irreparable damage calculation
-        if not is_unspecified(config, 'DL/Damage/IrreparableDamage'):
+        if is_specified(config, 'DL/Damage/IrreparableDamage'):
             if 'RID' in DEM_types:
                 # excessive RID is added on every floor to detect large RIDs
                 cmp_marginals.loc['excessiveRID', 'Units'] = 'ea'
@@ -1402,7 +1422,7 @@ def _damage(config, custom_dl_file_path, assessment, cmp_marginals):
 
     adf = pd.DataFrame(columns=P58_data.columns)
 
-    if not is_unspecified(config, 'DL/Damage/CollapseFragility'):
+    if is_specified(config, 'DL/Damage/CollapseFragility'):
         if 'excessive.coll.DEM' in cmp_marginals.index:
             # if there is story-specific evaluation
             coll_CMP_name = 'excessive.coll.DEM'
@@ -1486,7 +1506,7 @@ def _damage(config, custom_dl_file_path, assessment, cmp_marginals):
         adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
         adf.loc['collapse', 'Incomplete'] = 0
 
-    if not is_unspecified(config, 'DL/Damage/IrreparableDamage'):
+    if is_specified(config, 'DL/Damage/IrreparableDamage'):
 
         # add excessive RID fragility according to settings provided in the
         # input file
@@ -1520,7 +1540,7 @@ def _damage(config, custom_dl_file_path, assessment, cmp_marginals):
 
     # TODO: we can improve this by creating a water
     # network-specific assessment class
-    if not is_unspecified(config, 'DL/Asset/ComponentDatabase/Water'):
+    if is_specified(config, 'DL/Asset/ComponentDatabase/Water'):
         # add a placeholder aggregate fragility that will never trigger
         # damage, but allow damage processes to aggregate the
         # various pipeline damages
@@ -1990,7 +2010,7 @@ def _loss__energy(config, adf, DL_method):
 
 def _loss__carbon(config, adf, DL_method):
     rcarb = ('replacement', 'Carbon')
-    if not is_unspecified(config, 'DL/Losses/Repair/ReplacementCarbon'):
+    if is_specified(config, 'DL/Losses/Repair/ReplacementCarbon'):
 
         rcarb = ('replacement', 'Carbon')
 
@@ -2031,7 +2051,7 @@ def _loss__carbon(config, adf, DL_method):
 
 def _loss__time(config, adf, DL_method, conseq_df):
     rt = ('replacement', 'Time')
-    if not is_unspecified(config, 'DL/Losses/Repair/ReplacementTime'):
+    if is_specified(config, 'DL/Losses/Repair/ReplacementTime'):
         rt = ('replacement', 'Time')
 
         adf.loc[rt, ('Quantity', 'Unit')] = "1 EA"
@@ -2090,7 +2110,7 @@ def _loss__time(config, adf, DL_method, conseq_df):
 
 def _loss__cost(config, adf, DL_method):
     rc = ('replacement', 'Cost')
-    if not is_unspecified(config, 'DL/Losses/Repair/ReplacementCost'):
+    if is_specified(config, 'DL/Losses/Repair/ReplacementCost'):
 
         adf.loc[rc, ('Quantity', 'Unit')] = "1 EA"
 
