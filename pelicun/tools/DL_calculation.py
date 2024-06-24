@@ -739,42 +739,42 @@ def run_pelicun(
         config, 'DL/Options/ListAllDamageStates', True, only_if_empty_or_none=True
     )
 
-    PAL = Assessment(get(config, 'DL/Options'))
+    assessment = Assessment(get(config, 'DL/Options'))
 
     # Demand Assessment -----------------------------------------------------------
 
-    _demand(config, config_path, length_unit, PAL, sample_size)
+    _demand(config, config_path, length_unit, assessment, sample_size)
 
     # if requested, save demand results
     if not is_unspecified(config, 'DL/Outputs/Demand'):
-        demand_sample = _demand_save(config, PAL, output_path, out_files)
+        demand_sample = _demand_save(config, assessment, output_path, out_files)
     else:
-        demand_sample, _ = PAL.demand.save_sample(save_units=True)
+        demand_sample, _ = assessment.demand.save_sample(save_units=True)
 
     # Asset Definition ------------------------------------------------------------
 
     # set the number of stories
-    cmp_marginals = _asset(config, PAL, demand_sample, cpref, csuff)
+    cmp_marginals = _asset(config, assessment, demand_sample, cpref, csuff)
 
     # if requested, save asset model results
     if get(config, 'DL/Outputs/Asset', default=False):
-        _asset_save(PAL, config, output_path, out_files)
+        _asset_save(assessment, config, output_path, out_files)
 
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
     if not is_unspecified(config, 'DL/Damage'):
 
-        _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit)
+        _damage(config, custom_dl_file_path, assessment, cmp_marginals, length_unit)
 
         # if requested, save damage results
         if not is_unspecified(config, 'DL/Outputs/Damage'):
-            damage_sample = _damage_save(PAL, config, output_path, out_files)
+            damage_sample = _damage_save(assessment, config, output_path, out_files)
         else:
-            damage_sample, _ = PAL.damage.save_sample(save_units=True)
+            damage_sample, _ = assessment.damage.save_sample(save_units=True)
 
     else:
-        damage_sample, _ = PAL.damage.save_sample(
+        damage_sample, _ = assessment.damage.save_sample(
             save_units=True
         )  # TODO: look into this line.
 
@@ -782,14 +782,16 @@ def run_pelicun(
 
     # if a loss assessment is requested
     if not is_unspecified(config, 'DL/Losses'):
-        agg_repair = _loss(config, PAL, custom_dl_file_path, output_path, out_files)
+        agg_repair = _loss(
+            config, assessment, custom_dl_file_path, output_path, out_files
+        )
     else:
         agg_repair = None
 
     # Result Summary -----------------------------------------------------------
 
     summary, summary_stats = _summary(
-        PAL, agg_repair, damage_sample, config, output_path, out_files
+        assessment, agg_repair, damage_sample, config, output_path, out_files
     )
 
     # save summary sample
@@ -853,8 +855,8 @@ def _write_json_files(out_files, config, output_path):
             json.dump(out_dict, f, indent=2)
 
 
-def _damage_save(PAL, config, output_path, out_files):
-    damage_sample, damage_units = PAL.damage.save_sample(save_units=True)
+def _damage_save(assessment, config, output_path, out_files):
+    damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
     damage_units = damage_units.to_frame().T
 
     if (
@@ -1008,8 +1010,8 @@ def _damage_save(PAL, config, output_path, out_files):
     return damage_sample
 
 
-def _asset_save(PAL, config, output_path, out_files):
-    cmp_sample, cmp_units = PAL.asset.save_cmp_sample(save_units=True)
+def _asset_save(assessment, config, output_path, out_files):
+    cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
     cmp_units = cmp_units.to_frame().T
 
     if (
@@ -1053,13 +1055,13 @@ def _asset_save(PAL, config, output_path, out_files):
             out_files.append('CMP_stats.csv')
 
 
-def _demand_save(config, PAL, output_path, out_files):
+def _demand_save(config, assessment, output_path, out_files):
     out_reqs = [
         out if val else "" for out, val in get(config, 'DL/Outputs/Demand').items()
     ]
 
     if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-        demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
+        demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
 
         demand_units = demand_units.to_frame().T
 
@@ -1086,7 +1088,7 @@ def _demand_save(config, PAL, output_path, out_files):
     return demand_sample
 
 
-def _summary(PAL, agg_repair, damage_sample, config, output_path, out_files):
+def _summary(assessment, agg_repair, damage_sample, config, output_path, out_files):
     damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
@@ -1115,7 +1117,7 @@ def _summary(PAL, agg_repair, damage_sample, config, output_path, out_files):
     return summary, summary_stats
 
 
-def _demand(config, config_path, length_unit, PAL, sample_size):
+def _demand(config, config_path, length_unit, assessment, sample_size):
     # check if there is a demand file location specified in the config file
     if get(config, 'DL/Demands/DemandFilePath', default=False):
         demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
@@ -1170,20 +1172,22 @@ def _demand(config, config_path, length_unit, PAL, sample_size):
         demands = raw_demands
 
     # load the available demand sample
-    PAL.demand.load_sample(demands)
+    assessment.demand.load_sample(demands)
 
     # get the calibration information
     if get(config, 'DL/Demands/Calibration', default=False):
         # then use it to calibrate the demand model
-        PAL.demand.calibrate_model(get(config, 'DL/Demands/Calibration'))
+        assessment.demand.calibrate_model(get(config, 'DL/Demands/Calibration'))
 
     else:
         # if no calibration is requested,
         # set all demands to use empirical distribution
-        PAL.demand.calibrate_model({"ALL": {"DistributionFamily": "empirical"}})
+        assessment.demand.calibrate_model(
+            {"ALL": {"DistributionFamily": "empirical"}}
+        )
 
     # and generate a new demand sample
-    PAL.demand.generate_sample(
+    assessment.demand.generate_sample(
         {
             "SampleSize": sample_size,
             'PreserveRawOrder': get(
@@ -1194,7 +1198,7 @@ def _demand(config, config_path, length_unit, PAL, sample_size):
     )
 
     # get the generated demand sample
-    demand_sample, demand_units = PAL.demand.save_sample(save_units=True)
+    demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
 
     demand_sample = pd.concat([demand_sample, demand_units.to_frame().T])
 
@@ -1212,7 +1216,7 @@ def _demand(config, config_path, length_unit, PAL, sample_size):
                 if direction == 'method':
                     continue
 
-                RID = PAL.demand.estimate_RID(
+                RID = assessment.demand.estimate_RID(
                     PID.loc[:, idx[:, direction]],
                     {'yield_drift': float(delta_yield)},
                 )
@@ -1232,13 +1236,13 @@ def _demand(config, config_path, length_unit, PAL, sample_size):
     demand_sample[('ONE', '0', '1')] = np.ones(demand_sample.shape[0])
     demand_sample.loc['Units', ('ONE', '0', '1')] = 'unitless'
 
-    PAL.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
+    assessment.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
 
 
-def _asset(config, PAL, demand_sample, cpref, csuff):
+def _asset(config, assessment, demand_sample, cpref, csuff):
     # set the number of stories
     if get(config, 'DL/Asset/NumberOfStories', default=False):
-        PAL.stories = int(get(config, 'DL/Asset/NumberOfStories'))
+        assessment.stories = int(get(config, 'DL/Asset/NumberOfStories'))
 
     # load a component model and generate a sample
     if get(config, 'DL/Asset/ComponentAssignmentFile', default=False):
@@ -1316,19 +1320,19 @@ def _asset(config, PAL, demand_sample, cpref, csuff):
                 )
 
         # load component model
-        PAL.asset.load_cmp_model({'marginals': cmp_marginals})
+        assessment.asset.load_cmp_model({'marginals': cmp_marginals})
 
         # generate component quantity sample
-        PAL.asset.generate_cmp_sample()
+        assessment.asset.generate_cmp_sample()
 
     # if requested, load the quantity sample from a file
     elif get(config, 'DL/Asset/ComponentSampleFile', default=False):
-        PAL.asset.load_cmp_sample(get(config, 'DL/Asset/ComponentSampleFile'))
+        assessment.asset.load_cmp_sample(get(config, 'DL/Asset/ComponentSampleFile'))
 
     return cmp_marginals
 
 
-def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
+def _damage(config, custom_dl_file_path, assessment, cmp_marginals, length_unit):
 
     # load the fragility information
     if get(config, 'DL/Asset/ComponentDatabase') in default_DBs['fragility']:
@@ -1355,7 +1359,7 @@ def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
     # prepare additional fragility data
 
     # get the database header from the default P58 db
-    P58_data = PAL.get_default_data('damage_DB_FEMA_P58_2nd')
+    P58_data = assessment.get_default_data('damage_DB_FEMA_P58_2nd')
 
     adf = pd.DataFrame(columns=P58_data.columns)
 
@@ -1489,7 +1493,7 @@ def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
         adf.loc['aggregate', ('LS2', 'Theta_0')] = 1e10
         adf.loc['aggregate', 'Incomplete'] = 0
 
-    PAL.damage.load_damage_model(component_db + [adf])
+    assessment.damage.load_damage_model(component_db + [adf])
 
     # load the damage process if needed
     dmg_process = None
@@ -1501,7 +1505,7 @@ def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
 
             # For Hazus Earthquake, we need to specify the component ids
             if dp_approach == 'Hazus Earthquake':
-                cmp_sample = PAL.asset.save_cmp_sample()
+                cmp_sample = assessment.asset.save_cmp_sample()
 
                 cmp_list = cmp_sample.columns.unique(level=0)
 
@@ -1572,10 +1576,10 @@ def _damage(config, custom_dl_file_path, PAL, cmp_marginals, length_unit):
             log_msg(f"Prescribed Damage Process not recognized: " f"{dp_approach}")
 
     # calculate damages
-    PAL.damage.calculate(dmg_process=dmg_process)
+    assessment.damage.calculate(dmg_process=dmg_process)
 
 
-def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
+def _loss(config, assessment, custom_dl_file_path, output_path, out_files):
 
     # backwards-compatibility for v3.2 and earlier | remove after v4.0
     if get(config, 'DL/Losses/BldgRepair', default=False):
@@ -1591,7 +1595,7 @@ def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
     if get(config, 'DL/Losses/Repair', default=False):
 
         conseq_df, consequence_db = _load_consequence_info(
-            config, PAL, custom_dl_file_path
+            config, assessment, custom_dl_file_path
         )
 
         # remove duplicates from conseq_df
@@ -1625,7 +1629,7 @@ def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
         loss_map = None
         if get(config, 'DL/Losses/Repair/MapApproach') == "Automatic":
             # get the damage sample
-            loss_map = _loss__map_auto(PAL, conseq_df, DL_method, config)
+            loss_map = _loss__map_auto(assessment, conseq_df, DL_method, config)
 
         elif get(config, 'DL/Losses/Repair/MapApproach') == "User Defined":
             loss_map = _loss__map_user(custom_dl_file_path, config)
@@ -1650,26 +1654,26 @@ def _loss(config, PAL, custom_dl_file_path, output_path, out_files):
         else:
             DV_list = None
 
-        PAL.repair.load_model(
+        assessment.repair.load_model(
             consequence_db + [adf],
             loss_map,
             decision_variables=DV_list,
         )
 
-        PAL.repair.calculate()
+        assessment.repair.calculate()
 
-        agg_repair = PAL.repair.aggregate_losses()
+        agg_repair = assessment.repair.aggregate_losses()
 
         # if requested, save results
         if get(config, 'DL/Outputs/Loss/Repair', default=False):
-            _loss_save(PAL, config, output_path, out_files, agg_repair)
+            _loss_save(assessment, config, output_path, out_files, agg_repair)
 
         return agg_repair
 
     return None
 
 
-def _load_consequence_info(config, PAL, custom_dl_file_path):
+def _load_consequence_info(config, assessment, custom_dl_file_path):
     if get(config, 'DL/Losses/Repair/ConsequenceDatabase') in default_DBs['repair']:
         consequence_db = [
             'PelicunDefault/'
@@ -1678,7 +1682,7 @@ def _load_consequence_info(config, PAL, custom_dl_file_path):
             ],
         ]
 
-        conseq_df = PAL.get_default_data(
+        conseq_df = assessment.get_default_data(
             default_DBs['repair'][
                 get(config, 'DL/Losses/Repair/ConsequenceDatabase')
             ][:-4]
@@ -1718,8 +1722,8 @@ def _load_consequence_info(config, PAL, custom_dl_file_path):
     return conseq_df, consequence_db
 
 
-def _loss_save(PAL, config, output_path, out_files, agg_repair):
-    repair_sample, repair_units = PAL.repair.save_sample(save_units=True)
+def _loss_save(assessment, config, output_path, out_files, agg_repair):
+    repair_sample, repair_units = assessment.repair.save_sample(save_units=True)
     repair_units = repair_units.to_frame().T
 
     if (
@@ -1854,9 +1858,9 @@ def _loss__map_user(custom_dl_file_path, config):
     return loss_map
 
 
-def _loss__map_auto(PAL, conseq_df, DL_method, config):
+def _loss__map_auto(assessment, conseq_df, DL_method, config):
     # get the damage sample
-    dmg_sample = PAL.damage.save_sample()
+    dmg_sample = assessment.damage.save_sample()
 
     # create a mapping for all components that are also in
     # the prescribed consequence database
