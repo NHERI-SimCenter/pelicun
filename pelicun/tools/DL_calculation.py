@@ -814,8 +814,6 @@ def run_pelicun(
                 continue
             os.remove(output_path / filename)
 
-    return 0
-
 
 def _write_json_files(out_files, config, output_path):
     for filename in out_files:
