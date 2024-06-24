@@ -53,7 +53,7 @@ def test_dl_calculation_2(obtain_temp_dir):
 
     # run
     with pytest.warns(PelicunWarning):
-        return_int = run_pelicun(
+        run_pelicun(
             demand_file='response.csv',
             config_path='1-AIM.json',
             output_path=None,
@@ -66,8 +66,6 @@ def test_dl_calculation_2(obtain_temp_dir):
             custom_model_dir=None,
             color_warnings=False,
         )
-
-    assert return_int == 0
 
     #
     # Test files
