@@ -251,7 +251,7 @@ def is_specified(d: dict[str, Any], path: str) -> bool:
     return not is_unspecified(d, path)
 
 
-def log_msg(msg):
+def log_msg(msg, color_codes=None):
     """
     Prints a formatted string to stdout in the form of a log. Includes
     a timestamp.
@@ -262,7 +262,16 @@ def log_msg(msg):
         The message to be printed.
 
     """
-    formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
+    if color_codes:
+        cpref, csuff = color_codes
+        formatted_msg = (
+            f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} '
+            f'{cpref}'
+            f'{msg}'
+            f'{csuff}'
+        )
+    else:
+        formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
 
     print(formatted_msg)
 
@@ -598,7 +607,7 @@ def run_pelicun(
     # Initial setup -----------------------------------------------------------
 
     # color warnings
-    cpref, csuff = _get_color_codes(color_warnings)
+    color_codes = _get_color_codes(color_warnings)
 
     # get the absolute path to the config file
     config_path = Path(config_path).resolve()
@@ -638,7 +647,7 @@ def run_pelicun(
     # Asset Definition ------------------------------------------------------------
 
     # set the number of stories
-    cmp_marginals = _asset(config, assessment, cpref, csuff)
+    cmp_marginals = _asset(config, assessment, color_codes)
 
     # if requested, save asset model results
     if get(config, 'DL/Outputs/Asset', default=False):
@@ -1285,11 +1294,11 @@ def _demand(config, assessment):
     assessment.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
 
 
-def _asset(config, assessment, cpref, csuff):
+def _asset(config, assessment, color_codes):
 
     # retrieve the demand sample
     demand_sample = assessment.demand.save_sample()
-    
+
     # set the number of stories
     if get(config, 'DL/Asset/NumberOfStories', default=False):
         assessment.stories = int(get(config, 'DL/Asset/NumberOfStories'))
@@ -1330,9 +1339,9 @@ def _asset(config, assessment, cpref, csuff):
 
                 else:
                     log_msg(
-                        f'{cpref}WARNING: No {coll_DEM} among available '
-                        f'demands. Collapse '
-                        f'cannot be evaluated.{csuff}'
+                        f'WARNING: No {coll_DEM} among available '
+                        f'demands. Collapse cannot be evaluated.',
+                        color_codes,
                     )
 
         # always add a component to support basic collapse calculation
@@ -1364,9 +1373,10 @@ def _asset(config, assessment, cpref, csuff):
 
             else:
                 log_msg(
-                    f'{cpref}WARNING: No residual interstory drift ratio among'
-                    f'available demands. Irreparable damage cannot be '
-                    f'evaluated.{csuff}'
+                    'WARNING: No residual interstory drift ratio among '
+                    'available demands. Irreparable damage cannot be '
+                    'evaluated.',
+                    color_codes,
                 )
 
         # load component model
@@ -1399,9 +1409,7 @@ def _damage(config, custom_model_dir, assessment, cmp_marginals):
         extra_comps = get(config, 'DL/Asset/ComponentDatabasePath')
 
         if 'CustomDLDataFolder' in extra_comps:
-            extra_comps = extra_comps.replace(
-                'CustomDLDataFolder', custom_model_dir
-            )
+            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_model_dir)
 
         component_db += [extra_comps]
 
@@ -1624,7 +1632,7 @@ def _damage(config, custom_model_dir, assessment, cmp_marginals):
             dmg_process = None
 
         else:
-            log_msg(f"Prescribed Damage Process not recognized: " f"{dp_approach}")
+            log_msg(f"Prescribed Damage Process not recognized: {dp_approach}")
 
     # calculate damages
     assessment.damage.calculate(dmg_process=dmg_process)
@@ -1750,9 +1758,7 @@ def _load_consequence_info(config, assessment, custom_model_dir):
         extra_comps = get(config, 'DL/Losses/Repair/ConsequenceDatabasePath')
 
         if 'CustomDLDataFolder' in extra_comps:
-            extra_comps = extra_comps.replace(
-                'CustomDLDataFolder', custom_model_dir
-            )
+            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_model_dir)
 
         consequence_db += [extra_comps]
 
@@ -1897,9 +1903,7 @@ def _loss__map_user(custom_model_dir, config):
     if get(config, 'DL/Losses/Repair/MapFilePath', default=False) is not False:
         loss_map_path = get(config, 'DL/Losses/Repair/MapFilePath')
 
-        loss_map_path = loss_map_path.replace(
-            'CustomDLDataFolder', custom_model_dir
-        )
+        loss_map_path = loss_map_path.replace('CustomDLDataFolder', custom_model_dir)
 
     else:
         raise PelicunInvalidConfigError('Missing loss map path.')
@@ -2163,7 +2167,7 @@ def _get_color_codes(color_warnings):
     else:
         cpref = csuff = ''
 
-    return cpref, csuff
+    return (cpref, csuff)
 
 
 def main():
