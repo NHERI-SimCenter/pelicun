@@ -77,9 +77,7 @@ from pelicun.warnings import PelicunInvalidConfigError
 
 
 # pylint: disable=consider-using-namedtuple-or-dataclass
-# pylint: disable=too-many-statements
 # pylint: disable=too-many-nested-blocks
-# pylint: disable=too-many-arguments
 # pylint: disable=else-if-used
 # pylint: disable=unused-argument
 
@@ -570,7 +568,7 @@ def run_pelicun(
 
     Raises
     ------
-    PelicunInvalidConfigError:
+    PelicunInvalidConfigError
         When the config file is invalid or contains missing entries.
 
     """
