@@ -583,12 +583,119 @@ def run_pelicun(
     # get the absolute path to the config file
     config_path = Path(config_path).resolve()
 
-    # If the output path was not specified, results are saved in the directory
-    # of the input file.
+    # If the output path was not specified, results are saved in the
+    # directory of the input file.
     if output_path is None:
         output_path = config_path.parents[0]
     else:
         output_path = Path(output_path)
+
+    # parse the config file
+    (
+        config,
+        config_path,
+        sample_size,
+        out_files,
+        custom_dl_file_path,
+    ) = _parse_config_file(
+        config_path,
+        output_path,
+        custom_model_dir,
+        auto_script_path,
+        demand_file,
+        realizations,
+        coupled_EDP,
+        detailed_results,
+        output_format,
+    )
+
+    assessment = Assessment(get(config, 'DL/Options'))
+
+    # Demand Assessment -----------------------------------------------------------
+
+    _demand(config, config_path, assessment, sample_size)
+
+    # if requested, save demand results
+    if not is_unspecified(config, 'DL/Outputs/Demand'):
+        demand_sample = _demand_save(config, assessment, output_path, out_files)
+    else:
+        demand_sample, _ = assessment.demand.save_sample(save_units=True)
+
+    # Asset Definition ------------------------------------------------------------
+
+    # set the number of stories
+    cmp_marginals = _asset(config, assessment, demand_sample, cpref, csuff)
+
+    # if requested, save asset model results
+    if get(config, 'DL/Outputs/Asset', default=False):
+        _asset_save(assessment, config, output_path, out_files)
+
+    # Damage Assessment -----------------------------------------------------------
+
+    # if a damage assessment is requested
+    if not is_unspecified(config, 'DL/Damage'):
+
+        _damage(config, custom_dl_file_path, assessment, cmp_marginals)
+
+        # if requested, save damage results
+        if not is_unspecified(config, 'DL/Outputs/Damage'):
+            damage_sample = _damage_save(assessment, config, output_path, out_files)
+        else:
+            damage_sample, _ = assessment.damage.save_sample(save_units=True)
+
+    else:
+        damage_sample, _ = assessment.damage.save_sample(
+            save_units=True
+        )  # TODO: look into this line.
+
+    # Loss Assessment -----------------------------------------------------------
+
+    # if a loss assessment is requested
+    if not is_unspecified(config, 'DL/Losses'):
+        agg_repair = _loss(
+            config, assessment, custom_dl_file_path, output_path, out_files
+        )
+    else:
+        agg_repair = None
+
+    # Result Summary -----------------------------------------------------------
+
+    summary, summary_stats = _summary(
+        assessment, agg_repair, damage_sample, config, output_path, out_files
+    )
+
+    # save summary sample
+    summary.to_csv(output_path / "DL_summary.csv", index_label='#')
+    out_files.append('DL_summary.csv')
+
+    # save summary statistics
+    summary_stats.to_csv(output_path / "DL_summary_stats.csv")
+    out_files.append('DL_summary_stats.csv')
+
+    # create json outputs if needed
+    if get(config, 'DL/Outputs/Format/JSON') is True:
+        _write_json_files(out_files, config, output_path)
+
+    # remove csv outputs if they were not requested
+    if get(config, 'DL/Outputs/Format/CSV', default=False) is False:
+        for filename in out_files:
+            # keep the DL_summary and DL_summary_stats files
+            if 'DL_summary' in filename:
+                continue
+            os.remove(output_path / filename)
+
+
+def _parse_config_file(
+    config_path,
+    output_path,
+    custom_model_dir,
+    auto_script_path,
+    demand_file,
+    realizations,
+    coupled_EDP,
+    detailed_results,
+    output_format,
+):
 
     out_files = []
 
@@ -721,9 +828,8 @@ def run_pelicun(
     if is_unspecified(config, 'DL/Demands'):
         raise PelicunInvalidConfigError("Demand configuration missing.")
 
-    # get the length unit from the config file
-    length_unit = get(config, 'GeneralInformation/units/length', default=None)
-    if length_unit is None:
+    # ensure a length unit is specified in the config file.
+    if is_unspecified(config, 'GeneralInformation/units/length'):
         raise PelicunInvalidConfigError(
             "No default length unit provided in the input file."
         )
@@ -738,81 +844,13 @@ def run_pelicun(
     update(
         config, 'DL/Options/ListAllDamageStates', True, only_if_empty_or_none=True
     )
-
-    assessment = Assessment(get(config, 'DL/Options'))
-
-    # Demand Assessment -----------------------------------------------------------
-
-    _demand(config, config_path, length_unit, assessment, sample_size)
-
-    # if requested, save demand results
-    if not is_unspecified(config, 'DL/Outputs/Demand'):
-        demand_sample = _demand_save(config, assessment, output_path, out_files)
-    else:
-        demand_sample, _ = assessment.demand.save_sample(save_units=True)
-
-    # Asset Definition ------------------------------------------------------------
-
-    # set the number of stories
-    cmp_marginals = _asset(config, assessment, demand_sample, cpref, csuff)
-
-    # if requested, save asset model results
-    if get(config, 'DL/Outputs/Asset', default=False):
-        _asset_save(assessment, config, output_path, out_files)
-
-    # Damage Assessment -----------------------------------------------------------
-
-    # if a damage assessment is requested
-    if not is_unspecified(config, 'DL/Damage'):
-
-        _damage(config, custom_dl_file_path, assessment, cmp_marginals, length_unit)
-
-        # if requested, save damage results
-        if not is_unspecified(config, 'DL/Outputs/Damage'):
-            damage_sample = _damage_save(assessment, config, output_path, out_files)
-        else:
-            damage_sample, _ = assessment.damage.save_sample(save_units=True)
-
-    else:
-        damage_sample, _ = assessment.damage.save_sample(
-            save_units=True
-        )  # TODO: look into this line.
-
-    # Loss Assessment -----------------------------------------------------------
-
-    # if a loss assessment is requested
-    if not is_unspecified(config, 'DL/Losses'):
-        agg_repair = _loss(
-            config, assessment, custom_dl_file_path, output_path, out_files
-        )
-    else:
-        agg_repair = None
-
-    # Result Summary -----------------------------------------------------------
-
-    summary, summary_stats = _summary(
-        assessment, agg_repair, damage_sample, config, output_path, out_files
+    return (
+        config,
+        config_path,
+        sample_size,
+        out_files,
+        custom_dl_file_path,
     )
-
-    # save summary sample
-    summary.to_csv(output_path / "DL_summary.csv", index_label='#')
-    out_files.append('DL_summary.csv')
-
-    # save summary statistics
-    summary_stats.to_csv(output_path / "DL_summary_stats.csv")
-    out_files.append('DL_summary_stats.csv')
-
-    # create json outputs if needed
-    if get(config, 'DL/Outputs/Format/JSON') is True:
-        _write_json_files(out_files, config, output_path)
-
-    # remove csv outputs if they were not requested
-    if get(config, 'DL/Outputs/Format/CSV', default=False) is False:
-        for filename in out_files:
-            # keep the DL_summary and DL_summary_stats files
-            if 'DL_summary' in filename:
-                continue
-            os.remove(output_path / filename)
 
 
 def _write_json_files(out_files, config, output_path):
@@ -1115,7 +1153,7 @@ def _summary(assessment, agg_repair, damage_sample, config, output_path, out_fil
     return summary, summary_stats
 
 
-def _demand(config, config_path, length_unit, assessment, sample_size):
+def _demand(config, config_path, assessment, sample_size):
     # check if there is a demand file location specified in the config file
     if get(config, 'DL/Demands/DemandFilePath', default=False):
         demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
@@ -1164,6 +1202,7 @@ def _demand(config, config_path, length_unit, assessment, sample_size):
 
     # add units to the demand data if needed
     if "Units" not in raw_demands.index:
+        length_unit = get(config, 'GeneralInformation/units/length', default=None)
         demands = add_units(raw_demands, length_unit)
 
     else:
@@ -1330,7 +1369,9 @@ def _asset(config, assessment, demand_sample, cpref, csuff):
     return cmp_marginals
 
 
-def _damage(config, custom_dl_file_path, assessment, cmp_marginals, length_unit):
+def _damage(config, custom_dl_file_path, assessment, cmp_marginals):
+
+    length_unit = get(config, 'GeneralInformation/units/length', default=None)
 
     # load the fragility information
     if get(config, 'DL/Asset/ComponentDatabase') in default_DBs['fragility']:
