@@ -614,7 +614,6 @@ def run_pelicun(
     (
         config,
         config_path,
-        out_files,
         custom_dl_file_path,
     ) = _parse_config_file(
         config_path,
@@ -627,6 +626,8 @@ def run_pelicun(
         detailed_results,
         output_format,
     )
+
+    out_files = []
 
     assessment = Assessment(get(config, 'DL/Options'))
 
@@ -715,8 +716,6 @@ def _parse_config_file(
     detailed_results,
     output_format,
 ):
-
-    out_files = []
 
     # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
@@ -867,7 +866,6 @@ def _parse_config_file(
     return (
         config,
         config_path,
-        out_files,
         custom_dl_file_path,
     )
 
