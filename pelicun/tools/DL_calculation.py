@@ -633,14 +633,12 @@ def run_pelicun(
 
     # if requested, save demand results
     if is_specified(config, 'DL/Outputs/Demand'):
-        demand_sample = _demand_save(config, assessment, output_path, out_files)
-    else:
-        demand_sample, _ = assessment.demand.save_sample(save_units=True)
+        _demand_save(config, assessment, output_path, out_files)
 
     # Asset Definition ------------------------------------------------------------
 
     # set the number of stories
-    cmp_marginals = _asset(config, assessment, demand_sample, cpref, csuff)
+    cmp_marginals = _asset(config, assessment, cpref, csuff)
 
     # if requested, save asset model results
     if get(config, 'DL/Outputs/Asset', default=False):
@@ -1109,14 +1107,15 @@ def _asset_save(assessment, config, output_path, out_files):
 
 
 def _demand_save(config, assessment, output_path, out_files):
+
     out_reqs = [
         out if val else "" for out, val in get(config, 'DL/Outputs/Demand').items()
     ]
 
-    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-        demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
+    demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
+    demand_units = demand_units.to_frame().T
 
-        demand_units = demand_units.to_frame().T
+    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
 
         if 'Sample' in out_reqs:
             demand_sample_s = pd.concat([demand_sample, demand_units])
@@ -1137,8 +1136,6 @@ def _demand_save(config, assessment, output_path, out_files):
                 index_label=demand_stats.columns.name,
             )
             out_files.append('DEM_stats.csv')
-
-    return demand_sample
 
 
 def _summary(assessment, agg_repair, damage_sample, config, output_path, out_files):
@@ -1288,7 +1285,11 @@ def _demand(config, assessment):
     assessment.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
 
 
-def _asset(config, assessment, demand_sample, cpref, csuff):
+def _asset(config, assessment, cpref, csuff):
+
+    # retrieve the demand sample
+    demand_sample = assessment.demand.save_sample()
+    
     # set the number of stories
     if get(config, 'DL/Asset/NumberOfStories', default=False):
         assessment.stories = int(get(config, 'DL/Asset/NumberOfStories'))
@@ -1403,6 +1404,7 @@ def _damage(config, custom_model_dir, assessment, cmp_marginals):
             )
 
         component_db += [extra_comps]
+
     component_db = component_db[::-1]
 
     # prepare additional fragility data
