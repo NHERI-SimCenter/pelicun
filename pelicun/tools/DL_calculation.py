@@ -675,9 +675,9 @@ def run_pelicun(
 
     # if a loss assessment is requested
     if is_specified(config, 'DL/Losses/Repair'):
-        agg_repair = _loss(
-            config, assessment, custom_model_dir, output_path, out_files
-        )
+        _loss(config, assessment, custom_model_dir, output_path, out_files)
+
+        agg_repair = assessment.repair.aggregate_losses()
 
         # if requested, save results
         if get(config, 'DL/Outputs/Loss/Repair', default=False):
@@ -1722,10 +1722,6 @@ def _loss(config, assessment, custom_model_dir, output_path, out_files):
 
     assessment.repair.calculate()
 
-    agg_repair = assessment.repair.aggregate_losses()
-
-    return agg_repair
-
 
 def _load_consequence_info(config, assessment, custom_model_dir):
     if get(config, 'DL/Losses/Repair/ConsequenceDatabase') in default_DBs['repair']:
@@ -1775,6 +1771,7 @@ def _load_consequence_info(config, assessment, custom_model_dir):
 
 
 def _loss_save(assessment, config, output_path, out_files, agg_repair):
+
     repair_sample, repair_units = assessment.repair.save_sample(save_units=True)
     repair_units = repair_units.to_frame().T
 
