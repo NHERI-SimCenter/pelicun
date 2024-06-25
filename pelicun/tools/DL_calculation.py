@@ -662,14 +662,7 @@ def run_pelicun(
 
         # if requested, save damage results
         if is_specified(config, 'DL/Outputs/Damage'):
-            damage_sample = _damage_save(assessment, config, output_path, out_files)
-        else:
-            damage_sample, _ = assessment.damage.save_sample(save_units=True)
-
-    else:
-        damage_sample, _ = assessment.damage.save_sample(
-            save_units=True
-        )  # TODO: look into this line.
+            _damage_save(assessment, config, output_path, out_files)
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -689,7 +682,7 @@ def run_pelicun(
     # Result Summary -----------------------------------------------------------
 
     summary, summary_stats = _summary(
-        assessment, agg_repair, damage_sample, config, output_path, out_files
+        assessment, agg_repair, config, output_path, out_files
     )
 
     # save summary sample
@@ -1083,8 +1076,6 @@ def _damage_save(assessment, config, output_path, out_files):
                 )
                 out_files.append('DMG_grp_stats.csv')
 
-    return damage_sample
-
 
 def _asset_save(assessment, config, output_path, out_files):
 
@@ -1164,7 +1155,9 @@ def _demand_save(config, assessment, output_path, out_files):
             out_files.append('DEM_stats.csv')
 
 
-def _summary(assessment, agg_repair, damage_sample, config, output_path, out_files):
+def _summary(assessment, agg_repair, config, output_path, out_files):
+
+    damage_sample = assessment.damage.save_sample()
     damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
