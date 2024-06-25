@@ -874,6 +874,16 @@ def _parse_config_file(
         only_if_empty_or_none=True,
     )
 
+    # backwards-compatibility for v3.2 and earlier | remove after v4.0
+    if get(config, 'DL/Losses/BldgRepair', default=False):
+        update(config, 'DL/Losses/Repair', get(config, 'DL/Losses/BldgRepair'))
+    if get(config, 'DL/Outputs/Loss/BldgRepair', default=False):
+        update(
+            config,
+            'DL/Outputs/Loss/Repair',
+            get(config, 'DL/Outputs/Loss/BldgRepair'),
+        )
+
     return config
 
 
@@ -916,6 +926,7 @@ def _write_json_files(out_files, config, output_path):
 
 
 def _damage_save(assessment, config, output_path, out_files):
+
     damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
     damage_units = damage_units.to_frame().T
 
@@ -1071,6 +1082,7 @@ def _damage_save(assessment, config, output_path, out_files):
 
 
 def _asset_save(assessment, config, output_path, out_files):
+
     cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
     cmp_units = cmp_units.to_frame().T
 
@@ -1639,16 +1651,6 @@ def _damage(config, custom_model_dir, assessment, cmp_marginals):
 
 
 def _loss(config, assessment, custom_model_dir, output_path, out_files):
-
-    # backwards-compatibility for v3.2 and earlier | remove after v4.0
-    if get(config, 'DL/Losses/BldgRepair', default=False):
-        update(config, 'DL/Losses/Repair', get(config, 'DL/Losses/BldgRepair'))
-    if get(config, 'DL/Outputs/Loss/BldgRepair', default=False):
-        update(
-            config,
-            'DL/Outputs/Loss/Repair',
-            get(config, 'DL/Outputs/Loss/BldgRepair'),
-        )
 
     # if requested, calculate repair consequences
     if get(config, 'DL/Losses/Repair', default=False):
