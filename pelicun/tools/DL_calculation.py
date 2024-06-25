@@ -640,18 +640,10 @@ def run_pelicun(
 
     _demand(config, assessment)
 
-    # if requested, save demand results
-    if is_specified(config, 'DL/Outputs/Demand'):
-        _demand_save(config, assessment, output_path, out_files)
-
     # Asset Definition ------------------------------------------------------------
 
     # set the number of stories
     cmp_marginals = _asset(config, assessment, color_codes)
-
-    # if requested, save asset model results
-    if get(config, 'DL/Outputs/Asset', default=False):
-        _asset_save(assessment, config, output_path, out_files)
 
     # Damage Assessment -----------------------------------------------------------
 
@@ -659,10 +651,6 @@ def run_pelicun(
     if is_specified(config, 'DL/Damage'):
 
         _damage(config, custom_model_dir, assessment, cmp_marginals)
-
-        # if requested, save damage results
-        if is_specified(config, 'DL/Outputs/Damage'):
-            _damage_save(assessment, config, output_path, out_files)
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -672,10 +660,6 @@ def run_pelicun(
 
         agg_repair = assessment.repair.aggregate_losses()
 
-        # if requested, save results
-        if get(config, 'DL/Outputs/Loss/Repair', default=False):
-            _loss_save(assessment, config, output_path, out_files, agg_repair)
-
     else:
         agg_repair = None
 
@@ -684,6 +668,24 @@ def run_pelicun(
     summary, summary_stats = _summary(
         assessment, agg_repair, config, output_path, out_files
     )
+
+    # Save results ----------------------------------------------------------------
+
+    # if requested, save demand results
+    if is_specified(config, 'DL/Outputs/Demand'):
+        _demand_save(config, assessment, output_path, out_files)
+
+    # if requested, save asset model results
+    if get(config, 'DL/Outputs/Asset', default=False):
+        _asset_save(assessment, config, output_path, out_files)
+
+    # if requested, save damage results
+    if is_specified(config, 'DL/Outputs/Damage'):
+        _damage_save(assessment, config, output_path, out_files)
+
+    # if requested, save loss results
+    if get(config, 'DL/Outputs/Loss/Repair', default=False):
+        _loss_save(assessment, config, output_path, out_files, agg_repair)
 
     # save summary sample
     summary.to_csv(output_path / "DL_summary.csv", index_label='#')
