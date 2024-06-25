@@ -674,7 +674,7 @@ def run_pelicun(
     # Loss Assessment -----------------------------------------------------------
 
     # if a loss assessment is requested
-    if is_specified(config, 'DL/Losses'):
+    if is_specified(config, 'DL/Losses/Repair'):
         agg_repair = _loss(
             config, assessment, custom_model_dir, output_path, out_files
         )
@@ -1652,86 +1652,78 @@ def _damage(config, custom_model_dir, assessment, cmp_marginals):
 
 def _loss(config, assessment, custom_model_dir, output_path, out_files):
 
-    # if requested, calculate repair consequences
-    if get(config, 'DL/Losses/Repair', default=False):
+    conseq_df, consequence_db = _load_consequence_info(
+        config, assessment, custom_model_dir
+    )
 
-        conseq_df, consequence_db = _load_consequence_info(
-            config, assessment, custom_model_dir
-        )
+    # remove duplicates from conseq_df
+    conseq_df = conseq_df.loc[conseq_df.index.unique(), :]
 
-        # remove duplicates from conseq_df
-        conseq_df = conseq_df.loc[conseq_df.index.unique(), :]
+    # add the replacement consequence to the data
+    adf = pd.DataFrame(
+        columns=conseq_df.columns,
+        index=pd.MultiIndex.from_tuples(
+            [
+                ('replacement', 'Cost'),
+                ('replacement', 'Time'),
+                ('replacement', 'Carbon'),
+                ('replacement', 'Energy'),
+            ]
+        ),
+    )
 
-        # add the replacement consequence to the data
-        adf = pd.DataFrame(
-            columns=conseq_df.columns,
-            index=pd.MultiIndex.from_tuples(
-                [
-                    ('replacement', 'Cost'),
-                    ('replacement', 'Time'),
-                    ('replacement', 'Carbon'),
-                    ('replacement', 'Energy'),
-                ]
-            ),
-        )
+    # DL_method = get(config, 'DL/Losses/Repair')['ConsequenceDatabase']
+    DL_method = get(config, 'DL/Damage/DamageProcess', default='User Defined')
 
-        # DL_method = get(config, 'DL/Losses/Repair')['ConsequenceDatabase']
-        DL_method = get(config, 'DL/Damage/DamageProcess', default='User Defined')
+    _loss__cost(config, adf, DL_method)
 
-        _loss__cost(config, adf, DL_method)
+    _loss__time(config, adf, DL_method, conseq_df)
 
-        _loss__time(config, adf, DL_method, conseq_df)
+    _loss__carbon(config, adf, DL_method)
 
-        _loss__carbon(config, adf, DL_method)
+    _loss__energy(config, adf, DL_method)
 
-        _loss__energy(config, adf, DL_method)
+    # prepare the loss map
+    loss_map = None
+    if get(config, 'DL/Losses/Repair/MapApproach') == "Automatic":
+        # get the damage sample
+        loss_map = _loss__map_auto(assessment, conseq_df, DL_method, config)
 
-        # prepare the loss map
-        loss_map = None
-        if get(config, 'DL/Losses/Repair/MapApproach') == "Automatic":
-            # get the damage sample
-            loss_map = _loss__map_auto(assessment, conseq_df, DL_method, config)
+    elif get(config, 'DL/Losses/Repair/MapApproach') == "User Defined":
+        loss_map = _loss__map_user(custom_model_dir, config)
 
-        elif get(config, 'DL/Losses/Repair/MapApproach') == "User Defined":
-            loss_map = _loss__map_user(custom_model_dir, config)
+    # prepare additional loss map entries, if needed
+    if 'DMG-collapse' not in loss_map.index:
+        loss_map.loc['DMG-collapse', 'Repair'] = 'replacement'
+        loss_map.loc['DMG-irreparable', 'Repair'] = 'replacement'
 
-        # prepare additional loss map entries, if needed
-        if 'DMG-collapse' not in loss_map.index:
-            loss_map.loc['DMG-collapse', 'Repair'] = 'replacement'
-            loss_map.loc['DMG-irreparable', 'Repair'] = 'replacement'
+    # assemble the list of requested decision variables
+    DV_list = []
+    if get(config, 'DL/Losses/Repair/DecisionVariables', default=False) is not False:
+        for DV_i, DV_status in get(
+            config, 'DL/Losses/Repair/DecisionVariables'
+        ).items():
+            if DV_status is True:
+                DV_list.append(DV_i)
 
-        # assemble the list of requested decision variables
-        DV_list = []
-        if (
-            get(config, 'DL/Losses/Repair/DecisionVariables', default=False)
-            is not False
-        ):
-            for DV_i, DV_status in get(
-                config, 'DL/Losses/Repair/DecisionVariables'
-            ).items():
-                if DV_status is True:
-                    DV_list.append(DV_i)
+    else:
+        DV_list = None
 
-        else:
-            DV_list = None
+    assessment.repair.load_model(
+        consequence_db + [adf],
+        loss_map,
+        decision_variables=DV_list,
+    )
 
-        assessment.repair.load_model(
-            consequence_db + [adf],
-            loss_map,
-            decision_variables=DV_list,
-        )
+    assessment.repair.calculate()
 
-        assessment.repair.calculate()
+    agg_repair = assessment.repair.aggregate_losses()
 
-        agg_repair = assessment.repair.aggregate_losses()
+    # if requested, save results
+    if get(config, 'DL/Outputs/Loss/Repair', default=False):
+        _loss_save(assessment, config, output_path, out_files, agg_repair)
 
-        # if requested, save results
-        if get(config, 'DL/Outputs/Loss/Repair', default=False):
-            _loss_save(assessment, config, output_path, out_files, agg_repair)
-
-        return agg_repair
-
-    return None
+    return agg_repair
 
 
 def _load_consequence_info(config, assessment, custom_model_dir):
