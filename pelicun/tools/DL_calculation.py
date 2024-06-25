@@ -678,6 +678,11 @@ def run_pelicun(
         agg_repair = _loss(
             config, assessment, custom_model_dir, output_path, out_files
         )
+
+        # if requested, save results
+        if get(config, 'DL/Outputs/Loss/Repair', default=False):
+            _loss_save(assessment, config, output_path, out_files, agg_repair)
+
     else:
         agg_repair = None
 
@@ -1718,10 +1723,6 @@ def _loss(config, assessment, custom_model_dir, output_path, out_files):
     assessment.repair.calculate()
 
     agg_repair = assessment.repair.aggregate_losses()
-
-    # if requested, save results
-    if get(config, 'DL/Outputs/Loss/Repair', default=False):
-        _loss_save(assessment, config, output_path, out_files, agg_repair)
 
     return agg_repair
 
