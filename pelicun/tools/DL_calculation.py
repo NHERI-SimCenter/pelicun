@@ -642,15 +642,14 @@ def run_pelicun(
 
     # Asset Definition ------------------------------------------------------------
 
-    # set the number of stories
-    cmp_marginals = _asset(config, assessment, color_codes)
+    _asset(config, assessment, color_codes)
 
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
     if is_specified(config, 'DL/Damage'):
 
-        _damage(config, custom_model_dir, assessment, cmp_marginals)
+        _damage(config, custom_model_dir, assessment)
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -1401,10 +1400,8 @@ def _asset(config, assessment, color_codes):
     elif get(config, 'DL/Asset/ComponentSampleFile', default=False):
         assessment.asset.load_cmp_sample(get(config, 'DL/Asset/ComponentSampleFile'))
 
-    return cmp_marginals
 
-
-def _damage(config, custom_model_dir, assessment, cmp_marginals):
+def _damage(config, custom_model_dir, assessment):
 
     length_unit = get(config, 'GeneralInformation/units/length', default=None)
 
@@ -1435,7 +1432,10 @@ def _damage(config, custom_model_dir, assessment, cmp_marginals):
     adf = pd.DataFrame(columns=P58_data.columns)
 
     if is_specified(config, 'DL/Damage/CollapseFragility'):
-        if 'excessive.coll.DEM' in cmp_marginals.index:
+        if (
+            'excessive.coll.DEM'
+            in assessment.asset.cmp_marginal_params.index.get_level_values('cmp')
+        ):
             # if there is story-specific evaluation
             coll_CMP_name = 'excessive.coll.DEM'
         else:
