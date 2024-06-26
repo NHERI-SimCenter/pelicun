@@ -79,7 +79,6 @@ from pelicun.warnings import PelicunInvalidConfigError
 # pylint: disable=consider-using-namedtuple-or-dataclass
 # pylint: disable=too-many-nested-blocks
 # pylint: disable=else-if-used
-# pylint: disable=unused-argument
 
 # pd.set_option('display.max_rows', None)
 
@@ -555,11 +554,9 @@ def run_pelicun(
     realizations,
     auto_script_path,
     detailed_results,
-    regional,
     output_format,
     custom_model_dir,
     color_warnings,
-    **kwargs,
 ):
     """
     Use settings in the config JSON to prepare and run a Pelicun calculation.
@@ -582,8 +579,6 @@ def run_pelicun(
         provided in the AIM JSON file.
     detailed_results: bool, optional
         If False, only the main statistics are saved.
-    regional: bool
-        Currently unused.
     output_format: str
         Type of output format, JSON or CSV.
     custom_model_dir: string, optional
@@ -623,7 +618,6 @@ def run_pelicun(
     config = _parse_config_file(
         config_path,
         output_path,
-        custom_model_dir,
         auto_script_path,
         demand_file,
         realizations,
@@ -655,7 +649,7 @@ def run_pelicun(
 
     # if a loss assessment is requested
     if is_specified(config, 'DL/Losses/Repair'):
-        _loss(config, assessment, custom_model_dir, output_path, out_files)
+        _loss(config, assessment, custom_model_dir)
 
         agg_repair = assessment.repair.aggregate_losses()
 
@@ -664,9 +658,7 @@ def run_pelicun(
 
     # Result Summary -----------------------------------------------------------
 
-    summary, summary_stats = _summary(
-        assessment, agg_repair, config, output_path, out_files
-    )
+    summary, summary_stats = _summary(assessment, agg_repair)
 
     # Save results ----------------------------------------------------------------
 
@@ -710,7 +702,6 @@ def run_pelicun(
 def _parse_config_file(
     config_path,
     output_path,
-    custom_model_dir,
     auto_script_path,
     demand_file,
     realizations,
@@ -1156,7 +1147,7 @@ def _demand_save(config, assessment, output_path, out_files):
             out_files.append('DEM_stats.csv')
 
 
-def _summary(assessment, agg_repair, config, output_path, out_files):
+def _summary(assessment, agg_repair):
 
     damage_sample = assessment.damage.save_sample()
     damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
@@ -1650,7 +1641,7 @@ def _damage(config, custom_model_dir, assessment):
     assessment.damage.calculate(dmg_process=dmg_process)
 
 
-def _loss(config, assessment, custom_model_dir, output_path, out_files):
+def _loss(config, assessment, custom_model_dir):
 
     conseq_df, consequence_db = _load_consequence_info(
         config, assessment, custom_model_dir
@@ -2214,14 +2205,9 @@ def main():
         realizations=args.Realizations,
         detailed_results=args.detailed_results,
         coupled_EDP=args.coupled_EDP,
-        log_file=args.log_file,
-        event_time=args.event_time,
-        ground_failure=args.ground_failure,
         auto_script_path=args.auto_script,
-        resource_dir=args.resource_dir,
         custom_model_dir=args.custom_model_dir,
         color_warnings=args.color_warnings,
-        regional=args.regional,
         output_format=args.output_format,
     )
 
