@@ -550,13 +550,13 @@ def run_pelicun(
     config_path,
     demand_file,
     output_path,
-    coupled_EDP,
     realizations,
-    auto_script_path,
     detailed_results,
-    output_format,
+    coupled_EDP,
+    auto_script_path,
     custom_model_dir,
     color_warnings,
+    output_format,
 ):
     """
     Use settings in the config JSON to prepare and run a Pelicun calculation.
@@ -2156,32 +2156,80 @@ def main():
     args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--filenameDL')
-    parser.add_argument('-d', '--demandFile', default=None)
-    parser.add_argument('-s', '--Realizations', default=None)
-    parser.add_argument('--dirnameOutput', default=None)
-    parser.add_argument('--event_time', default=None)
     parser.add_argument(
-        '--detailed_results', default=True, type=str2bool, nargs='?', const=True
+        '-c',
+        '--filenameDL',
+        help="Path to the damage and loss (DL) configuration file.",
     )
     parser.add_argument(
-        '--coupled_EDP', default=False, type=str2bool, nargs='?', const=False
+        '-d',
+        '--demandFile',
+        default=None,
+        help="Path to the file containing demand data.",
     )
     parser.add_argument(
-        '--log_file', default=True, type=str2bool, nargs='?', const=True
+        '-s',
+        '--Realizations',
+        default=None,
+        help="Number of realizations to run in the stochastic model.",
     )
     parser.add_argument(
-        '--ground_failure', default=False, type=str2bool, nargs='?', const=False
+        '--dirnameOutput',
+        default=None,
+        help="Directory where output files will be stored.",
     )
-    parser.add_argument('--auto_script', default=None)
-    parser.add_argument('--resource_dir', default=None)
-    parser.add_argument('--custom_model_dir', default=None)
     parser.add_argument(
-        '--regional', default=False, type=str2bool, nargs='?', const=False
+        '--detailed_results',
+        default=True,
+        type=str2bool,
+        nargs='?',
+        const=True,
+        help="Generate detailed results (True/False). Defaults to True.",
     )
-    parser.add_argument('--output_format', default=None)
     parser.add_argument(
-        '--color_warnings', default=False, type=str2bool, nargs='?', const=False
+        '--coupled_EDP',
+        default=False,
+        type=str2bool,
+        nargs='?',
+        const=False,
+        help=(
+            "Consider coupled Engineering Demand Parameters (EDPs) "
+            "in calculations (True/False). Defaults to False."
+        ),
+    )
+    parser.add_argument(
+        '--log_file',
+        default=True,
+        type=str2bool,
+        nargs='?',
+        const=True,
+        help="Generate a log file (True/False). Defaults to True.",
+    )
+    parser.add_argument(
+        '--auto_script',
+        default=None,
+        help="Optional path to a config auto-generation script.",
+    )
+    parser.add_argument(
+        '--custom_model_dir',
+        default=None,
+        help="Directory containing custom model data.",
+    )
+    parser.add_argument(
+        '--output_format',
+        default=None,
+        help="Desired output format for the results.",
+    )
+    parser.add_argument(
+        '--color_warnings',
+        default=False,
+        type=str2bool,
+        nargs='?',
+        const=False,
+        help=(
+            "Enable colored warnings in the console "
+            "output (True/False). Defaults to False."
+        ),
     )
 
     if not args:
@@ -2199,7 +2247,7 @@ def main():
     log_msg('Initializing pelicun calculation.')
 
     run_pelicun(
-        args.filenameDL,
+        config_path=args.filenameDL,
         demand_file=args.demandFile,
         output_path=args.dirnameOutput,
         realizations=args.Realizations,

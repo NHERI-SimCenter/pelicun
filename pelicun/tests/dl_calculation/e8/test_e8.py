@@ -74,7 +74,6 @@ def test_dl_calculation_8(obtain_temp_dir):
             realizations='100',
             auto_script_path='auto_HU_LA.py',
             detailed_results=False,
-            regional=True,
             output_format=None,
             custom_model_dir=None,
             color_warnings=False,

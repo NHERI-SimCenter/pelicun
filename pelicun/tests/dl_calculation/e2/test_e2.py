@@ -61,7 +61,6 @@ def test_dl_calculation_2(obtain_temp_dir):
             realizations='100',
             auto_script_path='PelicunDefault/Hazus_Earthquake_Story.py',
             detailed_results=False,
-            regional=True,
             output_format=None,
             custom_model_dir=None,
             color_warnings=False,

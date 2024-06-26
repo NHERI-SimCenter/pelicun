@@ -73,7 +73,6 @@ def test_dl_calculation_9(obtain_temp_dir):
             realizations='100',
             auto_script_path='custom_pop.py',
             detailed_results=False,
-            regional=True,
             output_format=None,
             custom_model_dir='./CustomDLModels',
             color_warnings=False,
