@@ -643,7 +643,7 @@ def run_pelicun(
     # if a damage assessment is requested
     if is_specified(config, 'DL/Damage'):
 
-        _damage(config, custom_model_dir, assessment)
+        _damage(config, assessment, custom_model_dir)
 
     # Loss Assessment -----------------------------------------------------------
 
@@ -1392,7 +1392,7 @@ def _asset(config, assessment, color_codes):
         assessment.asset.load_cmp_sample(get(config, 'DL/Asset/ComponentSampleFile'))
 
 
-def _damage(config, custom_model_dir, assessment):
+def _damage(config, assessment, custom_model_dir):
 
     length_unit = get(config, 'GeneralInformation/units/length', default=None)
 
