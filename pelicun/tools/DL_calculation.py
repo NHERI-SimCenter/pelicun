@@ -613,6 +613,9 @@ def run_pelicun(
         output_path = config_path.parents[0]
     else:
         output_path = Path(output_path)
+    # create the directory if it does not exist
+    if not os.path.exists(output_path):
+        os.makedirs(output_path, exist_ok=True)
 
     # parse the config file
     config = _parse_config_file(
@@ -626,6 +629,7 @@ def run_pelicun(
         output_format,
     )
 
+    # List to keep track of the generated output files.
     out_files = []
 
     assessment = Assessment(get(config, 'DL/Options'))
@@ -636,12 +640,21 @@ def run_pelicun(
 
     # Asset Definition ------------------------------------------------------------
 
-    _asset(config, assessment, color_codes)
+    # if asset data are specified
+    if is_specified(config, 'DL/Asset'):
+
+        _asset(config, assessment, color_codes)
 
     # Damage Assessment -----------------------------------------------------------
 
     # if a damage assessment is requested
     if is_specified(config, 'DL/Damage'):
+
+        if is_unspecified(config, 'DL/Asset'):
+            raise PelicunInvalidConfigError(
+                'No asset data specified in config file. '
+                'Cannot perform a damage assesment.'
+            )
 
         _damage(config, assessment, custom_model_dir)
 
@@ -649,15 +662,23 @@ def run_pelicun(
 
     # if a loss assessment is requested
     if is_specified(config, 'DL/Losses/Repair'):
+
+        if is_unspecified(config, 'DL/Asset'):
+            raise PelicunInvalidConfigError(
+                'No asset data specified in config file. '
+                'Cannot perform a loss assesment.'
+            )
+
         _loss(config, assessment, custom_model_dir)
 
-        agg_repair = assessment.repair.aggregate_losses()
+        agg_repair, _ = assessment.loss.aggregate_losses(
+            future=True
+        )
 
     else:
         agg_repair = None
 
     # Result Summary -----------------------------------------------------------
-
     summary, summary_stats = _summary(assessment, agg_repair)
 
     # Save results ----------------------------------------------------------------
@@ -667,24 +688,47 @@ def run_pelicun(
         _demand_save(config, assessment, output_path, out_files)
 
     # if requested, save asset model results
-    if get(config, 'DL/Outputs/Asset', default=False):
+    if is_specified(config, 'DL/Outputs/Asset'):
+
+        if is_unspecified(config, 'DL/Asset'):
+            raise PelicunInvalidConfigError(
+                'No asset data specified in config file. '
+                'Cannot generate asset model outputs.'
+            )
+
         _asset_save(assessment, config, output_path, out_files)
 
     # if requested, save damage results
     if is_specified(config, 'DL/Outputs/Damage'):
+
+        if is_unspecified(config, 'DL/Damage'):
+            raise PelicunInvalidConfigError(
+                'No damage data specified in config file. '
+                'Cannot generate damage model outputs.'
+            )
+
         _damage_save(assessment, config, output_path, out_files)
 
     # if requested, save loss results
-    if get(config, 'DL/Outputs/Loss/Repair', default=False):
+    if is_specified(config, 'DL/Outputs/Loss/Repair'):
+
+        if is_unspecified(config, 'DL/Losses/Repair'):
+            raise PelicunInvalidConfigError(
+                'No loss data specified in config file. '
+                'Cannot generate loss model outputs.'
+            )
+
         _loss_save(assessment, config, output_path, out_files, agg_repair)
 
     # save summary sample
-    summary.to_csv(output_path / "DL_summary.csv", index_label='#')
-    out_files.append('DL_summary.csv')
+    if summary is not None:
+        summary.to_csv(output_path / "DL_summary.csv", index_label='#')
+        out_files.append('DL_summary.csv')
 
     # save summary statistics
-    summary_stats.to_csv(output_path / "DL_summary_stats.csv")
-    out_files.append('DL_summary_stats.csv')
+    if summary_stats is not None:
+        summary_stats.to_csv(output_path / "DL_summary_stats.csv")
+        out_files.append('DL_summary_stats.csv')
 
     # create json outputs if needed
     if get(config, 'DL/Outputs/Format/JSON') is True:
@@ -792,21 +836,15 @@ def _parse_config_file(
         else:
             raise PelicunInvalidConfigError("No `DL` entry in config file.")
 
-    #
-    # sample size: backwards compatibility
-    #
-    sample_size_str = (
-        # expected location
-        get(config, 'Options/Sampling/SampleSize')
-    )
+    # sample size
+    sample_size_str = get(config, 'DL/Options/Sampling/SampleSize')
     if not sample_size_str:
-        # try previous location
         sample_size_str = get(config, 'DL/Demands/SampleSize')
-    if not sample_size_str:
-        # give up
-        raise PelicunInvalidConfigError('Sample size not provided in config file.')
-    # add sample size at the expected location
-    update(config, 'Options/Sampling/SampleSize', int(sample_size_str))
+        if not sample_size_str:
+            raise PelicunInvalidConfigError(
+                'Sample size not provided in config file.'
+            )
+    update(config, 'DL/Options/Sampling/SampleSize', int(sample_size_str))
 
     # provide all outputs if the files are not specified
     if is_unspecified(config, 'DL/Outputs'):
@@ -832,11 +870,11 @@ def _parse_config_file(
     if is_unspecified(config, 'DL/Outputs/Settings'):
         update(config, 'DL/Outputs/Settings', pbe_settings)
 
-    if is_unspecified(config, 'DL/Asset'):
-        raise PelicunInvalidConfigError("Asset configuration missing.")
-
     if is_unspecified(config, 'DL/Demands'):
         raise PelicunInvalidConfigError("Demand configuration missing.")
+
+    if is_unspecified(config, 'DL/Asset'):
+        raise PelicunInvalidConfigError("Asset configuration missing.")
 
     # ensure a length unit is specified in the config file.
     if is_unspecified(config, 'GeneralInformation/units/length'):
@@ -878,6 +916,7 @@ def _parse_config_file(
 
 
 def _write_json_files(out_files, config, output_path):
+
     for filename in out_files:
         filename_json = filename[:-3] + 'json'
 
@@ -915,274 +954,10 @@ def _write_json_files(out_files, config, output_path):
             json.dump(out_dict, f, indent=2)
 
 
-def _damage_save(assessment, config, output_path, out_files):
-
-    damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
-    damage_units = damage_units.to_frame().T
-
-    if (
-        get(
-            config,
-            'DL/Outputs/Settings/AggregateColocatedComponentResults',
-            default=False,
-        )
-        is True
-    ):
-        damage_units = damage_units.groupby(level=[0, 1, 2, 4], axis=1).first()
-
-        damage_groupby_uid = damage_sample.groupby(level=[0, 1, 2, 4], axis=1)
-
-        damage_sample = damage_groupby_uid.sum().mask(
-            damage_groupby_uid.count() == 0, np.nan
-        )
-
-    out_reqs = [
-        out if val else "" for out, val in get(config, 'DL/Outputs/Damage').items()
-    ]
-
-    if np.any(
-        np.isin(
-            [
-                'Sample',
-                'Statistics',
-                'GroupedSample',
-                'GroupedStatistics',
-            ],
-            out_reqs,
-        )
-    ):
-        if 'Sample' in out_reqs:
-            damage_sample_s = pd.concat([damage_sample, damage_units])
-
-            damage_sample_s = convert_to_SimpleIndex(damage_sample_s, axis=1)
-            damage_sample_s.to_csv(
-                output_path / "DMG_sample.zip",
-                index_label=damage_sample_s.columns.name,
-                compression={
-                    'method': 'zip',
-                    'archive_name': 'DMG_sample.csv',
-                },
-            )
-            out_files.append('DMG_sample.zip')
-
-        if 'Statistics' in out_reqs:
-            damage_stats = describe(damage_sample)
-            damage_stats = pd.concat([damage_stats, damage_units])
-
-            damage_stats = convert_to_SimpleIndex(damage_stats, axis=1)
-            damage_stats.to_csv(
-                output_path / "DMG_stats.csv",
-                index_label=damage_stats.columns.name,
-            )
-            out_files.append('DMG_stats.csv')
-
-        if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
-            if (
-                get(
-                    config,
-                    'DL/Outputs/Settings/AggregateColocatedComponentResults',
-                    default=False,
-                )
-                is True
-            ):
-                damage_groupby = damage_sample.groupby(level=[0, 1, 3], axis=1)
-
-                damage_units = damage_units.groupby(level=[0, 1, 3], axis=1).first()
-
-            else:
-                damage_groupby = damage_sample.groupby(level=[0, 1, 4], axis=1)
-
-                damage_units = damage_units.groupby(level=[0, 1, 4], axis=1).first()
-
-            grp_damage = damage_groupby.sum().mask(
-                damage_groupby.count() == 0, np.nan
-            )
-
-            # if requested, condense DS output
-            if (
-                get(
-                    config,
-                    'DL/Outputs/Settings/CondenseDS',
-                    default=False,
-                )
-                is True
-            ):
-                # replace non-zero values with 1
-                grp_damage = grp_damage.mask(
-                    grp_damage.astype(np.float64).values > 0, 1
-                )
-
-                # get the corresponding DS for each column
-                ds_list = grp_damage.columns.get_level_values(2).astype(int)
-
-                # replace ones with the corresponding DS in each cell
-                grp_damage = grp_damage.mul(ds_list, axis=1)
-
-                # aggregate across damage state indices
-                damage_groupby_2 = grp_damage.groupby(level=[0, 1], axis=1)
-
-                # choose the max value
-                # i.e., the governing DS for each comp-loc pair
-                grp_damage = damage_groupby_2.max().mask(
-                    damage_groupby_2.count() == 0, np.nan
-                )
-
-                # aggregate units to the same format
-                # assume identical units across locations for each comp
-                damage_units = damage_units.groupby(level=[0, 1], axis=1).first()
-
-            else:
-                # otherwise, aggregate damage quantities for each comp
-                damage_groupby_2 = grp_damage.groupby(level=0, axis=1)
-
-                # preserve NaNs
-                grp_damage = damage_groupby_2.sum().mask(
-                    damage_groupby_2.count() == 0, np.nan
-                )
-
-                # and aggregate units to the same format
-                damage_units = damage_units.groupby(level=0, axis=1).first()
-
-            if 'GroupedSample' in out_reqs:
-                grp_damage_s = pd.concat([grp_damage, damage_units])
-
-                grp_damage_s = convert_to_SimpleIndex(grp_damage_s, axis=1)
-                grp_damage_s.to_csv(
-                    output_path / "DMG_grp.zip",
-                    index_label=grp_damage_s.columns.name,
-                    compression={
-                        'method': 'zip',
-                        'archive_name': 'DMG_grp.csv',
-                    },
-                )
-                out_files.append('DMG_grp.zip')
-
-            if 'GroupedStatistics' in out_reqs:
-                grp_stats = describe(grp_damage)
-                grp_stats = pd.concat([grp_stats, damage_units])
-
-                grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
-                grp_stats.to_csv(
-                    output_path / "DMG_grp_stats.csv",
-                    index_label=grp_stats.columns.name,
-                )
-                out_files.append('DMG_grp_stats.csv')
-
-
-def _asset_save(assessment, config, output_path, out_files):
-
-    cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
-    cmp_units = cmp_units.to_frame().T
-
-    if (
-        get(
-            config,
-            'DL/Outputs/Settings/AggregateColocatedComponentResults',
-            default=False,
-        )
-        is True
-    ):
-        cmp_units = cmp_units.groupby(level=[0, 1, 2], axis=1).first()
-
-        cmp_groupby_uid = cmp_sample.groupby(level=[0, 1, 2], axis=1)
-
-        cmp_sample = cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan)
-
-    out_reqs = [
-        out if val else "" for out, val in get(config, 'DL/Outputs/Asset').items()
-    ]
-
-    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-        if 'Sample' in out_reqs:
-            cmp_sample_s = pd.concat([cmp_sample, cmp_units])
-
-            cmp_sample_s = convert_to_SimpleIndex(cmp_sample_s, axis=1)
-            cmp_sample_s.to_csv(
-                output_path / "CMP_sample.zip",
-                index_label=cmp_sample_s.columns.name,
-                compression={'method': 'zip', 'archive_name': 'CMP_sample.csv'},
-            )
-            out_files.append('CMP_sample.zip')
-
-        if 'Statistics' in out_reqs:
-            cmp_stats = describe(cmp_sample)
-            cmp_stats = pd.concat([cmp_stats, cmp_units])
-
-            cmp_stats = convert_to_SimpleIndex(cmp_stats, axis=1)
-            cmp_stats.to_csv(
-                output_path / "CMP_stats.csv", index_label=cmp_stats.columns.name
-            )
-            out_files.append('CMP_stats.csv')
-
-
-def _demand_save(config, assessment, output_path, out_files):
-
-    out_reqs = [
-        out if val else "" for out, val in get(config, 'DL/Outputs/Demand').items()
-    ]
-
-    demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
-    demand_units = demand_units.to_frame().T
-
-    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-
-        if 'Sample' in out_reqs:
-            demand_sample_s = pd.concat([demand_sample, demand_units])
-            demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
-            demand_sample_s.to_csv(
-                output_path / "DEM_sample.zip",
-                index_label=demand_sample_s.columns.name,
-                compression={'method': 'zip', 'archive_name': 'DEM_sample.csv'},
-            )
-            out_files.append('DEM_sample.zip')
-
-        if 'Statistics' in out_reqs:
-            demand_stats = describe(demand_sample)
-            demand_stats = pd.concat([demand_stats, demand_units])
-            demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
-            demand_stats.to_csv(
-                output_path / "DEM_stats.csv",
-                index_label=demand_stats.columns.name,
-            )
-            out_files.append('DEM_stats.csv')
-
-
-def _summary(assessment, agg_repair):
-
-    damage_sample = assessment.damage.save_sample()
-    damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
-    damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
-
-    if 'collapse-1' in damage_sample_s.columns:
-        damage_sample_s['collapse'] = damage_sample_s['collapse-1']
-    else:
-        damage_sample_s['collapse'] = np.zeros(damage_sample_s.shape[0])
-
-    if 'irreparable-1' in damage_sample_s.columns:
-        damage_sample_s['irreparable'] = damage_sample_s['irreparable-1']
-    else:
-        damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
-
-    if agg_repair is not None:
-        agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
-
-    else:
-        agg_repair_s = pd.DataFrame()
-
-    summary = pd.concat(
-        [agg_repair_s, damage_sample_s[['collapse', 'irreparable']]], axis=1
-    )
-
-    summary_stats = describe(summary)
-
-    return summary, summary_stats
-
-
 def _demand(config, assessment):
 
     demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
 
-    # try to load the demands
     raw_demands = pd.read_csv(demand_path, index_col=0)
 
     # remove excessive demands that are considered collapses, if needed
@@ -1246,7 +1021,7 @@ def _demand(config, assessment):
     # and generate a new demand sample
     assessment.demand.generate_sample(
         {
-            "SampleSize": get(config, 'Options/Sampling/SampleSize'),
+            "SampleSize": get(config, 'DL/Options/Sampling/SampleSize'),
             'PreserveRawOrder': get(
                 config, 'DL/Demands/CoupledDemands', default=False
             ),
@@ -1555,7 +1330,9 @@ def _damage(config, assessment, custom_model_dir):
         adf.loc['aggregate', ('LS2', 'Theta_0')] = 1e10
         adf.loc['aggregate', 'Incomplete'] = 0
 
-    assessment.damage.load_damage_model(component_db + [adf])
+    assessment.damage.load_model_parameters(
+        component_db + [adf], assessment.asset.list_unique_component_ids(as_set=True)
+    )
 
     # load the damage process if needed
     dmg_process = None
@@ -1663,7 +1440,6 @@ def _loss(config, assessment, custom_model_dir):
         ),
     )
 
-    # DL_method = get(config, 'DL/Losses/Repair')['ConsequenceDatabase']
     DL_method = get(config, 'DL/Damage/DamageProcess', default='User Defined')
 
     _loss__cost(config, adf, DL_method)
@@ -1676,12 +1452,18 @@ def _loss(config, assessment, custom_model_dir):
 
     # prepare the loss map
     loss_map = None
-    if get(config, 'DL/Losses/Repair/MapApproach') == "Automatic":
+    map_approach = get(config, 'DL/Losses/Repair/MapApproach')
+    if map_approach == "Automatic":
         # get the damage sample
         loss_map = _loss__map_auto(assessment, conseq_df, DL_method, config)
 
-    elif get(config, 'DL/Losses/Repair/MapApproach') == "User Defined":
+    elif map_approach == "User Defined":
         loss_map = _loss__map_user(custom_model_dir, config)
+
+    else:
+        raise PelicunInvalidConfigError(
+            f'Invalid MapApproach value: `{map_approach}`.'
+        )
 
     # prepare additional loss map entries, if needed
     if 'DMG-collapse' not in loss_map.index:
@@ -1700,181 +1482,13 @@ def _loss(config, assessment, custom_model_dir):
     else:
         DV_list = None
 
-    assessment.repair.load_model(
+    assessment.loss.add_loss_map(loss_map, loss_map_policy=None)
+    assessment.loss.load_model_parameters(
         consequence_db + [adf],
-        loss_map,
         decision_variables=DV_list,
     )
 
-    assessment.repair.calculate()
-
-
-def _load_consequence_info(config, assessment, custom_model_dir):
-    if get(config, 'DL/Losses/Repair/ConsequenceDatabase') in default_DBs['repair']:
-        consequence_db = [
-            'PelicunDefault/'
-            + default_DBs['repair'][
-                get(config, 'DL/Losses/Repair/ConsequenceDatabase')
-            ],
-        ]
-
-        conseq_df = assessment.get_default_data(
-            default_DBs['repair'][
-                get(config, 'DL/Losses/Repair/ConsequenceDatabase')
-            ][:-4]
-        )
-    else:
-        consequence_db = []
-
-        conseq_df = pd.DataFrame()
-
-    if (
-        get(config, 'DL/Losses/Repair/ConsequenceDatabasePath', default=False)
-        is not False
-    ):
-        extra_comps = get(config, 'DL/Losses/Repair/ConsequenceDatabasePath')
-
-        if 'CustomDLDataFolder' in extra_comps:
-            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_model_dir)
-
-        consequence_db += [extra_comps]
-
-        extra_conseq_df = load_data(
-            extra_comps,
-            unit_conversion_factors=None,
-            orientation=1,
-            reindex=False,
-        )
-
-        if isinstance(conseq_df, pd.DataFrame):
-            conseq_df = pd.concat([conseq_df, extra_conseq_df])
-        else:
-            conseq_df = extra_conseq_df
-
-    consequence_db = consequence_db[::-1]
-
-    return conseq_df, consequence_db
-
-
-def _loss_save(assessment, config, output_path, out_files, agg_repair):
-
-    repair_sample, repair_units = assessment.repair.save_sample(save_units=True)
-    repair_units = repair_units.to_frame().T
-
-    if (
-        get(
-            config,
-            'DL/Outputs/Settings/AggregateColocatedComponentResults',
-            default=False,
-        )
-        is True
-    ):
-        repair_units = repair_units.groupby(level=[0, 1, 2, 3, 4, 5], axis=1).first()
-
-        repair_groupby_uid = repair_sample.groupby(level=[0, 1, 2, 3, 4, 5], axis=1)
-
-        repair_sample = repair_groupby_uid.sum().mask(
-            repair_groupby_uid.count() == 0, np.nan
-        )
-
-    out_reqs = [
-        out if val else ""
-        for out, val in get(config, 'DL/Outputs/Loss/Repair').items()
-    ]
-
-    if np.any(
-        np.isin(
-            [
-                'Sample',
-                'Statistics',
-                'GroupedSample',
-                'GroupedStatistics',
-                'AggregateSample',
-                'AggregateStatistics',
-            ],
-            out_reqs,
-        )
-    ):
-        if 'Sample' in out_reqs:
-            repair_sample_s = repair_sample.copy()
-            repair_sample_s = pd.concat([repair_sample_s, repair_units])
-
-            repair_sample_s = convert_to_SimpleIndex(repair_sample_s, axis=1)
-            repair_sample_s.to_csv(
-                output_path / "DV_repair_sample.zip",
-                index_label=repair_sample_s.columns.name,
-                compression={
-                    'method': 'zip',
-                    'archive_name': 'DV_repair_sample.csv',
-                },
-            )
-            out_files.append('DV_repair_sample.zip')
-
-        if 'Statistics' in out_reqs:
-            repair_stats = describe(repair_sample)
-            repair_stats = pd.concat([repair_stats, repair_units])
-
-            repair_stats = convert_to_SimpleIndex(repair_stats, axis=1)
-            repair_stats.to_csv(
-                output_path / "DV_repair_stats.csv",
-                index_label=repair_stats.columns.name,
-            )
-            out_files.append('DV_repair_stats.csv')
-
-        if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
-            repair_groupby = repair_sample.groupby(level=[0, 1, 2], axis=1)
-
-            repair_units = repair_units.groupby(level=[0, 1, 2], axis=1).first()
-
-            grp_repair = repair_groupby.sum().mask(
-                repair_groupby.count() == 0, np.nan
-            )
-
-            if 'GroupedSample' in out_reqs:
-                grp_repair_s = pd.concat([grp_repair, repair_units])
-
-                grp_repair_s = convert_to_SimpleIndex(grp_repair_s, axis=1)
-                grp_repair_s.to_csv(
-                    output_path / "DV_repair_grp.zip",
-                    index_label=grp_repair_s.columns.name,
-                    compression={
-                        'method': 'zip',
-                        'archive_name': 'DV_repair_grp.csv',
-                    },
-                )
-                out_files.append('DV_repair_grp.zip')
-
-            if 'GroupedStatistics' in out_reqs:
-                grp_stats = describe(grp_repair)
-                grp_stats = pd.concat([grp_stats, repair_units])
-
-                grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
-                grp_stats.to_csv(
-                    output_path / "DV_repair_grp_stats.csv",
-                    index_label=grp_stats.columns.name,
-                )
-                out_files.append('DV_repair_grp_stats.csv')
-
-        if np.any(np.isin(['AggregateSample', 'AggregateStatistics'], out_reqs)):
-            if 'AggregateSample' in out_reqs:
-                agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
-                agg_repair_s.to_csv(
-                    output_path / "DV_repair_agg.zip",
-                    index_label=agg_repair_s.columns.name,
-                    compression={
-                        'method': 'zip',
-                        'archive_name': 'DV_repair_agg.csv',
-                    },
-                )
-                out_files.append('DV_repair_agg.zip')
-
-            if 'AggregateStatistics' in out_reqs:
-                agg_stats = convert_to_SimpleIndex(describe(agg_repair), axis=1)
-                agg_stats.to_csv(
-                    output_path / "DV_repair_agg_stats.csv",
-                    index_label=agg_stats.columns.name,
-                )
-                out_files.append('DV_repair_agg_stats.csv')
+    assessment.loss.calculate()
 
 
 def _loss__map_user(custom_model_dir, config):
@@ -2136,6 +1750,440 @@ def _loss__cost(config, adf, DL_method):
             adf.loc[rc, ('Quantity', 'Unit')] = '1 EA'
             adf.loc[rc, ('DV', 'Unit')] = 'loss_ratio'
             adf.loc[rc, ('DS1', 'Theta_0')] = 1
+
+
+def _summary(assessment, agg_repair):
+
+    damage_sample = assessment.damage.save_sample()
+    if damage_sample is None or agg_repair is None:
+        return None, None
+
+    damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
+    damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
+
+    if 'collapse-1' in damage_sample_s.columns:
+        damage_sample_s['collapse'] = damage_sample_s['collapse-1']
+    else:
+        damage_sample_s['collapse'] = np.zeros(damage_sample_s.shape[0])
+
+    if 'irreparable-1' in damage_sample_s.columns:
+        damage_sample_s['irreparable'] = damage_sample_s['irreparable-1']
+    else:
+        damage_sample_s['irreparable'] = np.zeros(damage_sample_s.shape[0])
+
+    if agg_repair is not None:
+        agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+
+    else:
+        agg_repair_s = pd.DataFrame()
+
+    summary = pd.concat(
+        [agg_repair_s, damage_sample_s[['collapse', 'irreparable']]], axis=1
+    )
+
+    summary_stats = describe(summary)
+
+    return summary, summary_stats
+
+
+def _demand_save(config, assessment, output_path, out_files):
+
+    out_reqs = [
+        out if val else "" for out, val in get(config, 'DL/Outputs/Demand').items()
+    ]
+
+    demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
+    demand_units = demand_units.to_frame().T
+
+    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
+
+        if 'Sample' in out_reqs:
+            demand_sample_s = pd.concat([demand_sample, demand_units])
+            demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
+            demand_sample_s.to_csv(
+                output_path / "DEM_sample.zip",
+                index_label=demand_sample_s.columns.name,
+                compression={'method': 'zip', 'archive_name': 'DEM_sample.csv'},
+            )
+            out_files.append('DEM_sample.zip')
+
+        if 'Statistics' in out_reqs:
+            demand_stats = describe(demand_sample)
+            demand_stats = pd.concat([demand_stats, demand_units])
+            demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
+            demand_stats.to_csv(
+                output_path / "DEM_stats.csv",
+                index_label=demand_stats.columns.name,
+            )
+            out_files.append('DEM_stats.csv')
+
+
+def _asset_save(assessment, config, output_path, out_files):
+
+    cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
+    cmp_units = cmp_units.to_frame().T
+
+    if (
+        get(
+            config,
+            'DL/Outputs/Settings/AggregateColocatedComponentResults',
+            default=False,
+        )
+        is True
+    ):
+        cmp_units = cmp_units.groupby(level=[0, 1, 2], axis=1).first()
+
+        cmp_groupby_uid = cmp_sample.groupby(level=[0, 1, 2], axis=1)
+
+        cmp_sample = cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan)
+
+    out_reqs = [
+        out if val else "" for out, val in get(config, 'DL/Outputs/Asset').items()
+    ]
+
+    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
+        if 'Sample' in out_reqs:
+            cmp_sample_s = pd.concat([cmp_sample, cmp_units])
+
+            cmp_sample_s = convert_to_SimpleIndex(cmp_sample_s, axis=1)
+            cmp_sample_s.to_csv(
+                output_path / "CMP_sample.zip",
+                index_label=cmp_sample_s.columns.name,
+                compression={'method': 'zip', 'archive_name': 'CMP_sample.csv'},
+            )
+            out_files.append('CMP_sample.zip')
+
+        if 'Statistics' in out_reqs:
+            cmp_stats = describe(cmp_sample)
+            cmp_stats = pd.concat([cmp_stats, cmp_units])
+
+            cmp_stats = convert_to_SimpleIndex(cmp_stats, axis=1)
+            cmp_stats.to_csv(
+                output_path / "CMP_stats.csv", index_label=cmp_stats.columns.name
+            )
+            out_files.append('CMP_stats.csv')
+
+
+def _damage_save(assessment, config, output_path, out_files):
+
+    damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
+    damage_units = damage_units.to_frame().T
+
+    if (
+        get(
+            config,
+            'DL/Outputs/Settings/AggregateColocatedComponentResults',
+            default=False,
+        )
+        is True
+    ):
+        damage_units = damage_units.groupby(level=[0, 1, 2, 4], axis=1).first()
+
+        damage_groupby_uid = damage_sample.groupby(level=[0, 1, 2, 4], axis=1)
+
+        damage_sample = damage_groupby_uid.sum().mask(
+            damage_groupby_uid.count() == 0, np.nan
+        )
+
+    out_reqs = [
+        out if val else "" for out, val in get(config, 'DL/Outputs/Damage').items()
+    ]
+
+    if np.any(
+        np.isin(
+            [
+                'Sample',
+                'Statistics',
+                'GroupedSample',
+                'GroupedStatistics',
+            ],
+            out_reqs,
+        )
+    ):
+        if 'Sample' in out_reqs:
+            damage_sample_s = pd.concat([damage_sample, damage_units])
+
+            damage_sample_s = convert_to_SimpleIndex(damage_sample_s, axis=1)
+            damage_sample_s.to_csv(
+                output_path / "DMG_sample.zip",
+                index_label=damage_sample_s.columns.name,
+                compression={
+                    'method': 'zip',
+                    'archive_name': 'DMG_sample.csv',
+                },
+            )
+            out_files.append('DMG_sample.zip')
+
+        if 'Statistics' in out_reqs:
+            damage_stats = describe(damage_sample)
+            damage_stats = pd.concat([damage_stats, damage_units])
+
+            damage_stats = convert_to_SimpleIndex(damage_stats, axis=1)
+            damage_stats.to_csv(
+                output_path / "DMG_stats.csv",
+                index_label=damage_stats.columns.name,
+            )
+            out_files.append('DMG_stats.csv')
+
+        if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
+            if (
+                get(
+                    config,
+                    'DL/Outputs/Settings/AggregateColocatedComponentResults',
+                    default=False,
+                )
+                is True
+            ):
+                damage_groupby = damage_sample.groupby(level=[0, 1, 3], axis=1)
+
+                damage_units = damage_units.groupby(level=[0, 1, 3], axis=1).first()
+
+            else:
+                damage_groupby = damage_sample.groupby(level=[0, 1, 4], axis=1)
+
+                damage_units = damage_units.groupby(level=[0, 1, 4], axis=1).first()
+
+            grp_damage = damage_groupby.sum().mask(
+                damage_groupby.count() == 0, np.nan
+            )
+
+            # if requested, condense DS output
+            if (
+                get(
+                    config,
+                    'DL/Outputs/Settings/CondenseDS',
+                    default=False,
+                )
+                is True
+            ):
+                # replace non-zero values with 1
+                grp_damage = grp_damage.mask(
+                    grp_damage.astype(np.float64).values > 0, 1
+                )
+
+                # get the corresponding DS for each column
+                ds_list = grp_damage.columns.get_level_values(2).astype(int)
+
+                # replace ones with the corresponding DS in each cell
+                grp_damage = grp_damage.mul(ds_list, axis=1)
+
+                # aggregate across damage state indices
+                damage_groupby_2 = grp_damage.groupby(level=[0, 1], axis=1)
+
+                # choose the max value
+                # i.e., the governing DS for each comp-loc pair
+                grp_damage = damage_groupby_2.max().mask(
+                    damage_groupby_2.count() == 0, np.nan
+                )
+
+                # aggregate units to the same format
+                # assume identical units across locations for each comp
+                damage_units = damage_units.groupby(level=[0, 1], axis=1).first()
+
+            else:
+                # otherwise, aggregate damage quantities for each comp
+                damage_groupby_2 = grp_damage.groupby(level=0, axis=1)
+
+                # preserve NaNs
+                grp_damage = damage_groupby_2.sum().mask(
+                    damage_groupby_2.count() == 0, np.nan
+                )
+
+                # and aggregate units to the same format
+                damage_units = damage_units.groupby(level=0, axis=1).first()
+
+            if 'GroupedSample' in out_reqs:
+                grp_damage_s = pd.concat([grp_damage, damage_units])
+
+                grp_damage_s = convert_to_SimpleIndex(grp_damage_s, axis=1)
+                grp_damage_s.to_csv(
+                    output_path / "DMG_grp.zip",
+                    index_label=grp_damage_s.columns.name,
+                    compression={
+                        'method': 'zip',
+                        'archive_name': 'DMG_grp.csv',
+                    },
+                )
+                out_files.append('DMG_grp.zip')
+
+            if 'GroupedStatistics' in out_reqs:
+                grp_stats = describe(grp_damage)
+                grp_stats = pd.concat([grp_stats, damage_units])
+
+                grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
+                grp_stats.to_csv(
+                    output_path / "DMG_grp_stats.csv",
+                    index_label=grp_stats.columns.name,
+                )
+                out_files.append('DMG_grp_stats.csv')
+
+
+def _loss_save(assessment, config, output_path, out_files, agg_repair):
+
+    repair_sample, repair_units = assessment.loss.ds_model.save_sample(save_units=True)
+    repair_units = repair_units.to_frame().T
+
+    if (
+        get(
+            config,
+            'DL/Outputs/Settings/AggregateColocatedComponentResults',
+            default=False,
+        )
+        is True
+    ):
+        repair_units = repair_units.groupby(level=[0, 1, 2, 3, 4, 5], axis=1).first()
+
+        repair_groupby_uid = repair_sample.groupby(level=[0, 1, 2, 3, 4, 5], axis=1)
+
+        repair_sample = repair_groupby_uid.sum().mask(
+            repair_groupby_uid.count() == 0, np.nan
+        )
+
+    out_reqs = [
+        out if val else ""
+        for out, val in get(config, 'DL/Outputs/Loss/Repair').items()
+    ]
+
+    if np.any(
+        np.isin(
+            [
+                'Sample',
+                'Statistics',
+                'GroupedSample',
+                'GroupedStatistics',
+                'AggregateSample',
+                'AggregateStatistics',
+            ],
+            out_reqs,
+        )
+    ):
+        if 'Sample' in out_reqs:
+            repair_sample_s = repair_sample.copy()
+            repair_sample_s = pd.concat([repair_sample_s, repair_units])
+
+            repair_sample_s = convert_to_SimpleIndex(repair_sample_s, axis=1)
+            repair_sample_s.to_csv(
+                output_path / "DV_repair_sample.zip",
+                index_label=repair_sample_s.columns.name,
+                compression={
+                    'method': 'zip',
+                    'archive_name': 'DV_repair_sample.csv',
+                },
+            )
+            out_files.append('DV_repair_sample.zip')
+
+        if 'Statistics' in out_reqs:
+            repair_stats = describe(repair_sample)
+            repair_stats = pd.concat([repair_stats, repair_units])
+
+            repair_stats = convert_to_SimpleIndex(repair_stats, axis=1)
+            repair_stats.to_csv(
+                output_path / "DV_repair_stats.csv",
+                index_label=repair_stats.columns.name,
+            )
+            out_files.append('DV_repair_stats.csv')
+
+        if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
+            repair_groupby = repair_sample.groupby(level=[0, 1, 2], axis=1)
+
+            repair_units = repair_units.groupby(level=[0, 1, 2], axis=1).first()
+
+            grp_repair = repair_groupby.sum().mask(
+                repair_groupby.count() == 0, np.nan
+            )
+
+            if 'GroupedSample' in out_reqs:
+                grp_repair_s = pd.concat([grp_repair, repair_units])
+
+                grp_repair_s = convert_to_SimpleIndex(grp_repair_s, axis=1)
+                grp_repair_s.to_csv(
+                    output_path / "DV_repair_grp.zip",
+                    index_label=grp_repair_s.columns.name,
+                    compression={
+                        'method': 'zip',
+                        'archive_name': 'DV_repair_grp.csv',
+                    },
+                )
+                out_files.append('DV_repair_grp.zip')
+
+            if 'GroupedStatistics' in out_reqs:
+                grp_stats = describe(grp_repair)
+                grp_stats = pd.concat([grp_stats, repair_units])
+
+                grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
+                grp_stats.to_csv(
+                    output_path / "DV_repair_grp_stats.csv",
+                    index_label=grp_stats.columns.name,
+                )
+                out_files.append('DV_repair_grp_stats.csv')
+
+        if np.any(np.isin(['AggregateSample', 'AggregateStatistics'], out_reqs)):
+            if 'AggregateSample' in out_reqs:
+                agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+                agg_repair_s.to_csv(
+                    output_path / "DV_repair_agg.zip",
+                    index_label=agg_repair_s.columns.name,
+                    compression={
+                        'method': 'zip',
+                        'archive_name': 'DV_repair_agg.csv',
+                    },
+                )
+                out_files.append('DV_repair_agg.zip')
+
+            if 'AggregateStatistics' in out_reqs:
+                agg_stats = convert_to_SimpleIndex(describe(agg_repair), axis=1)
+                agg_stats.to_csv(
+                    output_path / "DV_repair_agg_stats.csv",
+                    index_label=agg_stats.columns.name,
+                )
+                out_files.append('DV_repair_agg_stats.csv')
+
+
+def _load_consequence_info(config, assessment, custom_model_dir):
+    if get(config, 'DL/Losses/Repair/ConsequenceDatabase') in default_DBs['repair']:
+        consequence_db = [
+            'PelicunDefault/'
+            + default_DBs['repair'][
+                get(config, 'DL/Losses/Repair/ConsequenceDatabase')
+            ],
+        ]
+
+        conseq_df = assessment.get_default_data(
+            default_DBs['repair'][
+                get(config, 'DL/Losses/Repair/ConsequenceDatabase')
+            ][:-4]
+        )
+    else:
+        consequence_db = []
+
+        conseq_df = pd.DataFrame()
+
+    if (
+        get(config, 'DL/Losses/Repair/ConsequenceDatabasePath', default=False)
+        is not False
+    ):
+        extra_comps = get(config, 'DL/Losses/Repair/ConsequenceDatabasePath')
+
+        if 'CustomDLDataFolder' in extra_comps:
+            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_model_dir)
+
+        consequence_db += [extra_comps]
+
+        extra_conseq_df = load_data(
+            extra_comps,
+            unit_conversion_factors=None,
+            orientation=1,
+            reindex=False,
+        )
+
+        if isinstance(conseq_df, pd.DataFrame):
+            conseq_df = pd.concat([conseq_df, extra_conseq_df])
+        else:
+            conseq_df = extra_conseq_df
+
+    consequence_db = consequence_db[::-1]
+
+    return conseq_df, consequence_db
 
 
 def _get_color_codes(color_warnings):
