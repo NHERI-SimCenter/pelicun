@@ -375,6 +375,9 @@ class DamageModel(PelicunModel):
         self.log.div()
         self.log.msg('Saving damage sample...')
 
+        if self.ds_model.sample is None:
+            return None
+
         cmp_units = self._asmnt.asset.cmp_units
         qnt_units = pd.Series(
             index=self.ds_model.sample.columns, name='Units', dtype='object'
