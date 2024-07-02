@@ -773,68 +773,68 @@ def _parse_config_file(
         ) from exc
 
     if is_unspecified(config, 'DL'):
+
         log_msg("Damage and Loss configuration missing from config file. ")
 
-        if auto_script_path is not None:
-            log_msg("Trying to auto-populate")
+        if auto_script_path is None:
+            raise PelicunInvalidConfigError("No `DL` entry in config file.")
 
-            config_ap, CMP = auto_populate(config, auto_script_path)
+        log_msg("Trying to auto-populate")
 
-            if is_unspecified(config_ap, 'DL'):
+        config_ap, CMP = auto_populate(config, auto_script_path)
 
-                raise PelicunInvalidConfigError(
-                    "No `DL` entry in config file, and "
-                    "the prescribed auto-population script failed to identify "
-                    "a valid damage and loss configuration for this asset. "
-                )
+        if is_unspecified(config_ap, 'DL'):
 
-            # add the demand information
-            update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
-            update(config_ap, '/DL/Demands/SampleSize', str(realizations))
-
-            if coupled_EDP is True:
-                update(config_ap, 'DL/Demands/CoupledDemands', True)
-
-            else:
-                update(
-                    config_ap,
-                    'DL/Demands/Calibration',
-                    {"ALL": {"DistributionFamily": "lognormal"}},
-                )
-
-            # save the component data
-            CMP.to_csv(output_path / 'CMP_QNT.csv')
-
-            # update the config file with the location
-            update(
-                config_ap,
-                'DL/Asset/ComponentAssignmentFile',
-                str(output_path / 'CMP_QNT.csv'),
+            raise PelicunInvalidConfigError(
+                "No `DL` entry in config file, and "
+                "the prescribed auto-population script failed to identify "
+                "a valid damage and loss configuration for this asset. "
             )
 
-            # if detailed results are not requested, add a lean output config
-            if detailed_results is False:
-                update(config_ap, 'DL/Outputs', regional_out_config)
-            else:
-                update(config_ap, 'DL/Outputs', full_out_config)
-                # add output settings from regional output config
-                if is_unspecified(config_ap, 'DL/Outputs/Settings'):
-                    update(config_ap, 'DL/Outputs/Settings', {})
+        # add the demand information
+        update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
+        update(config_ap, '/DL/Demands/SampleSize', str(realizations))
 
-                config_ap['DL']['Outputs']['Settings'].update(
-                    regional_out_config['Settings']
-                )
-
-            # save the extended config to a file
-            config_ap_path = Path(config_path.stem + '_ap.json').resolve()
-
-            with open(config_ap_path, 'w', encoding='utf-8') as f:
-                json.dump(config_ap, f, indent=2)
-
-            update(config, 'DL', get(config_ap, 'DL'))
+        if coupled_EDP is True:
+            update(config_ap, 'DL/Demands/CoupledDemands', True)
 
         else:
-            raise PelicunInvalidConfigError("No `DL` entry in config file.")
+            update(
+                config_ap,
+                'DL/Demands/Calibration',
+                {"ALL": {"DistributionFamily": "lognormal"}},
+            )
+
+        # save the component data
+        CMP.to_csv(output_path / 'CMP_QNT.csv')
+
+        # update the config file with the location
+        update(
+            config_ap,
+            'DL/Asset/ComponentAssignmentFile',
+            str(output_path / 'CMP_QNT.csv'),
+        )
+
+        # if detailed results are not requested, add a lean output config
+        if detailed_results is False:
+            update(config_ap, 'DL/Outputs', regional_out_config)
+        else:
+            update(config_ap, 'DL/Outputs', full_out_config)
+            # add output settings from regional output config
+            if is_unspecified(config_ap, 'DL/Outputs/Settings'):
+                update(config_ap, 'DL/Outputs/Settings', {})
+
+            config_ap['DL']['Outputs']['Settings'].update(
+                regional_out_config['Settings']
+            )
+
+        # save the extended config to a file
+        config_ap_path = Path(config_path.stem + '_ap.json').resolve()
+
+        with open(config_ap_path, 'w', encoding='utf-8') as f:
+            json.dump(config_ap, f, indent=2)
+
+        update(config, 'DL', get(config_ap, 'DL'))
 
     # sample size
     sample_size_str = get(config, 'DL/Options/Sampling/SampleSize')
