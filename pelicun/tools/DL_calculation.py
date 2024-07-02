@@ -587,7 +587,7 @@ def run_pelicun(
     color_warnings: bool, optional
         If True, warnings are printed in red on the console. If output
         is redirected to a file, it will contain ANSI codes. When
-        viewed on the console with `cat`, `less`, or similar utilites,
+        viewed on the console with `cat`, `less`, or similar utilities,
         the color will be shown.
 
     Raises
@@ -880,7 +880,7 @@ def _parse_config_file(
             "No default length unit provided in the input file."
         )
 
-    # initialize the Pelicun Assessement
+    # initialize the Pelicun Assessment
     update(
         config,
         'DL/Options/LogFile',
