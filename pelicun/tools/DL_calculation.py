@@ -671,9 +671,7 @@ def run_pelicun(
 
         _loss(config, assessment, custom_model_dir)
 
-        agg_repair, _ = assessment.loss.aggregate_losses(
-            future=True
-        )
+        agg_repair, _ = assessment.loss.aggregate_losses(future=True)
 
     else:
         agg_repair = None
@@ -883,8 +881,18 @@ def _parse_config_file(
         )
 
     # initialize the Pelicun Assessement
-    update(config, 'DL/Options/LogFile', 'pelicun_log.txt', only_if_empty_or_none=True)
-    update(config, 'DL/Options/Verbose', True, only_if_empty_or_none=True)
+    update(
+        config,
+        'DL/Options/LogFile',
+        'pelicun_log.txt',
+        only_if_empty_or_none=True,
+    )
+    update(
+        config,
+        'DL/Options/Verbose',
+        True,
+        only_if_empty_or_none=True,
+    )
 
     # If the user did not prescribe anything for ListAllDamageStates,
     # then use True as default for DL_calculations regardless of what
@@ -2020,7 +2028,9 @@ def _damage_save(assessment, config, output_path, out_files):
 
 def _loss_save(assessment, config, output_path, out_files, agg_repair):
 
-    repair_sample, repair_units = assessment.loss.ds_model.save_sample(save_units=True)
+    repair_sample, repair_units = assessment.loss.ds_model.save_sample(
+        save_units=True
+    )
     repair_units = repair_units.to_frame().T
 
     if (

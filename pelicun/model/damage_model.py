@@ -269,7 +269,7 @@ class DamageModel(PelicunModel):
             containing an operation followed by the value formatted as
             a float.  The operation can be '+' for addition, '-' for
             subtraction, '*' for multiplication, and '/' for division.
-        
+
         """
 
         self.log.div()

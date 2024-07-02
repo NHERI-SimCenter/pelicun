@@ -438,12 +438,7 @@ class DemandModel(PelicunModel):
         self.load_sample(demand_sample_ext)
 
     def expand_sample(
-        self,
-        label: str,
-        value: float,
-        unit: str,
-        location='0',
-        direction='1'
+        self, label: str, value: float, unit: str, location='0', direction='1'
     ) -> None:
         """
         Adds an extra column to the demand sample.
@@ -478,7 +473,6 @@ class DemandModel(PelicunModel):
         demand_units[(label, location, direction)] = unit
         demand_sample.loc['Units', :] = demand_units
         self.load_sample(demand_sample)
-        
 
     def calibrate_model(self, config: dict) -> None:
         """
