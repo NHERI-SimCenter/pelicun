@@ -632,91 +632,38 @@ def run_pelicun(
     # List to keep track of the generated output files.
     out_files = []
 
+    # Run the assessment
     assessment = Assessment(get(config, 'DL/Options'))
+    _demand_assessment(config, assessment)
+    _asset_definition(config, assessment, color_codes)
+    _damage_assessment(config, assessment, custom_model_dir)
+    agg_repair, _ = _loss_assessment(config, assessment, custom_model_dir)
+    summary, summary_stats = _result_summary(assessment, agg_repair)
 
-    # Demand Assessment -----------------------------------------------------------
+    # Save the results into files
+    _demand_save(config, assessment, output_path, out_files)
+    _asset_save(config, assessment, output_path, out_files)
+    _damage_save(config, assessment, output_path, out_files)
+    _loss_save(config, assessment, output_path, out_files, agg_repair)
+    _summary_save(summary, summary_stats, output_path, out_files)
+    _create_json_files_if_requested(config, out_files, output_path)
+    _remove_csv_files_if_not_requested(config, out_files, output_path)
 
-    _demand(config, assessment)
 
-    # Asset Definition ------------------------------------------------------------
+def _remove_csv_files_if_not_requested(config, out_files, output_path):
 
-    # if asset data are specified
-    if is_specified(config, 'DL/Asset'):
+    # Don't proceed if CSV files were requested.
+    if get(config, 'DL/Outputs/Format/CSV', default=False) is True:
+        return
 
-        _asset(config, assessment, color_codes)
+    for filename in out_files:
+        # keep the DL_summary and DL_summary_stats files
+        if 'DL_summary' in filename:
+            continue
+        os.remove(output_path / filename)
 
-    # Damage Assessment -----------------------------------------------------------
 
-    # if a damage assessment is requested
-    if is_specified(config, 'DL/Damage'):
-
-        if is_unspecified(config, 'DL/Asset'):
-            raise PelicunInvalidConfigError(
-                'No asset data specified in config file. '
-                'Cannot perform a damage assesment.'
-            )
-
-        _damage(config, assessment, custom_model_dir)
-
-    # Loss Assessment -----------------------------------------------------------
-
-    # if a loss assessment is requested
-    if is_specified(config, 'DL/Losses/Repair'):
-
-        if is_unspecified(config, 'DL/Asset'):
-            raise PelicunInvalidConfigError(
-                'No asset data specified in config file. '
-                'Cannot perform a loss assesment.'
-            )
-
-        _loss(config, assessment, custom_model_dir)
-
-        agg_repair, _ = assessment.loss.aggregate_losses(future=True)
-
-    else:
-        agg_repair = None
-
-    # Result Summary -----------------------------------------------------------
-    summary, summary_stats = _summary(assessment, agg_repair)
-
-    # Save results ----------------------------------------------------------------
-
-    # if requested, save demand results
-    if is_specified(config, 'DL/Outputs/Demand'):
-        _demand_save(config, assessment, output_path, out_files)
-
-    # if requested, save asset model results
-    if is_specified(config, 'DL/Outputs/Asset'):
-
-        if is_unspecified(config, 'DL/Asset'):
-            raise PelicunInvalidConfigError(
-                'No asset data specified in config file. '
-                'Cannot generate asset model outputs.'
-            )
-
-        _asset_save(assessment, config, output_path, out_files)
-
-    # if requested, save damage results
-    if is_specified(config, 'DL/Outputs/Damage'):
-
-        if is_unspecified(config, 'DL/Damage'):
-            raise PelicunInvalidConfigError(
-                'No damage data specified in config file. '
-                'Cannot generate damage model outputs.'
-            )
-
-        _damage_save(assessment, config, output_path, out_files)
-
-    # if requested, save loss results
-    if is_specified(config, 'DL/Outputs/Loss/Repair'):
-
-        if is_unspecified(config, 'DL/Losses/Repair'):
-            raise PelicunInvalidConfigError(
-                'No loss data specified in config file. '
-                'Cannot generate loss model outputs.'
-            )
-
-        _loss_save(assessment, config, output_path, out_files, agg_repair)
+def _summary_save(summary, summary_stats, output_path, out_files):
 
     # save summary sample
     if summary is not None:
@@ -727,18 +674,6 @@ def run_pelicun(
     if summary_stats is not None:
         summary_stats.to_csv(output_path / "DL_summary_stats.csv")
         out_files.append('DL_summary_stats.csv')
-
-    # create json outputs if needed
-    if get(config, 'DL/Outputs/Format/JSON') is True:
-        _write_json_files(out_files, config, output_path)
-
-    # remove csv outputs if they were not requested
-    if get(config, 'DL/Outputs/Format/CSV', default=False) is False:
-        for filename in out_files:
-            # keep the DL_summary and DL_summary_stats files
-            if 'DL_summary' in filename:
-                continue
-            os.remove(output_path / filename)
 
 
 def _parse_config_file(
@@ -923,7 +858,11 @@ def _parse_config_file(
     return config
 
 
-def _write_json_files(out_files, config, output_path):
+def _create_json_files_if_requested(config, out_files, output_path):
+
+    # If not requested, simply return
+    if get(config, 'DL/Outputs/Format/JSON', default=False) is False:
+        return
 
     for filename in out_files:
         filename_json = filename[:-3] + 'json'
@@ -962,7 +901,7 @@ def _write_json_files(out_files, config, output_path):
             json.dump(out_dict, f, indent=2)
 
 
-def _demand(config, assessment):
+def _demand_assessment(config, assessment):
 
     demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
 
@@ -1079,7 +1018,11 @@ def _demand(config, assessment):
     assessment.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
 
 
-def _asset(config, assessment, color_codes):
+def _asset_definition(config, assessment, color_codes):
+
+    # if no asset data are specified, simply return
+    if is_unspecified(config, 'DL/Asset'):
+        return
 
     # retrieve the demand sample
     demand_sample = assessment.demand.save_sample()
@@ -1175,7 +1118,17 @@ def _asset(config, assessment, color_codes):
         assessment.asset.load_cmp_sample(get(config, 'DL/Asset/ComponentSampleFile'))
 
 
-def _damage(config, assessment, custom_model_dir):
+def _damage_assessment(config, assessment, custom_model_dir):
+
+    # if no damage assessment is requested, simply return
+    if is_unspecified(config, 'DL/Damage'):
+        return
+
+    if is_unspecified(config, 'DL/Asset'):
+        raise PelicunInvalidConfigError(
+            'No asset data specified in config file. '
+            'Cannot perform a damage assessment.'
+        )
 
     length_unit = get(config, 'GeneralInformation/units/length', default=None)
 
@@ -1426,7 +1379,17 @@ def _damage(config, assessment, custom_model_dir):
     assessment.damage.calculate(dmg_process=dmg_process)
 
 
-def _loss(config, assessment, custom_model_dir):
+def _loss_assessment(config, assessment, custom_model_dir):
+
+    # if no loss assessment is requested, simply return
+    if is_unspecified(config, 'DL/Losses/Repair'):
+        return (None, None)
+
+    if is_unspecified(config, 'DL/Asset'):
+        raise PelicunInvalidConfigError(
+            'No asset data specified in config file. '
+            'Cannot perform a loss assessment.'
+        )
 
     conseq_df, consequence_db = _load_consequence_info(
         config, assessment, custom_model_dir
@@ -1497,6 +1460,8 @@ def _loss(config, assessment, custom_model_dir):
     )
 
     assessment.loss.calculate()
+
+    return assessment.loss.aggregate_losses(future=True)
 
 
 def _loss__map_user(custom_model_dir, config):
@@ -1760,7 +1725,7 @@ def _loss__cost(config, adf, DL_method):
             adf.loc[rc, ('DS1', 'Theta_0')] = 1
 
 
-def _summary(assessment, agg_repair):
+def _result_summary(assessment, agg_repair):
 
     damage_sample = assessment.damage.save_sample()
     if damage_sample is None or agg_repair is None:
@@ -1796,6 +1761,10 @@ def _summary(assessment, agg_repair):
 
 def _demand_save(config, assessment, output_path, out_files):
 
+    # if no demand results are requested, simply return
+    if is_unspecified(config, 'DL/Outputs/Demand'):
+        return
+
     out_reqs = [
         out if val else "" for out, val in get(config, 'DL/Outputs/Demand').items()
     ]
@@ -1826,7 +1795,17 @@ def _demand_save(config, assessment, output_path, out_files):
             out_files.append('DEM_stats.csv')
 
 
-def _asset_save(assessment, config, output_path, out_files):
+def _asset_save(config, assessment, output_path, out_files):
+
+    # if no asset model results are requested, simply return
+    if is_unspecified(config, 'DL/Outputs/Asset'):
+        return
+
+    if is_unspecified(config, 'DL/Asset'):
+        raise PelicunInvalidConfigError(
+            'No asset data specified in config file. '
+            'Cannot generate asset model outputs.'
+        )
 
     cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
     cmp_units = cmp_units.to_frame().T
@@ -1872,7 +1851,17 @@ def _asset_save(assessment, config, output_path, out_files):
             out_files.append('CMP_stats.csv')
 
 
-def _damage_save(assessment, config, output_path, out_files):
+def _damage_save(config, assessment, output_path, out_files):
+
+    # if no damage results are requested, simply return
+    if is_unspecified(config, 'DL/Outputs/Damage'):
+        return
+
+    if is_unspecified(config, 'DL/Damage'):
+        raise PelicunInvalidConfigError(
+            'No damage data specified in config file. '
+            'Cannot generate damage model outputs.'
+        )
 
     damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
     damage_units = damage_units.to_frame().T
@@ -2026,7 +2015,16 @@ def _damage_save(assessment, config, output_path, out_files):
                 out_files.append('DMG_grp_stats.csv')
 
 
-def _loss_save(assessment, config, output_path, out_files, agg_repair):
+def _loss_save(config, assessment, output_path, out_files, agg_repair):
+
+    # if no loss results are requested, simply return
+    if is_specified(config, 'DL/Outputs/Loss/Repair'):
+
+        if is_unspecified(config, 'DL/Losses/Repair'):
+            raise PelicunInvalidConfigError(
+                'No loss data specified in config file. '
+                'Cannot generate loss model outputs.'
+            )
 
     repair_sample, repair_units = assessment.loss.ds_model.save_sample(
         save_units=True
