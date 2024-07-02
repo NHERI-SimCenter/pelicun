@@ -633,8 +633,20 @@ def run_pelicun(
     out_files = []
 
     # Run the assessment
-    assessment = Assessment(get(config, 'DL/Options'))
-    _demand_assessment(config, assessment)
+    assessment = Assessment(config_options=get(config, 'DL/Options'))
+    _demand_assessment(
+        assessment,
+        demand_path=Path(get(config, 'DL/Demands/DemandFilePath')).resolve(),
+        collapse_limits=get(config, 'DL/Demands/CollapseLimits', default=None),
+        length_unit=get(config, 'GeneralInformation/units/length', default=None),
+        demand_calibration=get(config, 'DL/Demands/Calibration', default=None),
+        sample_size=get(config, 'DL/Options/Sampling/SampleSize'),
+        coupled_demands=get(config, 'DL/Demands/CoupledDemands', default=False),
+        demand_cloning=get(config, 'DL/Demands/DemandCloning', default=None),
+        residual_drift_inference=get(
+            config, 'DL/Demands/InferResidualDrift', default=None
+        ),
+    )
     _asset_definition(config, assessment, color_codes)
     _damage_assessment(config, assessment, custom_model_dir)
     agg_repair, _ = _loss_assessment(config, assessment, custom_model_dir)
@@ -901,14 +913,22 @@ def _create_json_files_if_requested(config, out_files, output_path):
             json.dump(out_dict, f, indent=2)
 
 
-def _demand_assessment(config, assessment):
-
-    demand_path = Path(get(config, 'DL/Demands/DemandFilePath')).resolve()
+def _demand_assessment(
+    assessment,
+    demand_path,
+    collapse_limits,
+    length_unit,
+    demand_calibration,
+    sample_size,
+    coupled_demands,
+    demand_cloning,
+    residual_drift_inference,
+):
 
     raw_demands = pd.read_csv(demand_path, index_col=0)
 
     # remove excessive demands that are considered collapses, if needed
-    if get(config, 'DL/Demands/CollapseLimits', default=False):
+    if collapse_limits:
         raw_demands = convert_to_MultiIndex(raw_demands, axis=1)
 
         if 'Units' in raw_demands.index:
@@ -920,7 +940,7 @@ def _demand_assessment(config, assessment):
 
         DEM_to_drop = np.full(raw_demands.shape[0], False)
 
-        for DEM_type, limit in get(config, 'DL/Demands/CollapseLimits').items():
+        for DEM_type, limit in collapse_limits:
             if raw_demands.columns.nlevels == 4:
                 DEM_to_drop += raw_demands.loc[:, idx[:, DEM_type, :, :]].max(
                     axis=1
@@ -944,7 +964,6 @@ def _demand_assessment(config, assessment):
 
     # add units to the demand data if needed
     if "Units" not in raw_demands.index:
-        length_unit = get(config, 'GeneralInformation/units/length', default=None)
         demands = add_units(raw_demands, length_unit)
 
     else:
@@ -954,9 +973,9 @@ def _demand_assessment(config, assessment):
     assessment.demand.load_sample(demands)
 
     # get the calibration information
-    if get(config, 'DL/Demands/Calibration', default=False):
+    if demand_calibration:
         # then use it to calibrate the demand model
-        assessment.demand.calibrate_model(get(config, 'DL/Demands/Calibration'))
+        assessment.demand.calibrate_model(demand_calibration)
 
     else:
         # if no calibration is requested,
@@ -968,11 +987,9 @@ def _demand_assessment(config, assessment):
     # and generate a new demand sample
     assessment.demand.generate_sample(
         {
-            "SampleSize": get(config, 'DL/Options/Sampling/SampleSize'),
-            'PreserveRawOrder': get(
-                config, 'DL/Demands/CoupledDemands', default=False
-            ),
-            'DemandCloning': get(config, 'DL/Demands/DemandCloning', default=False),
+            "SampleSize": sample_size,
+            'PreserveRawOrder': coupled_demands,
+            'DemandCloning': demand_cloning,
         }
     )
 
@@ -982,18 +999,20 @@ def _demand_assessment(config, assessment):
     demand_sample = pd.concat([demand_sample, demand_units.to_frame().T])
 
     # get residual drift estimates, if needed
-    if get(config, 'DL/Demands/InferResidualDrift', default=False):
-        if get(config, 'DL/Demands/InferResidualDrift/method') == 'FEMA P-58':
+    if residual_drift_inference:
+
+        # `method` is guaranteed to exist because it is confirmed when
+        # parsing the configuration file.
+        # TODO: actually confirm!
+        rid_inference_method = residual_drift_inference.pop('method')
+
+        if rid_inference_method == 'FEMA P-58':
             RID_list = []
             PID = demand_sample['PID'].copy()
             PID.drop('Units', inplace=True)
             PID = PID.astype(float)
 
-            for direction, delta_yield in get(
-                config, 'DL/Demands/InferResidualDrift'
-            ).items():
-                if direction == 'method':
-                    continue
+            for direction, delta_yield in residual_drift_inference.items():
 
                 RID = assessment.demand.estimate_RID(
                     PID.loc[:, idx[:, direction]],
@@ -1010,6 +1029,12 @@ def _demand_assessment(config, assessment):
             )
             RID_sample = pd.concat([RID, RID_units.to_frame().T])
             demand_sample = pd.concat([demand_sample, RID_sample], axis=1)
+
+        else:
+
+            raise PelicunInvalidConfigError(
+                f'Unknown residual drift inference method: `{rid_inference_method}`.'
+            )
 
     # add a constant one demand
     demand_sample[('ONE', '0', '1')] = np.ones(demand_sample.shape[0])
