@@ -883,8 +883,8 @@ def _parse_config_file(
         )
 
     # initialize the Pelicun Assessement
-    update(config, 'DL/Options/LogFile', 'pelicun_log.txt')
-    update(config, 'DL/Options/Verbose', True)
+    update(config, 'DL/Options/LogFile', 'pelicun_log.txt', only_if_empty_or_none=True)
+    update(config, 'DL/Options/Verbose', True, only_if_empty_or_none=True)
 
     # If the user did not prescribe anything for ListAllDamageStates,
     # then use True as default for DL_calculations regardless of what
