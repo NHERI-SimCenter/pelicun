@@ -585,7 +585,7 @@ def load_default_options() -> dict:
 
 
 def update_vals(
-    update: dict, primary: dict, update_path: str, primary_path: str
+    update_value: dict, primary: dict, update_path: str, primary_path: str
 ) -> None:
     """
     Updates the values of the `update` nested dictionary with
@@ -595,7 +595,7 @@ def update_vals(
 
     Parameters
     ----------
-    update: dict
+    update_value: dict
         Dictionary -which can contain nested dictionaries- to be
         updated based on the values of `primary`. New keys existing
         in `primary` are added to `update`. Values of which keys
@@ -618,32 +618,29 @@ def update_vals(
       If update[key] is dict but primary[key] is not.
     """
 
-    # pylint: disable=else-if-used
-    # (`consider using elif`)
-
     # we go over the keys of `primary`
     for key in primary:
         # if `primary[key]` is a dictionary:
         if isinstance(primary[key], dict):
             # if the same `key` does not exist in update,
             # we associate it with an empty dictionary.
-            if key not in update:
-                update[key] = {}
+            if key not in update_value:
+                update_value[key] = {}
             # if it exists already, it should map to
             # a dictionary.
-            elif not isinstance(update[key], dict):
+            elif not isinstance(update_value[key], dict):
                 raise ValueError(
                     f'{update_path}["{key}"] '
                     'should map to a dictionary. '
                     'The specified value is '
-                    f'{update_path}["{key}"] = {update[key]}, but '
+                    f'{update_path}["{key}"] = {update_value[key]}, but '
                     f'the default value is '
                     f'{primary_path}["{key}"] = {primary[key]}. '
                     f'Please revise {update_path}["{key}"].'
                 )
             # With both being dictionaries, we use recursion.
             update_vals(
-                update[key],
+                update_value[key],
                 primary[key],
                 f'{update_path}["{key}"]',
                 f'{primary_path}["{key}"]',
@@ -652,17 +649,17 @@ def update_vals(
         else:
             # if `key` does not exist in `update`, we add it, with
             # its corresponding value.
-            if key not in update:
-                update[key] = primary[key]
+            if key not in update_value:
+                update_value[key] = primary[key]
             else:
                 # key exists in update and should be left alone,
                 # but we must check that it's not a dict here:
-                if isinstance(update[key], dict):
+                if isinstance(update_value[key], dict):
                     raise ValueError(
                         f'{update_path}["{key}"] '
                         'should not map to a dictionary. '
                         f'The specified value is '
-                        f'{update_path}["{key}"] = {update[key]}, but '
+                        f'{update_path}["{key}"] = {update_value[key]}, but '
                         f'the default value is '
                         f'{primary_path}["{key}"] = {primary[key]}. '
                         f'Please revise {update_path}["{key}"].'
@@ -1619,3 +1616,168 @@ def invert_mapping(original_dict: dict) -> dict:
                 raise ValueError('Cannot invert mapping with duplicate values.')
             inverted_dict[value] = key
     return inverted_dict
+
+
+def get(d: dict[str, Any], path: str, default: Any | None = None) -> Any:
+    """
+    Retrieve a value from a nested dictionary using a path with '/' as
+    the separator.
+
+    Parameters
+    ----------
+    d : dict
+        The dictionary to search.
+    path : str
+        The path to the desired value, with keys separated by '/'.
+    default : Any, optional
+        The value to return if the path is not found. Defaults to
+        None.
+
+    Returns
+    -------
+    Any
+        The value found at the specified path, or the default value if
+        the path is not found.
+
+    Examples
+    --------
+    >>> config = {
+    ...     "DL": {
+    ...         "Outputs": {
+    ...             "Format": {
+    ...                 "JSON": "desired_value"
+    ...             }
+    ...         }
+    ...     }
+    ... }
+    >>> get(config, '/DL/Outputs/Format/JSON', default='default_value')
+    'desired_value'
+    >>> get(config, '/DL/Outputs/Format/XML', default='default_value')
+    'default_value'
+
+    """
+    keys = path.strip('/').split('/')
+    current_dict = d
+    try:
+        for key in keys:
+            current_dict = current_dict[key]
+        return current_dict
+    except (KeyError, TypeError):
+        return default
+
+
+def update(
+    d: dict[str, Any], path: str, value: Any, only_if_empty_or_none: bool = False
+) -> None:
+    """
+    Set a value in a nested dictionary using a path with '/' as the separator.
+
+    Parameters
+    ----------
+    d : dict
+        The dictionary to update.
+    path : str
+        The path to the desired value, with keys separated by '/'.
+    value : Any
+        The value to set at the specified path.
+    only_if_empty_or_none : bool, optional
+        If True, only update the value if it is None or an empty
+        dictionary. Defaults to False.
+
+    Examples
+    --------
+    >>> d = {}
+    >>> update(d, 'x/y/z', 1)
+    >>> d
+    {'x': {'y': {'z': 1}}}
+
+    >>> update(d, 'x/y/z', 2, only_if_empty_or_none=True)
+    >>> d
+    {'x': {'y': {'z': 1}}}  # value remains 1 since it is not empty or None
+
+    >>> update(d, 'x/y/z', 2)
+    >>> d
+    {'x': {'y': {'z': 2}}}  # value is updated to 2
+    """
+
+    keys = path.strip('/').split('/')
+    current_dict = d
+    for key in keys[:-1]:
+        if key not in current_dict or not isinstance(current_dict[key], dict):
+            current_dict[key] = {}
+        current_dict = current_dict[key]
+    if only_if_empty_or_none:
+        if is_unspecified(current_dict, keys[-1]):
+            current_dict[keys[-1]] = value
+    else:
+        current_dict[keys[-1]] = value
+
+
+def is_unspecified(d: dict[str, Any], path: str) -> bool:
+    """
+    Check if a value in a nested dictionary is either non-existent,
+    None, NaN, or an empty dictionary or list.
+
+    Parameters
+    ----------
+    d : dict
+        The dictionary to search.
+    path : str
+        The path to the desired value, with keys separated by '/'.
+
+    Returns
+    -------
+    bool
+        True if the value is non-existent, None, or an empty
+        dictionary or list. False otherwise.
+
+    Examples
+    --------
+    >>> config = {
+    ...     "DL": {
+    ...         "Outputs": {
+    ...             "Format": {
+    ...                 "JSON": "desired_value",
+    ...                 "EmptyDict": {}
+    ...             }
+    ...         }
+    ...     }
+    ... }
+    >>> is_unspecified(config, '/DL/Outputs/Format/JSON')
+    False
+    >>> is_unspecified(config, '/DL/Outputs/Format/XML')
+    True
+    >>> is_unspecified(config, '/DL/Outputs/Format/EmptyDict')
+    True
+
+    """
+    value = get(d, path, default=None)
+    if value is None:
+        return True
+    if pd.isna(value):
+        return True
+    if value == {}:
+        return True
+    if value == []:
+        return True
+    return False
+
+
+def is_specified(d: dict[str, Any], path: str) -> bool:
+    """
+    Opposite of `is_unspecified()`.
+
+    Parameters
+    ----------
+    d : dict
+        The dictionary to search.
+    path : str
+        The path to the desired value, with keys separated by '/'.
+
+    Returns
+    -------
+    bool
+        True if the value is specified, False otherwise.
+
+    """
+    return not is_unspecified(d, path)
