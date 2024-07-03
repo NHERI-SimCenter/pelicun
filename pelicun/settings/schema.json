@@ -127,6 +127,29 @@
         "Damage": {
           "type": "object",
           "properties": {
+            "CollapseFragility": {
+              "type": "object",
+              "properties": {
+                "DemandType": {
+                  "type": "string"
+                },
+                "CapacityDistribution": {
+                  "type": "string"
+                },
+                "CapacityMedian": {
+                  "type": "number"
+                },
+                "Theta_1": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "DemandType",
+                "CapacityDistribution",
+                "CapacityMedian",
+                "Theta_1"
+              ]
+            },
             "DamageProcess": {
               "type": "string"
             },
@@ -139,7 +162,11 @@
                 "DriftCapacityLogStd": {
                   "type": "number"
                 }
-              }
+              },
+              "required": [
+                "DriftCapacityMedian",
+                "DriftCapacityLogStd"
+              ]
             }
           },
           "required": [
@@ -367,7 +394,7 @@
                 "SimpleIndexInJSON": {
                   "type": "boolean"
                 },
-                "AggregateColocatedComponentResults": {
+                "AggregateCollocatedComponentResults": {
                   "type": "boolean"
                 }
               }
