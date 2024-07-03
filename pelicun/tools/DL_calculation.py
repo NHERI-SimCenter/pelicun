@@ -283,7 +283,7 @@ idx = pd.IndexSlice
 #       HAZUS Earthquake - Buildings and - Transportation
 # TODO: Loss map for HAZUS EQ Transportation
 
-damage_processes = {
+damage_process_approaches = {
     'FEMA P-58': {
         "1_excessive.coll.DEM": {"DS1": "collapse_DS1"},
         "2_collapse": {"DS1": "ALL_NA"},
@@ -634,6 +634,7 @@ def run_pelicun(
 
     # Run the assessment
     assessment = Assessment(config_options=get(config, 'DL/Options'))
+
     _demand_assessment(
         assessment,
         demand_path=Path(get(config, 'DL/Demands/DemandFilePath')).resolve(),
@@ -647,19 +648,153 @@ def run_pelicun(
             config, 'DL/Demands/InferResidualDrift', default=None
         ),
     )
-    _asset_definition(config, assessment, color_codes)
-    _damage_assessment(config, assessment, custom_model_dir)
-    agg_repair, _ = _loss_assessment(config, assessment, custom_model_dir)
+
+    if is_specified(config, 'DL/Asset'):
+        _asset_definition(
+            assessment=assessment,
+            num_stories=get(config, 'DL/Asset/NumberOfStories', default=None),
+            component_assignment_file=get(
+                config, 'DL/Asset/ComponentAssignmentFile', default=None
+            ),
+            collapse_fragility_demand_type=get(
+                config, 'DL/Damage/CollapseFragility/DemandType', default=None
+            ),
+            add_irreparable_damage_columns=get(
+                config, 'DL/Damage/IrreparableDamage', default=False
+            ),
+            component_sample_file=get(
+                config, 'DL/Asset/ComponentSampleFile', default=None
+            ),
+            color_codes=color_codes,
+        )
+
+    if is_specified(config, 'DL/Damage'):
+        _damage_assessment(
+            assessment=assessment,
+            length_unit=get(config, 'GeneralInformation/units/length'),
+            component_database=get(config, 'DL/Asset/ComponentDatabase'),
+            component_database_path=get(
+                config, 'DL/Asset/ComponentDatabasePath', default=None
+            ),
+            collapse_fragility=get(
+                config, 'DL/Damage/CollapseFragility', default=None
+            ),
+            is_for_water_network_assessment=is_specified(
+                config, 'DL/Asset/ComponentDatabase/Water'
+            ),
+            irreparable_damage=get(
+                config, 'DL/Damage/IrreparableDamage', default=None
+            ),
+            damage_process_approach=get(
+                config, 'DL/Damage/DamageProcess', default=None
+            ),
+            damage_process_file_path=get(
+                config, 'DL/Damage/DamageProcessFilePath', default=None
+            ),
+            custom_model_dir=custom_model_dir,
+        )
+
+    if is_unspecified(config, 'DL/Losses/Repair'):
+        agg_repair = None
+    else:
+
+        agg_repair, _ = _loss_assessment(
+            assessment=assessment,
+            custom_model_dir=custom_model_dir,
+            loss_map_approach=get(config, 'DL/Losses/Repair/MapApproach'),
+            occupancy_type=get(config, 'DL/Asset/OccupancyType'),
+            consequence_database=get(config, 'DL/Losses/Repair/ConsequenceDatabase'),
+            consequence_database_path=get(
+                config, 'DL/Losses/Repair/ConsequenceDatabasePath'
+            ),
+            damage_process_approach=get(
+                config, 'DL/Damage/DamageProcess', default='User Defined'
+            ),
+            replacement_cost_parameters=get(
+                config, 'DL/Losses/Repair/ReplacementCost'
+            ),
+            replacement_time_parameters=get(
+                config, 'DL/Losses/Repair/ReplacementTime'
+            ),
+            replacement_carbon_parameters=get(
+                config, 'DL/Losses/Repair/ReplacementCarbon'
+            ),
+            replacement_energy_parameters=get(
+                config, 'DL/Losses/Repair/ReplacementEnergy'
+            ),
+            loss_map_path=get(config, 'DL/Losses/Repair/MapFilePath'),
+            decision_variables=_parse_decision_variables(config),
+        )
+
     summary, summary_stats = _result_summary(assessment, agg_repair)
 
     # Save the results into files
-    _demand_save(config, assessment, output_path, out_files)
-    _asset_save(config, assessment, output_path, out_files)
-    _damage_save(config, assessment, output_path, out_files)
-    _loss_save(config, assessment, output_path, out_files, agg_repair)
+
+    if is_specified(config, 'DL/Outputs/Demand'):
+        output_config = get(config, 'DL/Outputs/Demand')
+        _demand_save(output_config, assessment, output_path, out_files)
+
+    if is_specified(config, 'DL/Outputs/Asset'):
+        output_config = get(config, 'DL/Outputs/Asset')
+        _asset_save(
+            output_config,
+            assessment,
+            output_path,
+            out_files,
+            aggregate_collocated=get(
+                config,
+                'DL/Outputs/Settings/AggregateCollocatedComponentResults',
+                default=False,
+            ),
+        )
+
+    if is_specified(config, 'DL/Outputs/Damage'):
+        output_config = get(config, 'DL/Outputs/Damage')
+        _damage_save(
+            output_config,
+            assessment,
+            output_path,
+            out_files,
+            aggregate_collocated=get(
+                config,
+                'DL/Outputs/Settings/AggregateCollocatedComponentResults',
+                default=False,
+            ),
+            condense_ds=get(
+                config,
+                'DL/Outputs/Settings/CondenseDS',
+                default=False,
+            ),
+        )
+
+    if is_specified(config, 'DL/Outputs/Loss/Repair'):
+        output_config = get(config, 'DL/Outputs/Loss/Repair')
+        _loss_save(
+            output_config,
+            assessment,
+            output_path,
+            out_files,
+            agg_repair,
+            aggregate_collocated=get(
+                config,
+                'DL/Outputs/Settings/AggregateCollocatedComponentResults',
+                default=False,
+            ),
+        )
     _summary_save(summary, summary_stats, output_path, out_files)
     _create_json_files_if_requested(config, out_files, output_path)
     _remove_csv_files_if_not_requested(config, out_files, output_path)
+
+
+def _parse_decision_variables(config):
+    decision_variables = []
+    if get(config, 'DL/Losses/Repair/DecisionVariables', default=False) is not False:
+        for DV_i, DV_status in get(
+            config, 'DL/Losses/Repair/DecisionVariables'
+        ).items():
+            if DV_status is True:
+                decision_variables.append(DV_i)
+    return decision_variables
 
 
 def _remove_csv_files_if_not_requested(config, out_files, output_path):
@@ -867,6 +1002,82 @@ def _parse_config_file(
             get(config, 'DL/Outputs/Loss/BldgRepair'),
         )
 
+    # Cast NumberOfStories to int
+    if is_specified(config, 'DL/Asset/NumberOfStories'):
+        update(
+            config,
+            'DL/Asset/NumberOfStories',
+            int(get(config, 'DL/Asset/NumberOfStories')),
+        )
+
+    # Ensure `DL/Demands/InferResidualDrift` contains a `method`
+    if is_specified(config, 'DL/Demands/InferResidualDrift') and is_unspecified(
+        config, 'DL/Demands/InferResidualDrift/method'
+    ):
+        raise PelicunInvalidConfigError(
+            'No method is specified in residual drift inference configuration.'
+        )
+
+    # Ensure `DL/Damage/CollapseFragility` contains all required keys.
+    if is_specified(config, 'DL/Damage/CollapseFragility'):
+        for thing in ('CapacityDistribution', 'CapacityMedian', 'Theta_1'):
+            if is_unspecified(config, f'DL/Damage/CollapseFragility/{thing}'):
+                raise PelicunInvalidConfigError(
+                    f'`{thing}` is missing from DL/Damage/CollapseFragility'
+                    f' in the configuration file.'
+                )
+
+    # Ensure `DL/Damage/IrreparableDamage` contains all required keys.
+    if is_specified(config, 'DL/Damage/IrreparableDamage'):
+        for thing in ('DriftCapacityMedian', 'DriftCapacityLogStd'):
+            if is_unspecified(config, f'DL/Damage/IrreparableDamage/{thing}'):
+                raise PelicunInvalidConfigError(
+                    f'`{thing}` is missing from DL/Damage/IrreparableDamage'
+                    f' in the configuration file.'
+                )
+
+    # If the damage process approach is `User Defined` there needs to
+    # be a damage process file path.
+    if get(config, 'DL/Damage/DamageProcess') == "User Defined" and is_unspecified(
+        config, 'DL/Damage/DamageProcessFilePath'
+    ):
+        raise PelicunInvalidConfigError(
+            'When `DL/Damage/DamageProcess` is set to `User Defined`, '
+            'a path needs to be specified under '
+            '`DL/Damage/DamageProcessFilePath`.'
+        )
+
+    # Getting results requires running the calculations.
+    if is_specified(config, 'DL/Outputs/Asset') and is_unspecified(
+        config, 'DL/Asset'
+    ):
+        raise PelicunInvalidConfigError(
+            'No asset data specified in config file. '
+            'Cannot generate asset model outputs.'
+        )
+
+    if is_specified(config, 'DL/Outputs/Damage') and is_unspecified(
+        config, 'DL/Damage'
+    ):
+        raise PelicunInvalidConfigError(
+            'No damage data specified in config file. '
+            'Cannot generate damage model outputs.'
+        )
+
+    if is_specified(config, 'DL/Outputs/Loss') and is_unspecified(
+        config, 'DL/Losses'
+    ):
+        raise PelicunInvalidConfigError(
+            'No loss data specified in config file. '
+            'Cannot generate loss model outputs.'
+        )
+
+    # Backwards compatibility: fix config typo
+    ante = 'DL/Outputs/Settings/AggregateColocatedComponentResults'
+    post = 'DL/Outputs/Settings/AggregateCollocatedComponentResults'
+    if is_specified(config, ante):
+        update(config, post, get(config, ante))
+
     return config
 
 
@@ -1003,7 +1214,6 @@ def _demand_assessment(
 
         # `method` is guaranteed to exist because it is confirmed when
         # parsing the configuration file.
-        # TODO: actually confirm!
         rid_inference_method = residual_drift_inference.pop('method')
 
         if rid_inference_method == 'FEMA P-58':
@@ -1043,23 +1253,36 @@ def _demand_assessment(
     assessment.demand.load_sample(convert_to_SimpleIndex(demand_sample, axis=1))
 
 
-def _asset_definition(config, assessment, color_codes):
-
-    # if no asset data are specified, simply return
-    if is_unspecified(config, 'DL/Asset'):
-        return
+def _asset_definition(
+    assessment,
+    num_stories,
+    component_assignment_file,
+    collapse_fragility_demand_type,
+    add_irreparable_damage_columns,
+    component_sample_file,
+    color_codes,
+):
 
     # retrieve the demand sample
     demand_sample = assessment.demand.save_sample()
 
     # set the number of stories
-    if get(config, 'DL/Asset/NumberOfStories', default=False):
-        assessment.stories = int(get(config, 'DL/Asset/NumberOfStories'))
+    if num_stories:
+        assessment.stories = num_stories
+
+    # We either accept a `component_assignment_file` or a
+    # `component_sample_file`, not both.
+    if component_assignment_file is not None and component_sample_file is not None:
+        raise ValueError(
+            'Both `component_assignment_file` and '
+            '`component_sample_file` are provided. '
+            'Please provide only one.'
+        )
 
     # load a component model and generate a sample
-    if get(config, 'DL/Asset/ComponentAssignmentFile', default=False):
+    if component_assignment_file is not None:
         cmp_marginals = pd.read_csv(
-            get(config, 'DL/Asset/ComponentAssignmentFile'),
+            component_assignment_file,
             index_col=0,
             encoding_errors='replace',
         )
@@ -1067,23 +1290,26 @@ def _asset_definition(config, assessment, color_codes):
         DEM_types = demand_sample.columns.unique(level=0)
 
         # add component(s) to support collapse calculation
-        if get(config, 'DL/Damage/CollapseFragility', default=False):
-            coll_DEM = get(config, 'DL/Damage/CollapseFragility/DemandType')
-            if not coll_DEM.startswith('SA'):
+        if collapse_fragility_demand_type is not None:
+            if not collapse_fragility_demand_type.startswith('SA'):
                 # we need story-specific collapse assessment
                 # (otherwise we have a global demand and evaluate
                 # collapse directly, so this code should be skipped)
 
-                if coll_DEM in DEM_types:
+                if collapse_fragility_demand_type in DEM_types:
                     # excessive coll_DEM is added on every floor to detect large RIDs
                     cmp_marginals.loc['excessive.coll.DEM', 'Units'] = 'ea'
 
-                    locs = demand_sample[coll_DEM].columns.unique(level=0)
+                    locs = demand_sample[
+                        collapse_fragility_demand_type
+                    ].columns.unique(level=0)
                     cmp_marginals.loc['excessive.coll.DEM', 'Location'] = ','.join(
                         locs
                     )
 
-                    dirs = demand_sample[coll_DEM].columns.unique(level=1)
+                    dirs = demand_sample[
+                        collapse_fragility_demand_type
+                    ].columns.unique(level=1)
                     cmp_marginals.loc['excessive.coll.DEM', 'Direction'] = ','.join(
                         dirs
                     )
@@ -1092,7 +1318,7 @@ def _asset_definition(config, assessment, color_codes):
 
                 else:
                     log_msg(
-                        f'WARNING: No {coll_DEM} among available '
+                        f'WARNING: No {collapse_fragility_demand_type} among available '
                         f'demands. Collapse cannot be evaluated.',
                         color_codes,
                     )
@@ -1104,7 +1330,7 @@ def _asset_definition(config, assessment, color_codes):
         cmp_marginals.loc['collapse', 'Theta_0'] = 1.0
 
         # add components to support irreparable damage calculation
-        if is_specified(config, 'DL/Damage/IrreparableDamage'):
+        if add_irreparable_damage_columns:
             if 'RID' in DEM_types:
                 # excessive RID is added on every floor to detect large RIDs
                 cmp_marginals.loc['excessiveRID', 'Units'] = 'ea'
@@ -1139,40 +1365,39 @@ def _asset_definition(config, assessment, color_codes):
         assessment.asset.generate_cmp_sample()
 
     # if requested, load the quantity sample from a file
-    elif get(config, 'DL/Asset/ComponentSampleFile', default=False):
-        assessment.asset.load_cmp_sample(get(config, 'DL/Asset/ComponentSampleFile'))
+    if component_sample_file is not None:
+        assessment.asset.load_cmp_sample(component_sample_file)
 
 
-def _damage_assessment(config, assessment, custom_model_dir):
-
-    # if no damage assessment is requested, simply return
-    if is_unspecified(config, 'DL/Damage'):
-        return
-
-    if is_unspecified(config, 'DL/Asset'):
-        raise PelicunInvalidConfigError(
-            'No asset data specified in config file. '
-            'Cannot perform a damage assessment.'
-        )
-
-    length_unit = get(config, 'GeneralInformation/units/length', default=None)
+def _damage_assessment(
+    assessment,
+    length_unit,
+    component_database,
+    component_database_path=None,
+    collapse_fragility=None,
+    is_for_water_network_assessment=False,
+    irreparable_damage=None,
+    damage_process_approach=None,
+    damage_process_file_path=None,
+    custom_model_dir=None,
+):
 
     # load the fragility information
-    if get(config, 'DL/Asset/ComponentDatabase') in default_DBs['fragility']:
+    if component_database in default_DBs['fragility']:
         component_db = [
-            'PelicunDefault/'
-            + default_DBs['fragility'][get(config, 'DL/Asset/ComponentDatabase')],
+            'PelicunDefault/' + default_DBs['fragility'][component_database],
         ]
     else:
         component_db = []
 
-    if get(config, 'DL/Asset/ComponentDatabasePath', default=False) is not False:
-        extra_comps = get(config, 'DL/Asset/ComponentDatabasePath')
+    if component_database_path is not None:
 
-        if 'CustomDLDataFolder' in extra_comps:
-            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_model_dir)
+        if 'CustomDLDataFolder' in component_database_path:
+            component_database_path = component_database_path.replace(
+                'CustomDLDataFolder', custom_model_dir
+            )
 
-        component_db += [extra_comps]
+        component_db += [component_database_path]
 
     component_db = component_db[::-1]
 
@@ -1183,7 +1408,7 @@ def _damage_assessment(config, assessment, custom_model_dir):
 
     adf = pd.DataFrame(columns=P58_data.columns)
 
-    if is_specified(config, 'DL/Damage/CollapseFragility'):
+    if collapse_fragility:
         if (
             'excessive.coll.DEM'
             in assessment.asset.cmp_marginal_params.index.get_level_values('cmp')
@@ -1197,7 +1422,7 @@ def _damage_assessment(config, assessment, custom_model_dir):
         adf.loc[coll_CMP_name, ('Demand', 'Directional')] = 1
         adf.loc[coll_CMP_name, ('Demand', 'Offset')] = 0
 
-        coll_DEM = get(config, 'DL/Damage/CollapseFragility/DemandType')
+        coll_DEM = collapse_fragility['DemandType']
 
         if '_' in coll_DEM:
             coll_DEM, coll_DEM_spec = coll_DEM.split('_')
@@ -1231,21 +1456,13 @@ def _damage_assessment(config, assessment, custom_model_dir):
         ).iloc[0, 0]
 
         adf.loc[coll_CMP_name, ('Demand', 'Unit')] = coll_DEM_unit
-
-        adf.loc[coll_CMP_name, ('LS1', 'Family')] = get(
-            config,
-            'DL/Damage/CollapseFragility/CapacityDistribution',
-            default=np.nan,
-        )
-
-        adf.loc[coll_CMP_name, ('LS1', 'Theta_0')] = get(
-            config, 'DL/Damage/CollapseFragility/CapacityMedian', default=np.nan
-        )
-
-        adf.loc[coll_CMP_name, ('LS1', 'Theta_1')] = get(
-            config, 'DL/Damage/CollapseFragility/Theta_1', default=np.nan
-        )
-
+        adf.loc[coll_CMP_name, ('LS1', 'Family')] = collapse_fragility[
+            'CapacityDistribution'
+        ]
+        adf.loc[coll_CMP_name, ('LS1', 'Theta_0')] = collapse_fragility[
+            'CapacityMedian'
+        ]
+        adf.loc[coll_CMP_name, ('LS1', 'Theta_1')] = collapse_fragility['Theta_1']
         adf.loc[coll_CMP_name, 'Incomplete'] = 0
 
         if coll_CMP_name != 'collapse':
@@ -1259,7 +1476,7 @@ def _damage_assessment(config, assessment, custom_model_dir):
             adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
             adf.loc['collapse', 'Incomplete'] = 0
 
-    elif is_unspecified(config, 'DL/Asset/ComponentDatabase/Water'):
+    elif not is_for_water_network_assessment:
         # add a placeholder collapse fragility that will never trigger
         # collapse, but allow damage processes to work with collapse
 
@@ -1270,7 +1487,7 @@ def _damage_assessment(config, assessment, custom_model_dir):
         adf.loc['collapse', ('LS1', 'Theta_0')] = 1e10
         adf.loc['collapse', 'Incomplete'] = 0
 
-    if is_specified(config, 'DL/Damage/IrreparableDamage'):
+    if irreparable_damage:
 
         # add excessive RID fragility according to settings provided in the
         # input file
@@ -1281,15 +1498,13 @@ def _damage_assessment(config, assessment, custom_model_dir):
         )
 
         adf.loc['excessiveRID', ('Demand', 'Unit')] = 'unitless'
-        adf.loc['excessiveRID', ('LS1', 'Theta_0')] = get(
-            config, 'DL/Damage/IrreparableDamage/DriftCapacityMedian'
-        )
-
+        adf.loc['excessiveRID', ('LS1', 'Theta_0')] = irreparable_damage[
+            'DriftCapacityMedian'
+        ]
         adf.loc['excessiveRID', ('LS1', 'Family')] = "lognormal"
-
-        adf.loc['excessiveRID', ('LS1', 'Theta_1')] = get(
-            config, 'DL/Damage/IrreparableDamage/DriftCapacityLogStd'
-        )
+        adf.loc['excessiveRID', ('LS1', 'Theta_1')] = irreparable_damage[
+            'DriftCapacityLogStd'
+        ]
 
         adf.loc['excessiveRID', 'Incomplete'] = 0
 
@@ -1304,7 +1519,7 @@ def _damage_assessment(config, assessment, custom_model_dir):
 
     # TODO: we can improve this by creating a water
     # network-specific assessment class
-    if is_specified(config, 'DL/Asset/ComponentDatabase/Water'):
+    if is_for_water_network_assessment:
         # add a placeholder aggregate fragility that will never trigger
         # damage, but allow damage processes to aggregate the
         # various pipeline damages
@@ -1322,14 +1537,13 @@ def _damage_assessment(config, assessment, custom_model_dir):
 
     # load the damage process if needed
     dmg_process = None
-    if get(config, 'DL/Damage/DamageProcess', default=False) is not False:
-        dp_approach = get(config, 'DL/Damage/DamageProcess')
+    if damage_process_approach is not None:
 
-        if dp_approach in damage_processes:
-            dmg_process = damage_processes[dp_approach]
+        if damage_process_approach in damage_process_approaches:
+            dmg_process = damage_process_approaches[damage_process_approach]
 
             # For Hazus Earthquake, we need to specify the component ids
-            if dp_approach == 'Hazus Earthquake':
+            if damage_process_approach == 'Hazus Earthquake':
                 cmp_sample = assessment.asset.save_cmp_sample()
 
                 cmp_list = cmp_sample.columns.unique(level=0)
@@ -1384,40 +1598,45 @@ def _damage_assessment(config, assessment, custom_model_dir):
 
                 dmg_process = new_dmg_process
 
-        elif dp_approach == "User Defined":
+        elif damage_process_approach == "User Defined":
             # load the damage process from a file
-            with open(
-                get(config, 'DL/Damage/DamageProcessFilePath'),
-                'r',
-                encoding='utf-8',
-            ) as f:
+            with open(damage_process_file_path, 'r', encoding='utf-8') as f:
                 dmg_process = json.load(f)
 
-        elif dp_approach == "None":
+        elif damage_process_approach == "None":
             # no damage process applied for the calculation
             dmg_process = None
 
         else:
-            log_msg(f"Prescribed Damage Process not recognized: {dp_approach}")
+            log_msg(
+                f"Prescribed Damage Process not recognized: {damage_process_approach}"
+            )
 
     # calculate damages
     assessment.damage.calculate(dmg_process=dmg_process)
 
 
-def _loss_assessment(config, assessment, custom_model_dir):
-
-    # if no loss assessment is requested, simply return
-    if is_unspecified(config, 'DL/Losses/Repair'):
-        return (None, None)
-
-    if is_unspecified(config, 'DL/Asset'):
-        raise PelicunInvalidConfigError(
-            'No asset data specified in config file. '
-            'Cannot perform a loss assessment.'
-        )
+def _loss_assessment(
+    assessment,
+    custom_model_dir,
+    loss_map_approach,
+    occupancy_type,
+    consequence_database,
+    consequence_database_path=None,
+    damage_process_approach='User Defined',
+    replacement_cost_parameters=None,
+    replacement_time_parameters=None,
+    replacement_carbon_parameters=None,
+    replacement_energy_parameters=None,
+    loss_map_path=None,
+    decision_variables=None,
+):
 
     conseq_df, consequence_db = _load_consequence_info(
-        config, assessment, custom_model_dir
+        assessment,
+        custom_model_dir,
+        consequence_database,
+        consequence_database_path,
     )
 
     # remove duplicates from conseq_df
@@ -1436,29 +1655,58 @@ def _loss_assessment(config, assessment, custom_model_dir):
         ),
     )
 
-    DL_method = get(config, 'DL/Damage/DamageProcess', default='User Defined')
+    _loss__add_replacement_cost(
+        adf,
+        damage_process_approach,
+        unit=get(replacement_cost_parameters, 'Unit'),
+        median=get(replacement_cost_parameters, 'Median'),
+        distribution=get(replacement_cost_parameters, 'Distribution'),
+        theta_1=get(replacement_cost_parameters, 'Theta_1'),
+    )
 
-    _loss__cost(config, adf, DL_method)
+    _loss__add_replacement_time(
+        adf,
+        damage_process_approach,
+        conseq_df,
+        occupancy_type=occupancy_type,
+        unit=get(replacement_time_parameters, 'Unit'),
+        median=get(replacement_time_parameters, 'Median'),
+        distribution=get(replacement_time_parameters, 'Distribution'),
+        theta_1=get(replacement_time_parameters, 'Theta_1'),
+    )
 
-    _loss__time(config, adf, DL_method, conseq_df)
+    _loss__add_replacement_carbon(
+        adf,
+        damage_process_approach,
+        unit=get(replacement_carbon_parameters, 'Unit'),
+        median=get(replacement_carbon_parameters, 'Median'),
+        distribution=get(replacement_carbon_parameters, 'Distribution'),
+        theta_1=get(replacement_carbon_parameters, 'Theta_1'),
+    )
 
-    _loss__carbon(config, adf, DL_method)
-
-    _loss__energy(config, adf, DL_method)
+    _loss__add_replacement_energy(
+        adf,
+        damage_process_approach,
+        unit=get(replacement_energy_parameters, 'Unit'),
+        median=get(replacement_energy_parameters, 'Median'),
+        distribution=get(replacement_energy_parameters, 'Distribution'),
+        theta_1=get(replacement_energy_parameters, 'Theta_1'),
+    )
 
     # prepare the loss map
     loss_map = None
-    map_approach = get(config, 'DL/Losses/Repair/MapApproach')
-    if map_approach == "Automatic":
+    if loss_map_approach == "Automatic":
         # get the damage sample
-        loss_map = _loss__map_auto(assessment, conseq_df, DL_method, config)
+        loss_map = _loss__map_auto(
+            assessment, conseq_df, damage_process_approach, occupancy_type
+        )
 
-    elif map_approach == "User Defined":
-        loss_map = _loss__map_user(custom_model_dir, config)
+    elif loss_map_approach == "User Defined":
+        loss_map = _loss__map_user(custom_model_dir, loss_map_path)
 
     else:
         raise PelicunInvalidConfigError(
-            f'Invalid MapApproach value: `{map_approach}`.'
+            f'Invalid MapApproach value: `{loss_map_approach}`.'
         )
 
     # prepare additional loss map entries, if needed
@@ -1466,32 +1714,19 @@ def _loss_assessment(config, assessment, custom_model_dir):
         loss_map.loc['DMG-collapse', 'Repair'] = 'replacement'
         loss_map.loc['DMG-irreparable', 'Repair'] = 'replacement'
 
-    # assemble the list of requested decision variables
-    DV_list = []
-    if get(config, 'DL/Losses/Repair/DecisionVariables', default=False) is not False:
-        for DV_i, DV_status in get(
-            config, 'DL/Losses/Repair/DecisionVariables'
-        ).items():
-            if DV_status is True:
-                DV_list.append(DV_i)
-
-    else:
-        DV_list = None
+    if decision_variables:
+        assessment.loss.decision_variables = decision_variables
 
     assessment.loss.add_loss_map(loss_map, loss_map_policy=None)
-    assessment.loss.load_model_parameters(
-        consequence_db + [adf],
-        decision_variables=DV_list,
-    )
+    assessment.loss.load_model_parameters(consequence_db + [adf])
 
     assessment.loss.calculate()
 
     return assessment.loss.aggregate_losses(future=True)
 
 
-def _loss__map_user(custom_model_dir, config):
-    if get(config, 'DL/Losses/Repair/MapFilePath', default=False) is not False:
-        loss_map_path = get(config, 'DL/Losses/Repair/MapFilePath')
+def _loss__map_user(custom_model_dir, loss_map_path=None):
+    if loss_map_path is not None:
 
         loss_map_path = loss_map_path.replace('CustomDLDataFolder', custom_model_dir)
 
@@ -1503,7 +1738,7 @@ def _loss__map_user(custom_model_dir, config):
     return loss_map
 
 
-def _loss__map_auto(assessment, conseq_df, DL_method, config):
+def _loss__map_auto(assessment, conseq_df, DL_method, occupancy_type=None):
     # get the damage sample
     dmg_sample = assessment.damage.save_sample()
 
@@ -1533,15 +1768,13 @@ def _loss__map_auto(assessment, conseq_df, DL_method, config):
     }:
         # with Hazus Earthquake we assume that consequence
         # archetypes are only differentiated by occupancy type
-        occ_type = get(config, 'DL/Asset/OccupancyType', default=None)
-
         for dmg_cmp in dmg_cmps:
             if dmg_cmp == 'collapse':
                 continue
 
             cmp_class = dmg_cmp.split('.')[0]
-            if occ_type is not None:
-                loss_cmp = f'{cmp_class}.{occ_type}'
+            if occupancy_type is not None:
+                loss_cmp = f'{cmp_class}.{occupancy_type}'
             else:
                 loss_cmp = cmp_class
 
@@ -1554,31 +1787,29 @@ def _loss__map_auto(assessment, conseq_df, DL_method, config):
     return loss_map
 
 
-def _loss__energy(config, adf, DL_method):
+def _loss__add_replacement_energy(
+    adf,
+    DL_method,
+    unit=None,
+    median=None,
+    distribution=None,
+    theta_1=None,
+):
     ren = ('replacement', 'Energy')
-    if 'ReplacementEnergy' in get(config, 'DL/Losses/Repair'):
-        ren = ('replacement', 'Energy')
+    if median is not None:
+
+        # TODO: in this case we need unit (add config parser check)
 
         adf.loc[ren, ('Quantity', 'Unit')] = "1 EA"
+        adf.loc[ren, ('DV', 'Unit')] = unit
+        adf.loc[ren, ('DS1', 'Theta_0')] = median
 
-        adf.loc[ren, ('DV', 'Unit')] = get(
-            config, 'DL/Losses/Repair/ReplacementEnergy/Unit'
-        )
+        if distribution is not None:
 
-        adf.loc[ren, ('DS1', 'Theta_0')] = get(
-            config, 'DL/Losses/Repair/ReplacementEnergy/Median'
-        )
+            # TODO: in this case we need theta_1 (add config parser check)
 
-        if (
-            pd.isna(get(config, 'DL/Losses/Repair/ReplacementEnergy/Distribution'))
-            is False
-        ):
-            adf.loc[ren, ('DS1', 'Family')] = get(
-                config, 'DL/Losses/Repair/ReplacementEnergy/Distribution'
-            )
-            adf.loc[ren, ('DS1', 'Theta_1')] = get(
-                config, 'DL/Losses/Repair/ReplacementEnergy/Theta_1'
-            )
+            adf.loc[ren, ('DS1', 'Family')] = distribution
+            adf.loc[ren, ('DS1', 'Theta_1')] = theta_1
     else:
         # add a default replacement energy value as a placeholder
         # the default value depends on the consequence database
@@ -1594,38 +1825,36 @@ def _loss__energy(config, adf, DL_method):
             adf.drop(ren, inplace=True)
 
 
-def _loss__carbon(config, adf, DL_method):
+def _loss__add_replacement_carbon(
+    adf,
+    damage_process_approach,
+    unit=None,
+    median=None,
+    distribution=None,
+    theta_1=None,
+):
     rcarb = ('replacement', 'Carbon')
-    if is_specified(config, 'DL/Losses/Repair/ReplacementCarbon'):
+    if median is not None:
 
-        rcarb = ('replacement', 'Carbon')
+        # TODO: in this case we need unit (add config parser check)
 
         adf.loc[rcarb, ('Quantity', 'Unit')] = "1 EA"
+        adf.loc[rcarb, ('DV', 'Unit')] = unit
+        adf.loc[rcarb, ('DS1', 'Theta_0')] = median
 
-        adf.loc[rcarb, ('DV', 'Unit')] = get(
-            config, 'DL/Losses/Repair/ReplacementCarbon/Unit'
-        )
+        if distribution is not None:
 
-        adf.loc[rcarb, ('DS1', 'Theta_0')] = get(
-            config, 'DL/Losses/Repair/ReplacementCarbon/Median'
-        )
+            # TODO: in this case we need theta_1 (add config parser check)
 
-        if (
-            pd.isna(get(config, 'DL/Losses/Repair/ReplacementCarbon/Distribution'))
-            is False
-        ):
-            adf.loc[rcarb, ('DS1', 'Family')] = get(
-                config, 'DL/Losses/Repair/ReplacementCarbon/Distribution'
-            )
-            adf.loc[rcarb, ('DS1', 'Theta_1')] = get(
-                config, 'DL/Losses/Repair/ReplacementCarbon/Theta_1'
-            )
+            adf.loc[rcarb, ('DS1', 'Family')] = distribution
+            adf.loc[rcarb, ('DS1', 'Theta_1')] = theta_1
     else:
+
         # add a default replacement carbon value as a placeholder
         # the default value depends on the consequence database
 
         # for FEMA P-58, use 0 kg
-        if DL_method == 'FEMA P-58':
+        if damage_process_approach == 'FEMA P-58':
             adf.loc[rcarb, ('Quantity', 'Unit')] = '1 EA'
             adf.loc[rcarb, ('DV', 'Unit')] = 'kg'
             adf.loc[rcarb, ('DS1', 'Theta_0')] = 0
@@ -1635,56 +1864,50 @@ def _loss__carbon(config, adf, DL_method):
             adf.drop(rcarb, inplace=True)
 
 
-def _loss__time(config, adf, DL_method, conseq_df):
+def _loss__add_replacement_time(
+    adf,
+    damage_process_approach,
+    conseq_df,
+    occupancy_type=None,
+    unit=None,
+    median=None,
+    distribution=None,
+    theta_1=None,
+):
     rt = ('replacement', 'Time')
-    if is_specified(config, 'DL/Losses/Repair/ReplacementTime'):
-        rt = ('replacement', 'Time')
+    if median is not None:
+
+        # TODO: in this case we need unit (add config parser check)
 
         adf.loc[rt, ('Quantity', 'Unit')] = "1 EA"
+        adf.loc[rt, ('DV', 'Unit')] = unit
+        adf.loc[rt, ('DS1', 'Theta_0')] = median
 
-        adf.loc[rt, ('DV', 'Unit')] = get(
-            config, 'DL/Losses/Repair/ReplacementTime/Unit'
-        )
+        if distribution is not None:
 
-        adf.loc[rt, ('DS1', 'Theta_0')] = get(
-            config, 'DL/Losses/Repair/ReplacementTime/Median'
-        )
+            # TODO: in this case we need theta_1 (add config parser check)
 
-        if (
-            pd.isna(
-                get(
-                    config,
-                    'DL/Losses/Repair/ReplacementTime/Distribution',
-                    default=np.nan,
-                )
-            )
-            is False
-        ):
-            adf.loc[rt, ('DS1', 'Family')] = get(
-                config, 'DL/Losses/Repair/ReplacementTime/Distribution'
-            )
-            adf.loc[rt, ('DS1', 'Theta_1')] = get(
-                config, 'DL/Losses/Repair/ReplacementTime/Theta_1'
-            )
+            adf.loc[rt, ('DS1', 'Family')] = distribution
+            adf.loc[rt, ('DS1', 'Theta_1')] = theta_1
     else:
+
         # add a default replacement time value as a placeholder
         # the default value depends on the consequence database
 
         # for FEMA P-58, use 0 worker_days
-        if DL_method == 'FEMA P-58':
+        if damage_process_approach == 'FEMA P-58':
             adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
             adf.loc[rt, ('DV', 'Unit')] = 'worker_day'
             adf.loc[rt, ('DS1', 'Theta_0')] = 0
 
         # for Hazus EQ, use 1.0 as a loss_ratio
-        elif DL_method == 'Hazus Earthquake - Buildings':
+        elif damage_process_approach == 'Hazus Earthquake - Buildings':
             adf.loc[rt, ('Quantity', 'Unit')] = '1 EA'
             adf.loc[rt, ('DV', 'Unit')] = 'day'
 
             # load the replacement time that corresponds to total loss
-            occ_type = config['DL']['Asset']['OccupancyType']
             adf.loc[rt, ('DS1', 'Theta_0')] = conseq_df.loc[
-                (f"STR.{occ_type}", 'Time'), ('DS5', 'Theta_0')
+                (f"STR.{occupancy_type}", 'Time'), ('DS5', 'Theta_0')
             ]
 
         # otherwise, use 1 (and expect to have it defined by the user)
@@ -1694,38 +1917,33 @@ def _loss__time(config, adf, DL_method, conseq_df):
             adf.loc[rt, ('DS1', 'Theta_0')] = 1
 
 
-def _loss__cost(config, adf, DL_method):
+def _loss__add_replacement_cost(
+    adf,
+    DL_method,
+    unit=None,
+    median=None,
+    distribution=None,
+    theta_1=None,
+):
+
     rc = ('replacement', 'Cost')
-    if is_specified(config, 'DL/Losses/Repair/ReplacementCost'):
+    if median is not None:
+
+        # TODO: in this case we need unit (add config parser check)
 
         adf.loc[rc, ('Quantity', 'Unit')] = "1 EA"
+        adf.loc[rc, ('DV', 'Unit')] = median
+        adf.loc[rc, ('DS1', 'Theta_0')] = unit
 
-        adf.loc[rc, ('DV', 'Unit')] = get(
-            config, 'DL/Losses/Repair/ReplacementCost/Unit'
-        )
+        if distribution is not None:
 
-        adf.loc[rc, ('DS1', 'Theta_0')] = get(
-            config, 'DL/Losses/Repair/ReplacementCost/Median'
-        )
+            # TODO: in this case we need theta_1 (add config parser check)
 
-        if (
-            pd.isna(
-                get(
-                    config,
-                    'DL/Losses/Repair/ReplacementCost/Distribution',
-                    default=np.nan,
-                )
-            )
-            is False
-        ):
-            adf.loc[rc, ('DS1', 'Family')] = get(
-                config, 'DL/Losses/Repair/ReplacementCost/Distribution'
-            )
-            adf.loc[rc, ('DS1', 'Theta_1')] = get(
-                config, 'DL/Losses/Repair/ReplacementCost/Theta_1'
-            )
+            adf.loc[rc, ('DS1', 'Family')] = distribution
+            adf.loc[rc, ('DS1', 'Theta_1')] = theta_1
 
     else:
+
         # add a default replacement cost value as a placeholder
         # the default value depends on the consequence database
 
@@ -1784,426 +2002,333 @@ def _result_summary(assessment, agg_repair):
     return summary, summary_stats
 
 
-def _demand_save(config, assessment, output_path, out_files):
+def _parse_requested_output_file_names(output_config):
+    out_reqs = []
+    for out, val in output_config.items():
+        if val is True:
+            out_reqs.append(out)
+    return set(out_reqs)
 
-    # if no demand results are requested, simply return
-    if is_unspecified(config, 'DL/Outputs/Demand'):
-        return
 
-    out_reqs = [
-        out if val else "" for out, val in get(config, 'DL/Outputs/Demand').items()
-    ]
+def _demand_save(output_config, assessment, output_path, out_files):
+
+    out_reqs = _parse_requested_output_file_names(output_config)
 
     demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
     demand_units = demand_units.to_frame().T
 
-    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-
-        if 'Sample' in out_reqs:
-            demand_sample_s = pd.concat([demand_sample, demand_units])
-            demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
-            demand_sample_s.to_csv(
-                output_path / "DEM_sample.zip",
-                index_label=demand_sample_s.columns.name,
-                compression={'method': 'zip', 'archive_name': 'DEM_sample.csv'},
-            )
-            out_files.append('DEM_sample.zip')
-
-        if 'Statistics' in out_reqs:
-            demand_stats = describe(demand_sample)
-            demand_stats = pd.concat([demand_stats, demand_units])
-            demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
-            demand_stats.to_csv(
-                output_path / "DEM_stats.csv",
-                index_label=demand_stats.columns.name,
-            )
-            out_files.append('DEM_stats.csv')
-
-
-def _asset_save(config, assessment, output_path, out_files):
-
-    # if no asset model results are requested, simply return
-    if is_unspecified(config, 'DL/Outputs/Asset'):
-        return
-
-    if is_unspecified(config, 'DL/Asset'):
-        raise PelicunInvalidConfigError(
-            'No asset data specified in config file. '
-            'Cannot generate asset model outputs.'
+    if 'Sample' in out_reqs:
+        demand_sample_s = pd.concat([demand_sample, demand_units])
+        demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
+        demand_sample_s.to_csv(
+            output_path / "DEM_sample.zip",
+            index_label=demand_sample_s.columns.name,
+            compression={'method': 'zip', 'archive_name': 'DEM_sample.csv'},
         )
+        out_files.append('DEM_sample.zip')
+
+    if 'Statistics' in out_reqs:
+        demand_stats = describe(demand_sample)
+        demand_stats = pd.concat([demand_stats, demand_units])
+        demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
+        demand_stats.to_csv(
+            output_path / "DEM_stats.csv",
+            index_label=demand_stats.columns.name,
+        )
+        out_files.append('DEM_stats.csv')
+
+
+def _asset_save(
+    output_config, assessment, output_path, out_files, aggregate_collocated=False
+):
 
     cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
     cmp_units = cmp_units.to_frame().T
 
-    if (
-        get(
-            config,
-            'DL/Outputs/Settings/AggregateColocatedComponentResults',
-            default=False,
-        )
-        is True
-    ):
+    if aggregate_collocated:
+
         cmp_units = cmp_units.groupby(level=[0, 1, 2], axis=1).first()
-
         cmp_groupby_uid = cmp_sample.groupby(level=[0, 1, 2], axis=1)
-
         cmp_sample = cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan)
 
-    out_reqs = [
-        out if val else "" for out, val in get(config, 'DL/Outputs/Asset').items()
-    ]
+    out_reqs = _parse_requested_output_file_names(output_config)
 
-    if np.any(np.isin(['Sample', 'Statistics'], out_reqs)):
-        if 'Sample' in out_reqs:
-            cmp_sample_s = pd.concat([cmp_sample, cmp_units])
+    if 'Sample' in out_reqs:
+        cmp_sample_s = pd.concat([cmp_sample, cmp_units])
 
-            cmp_sample_s = convert_to_SimpleIndex(cmp_sample_s, axis=1)
-            cmp_sample_s.to_csv(
-                output_path / "CMP_sample.zip",
-                index_label=cmp_sample_s.columns.name,
-                compression={'method': 'zip', 'archive_name': 'CMP_sample.csv'},
-            )
-            out_files.append('CMP_sample.zip')
-
-        if 'Statistics' in out_reqs:
-            cmp_stats = describe(cmp_sample)
-            cmp_stats = pd.concat([cmp_stats, cmp_units])
-
-            cmp_stats = convert_to_SimpleIndex(cmp_stats, axis=1)
-            cmp_stats.to_csv(
-                output_path / "CMP_stats.csv", index_label=cmp_stats.columns.name
-            )
-            out_files.append('CMP_stats.csv')
-
-
-def _damage_save(config, assessment, output_path, out_files):
-
-    # if no damage results are requested, simply return
-    if is_unspecified(config, 'DL/Outputs/Damage'):
-        return
-
-    if is_unspecified(config, 'DL/Damage'):
-        raise PelicunInvalidConfigError(
-            'No damage data specified in config file. '
-            'Cannot generate damage model outputs.'
+        cmp_sample_s = convert_to_SimpleIndex(cmp_sample_s, axis=1)
+        cmp_sample_s.to_csv(
+            output_path / "CMP_sample.zip",
+            index_label=cmp_sample_s.columns.name,
+            compression={'method': 'zip', 'archive_name': 'CMP_sample.csv'},
         )
+        out_files.append('CMP_sample.zip')
+
+    if 'Statistics' in out_reqs:
+        cmp_stats = describe(cmp_sample)
+        cmp_stats = pd.concat([cmp_stats, cmp_units])
+
+        cmp_stats = convert_to_SimpleIndex(cmp_stats, axis=1)
+        cmp_stats.to_csv(
+            output_path / "CMP_stats.csv", index_label=cmp_stats.columns.name
+        )
+        out_files.append('CMP_stats.csv')
+
+
+def _damage_save(
+    output_config,
+    assessment,
+    output_path,
+    out_files,
+    aggregate_collocated=False,
+    condense_ds=False,
+):
 
     damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
     damage_units = damage_units.to_frame().T
 
-    if (
-        get(
-            config,
-            'DL/Outputs/Settings/AggregateColocatedComponentResults',
-            default=False,
-        )
-        is True
-    ):
+    if aggregate_collocated:
+
         damage_units = damage_units.groupby(level=[0, 1, 2, 4], axis=1).first()
-
         damage_groupby_uid = damage_sample.groupby(level=[0, 1, 2, 4], axis=1)
-
         damage_sample = damage_groupby_uid.sum().mask(
             damage_groupby_uid.count() == 0, np.nan
         )
 
-    out_reqs = [
-        out if val else "" for out, val in get(config, 'DL/Outputs/Damage').items()
-    ]
+    out_reqs = _parse_requested_output_file_names(output_config)
 
-    if np.any(
-        np.isin(
-            [
-                'Sample',
-                'Statistics',
-                'GroupedSample',
-                'GroupedStatistics',
-            ],
-            out_reqs,
+    if 'Sample' in out_reqs:
+        damage_sample_s = pd.concat([damage_sample, damage_units])
+
+        damage_sample_s = convert_to_SimpleIndex(damage_sample_s, axis=1)
+        damage_sample_s.to_csv(
+            output_path / "DMG_sample.zip",
+            index_label=damage_sample_s.columns.name,
+            compression={
+                'method': 'zip',
+                'archive_name': 'DMG_sample.csv',
+            },
         )
-    ):
-        if 'Sample' in out_reqs:
-            damage_sample_s = pd.concat([damage_sample, damage_units])
+        out_files.append('DMG_sample.zip')
 
-            damage_sample_s = convert_to_SimpleIndex(damage_sample_s, axis=1)
-            damage_sample_s.to_csv(
-                output_path / "DMG_sample.zip",
-                index_label=damage_sample_s.columns.name,
+    if 'Statistics' in out_reqs:
+        damage_stats = describe(damage_sample)
+        damage_stats = pd.concat([damage_stats, damage_units])
+
+        damage_stats = convert_to_SimpleIndex(damage_stats, axis=1)
+        damage_stats.to_csv(
+            output_path / "DMG_stats.csv",
+            index_label=damage_stats.columns.name,
+        )
+        out_files.append('DMG_stats.csv')
+
+    if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
+
+        if aggregate_collocated:
+            damage_groupby = damage_sample.groupby(level=[0, 1, 3], axis=1)
+            damage_units = damage_units.groupby(level=[0, 1, 3], axis=1).first()
+        else:
+            damage_groupby = damage_sample.groupby(level=[0, 1, 4], axis=1)
+            damage_units = damage_units.groupby(level=[0, 1, 4], axis=1).first()
+
+        grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
+
+        # if requested, condense DS output
+        if condense_ds:
+            # replace non-zero values with 1
+            grp_damage = grp_damage.mask(grp_damage.astype(np.float64).values > 0, 1)
+
+            # get the corresponding DS for each column
+            ds_list = grp_damage.columns.get_level_values(2).astype(int)
+
+            # replace ones with the corresponding DS in each cell
+            grp_damage = grp_damage.mul(ds_list, axis=1)
+
+            # aggregate across damage state indices
+            damage_groupby_2 = grp_damage.groupby(level=[0, 1], axis=1)
+
+            # choose the max value
+            # i.e., the governing DS for each comp-loc pair
+            grp_damage = damage_groupby_2.max().mask(
+                damage_groupby_2.count() == 0, np.nan
+            )
+
+            # aggregate units to the same format
+            # assume identical units across locations for each comp
+            damage_units = damage_units.groupby(level=[0, 1], axis=1).first()
+
+        else:
+            # otherwise, aggregate damage quantities for each comp
+            damage_groupby_2 = grp_damage.groupby(level=0, axis=1)
+
+            # preserve NaNs
+            grp_damage = damage_groupby_2.sum().mask(
+                damage_groupby_2.count() == 0, np.nan
+            )
+
+            # and aggregate units to the same format
+            damage_units = damage_units.groupby(level=0, axis=1).first()
+
+        if 'GroupedSample' in out_reqs:
+            grp_damage_s = pd.concat([grp_damage, damage_units])
+
+            grp_damage_s = convert_to_SimpleIndex(grp_damage_s, axis=1)
+            grp_damage_s.to_csv(
+                output_path / "DMG_grp.zip",
+                index_label=grp_damage_s.columns.name,
                 compression={
                     'method': 'zip',
-                    'archive_name': 'DMG_sample.csv',
+                    'archive_name': 'DMG_grp.csv',
                 },
             )
-            out_files.append('DMG_sample.zip')
+            out_files.append('DMG_grp.zip')
 
-        if 'Statistics' in out_reqs:
-            damage_stats = describe(damage_sample)
-            damage_stats = pd.concat([damage_stats, damage_units])
+        if 'GroupedStatistics' in out_reqs:
+            grp_stats = describe(grp_damage)
+            grp_stats = pd.concat([grp_stats, damage_units])
 
-            damage_stats = convert_to_SimpleIndex(damage_stats, axis=1)
-            damage_stats.to_csv(
-                output_path / "DMG_stats.csv",
-                index_label=damage_stats.columns.name,
+            grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
+            grp_stats.to_csv(
+                output_path / "DMG_grp_stats.csv",
+                index_label=grp_stats.columns.name,
             )
-            out_files.append('DMG_stats.csv')
-
-        if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
-            if (
-                get(
-                    config,
-                    'DL/Outputs/Settings/AggregateColocatedComponentResults',
-                    default=False,
-                )
-                is True
-            ):
-                damage_groupby = damage_sample.groupby(level=[0, 1, 3], axis=1)
-
-                damage_units = damage_units.groupby(level=[0, 1, 3], axis=1).first()
-
-            else:
-                damage_groupby = damage_sample.groupby(level=[0, 1, 4], axis=1)
-
-                damage_units = damage_units.groupby(level=[0, 1, 4], axis=1).first()
-
-            grp_damage = damage_groupby.sum().mask(
-                damage_groupby.count() == 0, np.nan
-            )
-
-            # if requested, condense DS output
-            if (
-                get(
-                    config,
-                    'DL/Outputs/Settings/CondenseDS',
-                    default=False,
-                )
-                is True
-            ):
-                # replace non-zero values with 1
-                grp_damage = grp_damage.mask(
-                    grp_damage.astype(np.float64).values > 0, 1
-                )
-
-                # get the corresponding DS for each column
-                ds_list = grp_damage.columns.get_level_values(2).astype(int)
-
-                # replace ones with the corresponding DS in each cell
-                grp_damage = grp_damage.mul(ds_list, axis=1)
-
-                # aggregate across damage state indices
-                damage_groupby_2 = grp_damage.groupby(level=[0, 1], axis=1)
-
-                # choose the max value
-                # i.e., the governing DS for each comp-loc pair
-                grp_damage = damage_groupby_2.max().mask(
-                    damage_groupby_2.count() == 0, np.nan
-                )
-
-                # aggregate units to the same format
-                # assume identical units across locations for each comp
-                damage_units = damage_units.groupby(level=[0, 1], axis=1).first()
-
-            else:
-                # otherwise, aggregate damage quantities for each comp
-                damage_groupby_2 = grp_damage.groupby(level=0, axis=1)
-
-                # preserve NaNs
-                grp_damage = damage_groupby_2.sum().mask(
-                    damage_groupby_2.count() == 0, np.nan
-                )
-
-                # and aggregate units to the same format
-                damage_units = damage_units.groupby(level=0, axis=1).first()
-
-            if 'GroupedSample' in out_reqs:
-                grp_damage_s = pd.concat([grp_damage, damage_units])
-
-                grp_damage_s = convert_to_SimpleIndex(grp_damage_s, axis=1)
-                grp_damage_s.to_csv(
-                    output_path / "DMG_grp.zip",
-                    index_label=grp_damage_s.columns.name,
-                    compression={
-                        'method': 'zip',
-                        'archive_name': 'DMG_grp.csv',
-                    },
-                )
-                out_files.append('DMG_grp.zip')
-
-            if 'GroupedStatistics' in out_reqs:
-                grp_stats = describe(grp_damage)
-                grp_stats = pd.concat([grp_stats, damage_units])
-
-                grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
-                grp_stats.to_csv(
-                    output_path / "DMG_grp_stats.csv",
-                    index_label=grp_stats.columns.name,
-                )
-                out_files.append('DMG_grp_stats.csv')
+            out_files.append('DMG_grp_stats.csv')
 
 
-def _loss_save(config, assessment, output_path, out_files, agg_repair):
-
-    # if no loss results are requested, simply return
-    if is_specified(config, 'DL/Outputs/Loss/Repair'):
-
-        if is_unspecified(config, 'DL/Losses/Repair'):
-            raise PelicunInvalidConfigError(
-                'No loss data specified in config file. '
-                'Cannot generate loss model outputs.'
-            )
+def _loss_save(
+    output_config,
+    assessment,
+    output_path,
+    out_files,
+    agg_repair,
+    aggregate_collocated=False,
+):
 
     repair_sample, repair_units = assessment.loss.ds_model.save_sample(
         save_units=True
     )
     repair_units = repair_units.to_frame().T
 
-    if (
-        get(
-            config,
-            'DL/Outputs/Settings/AggregateColocatedComponentResults',
-            default=False,
-        )
-        is True
-    ):
+    if aggregate_collocated:
+
         repair_units = repair_units.groupby(level=[0, 1, 2, 3, 4, 5], axis=1).first()
-
         repair_groupby_uid = repair_sample.groupby(level=[0, 1, 2, 3, 4, 5], axis=1)
-
         repair_sample = repair_groupby_uid.sum().mask(
             repair_groupby_uid.count() == 0, np.nan
         )
 
-    out_reqs = [
-        out if val else ""
-        for out, val in get(config, 'DL/Outputs/Loss/Repair').items()
-    ]
+    out_reqs = _parse_requested_output_file_names(output_config)
 
-    if np.any(
-        np.isin(
-            [
-                'Sample',
-                'Statistics',
-                'GroupedSample',
-                'GroupedStatistics',
-                'AggregateSample',
-                'AggregateStatistics',
-            ],
-            out_reqs,
+    if 'Sample' in out_reqs:
+        repair_sample_s = repair_sample.copy()
+        repair_sample_s = pd.concat([repair_sample_s, repair_units])
+
+        repair_sample_s = convert_to_SimpleIndex(repair_sample_s, axis=1)
+        repair_sample_s.to_csv(
+            output_path / "DV_repair_sample.zip",
+            index_label=repair_sample_s.columns.name,
+            compression={
+                'method': 'zip',
+                'archive_name': 'DV_repair_sample.csv',
+            },
         )
-    ):
-        if 'Sample' in out_reqs:
-            repair_sample_s = repair_sample.copy()
-            repair_sample_s = pd.concat([repair_sample_s, repair_units])
+        out_files.append('DV_repair_sample.zip')
 
-            repair_sample_s = convert_to_SimpleIndex(repair_sample_s, axis=1)
-            repair_sample_s.to_csv(
-                output_path / "DV_repair_sample.zip",
-                index_label=repair_sample_s.columns.name,
+    if 'Statistics' in out_reqs:
+        repair_stats = describe(repair_sample)
+        repair_stats = pd.concat([repair_stats, repair_units])
+
+        repair_stats = convert_to_SimpleIndex(repair_stats, axis=1)
+        repair_stats.to_csv(
+            output_path / "DV_repair_stats.csv",
+            index_label=repair_stats.columns.name,
+        )
+        out_files.append('DV_repair_stats.csv')
+
+    if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
+
+        repair_groupby = repair_sample.groupby(level=[0, 1, 2], axis=1)
+        repair_units = repair_units.groupby(level=[0, 1, 2], axis=1).first()
+        grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
+
+        if 'GroupedSample' in out_reqs:
+            grp_repair_s = pd.concat([grp_repair, repair_units])
+
+            grp_repair_s = convert_to_SimpleIndex(grp_repair_s, axis=1)
+            grp_repair_s.to_csv(
+                output_path / "DV_repair_grp.zip",
+                index_label=grp_repair_s.columns.name,
                 compression={
                     'method': 'zip',
-                    'archive_name': 'DV_repair_sample.csv',
+                    'archive_name': 'DV_repair_grp.csv',
                 },
             )
-            out_files.append('DV_repair_sample.zip')
+            out_files.append('DV_repair_grp.zip')
 
-        if 'Statistics' in out_reqs:
-            repair_stats = describe(repair_sample)
-            repair_stats = pd.concat([repair_stats, repair_units])
+        if 'GroupedStatistics' in out_reqs:
+            grp_stats = describe(grp_repair)
+            grp_stats = pd.concat([grp_stats, repair_units])
 
-            repair_stats = convert_to_SimpleIndex(repair_stats, axis=1)
-            repair_stats.to_csv(
-                output_path / "DV_repair_stats.csv",
-                index_label=repair_stats.columns.name,
+            grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
+            grp_stats.to_csv(
+                output_path / "DV_repair_grp_stats.csv",
+                index_label=grp_stats.columns.name,
             )
-            out_files.append('DV_repair_stats.csv')
+            out_files.append('DV_repair_grp_stats.csv')
 
-        if np.any(np.isin(['GroupedSample', 'GroupedStatistics'], out_reqs)):
-            repair_groupby = repair_sample.groupby(level=[0, 1, 2], axis=1)
+    if out_reqs.intersection({'AggregateSample', 'AggregateStatistics'}):
 
-            repair_units = repair_units.groupby(level=[0, 1, 2], axis=1).first()
-
-            grp_repair = repair_groupby.sum().mask(
-                repair_groupby.count() == 0, np.nan
+        if 'AggregateSample' in out_reqs:
+            agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
+            agg_repair_s.to_csv(
+                output_path / "DV_repair_agg.zip",
+                index_label=agg_repair_s.columns.name,
+                compression={
+                    'method': 'zip',
+                    'archive_name': 'DV_repair_agg.csv',
+                },
             )
+            out_files.append('DV_repair_agg.zip')
 
-            if 'GroupedSample' in out_reqs:
-                grp_repair_s = pd.concat([grp_repair, repair_units])
-
-                grp_repair_s = convert_to_SimpleIndex(grp_repair_s, axis=1)
-                grp_repair_s.to_csv(
-                    output_path / "DV_repair_grp.zip",
-                    index_label=grp_repair_s.columns.name,
-                    compression={
-                        'method': 'zip',
-                        'archive_name': 'DV_repair_grp.csv',
-                    },
-                )
-                out_files.append('DV_repair_grp.zip')
-
-            if 'GroupedStatistics' in out_reqs:
-                grp_stats = describe(grp_repair)
-                grp_stats = pd.concat([grp_stats, repair_units])
-
-                grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
-                grp_stats.to_csv(
-                    output_path / "DV_repair_grp_stats.csv",
-                    index_label=grp_stats.columns.name,
-                )
-                out_files.append('DV_repair_grp_stats.csv')
-
-        if np.any(np.isin(['AggregateSample', 'AggregateStatistics'], out_reqs)):
-            if 'AggregateSample' in out_reqs:
-                agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
-                agg_repair_s.to_csv(
-                    output_path / "DV_repair_agg.zip",
-                    index_label=agg_repair_s.columns.name,
-                    compression={
-                        'method': 'zip',
-                        'archive_name': 'DV_repair_agg.csv',
-                    },
-                )
-                out_files.append('DV_repair_agg.zip')
-
-            if 'AggregateStatistics' in out_reqs:
-                agg_stats = convert_to_SimpleIndex(describe(agg_repair), axis=1)
-                agg_stats.to_csv(
-                    output_path / "DV_repair_agg_stats.csv",
-                    index_label=agg_stats.columns.name,
-                )
-                out_files.append('DV_repair_agg_stats.csv')
+        if 'AggregateStatistics' in out_reqs:
+            agg_stats = convert_to_SimpleIndex(describe(agg_repair), axis=1)
+            agg_stats.to_csv(
+                output_path / "DV_repair_agg_stats.csv",
+                index_label=agg_stats.columns.name,
+            )
+            out_files.append('DV_repair_agg_stats.csv')
 
 
-def _load_consequence_info(config, assessment, custom_model_dir):
-    if get(config, 'DL/Losses/Repair/ConsequenceDatabase') in default_DBs['repair']:
+def _load_consequence_info(
+    assessment,
+    custom_model_dir,
+    consequence_database,
+    consequence_database_path=None,
+):
+    if consequence_database in default_DBs['repair']:
         consequence_db = [
-            'PelicunDefault/'
-            + default_DBs['repair'][
-                get(config, 'DL/Losses/Repair/ConsequenceDatabase')
-            ],
+            'PelicunDefault/' + default_DBs['repair'][consequence_database],
         ]
 
         conseq_df = assessment.get_default_data(
-            default_DBs['repair'][
-                get(config, 'DL/Losses/Repair/ConsequenceDatabase')
-            ][:-4]
+            default_DBs['repair'][consequence_database][:-4]
         )
     else:
         consequence_db = []
 
         conseq_df = pd.DataFrame()
 
-    if (
-        get(config, 'DL/Losses/Repair/ConsequenceDatabasePath', default=False)
-        is not False
-    ):
-        extra_comps = get(config, 'DL/Losses/Repair/ConsequenceDatabasePath')
+    if consequence_database_path is not None:
 
-        if 'CustomDLDataFolder' in extra_comps:
-            extra_comps = extra_comps.replace('CustomDLDataFolder', custom_model_dir)
+        if 'CustomDLDataFolder' in consequence_database_path:
+            consequence_database_path = consequence_database_path.replace(
+                'CustomDLDataFolder', custom_model_dir
+            )
 
-        consequence_db += [extra_comps]
+        consequence_db += [consequence_database_path]
 
         extra_conseq_df = load_data(
-            extra_comps,
+            consequence_database_path,
             unit_conversion_factors=None,
             orientation=1,
             reindex=False,
