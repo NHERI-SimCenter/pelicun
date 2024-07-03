@@ -59,11 +59,8 @@ from pelicun import base
 from pelicun import uq
 from pelicun import file_io
 from pelicun import model
-
-# from pelicun.tools.DL_calculation import default_DBs
 from pelicun.base import EDP_to_demand_type
 
-# from pelicun.tools.DL_calculation import damage_process_approaches
 from pelicun.__init__ import __version__ as pelicun_version  # type: ignore
 
 
@@ -105,6 +102,7 @@ damage_process_approaches = {
 }
 
 # pylint: enable=consider-using-namedtuple-or-dataclass
+
 
 class Assessment:
     """
