@@ -407,13 +407,13 @@ def run_pelicun(
     else:
 
         agg_repair, _ = assessment.calculate_loss(
-            custom_model_dir=custom_model_dir,
             loss_map_approach=get(config, 'DL/Losses/Repair/MapApproach'),
             occupancy_type=get(config, 'DL/Asset/OccupancyType'),
             consequence_database=get(config, 'DL/Losses/Repair/ConsequenceDatabase'),
             consequence_database_path=get(
                 config, 'DL/Losses/Repair/ConsequenceDatabasePath'
             ),
+            custom_model_dir=custom_model_dir,
             damage_process_approach=get(
                 config, 'DL/Damage/DamageProcess', default='User Defined'
             ),

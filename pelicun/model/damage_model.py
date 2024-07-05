@@ -62,7 +62,7 @@ from pelicun import uq
 from pelicun import file_io
 
 if TYPE_CHECKING:
-    from pelicun.assessment import Assessment
+    from pelicun.assessment import AssessmentBase
 
 idx = base.idx
 
@@ -75,7 +75,7 @@ class DamageModel(PelicunModel):
 
     __slots__ = ['ds_model', 'missing_components']
 
-    def __init__(self, assessment: Assessment):
+    def __init__(self, assessment: AssessmentBase):
         super().__init__(assessment)
 
         self.ds_model: DamageModel_DS = DamageModel_DS(assessment)
@@ -107,11 +107,11 @@ class DamageModel(PelicunModel):
             'Please use `load_model_parameters` instead, '
             'like so: \n`cmp_set = {your_assessment_obj}.'
             'asset.'
-            'list_unique_component_ids(as_set=True)`, '
+            'set(list_unique_component_ids())`, '
             'and then \n`{your_assessment_obj}.damage.'
             'load_model_parameters(data_paths, cmp_set)`.'
         )
-        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+        cmp_set = set(self._asmnt.asset.list_unique_component_ids())
         self.load_model_parameters(data_paths, cmp_set, warn_missing)
 
     @property
@@ -483,7 +483,7 @@ class DamageModel_Base(PelicunModel):
 
     __slots__ = ['damage_params', 'sample']
 
-    def __init__(self, assessment: Assessment):
+    def __init__(self, assessment: AssessmentBase):
         super().__init__(assessment)
 
         self.damage_params = None
@@ -698,7 +698,7 @@ class DamageModel_DS(DamageModel_Base):
 
     __slots__ = ['ds_sample']
 
-    def __init__(self, assessment: Assessment):
+    def __init__(self, assessment: AssessmentBase):
         super().__init__(assessment)
         self.ds_sample = None
 

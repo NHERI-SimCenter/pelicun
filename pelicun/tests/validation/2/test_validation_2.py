@@ -133,7 +133,7 @@ def test_combined_workflow():
     # Damage
     #
 
-    cmp_set = asmnt.asset.list_unique_component_ids(as_set=True)
+    cmp_set = set(asmnt.asset.list_unique_component_ids())
 
     # Load the models into pelicun
     asmnt.damage.load_model_parameters(

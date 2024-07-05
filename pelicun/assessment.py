@@ -104,27 +104,15 @@ damage_process_approaches = {
 # pylint: enable=consider-using-namedtuple-or-dataclass
 
 
-class Assessment:
+class AssessmentBase:
     """
+    Base class for Assessment objects.
+
     Assessment objects manage the models, data, and calculations in pelicun.
 
-    Parameters
-    ----------
-    demand: DemandModel
-        ...
-    asset: AssetModel
-        ...
-    damage: DamageModel
-        ...
-    repair: RepairModel
-        ...
-    stories: int
-        Number of stories.
-    options: Options
-        Options object.
     """
 
-    __slots__ = [
+    __slots__: list[str] = [
         'stories',
         'options',
         'unit_conversion_factors',
@@ -144,7 +132,7 @@ class Assessment:
         config_options (Optional[dict]):
             User-specified configuration dictionary.
         """
-        self.stories = None
+        self.stories: int | None = None
         self.options = base.Options(config_options, self)
         self.unit_conversion_factors = base.parse_units(self.options.units_file)
 
@@ -239,9 +227,12 @@ class Assessment:
 
         data_path = f'{base.pelicun_path}/resources/SimCenterDBDL/{data_name}.csv'
 
-        return file_io.load_data(
+        data = file_io.load_data(
             data_path, None, orientation=1, reindex=False, log=self.log
         )
+
+        assert isinstance(data, pd.DataFrame)
+        return data
 
     def get_default_metadata(self, data_name: str) -> dict:
         """
@@ -300,8 +291,8 @@ class Assessment:
 
         # check if there is a quantity specified; if yes, parse it
         if len(unit_lst) > 1:
-            unit_count, unit_name = unit_lst
-            unit_count = float(unit_count)
+            unit_count_str, unit_name = unit_lst
+            unit_count = float(unit_count_str)
 
         else:
             unit_count = 1
@@ -350,6 +341,15 @@ class Assessment:
             scale_factor = 1.0
 
         return scale_factor
+
+
+class Assessment(AssessmentBase):
+    """
+    Assessment class.
+
+    Has methods implementing a Scenario-Based assessment.
+
+    """
 
     def calculate_damage(
         self,
@@ -466,7 +466,7 @@ class Assessment:
         self.asset.generate_cmp_sample()
 
         self.damage.load_model_parameters(
-            damage_data_paths, self.asset.list_unique_component_ids(as_set=True)
+            damage_data_paths, set(self.asset.list_unique_component_ids())
         )
         self.damage.calculate(dmg_process, block_batch_size, scaling_specification)
 
@@ -594,7 +594,7 @@ class Assessment:
         )
 
 
-class DLCalculationAssessment(Assessment):
+class DLCalculationAssessment(AssessmentBase):
     """
     Base class for the assessment objects used in `DL_calculation.py`
 
@@ -602,15 +602,45 @@ class DLCalculationAssessment(Assessment):
 
     def calculate_demand(
         self,
-        demand_path,
-        collapse_limits,
-        length_unit,
-        demand_calibration,
-        sample_size,
-        coupled_demands,
-        demand_cloning,
-        residual_drift_inference,
-    ):
+        demand_path: str,
+        collapse_limits: dict[str, float] | None,
+        length_unit: str,
+        demand_calibration: dict | None,
+        sample_size: int,
+        coupled_demands: bool,
+        demand_cloning: dict | None,
+        residual_drift_inference: dict | None,
+    ) -> None:
+        """
+        Calculates demands.
+
+        Parameters
+        ----------
+        demand_path : str
+            Path to the demand data file.
+        collapse_limits : dict[str, float] or None
+            Optional dictionary with demand types and their respective
+            collapse limits.
+        length_unit : str
+            Unit of length to be used to add units to the demand data
+            if needed.
+        demand_calibration : dict or None
+            Calibration data for the demand model.
+        sample_size : int
+            Number of realizations.
+        coupled_demands : bool
+            Whether to preserve the raw order of the demands.
+        demand_cloning : dict or None
+            Demand cloning configuration.
+        residual_drift_inference : dict or None
+            Information for residual drift inference.
+
+        Raises
+        ------
+        ValueError
+            When an unknown residual drift method is specified.
+
+        """
 
         idx = pd.IndexSlice
         raw_demands = pd.read_csv(demand_path, index_col=0)
@@ -628,16 +658,20 @@ class DLCalculationAssessment(Assessment):
 
             DEM_to_drop = np.full(raw_demands.shape[0], False)
 
-            for DEM_type, limit in collapse_limits:
+            for DEM_type, limit in collapse_limits.items():
+                assert isinstance(DEM_type, str)
+                assert isinstance(limit, str | float)
                 if raw_demands.columns.nlevels == 4:
-                    DEM_to_drop += raw_demands.loc[:, idx[:, DEM_type, :, :]].max(
-                        axis=1
-                    ) > float(limit)
+                    DEM_to_drop += raw_demands.loc[
+                        :,  # type: ignore
+                        idx[:, DEM_type, :, :],
+                    ].max(axis=1) > float(limit)
 
                 else:
-                    DEM_to_drop += raw_demands.loc[:, idx[DEM_type, :, :]].max(
-                        axis=1
-                    ) > float(limit)
+                    DEM_to_drop += raw_demands.loc[
+                        :,  # type: ignore
+                        idx[DEM_type, :, :],
+                    ].max(axis=1) > float(limit)
 
             raw_demands = raw_demands.loc[~DEM_to_drop, :]
 
@@ -682,7 +716,11 @@ class DLCalculationAssessment(Assessment):
         )
 
         # get the generated demand sample
-        demand_sample, demand_units = self.demand.save_sample(save_units=True)
+        demand_sample_tuple = self.demand.save_sample(save_units=True)
+        assert demand_sample_tuple is not None
+        demand_sample, demand_units = demand_sample_tuple
+        assert isinstance(demand_sample, pd.DataFrame)
+        assert isinstance(demand_units, pd.Series)
 
         demand_sample = pd.concat([demand_sample, demand_units.to_frame().T])
 
@@ -694,15 +732,17 @@ class DLCalculationAssessment(Assessment):
             rid_inference_method = residual_drift_inference.pop('method')
 
             if rid_inference_method == 'FEMA P-58':
-                RID_list = []
+                RID_list: list[pd.DataFrame] = []
                 PID = demand_sample['PID'].copy()
                 PID.drop('Units', inplace=True)
                 PID = PID.astype(float)
 
                 for direction, delta_yield in residual_drift_inference.items():
 
+                    pids = PID.loc[:, idx[:, direction]]  # type: ignore
+                    assert isinstance(pids, pd.DataFrame)
                     RID = self.demand.estimate_RID(
-                        PID.loc[:, idx[:, direction]],
+                        pids,
                         {'yield_drift': float(delta_yield)},
                     )
 
@@ -732,15 +772,38 @@ class DLCalculationAssessment(Assessment):
 
     def calculate_asset(
         self,
-        num_stories,
-        component_assignment_file,
-        collapse_fragility_demand_type,
-        add_irreparable_damage_columns,
-        component_sample_file,
+        num_stories: int,
+        component_assignment_file: str | None,
+        collapse_fragility_demand_type: str | None,
+        add_irreparable_damage_columns: bool,
+        component_sample_file: str | None,
     ):
+        """
+        Generates the asset model sample.
+
+        Parameters
+        ----------
+        num_stories : int
+            Number of stories.
+        component_assignment_file : str or None
+            Path to a component assignment file.
+        collapse_fragility_demand_type : str or None
+            Optional demand type for the collapse fragility.
+        add_irreparable_damage_columns : bool
+            Whether to add columns for irreparable damage.
+        component_sample_file : str or None
+            Optional path to an existing component sample file.
+
+        Raises
+        ------
+        ValueError
+            With invalid combinations of arguments.
+
+        """
 
         # retrieve the demand sample
         demand_sample = self.demand.save_sample()
+        assert isinstance(demand_sample, pd.DataFrame)
 
         # set the number of stories
         if num_stories:
@@ -781,14 +844,14 @@ class DLCalculationAssessment(Assessment):
                         cmp_marginals.loc['excessive.coll.DEM', 'Units'] = 'ea'
 
                         locs = demand_sample[
-                            collapse_fragility_demand_type
+                            collapse_fragility_demand_type  # type: ignore
                         ].columns.unique(level=0)
                         cmp_marginals.loc['excessive.coll.DEM', 'Location'] = (
                             ','.join(locs)
                         )
 
                         dirs = demand_sample[
-                            collapse_fragility_demand_type
+                            collapse_fragility_demand_type  # type: ignore
                         ].columns.unique(level=1)
                         cmp_marginals.loc['excessive.coll.DEM', 'Direction'] = (
                             ','.join(dirs)
@@ -850,16 +913,47 @@ class DLCalculationAssessment(Assessment):
 
     def calculate_damage(
         self,
-        length_unit,
-        component_database,
-        component_database_path=None,
-        collapse_fragility=None,
-        is_for_water_network_assessment=False,
-        irreparable_damage=None,
-        damage_process_approach=None,
-        damage_process_file_path=None,
-        custom_model_dir=None,
-    ):
+        length_unit: float,
+        component_database: str,
+        component_database_path: str | None = None,
+        collapse_fragility: dict | None = None,
+        is_for_water_network_assessment: bool = False,
+        irreparable_damage: dict | None = None,
+        damage_process_approach: str | None = None,
+        damage_process_file_path: str | None = None,
+        custom_model_dir: str | None = None,
+    ) -> None:
+        """
+        Calculates damage.
+
+        Parameters
+        ----------
+        length_unit : str
+            Unit of length to be used to add units to the demand data
+            if needed.
+        component_database : str
+            Name of the component database.
+        component_database_path : str or None
+            Optional path to a component database file.
+        collapse_fragility : dict or None
+            Collapse fragility information.
+        is_for_water_network_assessment : bool
+            Whether the assessment is for a water network.
+        irreparable_damage : dict or None
+            Information for irreparable damage.
+        damage_process_approach : str or None
+            Approach for the damage process.
+        damage_process_file_path : str or None
+            Optional path to a damage process file.
+        custom_model_dir : str or None
+            Optional directory for custom models.
+
+        Raises
+        ------
+        ValueError
+            With invalid combinations of arguments.
+
+        """
 
         # load the fragility information
         if component_database in default_DBs['fragility']:
@@ -870,6 +964,12 @@ class DLCalculationAssessment(Assessment):
             component_db = []
 
         if component_database_path is not None:
+
+            if custom_model_dir is None:
+                raise ValueError(
+                    '`custom_model_dir` needs to be specified '
+                    'when `component_database_path` is not None.'
+                )
 
             if 'CustomDLDataFolder' in component_database_path:
                 component_database_path = component_database_path.replace(
@@ -888,6 +988,9 @@ class DLCalculationAssessment(Assessment):
         adf = pd.DataFrame(columns=P58_data.columns)
 
         if collapse_fragility:
+
+            assert self.asset.cmp_marginal_params is not None
+
             if (
                 'excessive.coll.DEM'
                 in self.asset.cmp_marginal_params.index.get_level_values('cmp')
@@ -1014,7 +1117,7 @@ class DLCalculationAssessment(Assessment):
 
         self.damage.load_model_parameters(
             component_db + [adf],
-            self.asset.list_unique_component_ids(as_set=True),
+            set(self.asset.list_unique_component_ids()),
         )
 
         # load the damage process if needed
@@ -1026,7 +1129,9 @@ class DLCalculationAssessment(Assessment):
 
                 # For Hazus Earthquake, we need to specify the component ids
                 if damage_process_approach == 'Hazus Earthquake':
+
                     cmp_sample = self.asset.save_cmp_sample()
+                    assert isinstance(cmp_sample, pd.DataFrame)
 
                     cmp_list = cmp_sample.columns.unique(level=0)
 
@@ -1083,6 +1188,14 @@ class DLCalculationAssessment(Assessment):
                     dmg_process = new_dmg_process
 
             elif damage_process_approach == "User Defined":
+
+                if damage_process_file_path is None:
+                    raise ValueError(
+                        'When `damage_process_approach` is set to '
+                        '`User Defined`, a `damage_process_file_path` '
+                        'needs to be provided.'
+                    )
+
                 # load the damage process from a file
                 with open(damage_process_file_path, 'r', encoding='utf-8') as f:
                     dmg_process = json.load(f)
@@ -1102,25 +1215,71 @@ class DLCalculationAssessment(Assessment):
 
     def calculate_loss(
         self,
-        custom_model_dir,
-        loss_map_approach,
-        occupancy_type,
-        consequence_database,
-        consequence_database_path=None,
-        damage_process_approach='User Defined',
-        replacement_cost_parameters=None,
-        replacement_time_parameters=None,
-        replacement_carbon_parameters=None,
-        replacement_energy_parameters=None,
-        loss_map_path=None,
-        decision_variables=None,
-    ):
+        loss_map_approach: str,
+        occupancy_type: str,
+        consequence_database: str,
+        consequence_database_path: str | None = None,
+        custom_model_dir: str | None = None,
+        damage_process_approach: str = 'User Defined',
+        replacement_cost_parameters: dict[str, float | str] | None = None,
+        replacement_time_parameters: dict[str, float | str] | None = None,
+        replacement_carbon_parameters: dict[str, float | str] | None = None,
+        replacement_energy_parameters: dict[str, float | str] | None = None,
+        loss_map_path: str | None = None,
+        decision_variables: list[str] | None = None,
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Calculates losses.
 
-        conseq_df, consequence_db = _load_consequence_info(
+        Parameters
+        ----------
+        loss_map_approach : str
+            Approach for the loss map generation. Can be either
+            `User Defined` or `Automatic`.
+        occupancy_type : str
+            Occupancy type.
+        consequence_database : str
+            Name of the consequence database.
+        consequence_database_path : str or None
+            Optional path to a consequence database file.
+        custom_model_dir : str or None
+            Optional directory for custom models.
+        damage_process_approach : str
+            Damage process approach. Defaults to `User Defined`.
+        replacement_cost_parameters : dict or None
+            Parameters for replacement cost.
+        replacement_time_parameters : dict or None
+            Parameters for replacement time.
+        replacement_carbon_parameters : dict or None
+            Parameters for replacement carbon.
+        replacement_energy_parameters : dict or None
+            Parameters for replacement energy.
+        loss_map_path : str or None
+            Optional path to a loss map file.
+        decision_variables : list[str] or None
+            Optional decision variables for the assessment.
+
+        Returns
+        -------
+        tuple
+            Dataframe with the aggregated loss of each realization,
+            and another boolean dataframe with information on which DV
+            thresholds were exceeded in each realization, triggering
+            replacement. If no thresholds are specified it only
+            contains False values.
+
+        Raises
+        ------
+        ValueError
+            When an invalid loss map approach is specified.
+
+        """
+
+        conseq_df, consequence_db = load_consequence_info(
             self,
-            custom_model_dir,
             consequence_database,
             consequence_database_path,
+            custom_model_dir,
         )
 
         # remove duplicates from conseq_df
@@ -1139,43 +1298,47 @@ class DLCalculationAssessment(Assessment):
             ),
         )
 
-        _loss__add_replacement_cost(
-            adf,
-            damage_process_approach,
-            unit=get(replacement_cost_parameters, 'Unit'),
-            median=get(replacement_cost_parameters, 'Median'),
-            distribution=get(replacement_cost_parameters, 'Distribution'),
-            theta_1=get(replacement_cost_parameters, 'Theta_1'),
-        )
+        if replacement_cost_parameters is not None:
+            _loss__add_replacement_cost(
+                adf,
+                damage_process_approach,
+                unit=get(replacement_cost_parameters, 'Unit'),
+                median=get(replacement_cost_parameters, 'Median'),
+                distribution=get(replacement_cost_parameters, 'Distribution'),
+                theta_1=get(replacement_cost_parameters, 'Theta_1'),
+            )
 
-        _loss__add_replacement_time(
-            adf,
-            damage_process_approach,
-            conseq_df,
-            occupancy_type=occupancy_type,
-            unit=get(replacement_time_parameters, 'Unit'),
-            median=get(replacement_time_parameters, 'Median'),
-            distribution=get(replacement_time_parameters, 'Distribution'),
-            theta_1=get(replacement_time_parameters, 'Theta_1'),
-        )
+        if replacement_time_parameters is not None:
+            _loss__add_replacement_time(
+                adf,
+                damage_process_approach,
+                conseq_df,
+                occupancy_type=occupancy_type,
+                unit=get(replacement_time_parameters, 'Unit'),
+                median=get(replacement_time_parameters, 'Median'),
+                distribution=get(replacement_time_parameters, 'Distribution'),
+                theta_1=get(replacement_time_parameters, 'Theta_1'),
+            )
 
-        _loss__add_replacement_carbon(
-            adf,
-            damage_process_approach,
-            unit=get(replacement_carbon_parameters, 'Unit'),
-            median=get(replacement_carbon_parameters, 'Median'),
-            distribution=get(replacement_carbon_parameters, 'Distribution'),
-            theta_1=get(replacement_carbon_parameters, 'Theta_1'),
-        )
+        if replacement_carbon_parameters is not None:
+            _loss__add_replacement_carbon(
+                adf,
+                damage_process_approach,
+                unit=get(replacement_carbon_parameters, 'Unit'),
+                median=get(replacement_carbon_parameters, 'Median'),
+                distribution=get(replacement_carbon_parameters, 'Distribution'),
+                theta_1=get(replacement_carbon_parameters, 'Theta_1'),
+            )
 
-        _loss__add_replacement_energy(
-            adf,
-            damage_process_approach,
-            unit=get(replacement_energy_parameters, 'Unit'),
-            median=get(replacement_energy_parameters, 'Median'),
-            distribution=get(replacement_energy_parameters, 'Distribution'),
-            theta_1=get(replacement_energy_parameters, 'Theta_1'),
-        )
+        if replacement_energy_parameters is not None:
+            _loss__add_replacement_energy(
+                adf,
+                damage_process_approach,
+                unit=get(replacement_energy_parameters, 'Unit'),
+                median=get(replacement_energy_parameters, 'Median'),
+                distribution=get(replacement_energy_parameters, 'Distribution'),
+                theta_1=get(replacement_energy_parameters, 'Theta_1'),
+            )
 
         # prepare the loss map
         loss_map = None
@@ -1204,15 +1367,43 @@ class DLCalculationAssessment(Assessment):
 
         self.loss.calculate()
 
-        return self.loss.aggregate_losses(future=True)
+        df_agg, exceedance_bool_df = self.loss.aggregate_losses(future=True)
+        assert isinstance(df_agg, pd.DataFrame)
+        assert isinstance(exceedance_bool_df, pd.DataFrame)
+        return df_agg, exceedance_bool_df
 
 
-def _load_consequence_info(
+def load_consequence_info(
     self,
-    custom_model_dir,
-    consequence_database,
-    consequence_database_path=None,
-):
+    consequence_database: str,
+    consequence_database_path: str | None = None,
+    custom_model_dir: str | None = None,
+) -> tuple[pd.DataFrame, list[str]]:
+    """
+    Load consequence information for the assessment.
+
+    Parameters
+    ----------
+    consequence_database : str
+        Name of the consequence database.
+    consequence_database_path : str or None
+        Optional path to a consequence database file.
+    custom_model_dir : str or None
+        Optional directory for custom models.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, list[str]]
+        A tuple containing:
+        - A DataFrame with the consequence data.
+        - A list of paths to the consequence databases used.
+
+    Raises
+    ------
+    ValueError
+        With invalid combinations of arguments.
+
+    """
     if consequence_database in default_DBs['repair']:
         consequence_db = [
             'PelicunDefault/' + default_DBs['repair'][consequence_database],
@@ -1228,6 +1419,12 @@ def _load_consequence_info(
 
     if consequence_database_path is not None:
 
+        if custom_model_dir is None:
+            raise ValueError(
+                'When `consequence_database_path` is specified, '
+                '`custom_model_dir` needs to be specified as well.'
+            )
+
         if 'CustomDLDataFolder' in consequence_database_path:
             consequence_database_path = consequence_database_path.replace(
                 'CustomDLDataFolder', custom_model_dir
@@ -1241,6 +1438,7 @@ def _load_consequence_info(
             orientation=1,
             reindex=False,
         )
+        assert isinstance(extra_conseq_df, pd.DataFrame)
 
         if isinstance(conseq_df, pd.DataFrame):
             conseq_df = pd.concat([conseq_df, extra_conseq_df])
@@ -1250,120 +1448,6 @@ def _load_consequence_info(
     consequence_db = consequence_db[::-1]
 
     return conseq_df, consequence_db
-
-
-class TimeBasedAssessment:
-    """
-    Time-based assessment.
-
-    """
-
-
-def test():
-    """
-    This code is temporary, and will eventually be turned into a unit
-    test.
-
-    """
-
-    # pylint: disable=import-outside-toplevel
-    import tempfile
-
-    # variable setup
-
-    temp_dir = tempfile.mkdtemp()
-    config = {"PrintLog": True, "Seed": 415, "LogFile": f'{temp_dir}/log_file.txt'}
-
-    sample_size = 10000
-
-    demand_data = file_io.load_data(
-        'pelicun/tests/validation/2/data/demand_data.csv',
-        unit_conversion_factors=None,
-        reindex=False,
-    )
-    ndims = len(demand_data)
-    perfect_correlation = pd.DataFrame(
-        np.ones((ndims, ndims)), columns=demand_data.index, index=demand_data.index
-    )
-    demand_data_dct = {'marginals': demand_data, 'correlation': perfect_correlation}
-
-    num_stories = 1
-
-    cmp_marginals = pd.read_csv(
-        'pelicun/tests/validation/2/data/CMP_marginals.csv', index_col=0
-    )
-    cmp_marginals['Blocks'] = cmp_marginals['Blocks']
-
-    cmp_model_input = {'marginals': cmp_marginals}
-
-    damage_model_parameters = [
-        'pelicun/tests/validation/2/data/additional_damage_db.csv',
-        'PelicunDefault/damage_DB_FEMA_P58_2nd.csv',
-    ]
-
-    dmg_process = {
-        "1_collapse": {"DS1": "ALL_NA"},
-        "2_excessiveRID": {"DS1": "irreparable_DS1"},
-    }
-
-    loss_model_parameters = [
-        'pelicun/tests/validation/2/data/additional_consequences.csv',
-        'pelicun/tests/validation/2/data/additional_loss_functions.csv',
-        "PelicunDefault/loss_repair_DB_FEMA_P58_2nd.csv",
-    ]
-
-    loss_map = pd.DataFrame(
-        ['replacement', 'replacement'],
-        columns=['Repair'],
-        index=['collapse', 'irreparable'],
-    )
-
-    yield_drift_configuration = {
-        'method': 'FEMA P-58',
-        'parameters': {'yield_drift': 0.01},
-    }
-
-    collapse_fragility_configuration = {
-        'label': 'SA_1.13',
-        'value': 1.50,
-        'unit': 'g',
-    }
-
-    decision_variables = ('Cost', 'Time')
-    loss_map_policy = 'fill'
-
-    demand_config = {"SampleSize": sample_size}
-
-    asmnt = Assessment(config)
-    asmnt.calculate_damage(
-        num_stories,
-        demand_config,
-        demand_data_dct,
-        cmp_model_input,
-        damage_model_parameters,
-        dmg_process,
-        None,
-        yield_drift_configuration,
-        collapse_fragility_configuration,
-    )
-    asmnt.calculate_loss(
-        decision_variables,
-        loss_model_parameters,
-        loss_map,
-        loss_map_policy,
-    )
-    x1, x2 = asmnt.aggregate_loss()
-    print(x1)
-    print(x2)
-
-    # TODO
-    # - [X] expose all method arguments
-    # - [X] write docstrings, copy parts from the other methods
-    # - [X] copy the methods to the child classes and redefine them
-    # - see how we can utilize these new objects in DL_calculation
-    # - add a test of each assessment type
-    # - implement TimeBasedAssessment
-    # - test TimeBasedAssessment
 
 
 def _add_units(raw_demands, length_unit):
@@ -1683,3 +1767,10 @@ def _loss__map_auto(assessment, conseq_df, DL_method, occupancy_type=None):
     loss_map = pd.DataFrame(loss_models, columns=['Repair'], index=drivers)
 
     return loss_map
+
+
+class TimeBasedAssessment:
+    """
+    Time-based assessment.
+
+    """

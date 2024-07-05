@@ -60,7 +60,7 @@ from pelicun import uq
 from pelicun import file_io
 
 if TYPE_CHECKING:
-    from pelicun.assessment import Assessment
+    from pelicun.assessment import AssessmentBase
 
 idx = base.idx
 
@@ -76,7 +76,7 @@ class AssetModel(PelicunModel):
 
     __slots__ = ['cmp_marginal_params', 'cmp_units', 'cmp_sample', '_cmp_RVs']
 
-    def __init__(self, assessment: Assessment):
+    def __init__(self, assessment: AssessmentBase):
         super().__init__(assessment)
 
         self.cmp_marginal_params = None
@@ -403,16 +403,9 @@ class AssetModel(PelicunModel):
 
         # the empirical data and correlation files can be added later, if needed
 
-    def list_unique_component_ids(
-        self, as_set: bool = False
-    ) -> list[str] | set[str]:
+    def list_unique_component_ids(self) -> list[str]:
         """
         Returns unique component IDs.
-
-        Parameters
-        ----------
-        as_set: bool
-            Whether to cast the list into a set.
 
         Returns
         -------
@@ -421,8 +414,6 @@ class AssetModel(PelicunModel):
 
         """
         cmp_list = self.cmp_marginal_params.index.unique(level=0).to_list()
-        if as_set:
-            return set(cmp_list)
         return cmp_list
 
     def generate_cmp_sample(self, sample_size: int | None = None) -> None:

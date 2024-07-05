@@ -63,7 +63,7 @@ from pelicun import uq
 from pelicun import file_io
 
 if TYPE_CHECKING:
-    from pelicun.assessment import Assessment
+    from pelicun.assessment import AssessmentBase
 
 idx = base.idx
 
@@ -111,7 +111,7 @@ class DemandModel(PelicunModel):
         'sample',
     ]
 
-    def __init__(self, assessment: Assessment):
+    def __init__(self, assessment: AssessmentBase):
         super().__init__(assessment)
 
         self.marginal_params = None
@@ -125,7 +125,7 @@ class DemandModel(PelicunModel):
 
     def save_sample(
         self, filepath: str | None = None, save_units: bool = False
-    ) -> None | tuple[pd.DataFrame, pd.Series]:
+    ) -> None | tuple[pd.DataFrame, pd.Series] | pd.DataFrame:
         """
         Save demand sample to a csv file or return it in a DataFrame
 

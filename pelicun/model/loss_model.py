@@ -65,7 +65,7 @@ from pelicun import uq
 from pelicun import file_io
 
 if TYPE_CHECKING:
-    from pelicun.assessment import Assessment
+    from pelicun.assessment import AssessmentBase
 
 idx = base.idx
 
@@ -83,7 +83,7 @@ class LossModel(PelicunModel):
 
     def __init__(
         self,
-        assessment: Assessment,
+        assessment: AssessmentBase,
         decision_variables: tuple[str, ...] = ('Carbon', 'Cost', 'Energy', 'Time'),
     ):
         """
@@ -91,7 +91,7 @@ class LossModel(PelicunModel):
 
         Parameters
         ----------
-        assessment: pelicun.Assessment
+        assessment: pelicun.AssessmentBase
             Parent assessment
         decision_variables: tuple
             Defines the decision variables to be included in the loss
@@ -199,7 +199,7 @@ class LossModel(PelicunModel):
             )
 
         # get a list of unique component IDs
-        cmp_set = self._asmnt.asset.list_unique_component_ids(as_set=True)
+        cmp_set = set(self._asmnt.asset.list_unique_component_ids())
 
         if loss_map_path is not None:
             self.log.msg('Loss map is provided.', prepend_timestamp=False)
@@ -1475,13 +1475,13 @@ class RepairModel_Base(PelicunModel):
 
     __slots__ = ['loss_params', 'sample', 'consequence']
 
-    def __init__(self, assessment: Assessment):
+    def __init__(self, assessment: AssessmentBase):
         """
         Initializes RepairModel_Base objects.
 
         Parameters
         ----------
-        assessment: pelicun.Assessment
+        assessment: pelicun.AssessmentBase
             Parent assessment
 
         """
