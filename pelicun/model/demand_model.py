@@ -1237,27 +1237,44 @@ def _get_required_demand_type(
 
         cmp = pg[0]
 
-        # Get the directional, offset, and demand_type parameters
-        # from the `model_parameters` DataFrame
-        directional = model_parameters.at[cmp, ('Demand', 'Directional')]
-        offset = model_parameters.at[cmp, ('Demand', 'Offset')]
-        demand_type = model_parameters.at[cmp, ('Demand', 'Type')]
-
         # Utility Demand: if there is an `Expression`, then load the
         # rest of the demand types.
         expression = model_parameters.loc[cmp, :].get(('Demand', 'Expression'))
         if expression is not None:
-            demand_types = []
-            for row, value in model_parameters.loc[cmp, 'Demand'].dropna().items():
-                if isinstance(row, str) and row.startswith('Type'):
-                    demand_types.append(value)
+            # get the number of variables in the expression using
+            # the numexpr library
+            parsed_expr = ne.NumExpr(_clean_up_expression(expression))
+            num_terms = len(parsed_expr.input_names)
+            demand_parameters_list = []
+            for i in range(num_terms):
+                if i == 0:
+                    index_lvl0 = 'Demand'
+                else:
+                    index_lvl0 = f'Demand{i + 1}'
+                demand_parameters_list.append(
+                    (
+                        model_parameters.loc[cmp, (index_lvl0, 'Type')],
+                        model_parameters.loc[cmp, (index_lvl0, 'Offset')],
+                        model_parameters.loc[cmp, (index_lvl0, 'Directional')],
+                    )
+                )
         else:
-            demand_types = [demand_type]
+            demand_parameters_list = [
+                (
+                    model_parameters.loc[cmp, ('Demand', 'Type')],
+                    model_parameters.loc[cmp, ('Demand', 'Offset')],
+                    model_parameters.loc[cmp, ('Demand', 'Directional')],
+                )
+            ]
 
         # Parse the demand type
 
         edps = []
-        for demand_type in demand_types:
+        for demand_parameters in demand_parameters_list:
+
+            demand_type = demand_parameters[0]
+            offset = demand_parameters[1]
+            directional = demand_parameters[2]
 
             # Check if there is a subtype included in the demand_type
             # string
