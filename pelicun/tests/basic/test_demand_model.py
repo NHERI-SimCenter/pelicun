@@ -217,10 +217,8 @@ class TestDemandModel(TestModelModule):
         params = {'yield_drift': 0.01}
         res = demand_model_with_sample.estimate_RID(demands, params)
         assert list(res.columns) == [('RID', '1', '1')]
-        assert (
+        with pytest.raises(ValueError):
             demand_model_with_sample.estimate_RID(demands, params, method='xyz')
-            is None
-        )
 
     def test_calibrate_model(
         self, calibrated_demand_model, demand_model_with_sample_C

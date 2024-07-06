@@ -41,23 +41,18 @@
 """
 This file defines the PelicunModel object and its methods.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    PelicunModel
-
 """
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from typing import Any
 import numpy as np
 import pandas as pd
 from pelicun import base
 from pelicun import uq
 
 if TYPE_CHECKING:
-    from pelicun.assessment import Assessment
+    from pelicun.assessment import AssessmentBase
 
 idx = base.idx
 
@@ -70,9 +65,9 @@ class PelicunModel:
 
     __slots__ = ['_asmnt', 'log']
 
-    def __init__(self, assessment: Assessment):
-        # link the PelicunModel object to its Assessment object
-        self._asmnt: Assessment = assessment
+    def __init__(self, assessment: AssessmentBase):
+        # link the PelicunModel object to its AssessmentBase object
+        self._asmnt: AssessmentBase = assessment
 
         # link logging methods as attributes enabling more
         # concise syntax
@@ -172,7 +167,7 @@ class PelicunModel:
                 ].values
 
                 # for each theta
-                args = []
+                args: list[Any] = []
                 for t_i, theta_i in enumerate(theta):
                     # if theta_i evaluates to NaN, it is considered undefined
                     if pd.isna(theta_i):
@@ -209,6 +204,7 @@ class PelicunModel:
                 if not (arg_units is None):
                     # get the argument unit for the given marginal
                     arg_unit = arg_units.get(row_id)
+                    assert isinstance(arg_unit, str)
 
                     if arg_unit != '1 EA':
                         # get the scale factor
@@ -228,8 +224,8 @@ class PelicunModel:
                     conversion_factor = unit_factor
                 if inverse_conversion:
                     conversion_factor = 1.00 / conversion_factor
-                theta, tr_limits = uq.scale_distribution(
-                    conversion_factor, family, theta, tr_limits
+                theta, tr_limits = uq.scale_distribution(  # type: ignore
+                    conversion_factor, family, theta, tr_limits  # type: ignore
                 )
 
                 # convert multilinear function parameters back into strings
@@ -313,7 +309,7 @@ class PelicunModel:
         array(['11'])
         """
         try:
-            res = str(int(loc_str))
+            res = str(int(float(loc_str)))
             return np.array([res])
 
         except ValueError as exc:
@@ -321,20 +317,23 @@ class PelicunModel:
 
             if "--" in loc_str:
                 s_low, s_high = loc_str.split('--')
-                s_low = self._get_locations(s_low)
-                s_high = self._get_locations(s_high)
+                s_low = self._get_locations(s_low)[0]
+                s_high = self._get_locations(s_high)[0]
                 return np.arange(int(s_low[0]), int(s_high[0]) + 1).astype(str)
 
             if "," in loc_str:
                 return np.array(loc_str.split(','), dtype=int).astype(str)
 
             if loc_str == "all":
+                assert stories is not None
                 return np.arange(1, stories + 1).astype(str)
 
             if loc_str == "top":
+                assert stories is not None
                 return np.array([stories]).astype(str)
 
             if loc_str == "roof":
+                assert stories is not None
                 return np.array([stories + 1]).astype(str)
 
             raise ValueError(f"Cannot parse location string: " f"{loc_str}") from exc
@@ -394,17 +393,22 @@ class PelicunModel:
             return np.ones(1).astype(str)
 
         try:
-            res = str(int(dir_str))
+            res = str(int(float(dir_str)))  # type: ignore
             return np.array([res])
 
         except ValueError as exc:
-            if "," in dir_str:
-                return np.array(dir_str.split(','), dtype=int).astype(str)
+            if "," in dir_str:  # type: ignore
+                return np.array(
+                    dir_str.split(','),  # type: ignore
+                    dtype=int,
+                ).astype(
+                    str
+                )  # type: ignore
 
-            if "--" in dir_str:
-                d_low, d_high = dir_str.split('--')
-                d_low = self._get_directions(d_low)
-                d_high = self._get_directions(d_high)
+            if "--" in dir_str:  # type: ignore
+                d_low, d_high = dir_str.split('--')  # type: ignore
+                d_low = self._get_directions(d_low)[0]
+                d_high = self._get_directions(d_high)[0]
                 return np.arange(int(d_low[0]), int(d_high[0]) + 1).astype(str)
 
             # else:

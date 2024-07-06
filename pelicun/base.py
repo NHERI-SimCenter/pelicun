@@ -41,29 +41,6 @@
 """
 This module defines constants, basic classes and methods for pelicun.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    load_default_options
-    update_vals
-    merge_default_config
-    convert_to_SimpleIndex
-    convert_to_MultiIndex
-    show_matrix
-    describe
-    str2bool
-    float_or_None
-    int_or_None
-    process_loc
-    dedupe_index
-    dict_raise_on_duplicates
-    parse_units
-    convert_units
-
-    Options
-    Logger
-
 """
 
 from __future__ import annotations
@@ -771,7 +748,7 @@ def convert_to_SimpleIndex(
 
 def convert_to_MultiIndex(
     data: pd.DataFrame, axis: int = 0, inplace: bool = False
-) -> pd.DataFrame:
+) -> pd.DataFrame | pd.Series:
     """
     Converts the index of a DataFrame to a MultiIndex
 
@@ -1618,7 +1595,9 @@ def invert_mapping(original_dict: dict) -> dict:
     return inverted_dict
 
 
-def get(d: dict[str, Any], path: str, default: Any | None = None) -> Any:
+def get(
+    d: dict | None, path: str, default: Any | None = None
+) -> Any:
     """
     Retrieve a value from a nested dictionary using a path with '/' as
     the separator.
@@ -1656,6 +1635,8 @@ def get(d: dict[str, Any], path: str, default: Any | None = None) -> Any:
     'default_value'
 
     """
+    if d is None:
+        return default
     keys = path.strip('/').split('/')
     current_dict = d
     try:

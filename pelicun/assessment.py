@@ -41,12 +41,6 @@
 """
 This module has classes and methods that control the performance assessment.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    Assessment
-
 """
 
 from __future__ import annotations
@@ -351,6 +345,8 @@ class Assessment(AssessmentBase):
 
     """
 
+    __slots__: list[str] = []
+
     def calculate_damage(
         self,
         num_stories: int,
@@ -600,6 +596,8 @@ class DLCalculationAssessment(AssessmentBase):
 
     """
 
+    __slots__: list[str] = []
+
     def calculate_demand(
         self,
         demand_path: str,
@@ -647,7 +645,9 @@ class DLCalculationAssessment(AssessmentBase):
 
         # remove excessive demands that are considered collapses, if needed
         if collapse_limits:
-            raw_demands = base.convert_to_MultiIndex(raw_demands, axis=1)
+            raw_demands_m = base.convert_to_MultiIndex(raw_demands, axis=1)
+            assert isinstance(raw_demands_m, pd.DataFrame)
+            raw_demands = raw_demands_m
 
             if 'Units' in raw_demands.index:
                 raw_units = raw_demands.loc['Units', :]
@@ -1298,47 +1298,43 @@ class DLCalculationAssessment(AssessmentBase):
             ),
         )
 
-        if replacement_cost_parameters is not None:
-            _loss__add_replacement_cost(
-                adf,
-                damage_process_approach,
-                unit=get(replacement_cost_parameters, 'Unit'),
-                median=get(replacement_cost_parameters, 'Median'),
-                distribution=get(replacement_cost_parameters, 'Distribution'),
-                theta_1=get(replacement_cost_parameters, 'Theta_1'),
-            )
+        _loss__add_replacement_cost(
+            adf,
+            damage_process_approach,
+            unit=get(replacement_cost_parameters, 'Unit'),
+            median=get(replacement_cost_parameters, 'Median'),
+            distribution=get(replacement_cost_parameters, 'Distribution'),
+            theta_1=get(replacement_cost_parameters, 'Theta_1'),
+        )
 
-        if replacement_time_parameters is not None:
-            _loss__add_replacement_time(
-                adf,
-                damage_process_approach,
-                conseq_df,
-                occupancy_type=occupancy_type,
-                unit=get(replacement_time_parameters, 'Unit'),
-                median=get(replacement_time_parameters, 'Median'),
-                distribution=get(replacement_time_parameters, 'Distribution'),
-                theta_1=get(replacement_time_parameters, 'Theta_1'),
-            )
+        _loss__add_replacement_time(
+            adf,
+            damage_process_approach,
+            conseq_df,
+            occupancy_type=occupancy_type,
+            unit=get(replacement_time_parameters, 'Unit'),
+            median=get(replacement_time_parameters, 'Median'),
+            distribution=get(replacement_time_parameters, 'Distribution'),
+            theta_1=get(replacement_time_parameters, 'Theta_1'),
+        )
 
-        if replacement_carbon_parameters is not None:
-            _loss__add_replacement_carbon(
-                adf,
-                damage_process_approach,
-                unit=get(replacement_carbon_parameters, 'Unit'),
-                median=get(replacement_carbon_parameters, 'Median'),
-                distribution=get(replacement_carbon_parameters, 'Distribution'),
-                theta_1=get(replacement_carbon_parameters, 'Theta_1'),
-            )
+        _loss__add_replacement_carbon(
+            adf,
+            damage_process_approach,
+            unit=get(replacement_carbon_parameters, 'Unit'),
+            median=get(replacement_carbon_parameters, 'Median'),
+            distribution=get(replacement_carbon_parameters, 'Distribution'),
+            theta_1=get(replacement_carbon_parameters, 'Theta_1'),
+        )
 
-        if replacement_energy_parameters is not None:
-            _loss__add_replacement_energy(
-                adf,
-                damage_process_approach,
-                unit=get(replacement_energy_parameters, 'Unit'),
-                median=get(replacement_energy_parameters, 'Median'),
-                distribution=get(replacement_energy_parameters, 'Distribution'),
-                theta_1=get(replacement_energy_parameters, 'Theta_1'),
-            )
+        _loss__add_replacement_energy(
+            adf,
+            damage_process_approach,
+            unit=get(replacement_energy_parameters, 'Unit'),
+            median=get(replacement_energy_parameters, 'Median'),
+            distribution=get(replacement_energy_parameters, 'Distribution'),
+            theta_1=get(replacement_energy_parameters, 'Theta_1'),
+        )
 
         # prepare the loss map
         loss_map = None

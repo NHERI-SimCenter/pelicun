@@ -42,23 +42,10 @@
 This module defines constants, classes and methods for uncertainty
 quantification in pelicun.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    scale_distribution
-    mvn_orthotope_density
-    fit_distribution_to_sample
-    fit_distribution_to_percentiles
-
-    RandomVariable
-    RandomVariableSet
-    RandomVariableRegistry
-
-
 """
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from collections.abc import Callable
 from abc import ABC, abstractmethod
 from scipy.stats import uniform, norm  # type: ignore
@@ -72,6 +59,9 @@ import pandas as pd
 import colorama
 from colorama import Fore
 from colorama import Style
+
+if TYPE_CHECKING:
+    from pelicun.base import Logger
 
 colorama.init()
 
@@ -726,7 +716,7 @@ def fit_distribution_to_sample(
     censored_count: int = 0,
     detection_limits: tuple[float, float] = (np.nan, np.nan),
     multi_fit: bool = False,
-    logger_object: None = None,
+    logger_object: Logger | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Fit a distribution to sample using maximum likelihood estimation.
@@ -1147,7 +1137,7 @@ class BaseRandomVariable(ABC):
 
     """
 
-    __slots__ = [
+    __slots__: list[str] = [
         'name',
         'distribution',
         'f_map',
@@ -1404,7 +1394,7 @@ class NormalRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['theta', 'truncation_limits']
+    __slots__: list[str] = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1531,7 +1521,7 @@ class Normal_STD(NormalRandomVariable):
 
     """
 
-    __slots__ = []
+    __slots__: list[str] = []
 
     def __init__(
         self,
@@ -1555,7 +1545,7 @@ class Normal_COV(NormalRandomVariable):
 
     """
 
-    __slots__ = []
+    __slots__: list[str] = []
 
     def __init__(
         self,
@@ -1581,7 +1571,7 @@ class LogNormalRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['theta', 'truncation_limits']
+    __slots__: list[str] = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1701,7 +1691,7 @@ class UniformRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['theta', 'truncation_limits']
+    __slots__: list[str] = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1792,7 +1782,7 @@ class WeibullRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['theta', 'truncation_limits']
+    __slots__: list[str] = ['theta', 'truncation_limits']
 
     def __init__(
         self,
@@ -1913,7 +1903,7 @@ class MultilinearCDFRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['theta']
+    __slots__: list[str] = ['theta']
 
     def __init__(
         self,
@@ -2040,7 +2030,7 @@ class EmpiricalRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['_raw_samples']
+    __slots__: list[str] = ['_raw_samples']
 
     def __init__(
         self,
@@ -2099,7 +2089,7 @@ class CoupledEmpiricalRandomVariable(UtilityRandomVariable):
 
     """
 
-    __slots__ = ['_raw_samples']
+    __slots__: list[str] = ['_raw_samples']
 
     def __init__(
         self,
@@ -2187,7 +2177,7 @@ class DeterministicRandomVariable(UtilityRandomVariable):
 
     """
 
-    __slots__ = ['theta']
+    __slots__: list[str] = ['theta']
 
     def __init__(
         self,
@@ -2267,7 +2257,7 @@ class MultinomialRandomVariable(RandomVariable):
 
     """
 
-    __slots__ = ['theta']
+    __slots__: list[str] = ['theta']
 
     def __init__(
         self,
@@ -2352,7 +2342,7 @@ class RandomVariableSet:
         is supported.
     """
 
-    __slots__ = ['name', '_variables', '_Rho']
+    __slots__: list[str] = ['name', '_variables', '_Rho']
 
     def __init__(self, name: str, RV_list: list[RandomVariable], Rho: np.ndarray):
         self.name = name
@@ -2567,7 +2557,7 @@ class RandomVariableRegistry:
 
     """
 
-    __slots__ = ['_rng', '_variables', '_sets']
+    __slots__: list[str] = ['_rng', '_variables', '_sets']
 
     def __init__(self, rng: np.random.Generator):
         """

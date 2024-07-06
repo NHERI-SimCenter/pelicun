@@ -313,9 +313,6 @@ def run_pelicun(
 
     # Initial setup -----------------------------------------------------------
 
-    # color warnings
-    color_codes = _get_color_codes(color_warnings)
-
     # get the absolute path to the config file
     config_path = Path(config_path).resolve()
 

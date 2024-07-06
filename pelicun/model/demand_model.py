@@ -41,12 +41,6 @@
 """
 This file defines the DemandModel object and its methods.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    DemandModel
-
 """
 
 from __future__ import annotations
@@ -114,14 +108,14 @@ class DemandModel(PelicunModel):
     def __init__(self, assessment: AssessmentBase):
         super().__init__(assessment)
 
-        self.marginal_params = None
-        self.correlation = None
-        self.empirical_data = None
-        self.user_units = None
+        self.marginal_params: pd.DataFrame | None = None
+        self.correlation: pd.DataFrame | None = None
+        self.empirical_data: pd.DataFrame | None = None
+        self.user_units: pd.Series | None = None
         self.calibrated = False
 
-        self._RVs = None
-        self.sample = None
+        self._RVs: uq.RandomVariableRegistry | None = None
+        self.sample: pd.DataFrame | None = None
 
     def save_sample(
         self, filepath: str | None = None, save_units: bool = False
@@ -150,6 +144,7 @@ class DemandModel(PelicunModel):
         if filepath is not None:
             self.log.msg('Saving demand sample...')
 
+        assert self.sample is not None
         res = file_io.save_to_csv(
             self.sample,
             filepath,
@@ -158,7 +153,6 @@ class DemandModel(PelicunModel):
             use_simpleindex=(filepath is not None),
             log=self._asmnt.log,
         )
-
         if filepath is not None:
             self.log.msg(
                 'Demand sample successfully saved.', prepend_timestamp=False
@@ -166,8 +160,11 @@ class DemandModel(PelicunModel):
             return None
 
         # else:
+        assert isinstance(res, pd.DataFrame)
+
         units = res.loc["Units"]
         res.drop("Units", inplace=True)
+        assert isinstance(units, pd.Series)
 
         if save_units:
             return res.astype(float), units
@@ -267,6 +264,8 @@ class DemandModel(PelicunModel):
             return_units=True,
             log=self._asmnt.log,
         )
+        assert isinstance(demand_data, pd.DataFrame)
+        assert isinstance(units, pd.Series)
 
         parsed_data = demand_data.copy()
 
@@ -280,7 +279,12 @@ class DemandModel(PelicunModel):
                 'Removing errors from the raw data...', prepend_timestamp=False
             )
 
-            error_list = parsed_data.loc[:, idx['ERROR', :, :]].values.astype(bool)
+            error_list = parsed_data.loc[  # type: ignore
+                :,  # type: ignore
+                idx['ERROR', :, :],  # type: ignore
+            ].values.astype(  # type: ignore
+                bool  # type: ignore
+            )  # type: ignore
 
             parsed_data = parsed_data.loc[~error_list, :].copy()
             parsed_data.drop('ERROR', level=0, axis=1, inplace=True)
@@ -303,7 +307,10 @@ class DemandModel(PelicunModel):
         self.log.msg('Demand units successfully parsed.', prepend_timestamp=False)
 
     def estimate_RID(
-        self, demands: pd.DataFrame, params: dict, method: str = 'FEMA P58'
+        self,
+        demands: pd.DataFrame | pd.Series,
+        params: dict,
+        method: str = 'FEMA P58',
     ) -> pd.DataFrame:
         """
         Estimates residual inter-story drift (RID) realizations based
@@ -379,12 +386,12 @@ class DemandModel(PelicunModel):
             # add extra uncertainty to nonzero values
             rng = self._asmnt.options.rng
             eps = rng.normal(scale=0.2, size=RID.shape)
-            RID[RID > 0] = np.exp(np.log(RID[RID > 0]) + eps)
+            RID[RID > 0] = np.exp(np.log(RID[RID > 0]) + eps)  # type: ignore
 
             # finally, make sure the RID values are never larger than
             # the PIDs
             RID = pd.DataFrame(
-                np.minimum(PID.values, RID.values),
+                np.minimum(PID.values, RID.values),  # type: ignore
                 columns=pd.DataFrame(
                     1,
                     index=['RID'],
@@ -396,9 +403,8 @@ class DemandModel(PelicunModel):
             )
 
         else:
-            RID = None
+            raise ValueError(f'Invalid method: `{method}`.')
 
-        # return the generated drift realizations
         return RID
 
     def estimate_RID_and_adjust_sample(
@@ -428,7 +434,11 @@ class DemandModel(PelicunModel):
         if self.sample is None:
             raise ValueError('Demand model does not have a sample yet.')
 
-        demand_sample, demand_units = self.save_sample(save_units=True)
+        sample_tuple = self.save_sample(save_units=True)
+        assert isinstance(sample_tuple, tuple)
+        demand_sample, demand_units = sample_tuple
+        assert isinstance(demand_sample, pd.DataFrame)
+        assert isinstance(demand_units, pd.Series)
         pid = demand_sample['PID']
         rid = self.estimate_RID(pid, params, method)
         rid_units = pd.Series('rad', index=rid.columns)
@@ -468,7 +478,9 @@ class DemandModel(PelicunModel):
         """
         if self.sample is None:
             raise ValueError('Demand model does not have a sample yet.')
-        demand_sample, demand_units = self.save_sample(save_units=True)
+        sample_tuple = self.save_sample(save_units=True)
+        assert isinstance(sample_tuple, tuple)
+        demand_sample, demand_units = sample_tuple
         demand_sample[(label, location, direction)] = value
         demand_units[(label, location, direction)] = unit
         demand_sample.loc['Units', :] = demand_units
@@ -581,6 +593,7 @@ class DemandModel(PelicunModel):
         self.log.msg('Calibrating demand model...')
 
         demand_sample = self.sample
+        assert isinstance(demand_sample, pd.DataFrame)
 
         # initialize a DataFrame that contains calibration information
         cal_df = pd.DataFrame(
@@ -629,6 +642,7 @@ class DemandModel(PelicunModel):
         upper_lims = cal_df.loc[:, 'CensorUpper'].values
         lower_lims = cal_df.loc[:, 'CensorLower'].values
 
+        assert isinstance(demand_sample, pd.DataFrame)
         if ~np.all(pd.isna(np.array([upper_lims, lower_lims]))):
             censor_mask = get_filter_mask(lower_lims, upper_lims)
             censored_count = np.sum(~censor_mask)
@@ -650,6 +664,7 @@ class DemandModel(PelicunModel):
         upper_lims = cal_df.loc[:, 'TruncateUpper'].values
         lower_lims = cal_df.loc[:, 'TruncateLower'].values
 
+        assert isinstance(demand_sample, pd.DataFrame)
         if ~np.all(pd.isna(np.array([upper_lims, lower_lims]))):
             truncate_mask = get_filter_mask(lower_lims, upper_lims)
             truncated_count = np.sum(~truncate_mask)
@@ -673,6 +688,7 @@ class DemandModel(PelicunModel):
             if cal_df.loc[edp, 'Family'] == 'empirical':
                 empirical_edps.append(edp)
 
+        assert isinstance(demand_sample, pd.DataFrame)
         if empirical_edps:
             self.empirical_data = demand_sample.loc[:, empirical_edps].copy()
 
@@ -696,10 +712,13 @@ class DemandModel(PelicunModel):
 
         demand_theta, demand_rho = uq.fit_distribution_to_sample(
             raw_samples=demand_sample.values.T,
-            distribution=cal_df.loc[:, 'Family'].values,
+            distribution=cal_df.loc[:, 'Family'].values,  # type: ignore
             censored_count=censored_count,
-            detection_limits=cal_df.loc[:, ['CensorLower', 'CensorUpper']].values,
-            truncation_limits=cal_df.loc[
+            detection_limits=cal_df.loc[  # type: ignore
+                :,
+                ['CensorLower', 'CensorUpper'],
+            ].values,
+            truncation_limits=cal_df.loc[  # type: ignore
                 :, ['TruncateLower', 'TruncateUpper']
             ].values,
             multi_fit=False,
@@ -718,10 +737,14 @@ class DemandModel(PelicunModel):
         if ~np.all(pd.isna(model_params.loc[:, 'SigIncrease'].values)):
             self.log.msg("\nIncreasing demand variance...", prepend_timestamp=False)
 
-            sig_inc = np.nan_to_num(model_params.loc[:, 'SigIncrease'].values)
+            sig_inc = np.nan_to_num(
+                model_params.loc[:, 'SigIncrease'].values,  # type: ignore
+            )
             sig_0 = model_params.loc[:, 'Theta_1'].values
 
-            model_params.loc[:, 'Theta_1'] = np.sqrt(sig_0**2.0 + sig_inc**2.0)
+            model_params.loc[:, 'Theta_1'] = np.sqrt(
+                sig_0**2.0 + sig_inc**2.0,  # type: ignore
+            )
 
         # remove unneeded fields from model_params
         for col in ('SigIncrease', 'CensorLower', 'CensorUpper'):
@@ -776,6 +799,8 @@ class DemandModel(PelicunModel):
         # Converting the marginal parameters requires special
         # treatment, so we can't rely on file_io's universal unit
         # conversion functionality. We do it manually here instead.
+        assert isinstance(self.marginal_params, pd.DataFrame)
+        assert isinstance(self.user_units, pd.Series)
         marginal_params_user_units = self._convert_marginal_params(
             self.marginal_params.copy(), self.user_units, inverse_conversion=True
         )
@@ -803,6 +828,12 @@ class DemandModel(PelicunModel):
             <prefix>_correlation.csv. If dict, the data source is a dictionary
             with the following optional keys: 'marginals', 'empirical', and
             'correlation'. The value under each key shall be a DataFrame.
+
+        Raises
+        ------
+        TypeError
+            If the data source type is invalid.
+
         """
 
         self.log.div()
@@ -811,33 +842,40 @@ class DemandModel(PelicunModel):
         # prepare the marginal data source variable to load the data
         if isinstance(data_source, dict):
             marginal_data_source = data_source.get('marginals')
+            assert isinstance(marginal_data_source, pd.DataFrame)
             empirical_data_source = data_source.get('empirical', None)
             correlation_data_source = data_source.get('correlation', None)
-        else:
+        elif isinstance(data_source, str):
             marginal_data_source = data_source + '_marginals.csv'
             empirical_data_source = data_source + '_empirical.csv'
             correlation_data_source = data_source + '_correlation.csv'
+        else:
+            raise TypeError(f'Invalid data_source type: {type(data_source)}.')
 
         if empirical_data_source is not None:
             if isinstance(empirical_data_source, str) and os.path.exists(
                 empirical_data_source
             ):
-                self.empirical_data = file_io.load_data(
+                empirical_data = file_io.load_data(
                     empirical_data_source,
                     self._asmnt.unit_conversion_factors,
                     log=self._asmnt.log,
                 )
-                self.empirical_data.columns.names = ('type', 'loc', 'dir')
+                assert isinstance(empirical_data, pd.DataFrame)
+                self.empirical_data = empirical_data
+                self.empirical_data.columns.names = ['type', 'loc', 'dir']
         else:
             self.empirical_data = None
 
         if correlation_data_source is not None:
-            self.correlation = file_io.load_data(
+            correlation = file_io.load_data(
                 correlation_data_source,
                 self._asmnt.unit_conversion_factors,
                 reindex=False,
                 log=self._asmnt.log,
             )
+            assert isinstance(correlation, pd.DataFrame)
+            self.correlation = correlation
             self.correlation.index.set_names(['type', 'loc', 'dir'], inplace=True)
             self.correlation.columns.set_names(['type', 'loc', 'dir'], inplace=True)
         else:
@@ -852,6 +890,9 @@ class DemandModel(PelicunModel):
             return_units=True,
             log=self._asmnt.log,
         )
+        assert isinstance(marginal_params, pd.DataFrame)
+        assert isinstance(units, pd.Series)
+
         marginal_params.index.set_names(['type', 'loc', 'dir'], inplace=True)
 
         marginal_params = self._convert_marginal_params(
@@ -869,13 +910,15 @@ class DemandModel(PelicunModel):
 
         """
 
+        assert self.marginal_params is not None
+
         # initialize the registry
         RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
         # add a random variable for each demand variable
         for rv_params in self.marginal_params.itertuples():
             edp = rv_params.Index
-            rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'
+            rv_tag = f'EDP-{edp[0]}-{edp[1]}-{edp[2]}'  # type: ignore
             family = getattr(rv_params, "Family", 'deterministic')
 
             if family == 'empirical':
@@ -888,7 +931,10 @@ class DemandModel(PelicunModel):
                 RV_reg.add_RV(
                     uq.rv_class_map(dist_family)(
                         name=rv_tag,
-                        raw_samples=self.empirical_data.loc[:, edp].values,
+                        raw_samples=self.empirical_data.loc[  # type: ignore
+                            :,  # type: ignore
+                            edp,
+                        ].values,
                     )
                 )
 
@@ -897,7 +943,7 @@ class DemandModel(PelicunModel):
                 RV_reg.add_RV(
                     uq.rv_class_map(family)(
                         name=rv_tag,
-                        theta=[
+                        theta=[  # type: ignore
                             getattr(rv_params, f"Theta_{t_i}", np.nan)
                             for t_i in range(3)
                         ],
@@ -996,6 +1042,7 @@ class DemandModel(PelicunModel):
         # The demand cloning configuration should not include
         # columns that are not present in the original sample.
         warn_columns = []
+        assert self.sample is not None
         for column in demand_cloning:
             if column not in self.sample.columns:
                 warn_columns.append(column)
@@ -1029,7 +1076,8 @@ class DemandModel(PelicunModel):
         # update the column index
         self.sample.columns = pd.MultiIndex.from_tuples(column_values)
         # update units
-        self.user_units = self.user_units.iloc[column_index]
+        self.user_units = self.user_units.iloc[column_index]  # type: ignore
+        assert self.user_units is not None
         self.user_units.index = self.sample.columns
 
     def generate_sample(self, config: dict) -> None:
@@ -1096,6 +1144,8 @@ class DemandModel(PelicunModel):
 
         self._create_RVs(preserve_order=config.get('PreserveRawOrder', False))
 
+        assert self._RVs is not None
+        assert self._asmnt.options.sampling_method is not None
         sample_size = config['SampleSize']
         self._RVs.generate_sample(
             sample_size=sample_size, method=self._asmnt.options.sampling_method
@@ -1108,7 +1158,9 @@ class DemandModel(PelicunModel):
         sample.sort_index(axis=0, inplace=True)
         sample.sort_index(axis=1, inplace=True)
 
-        sample = base.convert_to_MultiIndex(sample, axis=1)['EDP']
+        sample_mi = base.convert_to_MultiIndex(sample, axis=1)['EDP']
+        assert isinstance(sample_mi, pd.DataFrame)
+        sample = sample_mi
 
         sample.columns.names = ['type', 'loc', 'dir']
         self.sample = sample
@@ -1330,7 +1382,12 @@ def _assemble_required_demand_data(
 
                 # non-directional
                 demand = (
-                    demand_sample.loc[:, (edp_type, location)].max(axis=1).values
+                    demand_sample.loc[
+                        :,  # type: ignore
+                        (edp_type, location),
+                    ]
+                    .max(axis=1)
+                    .values
                 )
 
                 if edp_type in nondirectional_multipliers:

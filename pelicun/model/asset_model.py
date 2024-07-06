@@ -41,16 +41,11 @@
 """
 This file defines the AssetModel object and its methods.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    AssetModel
-
 """
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from typing import Any
 from itertools import product
 import numpy as np
 import pandas as pd
@@ -79,11 +74,11 @@ class AssetModel(PelicunModel):
     def __init__(self, assessment: AssessmentBase):
         super().__init__(assessment)
 
-        self.cmp_marginal_params = None
-        self.cmp_units = None
-        self.cmp_sample = None
+        self.cmp_marginal_params: pd.DataFrame | None = None
+        self.cmp_units: pd.Series | None = None
+        self.cmp_sample: pd.DataFrame | None = None
 
-        self._cmp_RVs = None
+        self._cmp_RVs: uq.RandomVariableRegistry | None = None
 
     def save_cmp_sample(
         self, filepath: str | None = None, save_units: bool = False
@@ -139,11 +134,13 @@ class AssetModel(PelicunModel):
 
         # prepare a units array
         sample = self.cmp_sample
+        assert isinstance(sample, pd.DataFrame)
 
         units = pd.Series(name='Units', index=sample.columns, dtype=object)
 
+        assert self.cmp_units is not None
         for cmp_id, unit_name in self.cmp_units.items():
-            units.loc[cmp_id, :] = unit_name
+            units.loc[cmp_id, :] = unit_name  # type: ignore
 
         res = file_io.save_to_csv(
             sample,
@@ -153,7 +150,6 @@ class AssetModel(PelicunModel):
             use_simpleindex=(filepath is not None),
             log=self._asmnt.log,
         )
-
         if filepath is not None:
             self.log.msg(
                 'Asset components sample successfully saved.',
@@ -161,7 +157,13 @@ class AssetModel(PelicunModel):
             )
             return None
         # else:
-        units = res.loc["Units"]
+
+        assert isinstance(res, pd.DataFrame)
+
+        units_part = res.loc["Units"]
+        assert isinstance(units_part, pd.Series)
+        units = units_part
+
         res.drop("Units", inplace=True)
 
         if save_units:
@@ -213,7 +215,8 @@ class AssetModel(PelicunModel):
             return_units=True,
             log=self._asmnt.log,
         )
-
+        assert isinstance(sample, pd.DataFrame)
+        assert isinstance(units, pd.Series)
         sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
 
         self.cmp_sample = sample
@@ -290,7 +293,7 @@ class AssetModel(PelicunModel):
 
         # prepare the marginal data source variable to load the data
         if isinstance(data_source, dict):
-            marginal_data_source = data_source['marginals']
+            marginal_data_source: pd.DataFrame | str = data_source['marginals']
         else:
             marginal_data_source = data_source + '_marginals.csv'
 
@@ -302,13 +305,15 @@ class AssetModel(PelicunModel):
             return_units=True,
             log=self._asmnt.log,
         )
+        assert isinstance(marginal_params, pd.DataFrame)
+        assert isinstance(units, pd.Series)
 
         # group units by cmp id to avoid redundant entries
         self.cmp_units = units.copy().groupby(level=0).first()
 
         marginal_params = pd.concat([marginal_params, units], axis=1)
 
-        cmp_marginal_param_dct = {
+        cmp_marginal_param_dct: dict[str, list[Any]] = {
             'Family': [],
             'Theta_0': [],
             'Theta_1': [],
@@ -320,8 +325,8 @@ class AssetModel(PelicunModel):
         }
         index_list = []
         for row in marginal_params.itertuples():
-            locs = self._get_locations(row.Location)
-            dirs = self._get_directions(row.Direction)
+            locs = self._get_locations(str(row.Location))
+            dirs = self._get_directions(str(row.Direction))
             indices = list(product((row.Index,), locs, dirs))
             num_vals = len(indices)
             for col, cmp_marginal_param in cmp_marginal_param_dct.items():
@@ -366,7 +371,9 @@ class AssetModel(PelicunModel):
 
         cmp_marginal_params = pd.concat(cmp_marginal_param_series, axis=1)
 
-        assert not cmp_marginal_params['Theta_0'].isnull().values.any()
+        assert not (
+            cmp_marginal_params['Theta_0'].isnull().values.any()  # type: ignore
+        )
 
         cmp_marginal_params.dropna(axis=1, how='all', inplace=True)
 
@@ -413,6 +420,7 @@ class AssetModel(PelicunModel):
             Unique components in the asset model.
 
         """
+        assert self.cmp_marginal_params is not None
         cmp_list = self.cmp_marginal_params.index.unique(level=0).to_list()
         return cmp_list
 
@@ -459,6 +467,8 @@ class AssetModel(PelicunModel):
 
         self._create_cmp_RVs()
 
+        assert self._cmp_RVs is not None
+        assert self._asmnt.options.sampling_method is not None
         self._cmp_RVs.generate_sample(
             sample_size=sample_size, method=self._asmnt.options.sampling_method
         )
@@ -466,7 +476,9 @@ class AssetModel(PelicunModel):
         cmp_sample = pd.DataFrame(self._cmp_RVs.RV_sample)
         cmp_sample.sort_index(axis=0, inplace=True)
         cmp_sample.sort_index(axis=1, inplace=True)
-        cmp_sample = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
+        cmp_sample_mi = base.convert_to_MultiIndex(cmp_sample, axis=1)['CMP']
+        assert isinstance(cmp_sample_mi, pd.DataFrame)
+        cmp_sample = cmp_sample_mi
         cmp_sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
         self.cmp_sample = cmp_sample
 
@@ -484,6 +496,7 @@ class AssetModel(PelicunModel):
         RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
         # add a random variable for each component quantity variable
+        assert self.cmp_marginal_params is not None
         for rv_params in self.cmp_marginal_params.itertuples():
             cmp = rv_params.Index
 
@@ -491,8 +504,8 @@ class AssetModel(PelicunModel):
             family = getattr(rv_params, "Family", 'deterministic')
             RV_reg.add_RV(
                 uq.rv_class_map(family)(
-                    name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',
-                    theta=[
+                    name=f'CMP-{cmp[0]}-{cmp[1]}-{cmp[2]}-{cmp[3]}',  # type: ignore
+                    theta=[  # type: ignore
                         getattr(rv_params, f"Theta_{t_i}", np.nan)
                         for t_i in range(3)
                     ],

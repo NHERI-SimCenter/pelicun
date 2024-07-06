@@ -43,15 +43,6 @@
 """
 This module has classes and methods that handle file input and output.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    get_required_resources
-    save_to_csv
-    load_data
-    load_from_file
-
 """
 
 from __future__ import annotations
@@ -93,8 +84,8 @@ HAZUS_occ_converter = {
 
 
 def save_to_csv(
-    data: pd.DataFrame,
-    filepath_str: str | None,
+    data: pd.DataFrame | None,
+    filepath: str | None,
     units: pd.Series | None = None,
     unit_conversion_factors: dict | None = None,
     orientation: int = 0,
@@ -150,12 +141,12 @@ def save_to_csv(
         None after saving the data to a CSV file.
     """
 
-    if filepath_str is None:
+    if filepath is None:
         if log:
             log.msg('Preparing data ...', prepend_timestamp=False)
 
     elif log:
-        log.msg(f'Saving data to `{filepath_str}`...', prepend_timestamp=False)
+        log.msg(f'Saving data to `{filepath}`...', prepend_timestamp=False)
 
     if data is None:
         if log:
@@ -206,9 +197,11 @@ def save_to_csv(
                         active_labels.append(label)
 
                 if len(active_labels) > 0:
+                    # pylint: disable=possibly-used-before-assignment
                     data.loc[
                         np.array(active_labels), np.array(cols_to_scale)
                     ] *= unit_factor
+                    # pylint: enable=possibly-used-before-assignment
 
             labels_to_keep += active_labels
 
@@ -233,13 +226,13 @@ def save_to_csv(
         if isinstance(data.columns, pd.MultiIndex):
             data = base.convert_to_SimpleIndex(data, axis=1)
 
-    if filepath_str is not None:
+    if filepath is not None:
 
-        filepath = Path(filepath_str).resolve()
-        if filepath.suffix == '.csv':
+        filepath_path = Path(filepath).resolve()
+        if filepath_path.suffix == '.csv':
 
             # save the contents of the DataFrame into a csv
-            data.to_csv(filepath)
+            data.to_csv(filepath_path)
 
             if log:
                 log.msg('Data successfully saved to file.', prepend_timestamp=False)
@@ -247,7 +240,7 @@ def save_to_csv(
         else:
             raise ValueError(
                 f'ERROR: Please use the `.csv` file extension. '
-                f'Received file name is `{filepath}`'
+                f'Received file name is `{filepath_path}`'
             )
 
         return None
@@ -256,7 +249,9 @@ def save_to_csv(
     return data
 
 
-def substitute_default_path(data_paths: list[str]) -> list[str]:
+def substitute_default_path(
+    data_paths: list[str | pd.DataFrame],
+) -> list[str | pd.DataFrame]:
     """
     Substitutes the default directory path in a list of data paths
     with a specified path.
@@ -301,9 +296,9 @@ def substitute_default_path(data_paths: list[str]) -> list[str]:
     'data/file2.txt']
 
     """
-    updated_paths = []
+    updated_paths: list[str | pd.DataFrame] = []
     for data_path in data_paths:
-        if 'PelicunDefault/' in data_path:
+        if isinstance(data_path, str) and 'PelicunDefault/' in data_path:
             path = data_path.replace(
                 'PelicunDefault/',
                 f'{base.pelicun_path}/resources/SimCenterDBDL/',
@@ -397,9 +392,11 @@ def load_data(
 
         if unit_conversion_factors is not None:
             numeric_elements = (
-                (data.select_dtypes(include=[np.number]).index)
+                (data.select_dtypes(include=[np.number]).index)  # type: ignore
                 if orientation == 0
-                else (data.select_dtypes(include=[np.number]).columns)
+                else (
+                    data.select_dtypes(include=[np.number]).columns  # type: ignore
+                )
             )
 
             if log:
@@ -415,15 +412,15 @@ def load_data(
 
             if orientation == 1:
                 data.loc[:, numeric_elements] = data.loc[
-                    :, numeric_elements
+                    :, numeric_elements  # type: ignore
                 ].multiply(
-                    conversion_factors, axis=axis[orientation]
+                    conversion_factors, axis=axis[orientation]  # type: ignore
                 )  # type: ignore
             else:
                 data.loc[numeric_elements, :] = data.loc[
                     numeric_elements, :
                 ].multiply(
-                    conversion_factors, axis=axis[orientation]
+                    conversion_factors, axis=axis[orientation]  # type: ignore
                 )  # type: ignore
 
         if log:
@@ -434,7 +431,7 @@ def load_data(
         data = base.convert_dtypes(data)
 
     # convert columns or index to MultiIndex if needed
-    data = base.convert_to_MultiIndex(data, axis=1)
+    data = base.convert_to_MultiIndex(data, axis=1)  # type: ignore
     data.sort_index(axis=1, inplace=True)
 
     # reindex the data, if needed
@@ -442,7 +439,7 @@ def load_data(
         data.index = pd.RangeIndex(start=0, stop=data.shape[0], step=1)
     else:
         # convert index to MultiIndex if needed
-        data = base.convert_to_MultiIndex(data, axis=0)
+        data = base.convert_to_MultiIndex(data, axis=0)  # type: ignore
         data.sort_index(inplace=True)
 
     if return_units:
@@ -452,9 +449,9 @@ def load_data(
             units.sort_index(inplace=True)
         output = data, units
     else:
-        output = data
+        output = data  # type: ignore
 
-    return output
+    return output  # type: ignore
 
 
 def load_from_file(filepath: str, log: base.Logger | None = None) -> pd.DataFrame:
