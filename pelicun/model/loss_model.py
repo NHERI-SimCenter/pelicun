@@ -1867,7 +1867,7 @@ class RepairModel_DS(RepairModel_Base):
                 # check if there is damage in the component
                 consequence = self._loss_map.at[component, 'Repair']
 
-                if not (component in dmg_quantities.columns.get_level_values('cmp')):
+                if component not in dmg_quantities.columns.get_level_values('cmp'):
                     continue
 
                 ds_list = []

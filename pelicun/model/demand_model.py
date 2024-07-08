@@ -1259,6 +1259,8 @@ def _get_required_demand_type(
         edps = []
         for demand_type in demand_types:
 
+            assert isinstance(demand_type, str)
+
             # Check if there is a subtype included in the demand_type
             # string
             if '|' in demand_type:
@@ -1284,12 +1286,12 @@ def _get_required_demand_type(
                 # If the demand type has a default offset in
                 # `demand_offset`, add the offset
                 # to the default offset
-                offset = int(offset + demand_offset[demand_type])
+                offset = int(offset + demand_offset[demand_type])  # type: ignore
             else:
                 # If the demand type does not have a default offset in
                 # `demand_offset`, convert the
                 # offset to an integer
-                offset = int(offset)
+                offset = int(offset)  # type: ignore
 
             # Determine the direction
             if directional:

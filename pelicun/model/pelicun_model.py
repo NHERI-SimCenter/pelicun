@@ -201,7 +201,7 @@ class PelicunModel:
                 arg_unit_factor = 1.0
 
                 # check if there is a need to scale due to argument units
-                if not (arg_units is None):
+                if arg_units is not None:
                     # get the argument unit for the given marginal
                     arg_unit = arg_units.get(row_id)
                     assert isinstance(arg_unit, str)
