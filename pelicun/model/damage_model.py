@@ -45,6 +45,7 @@ This file defines the DamageModel object and its methods.
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from functools import partial
 import numpy as np
 import pandas as pd
 from pelicun.model.pelicun_model import PelicunModel
@@ -1225,7 +1226,7 @@ class DamageModel_DS(DamageModel_Base):
                     ds_weights.replace(" ", "").split('|'), dtype=float
                 )
 
-                def map_ds(values, offset=int(ds_id + 1)):
+                def map_ds(values, offset):
                     """
                     Maps an array of damage state indices to their
                     corresponding actual state IDs by applying an
@@ -1255,7 +1256,7 @@ class DamageModel_DS(DamageModel_Base):
                     uq.MultinomialRandomVariable(
                         name=lsds_rv_tag,
                         theta=ds_weights,
-                        f_map=map_ds,
+                        f_map=partial(map_ds, offset=ds_id + 1),
                     )
                 )
 
