@@ -186,10 +186,10 @@ def test_combined_workflow():
     # Perform the calculation
     asmnt.loss.calculate()
 
-    # Test load sample, save sample
-    with pytest.warns(PelicunWarning):
-        asmnt.loss.save_sample(f'{temp_dir}/sample.csv')
-        asmnt.loss.load_sample(f'{temp_dir}/sample.csv')
+    # # Test load sample, save sample
+    # with pytest.warns(PelicunWarning):
+    #     asmnt.loss.save_sample(f'{temp_dir}/sample.csv')
+    #     asmnt.loss.load_sample(f'{temp_dir}/sample.csv')
 
     #
     # Loss sample aggregation

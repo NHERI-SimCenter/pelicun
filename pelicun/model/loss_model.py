@@ -106,22 +106,42 @@ class LossModel(PelicunModel):
     @property
     def sample(self):
         """
-        <backwards compatibility>
+        Combines the samples of the ds_model and lf_model sub-models.
 
         Returns
         -------
         pd.DataFrame
-            The damage state-driven component loss sample.
+            The combined loss sample.
 
         """
-        self.log.warn(
-            '`{loss model}.sample` is deprecated and will be dropped in '
-            'future versions of pelicun. '
-            'Please use `{loss model}.ds_model.sample` '
-            'or `{loss model}.lf_model.sample` instead. '
-            'Now returning {loss model}.ds_model.sample`.'
-        )
-        return self.ds_model.sample
+
+        # Handle `None` cases
+
+        if self.ds_model.sample is None and self.lf_model.sample is None:
+            return None
+
+        if self.ds_model.sample is None:
+            return self.lf_model.sample
+
+        if self.lf_model.sample is None:
+            return self.ds_model.sample
+
+        # If both are not None, combine
+
+        ds_model_levels = self.ds_model.sample.columns.names
+
+        # add a `ds` level to the lf_model sample
+        new_index = self.lf_model.sample.columns.to_frame(index=False)
+        # add
+        new_index['ds'] = 'N/A'
+        # reorder
+        new_index = new_index[ds_model_levels]
+        new_multiindex = pd.MultiIndex.from_frame(new_index)
+        self.lf_model.sample.columns = new_multiindex
+
+        combined = pd.concat((self.ds_model.sample, self.lf_model.sample), axis=1)
+
+        return combined
 
     @property
     def decision_variables(self):
@@ -779,13 +799,12 @@ class LossModel(PelicunModel):
 
         # levels to preserve (this aggregates `ds` for the ds_model)
         column_levels = ['dv', 'loss', 'dmg', 'loc', 'dir', 'uid']
-        samples = [
-            sample.groupby(by=column_levels, axis=1).sum()  # type: ignore
-            for sample in (ds_sample, lf_sample)
-            if sample is not None
-        ]
-        sample = pd.concat(samples, axis=1)
-        sample = sample.sort_index(axis=1)
+        combined_sample = self.sample
+        sample = (
+            combined_sample.groupby(by=column_levels, axis=1)
+            .sum()
+            .sort_index(axis=1)
+        )
 
         #
         # perform loss combinations (special non-additive
@@ -1882,9 +1901,7 @@ class RepairModel_DS(RepairModel_Base):
                     for loc_id, loc in enumerate(
                         dmg_quantities.loc[
                             :, (component, ds)  # type: ignore
-                        ].columns.unique(
-                            level=0
-                        )
+                        ].columns.unique(level=0)
                     ):
                         if (
                             self._asmnt.options.eco_scale["AcrossFloors"] is True

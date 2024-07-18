@@ -198,8 +198,7 @@ def test_compatibility_DesignSafe_PRJ_3411_Example01():
 
     PAL.bldg_repair.calculate()
 
-    with pytest.warns(PelicunWarning):
-        loss_sample = PAL.bldg_repair.sample
+    loss_sample = PAL.bldg_repair.sample
     assert loss_sample is not None
 
     with pytest.warns(PelicunWarning):
