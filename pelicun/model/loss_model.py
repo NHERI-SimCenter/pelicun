@@ -1735,15 +1735,7 @@ class RepairModel_DS(RepairModel_Base):
         )
         assert isinstance(sample, pd.DataFrame)
         self.sample = sample
-        self.sample.columns.names = [
-            'dv',
-            'loss',
-            'dmg',
-            'loc',
-            'dir',
-            'uid',
-            'block',
-        ]
+        self.sample.columns.names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'uid']
 
         self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 
