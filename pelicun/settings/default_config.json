@@ -4,18 +4,25 @@
     "Seed": null,
     "LogShowMS": false,
     "LogFile": null,
+    "UnitsFile": null,
     "PrintLog": false,
+    "ShowWarnings": false,
     "DemandOffset": {
       "PFA": -1,
       "PFV": -1
     },
-    "SamplingMethod": "LHS_midpoint",
+    "ListAllDamageStates": false,
     "NonDirectionalMultipliers": {
       "ALL": 1.2
     },
     "EconomiesOfScale": {
       "AcrossFloors": true,
       "AcrossDamageStates": false
+    },
+    "Sampling": {
+      "SamplingMethod": "LHS",
+      "SampleSize": 1000,
+      "PreserveRawOrder": false
     },
     "RepairCostAndTimeCorrelation": 0.0
   },
@@ -26,10 +33,6 @@
           "DistributionFamily": "lognormal"
         }
       }
-    },
-    "Sampling": {
-      "SampleSize": 1000,
-      "PreserveRawOrder": false
     }
   }
 }

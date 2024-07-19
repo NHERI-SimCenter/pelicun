@@ -37,14 +37,16 @@
 # Contributors:
 # Adam Zsarnóczay
 
+from __future__ import annotations
 import pandas as pd
-import sys, argparse
+import sys
+import argparse
 from pathlib import Path
 
-def convert_HDF(HDF_path):
 
+def convert_HDF(HDF_path):
     HDF_ext = HDF_path.split('.')[-1]
-    CSV_base = HDF_path[:-len(HDF_ext)-1]
+    CSV_base = HDF_path[: -len(HDF_ext) - 1]
 
     HDF_path = Path(HDF_path).resolve()
 
@@ -52,17 +54,17 @@ def convert_HDF(HDF_path):
 
     for key in store.keys():
 
-        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/","_")}.csv')
+        store[key].to_csv(f'{CSV_base}_{key[1:].replace("/", "_")}.csv')
 
     store.close()
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     args = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('HDF_path')
 
-    args = parser.parse_args(args)
+    parser_args = parser.parse_args(args)
 
-    convert_HDF(args.HDF_path)
+    convert_HDF(parser_args.HDF_path)

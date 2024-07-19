@@ -1,0 +1,6 @@
+﻿,Units,Location,Direction,Theta_0,Blocks,Comment
+component_a,ea,"0,1,2,3","1--2","1",1,"test component A"
+component_b,ea,"all","1","1",1,"test component B"
+component_c,ea,"0--2","1","1",1,"test component C"
+component_d,ea,"top","1","1",1,"test component D"
+component_e,ea,"roof","1","1",1,"test component E"

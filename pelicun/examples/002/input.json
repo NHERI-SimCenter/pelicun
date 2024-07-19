@@ -1,0 +1,36 @@
+{
+    "DL": {
+        "Asset": {
+            "ComponentAssignmentFile": "CMP_QNT.csv",
+            "ComponentDatabase": "Hazus Earthquake",
+            "NumberOfStories": "3",
+            "OccupancyType": "COM1",
+            "PlanArea": "129600"
+        },
+        "Damage": {
+            "DamageProcess": "Hazus Earthquake"
+        },
+        "Demands": {
+            "Calibration": {
+                "ALL": {
+                    "DistributionFamily": "lognormal"
+                }
+            },
+            "SampleSize": "500"
+        },
+        "Losses": {
+            "BldgRepair": {
+                "ConsequenceDatabase": "Hazus Earthquake",
+                "MapApproach": "Automatic"
+            }
+        }
+    },
+    "GeneralInformation": {
+        "units": {
+            "force": "kips",
+            "length": "in",
+            "temperature": "C",
+            "time": "sec"
+        }
+    }
+}

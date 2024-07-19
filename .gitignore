@@ -28,3 +28,13 @@
 
 __pycache__
 *.bak
+
+# Emacs automated backup files
+*~/
+/.emacs.desktop
+/.emacs.desktop.lock
+/pelicun/coverage.xml
+.cov2emacs.log
+flycheck*.py
+/notes/
+/.ropeproject/
