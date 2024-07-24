@@ -213,7 +213,7 @@ def test_load_data():
         file_io.load_from_file('/')
     # exception: not a .csv file
     with pytest.raises(ValueError):
-        file_io.load_from_file('pelicun/db.py')
+        file_io.load_from_file('pelicun/base.py')
 
 
 if __name__ == '__main__':
