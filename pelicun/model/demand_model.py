@@ -1342,7 +1342,11 @@ def _assemble_required_demand_data(
     Parameters
     ----------
     required_edps: set
-        Set of required EDPs
+        Set of required EDPs. The elements in the set should be
+        tuples. For each, the first element should be a tuple
+        containing EDPs in the `type`-`loc`-`dir` format. The second
+        should be an expression defining how the EDPs in the tuple
+        should be combined when it contains more than a single EDP.
     nondirectional_multipliers: dict
         Nondirectional components are sensitive to demands coming
         in any direction. Results are typically available in two
