@@ -15,10 +15,16 @@
           "type": "object",
           "properties": {
             "Latitude": {
-              "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
             },
             "Longitude": {
-              "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
             }
           }
         },
@@ -57,8 +63,11 @@
             "DemandFilePath": {
               "type": "string"
             },
-            "SampleSize": {
-              "type": "integer"
+              "SampleSize": {
+		  "anyOf":[
+		      {"type": "integer"},
+		      {"type": "string"}
+		  ]
             },
             "CoupledDemands": {
               "type": "boolean"
@@ -69,8 +78,11 @@
             "CollapseLimits": {
               "type": "object",
               "patternProperties": {
-                ".*": {
-                  "type": "number"
+                  ".*": {
+		      "anyOf":[
+			  {"type": "number"},
+			  {"type": "string"}
+		      ]
                 }
               }
             },
@@ -81,10 +93,16 @@
                   "type": "string"
                 },
                 "x-direction": {
-                  "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                 },
                 "y-direction": {
-                  "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                 }
               },
               "required": [
@@ -102,8 +120,11 @@
             "ComponentAssignmentFile": {
               "type": "string"
             },
-            "NumberOfStories": {
-              "type": "integer",
+              "NumberOfStories": {
+		  "anyOf":[
+		      {"type": "integer"},
+		      {"type": "string"}
+		  ],
               "examples": [
                 1,
                 5,
@@ -137,10 +158,16 @@
                   "type": "string"
                 },
                 "CapacityMedian": {
-                  "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                 },
                 "Theta_1": {
-                  "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                 }
               },
               "required": [
@@ -157,10 +184,16 @@
               "type": "object",
               "properties": {
                 "DriftCapacityMedian": {
-                  "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                 },
                 "DriftCapacityLogStd": {
-                  "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                 }
               },
               "required": [
@@ -215,13 +248,19 @@
                       "type": "string"
                     },
                     "Median": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     },
                     "Distribution": {
                       "type": "string"
                     },
                     "Theta_1": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     }
                   },
                   "required": [
@@ -238,13 +277,19 @@
                       "type": "string"
                     },
                     "Median": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     },
                     "Distribution": {
                       "type": "string"
                     },
                     "Theta_1": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     }
                   },
                   "required": [
@@ -261,13 +306,19 @@
                       "type": "string"
                     },
                     "Median": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     },
                     "Distribution": {
                       "type": "string"
                     },
                     "Theta_1": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     }
                   },
                   "required": [
@@ -284,13 +335,19 @@
                       "type": "string"
                     },
                     "Median": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     },
                     "Distribution": {
                       "type": "string"
                     },
                     "Theta_1": {
-                      "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
                     }
                   },
                   "required": [
@@ -460,7 +517,10 @@
               }
             },
             "RepairCostAndTimeCorrelation": {
-              "type": "number"
+		  "anyOf":[
+		      {"type": "number"},
+		      {"type": "string"}
+		  ]
             }
           }
         },

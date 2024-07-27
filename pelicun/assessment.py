@@ -660,7 +660,7 @@ class DLCalculationAssessment(AssessmentBase):
 
             for DEM_type, limit in collapse_limits.items():
                 assert isinstance(DEM_type, str)
-                assert isinstance(limit, str | float)
+                assert isinstance(limit, (str, float))
                 if raw_demands.columns.nlevels == 4:
                     DEM_to_drop += raw_demands.loc[
                         :,  # type: ignore

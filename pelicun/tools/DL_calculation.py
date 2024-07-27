@@ -1252,6 +1252,15 @@ def main():
             "output (True/False). Defaults to False."
         ),
     )
+    parser.add_argument(
+        '--ground_failure', default=False, type=str2bool, nargs='?', const=False,
+        help="Currently not used. Soon to be deprecated."
+    )
+    parser.add_argument(
+        '--regional', default=False, type=str2bool, nargs='?', const=False,
+        help="Currently not used. Soon to be deprecated."
+    )
+    parser.add_argument('--resource_dir', default=None)
 
     if not args:
         print(f'Welcome. This is pelicun version {pelicun.__version__}')
