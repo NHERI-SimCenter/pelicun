@@ -1667,8 +1667,8 @@ def _loss__add_replacement_cost(
         # TODO: in this case we need unit (add config parser check)
 
         adf.loc[rc, ('Quantity', 'Unit')] = "1 EA"
-        adf.loc[rc, ('DV', 'Unit')] = median
-        adf.loc[rc, ('DS1', 'Theta_0')] = unit
+        adf.loc[rc, ('DV', 'Unit')] = unit
+        adf.loc[rc, ('DS1', 'Theta_0')] = median
 
         if distribution is not None:
 
