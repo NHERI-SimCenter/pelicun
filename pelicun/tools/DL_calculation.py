@@ -834,7 +834,7 @@ def _result_summary(assessment, agg_repair):
     if damage_sample is None or agg_repair is None:
         return None, None
 
-    damage_sample = damage_sample.groupby(level=[0, 3], axis=1).sum()
+    damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
     if 'collapse-1' in damage_sample_s.columns:
@@ -907,8 +907,8 @@ def _asset_save(
 
     if aggregate_collocated:
 
-        cmp_units = cmp_units.groupby(level=[0, 1, 2], axis=1).first()
-        cmp_groupby_uid = cmp_sample.groupby(level=[0, 1, 2], axis=1)
+        cmp_units = cmp_units.groupby(level=['cmp', 'loc', 'dir'], axis=1).first()
+        cmp_groupby_uid = cmp_sample.groupby(level=['cmp', 'loc', 'dir'], axis=1)
         cmp_sample = cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan)
 
     out_reqs = _parse_requested_output_file_names(output_config)
@@ -949,8 +949,12 @@ def _damage_save(
 
     if aggregate_collocated:
 
-        damage_units = damage_units.groupby(level=[0, 1, 2, 4], axis=1).first()
-        damage_groupby_uid = damage_sample.groupby(level=[0, 1, 2, 4], axis=1)
+        damage_units = damage_units.groupby(
+            level=['cmp', 'loc', 'dir', 'ds'], axis=1
+        ).first()
+        damage_groupby_uid = damage_sample.groupby(
+            level=['cmp', 'loc', 'dir', 'ds'], axis=1
+        )
         damage_sample = damage_groupby_uid.sum().mask(
             damage_groupby_uid.count() == 0, np.nan
         )
@@ -985,11 +989,15 @@ def _damage_save(
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
 
         if aggregate_collocated:
-            damage_groupby = damage_sample.groupby(level=[0, 1, 3], axis=1)
-            damage_units = damage_units.groupby(level=[0, 1, 3], axis=1).first()
+            damage_groupby = damage_sample.groupby(level=['cmp', 'ds'], axis=1)
+            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()
         else:
-            damage_groupby = damage_sample.groupby(level=[0, 1, 4], axis=1)
-            damage_units = damage_units.groupby(level=[0, 1, 4], axis=1).first()
+            damage_groupby = damage_sample.groupby(
+                level=['cmp', 'loc', 'dir', 'ds'], axis=1
+            )
+            damage_units = damage_units.groupby(
+                level=['cmp', 'loc', 'dir', 'ds'], axis=1
+            ).first()
 
         grp_damage = damage_groupby.sum().mask(damage_groupby.count() == 0, np.nan)
 
@@ -999,13 +1007,13 @@ def _damage_save(
             grp_damage = grp_damage.mask(grp_damage.astype(np.float64).values > 0, 1)
 
             # get the corresponding DS for each column
-            ds_list = grp_damage.columns.get_level_values(2).astype(int)
+            ds_list = grp_damage.columns.get_level_values('ds').astype(int)
 
             # replace ones with the corresponding DS in each cell
             grp_damage = grp_damage.mul(ds_list, axis=1)
 
             # aggregate across damage state indices
-            damage_groupby_2 = grp_damage.groupby(level=[0, 1], axis=1)
+            damage_groupby_2 = grp_damage.groupby(level=['cmp', 'ds'], axis=1)
 
             # choose the max value
             # i.e., the governing DS for each comp-loc pair
@@ -1015,11 +1023,11 @@ def _damage_save(
 
             # aggregate units to the same format
             # assume identical units across locations for each comp
-            damage_units = damage_units.groupby(level=[0, 1], axis=1).first()
+            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()
 
         else:
             # otherwise, aggregate damage quantities for each comp
-            damage_groupby_2 = grp_damage.groupby(level=0, axis=1)
+            damage_groupby_2 = grp_damage.groupby(level='cmp', axis=1)
 
             # preserve NaNs
             grp_damage = damage_groupby_2.sum().mask(
@@ -1027,7 +1035,7 @@ def _damage_save(
             )
 
             # and aggregate units to the same format
-            damage_units = damage_units.groupby(level=0, axis=1).first()
+            damage_units = damage_units.groupby(level='cmp', axis=1).first()
 
         if 'GroupedSample' in out_reqs:
             grp_damage_s = pd.concat([grp_damage, damage_units])
@@ -1064,15 +1072,13 @@ def _loss_save(
     aggregate_collocated=False,
 ):
 
-    repair_sample, repair_units = assessment.loss.ds_model.save_sample(
-        save_units=True
-    )
+    repair_sample, repair_units = assessment.loss.ds_model.save_sample(save_units=True)
     repair_units = repair_units.to_frame().T
 
     if aggregate_collocated:
 
-        repair_units = repair_units.groupby(level=[0, 1, 2, 3, 4, 5], axis=1).first()
-        repair_groupby_uid = repair_sample.groupby(level=[0, 1, 2, 3, 4, 5], axis=1)
+        repair_units = repair_units.groupby(level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1).first()
+        repair_groupby_uid = repair_sample.groupby(level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1)
         repair_sample = repair_groupby_uid.sum().mask(
             repair_groupby_uid.count() == 0, np.nan
         )
@@ -1107,8 +1113,8 @@ def _loss_save(
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
 
-        repair_groupby = repair_sample.groupby(level=[0, 1, 2], axis=1)
-        repair_units = repair_units.groupby(level=[0, 1, 2], axis=1).first()
+        repair_groupby = repair_sample.groupby(level=['dv', 'loss', 'dmg'], axis=1)
+        repair_units = repair_units.groupby(level=['dv', 'loss', 'dmg'], axis=1).first()
         grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
 
         if 'GroupedSample' in out_reqs:
@@ -1253,12 +1259,20 @@ def main():
         ),
     )
     parser.add_argument(
-        '--ground_failure', default=False, type=str2bool, nargs='?', const=False,
-        help="Currently not used. Soon to be deprecated."
+        '--ground_failure',
+        default=False,
+        type=str2bool,
+        nargs='?',
+        const=False,
+        help="Currently not used. Soon to be deprecated.",
     )
     parser.add_argument(
-        '--regional', default=False, type=str2bool, nargs='?', const=False,
-        help="Currently not used. Soon to be deprecated."
+        '--regional',
+        default=False,
+        type=str2bool,
+        nargs='?',
+        const=False,
+        help="Currently not used. Soon to be deprecated.",
     )
     parser.add_argument('--resource_dir', default=None)
 
