@@ -448,7 +448,12 @@ class DemandModel(PelicunModel):
         self.load_sample(demand_sample_ext)
 
     def expand_sample(
-        self, label: str, value: float, unit: str, location='0', direction='1'
+        self,
+        label: str,
+        value: float | np.ndarray,
+        unit: str,
+        location='0',
+        direction='1',
     ) -> None:
         """
         Adds an extra column to the demand sample.
@@ -461,7 +466,7 @@ class DemandModel(PelicunModel):
         ----------
         label: str
             Label to use to extend the MultiIndex of the demand sample.
-        value: float
+        value: float | np.ndarray
             Values to add to the rows of the additional column.
         unit: str
             Unit that corresponds to the additional column.
@@ -474,6 +479,8 @@ class DemandModel(PelicunModel):
         ------
         ValueError
             If the method is called before a sample is generated.
+        ValueError
+            If `value` is a numpy array of incorrect shape.
 
         """
         if self.sample is None:
@@ -481,6 +488,10 @@ class DemandModel(PelicunModel):
         sample_tuple = self.save_sample(save_units=True)
         assert isinstance(sample_tuple, tuple)
         demand_sample, demand_units = sample_tuple
+        if isinstance(value, np.ndarray):
+            value = np.atleast_1d(value)
+            if len(value) != len(demand_sample):
+                raise ValueError('Incompatible array length.')
         demand_sample[(label, location, direction)] = value
         demand_units[(label, location, direction)] = unit
         demand_sample.loc['Units', :] = demand_units
