@@ -223,6 +223,19 @@ class AssetModel(PelicunModel):
 
         self.cmp_units = units.groupby(level=0).first()
 
+        # Add marginal parameters with Blocks information (later calls
+        # rely on that attribute being defined)
+        # Obviously we can't trace back the distributions and their
+        # parameters, those columns are left undefined.
+        cmp_marginal_params = pd.DataFrame(
+            self.cmp_sample.columns.to_list(), columns=self.cmp_sample.columns.names
+        ).astype(str)
+        cmp_marginal_params['Blocks'] = 1
+        cmp_marginal_params = cmp_marginal_params.set_index(
+            ['cmp', 'loc', 'dir', 'uid']
+        )
+        self.cmp_marginal_params = cmp_marginal_params
+
         self.log.msg(
             'Asset components sample successfully loaded.', prepend_timestamp=False
         )
