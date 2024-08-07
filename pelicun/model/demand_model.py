@@ -441,7 +441,7 @@ class DemandModel(PelicunModel):
         assert isinstance(demand_units, pd.Series)
         pid = demand_sample['PID']
         rid = self.estimate_RID(pid, params, method)
-        rid_units = pd.Series('rad', index=rid.columns)
+        rid_units = pd.Series('unitless', index=rid.columns)
         demand_sample_ext = pd.concat([demand_sample, rid], axis=1)
         units_ext = pd.concat([demand_units, rid_units])
         demand_sample_ext.loc['Units', :] = units_ext
