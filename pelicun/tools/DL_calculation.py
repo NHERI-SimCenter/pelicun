@@ -1072,13 +1072,19 @@ def _loss_save(
     aggregate_collocated=False,
 ):
 
-    repair_sample, repair_units = assessment.loss.ds_model.save_sample(save_units=True)
+    repair_sample, repair_units = assessment.loss.ds_model.save_sample(
+        save_units=True
+    )
     repair_units = repair_units.to_frame().T
 
     if aggregate_collocated:
 
-        repair_units = repair_units.groupby(level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1).first()
-        repair_groupby_uid = repair_sample.groupby(level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1)
+        repair_units = repair_units.groupby(
+            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+        ).first()
+        repair_groupby_uid = repair_sample.groupby(
+            level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
+        )
         repair_sample = repair_groupby_uid.sum().mask(
             repair_groupby_uid.count() == 0, np.nan
         )
@@ -1114,7 +1120,9 @@ def _loss_save(
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
 
         repair_groupby = repair_sample.groupby(level=['dv', 'loss', 'dmg'], axis=1)
-        repair_units = repair_units.groupby(level=['dv', 'loss', 'dmg'], axis=1).first()
+        repair_units = repair_units.groupby(
+            level=['dv', 'loss', 'dmg'], axis=1
+        ).first()
         grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
 
         if 'GroupedSample' in out_reqs:

@@ -1595,9 +1595,7 @@ def invert_mapping(original_dict: dict) -> dict:
     return inverted_dict
 
 
-def get(
-    d: dict | None, path: str, default: Any | None = None
-) -> Any:
+def get(d: dict | None, path: str, default: Any | None = None) -> Any:
     """
     Retrieve a value from a nested dictionary using a path with '/' as
     the separator.
