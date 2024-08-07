@@ -1361,7 +1361,8 @@ class LossModel(PelicunModel):
             sample.loc[exceedance_realizations, col] = other_sample[
                 exceedance_realizations
             ]
-        # Remove all other realized consequences
+        # Remove all other realized consequences from the realizations
+        # where the threshold was exceeded.
         sample.loc[
             exceedance_realizations,
             sample.columns.get_level_values('dmg') != 'threshold_exceedance',
