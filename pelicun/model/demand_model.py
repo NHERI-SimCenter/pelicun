@@ -490,6 +490,7 @@ class DemandModel(PelicunModel):
         demand_sample, demand_units = sample_tuple
         if isinstance(value, np.ndarray):
             value = np.atleast_1d(value)
+            assert isinstance(value, np.ndarray)
             if len(value) != len(demand_sample):
                 raise ValueError('Incompatible array length.')
         demand_sample[(label, location, direction)] = value

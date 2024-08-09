@@ -544,7 +544,7 @@ def _parse_config_file(
 
     # load the schema
     with open(
-        f'{base.pelicun_path}/settings/schema.json', 'r', encoding='utf-8'
+        f'{base.pelicun_path}/settings/input_schema.json', 'r', encoding='utf-8'
     ) as f:
         schema = json.load(f)
 
