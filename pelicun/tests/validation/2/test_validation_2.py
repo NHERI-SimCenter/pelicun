@@ -129,11 +129,18 @@ def test_combined_workflow():
     # Generate sample
     asmnt.asset.generate_cmp_sample(sample_size)
 
+    # # Used to test that the example works when an existing sample is
+    # # loaded.
+    # asmnt.asset.save_cmp_sample(filepath='/tmp/cmp_sample.csv', save_units=True)
+    # asmnt.asset.cmp_sample
+    # asmnt.asset.load_cmp_sample(filepath='/tmp/cmp_sample.csv')
+    # asmnt.asset.cmp_sample
+
     #
     # Damage
     #
 
-    cmp_set = asmnt.asset.list_unique_component_ids(as_set=True)
+    cmp_set = set(asmnt.asset.list_unique_component_ids())
 
     # Load the models into pelicun
     asmnt.damage.load_model_parameters(
