@@ -885,20 +885,31 @@ class LossModel(PelicunModel):
             )
         for key in replacement_consequence_RV_reg.RV:
             if key not in self.decision_variables:
-                raise ValueError(
+                msg = (
                     f'`replacement_consequence_RV_reg` contains the key '
                     f'`{key}` which is not found in the active '
                     f'decision variables. These are: '
                     f'{self.decision_variables}.'
                 )
+                if self.query_error_setup(
+                    'Loss/ReplacementThreshold/RaiseOnUnknownKeys'
+                ):
+                    raise ValueError(msg)
+                self.log.warn(msg)
+
         for key in replacement_ratios:
             if key not in self.decision_variables:
-                raise ValueError(
+                msg = (
                     f'`replacement_ratios` contains the key '
                     f'`{key}` which is not found in the active '
                     f'decision variables. These are: '
                     f'{self.decision_variables}.'
                 )
+                if self.query_error_setup(
+                    'Loss/ReplacementThreshold/RaiseOnUnknownKeys'
+                ):
+                    raise ValueError(msg)
+                self.log.warn(msg)
         # The replacement_consequence_RV_reg should contain an RV for
         # all active DVs, regardless of whether there is a replacement
         # threshold for that DV, becauase when replacememnt is

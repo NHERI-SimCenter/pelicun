@@ -415,3 +415,32 @@ class PelicunModel:
             raise ValueError(
                 f"Cannot parse direction string: " f"{dir_str}"
             ) from exc
+
+    def query_error_setup(self, path: str) -> str | bool:
+        """
+        Obtain error setup settings.
+
+        Obtain settings associated with the treatment of errors and
+        warnings.
+
+        Parameters
+        ----------
+        path: str
+          Path to a setting.
+
+        Returns
+        -------
+        str | bool
+          Value of the setting
+
+        Raises
+        ------
+        KeyError
+          If the path does not point to a setting
+
+        """
+        error_setup = self._asmnt.options.error_setup
+        value = base.get(error_setup, path)
+        if value is None:
+            raise KeyError
+        return value
