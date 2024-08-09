@@ -470,6 +470,7 @@ class TestLossModel(TestPelicunModel):
         # Adjust rows 1 and 2 to have the values 2.0 and 3.0, for
         # testing.
         loss_model_with_ones.decision_variables = ('Cost', 'Carbon')
+        loss_model_with_ones.dv_units = {'Cost': 'USD_2011', 'Carbon': 'kg'}
         loss_model_with_ones.ds_model.sample.iloc[1, :] = 2.00
         loss_model_with_ones.ds_model.sample.iloc[2, :] = 3.00
         loss_model_with_ones.lf_model.sample.iloc[1, :] = 2.00

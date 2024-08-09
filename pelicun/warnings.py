@@ -64,3 +64,21 @@ class PelicunInvalidConfigError(Exception):
     def __init__(self, message="Invalid options in configuration file."):
         self.message = message
         super().__init__(self.message)
+
+
+class InconsistentUnitsError(Exception):
+    """
+    Exception raised for inconsistent or invalid units.
+
+    Attributes
+    ----------
+    message : str
+        Explanation of the error.
+    """
+
+    def __init__(self, message="Inconsistent units.", file=None):
+        if file:
+            self.message = f'{self.message}\n' f'File: {file}'
+        else:
+            self.message = message
+        super().__init__(self.message)
