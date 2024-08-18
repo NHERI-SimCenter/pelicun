@@ -67,6 +67,6 @@ The following sections group the examples above based on the specific features t
    :maxdepth: 1
    :hidden:
 
-   notebooks/custom.pct.py
+   notebooks/example_1.pct.py
 
-.. _E1: notebooks/custom.pct.py
+.. _E1: notebooks/example_1.pct.py
