@@ -39,6 +39,7 @@ extensions = [
     "numpydoc",
     "sphinx_design",
     "nbsphinx",
+    "sphinxcontrib.bibtex",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
@@ -100,3 +101,6 @@ html_show_sphinx = False  # Removes "Built with Sphinx using a theme [...]"
 html_show_sourcelink = (
     False  # Remove 'view source code' from top of page (for html, not python)
 )
+numfig = True
+bibtex_bibfiles = ['references.bib']
+bibtex_style = 'plain'
