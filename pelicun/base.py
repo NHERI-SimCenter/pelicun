@@ -179,12 +179,9 @@ class Options:
         self.sampling_method = None
         self.list_all_ds = None
 
-        self._seed = None
-
-        self._rng = np.random.default_rng()
         merged_config_options = merge_default_config(user_config_options)
 
-        self._seed = merged_config_options['Seed']
+        self.seed = merged_config_options['Seed']
         self.sampling_method = merged_config_options['Sampling']['SamplingMethod']
         self.list_all_ds = merged_config_options['ListAllDamageStates']
 
