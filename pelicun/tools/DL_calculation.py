@@ -57,6 +57,7 @@ from pelicun.base import describe
 from pelicun.base import EDP_to_demand_type
 from pelicun.file_io import load_data
 from pelicun.assessment import Assessment
+from pelicun.base import update_vals
 
 
 # this is exceptional code
@@ -388,6 +389,25 @@ def run_pelicun(
                 )
 
                 return 0
+
+            # look for possibly specified assessment options
+            try:
+                assessment_options = config['Applications']['DL']['ApplicationData'][
+                    'Options'
+                ]
+            except KeyError:
+                assessment_options = None
+
+            if assessment_options:
+                # extend options defined via the auto-population script to
+                # include those in the original `config`
+                config_ap['Applications']['DL']['ApplicationData'].pop('Options')
+                update_vals(
+                    config_ap['DL']['Options'],
+                    assessment_options,
+                    "config_ap['DL']['Options']",
+                    'assessment_options',
+                )
 
             # add the demand information
             config_ap['DL']['Demands'].update(
