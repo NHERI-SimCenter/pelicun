@@ -194,7 +194,11 @@ def auto_populate(AIM):
         # get the number of stories / height
         stories = GI.get("NumberOfStories", None)
 
-        FG_S = f"STR.{bt}.{rise}.{dl}"
+        if rise is None:
+            # To prevent STR.W2.None.LC
+            FG_S = f"STR.{bt}.{dl}"
+        else:
+            FG_S = f"STR.{bt}.{rise}.{dl}"
         FG_NSD = "NSD"
         FG_NSA = f"NSA.{dl}"
 
