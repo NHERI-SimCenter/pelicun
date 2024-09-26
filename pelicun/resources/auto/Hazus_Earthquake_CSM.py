@@ -69,57 +69,57 @@ convert_design_level = {
 }
 
 
-def convert_story_rise(structureType, stories):
-    if structureType in ["W1", "W2", "S3", "PC1", "MH"]:
-        # These archetypes have no rise information in their IDs
-        rise = None
+# def convert_story_rise(structureType, stories):
+#     if structureType in ["W1", "W2", "S3", "PC1", "MH"]:
+#         # These archetypes have no rise information in their IDs
+#         rise = None
 
-    else:
-        # First, check if we have valid story information
-        try:
-            stories = int(stories)
+#     else:
+#         # First, check if we have valid story information
+#         try:
+#             stories = int(stories)
 
-        except (ValueError, TypeError):
-            raise ValueError(
-                'Missing "NumberOfStories" information, '
-                "cannot infer `rise` attribute of archetype"
-            )
+#         except (ValueError, TypeError):
+#             raise ValueError(
+#                 'Missing "NumberOfStories" information, '
+#                 "cannot infer `rise` attribute of archetype"
+#             )
 
-        if structureType == "RM1":
-            if stories <= 3:
-                rise = "L"
+#         if structureType == "RM1":
+#             if stories <= 3:
+#                 rise = "L"
 
-            else:
-                rise = "M"
+#             else:
+#                 rise = "M"
 
-        elif structureType == "URM":
-            if stories <= 2:
-                rise = "L"
+#         elif structureType == "URM":
+#             if stories <= 2:
+#                 rise = "L"
 
-            else:
-                rise = "M"
+#             else:
+#                 rise = "M"
 
-        elif structureType in [
-            "S1",
-            "S2",
-            "S4",
-            "S5",
-            "C1",
-            "C2",
-            "C3",
-            "PC2",
-            "RM2",
-        ]:
-            if stories <= 3:
-                rise = "L"
+#         elif structureType in [
+#             "S1",
+#             "S2",
+#             "S4",
+#             "S5",
+#             "C1",
+#             "C2",
+#             "C3",
+#             "PC2",
+#             "RM2",
+#         ]:
+#             if stories <= 3:
+#                 rise = "L"
 
-            elif stories <= 7:
-                rise = "M"
+#             elif stories <= 7:
+#                 rise = "M"
 
-            else:
-                rise = "H"
+#             else:
+#                 rise = "H"
 
-    return rise
+#     return rise
 
 
 def auto_populate(AIM):
@@ -187,18 +187,19 @@ def auto_populate(AIM):
         # get the number of stories / height
         stories = GI.get("NumberOfStories", None)
 
-        # We assume that the structure type does not include height information
-        # and we append it here based on the number of story information
-        rise = convert_story_rise(bt, stories)
+        # # We assume that the structure type does not include height information
+        # # and we append it here based on the number of story information
+        # rise = convert_story_rise(bt, stories)
 
-        # get the number of stories / height
-        stories = GI.get("NumberOfStories", None)
+        # # get the number of stories / height
+        # stories = GI.get("NumberOfStories", None)
 
-        if rise is None:
-            # To prevent STR.W2.None.LC
-            FG_S = f"STR.{bt}.{dl}"
-        else:
-            FG_S = f"STR.{bt}.{rise}.{dl}"
+        # if rise is None:
+        #     # To prevent STR.W2.None.LC
+        #     FG_S = f"STR.{bt}.{dl}"
+        # else:
+        #     FG_S = f"STR.{bt}.{rise}.{dl}"
+        FG_S = f"STR.{bt}.{dl}"
         FG_NSD = "NSD"
         FG_NSA = f"NSA.{dl}"
 
