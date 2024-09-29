@@ -1230,7 +1230,7 @@ def main():
         '-s',
         '--Realizations',
         default=None,
-        help="Number of realizations to run in the stochastic model.",
+        help="Number of realizations to run in the probabilistic model.",
     )
     parser.add_argument(
         '--dirnameOutput',
