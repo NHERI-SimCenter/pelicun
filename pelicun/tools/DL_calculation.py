@@ -406,6 +406,10 @@ def run_pelicun(
         agg_repair = None
     else:
 
+        # Currently we only support `Repair` consequences.
+        # We will need to make changes here when we start to include
+        # more consequences.
+
         agg_repair, _ = assessment.calculate_loss(
             loss_map_approach=get(config, 'DL/Losses/Repair/MapApproach'),
             occupancy_type=get(config, 'DL/Asset/OccupancyType'),
