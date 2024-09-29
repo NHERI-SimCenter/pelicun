@@ -317,9 +317,10 @@ class PelicunModel:
 
             if "--" in loc_str:
                 s_low, s_high = loc_str.split('--')
+                breakpoint()
                 s_low = self._get_locations(s_low)[0]
                 s_high = self._get_locations(s_high)[0]
-                return np.arange(int(s_low[0]), int(s_high[0]) + 1).astype(str)
+                return np.arange(int(s_low), int(s_high) + 1).astype(str)
 
             if "," in loc_str:
                 return np.array(loc_str.split(','), dtype=int).astype(str)
@@ -409,7 +410,7 @@ class PelicunModel:
                 d_low, d_high = dir_str.split('--')  # type: ignore
                 d_low = self._get_directions(d_low)[0]
                 d_high = self._get_directions(d_high)[0]
-                return np.arange(int(d_low[0]), int(d_high[0]) + 1).astype(str)
+                return np.arange(int(d_low), int(d_high) + 1).astype(str)
 
             # else:
             raise ValueError(
