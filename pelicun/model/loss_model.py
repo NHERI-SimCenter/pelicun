@@ -1748,7 +1748,7 @@ class RepairModel_DS(RepairModel_Base):
 
     def load_sample(self, filepath: str | pd.DataFrame) -> dict[str, str]:
         """
-        Load damage sample data.
+        Load loss sample data.
 
         Parameters
         ----------
