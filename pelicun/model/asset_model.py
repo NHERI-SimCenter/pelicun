@@ -188,6 +188,11 @@ class AssetModel(PelicunModel):
             The path to the CSV file from which to load the component
             quantity sample.
 
+        Raises
+        ------
+        ValueError
+          If the columns have an invalid number of levels.
+
         Notes
         -----
         Upon successful loading, the method sets the component sample
@@ -217,7 +222,20 @@ class AssetModel(PelicunModel):
         )
         assert isinstance(sample, pd.DataFrame)
         assert isinstance(units, pd.Series)
-        sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+
+        # Check if a `uid` level was passed
+        num_levels = len(sample.columns.names)
+        if num_levels == 3:
+            # No `uid`, add one.
+            sample.columns.names = ['cmp', 'loc', 'dir']
+            sample = base.dedupe_index(sample.T).T
+        elif num_levels == 4:
+            sample.columns.names = ['cmp', 'loc', 'dir', 'uid']
+        else:
+            raise ValueError(
+                f'Invalid component sample: Column MultiIndex '
+                f'has an unexpected length: {num_levels}'
+            )
 
         self.cmp_sample = sample
 
@@ -404,7 +422,7 @@ class AssetModel(PelicunModel):
 
         # ensure that the index has unique entries by introducing an
         # internal component uid
-        base.dedupe_index(cmp_marginal_params)
+        cmp_marginal_params = base.dedupe_index(cmp_marginal_params)
 
         cmp_marginal_params = self._convert_marginal_params(
             cmp_marginal_params, cmp_marginal_params['Units']

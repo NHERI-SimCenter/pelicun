@@ -317,7 +317,6 @@ class PelicunModel:
 
             if "--" in loc_str:
                 s_low, s_high = loc_str.split('--')
-                breakpoint()
                 s_low = self._get_locations(s_low)[0]
                 s_high = self._get_locations(s_high)[0]
                 return np.arange(int(s_low), int(s_high) + 1).astype(str)

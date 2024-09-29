@@ -1762,6 +1762,11 @@ class RepairModel_DS(RepairModel_Base):
           Dictionary mapping each decision variable to its assigned
           unit.
 
+        Raises
+        ------
+        ValueError
+          If the columns have an invalid number of levels.
+
         """
         names = ['dv', 'loss', 'dmg', 'ds', 'loc', 'dir', 'uid']
         self.log.div()
@@ -1785,8 +1790,20 @@ class RepairModel_DS(RepairModel_Base):
         )
         dv_units = units_isolated.first().to_dict()
 
+        # check if `uid` level was provided
+        num_levels = len(sample.columns.names)
+        if num_levels == 6:
+            sample.columns.names = names[:-1]
+            sample = base.dedupe_index(sample.T).T
+        elif num_levels == 7:
+            sample.columns.names = names
+        else:
+            raise ValueError(
+                f'Invalid loss sample: Column MultiIndex '
+                f'has an unexpected length: {num_levels}'
+            )
+
         self.sample = sample
-        self.sample.columns.names = names
 
         self.log.msg('Loss sample successfully loaded.', prepend_timestamp=False)
 

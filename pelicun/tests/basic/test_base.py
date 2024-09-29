@@ -735,7 +735,7 @@ def test_dedupe_index():
     index = pd.MultiIndex.from_tuples(tuples, names=['L1', 'L2'])
     data = np.full((4, 1), 0.00)
     df = pd.DataFrame(data, index=index)
-    base.dedupe_index(df)
+    df = base.dedupe_index(df)
     assert df.to_dict() == {
         0: {
             ('A', '1', '0'): 0.0,

@@ -1197,7 +1197,7 @@ def with_parsed_str_na_values(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def dedupe_index(dataframe: pd.DataFrame, dtype: type = str) -> None:
+def dedupe_index(dataframe: pd.DataFrame, dtype: type = str) -> pd.DataFrame:
     """
     Modifies the index of a DataFrame to ensure all index elements are
     unique by adding an extra level.  Assumes that the DataFrame's
@@ -1214,17 +1214,18 @@ def dedupe_index(dataframe: pd.DataFrame, dtype: type = str) -> None:
     dtype : type, optional
         The data type for the new index level 'uid'. Defaults to str.
 
-    Notes
-    -----
-    This function changes the DataFrame in place, hence it does not
-    return the DataFrame but modifies the original one provided.
+    Returns
+    -------
+    dataframe
+      The DataFrame with a modified index.
 
     """
     inames = dataframe.index.names
-    dataframe.reset_index(inplace=True)
+    dataframe = dataframe.reset_index()
     dataframe['uid'] = (dataframe.groupby([*inames]).cumcount()).astype(dtype)
-    dataframe.set_index([*inames] + ['uid'], inplace=True)
-    dataframe.sort_index(inplace=True)
+    dataframe = dataframe.set_index([*inames] + ['uid'])
+    dataframe = dataframe.sort_index()
+    return dataframe
 
 
 # Input specs
