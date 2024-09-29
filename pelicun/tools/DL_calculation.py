@@ -107,7 +107,7 @@ def log_msg(msg, color_codes=None):
 
 
 # list of output files help perform safe initialization of output dir
-output_files = [
+known_output_files = [
     "DEM_sample.zip",
     "DEM_stats.csv",
     "CMP_sample.zip",
@@ -338,8 +338,11 @@ def run_pelicun(
         output_format,
     )
 
-    # List to keep track of the generated output files.
+    # Initialize the array that we'll use to collect the output file names
     out_files = []
+
+    # List to keep track of the generated output files.
+    _remove_existing_files(output_path)
 
     # Run the assessment
     assessment = DLCalculationAssessment(config_options=get(config, 'DL/Options'))
@@ -1181,6 +1184,21 @@ def _get_color_codes(color_warnings):
         cpref = csuff = ''
 
     return (cpref, csuff)
+
+
+def _remove_existing_files(output_path):
+    # Initialize the output folder - i.e., remove existing output files from
+    # there
+    files = os.listdir(output_path)
+    for filename in files:
+        if filename in known_output_files:
+            try:
+                os.remove(output_path / filename)
+            except OSError as exc:
+                raise OSError(
+                    f'Error occurred while removing '
+                    f'`{output_path / filename}`: {exc}'
+                ) from exc
 
 
 def main():
