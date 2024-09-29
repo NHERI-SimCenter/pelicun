@@ -699,6 +699,7 @@ def _parse_config_file(
         only_if_empty_or_none=True,
     )
 
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     # backwards-compatibility for v3.2 and earlier | remove after v4.0
     if get(config, 'DL/Losses/BldgRepair', default=False):
         update(config, 'DL/Losses/Repair', get(config, 'DL/Losses/BldgRepair'))
@@ -708,6 +709,7 @@ def _parse_config_file(
             'DL/Outputs/Loss/Repair',
             get(config, 'DL/Outputs/Loss/BldgRepair'),
         )
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     # Cast NumberOfStories to int
     if is_specified(config, 'DL/Asset/NumberOfStories'):
