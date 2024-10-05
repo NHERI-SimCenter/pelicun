@@ -553,8 +553,8 @@ def auto_populate(AIM):
             "RCC": "B",
             "DI": "D",
             "PVC": "D",
-            "DS": "B",
-            "BS": "D",
+            "DS": "D",
+            "BS": "B",
         }
 
         # GI = AIM.get("GeneralInformation", None)
