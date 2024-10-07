@@ -78,7 +78,7 @@ default_DBs = {
     },
 }
 
-damage_process_approaches = {
+default_damage_processes = {
     'FEMA P-58': {
         "1_excessive.coll.DEM": {"DS1": "collapse_DS1"},
         "2_collapse": {"DS1": "ALL_NA"},
@@ -1124,8 +1124,8 @@ class DLCalculationAssessment(AssessmentBase):
         dmg_process = None
         if damage_process_approach is not None:
 
-            if damage_process_approach in damage_process_approaches:
-                dmg_process = damage_process_approaches[damage_process_approach]
+            if damage_process_approach in default_damage_processes:
+                dmg_process = default_damage_processes[damage_process_approach]
 
                 # For Hazus Earthquake, we need to specify the component ids
                 if damage_process_approach == 'Hazus Earthquake':
