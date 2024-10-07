@@ -342,7 +342,7 @@ def run_pelicun(
     out_files = []
 
     # List to keep track of the generated output files.
-    _remove_existing_files(output_path)
+    _remove_existing_files(output_path, known_output_files)
 
     # Run the assessment
     assessment = DLCalculationAssessment(config_options=get(config, 'DL/Options'))
@@ -1192,7 +1192,28 @@ def _get_color_codes(color_warnings):
     return (cpref, csuff)
 
 
-def _remove_existing_files(output_path):
+def _remove_existing_files(output_path, known_output_files):
+    """
+    Remove known existing files from the specified output path.
+
+    This function initializes the output folder by removing files that
+    already exist in the `known_output_files` list.
+
+    Parameters
+    ----------
+    output_path : Path
+        The path to the output folder where files are located.
+    known_output_files : list of str
+        A list of filenames that are expected to exist and should be
+        removed from the output folder.
+
+    Raises
+    ------
+    OSError
+        If an error occurs while attempting to remove a file, an
+        OSError will be raised with the specific details of the
+        failure.
+    """
     # Initialize the output folder - i.e., remove existing output files from
     # there
     files = os.listdir(output_path)
