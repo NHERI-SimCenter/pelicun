@@ -451,7 +451,7 @@
                 "SimpleIndexInJSON": {
                   "type": "boolean"
                 },
-                "AggregateCollocatedComponentResults": {
+                "AggregateColocatedComponentResults": {
                   "type": "boolean"
                 }
               }

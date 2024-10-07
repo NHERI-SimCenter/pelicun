@@ -452,9 +452,9 @@ def run_pelicun(
             assessment,
             output_path,
             out_files,
-            aggregate_collocated=get(
+            aggregate_colocated=get(
                 config,
-                'DL/Outputs/Settings/AggregateCollocatedComponentResults',
+                'DL/Outputs/Settings/AggregateColocatedComponentResults',
                 default=False,
             ),
         )
@@ -466,9 +466,9 @@ def run_pelicun(
             assessment,
             output_path,
             out_files,
-            aggregate_collocated=get(
+            aggregate_colocated=get(
                 config,
-                'DL/Outputs/Settings/AggregateCollocatedComponentResults',
+                'DL/Outputs/Settings/AggregateColocatedComponentResults',
                 default=False,
             ),
             condense_ds=get(
@@ -486,9 +486,9 @@ def run_pelicun(
             output_path,
             out_files,
             agg_repair,
-            aggregate_collocated=get(
+            aggregate_colocated=get(
                 config,
-                'DL/Outputs/Settings/AggregateCollocatedComponentResults',
+                'DL/Outputs/Settings/AggregateColocatedComponentResults',
                 default=False,
             ),
         )
@@ -785,12 +785,6 @@ def _parse_config_file(
             'Cannot generate loss model outputs.'
         )
 
-    # Backwards compatibility: fix config typo
-    ante = 'DL/Outputs/Settings/AggregateColocatedComponentResults'
-    post = 'DL/Outputs/Settings/AggregateCollocatedComponentResults'
-    if is_specified(config, ante):
-        update(config, post, get(config, ante))
-
     return config
 
 
@@ -908,13 +902,13 @@ def _demand_save(output_config, assessment, output_path, out_files):
 
 
 def _asset_save(
-    output_config, assessment, output_path, out_files, aggregate_collocated=False
+    output_config, assessment, output_path, out_files, aggregate_colocated=False
 ):
 
     cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
     cmp_units = cmp_units.to_frame().T
 
-    if aggregate_collocated:
+    if aggregate_colocated:
 
         cmp_units = cmp_units.groupby(level=['cmp', 'loc', 'dir'], axis=1).first()
         cmp_groupby_uid = cmp_sample.groupby(level=['cmp', 'loc', 'dir'], axis=1)
@@ -949,14 +943,14 @@ def _damage_save(
     assessment,
     output_path,
     out_files,
-    aggregate_collocated=False,
+    aggregate_colocated=False,
     condense_ds=False,
 ):
 
     damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
     damage_units = damage_units.to_frame().T
 
-    if aggregate_collocated:
+    if aggregate_colocated:
 
         damage_units = damage_units.groupby(
             level=['cmp', 'loc', 'dir', 'ds'], axis=1
@@ -997,7 +991,7 @@ def _damage_save(
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
 
-        if aggregate_collocated:
+        if aggregate_colocated:
             damage_groupby = damage_sample.groupby(level=['cmp', 'ds'], axis=1)
             damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()
         else:
@@ -1078,7 +1072,7 @@ def _loss_save(
     output_path,
     out_files,
     agg_repair,
-    aggregate_collocated=False,
+    aggregate_colocated=False,
 ):
 
     repair_sample, repair_units = assessment.loss.ds_model.save_sample(
@@ -1086,7 +1080,7 @@ def _loss_save(
     )
     repair_units = repair_units.to_frame().T
 
-    if aggregate_collocated:
+    if aggregate_colocated:
 
         repair_units = repair_units.groupby(
             level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
