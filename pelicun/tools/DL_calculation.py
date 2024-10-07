@@ -108,22 +108,22 @@ def log_msg(msg, color_codes=None):
 
 # list of output files help perform safe initialization of output dir
 known_output_files = [
-    "DEM_sample.zip",
-    "DEM_stats.csv",
-    "CMP_sample.zip",
-    "CMP_stats.csv",
-    "DMG_sample.zip",
-    "DMG_stats.csv",
-    "DMG_grp.zip",
-    "DMG_grp_stats.csv",
-    "DV_repair_sample.zip",
-    "DV_repair_stats.csv",
-    "DV_repair_grp.zip",
-    "DV_repair_grp_stats.csv",
-    "DV_repair_agg.zip",
-    "DV_repair_agg_stats.csv",
-    "DL_summary.csv",
-    "DL_summary_stats.csv",
+    'DEM_sample.zip',
+    'DEM_stats.csv',
+    'CMP_sample.zip',
+    'CMP_stats.csv',
+    'DMG_sample.zip',
+    'DMG_stats.csv',
+    'DMG_grp.zip',
+    'DMG_grp_stats.csv',
+    'DV_repair_sample.zip',
+    'DV_repair_stats.csv',
+    'DV_repair_grp.zip',
+    'DV_repair_grp_stats.csv',
+    'DV_repair_agg.zip',
+    'DV_repair_agg_stats.csv',
+    'DL_summary.csv',
+    'DL_summary_stats.csv',
 ]
 
 full_out_config = {
@@ -242,7 +242,7 @@ def convert_df_to_dict(df, axis=1):
 
             if isinstance(sub_df, pd.Series):
                 skip_sub = True
-            elif (len(sub_df.columns) == 1) and (sub_df.columns[0] == ""):
+            elif (len(sub_df.columns) == 1) and (sub_df.columns[0] == ''):
                 skip_sub = True
 
             if not skip_sub:
@@ -405,7 +405,6 @@ def run_pelicun(
     if is_unspecified(config, 'DL/Losses/Repair'):
         agg_repair = None
     else:
-
         # Currently we only support `Repair` consequences.
         # We will need to make changes here when we start to include
         # more consequences.
@@ -509,7 +508,6 @@ def _parse_decision_variables(config):
 
 
 def _remove_csv_files_if_not_requested(config, out_files, output_path):
-
     # Don't proceed if CSV files were requested.
     if get(config, 'DL/Outputs/Format/CSV', default=False) is True:
         return
@@ -522,15 +520,14 @@ def _remove_csv_files_if_not_requested(config, out_files, output_path):
 
 
 def _summary_save(summary, summary_stats, output_path, out_files):
-
     # save summary sample
     if summary is not None:
-        summary.to_csv(output_path / "DL_summary.csv", index_label='#')
+        summary.to_csv(output_path / 'DL_summary.csv', index_label='#')
         out_files.append('DL_summary.csv')
 
     # save summary statistics
     if summary_stats is not None:
-        summary_stats.to_csv(output_path / "DL_summary_stats.csv")
+        summary_stats.to_csv(output_path / 'DL_summary_stats.csv')
         out_files.append('DL_summary_stats.csv')
 
 
@@ -544,7 +541,6 @@ def _parse_config_file(
     detailed_results,
     output_format,
 ):
-
     # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
@@ -560,26 +556,24 @@ def _parse_config_file(
         validate(instance=config, schema=schema)
     except jsonschema.exceptions.ValidationError as exc:
         raise PelicunInvalidConfigError(
-            "The provided config file does not conform to the schema."
+            'The provided config file does not conform to the schema.'
         ) from exc
 
     if is_unspecified(config, 'DL'):
-
-        log_msg("Damage and Loss configuration missing from config file. ")
+        log_msg('Damage and Loss configuration missing from config file. ')
 
         if auto_script_path is None:
-            raise PelicunInvalidConfigError("No `DL` entry in config file.")
+            raise PelicunInvalidConfigError('No `DL` entry in config file.')
 
-        log_msg("Trying to auto-populate")
+        log_msg('Trying to auto-populate')
 
         config_ap, CMP = auto_populate(config, auto_script_path)
 
         if is_unspecified(config_ap, 'DL'):
-
             raise PelicunInvalidConfigError(
-                "No `DL` entry in config file, and "
-                "the prescribed auto-population script failed to identify "
-                "a valid damage and loss configuration for this asset. "
+                'No `DL` entry in config file, and '
+                'the prescribed auto-population script failed to identify '
+                'a valid damage and loss configuration for this asset. '
             )
 
         # add the demand information
@@ -593,7 +587,7 @@ def _parse_config_file(
             update(
                 config_ap,
                 'DL/Demands/Calibration',
-                {"ALL": {"DistributionFamily": "lognormal"}},
+                {'ALL': {'DistributionFamily': 'lognormal'}},
             )
 
         # save the component data
@@ -662,18 +656,17 @@ def _parse_config_file(
         update(config, 'DL/Outputs/Settings', pbe_settings)
 
     if is_unspecified(config, 'DL/Demands'):
-        raise PelicunInvalidConfigError("Demand configuration missing.")
+        raise PelicunInvalidConfigError('Demand configuration missing.')
 
     if is_unspecified(config, 'DL/Asset'):
-        raise PelicunInvalidConfigError("Asset configuration missing.")
+        raise PelicunInvalidConfigError('Asset configuration missing.')
 
     # ensure a length unit is specified in the config file.
     if is_unspecified(config, 'GeneralInformation/units/length'):
         raise PelicunInvalidConfigError(
-            "No default length unit provided in the input file."
+            'No default length unit provided in the input file.'
         )
 
-    # initialize the Pelicun Assessment
     update(
         config,
         'DL/Options/LogFile',
@@ -687,7 +680,7 @@ def _parse_config_file(
         only_if_empty_or_none=True,
     )
 
-    # If the user did not prescribe anything for ListAllDamageStates,
+    # if the user did not prescribe anything for ListAllDamageStates,
     # then use True as default for DL_calculations regardless of what
     # the Pelicun default is.
     update(
@@ -751,7 +744,7 @@ def _parse_config_file(
 
     # If the damage process approach is `User Defined` there needs to
     # be a damage process file path.
-    if get(config, 'DL/Damage/DamageProcess') == "User Defined" and is_unspecified(
+    if get(config, 'DL/Damage/DamageProcess') == 'User Defined' and is_unspecified(
         config, 'DL/Damage/DamageProcessFilePath'
     ):
         raise PelicunInvalidConfigError(
@@ -785,11 +778,28 @@ def _parse_config_file(
             'Cannot generate loss model outputs.'
         )
 
+    # Ensure only one of `component_assignment_file` or
+    # `component_sample_file` is provided.
+    if is_specified(config, 'DL/Asset'):
+        if (
+            (get(config, 'DL/Asset/ComponentAssignmentFile') is None)
+            and (get(config, 'DL/Asset/ComponentSampleFile') is None)
+            or (
+                (get(config, 'DL/Asset/ComponentAssignmentFile') is not None)
+                and (get(config, 'DL/Asset/ComponentSampleFile') is not None)
+            )
+        ):
+            msg = (
+                'In the asset model configuraiton, it is '
+                'required to specify one of `component_assignment_file` '
+                'or `component_sample_file`, but not both.'
+            )
+            raise ValueError(msg)
+
     return config
 
 
 def _create_json_files_if_requested(config, out_files, output_path):
-
     # If not requested, simply return
     if get(config, 'DL/Outputs/Format/JSON', default=False) is False:
         return
@@ -807,19 +817,19 @@ def _create_json_files_if_requested(config, out_files, output_path):
                 pd.read_csv(output_path / filename, index_col=0), axis=1
             )
 
-        if "Units" in df.index:
+        if 'Units' in df.index:
             df_units = convert_to_SimpleIndex(
                 df.loc['Units', :].to_frame().T, axis=1
             )
 
-            df.drop("Units", axis=0, inplace=True)
+            df.drop('Units', axis=0, inplace=True)
 
             out_dict = convert_df_to_dict(df)
 
             out_dict.update(
                 {
-                    "Units": {
-                        col: df_units.loc["Units", col] for col in df_units.columns
+                    'Units': {
+                        col: df_units.loc['Units', col] for col in df_units.columns
                     }
                 }
             )
@@ -832,7 +842,6 @@ def _create_json_files_if_requested(config, out_files, output_path):
 
 
 def _result_summary(assessment, agg_repair):
-
     damage_sample = assessment.damage.save_sample()
     if damage_sample is None or agg_repair is None:
         return None, None
@@ -874,7 +883,6 @@ def _parse_requested_output_file_names(output_config):
 
 
 def _demand_save(output_config, assessment, output_path, out_files):
-
     out_reqs = _parse_requested_output_file_names(output_config)
 
     demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
@@ -884,7 +892,7 @@ def _demand_save(output_config, assessment, output_path, out_files):
         demand_sample_s = pd.concat([demand_sample, demand_units])
         demand_sample_s = convert_to_SimpleIndex(demand_sample_s, axis=1)
         demand_sample_s.to_csv(
-            output_path / "DEM_sample.zip",
+            output_path / 'DEM_sample.zip',
             index_label=demand_sample_s.columns.name,
             compression={'method': 'zip', 'archive_name': 'DEM_sample.csv'},
         )
@@ -895,7 +903,7 @@ def _demand_save(output_config, assessment, output_path, out_files):
         demand_stats = pd.concat([demand_stats, demand_units])
         demand_stats = convert_to_SimpleIndex(demand_stats, axis=1)
         demand_stats.to_csv(
-            output_path / "DEM_stats.csv",
+            output_path / 'DEM_stats.csv',
             index_label=demand_stats.columns.name,
         )
         out_files.append('DEM_stats.csv')
@@ -904,12 +912,10 @@ def _demand_save(output_config, assessment, output_path, out_files):
 def _asset_save(
     output_config, assessment, output_path, out_files, aggregate_colocated=False
 ):
-
     cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
     cmp_units = cmp_units.to_frame().T
 
     if aggregate_colocated:
-
         cmp_units = cmp_units.groupby(level=['cmp', 'loc', 'dir'], axis=1).first()
         cmp_groupby_uid = cmp_sample.groupby(level=['cmp', 'loc', 'dir'], axis=1)
         cmp_sample = cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan)
@@ -921,7 +927,7 @@ def _asset_save(
 
         cmp_sample_s = convert_to_SimpleIndex(cmp_sample_s, axis=1)
         cmp_sample_s.to_csv(
-            output_path / "CMP_sample.zip",
+            output_path / 'CMP_sample.zip',
             index_label=cmp_sample_s.columns.name,
             compression={'method': 'zip', 'archive_name': 'CMP_sample.csv'},
         )
@@ -933,7 +939,7 @@ def _asset_save(
 
         cmp_stats = convert_to_SimpleIndex(cmp_stats, axis=1)
         cmp_stats.to_csv(
-            output_path / "CMP_stats.csv", index_label=cmp_stats.columns.name
+            output_path / 'CMP_stats.csv', index_label=cmp_stats.columns.name
         )
         out_files.append('CMP_stats.csv')
 
@@ -946,12 +952,10 @@ def _damage_save(
     aggregate_colocated=False,
     condense_ds=False,
 ):
-
     damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
     damage_units = damage_units.to_frame().T
 
     if aggregate_colocated:
-
         damage_units = damage_units.groupby(
             level=['cmp', 'loc', 'dir', 'ds'], axis=1
         ).first()
@@ -969,7 +973,7 @@ def _damage_save(
 
         damage_sample_s = convert_to_SimpleIndex(damage_sample_s, axis=1)
         damage_sample_s.to_csv(
-            output_path / "DMG_sample.zip",
+            output_path / 'DMG_sample.zip',
             index_label=damage_sample_s.columns.name,
             compression={
                 'method': 'zip',
@@ -984,13 +988,12 @@ def _damage_save(
 
         damage_stats = convert_to_SimpleIndex(damage_stats, axis=1)
         damage_stats.to_csv(
-            output_path / "DMG_stats.csv",
+            output_path / 'DMG_stats.csv',
             index_label=damage_stats.columns.name,
         )
         out_files.append('DMG_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-
         if aggregate_colocated:
             damage_groupby = damage_sample.groupby(level=['cmp', 'ds'], axis=1)
             damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()
@@ -1045,7 +1048,7 @@ def _damage_save(
 
             grp_damage_s = convert_to_SimpleIndex(grp_damage_s, axis=1)
             grp_damage_s.to_csv(
-                output_path / "DMG_grp.zip",
+                output_path / 'DMG_grp.zip',
                 index_label=grp_damage_s.columns.name,
                 compression={
                     'method': 'zip',
@@ -1060,7 +1063,7 @@ def _damage_save(
 
             grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
             grp_stats.to_csv(
-                output_path / "DMG_grp_stats.csv",
+                output_path / 'DMG_grp_stats.csv',
                 index_label=grp_stats.columns.name,
             )
             out_files.append('DMG_grp_stats.csv')
@@ -1074,14 +1077,12 @@ def _loss_save(
     agg_repair,
     aggregate_colocated=False,
 ):
-
     repair_sample, repair_units = assessment.loss.ds_model.save_sample(
         save_units=True
     )
     repair_units = repair_units.to_frame().T
 
     if aggregate_colocated:
-
         repair_units = repair_units.groupby(
             level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
         ).first()
@@ -1100,7 +1101,7 @@ def _loss_save(
 
         repair_sample_s = convert_to_SimpleIndex(repair_sample_s, axis=1)
         repair_sample_s.to_csv(
-            output_path / "DV_repair_sample.zip",
+            output_path / 'DV_repair_sample.zip',
             index_label=repair_sample_s.columns.name,
             compression={
                 'method': 'zip',
@@ -1115,13 +1116,12 @@ def _loss_save(
 
         repair_stats = convert_to_SimpleIndex(repair_stats, axis=1)
         repair_stats.to_csv(
-            output_path / "DV_repair_stats.csv",
+            output_path / 'DV_repair_stats.csv',
             index_label=repair_stats.columns.name,
         )
         out_files.append('DV_repair_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-
         repair_groupby = repair_sample.groupby(level=['dv', 'loss', 'dmg'], axis=1)
         repair_units = repair_units.groupby(
             level=['dv', 'loss', 'dmg'], axis=1
@@ -1133,7 +1133,7 @@ def _loss_save(
 
             grp_repair_s = convert_to_SimpleIndex(grp_repair_s, axis=1)
             grp_repair_s.to_csv(
-                output_path / "DV_repair_grp.zip",
+                output_path / 'DV_repair_grp.zip',
                 index_label=grp_repair_s.columns.name,
                 compression={
                     'method': 'zip',
@@ -1148,17 +1148,16 @@ def _loss_save(
 
             grp_stats = convert_to_SimpleIndex(grp_stats, axis=1)
             grp_stats.to_csv(
-                output_path / "DV_repair_grp_stats.csv",
+                output_path / 'DV_repair_grp_stats.csv',
                 index_label=grp_stats.columns.name,
             )
             out_files.append('DV_repair_grp_stats.csv')
 
     if out_reqs.intersection({'AggregateSample', 'AggregateStatistics'}):
-
         if 'AggregateSample' in out_reqs:
             agg_repair_s = convert_to_SimpleIndex(agg_repair, axis=1)
             agg_repair_s.to_csv(
-                output_path / "DV_repair_agg.zip",
+                output_path / 'DV_repair_agg.zip',
                 index_label=agg_repair_s.columns.name,
                 compression={
                     'method': 'zip',
@@ -1170,7 +1169,7 @@ def _loss_save(
         if 'AggregateStatistics' in out_reqs:
             agg_stats = convert_to_SimpleIndex(describe(agg_repair), axis=1)
             agg_stats.to_csv(
-                output_path / "DV_repair_agg_stats.csv",
+                output_path / 'DV_repair_agg_stats.csv',
                 index_label=agg_stats.columns.name,
             )
             out_files.append('DV_repair_agg_stats.csv')
@@ -1233,24 +1232,24 @@ def main():
     parser.add_argument(
         '-c',
         '--filenameDL',
-        help="Path to the damage and loss (DL) configuration file.",
+        help='Path to the damage and loss (DL) configuration file.',
     )
     parser.add_argument(
         '-d',
         '--demandFile',
         default=None,
-        help="Path to the file containing demand data.",
+        help='Path to the file containing demand data.',
     )
     parser.add_argument(
         '-s',
         '--Realizations',
         default=None,
-        help="Number of realizations to run in the probabilistic model.",
+        help='Number of realizations to run in the probabilistic model.',
     )
     parser.add_argument(
         '--dirnameOutput',
         default=None,
-        help="Directory where output files will be stored.",
+        help='Directory where output files will be stored.',
     )
     parser.add_argument(
         '--detailed_results',
@@ -1258,7 +1257,7 @@ def main():
         type=str2bool,
         nargs='?',
         const=True,
-        help="Generate detailed results (True/False). Defaults to True.",
+        help='Generate detailed results (True/False). Defaults to True.',
     )
     parser.add_argument(
         '--coupled_EDP',
@@ -1267,8 +1266,8 @@ def main():
         nargs='?',
         const=False,
         help=(
-            "Consider coupled Engineering Demand Parameters (EDPs) "
-            "in calculations (True/False). Defaults to False."
+            'Consider coupled Engineering Demand Parameters (EDPs) '
+            'in calculations (True/False). Defaults to False.'
         ),
     )
     parser.add_argument(
@@ -1277,22 +1276,22 @@ def main():
         type=str2bool,
         nargs='?',
         const=True,
-        help="Generate a log file (True/False). Defaults to True.",
+        help='Generate a log file (True/False). Defaults to True.',
     )
     parser.add_argument(
         '--auto_script',
         default=None,
-        help="Optional path to a config auto-generation script.",
+        help='Optional path to a config auto-generation script.',
     )
     parser.add_argument(
         '--custom_model_dir',
         default=None,
-        help="Directory containing custom model data.",
+        help='Directory containing custom model data.',
     )
     parser.add_argument(
         '--output_format',
         default=None,
-        help="Desired output format for the results.",
+        help='Desired output format for the results.',
     )
     parser.add_argument(
         '--color_warnings',
@@ -1301,8 +1300,8 @@ def main():
         nargs='?',
         const=False,
         help=(
-            "Enable colored warnings in the console "
-            "output (True/False). Defaults to False."
+            'Enable colored warnings in the console '
+            'output (True/False). Defaults to False.'
         ),
     )
     parser.add_argument(
@@ -1311,7 +1310,7 @@ def main():
         type=str2bool,
         nargs='?',
         const=False,
-        help="Currently not used. Soon to be deprecated.",
+        help='Currently not used. Soon to be deprecated.',
     )
     parser.add_argument(
         '--regional',
@@ -1319,7 +1318,7 @@ def main():
         type=str2bool,
         nargs='?',
         const=False,
-        help="Currently not used. Soon to be deprecated.",
+        help='Currently not used. Soon to be deprecated.',
     )
     parser.add_argument('--resource_dir', default=None)
 
