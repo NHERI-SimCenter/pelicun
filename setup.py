@@ -63,6 +63,7 @@ setup(
             'black',
             'pytest',
             'pytest-cov',
+            'pytest-xdist',
             'glob2',
             'jupyter',
             'jupytext',

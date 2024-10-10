@@ -27,7 +27,7 @@ fi
 # fi
 
 # Run pytest for testing and generate coverage report
-python -m pytest pelicun/tests --cov=pelicun --cov-report html
+python -m pytest pelicun/tests --cov=pelicun --cov-report html -n auto
 if [ $? -ne 0 ]; then
     echo "pytest failed. Exiting."
     exit 1
