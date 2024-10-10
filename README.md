@@ -15,7 +15,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/NHERI-SimCenter/pelicun?color=blue&label=Latest%20Release)](https://github.com/NHERI-SimCenter/pelicun/releases/latest)
 ![Tests](https://github.com/NHERI-SimCenter/pelicun/actions/workflows/tests.yml/badge.svg)
 [![codecov](https://codecov.io/github/NHERI-SimCenter/pelicun/branch/master/graph/badge.svg?token=W79M5FGOCG)](https://codecov.io/github/NHERI-SimCenter/pelicun/tree/master)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/badge/ruff-linted-blue)](https://img.shields.io/badge/ruff-linted-blue)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue)](https://raw.githubusercontent.com/NHERI-SimCenter/pelicun/master/LICENSE)
 
 ## What is it?
