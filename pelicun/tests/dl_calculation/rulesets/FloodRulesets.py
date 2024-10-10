@@ -208,7 +208,7 @@ def FL_config(BIM):
     #     }
     #     ap_OT[BIM['OccupancyClass']]
 
-    if not (BIM['OccupancyClass'] in ['RES1', 'RES2']):
+    if BIM['OccupancyClass'] not in ['RES1', 'RES2']:
         if 'RES3' in BIM['OccupancyClass']:
             fl_config = f"{'fl'}_" f"{'RES3'}"
         else:

@@ -283,14 +283,6 @@ class TestAssetModel(TestPelicunModel):
             check_column_type=False,
         )
 
-    # TODO: this currently fails
-    # def test_load_cmp_model_block_weights(self, asset_model):
-    #     cmp_marginals = pd.read_csv(
-    #         'pelicun/tests/basic/data/model/test_AssetModel/CMP_marginals_block_weights.csv',
-    #         index_col=0,
-    #     )
-    #     asset_model.load_cmp_model({'marginals': cmp_marginals})
-
     def test_generate_cmp_sample_exceptions_1(self, asset_model):
         # without marginal parameters
         with pytest.raises(ValueError):

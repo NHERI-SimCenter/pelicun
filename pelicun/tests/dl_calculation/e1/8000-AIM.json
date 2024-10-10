@@ -13,16 +13,8 @@
   "assetType": "Buildings",
   "Applications": {
     "DL": {
-      "Application": "Pelicun3",
       "ApplicationData": {
-        "DL_Method": "HAZUS MH EQ IM",
-        "Realizations": 100,
-        "auto_script": "PelicunDefault/Hazus_Earthquake_IM.py",
-        "coupled_EDP": true,
-        "detailed_results": false,
-        "ground_failure": false,
-        "log_file": true,
-        "regional": "true"
+        "ground_failure": false
       }
     }
   }
