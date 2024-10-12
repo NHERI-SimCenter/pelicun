@@ -1,0 +1,8 @@
+.. _changes_v1_1_0:
+
+================================
+Version 1.1.0 (February 6, 2019)
+================================
+
+- converted to a common JSON format for FEMA P58 and HAZUS Damage and Loss data
+- added component-assembly-based (HAZUS-style) loss assessment methodology for earthquake

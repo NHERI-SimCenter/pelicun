@@ -1,0 +1,36 @@
+# %% [markdown]
+"""
+# First-level section title goes here.
+
+This is a Markdown cell that uses multiline comments.
+Second line here.
+
+## Second level section
+
+Here is some math:
+$$
+  \int_0^\infty \frac{x^3}{e^x-1}\,dx = \frac{\pi^4}{15}
+$$
+
+And here is some inline math. Variable $x$ is equal to $y$.
+"""
+
+# %% [markdown]
+# Another Markdown cell with a single-line comment.
+
+
+# %% nbsphinx="hidden"
+# This is a hidden code cell
+# We will use this to turn the examples into additional tests without
+# polluting the documentation with imports and assertions.
+class A:
+    def one():
+        return 1
+
+    def two():
+        return 2
+
+
+# %%
+# This is a visible code cell
+print("Hello, world!")

@@ -1,0 +1,90 @@
+.. _changes_v3_2_0:
+
+=================================
+Version 3.2.0 (February 27, 2024)
+=================================
+
+.. _changes_v3_2_0.new:
+
+New features
+------------
+
+- New multilinear CDF Random Variable allows using the multilinear approximation of any CDF in the tool.
+
+- Capacity adjustment allows adjusting (scaling or shifting) default capacities (i.e., fragility curves) with factors specific to each Performance Group.
+
+- Support for multiple definitions of the same component at the same location-direction.
+  This feature facilitates adding components with different block sizes to the same floor or defining multiple tenants on the same floor, each with their own set of components.
+
+- Support for cloning demands, that is, taking a provided demand dataset, creating a copy and considering it as another demand.
+  For example, you can provide results of seismic response in the X direction and automatically prepare a copy of them to represent results in the Y direction.
+
+- Models for estimating Environmental Impact (i.e., embodied carbon and energy) of earthquake damage as per FEMA P-58 are included in the DL Model Library and available in this release.
+
+- "ListAllDamageStates" option allows you to print a comprehensive list of all possible damage states for all components in the columns of the DMG output file.
+  This can make parsing the output easier but increases file size.
+  By default, this option is turned off and only damage states that affect at least one block are printed.
+
+- Damage and Loss Model Library
+
+  - A collection of parameters and metadata for damage and loss models for performance based engineering.
+    The library is available and updated regularly in the DB_DamageAndLoss GitHub Repository.
+  - This and future releases of Pelicun have the latest version of the library at the time of their release bundled with them.
+
+- DL_calculation tool
+
+  - Support for combination of built-in and user-defined databases for damage and loss models.
+
+  - Results are now also provided in standard SimCenter JSON format besides the existing CSV tables.
+    You can specify the preferred format in the configuration file under Output/Format.
+    The default file format is still CSV.
+
+  - Support running calculations for only a subset of available consequence types.
+
+
+.. _changes_v3_2_0.breaking:
+
+Backwards incompatible changes
+------------------------------
+
+- Unit information is included in every output file.
+  If you parse Pelicun outputs and did not anticipate a Unit entry, your parser might need an update.
+
+- Decision variable types in the repair consequence outputs are named using CamelCase rather than all capitals to be consistent with other parts of the codebase.
+  For example, we use "Cost" instead of "COST".
+  This might affect post-processing scripts.
+
+- For clarity, "ea" units were replaced with "unitless" where appropriate.
+  There should be no practical difference between the calculations due to this change.
+  Interstory drift ratio demand types are one example.
+
+- Weighted component block assignment is no longer supported.
+  We recommend using more versatile multiple component definitions (see new feature below) to achieve the same effect.
+
+- Damage functions (i.e., assign quantity of damage as a function of demand) are no longer supported.
+  We recommend using the new multilinear CDF feature to develop theoretically equivalent but more efficient models.
+
+.. _changes_v3_2_0.changes:
+
+Other changes
+-------------
+
+- Added a comprehensive suite of more than 140 unit tests that cover more than 93% of the codebase.
+  Tests are automatically executed after every commit using GitHub Actions and coverage is monitored through ``Codecov.io``.
+  Badges at the top of the Readme show the status of tests and coverage.
+  We hope this continuous integration facilitates editing and extending the existing codebase for interested members of the community.
+
+- Completed a review of the entire codebase using ``flake8`` and ``pylint`` to ensure PEP8 compliance.
+  The corresponding changes yielded code that is easier to read and use.
+  See guidance in ``Readme`` on linting and how to ensure newly added code is compliant.
+
+- Several error and warning messages added to provide more meaningful information in the log file when something goes wrong in a simulation.
+
+- Update dependencies to more recent versions.
+
+.. _changes_v3_2_0.remarks:
+
+Remarks
+-------
+
+The online documentation is significantly out of date. While we are working on an update, we recommend using the documentation of the `DL panel in SimCenter's PBE Tool <https://nheri-simcenter.github.io/PBE-Documentation/common/user_manual/usage/desktop/PBE/Pelicun.html>`_ as a resource.
