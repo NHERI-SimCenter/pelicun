@@ -52,6 +52,7 @@ setup(
     ],
     extras_require={
         'development': [
+            'ruff',
             'flake8',
             'flake8-bugbear',
             'flake8-rst',
@@ -74,6 +75,7 @@ setup(
             'flake8-rst-docstrings',
             'pandas-stubs',
             'types-colorama',
+            'codespell',
         ],
     },
     classifiers=[
