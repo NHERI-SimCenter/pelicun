@@ -105,9 +105,9 @@ class DamageModel(PelicunModel):
             '`load_damage_model` is deprecated and will be '
             'dropped in future versions of pelicun. '
             'Please use `load_model_parameters` instead, '
-            'like so: \n`cmp_set = {your_assessment_obj}.'
+            'like so: \n`cmp_set = set({your_assessment_obj}.'
             'asset.'
-            'set(list_unique_component_ids())`, '
+            'list_unique_component_ids())`, '
             'and then \n`{your_assessment_obj}.damage.'
             'load_model_parameters(data_paths, cmp_set)`.'
         )
