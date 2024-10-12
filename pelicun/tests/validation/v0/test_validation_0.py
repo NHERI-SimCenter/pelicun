@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -33,10 +32,6 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
-#
-# Contributors:
-# Adam Zsarnóczay
-# John Vouvakis Manousakis
 
 """
 Validation test on loss functions.
@@ -49,18 +44,18 @@ that this is what happens.
 """
 
 from __future__ import annotations
+
 import numpy as np
 import pandas as pd
-import pelicun
-from pelicun import assessment
+
+from pelicun import assessment, file_io
 
 
-def test_validation_loss_function():
-
+def test_validation_loss_function() -> None:
     sample_size = 100000
 
     # initialize a pelicun assessment
-    asmnt = assessment.Assessment({"PrintLog": False, "Seed": 42})
+    asmnt = assessment.Assessment({'PrintLog': False, 'Seed': 42})
 
     #
     # Demands
@@ -82,7 +77,7 @@ def test_validation_loss_function():
 
     asmnt.demand.load_model({'marginals': demands})
 
-    asmnt.demand.generate_sample({"SampleSize": sample_size})
+    asmnt.demand.generate_sample({'SampleSize': sample_size})
 
     #
     # Asset
@@ -91,7 +86,7 @@ def test_validation_loss_function():
     asmnt.stories = 1
 
     cmp_marginals = pd.read_csv(
-        'pelicun/tests/validation/0/data/CMP_marginals.csv', index_col=0
+        'pelicun/tests/validation/v0/data/CMP_marginals.csv', index_col=0
     )
     cmp_marginals['Blocks'] = cmp_marginals['Blocks']
     asmnt.asset.load_cmp_model({'marginals': cmp_marginals})
@@ -113,23 +108,25 @@ def test_validation_loss_function():
     loss_map = pd.DataFrame(['cmp.A'], columns=['Repair'], index=['cmp.A'])
     asmnt.loss.add_loss_map(loss_map)
 
-    loss_functions = pelicun.file_io.load_data(
-        'pelicun/tests/validation/0/data/loss_functions.csv',
+    loss_functions = file_io.load_data(
+        'pelicun/tests/validation/v0/data/loss_functions.csv',
         reindex=False,
         unit_conversion_factors=asmnt.unit_conversion_factors,
     )
+    assert isinstance(loss_functions, pd.DataFrame)
     asmnt.loss.load_model_parameters([loss_functions])
     asmnt.loss.calculate()
 
     loss, _ = asmnt.loss.aggregate_losses(future=True)
+    assert isinstance(loss, pd.DataFrame)
 
-    loss_vals = loss['repair_cost'].values
+    loss_vals = loss['repair_cost'].to_numpy()
 
     # sample median should be close to 0.05
     assert np.allclose(np.median(loss_vals), 0.05, atol=1e-2)
     # dispersion should be close to 0.9
     assert np.allclose(np.log(loss_vals).std(), 0.90, atol=1e-2)
 
-    # # TODO also test save/load sample
+    # TODO(JVM): also test save/load sample
     # asmnt.loss.save_sample('/tmp/sample.csv')
     # asmnt.loss.load_sample('/tmp/sample.csv')
