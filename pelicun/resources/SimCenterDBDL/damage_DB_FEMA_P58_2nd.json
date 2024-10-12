@@ -71,7 +71,7 @@
           "D.50.92 - Other Electrical Systems"
         ]
       },
-      "E - Equipments and furnishings": {
+      "E - Equipment and furnishings": {
         "E.20 - Furnishings": [
           "E.20.22 - Movable Furnishings"
         ]
@@ -8812,7 +8812,7 @@
       "LS2": {
         "DS2": {
           "Description": "Structural damage but live load capacity remains intact.  Buckling of steel, weld cracking.",
-          "RepairAction": "Removal and replacement of damaged components.  Field repair of damage (such as welding).  Repair finsihes."
+          "RepairAction": "Removal and replacement of damaged components.  Field repair of damage (such as welding).  Repair finishes."
         }
       },
       "LS3": {
@@ -8838,7 +8838,7 @@
       "LS2": {
         "DS2": {
           "Description": "Buckling of steel, weld cracking.",
-          "RepairAction": "Removal and replacement of damaged components.  Field repair of damage (such as welding).  Repair finsihes."
+          "RepairAction": "Removal and replacement of damaged components.  Field repair of damage (such as welding).  Repair finishes."
         }
       },
       "LS3": {
@@ -10147,7 +10147,7 @@
   },
   "D.20.21.011a": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10167,7 +10167,7 @@
   },
   "D.20.21.011b": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, BRACING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10187,7 +10187,7 @@
   },
   "D.20.21.012a": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10207,7 +10207,7 @@
   },
   "D.20.21.012b": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, BRACING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10227,7 +10227,7 @@
   },
   "D.20.21.013a": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10247,7 +10247,7 @@
   },
   "D.20.21.013b": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, BRACING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10261,7 +10261,7 @@
   },
   "D.20.21.014a": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10281,7 +10281,7 @@
   },
   "D.20.21.014b": {
     "Description": "Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10295,7 +10295,7 @@
   },
   "D.20.21.021a": {
     "Description": "Cold or Hot Potable Water Piping (dia > 2.5 inches), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10315,7 +10315,7 @@
   },
   "D.20.21.022a": {
     "Description": "Cold or Hot Potable Water Piping (dia > 2.5 inches), SDC C, PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10335,7 +10335,7 @@
   },
   "D.20.21.023a": {
     "Description": "Cold or Hot Potable Water Piping (dia > 2.5 inches), SDC D,E,F, PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10355,7 +10355,7 @@
   },
   "D.20.21.023b": {
     "Description": "Cold or Hot Potable Water Piping (dia > 2.5 inches), SDC D,E,F, BRACING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10375,7 +10375,7 @@
   },
   "D.20.21.024a": {
     "Description": "Cold or Hot Potable Water Piping (dia > 2.5 inches), SDC D,E,F (OSPHD or sim), PIPING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10395,7 +10395,7 @@
   },
   "D.20.21.024b": {
     "Description": "Cold or Hot Potable Water Piping (dia > 2.5 inches), SDC D,E,F (OSPHD or sim), BRACING FRAGILITY",
-    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Potable water.  Costing based upon 1000 ft segments.\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10415,7 +10415,7 @@
   },
   "D.20.22.011a": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10435,7 +10435,7 @@
   },
   "D.20.22.011b": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, BRACING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10455,7 +10455,7 @@
   },
   "D.20.22.012a": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10475,7 +10475,7 @@
   },
   "D.20.22.012b": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, BRACING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10495,7 +10495,7 @@
   },
   "D.20.22.013a": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10515,7 +10515,7 @@
   },
   "D.20.22.013b": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, BRACING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10529,7 +10529,7 @@
   },
   "D.20.22.014a": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10549,7 +10549,7 @@
   },
   "D.20.22.014b": {
     "Description": "Heating hot Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10563,7 +10563,7 @@
   },
   "D.20.22.021a": {
     "Description": "Heating hot Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10583,7 +10583,7 @@
   },
   "D.20.22.022a": {
     "Description": "Heating hot Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC C, PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10603,7 +10603,7 @@
   },
   "D.20.22.023a": {
     "Description": "Heating hot Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F, PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10623,7 +10623,7 @@
   },
   "D.20.22.023b": {
     "Description": "Heating hot Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F, BRACING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10643,7 +10643,7 @@
   },
   "D.20.22.024a": {
     "Description": "Heating hot Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10663,7 +10663,7 @@
   },
   "D.20.22.024b": {
     "Description": "Heating hot Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Heating water.  Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10683,7 +10683,7 @@
   },
   "D.20.31.011b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/flexible couplings, SDC A,B, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10703,7 +10703,7 @@
   },
   "D.20.31.012b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/flexible couplings, SDC C, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10723,7 +10723,7 @@
   },
   "D.20.31.013b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/flexible couplings, SDC D,E,F, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10737,7 +10737,7 @@
   },
   "D.20.31.014b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/flexible couplings, SDC D,E,F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10751,7 +10751,7 @@
   },
   "D.20.31.021a": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC A,B, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10765,7 +10765,7 @@
   },
   "D.20.31.021b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC A,B, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10785,7 +10785,7 @@
   },
   "D.20.31.022a": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC C, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10799,7 +10799,7 @@
   },
   "D.20.31.022b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC C, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10819,7 +10819,7 @@
   },
   "D.20.31.023a": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC D,E,F, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10833,7 +10833,7 @@
   },
   "D.20.31.023b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC D,E,F, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10847,7 +10847,7 @@
   },
   "D.20.31.024a": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC D,E,F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10861,7 +10861,7 @@
   },
   "D.20.31.024b": {
     "Description": "Sanitary Waste Piping - Cast Iron w/bell and spigot couplings, SDC D,E,F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe\nConstruction Quality: Special Regulation (e.g. OSHPD) for piping installations\nSeismic Installation Conditions: SDC D, E or F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10875,7 +10875,7 @@
   },
   "D.20.51.011a": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10895,7 +10895,7 @@
   },
   "D.20.51.011b": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10915,7 +10915,7 @@
   },
   "D.20.51.012a": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10935,7 +10935,7 @@
   },
   "D.20.51.012b": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10955,7 +10955,7 @@
   },
   "D.20.51.013a": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10975,7 +10975,7 @@
   },
   "D.20.51.013b": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -10989,7 +10989,7 @@
   },
   "D.20.51.014a": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11009,7 +11009,7 @@
   },
   "D.20.51.014b": {
     "Description": "Chilled Water Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11023,7 +11023,7 @@
   },
   "D.20.51.021a": {
     "Description": "Chilled Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11043,7 +11043,7 @@
   },
   "D.20.51.021b": {
     "Description": "Chilled Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC A or B, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11057,7 +11057,7 @@
   },
   "D.20.51.022a": {
     "Description": "Chilled Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC C, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11077,7 +11077,7 @@
   },
   "D.20.51.023a": {
     "Description": "Chilled Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11097,7 +11097,7 @@
   },
   "D.20.51.023b": {
     "Description": "Chilled Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11117,7 +11117,7 @@
   },
   "D.20.51.024a": {
     "Description": "Chilled Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11137,7 +11137,7 @@
   },
   "D.20.51.024b": {
     "Description": "Chilled Water Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11157,7 +11157,7 @@
   },
   "D.20.61.011a": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11177,7 +11177,7 @@
   },
   "D.20.61.011b": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11197,7 +11197,7 @@
   },
   "D.20.61.012a": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11217,7 +11217,7 @@
   },
   "D.20.61.012b": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC C, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11237,7 +11237,7 @@
   },
   "D.20.61.013a": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11257,7 +11257,7 @@
   },
   "D.20.61.013b": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11271,7 +11271,7 @@
   },
   "D.20.61.014a": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11291,7 +11291,7 @@
   },
   "D.20.61.014b": {
     "Description": "Steam Piping - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC D, E, or F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe 2.5 inches in diameter or less\nConstruction Quality: Special Regulations (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11305,7 +11305,7 @@
   },
   "D.20.61.021a": {
     "Description": "Steam Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC A or B, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC A or B (no seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11325,7 +11325,7 @@
   },
   "D.20.61.022a": {
     "Description": "Steam Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC C, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC C (low seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11345,7 +11345,7 @@
   },
   "D.20.61.023a": {
     "Description": "Steam Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F, PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11365,7 +11365,7 @@
   },
   "D.20.61.023b": {
     "Description": "Steam Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F, BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Normal\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11385,7 +11385,7 @@
   },
   "D.20.61.024a": {
     "Description": "Steam Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F (OSHPD or sim), PIPING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {
@@ -11405,7 +11405,7 @@
   },
   "D.20.61.024b": {
     "Description": "Steam Piping - Large Diameter Welded Steel - (greater than 2.5 inches in diameter), SDC D, E, or F (OSHPD or sim), BRACING FRAGILITY",
-    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence seperately.  Cost includes allowance for MEP relocation to perform work.",
+    "Comments": "Costing based upon 1000 ft segments of pipe, pipe greater than 2.5 inches in diameter\nConstruction Quality: Special Regulation (e.g. OSHPD) for Piping Installations\nSeismic Installation Conditions: SDC D, E, F (high seismic design)\nNotes: Consequence is for piping only.  Enter floor wetting consequence separately.  Cost includes allowance for MEP relocation to perform work.",
     "SuggestedComponentBlockSize": "1000 LF",
     "RoundUpToIntegerQuantity": "False",
     "LimitStates": {

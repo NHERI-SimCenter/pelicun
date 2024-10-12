@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -43,13 +42,13 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import random
 import datetime
+import random
 
 
-def MSF_config(BIM):
+def MSF_config(bim: dict) -> str:  # noqa: C901
     """
-    Rules to identify a HAZUS MSF configuration based on BIM data
+    Rules to identify a HAZUS MSF configuration based on BIM data.
 
     Parameters
     ----------
@@ -59,23 +58,23 @@ def MSF_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Roof-Wall Connection (RWC)
-    if BIM['HazardProneRegion']:
-        RWC = 'strap'  # Strap
+    if bim['HazardProneRegion']:
+        rwc = 'strap'  # Strap
     else:
-        RWC = 'tnail'  # Toe-nail
+        rwc = 'tnail'  # Toe-nail
 
     # Roof Frame Type
-    RFT = BIM['RoofSystem']
+    rft = bim['RoofSystem']
 
     # Story Flag
-    stories = min(BIM['NumberOfStories'], 2)
+    stories = min(bim['NumberOfStories'], 2)
 
     # Shutters
     # IRC 2000-2015:
@@ -89,7 +88,7 @@ def MSF_config(BIM):
     # corrosion and are able to resist component and cladding loads;
     # Earlier IRC editions provide similar rules.
     if year >= 2000:
-        shutters = BIM['WindBorneDebris']
+        shutters = bim['WindBorneDebris']
     # BOCA 1996 and earlier:
     # Shutters were not required by code until the 2000 IBC. Before 2000, the
     # percentage of commercial buildings that have shutters is assumed to be
@@ -99,14 +98,12 @@ def MSF_config(BIM):
     # facilities. In addition to that, 46% of business owners reported boarding
     # up their businesses before Hurricane Katrina. In addition, compliance
     # rates based on the Homeowners Survey data hover between 43 and 50 percent.
+    elif bim['WindBorneDebris']:
+        shutters = random.random() < 0.45
     else:
-        if BIM['WindBorneDebris']:
-            shutters = random.random() < 0.45
-        else:
-            shutters = False
+        shutters = False
 
-    if BIM['RoofSystem'] == 'trs':
-
+    if bim['RoofSystem'] == 'trs':
         # Roof Deck Attachment (RDA)
         # IRC codes:
         # NJ code requires 8d nails (with spacing 6”/12”) for sheathing thicknesses
@@ -115,22 +112,22 @@ def MSF_config(BIM):
         # codes. Commentary for Table R602.3(1) indicates 8d nails with 6”/6”
         # spacing (enhanced roof spacing) for ultimate wind speeds greater than
         # a speed_lim. speed_lim depends on the year of construction
-        RDA = '6d'  # Default (aka A) in Reorganized Rulesets - WIND
+        rda = '6d'  # Default (aka A) in Reorganized Rulesets - WIND
         if year >= 2016:
             # IRC 2015
             speed_lim = 130.0  # mph
         else:
             # IRC 2000 - 2009
             speed_lim = 100.0  # mph
-        if BIM['V_ult'] > speed_lim:
-            RDA = '8s'  # 8d @ 6"/6" ('D' in the Reorganized Rulesets - WIND)
+        if bim['V_ult'] > speed_lim:
+            rda = '8s'  # 8d @ 6"/6" ('D' in the Reorganized Rulesets - WIND)
         else:
-            RDA = '8d'  # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
+            rda = '8d'  # 8d @ 6"/12" ('B' in the Reorganized Rulesets - WIND)
 
         # Secondary Water Resistance (SWR)
         # Minimum drainage recommendations are in place in NJ (See below).
         # However, SWR indicates a code-plus practice.
-        SWR = random.random() < 0.6
+        swr: int | float | str = random.random() < 0.6
 
         # Garage
         # As per IRC 2015:
@@ -147,65 +144,60 @@ def MSF_config(BIM):
         # (and therefore do not have any strength requirements) that are older than
         # 30 years are considered to be weak, whereas those from the last 30 years
         # are considered to be standard.
-        if BIM['Garage'] == -1:
+        if bim['Garage'] == -1:
             # no garage data, using the default "none"
             garage = 'no'
-        else:
-            if year > (datetime.datetime.now().year - 30):
-                if BIM['Garage'] < 1:
-                    garage = 'no'  # None
-                else:
-                    if shutters:
-                        garage = 'sup'  # SFBC 1994
-                    else:
-                        garage = 'std'  # Standard
+        elif year > (datetime.datetime.now(tz=datetime.timezone.utc).year - 30):
+            if bim['Garage'] < 1:
+                garage = 'no'  # None
+            elif shutters:
+                garage = 'sup'  # SFBC 1994
             else:
-                # year <= current year - 30
-                if BIM['Garage'] < 1:
-                    garage = 'no'  # None
-                else:
-                    if shutters:
-                        garage = 'sup'
-                    else:
-                        garage = 'wkd'  # Weak
+                garage = 'std'  # Standard
+        elif bim['Garage'] < 1:
+            garage = 'no'  # None
+        elif shutters:
+            garage = 'sup'
+        else:
+            garage = 'wkd'  # Weak
 
         # Masonry Reinforcing (MR)
         # R606.6.4.1.2 Metal Reinforcement states that walls other than interior
         # non-load-bearing walls shall be anchored at vertical intervals of not
-        # more than 8 inches with joint reinforcement of not less than 9 gage.
+        # more than 8 inches with joint reinforcement of not less than 9-gage.
         # Therefore this ruleset assumes that all exterior or load-bearing masonry
         # walls will have reinforcement. Since our considerations deal with wind
         # speed, I made the assumption that only exterior walls are being taken
         # into consideration.
-        MR = True
+        mr = True
 
-        stories = min(BIM['NumberOfStories'], 2)
+        stories = min(bim['NumberOfStories'], 2)
 
         # extend the BIM dictionary
-        BIM.update(
-            dict(
-                SecondaryWaterResistance=SWR,
-                RoofDeckAttachmentW=RDA,
-                RoofToWallConnection=RWC,
-                Shutters=shutters,
-                AugmentGarage=garage,
-                MasonryReinforcing=MR,
-            )
+        bim.update(
+            {
+                'SecondaryWaterResistance': swr,
+                'RoofDeckAttachmentW': rda,
+                'RoofToWallConnection': rwc,
+                'Shutters': shutters,
+                'AugmentGarage': garage,
+                'MasonryReinforcing': mr,
+            }
         )
 
         bldg_config = (
             f"M.SF."
             f"{int(stories)}."
-            f"{BIM['RoofShape']}."
-            f"{RWC}."
-            f"{RFT}."
-            f"{RDA}."
+            f"{bim['RoofShape']}."
+            f"{rwc}."
+            f"{rft}."
+            f"{rda}."
             f"{int(shutters)}."
-            f"{int(SWR)}."
+            f"{int(swr)}."
             f"{garage}."
-            f"{int(MR)}."
+            f"{int(mr)}."
             f"null."
-            f"{int(BIM['TerrainRoughness'])}"
+            f"{int(bim['TerrainRoughness'])}"
         )
 
     else:
@@ -213,7 +205,7 @@ def MSF_config(BIM):
         # r
         # A 2015 study found that there were 750,000 metal roof installed in 2015,
         # out of 5 million new roofs in the US annually. If these numbers stay
-        # relatively stable, that implies that roughtly 15% of roofs are smlt.
+        # relatively stable, that implies that roughly 15% of roofs are smlt.
         # ref. link: https://www.bdcnetwork.com/blog/metal-roofs-are-soaring-
         # popularity-residential-marmet
         roof_cover_options = ['smtl', 'cshl']
@@ -224,51 +216,54 @@ def MSF_config(BIM):
         # high wind attachments are required for DSWII > 142 mph
         # NJ IBC 1507.4.5 (for smtl)
         # high wind attachment are required for DSWII > 142 mph
-        if BIM['V_ult'] > 142.0:
-            RDA = 'sup'  # superior
+        if bim['V_ult'] > 142.0:
+            rda = 'sup'  # superior
         else:
-            RDA = 'std'  # standard
+            rda = 'std'  # standard
 
         # Secondary Water Resistance (SWR)
         # Minimum drainage recommendations are in place in NJ (See below).
         # However, SWR indicates a code-plus practice.
-        SWR = 'null'  # Default
-        if BIM['RoofShape'] == 'flt':
-            SWR = int(True)
-        elif (
-            (BIM['RoofShape'] in ['hip', 'gab'])
-            and (roof_cover == 'cshl')
-            and (RDA == 'sup')
-        ):
-            SWR = int(random.random() < 0.6)
 
-        stories = min(BIM['NumberOfStories'], 2)
+        # Default
+        swr = 'null'  # type: ignore[no-redef]
+
+        if bim['RoofShape'] == 'flt':
+            swr = int(True)  # type: ignore[assignment]
+        elif (
+            (bim['RoofShape'] in {'hip', 'gab'})
+            and (roof_cover == 'cshl')
+            and (rda == 'sup')
+        ):
+            swr = int(random.random() < 0.6)
+
+        stories = min(bim['NumberOfStories'], 2)
 
         # extend the BIM dictionary
-        BIM.update(
-            dict(
-                SecondaryWaterResistance=SWR,
-                RoofDeckAttachmentW=RDA,
-                RoofToWallConnection=RWC,
-                Shutters=shutters,
-                AugmentGarage=garage,
-                MasonryReinforcing=MR,
-            )
+        bim.update(
+            {
+                'SecondaryWaterResistance': swr,
+                'RoofDeckAttachmentW': rda,
+                'RoofToWallConnection': rwc,
+                'Shutters': shutters,
+                'AugmentGarage': garage,  # type: ignore[used-before-def]
+                'MasonryReinforcing': mr,  # type: ignore[used-before-def]
+            }
         )
 
         bldg_config = (
             f"M.SF."
             f"{int(stories)}."
-            f"{BIM['RoofShape']}."
-            f"{RWC}."
-            f"{RFT}."
-            f"{RDA}."
+            f"{bim['RoofShape']}."
+            f"{rwc}."
+            f"{rft}."
+            f"{rda}."
             f"{int(shutters)}."
-            f"{SWR}."
+            f"{swr}."
             f"null."
             f"null."
             f"{roof_cover}."
-            f"{int(BIM['TerrainRoughness'])}"
+            f"{int(bim['TerrainRoughness'])}"
         )
 
     return bldg_config

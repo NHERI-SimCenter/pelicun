@@ -47,7 +47,7 @@ import pytest
 
 import pelicun
 from pelicun import assessment, file_io
-from pelicun.warnings import PelicunWarning
+from pelicun.pelicun_warnings import PelicunWarning
 
 
 def test_combined_workflow() -> None:
@@ -132,7 +132,7 @@ def test_combined_workflow() -> None:
         )
         demand_sample_ext = pd.concat([demand_sample, rid], axis=1)  # type: ignore
 
-        demand_sample_ext[('SA_1.13', 0, 1)] = 1.50
+        demand_sample_ext['SA_1.13', 0, 1] = 1.50
 
         # Add units to the data
         demand_sample_ext.T.insert(0, 'Units', '')

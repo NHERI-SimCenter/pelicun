@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-#
+#  # noqa: N999
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
 #
@@ -38,51 +37,45 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-This module provides the main functionality to run a pelicun
-calculation from the command line.
-
-"""
+"""Main functionality to run a pelicun calculation from the command line."""
 
 from __future__ import annotations
-from time import gmtime
-from time import strftime
-import sys
-import os
-import json
-import argparse
-from pathlib import Path
 
-import numpy as np
-import pandas as pd
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+from time import gmtime, strftime
+from typing import Hashable
 
 import colorama
-from colorama import Fore
-from colorama import Style
-
 import jsonschema
+import numpy as np
+import pandas as pd
+from colorama import Fore, Style
 from jsonschema import validate
 
-import pelicun
-from pelicun.auto import auto_populate
-from pelicun.base import str2bool
-from pelicun.base import convert_to_MultiIndex
-from pelicun.base import convert_to_SimpleIndex
-from pelicun.base import describe
-from pelicun.base import get
-from pelicun.base import update
-from pelicun.base import is_specified
-from pelicun.base import is_unspecified
 from pelicun import base
 from pelicun.assessment import DLCalculationAssessment
-from pelicun.warnings import PelicunInvalidConfigError
-
+from pelicun.auto import auto_populate
+from pelicun.base import (
+    convert_to_MultiIndex,
+    convert_to_SimpleIndex,
+    describe,
+    get,
+    is_specified,
+    is_unspecified,
+    str2bool,
+    update,
+)
+from pelicun.pelicun_warnings import PelicunInvalidConfigError
 
 colorama.init()
-sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, Path(__file__).resolve().parent.absolute().as_posix())
 
 
-def log_msg(msg, color_codes=None):
+def log_msg(msg: str, color_codes: tuple[str, str] | None = None) -> None:
     """
     Print a formatted log message with a timestamp.
 
@@ -96,16 +89,14 @@ def log_msg(msg, color_codes=None):
     """
     if color_codes:
         cpref, csuff = color_codes
-        formatted_msg = (
+        (
             f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} '
             f'{cpref}'
             f'{msg}'
             f'{csuff}'
         )
     else:
-        formatted_msg = f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
-
-    print(formatted_msg)
+        f'{strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())} {msg}'
 
 
 # list of output files help perform safe initialization of output dir
@@ -184,13 +175,13 @@ pbe_settings = {
 }
 
 
-def convert_df_to_dict(df, axis=1):
+def convert_df_to_dict(data: pd.DataFrame | pd.Series, axis: int = 1) -> dict:
     """
     Convert a pandas DataFrame to a dictionary.
 
     Parameters
     ----------
-    df : pd.DataFrame
+    data : pd.DataFrame
         The DataFrame to be converted.
     axis : int, optional
         The axis to consider for the conversion.
@@ -220,31 +211,31 @@ def convert_df_to_dict(df, axis=1):
       as values.
 
     """
-
-    out_dict = {}
+    out_dict: dict[Hashable, object] = {}
 
     if axis == 1:
-        df_in = df
+        df_in = data
     elif axis == 0:
-        df_in = df.T
+        df_in = data.T
     else:
-        raise ValueError('`axis` must be `0` or `1`')
+        msg = '`axis` must be `0` or `1`'
+        raise ValueError(msg)
 
-    MI = df_in.columns
+    multiindex = df_in.columns
 
-    for label in MI.unique(level=0):
+    for label in multiindex.unique(level=0):
         out_dict.update({label: np.nan})
 
         sub_df = df_in[label]
 
         skip_sub = True
 
-        if MI.nlevels > 1:
+        if multiindex.nlevels > 1:
             skip_sub = False
 
-            if isinstance(sub_df, pd.Series):
-                skip_sub = True
-            elif (len(sub_df.columns) == 1) and (sub_df.columns[0] == ''):
+            if isinstance(sub_df, pd.Series) or (
+                (len(sub_df.columns) == 1) and (sub_df.columns[0] == '')  # noqa: PLC1901
+            ):
                 skip_sub = True
 
             if not skip_sub:
@@ -261,17 +252,17 @@ def convert_df_to_dict(df, axis=1):
 
 
 def run_pelicun(
-    config_path,
-    demand_file,
-    output_path,
-    realizations,
-    detailed_results,
-    coupled_EDP,
-    auto_script_path,
-    custom_model_dir,
-    color_warnings,
-    output_format,
-):
+    config_path: str,
+    demand_file: str,
+    output_path: str | None,
+    realizations: int,
+    auto_script_path: str | None,
+    custom_model_dir: str | None,
+    output_format: list | None,
+    *,
+    detailed_results: bool,
+    coupled_edp: bool,
+) -> None:
     """
     Use settings in the config JSON to prepare and run a Pelicun calculation.
 
@@ -283,67 +274,57 @@ def run_pelicun(
         Path pointing to the location of a CSV file with the demand data.
     output_path: string, optional
         Path pointing to the location where results shall be saved.
-    coupled_EDP: bool, optional
-        If True, EDPs are not resampled and processed in order.
     realizations: int, optional
         Number of realizations to generate.
     auto_script_path: string, optional
         Path pointing to the location of a Python script with an auto_populate
         method that automatically creates the performance model using data
         provided in the AIM JSON file.
-    detailed_results: bool, optional
-        If False, only the main statistics are saved.
-    output_format: str
-        Type of output format, JSON or CSV.
     custom_model_dir: string, optional
         Path pointing to a directory with files that define user-provided model
         parameters for a customized damage and loss assessment.
-    color_warnings: bool, optional
-        If True, warnings are printed in red on the console. If output
-        is redirected to a file, it will contain ANSI codes. When
-        viewed on the console with `cat`, `less`, or similar utilities,
-        the color will be shown.
-
-    Raises
-    ------
-    PelicunInvalidConfigError
-        When the config file is invalid or contains missing entries.
+    output_format: list, optional.
+        Type of output format, JSON or CSV.
+        Valid options: ['csv', 'json'], ['csv'], ['json'], [], None
+    detailed_results: bool, optional
+        If False, only the main statistics are saved.
+    coupled_edp: bool, optional
+        If True, EDPs are not resampled and processed in order.
 
     """
-
     log_msg('First line of DL_calculation')
 
     # Initial setup -----------------------------------------------------------
 
     # get the absolute path to the config file
-    config_path = Path(config_path).resolve()
+    config_path_p = Path(config_path).resolve()
 
     # If the output path was not specified, results are saved in the
     # directory of the input file.
     if output_path is None:
-        output_path = config_path.parents[0]
+        output_path_p = config_path_p.parents[0]
     else:
-        output_path = Path(output_path)
+        output_path_p = Path(output_path).resolve()
     # create the directory if it does not exist
-    if not os.path.exists(output_path):
-        os.makedirs(output_path, exist_ok=True)
+    if not output_path_p.exists():
+        output_path_p.mkdir(parents=True)
 
     # parse the config file
     config = _parse_config_file(
-        config_path,
-        output_path,
-        auto_script_path,
+        config_path_p,
+        output_path_p,
+        Path(auto_script_path).resolve() if auto_script_path is not None else None,
         demand_file,
         realizations,
-        coupled_EDP,
-        detailed_results,
         output_format,
+        coupled_edp=coupled_edp,
+        detailed_results=detailed_results,
     )
 
-    # Initialize the array that we'll use to collect the output file names
-    out_files = []
+    # List to keep track of the generated output files.
+    out_files: list[str] = []
 
-    _remove_existing_files(output_path, known_output_files)
+    _remove_existing_files(output_path_p, known_output_files)
 
     # Run the assessment
     assessment = DLCalculationAssessment(config_options=get(config, 'DL/Options'))
@@ -354,11 +335,11 @@ def run_pelicun(
         length_unit=get(config, 'GeneralInformation/units/length', default=None),
         demand_calibration=get(config, 'DL/Demands/Calibration', default=None),
         sample_size=get(config, 'DL/Options/Sampling/SampleSize'),
-        coupled_demands=get(config, 'DL/Demands/CoupledDemands', default=False),
         demand_cloning=get(config, 'DL/Demands/DemandCloning', default=None),
         residual_drift_inference=get(
             config, 'DL/Demands/InferResidualDrift', default=None
         ),
+        coupled_demands=get(config, 'DL/Demands/CoupledDemands', default=False),
     )
 
     if is_specified(config, 'DL/Asset'):
@@ -370,11 +351,11 @@ def run_pelicun(
             collapse_fragility_demand_type=get(
                 config, 'DL/Damage/CollapseFragility/DemandType', default=None
             ),
-            add_irreparable_damage_columns=get(
-                config, 'DL/Damage/IrreparableDamage', default=False
-            ),
             component_sample_file=get(
                 config, 'DL/Asset/ComponentSampleFile', default=None
+            ),
+            add_irreparable_damage_columns=get(
+                config, 'DL/Damage/IrreparableDamage', default=False
             ),
         )
 
@@ -388,9 +369,6 @@ def run_pelicun(
             collapse_fragility=get(
                 config, 'DL/Damage/CollapseFragility', default=None
             ),
-            is_for_water_network_assessment=is_specified(
-                config, 'DL/Asset/ComponentDatabase/Water'
-            ),
             irreparable_damage=get(
                 config, 'DL/Damage/IrreparableDamage', default=None
             ),
@@ -401,6 +379,9 @@ def run_pelicun(
                 config, 'DL/Damage/DamageProcessFilePath', default=None
             ),
             custom_model_dir=custom_model_dir,
+            is_for_water_network_assessment=is_specified(
+                config, 'DL/Asset/ComponentDatabase/Water'
+            ),
         )
 
     if is_unspecified(config, 'DL/Losses/Repair'):
@@ -443,14 +424,14 @@ def run_pelicun(
 
     if is_specified(config, 'DL/Outputs/Demand'):
         output_config = get(config, 'DL/Outputs/Demand')
-        _demand_save(output_config, assessment, output_path, out_files)
+        _demand_save(output_config, assessment, output_path_p, out_files)
 
     if is_specified(config, 'DL/Outputs/Asset'):
         output_config = get(config, 'DL/Outputs/Asset')
         _asset_save(
             output_config,
             assessment,
-            output_path,
+            output_path_p,
             out_files,
             aggregate_colocated=get(
                 config,
@@ -464,7 +445,7 @@ def run_pelicun(
         _damage_save(
             output_config,
             assessment,
-            output_path,
+            output_path_p,
             out_files,
             aggregate_colocated=get(
                 config,
@@ -480,10 +461,11 @@ def run_pelicun(
 
     if is_specified(config, 'DL/Outputs/Loss/Repair'):
         output_config = get(config, 'DL/Outputs/Loss/Repair')
+        assert agg_repair is not None
         _loss_save(
             output_config,
             assessment,
-            output_path,
+            output_path_p,
             out_files,
             agg_repair,
             aggregate_colocated=get(
@@ -492,12 +474,12 @@ def run_pelicun(
                 default=False,
             ),
         )
-    _summary_save(summary, summary_stats, output_path, out_files)
-    _create_json_files_if_requested(config, out_files, output_path)
-    _remove_csv_files_if_not_requested(config, out_files, output_path)
+    _summary_save(summary, summary_stats, output_path_p, out_files)
+    _create_json_files_if_requested(config, out_files, output_path_p)
+    _remove_csv_files_if_not_requested(config, out_files, output_path_p)
 
 
-def _parse_decision_variables(config):
+def _parse_decision_variables(config: dict) -> tuple[str, ...]:
     """
     Parse decision variables from the config file.
 
@@ -512,17 +494,19 @@ def _parse_decision_variables(config):
         List of decision variables.
 
     """
-    decision_variables = []
+    decision_variables: list[str] = []
     if get(config, 'DL/Losses/Repair/DecisionVariables', default=False) is not False:
-        for DV_i, DV_status in get(
+        for dv_i, dv_status in get(
             config, 'DL/Losses/Repair/DecisionVariables'
         ).items():
-            if DV_status is True:
-                decision_variables.append(DV_i)
-    return decision_variables
+            if dv_status is True:
+                decision_variables.append(dv_i)
+    return tuple(decision_variables)
 
 
-def _remove_csv_files_if_not_requested(config, out_files, output_path):
+def _remove_csv_files_if_not_requested(
+    config: dict, out_files: list[str], output_path: Path
+) -> None:
     """
     Remove CSV files if not requested in config.
 
@@ -543,10 +527,15 @@ def _remove_csv_files_if_not_requested(config, out_files, output_path):
         # keep the DL_summary and DL_summary_stats files
         if 'DL_summary' in filename:
             continue
-        os.remove(output_path / filename)
+        Path(output_path / filename).unlink()
 
 
-def _summary_save(summary, summary_stats, output_path, out_files):
+def _summary_save(
+    summary: pd.DataFrame,
+    summary_stats: pd.DataFrame,
+    output_path: Path,
+    out_files: list[str],
+) -> None:
     """
     Save summary results to CSV files.
 
@@ -573,16 +562,17 @@ def _summary_save(summary, summary_stats, output_path, out_files):
         out_files.append('DL_summary_stats.csv')
 
 
-def _parse_config_file(
-    config_path,
-    output_path,
-    auto_script_path,
-    demand_file,
-    realizations,
-    coupled_EDP,
-    detailed_results,
-    output_format,
-):
+def _parse_config_file(  # noqa: C901
+    config_path: Path,
+    output_path: Path,
+    auto_script_path: Path | None,
+    demand_file: str,
+    realizations: int,
+    output_format: list | None,
+    *,
+    coupled_edp: bool,
+    detailed_results: bool,
+) -> dict[str, object]:
     """
     Parse and validate the config file for Pelicun.
 
@@ -610,14 +600,20 @@ def _parse_config_file(
     dict
         Parsed and validated configuration.
 
+    Raises
+    ------
+    PelicunInvalidConfigError
+      If the provided config file does not conform to the schema or
+      there are issues with the specified values.
+
     """
     # open the config file and parse it
-    with open(config_path, 'r', encoding='utf-8') as f:
+    with Path(config_path).open(encoding='utf-8') as f:
         config = json.load(f)
 
     # load the schema
-    with open(
-        f'{base.pelicun_path}/settings/input_schema.json', 'r', encoding='utf-8'
+    with Path(f'{base.pelicun_path}/settings/input_schema.json').open(
+        encoding='utf-8'
     ) as f:
         schema = json.load(f)
 
@@ -625,33 +621,34 @@ def _parse_config_file(
     try:
         validate(instance=config, schema=schema)
     except jsonschema.exceptions.ValidationError as exc:
-        raise PelicunInvalidConfigError(
-            'The provided config file does not conform to the schema.'
-        ) from exc
+        msg = 'The provided config file does not conform to the schema.'
+        raise PelicunInvalidConfigError(msg) from exc
 
     if is_unspecified(config, 'DL'):
         log_msg('Damage and Loss configuration missing from config file. ')
 
         if auto_script_path is None:
-            raise PelicunInvalidConfigError('No `DL` entry in config file.')
+            msg = 'No `DL` entry in config file.'
+            raise PelicunInvalidConfigError(msg)
 
         log_msg('Trying to auto-populate')
 
-        config_ap, CMP = auto_populate(config, auto_script_path)
+        config_ap, comp = auto_populate(config, auto_script_path)
 
         if is_unspecified(config_ap, 'DL'):
-            raise PelicunInvalidConfigError(
+            msg = (
                 'No `DL` entry in config file, and '
                 'the prescribed auto-population script failed to identify '
                 'a valid damage and loss configuration for this asset. '
             )
+            raise PelicunInvalidConfigError(msg)
 
         # add the demand information
         update(config_ap, '/DL/Demands/DemandFilePath', demand_file)
         update(config_ap, '/DL/Demands/SampleSize', str(realizations))
 
-        if coupled_EDP is True:
-            update(config_ap, 'DL/Demands/CoupledDemands', True)
+        if coupled_edp is True:
+            update(config_ap, 'DL/Demands/CoupledDemands', value=True)
 
         else:
             update(
@@ -661,7 +658,7 @@ def _parse_config_file(
             )
 
         # save the component data
-        CMP.to_csv(output_path / 'CMP_QNT.csv')
+        comp.to_csv(output_path / 'CMP_QNT.csv')
 
         # update the config file with the location
         update(
@@ -686,7 +683,7 @@ def _parse_config_file(
         # save the extended config to a file
         config_ap_path = Path(config_path.stem + '_ap.json').resolve()
 
-        with open(config_ap_path, 'w', encoding='utf-8') as f:
+        with Path(config_ap_path).open('w', encoding='utf-8') as f:
             json.dump(config_ap, f, indent=2)
 
         update(config, 'DL', get(config_ap, 'DL'))
@@ -696,9 +693,8 @@ def _parse_config_file(
     if not sample_size_str:
         sample_size_str = get(config, 'DL/Demands/SampleSize')
         if not sample_size_str:
-            raise PelicunInvalidConfigError(
-                'Sample size not provided in config file.'
-            )
+            msg = 'Sample size not provided in config file.'
+            raise PelicunInvalidConfigError(msg)
     update(config, 'DL/Options/Sampling/SampleSize', int(sample_size_str))
 
     # provide all outputs if the files are not specified
@@ -726,10 +722,12 @@ def _parse_config_file(
         update(config, 'DL/Outputs/Settings', pbe_settings)
 
     if is_unspecified(config, 'DL/Demands'):
-        raise PelicunInvalidConfigError('Demand configuration missing.')
+        msg = 'Demand configuration missing.'
+        raise PelicunInvalidConfigError(msg)
 
     if is_unspecified(config, 'DL/Asset'):
-        raise PelicunInvalidConfigError('Asset configuration missing.')
+        msg = 'Asset configuration missing.'
+        raise PelicunInvalidConfigError(msg)
 
     update(
         config,
@@ -740,7 +738,7 @@ def _parse_config_file(
     update(
         config,
         'DL/Options/Verbose',
-        True,
+        value=True,
         only_if_empty_or_none=True,
     )
 
@@ -748,7 +746,10 @@ def _parse_config_file(
     # then use True as default for DL_calculations regardless of what
     # the Pelicun default is.
     update(
-        config, 'DL/Options/ListAllDamageStates', True, only_if_empty_or_none=True
+        config,
+        'DL/Options/ListAllDamageStates',
+        value=True,
+        only_if_empty_or_none=True,
     )
 
     # if the demand file location is not specified in the config file
@@ -784,63 +785,68 @@ def _parse_config_file(
     if is_specified(config, 'DL/Demands/InferResidualDrift') and is_unspecified(
         config, 'DL/Demands/InferResidualDrift/method'
     ):
-        raise PelicunInvalidConfigError(
-            'No method is specified in residual drift inference configuration.'
-        )
+        msg = 'No method is specified in residual drift inference configuration.'
+        raise PelicunInvalidConfigError(msg)
 
     # Ensure `DL/Damage/CollapseFragility` contains all required keys.
     if is_specified(config, 'DL/Damage/CollapseFragility'):
         for thing in ('CapacityDistribution', 'CapacityMedian', 'Theta_1'):
             if is_unspecified(config, f'DL/Damage/CollapseFragility/{thing}'):
-                raise PelicunInvalidConfigError(
+                msg = (
                     f'`{thing}` is missing from DL/Damage/CollapseFragility'
                     f' in the configuration file.'
                 )
+                raise PelicunInvalidConfigError(msg)
 
     # Ensure `DL/Damage/IrreparableDamage` contains all required keys.
     if is_specified(config, 'DL/Damage/IrreparableDamage'):
         for thing in ('DriftCapacityMedian', 'DriftCapacityLogStd'):
             if is_unspecified(config, f'DL/Damage/IrreparableDamage/{thing}'):
-                raise PelicunInvalidConfigError(
+                msg = (
                     f'`{thing}` is missing from DL/Damage/IrreparableDamage'
                     f' in the configuration file.'
                 )
+                raise PelicunInvalidConfigError(msg)
 
     # If the damage process approach is `User Defined` there needs to
     # be a damage process file path.
     if get(config, 'DL/Damage/DamageProcess') == 'User Defined' and is_unspecified(
         config, 'DL/Damage/DamageProcessFilePath'
     ):
-        raise PelicunInvalidConfigError(
+        msg = (
             'When `DL/Damage/DamageProcess` is set to `User Defined`, '
             'a path needs to be specified under '
             '`DL/Damage/DamageProcessFilePath`.'
         )
+        raise PelicunInvalidConfigError(msg)
 
     # Getting results requires running the calculations.
     if is_specified(config, 'DL/Outputs/Asset') and is_unspecified(
         config, 'DL/Asset'
     ):
-        raise PelicunInvalidConfigError(
+        msg = (
             'No asset data specified in config file. '
             'Cannot generate asset model outputs.'
         )
+        raise PelicunInvalidConfigError(msg)
 
     if is_specified(config, 'DL/Outputs/Damage') and is_unspecified(
         config, 'DL/Damage'
     ):
-        raise PelicunInvalidConfigError(
+        msg = (
             'No damage data specified in config file. '
             'Cannot generate damage model outputs.'
         )
+        raise PelicunInvalidConfigError(msg)
 
     if is_specified(config, 'DL/Outputs/Loss') and is_unspecified(
         config, 'DL/Losses'
     ):
-        raise PelicunInvalidConfigError(
+        msg = (
             'No loss data specified in config file. '
             'Cannot generate loss model outputs.'
         )
+        raise PelicunInvalidConfigError(msg)
 
     # Ensure only one of `component_assignment_file` or
     # `component_sample_file` is provided.
@@ -848,22 +854,23 @@ def _parse_config_file(
         if (
             (get(config, 'DL/Asset/ComponentAssignmentFile') is None)
             and (get(config, 'DL/Asset/ComponentSampleFile') is None)
-            or (
-                (get(config, 'DL/Asset/ComponentAssignmentFile') is not None)
-                and (get(config, 'DL/Asset/ComponentSampleFile') is not None)
-            )
+        ) or (
+            (get(config, 'DL/Asset/ComponentAssignmentFile') is not None)
+            and (get(config, 'DL/Asset/ComponentSampleFile') is not None)
         ):
             msg = (
-                'In the asset model configuraiton, it is '
+                'In the asset model configuration, it is '
                 'required to specify one of `component_assignment_file` '
                 'or `component_sample_file`, but not both.'
             )
-            raise ValueError(msg)
+            raise PelicunInvalidConfigError(msg)
 
     return config
 
 
-def _create_json_files_if_requested(config, out_files, output_path):
+def _create_json_files_if_requested(
+    config: dict, out_files: list[str], output_path: Path
+) -> None:
     """
     Create JSON files if requested in the config.
 
@@ -888,20 +895,21 @@ def _create_json_files_if_requested(config, out_files, output_path):
             get(config, 'DL/Outputs/Settings/SimpleIndexInJSON', default=False)
             is True
         ):
-            df = pd.read_csv(output_path / filename, index_col=0)
+            data = pd.read_csv(output_path / filename, index_col=0)
         else:
-            df = convert_to_MultiIndex(
+            data = convert_to_MultiIndex(
                 pd.read_csv(output_path / filename, index_col=0), axis=1
             )
 
-        if 'Units' in df.index:
+        if 'Units' in data.index:
             df_units = convert_to_SimpleIndex(
-                df.loc['Units', :].to_frame().T, axis=1
+                data.loc['Units', :].to_frame().T,  # type: ignore
+                axis=1,
             )
 
-            df.drop('Units', axis=0, inplace=True)
+            data = data.drop('Units', axis=0)
 
-            out_dict = convert_df_to_dict(df)
+            out_dict = convert_df_to_dict(data)
 
             out_dict.update(
                 {
@@ -912,13 +920,15 @@ def _create_json_files_if_requested(config, out_files, output_path):
             )
 
         else:
-            out_dict = convert_df_to_dict(df)
+            out_dict = convert_df_to_dict(data)
 
-        with open(output_path / filename_json, 'w', encoding='utf-8') as f:
+        with Path(output_path / filename_json).open('w', encoding='utf-8') as f:
             json.dump(out_dict, f, indent=2)
 
 
-def _result_summary(assessment, agg_repair):
+def _result_summary(
+    assessment: DLCalculationAssessment, agg_repair: pd.DataFrame | None
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Generate a summary of the results.
 
@@ -937,9 +947,11 @@ def _result_summary(assessment, agg_repair):
     """
     damage_sample = assessment.damage.save_sample()
     if damage_sample is None or agg_repair is None:
-        return None, None
+        return pd.DataFrame(), pd.DataFrame()
 
-    damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()
+    assert isinstance(damage_sample, pd.DataFrame)
+    damage_sample = damage_sample.groupby(level=['cmp', 'ds'], axis=1).sum()  # type: ignore
+    assert isinstance(damage_sample, pd.DataFrame)
     damage_sample_s = convert_to_SimpleIndex(damage_sample, axis=1)
 
     if 'collapse-1' in damage_sample_s.columns:
@@ -967,7 +979,7 @@ def _result_summary(assessment, agg_repair):
     return summary, summary_stats
 
 
-def _parse_requested_output_file_names(output_config):
+def _parse_requested_output_file_names(output_config: dict) -> set[str]:
     """
     Parse the output file names from the output configuration.
 
@@ -989,7 +1001,12 @@ def _parse_requested_output_file_names(output_config):
     return set(out_reqs)
 
 
-def _demand_save(output_config, assessment, output_path, out_files):
+def _demand_save(
+    output_config: dict,
+    assessment: DLCalculationAssessment,
+    output_path: Path,
+    out_files: list[str],
+) -> None:
     """
     Save demand results to files based on the output config.
 
@@ -1007,8 +1024,12 @@ def _demand_save(output_config, assessment, output_path, out_files):
     """
     out_reqs = _parse_requested_output_file_names(output_config)
 
-    demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
-    demand_units = demand_units.to_frame().T
+    demand_sample, demand_units_series = assessment.demand.save_sample(
+        save_units=True
+    )
+    assert isinstance(demand_sample, pd.DataFrame)
+    assert isinstance(demand_units_series, pd.Series)
+    demand_units = demand_units_series.to_frame().T
 
     if 'Sample' in out_reqs:
         demand_sample_s = pd.concat([demand_sample, demand_units])
@@ -1032,8 +1053,13 @@ def _demand_save(output_config, assessment, output_path, out_files):
 
 
 def _asset_save(
-    output_config, assessment, output_path, out_files, aggregate_colocated=False
-):
+    output_config: dict,
+    assessment: DLCalculationAssessment,
+    output_path: Path,
+    out_files: list[str],
+    *,
+    aggregate_colocated: bool = False,
+) -> None:
     """
     Save asset results to files based on the output config.
 
@@ -1051,12 +1077,14 @@ def _asset_save(
         Whether to aggregate colocated components. Default is False.
 
     """
-    cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
-    cmp_units = cmp_units.to_frame().T
+    output = assessment.asset.save_cmp_sample(save_units=True)
+    assert isinstance(output, tuple)
+    cmp_sample, cmp_units = output
+    cmp_units = cmp_units.to_frame().T  # type: ignore
 
     if aggregate_colocated:
-        cmp_units = cmp_units.groupby(level=['cmp', 'loc', 'dir'], axis=1).first()
-        cmp_groupby_uid = cmp_sample.groupby(level=['cmp', 'loc', 'dir'], axis=1)
+        cmp_units = cmp_units.groupby(level=['cmp', 'loc', 'dir'], axis=1).first()  # type: ignore
+        cmp_groupby_uid = cmp_sample.groupby(level=['cmp', 'loc', 'dir'], axis=1)  # type: ignore
         cmp_sample = cmp_groupby_uid.sum().mask(cmp_groupby_uid.count() == 0, np.nan)
 
     out_reqs = _parse_requested_output_file_names(output_config)
@@ -1084,13 +1112,14 @@ def _asset_save(
 
 
 def _damage_save(
-    output_config,
-    assessment,
-    output_path,
-    out_files,
-    aggregate_colocated=False,
-    condense_ds=False,
-):
+    output_config: dict,
+    assessment: DLCalculationAssessment,
+    output_path: Path,
+    out_files: list[str],
+    *,
+    aggregate_colocated: bool = False,
+    condense_ds: bool = False,
+) -> None:
     """
     Save damage results to files based on the output config.
 
@@ -1110,14 +1139,16 @@ def _damage_save(
         Whether to condense damage states. Default is False.
 
     """
-    damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
-    damage_units = damage_units.to_frame().T
+    output = assessment.damage.save_sample(save_units=True)
+    assert isinstance(output, tuple)
+    damage_sample, damage_units_series = output
+    damage_units = damage_units_series.to_frame().T
 
     if aggregate_colocated:
-        damage_units = damage_units.groupby(
+        damage_units = damage_units.groupby(  # type: ignore
             level=['cmp', 'loc', 'dir', 'ds'], axis=1
         ).first()
-        damage_groupby_uid = damage_sample.groupby(
+        damage_groupby_uid = damage_sample.groupby(  # type: ignore
             level=['cmp', 'loc', 'dir', 'ds'], axis=1
         )
         damage_sample = damage_groupby_uid.sum().mask(
@@ -1153,13 +1184,13 @@ def _damage_save(
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
         if aggregate_colocated:
-            damage_groupby = damage_sample.groupby(level=['cmp', 'ds'], axis=1)
-            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()
+            damage_groupby = damage_sample.groupby(level=['cmp', 'ds'], axis=1)  # type: ignore
+            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()  # type: ignore
         else:
-            damage_groupby = damage_sample.groupby(
+            damage_groupby = damage_sample.groupby(  # type: ignore
                 level=['cmp', 'loc', 'dir', 'ds'], axis=1
             )
-            damage_units = damage_units.groupby(
+            damage_units = damage_units.groupby(  # type: ignore
                 level=['cmp', 'loc', 'dir', 'ds'], axis=1
             ).first()
 
@@ -1168,7 +1199,9 @@ def _damage_save(
         # if requested, condense DS output
         if condense_ds:
             # replace non-zero values with 1
-            grp_damage = grp_damage.mask(grp_damage.astype(np.float64).values > 0, 1)
+            grp_damage = grp_damage.mask(
+                grp_damage.astype(np.float64).to_numpy() > 0, 1
+            )
 
             # get the corresponding DS for each column
             ds_list = grp_damage.columns.get_level_values('ds').astype(int)
@@ -1187,7 +1220,7 @@ def _damage_save(
 
             # aggregate units to the same format
             # assume identical units across locations for each comp
-            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()
+            damage_units = damage_units.groupby(level=['cmp', 'ds'], axis=1).first()  # type: ignore
 
         else:
             # otherwise, aggregate damage quantities for each comp
@@ -1199,7 +1232,7 @@ def _damage_save(
             )
 
             # and aggregate units to the same format
-            damage_units = damage_units.groupby(level='cmp', axis=1).first()
+            damage_units = damage_units.groupby(level='cmp', axis=1).first()  # type: ignore
 
         if 'GroupedSample' in out_reqs:
             grp_damage_s = pd.concat([grp_damage, damage_units])
@@ -1228,13 +1261,14 @@ def _damage_save(
 
 
 def _loss_save(
-    output_config,
-    assessment,
-    output_path,
-    out_files,
-    agg_repair,
-    aggregate_colocated=False,
-):
+    output_config: dict,
+    assessment: DLCalculationAssessment,
+    output_path: Path,
+    out_files: list[str],
+    agg_repair: pd.DataFrame,
+    *,
+    aggregate_colocated: bool = False,
+) -> None:
     """
     Save loss results to files based on the output config.
 
@@ -1254,16 +1288,16 @@ def _loss_save(
         Whether to aggregate colocated components. Default is False.
 
     """
-    repair_sample, repair_units = assessment.loss.ds_model.save_sample(
-        save_units=True
-    )
-    repair_units = repair_units.to_frame().T
+    out = assessment.loss.ds_model.save_sample(save_units=True)
+    assert isinstance(out, tuple)
+    repair_sample, repair_units_series = out
+    repair_units = repair_units_series.to_frame().T
 
     if aggregate_colocated:
-        repair_units = repair_units.groupby(
+        repair_units = repair_units.groupby(  # type: ignore
             level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
         ).first()
-        repair_groupby_uid = repair_sample.groupby(
+        repair_groupby_uid = repair_sample.groupby(  # type: ignore
             level=['dv', 'loss', 'dmg', 'ds', 'loc', 'dir'], axis=1
         )
         repair_sample = repair_groupby_uid.sum().mask(
@@ -1299,8 +1333,8 @@ def _loss_save(
         out_files.append('DV_repair_stats.csv')
 
     if out_reqs.intersection({'GroupedSample', 'GroupedStatistics'}):
-        repair_groupby = repair_sample.groupby(level=['dv', 'loss', 'dmg'], axis=1)
-        repair_units = repair_units.groupby(
+        repair_groupby = repair_sample.groupby(level=['dv', 'loss', 'dmg'], axis=1)  # type: ignore
+        repair_units = repair_units.groupby(  # type: ignore
             level=['dv', 'loss', 'dmg'], axis=1
         ).first()
         grp_repair = repair_groupby.sum().mask(repair_groupby.count() == 0, np.nan)
@@ -1352,31 +1386,7 @@ def _loss_save(
             out_files.append('DV_repair_agg_stats.csv')
 
 
-def _get_color_codes(color_warnings):
-    """
-    Get color codes for formatting warnings.
-
-    Parameters
-    ----------
-    color_warnings : bool
-        Whether to enable colored warnings.
-
-    Returns
-    -------
-    tuple
-        Color codes for prefix and suffix.
-
-    """
-    if color_warnings:
-        cpref = Fore.RED
-        csuff = Style.RESET_ALL
-    else:
-        cpref = csuff = ''
-
-    return (cpref, csuff)
-
-
-def _remove_existing_files(output_path, known_output_files):
+def _remove_existing_files(output_path: Path, known_output_files: list[str]) -> None:
     """
     Remove known existing files from the specified output path.
 
@@ -1405,20 +1415,18 @@ def _remove_existing_files(output_path, known_output_files):
     for filename in files:
         if filename in known_output_files:
             try:
-                os.remove(output_path / filename)
+                (output_path / filename).unlink()
             except OSError as exc:
-                raise OSError(
+                msg = (
                     f'Error occurred while removing '
                     f'`{output_path / filename}`: {exc}'
-                ) from exc
+                )
+                raise OSError(msg) from exc
 
 
-def main():
-    """
-    Main method to parse arguments and run the pelicun calculation.
-
-    """
-    args = sys.argv[1:]
+def main() -> None:
+    """Parse arguments and run the pelicun calculation."""
+    args_list = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1485,17 +1493,18 @@ def main():
         default=None,
         help='Desired output format for the results.',
     )
-    parser.add_argument(
-        '--color_warnings',
-        default=False,
-        type=str2bool,
-        nargs='?',
-        const=False,
-        help=(
-            'Enable colored warnings in the console '
-            'output (True/False). Defaults to False.'
-        ),
-    )
+    # TODO(JVM): fix color warnings
+    # parser.add_argument(
+    #     '--color_warnings',
+    #     default=False,
+    #     type=str2bool,
+    #     nargs='?',
+    #     const=False,
+    #     help=(
+    #         'Enable colored warnings in the console '
+    #         'output (True/False). Defaults to False.'
+    #     ),
+    # )
     parser.add_argument(
         '--ground_failure',
         default=False,
@@ -1514,17 +1523,11 @@ def main():
     )
     parser.add_argument('--resource_dir', default=None)
 
-    if not args:
-        print(f'Welcome. This is pelicun version {pelicun.__version__}')
-        print(
-            'To access the documentation visit '
-            'https://nheri-simcenter.github.io/pelicun/index.html'
-        )
-        print()
+    if not args_list:
         parser.print_help()
         return
 
-    args = parser.parse_args(args)
+    args = parser.parse_args(args_list)
 
     log_msg('Initializing pelicun calculation.')
 
@@ -1533,12 +1536,11 @@ def main():
         demand_file=args.demandFile,
         output_path=args.dirnameOutput,
         realizations=args.Realizations,
-        detailed_results=args.detailed_results,
-        coupled_EDP=args.coupled_EDP,
         auto_script_path=args.auto_script,
         custom_model_dir=args.custom_model_dir,
-        color_warnings=args.color_warnings,
         output_format=args.output_format,
+        detailed_results=args.detailed_results,
+        coupled_edp=args.coupled_EDP,
     )
 
     log_msg('pelicun calculation completed.')

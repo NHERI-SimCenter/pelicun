@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -46,9 +45,9 @@
 import random
 
 
-def MH_config(BIM):
+def MH_config(bim: dict) -> str:
     """
-    Rules to identify a HAZUS WSF configuration based on BIM data
+    Rules to identify a HAZUS WSF configuration based on BIM data.
 
     Parameters
     ----------
@@ -58,58 +57,44 @@ def MH_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
     if year <= 1976:
         # MHPHUD
         bldg_tag = 'MH.PHUD'
-        if BIM['WindBorneDebris']:
-            shutters = random.random() < 0.45
-        else:
-            shutters = False
+        shutters = random.random() < 0.45 if bim['WindBorneDebris'] else False
         # TieDowns
-        TD = random.random() < 0.45
+        tie_downs = random.random() < 0.45
 
     elif year <= 1994:
         # MH76HUD
         bldg_tag = 'MH.76HUD'
-        if BIM['WindBorneDebris']:
-            shutters = random.random() < 0.45
-        else:
-            shutters = False
+        shutters = random.random() < 0.45 if bim['WindBorneDebris'] else False
         # TieDowns
-        TD = random.random() < 0.45
+        tie_downs = random.random() < 0.45
 
     else:
         # MH94HUD I, II, III
-        if BIM['V_ult'] >= 100.0:
-            shutters = True
-        else:
-            shutters = False
+        shutters = bim['V_ult'] >= 100.0
         # TieDowns
-        if BIM['V_ult'] >= 70.0:
-            TD = True
-        else:
-            TD = False
+        tie_downs = bim['V_ult'] >= 70.0
 
-        bldg_tag = 'MH.94HUD' + BIM['WindZone']
+        bldg_tag = 'MH.94HUD' + bim['WindZone']
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            TieDowns=TD,
-            Shutters=shutters,
-        )
+    bim.update(
+        {
+            'TieDowns': tie_downs,
+            'Shutters': shutters,
+        }
     )
 
-    bldg_config = (
+    return (
         f"{bldg_tag}."
         f"{int(shutters)}."
-        f"{int(TD)}."
-        f"{int(BIM['TerrainRoughness'])}"
+        f"{int(tie_downs)}."
+        f"{int(bim['TerrainRoughness'])}"
     )
-
-    return bldg_config

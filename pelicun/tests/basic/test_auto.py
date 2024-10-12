@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,22 +37,16 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the auto module of pelicun.
-
-"""
+"""These are unit and integration tests on the auto module of pelicun."""
 
 from __future__ import annotations
-from unittest.mock import patch
-from unittest.mock import MagicMock
+
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import pytest
+
 from pelicun.auto import auto_populate
-
-
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-return-doc,missing-return-type-doc
-# pylint: disable=redefined-outer-name
-
 
 # The tests maintain the order of definitions of the `auto.py` file.
 
@@ -67,21 +60,21 @@ from pelicun.auto import auto_populate
 
 
 @pytest.fixture
-def setup_valid_config():
+def setup_valid_config() -> dict:
     return {'GeneralInformation': {'someKey': 'someValue'}}
 
 
 @pytest.fixture
-def setup_auto_script_path():
+def setup_auto_script_path() -> str:
     return 'PelicunDefault/test_script'
 
 
 @pytest.fixture
-def setup_expected_base_path():
+def setup_expected_base_path() -> str:
     return '/expected/path/resources/auto/'
 
 
-def test_valid_inputs(setup_valid_config, setup_auto_script_path):
+def test_valid_inputs(setup_valid_config: dict, setup_auto_script_path: str) -> None:
     with patch('pelicun.base.pelicun_path', '/expected/path'), patch(
         'os.path.exists', return_value=True
     ), patch('importlib.__import__') as mock_import:
@@ -90,23 +83,23 @@ def test_valid_inputs(setup_valid_config, setup_auto_script_path):
         )
         mock_import.return_value.auto_populate = mock_auto_populate_ext
 
-        config, cmp = auto_populate(setup_valid_config, setup_auto_script_path)
+        config, cmp = auto_populate(setup_valid_config, Path(setup_auto_script_path))
 
         assert 'DL' in config
         assert cmp == 'CMP'
 
 
-def test_missing_general_information():
-    with pytest.raises(ValueError) as excinfo:
-        auto_populate({}, 'some/path')
-    assert "No Asset Information provided for the auto-population routine." in str(
-        excinfo.value
-    )
+def test_missing_general_information() -> None:
+    with pytest.raises(
+        ValueError,
+        match='No Asset Information provided for the auto-population routine.',
+    ):
+        auto_populate({}, Path('some/path'))
 
 
 def test_pelicun_default_path_replacement(
-    setup_auto_script_path, setup_expected_base_path
-):
+    setup_auto_script_path: str, setup_expected_base_path: str
+) -> None:
     modified_path = setup_auto_script_path.replace(
         'PelicunDefault/', setup_expected_base_path
     )
@@ -114,8 +107,8 @@ def test_pelicun_default_path_replacement(
 
 
 def test_auto_population_script_execution(
-    setup_valid_config, setup_auto_script_path
-):
+    setup_valid_config: dict, setup_auto_script_path: str
+) -> None:
     with patch('pelicun.base.pelicun_path', '/expected/path'), patch(
         'os.path.exists', return_value=True
     ), patch('importlib.__import__') as mock_import:
@@ -124,5 +117,5 @@ def test_auto_population_script_execution(
         )
         mock_import.return_value.auto_populate = mock_auto_populate_ext
 
-        auto_populate(setup_valid_config, setup_auto_script_path)
+        auto_populate(setup_valid_config, Path(setup_auto_script_path))
         mock_import.assert_called_once()

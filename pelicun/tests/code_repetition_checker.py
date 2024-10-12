@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -44,23 +43,27 @@ Python test files.
 """
 
 from __future__ import annotations
+
+from pathlib import Path
+
 from glob2 import glob  # type: ignore
 
-# pylint: disable=missing-any-param-doc
 
-
-def main(file):
+def main(file: str) -> None:
     """
     Identifies and displays repeated consecutive line blocks within a
     file, including their line numbers.
 
-    Args:
-    file: Path to the file to be checked for duplicates.
+    Parameters
+    ----------
+    file: str
+        Path to the file to be checked for duplicates.
+
     """
     # file = 'tests/test_uq.py'
     group = 15  # find repeated blocks this many lines
 
-    with open(file, 'r', encoding='utf-8') as f:
+    with Path(file).open(encoding='utf-8') as f:
         contents = f.readlines()
     num_lines = len(contents)
     for i in range(0, num_lines, group):
@@ -68,22 +71,22 @@ def main(file):
         for j in range(i + 1, num_lines):
             jlines = contents[j : j + group]
             if glines == jlines:
-                print(f'{i, j}: ')
+                print(f'{i, j}: ')  # noqa: T201
                 for k in range(group):
-                    print(f'    {jlines[k]}', end='')
-                print()
+                    print(f'    {jlines[k]}', end='')  # noqa: T201
+                print()  # noqa: T201
 
 
-def all_test_files():
+def all_test_files() -> None:
     """
     Searches for all Python test files in the 'tests' directory and
     runs the main function to find and print repeated line blocks in each file.
     """
     test_files = glob('tests/*.py')
     for file in test_files:
-        print()
-        print(file)
-        print()
+        print()  # noqa: T201
+        print(file)  # noqa: T201
+        print()  # noqa: T201
         main(file)
 
 

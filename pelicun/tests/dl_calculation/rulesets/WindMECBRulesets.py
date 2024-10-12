@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -46,9 +45,9 @@
 import random
 
 
-def MECB_config(BIM):
+def MECB_config(bim: dict) -> str:  # noqa: C901
     """
-    Rules to identify a HAZUS MECB configuration based on BIM data
+    Rules to identify a HAZUS MECB configuration based on BIM data.
 
     Parameters
     ----------
@@ -58,88 +57,84 @@ def MECB_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Roof cover
-    if BIM['RoofShape'] in ['gab', 'hip']:
+    if bim['RoofShape'] in {'gab', 'hip'}:
         roof_cover = 'bur'
-        # no info, using the default supoorted by HAZUS
+        # no info, using the default supported by HAZUS
+    elif year >= 1975:
+        roof_cover = 'spm'
     else:
-        if year >= 1975:
-            roof_cover = 'spm'
-        else:
-            # year < 1975
-            roof_cover = 'bur'
+        # year < 1975
+        roof_cover = 'bur'
 
     # shutters
     if year >= 2000:
-        shutters = BIM['WindBorneDebris']
+        shutters = bim['WindBorneDebris']
+    elif bim['WindBorneDebris']:
+        shutters = random.random() < 0.46
     else:
-        if BIM['WindBorneDebris']:
-            shutters = random.random() < 0.46
-        else:
-            shutters = False
+        shutters = False
 
     # Wind Debris (widd in HAZSU)
     # HAZUS A: Res/Comm, B: Varies by direction, C: Residential, D: None
-    WIDD = 'C'  # residential (default)
-    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D']:
-        WIDD = 'C'  # residential
-    elif BIM['OccupancyClass'] == 'AGR1':
-        WIDD = 'D'  # None
+    widd = 'C'  # residential (default)
+    if bim['OccupancyClass'] in {'RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D'}:
+        widd = 'C'  # residential
+    elif bim['OccupancyClass'] == 'AGR1':
+        widd = 'D'  # None
     else:
-        WIDD = 'A'  # Res/Comm
+        widd = 'A'  # Res/Comm
 
     # Metal RDA
     # 1507.2.8.1 High Wind Attachment.
     # Underlayment applied in areas subject to high winds (Vasd greater
     # than 110 mph as determined in accordance with Section 1609.3.1) shall
     #  be applied with corrosion-resistant fasteners in accordance with
-    # the manufacturer’s instructions. Fasteners are to be applied along
+    # the manufacturer's instructions. Fasteners are to be applied along
     # the overlap not more than 36 inches on center.
-    if BIM['V_ult'] > 142:
-        MRDA = 'std'  # standard
+    if bim['V_ult'] > 142:
+        mrda = 'std'  # standard
     else:
-        MRDA = 'sup'  # superior
+        mrda = 'sup'  # superior
 
     # Window area ratio
-    if BIM['WindowArea'] < 0.33:
-        WWR = 'low'
-    elif BIM['WindowArea'] < 0.5:
-        WWR = 'med'
+    if bim['WindowArea'] < 0.33:
+        wwr = 'low'
+    elif bim['WindowArea'] < 0.5:
+        wwr = 'med'
     else:
-        WWR = 'hig'
+        wwr = 'hig'
 
-    if BIM['NumberOfStories'] <= 2:
+    if bim['NumberOfStories'] <= 2:
         bldg_tag = 'M.ECB.L'
-    elif BIM['NumberOfStories'] <= 5:
+    elif bim['NumberOfStories'] <= 5:
         bldg_tag = 'M.ECB.M'
     else:
         bldg_tag = 'M.ECB.H'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            Shutters=shutters,
-            WindowAreaRatio=WWR,
-            WindDebrisClass=WIDD,
-        )
+    bim.update(
+        {
+            'RoofCover': roof_cover,
+            'RoofDeckAttachmentM': mrda,
+            'Shutters': shutters,
+            'WindowAreaRatio': wwr,
+            'WindDebrisClass': widd,
+        }
     )
 
-    bldg_config = (
+    return (
         f"{bldg_tag}."
         f"{roof_cover}."
         f"{int(shutters)}."
-        f"{WIDD}."
-        f"{MRDA}."
-        f"{WWR}."
-        f"{int(BIM['TerrainRoughness'])}"
+        f"{widd}."
+        f"{mrda}."
+        f"{wwr}."
+        f"{int(bim['TerrainRoughness'])}"
     )
-
-    return bldg_config

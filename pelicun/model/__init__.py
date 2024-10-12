@@ -33,7 +33,7 @@
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
 
-"""Pelicun model."""
+"""Pelicun models."""
 
 from __future__ import annotations
 

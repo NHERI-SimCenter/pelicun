@@ -124,9 +124,9 @@ Feel free to [open an issue](https://github.com/NHERI-SimCenter/pelicun/issues/n
 
   - **Location-specific damage processes**: This new feature is useful when you want damage to a component type to induce damage in another component type at the same location only. For example, damaged water pipes on a specific story can trigger damage in floor covering only on that specific story. Location-matching is performed automatically without you having to define component pairs for every location using the following syntax: `'1_CMP.A-LOC', {'DS1': 'CMP.B_DS1'}` , where DS1 of `CMP.A` at each location triggers DS1 of `CMP.B` at the same location.
 
-  - **New `custom_model_dir` argument for `DL_calculation`**: This argument allows users to prepare custom damage and loss model files in a folder and pass the path to that folder to an auto-population script through `DL_calculation`. Within the auto-population script, they can reference only the name of the files in that folder. This provides portability for simulations that use custom models and auto population, such as some of the advanced regional simualtions in [SimCenter's R2D Tool](https://simcenter.designsafe-ci.org/research-tools/r2dtool/). 
+  - **New `custom_model_dir` argument for `DL_calculation`**: This argument allows users to prepare custom damage and loss model files in a folder and pass the path to that folder to an auto-population script through `DL_calculation`. Within the auto-population script, they can reference only the name of the files in that folder. This provides portability for simulations that use custom models and auto population, such as some of the advanced regional simulations in [SimCenter's R2D Tool](https://simcenter.designsafe-ci.org/research-tools/r2dtool/). 
 
-  - **Extend Hazus EQ auto population sripts to include water networks**: Automatically recognize water network assets and map them to archetypes from the Hazus Earthquake technical manual.
+  - **Extend Hazus EQ auto population scripts to include water networks**: Automatically recognize water network assets and map them to archetypes from the Hazus Earthquake technical manual.
 
   - **Introduce `convert_units` function**: Provide streamlined unit conversion using the pre-defined library of units in Pelicun. Allows you to convert a variable from one unit to another using a single line of simple code, such as 
   `converted_height = pelicun.base.convert_units(raw_height, unit='m', to_unit='ft')`
@@ -140,7 +140,7 @@ Feel free to [open an issue](https://github.com/NHERI-SimCenter/pelicun/issues/n
 
   - **Automatic code formatting**: Further improve consistency in coding style by using [black](https://black.readthedocs.io/en/stable/) to review and format the code when needed.
 
-  - **Remove `bldg` from variable and class names**: Following the changes mentioned earlier, we dropped `bldg` from lables where the functionality is no longer limited to buildings.
+  - **Remove `bldg` from variable and class names**: Following the changes mentioned earlier, we dropped `bldg` from labels where the functionality is no longer limited to buildings.
 
   - **Introduce `calibrated` attribute for demand model**: This new attribute will allow users to check if a model has already been calibrated to the provided empirical data.
 

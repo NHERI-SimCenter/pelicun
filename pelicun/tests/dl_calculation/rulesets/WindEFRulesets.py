@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -43,13 +42,13 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import random
 import datetime
+import random
 
 
-def HUEFFS_config(BIM):
+def HUEFFS_config(bim: dict) -> str:
     """
-    Rules to identify a HAZUS HUEFFS/HUEFSS configuration based on BIM data
+    Rules to identify a HAZUS HUEFFS/HUEFSS configuration based on BIM data.
 
     Parameters
     ----------
@@ -59,68 +58,62 @@ def HUEFFS_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Roof cover
-    if year >= 1975:
-        roof_cover = 'spm'
-    else:
-        # year < 1975
-        roof_cover = 'bur'
+    roof_cover = 'spm' if year >= 1975 else 'bur'
 
     # Wind debris
-    WIDD = 'A'
+    widd = 'A'
 
     # Roof deck age
-    if year >= (datetime.datetime.now().year - 50):
-        DQ = 'god'  # new or average
+    if year >= (datetime.datetime.now(tz=datetime.timezone.utc).year - 50):
+        dq = 'god'  # new or average
     else:
-        DQ = 'por'  # old
+        dq = 'por'  # old
 
     # Metal-RDA
     if year > 2000:
-        if BIM['V_ult'] <= 142:
-            MRDA = 'std'  # standard
+        if bim['V_ult'] <= 142:
+            mrda = 'std'  # standard
         else:
-            MRDA = 'sup'  # superior
+            mrda = 'sup'  # superior
     else:
-        MRDA = 'std'  # standard
+        mrda = 'std'  # standard
 
     # Shutters
-    shutters = int(BIM['WBD'])
+    shutters = int(bim['WBD'])
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            RoofDeckAge=DQ,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
+    bim.update(
+        {
+            'RoofCover': roof_cover,
+            'RoofDeckAttachmentM': mrda,
+            'RoofDeckAge': dq,
+            'WindDebrisClass': widd,
+            'Shutters': shutters,
+        }
     )
 
     bldg_tag = 'HUEF.FS'
-    bldg_config = (
+    return (
         f"{bldg_tag}."
         f"{roof_cover}."
         f"{shutters}."
-        f"{WIDD}."
-        f"{DQ}."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
+        f"{widd}."
+        f"{dq}."
+        f"{mrda}."
+        f"{int(bim['TerrainRoughness'])}"
     )
 
-    return bldg_config
 
-
-def HUEFSS_config(BIM):
+def HUEFSS_config(bim: dict) -> str:
     """
-    Rules to identify a HAZUS HUEFFS/HUEFSS configuration based on BIM data
+    Rules to identify a HAZUS HUEFFS/HUEFSS configuration based on BIM data.
 
     Parameters
     ----------
@@ -130,11 +123,11 @@ def HUEFSS_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Roof cover
     if year >= 1975:
@@ -144,54 +137,52 @@ def HUEFSS_config(BIM):
         roof_cover = 'bur'
 
     # Wind debris
-    WIDD = 'A'
+    widd = 'A'
 
     # Roof deck age
-    if year >= (datetime.datetime.now().year - 50):
-        DQ = 'god'  # new or average
+    if year >= (datetime.datetime.now(tz=datetime.timezone.utc).year - 50):
+        dq = 'god'  # new or average
     else:
-        DQ = 'por'  # old
+        dq = 'por'  # old
 
     # Metal-RDA
     if year > 2000:
-        if BIM['V_ult'] <= 142:
-            MRDA = 'std'  # standard
+        if bim['V_ult'] <= 142:
+            mrda = 'std'  # standard
         else:
-            MRDA = 'sup'  # superior
+            mrda = 'sup'  # superior
     else:
-        MRDA = 'std'  # standard
+        mrda = 'std'  # standard
 
     # Shutters
-    shutters = BIM['WindBorneDebris']
+    shutters = bim['WindBorneDebris']
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            RoofDeckAge=DQ,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
+    bim.update(
+        {
+            'RoofCover': roof_cover,
+            'RoofDeckAttachmentM': mrda,
+            'RoofDeckAge': dq,
+            'WindDebrisClass': widd,
+            'Shutters': shutters,
+        }
     )
 
     bldg_tag = 'HUEF.S.S'
-    bldg_config = (
+    return (
         f"{bldg_tag}."
         f"{roof_cover}."
         f"{int(shutters)}."
-        f"{WIDD}."
-        f"{DQ}."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
+        f"{widd}."
+        f"{dq}."
+        f"{mrda}."
+        f"{int(bim['TerrainRoughness'])}"
     )
 
-    return bldg_config
 
-
-def HUEFH_config(BIM):
+def HUEFH_config(bim: dict) -> str:
     """
-    Rules to identify a HAZUS HUEFH configuration based on BIM data
+    Rules to identify a HAZUS HUEFH configuration based on BIM data.
 
     Parameters
     ----------
@@ -201,11 +192,11 @@ def HUEFH_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Roof cover
     if year >= 1975:
@@ -215,52 +206,50 @@ def HUEFH_config(BIM):
         roof_cover = 'bur'
 
     # Wind debris
-    WIDD = 'A'
+    widd = 'A'
 
     # Shutters
-    shutters = BIM['WindBorneDebris']
+    shutters = bim['WindBorneDebris']
 
     # Metal-RDA
     if year > 2000:
-        if BIM['V_ult'] <= 142:
-            MRDA = 'std'  # standard
+        if bim['V_ult'] <= 142:
+            mrda = 'std'  # standard
         else:
-            MRDA = 'sup'  # superior
+            mrda = 'sup'  # superior
     else:
-        MRDA = 'std'  # standard
+        mrda = 'std'  # standard
 
-    if BIM['NumberOfStories'] <= 2:
+    if bim['NumberOfStories'] <= 2:
         bldg_tag = 'HUEF.H.S'
-    elif BIM['NumberOfStories'] <= 5:
+    elif bim['NumberOfStories'] <= 5:
         bldg_tag = 'HUEF.H.M'
     else:
         bldg_tag = 'HUEF.H.L'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
+    bim.update(
+        {
+            'RoofCover': roof_cover,
+            'RoofDeckAttachmentM': mrda,
+            'WindDebrisClass': widd,
+            'Shutters': shutters,
+        }
     )
 
-    bldg_config = (
+    return (
         f"{bldg_tag}."
         f"{roof_cover}."
-        f"{WIDD}."
-        f"{MRDA}."
+        f"{widd}."
+        f"{mrda}."
         f"{int(shutters)}."
-        f"{int(BIM['TerrainRoughness'])}"
+        f"{int(bim['TerrainRoughness'])}"
     )
 
-    return bldg_config
 
-
-def HUEFS_config(BIM):
+def HUEFS_config(bim: dict) -> str:
     """
-    Rules to identify a HAZUS HUEFS configuration based on BIM data
+    Rules to identify a HAZUS HUEFS configuration based on BIM data.
 
     Parameters
     ----------
@@ -270,11 +259,11 @@ def HUEFS_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Roof cover
     if year >= 1975:
@@ -284,50 +273,43 @@ def HUEFS_config(BIM):
         roof_cover = 'bur'
 
     # Wind debris
-    WIDD = 'C'
+    widd = 'C'
 
     # Shutters
     if year > 2000:
-        shutters = BIM['WindBorneDebris']
+        shutters = bim['WindBorneDebris']
+    elif bim['WindBorneDebris']:
+        shutters = random.random() < 0.46
     else:
-        # year <= 2000
-        if BIM['WindBorneDebris']:
-            shutters = random.random() < 0.46
-        else:
-            shutters = False
+        shutters = False
 
     # Metal-RDA
     if year > 2000:
-        if BIM['V_ult'] <= 142:
-            MRDA = 'std'  # standard
+        if bim['V_ult'] <= 142:
+            mrda = 'std'  # standard
         else:
-            MRDA = 'sup'  # superior
+            mrda = 'sup'  # superior
     else:
-        MRDA = 'std'  # standard
+        mrda = 'std'  # standard
 
-    if BIM['NumberOfStories'] <= 2:
-        bldg_tag = 'HUEF.S.M'
-    else:
-        bldg_tag = 'HUEF.S.L'
+    bldg_tag = 'HUEF.S.M' if bim['NumberOfStories'] <= 2 else 'HUEF.S.L'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofDeckAttachmentM=MRDA,
-            WindDebrisClass=WIDD,
-            Shutters=shutters,
-        )
+    bim.update(
+        {
+            'RoofCover': roof_cover,
+            'RoofDeckAttachmentM': mrda,
+            'WindDebrisClass': widd,
+            'Shutters': shutters,
+        }
     )
 
-    bldg_config = (
+    return (
         f"{bldg_tag}."
         f"{roof_cover}."
         f"{int(shutters)}."
-        f"{WIDD}."
+        f"{widd}."
         f"null."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
+        f"{mrda}."
+        f"{int(bim['TerrainRoughness'])}"
     )
-
-    return bldg_config
