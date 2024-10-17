@@ -356,7 +356,7 @@ class Assessment(AssessmentBase):
         damage_data_paths: list[str | pd.DataFrame],
         dmg_process: dict | None = None,
         scaling_specification: dict | None = None,
-        yield_drift_configuration: dict | None = None,
+        residual_drift_configuration: dict | None = None,
         collapse_fragility_configuration: dict | None = None,
         block_batch_size: int = 1000,
     ) -> None:
@@ -412,7 +412,7 @@ class Assessment(AssessmentBase):
             containing an operation followed by the value formatted as
             a float.  The operation can be '+' for addition, '-' for
             subtraction, '*' for multiplication, and '/' for division.
-        yield_drift_configuration: dict
+        residual_drift_configuration: dict
             Dictionary containing the following keys-values:
             - params : dict
             A dictionary containing parameters required for the
@@ -444,10 +444,10 @@ class Assessment(AssessmentBase):
         self.demand.load_model(demand_data_source)
         self.demand.generate_sample(demand_config)
 
-        if yield_drift_configuration:
+        if residual_drift_configuration:
             self.demand.estimate_RID_and_adjust_sample(
-                yield_drift_configuration['parameters'],
-                yield_drift_configuration['method'],
+                residual_drift_configuration['parameters'],
+                residual_drift_configuration['method'],
             )
 
         if collapse_fragility_configuration:
