@@ -1020,7 +1020,15 @@ class DLCalculationAssessment(AssessmentBase):
                     break
 
             if coll_DEM_name is None:
-                raise ValueError('`coll_DEM_name` cannot be None.')
+                raise ValueError(
+                    "A valid demand type acronym was not provided in"
+                    "the configuration file. Please ensure the"
+                    "'DemandType' field in the collapse fragility"
+                    "section contains one of the recognized acronyms"
+                    "(e.g., 'SA', 'PFA', 'PGA'). Refer to the"
+                    "configuration file's 'collapse_fragility'"
+                    "section."
+                )
 
             if coll_DEM_spec is None:
                 adf.loc[coll_CMP_name, ('Demand', 'Type')] = coll_DEM_name
