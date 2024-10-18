@@ -1530,6 +1530,35 @@ def _loss__add_replacement_energy(
     distribution=None,
     theta_1=None,
 ):
+    """
+    Adds replacement energy information.
+
+    Parameters
+    ----------
+    adf : pandas.DataFrame
+        Dataframe containing loss information.
+    DL_method : str
+        Supported methods are 'FEMA P-58'.
+    unit : str, optional
+        Unit for the energy value (e.g., 'MJ'). Defaults to None.
+    median : float, optional
+        Median replacement energy. If provided, it defines the base
+        replacement energy value. Defaults to None.
+    distribution : str, optional
+        Distribution family to model uncertainty around the median
+        energy (e.g., 'lognormal'). Required if `median` is
+        provided. Defaults to None.
+    theta_1 : float, optional
+        Distribution parameter (e.g., standard deviation). Required if
+        `distribution` is provided. Defaults to None.
+
+    Notes
+    -----
+    If `median` is not provided, a default value is assigned based on
+    the `DL_method`. For 'FEMA P-58', the default replacement energy
+    value is 0 MJ.  For other methods, this consequence is removed
+    from the dataframe entirely.
+    """
     ren = ('replacement', 'Energy')
     if median is not None:
 
@@ -1568,6 +1597,36 @@ def _loss__add_replacement_carbon(
     distribution=None,
     theta_1=None,
 ):
+    """
+    Adds replacement carbon emission information.
+
+    Parameters
+    ----------
+    adf : pandas.DataFrame
+        Dataframe containing loss information.
+    damage_process_approach : str
+        Supported approaches include 'FEMA P-58'.
+    unit : str, optional
+        Unit for the carbon emission value (e.g., 'kg'). Defaults to
+        None.
+    median : float, optional
+        Median replacement carbon emissions. If provided, it defines
+        the base replacement carbon value. Defaults to None.
+    distribution : str, optional
+        Distribution family to model uncertainty around the median
+        carbon emissions (e.g., 'lognormal'). Required if `median` is
+        provided.  Defaults to None.
+    theta_1 : float, optional
+        Distribution parameter (e.g., standard deviation). Required if
+        `distribution` is provided. Defaults to None.
+
+    Notes
+    -----
+    If `median` is not provided, a default value is assigned based on
+    the `damage_process_approach`. For 'FEMA P-58', the default
+    replacement carbon emissions value is 0 kg. For other approaches,
+    this consequence is removed from the dataframe entirely.
+    """
     rcarb = ('replacement', 'Carbon')
     if median is not None:
 
@@ -1609,6 +1668,48 @@ def _loss__add_replacement_time(
     distribution=None,
     theta_1=None,
 ):
+    """
+    Adds replacement time information.
+
+    Parameters
+    ----------
+    adf : pandas.DataFrame
+        Dataframe containing loss information.
+    damage_process_approach : str
+        Supported approaches are 'FEMA P-58', 'Hazus Earthquake -
+        Buildings'.
+    conseq_df : pandas.DataFrame
+        Dataframe containing consequence data for different damage
+        states.
+    occupancy_type : str, optional
+        Type of occupancy, used to look up replacement time in the
+        consequence dataframe for Hazus Earthquake approach. Defaults
+        to None.
+    unit : str, optional
+        Unit for the damage value (e.g., 'worker_day', 'loss_ratio').
+        Defaults to None.
+    median : float, optional
+        Median replacement time or loss ratio. If provided, it defines
+        the base replacement time. Defaults to None.
+    distribution : str, optional
+        Distribution family to model uncertainty around the median
+        time (e.g., 'lognormal'). Required if `median` is
+        provided. Defaults to None.
+    theta_1 : float, optional
+        Distribution parameter (e.g., standard deviation). Required if
+        `distribution` is provided. Defaults to None.
+
+    Notes
+    -----
+    If `median` is not provided, a default value is assigned based on
+    the `damage_process_approach`. For 'FEMA P-58', the default
+    replacement time is 0 worker_days. For 'Hazus Earthquake -
+    Buildings', the replacement time is fetched from `conseq_df` for
+    the provided `occupancy_type` and corresponds to the total loss
+    (damage state 5, DS5). In other cases, a placeholder value of 1 is
+    used.
+
+    """
     rt = ('replacement', 'Time')
     if median is not None:
 
@@ -1660,7 +1761,30 @@ def _loss__add_replacement_cost(
     distribution=None,
     theta_1=None,
 ):
+    """
+    Adds replacement cost information.
 
+    Parameters
+    ----------
+    adf : pandas.DataFrame
+        Dataframe containing loss information.
+    DL_method : str
+        Supported methods are 'FEMA P-58', 'Hazus Earthquake', and
+        'Hazus Hurricane'.
+    unit : str, optional
+        Unit for the damage value (e.g., 'USD_2011',
+        'loss_ratio'). Defaults to None.
+    median : float, optional
+        Median replacement cost or loss ratio. If provided, it defines
+        the base replacement cost. Defaults to None.
+    distribution : str, optional
+        Distribution family to model uncertainty around the median
+        cost (e.g., 'lognormal'). Required if `median` is
+        provided. Defaults to None.
+    theta_1 : float, optional
+        Distribution parameter (e.g., standard deviation). Required if
+        `distribution` is provided. Defaults to None.
+    """
     rc = ('replacement', 'Cost')
     if median is not None:
 
