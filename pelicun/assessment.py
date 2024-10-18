@@ -1828,6 +1828,29 @@ def _loss__add_replacement_cost(
 
 
 def _loss__map_user(custom_model_dir, loss_map_path=None):
+    """
+    Load a user-defined loss map from a specified path.
+
+    Parameters
+    ----------
+    custom_model_dir : str
+        Directory containing custom models.
+    loss_map_path : str, optional
+        Path to the loss map file. The path can include a placeholder
+        'CustomDLDataFolder' that will be replaced by
+        `custom_model_dir`.  If not provided, raises a ValueError.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame containing the loss map information.
+
+    Raises
+    ------
+    ValueError
+        If `loss_map_path` is not provided.
+
+    """
     if loss_map_path is not None:
 
         loss_map_path = loss_map_path.replace('CustomDLDataFolder', custom_model_dir)
@@ -1841,6 +1864,42 @@ def _loss__map_user(custom_model_dir, loss_map_path=None):
 
 
 def _loss__map_auto(assessment, conseq_df, DL_method, occupancy_type=None):
+    """
+    Automatically generates a loss map based on the damage sample and
+    the consequence database.
+
+    Parameters
+    ----------
+    assessment : AssessmentBase
+        The assessment object containing the damage model and sample.
+    conseq_df : pandas.DataFrame
+        DataFrame containing consequence data for different damage
+        states.
+    DL_method : str
+        Damage loss method, which defines how the loss map is
+        generated.  Supported methods are 'FEMA P-58', 'Hazus
+        Earthquake', 'Hazus Hurricane', and 'Hazus Earthquake
+        Transportation'.
+    occupancy_type : str, optional
+        Occupancy type, used to map damage components to the correct
+        loss models in Hazus Earthquake methods. Defaults to None.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame containing the automatically generated loss map,
+        where the index corresponds to the damage components and the
+        values indicate the associated loss models.
+
+    Notes
+    -----
+    - For 'FEMA P-58' and 'Hazus Hurricane', the method assumes that
+      fragility and consequence data have matching component IDs.
+    - For 'Hazus Earthquake' and 'Hazus Earthquake Transportation',
+      the method assumes that consequence archetypes are only
+      differentiated by occupancy type.
+
+    """
     # get the damage sample
     dmg_sample = assessment.damage.save_sample()
 
