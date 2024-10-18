@@ -84,13 +84,14 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 def log_msg(msg, color_codes=None):
     """
-    Prints a formatted string to stdout in the form of a log. Includes
-    a timestamp.
+    Print a formatted log message with a timestamp.
 
     Parameters
     ----------
-    msg: str
-        The message to be printed.
+    msg : str
+        The message to print.
+    color_codes : tuple, optional
+        Color codes for formatting the message. Default is None.
 
     """
     if color_codes:
@@ -497,6 +498,20 @@ def run_pelicun(
 
 
 def _parse_decision_variables(config):
+    """
+    Parse decision variables from the config file.
+
+    Parameters
+    ----------
+    config : dict
+        The configuration dictionary.
+
+    Returns
+    -------
+    list
+        List of decision variables.
+
+    """
     decision_variables = []
     if get(config, 'DL/Losses/Repair/DecisionVariables', default=False) is not False:
         for DV_i, DV_status in get(
@@ -508,6 +523,18 @@ def _parse_decision_variables(config):
 
 
 def _remove_csv_files_if_not_requested(config, out_files, output_path):
+    """
+    Remove CSV files if not requested in config.
+
+    Parameters
+    ----------
+    config : dict
+        Configuration dictionary.
+    out_files : list
+        List of output file names.
+    output_path : Path
+        Path to the output directory.
+    """
     # Don't proceed if CSV files were requested.
     if get(config, 'DL/Outputs/Format/CSV', default=False) is True:
         return
@@ -520,6 +547,21 @@ def _remove_csv_files_if_not_requested(config, out_files, output_path):
 
 
 def _summary_save(summary, summary_stats, output_path, out_files):
+    """
+    Save summary results to CSV files.
+
+    Parameters
+    ----------
+    summary : pd.DataFrame
+        Summary DataFrame.
+    summary_stats : pd.DataFrame
+        Summary statistics DataFrame.
+    output_path : Path
+        Path to the output directory.
+    out_files : list
+        List of output file names.
+
+    """
     # save summary sample
     if summary is not None:
         summary.to_csv(output_path / 'DL_summary.csv', index_label='#')
@@ -541,6 +583,34 @@ def _parse_config_file(
     detailed_results,
     output_format,
 ):
+    """
+    Parse and validate the config file for Pelicun.
+
+    Parameters
+    ----------
+    config_path : str
+        Path to the configuration file.
+    output_path : Path
+        Directory for output files.
+    auto_script_path : str
+        Path to the auto-generation script.
+    demand_file : str
+        Path to the demand data file.
+    realizations : int
+        Number of realizations.
+    coupled_EDP : bool
+        Whether to consider coupled EDPs.
+    detailed_results : bool
+        Whether to generate detailed results.
+    output_format : str
+        Output format (CSV, JSON).
+
+    Returns
+    -------
+    dict
+        Parsed and validated configuration.
+
+    """
     # open the config file and parse it
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
@@ -800,6 +870,19 @@ def _parse_config_file(
 
 
 def _create_json_files_if_requested(config, out_files, output_path):
+    """
+    Create JSON files if requested in the config.
+
+    Parameters
+    ----------
+    config : dict
+        Configuration dictionary.
+    out_files : list
+        List of output file names.
+    output_path : Path
+        Path to the output directory.
+
+    """
     # If not requested, simply return
     if get(config, 'DL/Outputs/Format/JSON', default=False) is False:
         return
@@ -842,6 +925,22 @@ def _create_json_files_if_requested(config, out_files, output_path):
 
 
 def _result_summary(assessment, agg_repair):
+    """
+    Generate a summary of the results.
+
+    Parameters
+    ----------
+    assessment : AssessmentBase
+        The assessment object.
+    agg_repair : pd.DataFrame
+        Aggregate repair data.
+
+    Returns
+    -------
+    tuple
+        Summary DataFrame and summary statistics DataFrame.
+
+    """
     damage_sample = assessment.damage.save_sample()
     if damage_sample is None or agg_repair is None:
         return None, None
@@ -875,6 +974,20 @@ def _result_summary(assessment, agg_repair):
 
 
 def _parse_requested_output_file_names(output_config):
+    """
+    Parse the output file names from the output configuration.
+
+    Parameters
+    ----------
+    output_config : dict
+        Configuration for output files.
+
+    Returns
+    -------
+    set
+        Set of requested output file names.
+
+    """
     out_reqs = []
     for out, val in output_config.items():
         if val is True:
@@ -883,6 +996,21 @@ def _parse_requested_output_file_names(output_config):
 
 
 def _demand_save(output_config, assessment, output_path, out_files):
+    """
+    Save demand results to files based on the output config.
+
+    Parameters
+    ----------
+    output_config : dict
+        Configuration for output files.
+    assessment : AssessmentBase
+        The assessment object.
+    output_path : Path
+        Path to the output directory.
+    out_files : list
+        List of output file names.
+
+    """
     out_reqs = _parse_requested_output_file_names(output_config)
 
     demand_sample, demand_units = assessment.demand.save_sample(save_units=True)
@@ -912,6 +1040,23 @@ def _demand_save(output_config, assessment, output_path, out_files):
 def _asset_save(
     output_config, assessment, output_path, out_files, aggregate_colocated=False
 ):
+    """
+    Save asset results to files based on the output config.
+
+    Parameters
+    ----------
+    output_config : dict
+        Configuration for output files.
+    assessment : AssessmentBase
+        The assessment object.
+    output_path : Path
+        Path to the output directory.
+    out_files : list
+        List of output file names.
+    aggregate_colocated : bool, optional
+        Whether to aggregate colocated components. Default is False.
+
+    """
     cmp_sample, cmp_units = assessment.asset.save_cmp_sample(save_units=True)
     cmp_units = cmp_units.to_frame().T
 
@@ -952,6 +1097,25 @@ def _damage_save(
     aggregate_colocated=False,
     condense_ds=False,
 ):
+    """
+    Save damage results to files based on the output config.
+
+    Parameters
+    ----------
+    output_config : dict
+        Configuration for output files.
+    assessment : AssessmentBase
+        The assessment object.
+    output_path : Path
+        Path to the output directory.
+    out_files : list
+        List of output file names.
+    aggregate_colocated : bool, optional
+        Whether to aggregate colocated components. Default is False.
+    condense_ds : bool, optional
+        Whether to condense damage states. Default is False.
+
+    """
     damage_sample, damage_units = assessment.damage.save_sample(save_units=True)
     damage_units = damage_units.to_frame().T
 
@@ -1077,6 +1241,25 @@ def _loss_save(
     agg_repair,
     aggregate_colocated=False,
 ):
+    """
+    Save loss results to files based on the output config.
+
+    Parameters
+    ----------
+    output_config : dict
+        Configuration for output files.
+    assessment : AssessmentBase
+        The assessment object.
+    output_path : Path
+        Path to the output directory.
+    out_files : list
+        List of output file names.
+    agg_repair : pd.DataFrame
+        Aggregate repair data.
+    aggregate_colocated : bool, optional
+        Whether to aggregate colocated components. Default is False.
+
+    """
     repair_sample, repair_units = assessment.loss.ds_model.save_sample(
         save_units=True
     )
@@ -1176,6 +1359,20 @@ def _loss_save(
 
 
 def _get_color_codes(color_warnings):
+    """
+    Get color codes for formatting warnings.
+
+    Parameters
+    ----------
+    color_warnings : bool
+        Whether to enable colored warnings.
+
+    Returns
+    -------
+    tuple
+        Color codes for prefix and suffix.
+
+    """
     if color_warnings:
         cpref = Fore.RED
         csuff = Style.RESET_ALL
@@ -1206,6 +1403,7 @@ def _remove_existing_files(output_path, known_output_files):
         If an error occurs while attempting to remove a file, an
         OSError will be raised with the specific details of the
         failure.
+
     """
     # Initialize the output folder - i.e., remove existing output files from
     # there
