@@ -731,12 +731,6 @@ def _parse_config_file(
     if is_unspecified(config, 'DL/Asset'):
         raise PelicunInvalidConfigError('Asset configuration missing.')
 
-    # ensure a length unit is specified in the config file.
-    if is_unspecified(config, 'GeneralInformation/units/length'):
-        raise PelicunInvalidConfigError(
-            'No default length unit provided in the input file.'
-        )
-
     update(
         config,
         'DL/Options/LogFile',

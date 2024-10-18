@@ -602,7 +602,7 @@ class DLCalculationAssessment(AssessmentBase):
         self,
         demand_path: str,
         collapse_limits: dict[str, float] | None,
-        length_unit: str,
+        length_unit: str | None,
         demand_calibration: dict | None,
         sample_size: int,
         coupled_demands: bool,
@@ -619,7 +619,7 @@ class DLCalculationAssessment(AssessmentBase):
         collapse_limits : dict[str, float] or None
             Optional dictionary with demand types and their respective
             collapse limits.
-        length_unit : str
+        length_unit : str, optional
             Unit of length to be used to add units to the demand data
             if needed.
         demand_calibration : dict or None
@@ -688,6 +688,8 @@ class DLCalculationAssessment(AssessmentBase):
 
         # add units to the demand data if needed
         if "Units" not in raw_demands.index:
+            if length_unit is None:
+                raise ValueError('A length unit is required to infer demand units.')
             demands = _add_units(raw_demands, length_unit)
 
         else:
@@ -913,7 +915,7 @@ class DLCalculationAssessment(AssessmentBase):
 
     def calculate_damage(
         self,
-        length_unit: float,
+        length_unit: float | None,
         component_database: str,
         component_database_path: str | None = None,
         collapse_fragility: dict | None = None,
@@ -928,7 +930,7 @@ class DLCalculationAssessment(AssessmentBase):
 
         Parameters
         ----------
-        length_unit : str
+        length_unit : str, optional
             Unit of length to be used to add units to the demand data
             if needed.
         component_database : str
@@ -1028,6 +1030,8 @@ class DLCalculationAssessment(AssessmentBase):
                     f'{coll_DEM_name}|{coll_DEM_spec}'
                 )
 
+            if length_unit is None:
+                raise ValueError('A length unit is required.')
             coll_DEM_unit = _add_units(
                 pd.DataFrame(
                     columns=[
