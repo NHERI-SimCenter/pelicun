@@ -36,6 +36,7 @@
 #
 # Contributors:
 # Adam Zsarnóczay
+# John Vouvakis Manousakis
 
 """
 This module provides the main functionality to run a pelicun
