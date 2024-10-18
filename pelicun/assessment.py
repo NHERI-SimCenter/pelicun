@@ -1698,7 +1698,7 @@ def _loss__add_replacement_time(
         consequence dataframe for Hazus Earthquake approach. Defaults
         to None.
     unit : str, optional
-        Unit for the damage value (e.g., 'worker_day', 'loss_ratio').
+        Unit for the replacement time (e.g., 'day, 'worker_day').
         Defaults to None.
     median : float, optional
         Median replacement time or loss ratio. If provided, it defines
@@ -1784,7 +1784,7 @@ def _loss__add_replacement_cost(
         Supported methods are 'FEMA P-58', 'Hazus Earthquake', and
         'Hazus Hurricane'.
     unit : str, optional
-        Unit for the damage value (e.g., 'USD_2011',
+        Unit for the replacement cost (e.g., 'USD_2011',
         'loss_ratio'). Defaults to None.
     median : float, optional
         Median replacement cost or loss ratio. If provided, it defines
