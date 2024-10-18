@@ -40,12 +40,6 @@
 """
 This module has classes and methods that auto-populate DL models.
 
-.. rubric:: Contents
-
-.. autosummary::
-
-    auto_populate
-
 """
 
 from __future__ import annotations

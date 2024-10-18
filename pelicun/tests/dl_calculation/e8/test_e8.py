@@ -66,7 +66,7 @@ def test_dl_calculation_8(obtain_temp_dir):
 
     # run
     with pytest.warns(PelicunWarning):
-        return_int = run_pelicun(
+        run_pelicun(
             demand_file='response.csv',
             config_path='1-AIM.json',
             output_path=None,
@@ -74,13 +74,10 @@ def test_dl_calculation_8(obtain_temp_dir):
             realizations='100',
             auto_script_path='auto_HU_LA.py',
             detailed_results=False,
-            regional=True,
             output_format=None,
             custom_model_dir=None,
             color_warnings=False,
         )
-
-    assert return_int == 0
 
     # now remove the ruleset files and auto script
     for file_path in ruleset_files:

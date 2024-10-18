@@ -24,7 +24,14 @@
       "SampleSize": 1000,
       "PreserveRawOrder": false
     },
-    "RepairCostAndTimeCorrelation": 0.0
+    "RepairCostAndTimeCorrelation": 0.0,
+    "ErrorSetup": {
+      "Loss": {
+        "ReplacementThreshold": {
+          "RaiseOnUnknownKeys": true
+        }
+      }
+    }
   },
   "DemandAssessment": {
     "Calibration": {

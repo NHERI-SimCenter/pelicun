@@ -464,6 +464,48 @@ class TestLossModel(TestPelicunModel):
         assert l2 == combination_array[0, 4]
         assert combination_array[8, 0] <= l1 <= combination_array[9, 0]
 
+    def test_aggregate_losses_thresholds(self, loss_model_with_ones):
+
+        # Row 0 has the value of 1.0 in all columns.
+        # Adjust rows 1 and 2 to have the values 2.0 and 3.0, for
+        # testing.
+        loss_model_with_ones.decision_variables = ('Cost', 'Carbon')
+        loss_model_with_ones.dv_units = {'Cost': 'USD_2011', 'Carbon': 'kg'}
+        loss_model_with_ones.ds_model.sample.iloc[1, :] = 2.00
+        loss_model_with_ones.ds_model.sample.iloc[2, :] = 3.00
+        loss_model_with_ones.lf_model.sample.iloc[1, :] = 2.00
+        loss_model_with_ones.lf_model.sample.iloc[2, :] = 3.00
+        # Instantiate a RandomVariableRegistry to pass as an argument
+        # to the method.
+        RV_reg = uq.RandomVariableRegistry(loss_model_with_ones._asmnt.options.rng)
+        # Add a threshold for `Cost`
+        RV_reg.add_RV(
+            uq.rv_class_map('deterministic')(name='Cost', theta=np.array((400.00,)))
+        )
+        # Add a threshold for `Carbon`
+        RV_reg.add_RV(
+            uq.rv_class_map('deterministic')(
+                name='Carbon', theta=np.array((100.00,))
+            )
+        )
+        df_agg, exceedance_bool_df = loss_model_with_ones.aggregate_losses(
+            replacement_configuration=(RV_reg, {'Cost': 0.50, 'Carbon': 1.00}),
+            future=True,
+        )
+        df_agg_expected = pd.DataFrame(
+            {
+                'repair_carbon': [96.00, 100.00, 100.00],
+                'repair_cost': [96.00, 400.00, 400.00],
+            }
+        )
+        exceedance_bool_df_expected = pd.DataFrame(
+            {'Cost': [False, False, True], 'Carbon': [False, True, True]}
+        )
+        pd.testing.assert_frame_equal(df_agg, df_agg_expected)
+        pd.testing.assert_frame_equal(
+            exceedance_bool_df, exceedance_bool_df_expected
+        )
+
     def test_consequence_scaling(self, loss_model_with_ones):
 
         loss_model_with_ones.consequence_scaling(
@@ -684,8 +726,7 @@ class TestRepairModel_DS(TestRepairModel_Base):
             rv_reg.RV['Time-cmp.A-1-0-1-0'].theta[0:2] == np.array((1.0, 1.0))
         )
         assert np.all(
-            rv_reg.RV['Cost-cmp.D-1-0-1-0'].theta[0:2]
-            == np.array([1.0, 1.0])
+            rv_reg.RV['Cost-cmp.D-1-0-1-0'].theta[0:2] == np.array([1.0, 1.0])
         )
         assert 'DV-cmp.A-1-0-1-0_set' in rv_reg.RV_set
         np.all(

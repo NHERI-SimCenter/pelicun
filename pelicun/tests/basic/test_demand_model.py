@@ -217,10 +217,40 @@ class TestDemandModel(TestModelModule):
         params = {'yield_drift': 0.01}
         res = demand_model_with_sample.estimate_RID(demands, params)
         assert list(res.columns) == [('RID', '1', '1')]
-        assert (
+        with pytest.raises(ValueError):
             demand_model_with_sample.estimate_RID(demands, params, method='xyz')
-            is None
+
+    def test_expand_sample_float(self, demand_model_with_sample):
+        sample_before = demand_model_with_sample.sample.copy()
+        demand_model_with_sample.expand_sample("test_lab", 1.00, "unitless")
+        sample_after = demand_model_with_sample.sample.copy()
+        pd.testing.assert_frame_equal(
+            sample_before, sample_after.drop('test_lab', axis=1)
         )
+        assert sample_after.loc[0, ('test_lab', '0', '1')] == 1.0
+
+    def test_expand_sample_numpy(self, demand_model_with_sample):
+        sample_before = demand_model_with_sample.sample.copy()
+        demand_model_with_sample.expand_sample(
+            "test_lab", np.array(1.00), "unitless"
+        )
+        sample_after = demand_model_with_sample.sample.copy()
+        pd.testing.assert_frame_equal(
+            sample_before, sample_after.drop('test_lab', axis=1)
+        )
+        assert sample_after.loc[0, ('test_lab', '0', '1')] == 1.0
+
+    def test_expand_sample_error_no_sample(self, demand_model):
+        with pytest.raises(
+            ValueError, match='Demand model does not have a sample yet.'
+        ):
+            demand_model.expand_sample("test_lab", 1.00, "unitless")
+
+    def test_expand_sample_error_wrong_shape(self, demand_model_with_sample):
+        with pytest.raises(ValueError, match='Incompatible array length.'):
+            demand_model_with_sample.expand_sample(
+                "test_lab", np.array((1.00, 1.00)), "unitless"
+            )
 
     def test_calibrate_model(
         self, calibrated_demand_model, demand_model_with_sample_C
@@ -520,6 +550,7 @@ class TestDemandModel(TestModelModule):
 
     def test__assemble_required_demand_data(self, assessment_instance):
 
+        # Utility demand case: two demands are required
         damage_model = assessment_instance.damage
         cmp_set = {'testing.component'}
         damage_model.load_model_parameters(

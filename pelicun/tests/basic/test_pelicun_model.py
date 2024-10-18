@@ -205,3 +205,13 @@ class TestPelicunModel(TestModelModule):
         pd.testing.assert_frame_equal(
             expected_df, res, check_index_type=False, check_column_type=False
         )
+
+    def test_query_error_setup(self, pelicun_model):
+        assert (
+            pelicun_model.query_error_setup(
+                'Loss/ReplacementThreshold/RaiseOnUnknownKeys'
+            )
+            is True
+        )
+        with pytest.raises(KeyError):
+            pelicun_model.query_error_setup('some/invalid/path')

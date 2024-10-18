@@ -110,7 +110,7 @@ def test_validation_ds_probabilities():
         unit_conversion_factors=asmnt.unit_conversion_factors,
     )
 
-    cmp_set = asmnt.asset.list_unique_component_ids(as_set=True)
+    cmp_set = set(asmnt.asset.list_unique_component_ids())
 
     # load the models into pelicun
     asmnt.damage.load_model_parameters([damage_db], cmp_set)
