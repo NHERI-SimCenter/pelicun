@@ -342,7 +342,6 @@ def run_pelicun(
     # Initialize the array that we'll use to collect the output file names
     out_files = []
 
-    # List to keep track of the generated output files.
     _remove_existing_files(output_path, known_output_files)
 
     # Run the assessment
