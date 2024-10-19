@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -43,14 +42,16 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
+from __future__ import annotations
+
 import numpy as np
 
 
-def parse_BIM(BIM_in, location, hazards):
+def parse_BIM(bim_in: dict, location: str, hazards: list[str]) -> dict:  # noqa: C901
     """
     Parses the information provided in the BIM model.
 
-    The atrributes below list the expected metadata in the BIM file
+    The attributes below list the expected metadata in the BIM file
 
     Parameters
     ----------
@@ -84,23 +85,28 @@ def parse_BIM(BIM_in, location, hazards):
     -------
     BIM: dictionary
         Parsed building characteristics.
-    """
 
+    Raises
+    ------
+    KeyError
+      In case of missing attributes.
+
+    """
     # check location
-    if location not in ['LA', 'NJ']:
-        print(f'WARNING: The provided location is not recognized: {location}')
+    if location not in {'LA', 'NJ'}:
+        print(f'WARNING: The provided location is not recognized: {location}')  # noqa: T201
 
     # check hazard
     for hazard in hazards:
-        if hazard not in ['wind', 'inundation']:
-            print(f'WARNING: The provided hazard is not recognized: {hazard}')
+        if hazard not in {'wind', 'inundation'}:
+            print(f'WARNING: The provided hazard is not recognized: {hazard}')  # noqa: T201
 
     # initialize the BIM dict
-    BIM = {}
+    bim = {}
 
     if 'wind' in hazards:
         # maps roof type to the internal representation
-        ap_RoofType = {
+        ap_roof_type = {
             'hip': 'hip',
             'hipped': 'hip',
             'Hip': 'hip',
@@ -112,8 +118,8 @@ def parse_BIM(BIM_in, location, hazards):
         }
 
         # maps roof system to the internal representation
-        ap_RoofSystem = {'Wood': 'trs', 'OWSJ': 'ows', 'N/A': 'trs'}
-        roof_system = BIM_in.get('RoofSystem', 'Wood')
+        ap_roof_system = {'Wood': 'trs', 'OWSJ': 'ows', 'N/A': 'trs'}
+        roof_system = bim_in.get('RoofSystem', 'Wood')
 
         # flake8 - unused variable: `ap_NoUnits`.
         # # maps number of units to the internal representation
@@ -130,13 +136,13 @@ def parse_BIM(BIM_in, location, hazards):
         # Year built
         alname_yearbuilt = ['yearBuilt', 'YearBuiltMODIV', 'YearBuiltNJDEP']
 
-        yearbuilt = BIM_in.get('YearBuilt', None)
+        yearbuilt = bim_in.get('YearBuilt')
 
         # if none of the above works, set a default
         if yearbuilt is None:
             for alname in alname_yearbuilt:
-                if alname in BIM_in.keys():
-                    yearbuilt = BIM_in[alname]
+                if alname in bim_in:
+                    yearbuilt = bim_in[alname]
                     break
 
         if yearbuilt is None:
@@ -150,65 +156,69 @@ def parse_BIM(BIM_in, location, hazards):
             'NumberofStories1',
         ]
 
-        nstories = BIM_in.get('NumberOfStories', None)
+        nstories = bim_in.get('NumberOfStories')
 
         if nstories is None:
             for alname in alname_nstories:
-                if alname in BIM_in.keys():
-                    nstories = BIM_in[alname]
+                if alname in bim_in:
+                    nstories = bim_in[alname]
                     break
 
         if nstories is None:
-            raise KeyError("NumberOfStories attribute missing, cannot autopopulate")
+            msg = 'NumberOfStories attribute missing, cannot autopopulate'
+            raise KeyError(msg)
 
         # Plan Area
         alname_area = ['area', 'PlanArea1', 'Area', 'PlanArea0']
 
-        area = BIM_in.get('PlanArea', None)
+        area = bim_in.get('PlanArea')
 
         if area is None:
             for alname in alname_area:
-                if alname in BIM_in.keys():
-                    area = BIM_in[alname]
+                if alname in bim_in:
+                    area = bim_in[alname]
                     break
 
         if area is None:
-            raise KeyError("PlanArea attribute missing, cannot autopopulate")
+            msg = 'PlanArea attribute missing, cannot autopopulate'
+            raise KeyError(msg)
 
         # Design Wind Speed
         alname_dws = ['DWSII', 'DesignWindSpeed']
 
-        dws = BIM_in.get('DesignWindSpeed', None)
+        dws = bim_in.get('DesignWindSpeed')
 
         if dws is None:
             for alname in alname_dws:
-                if alname in BIM_in.keys():
-                    dws = BIM_in[alname]
+                if alname in bim_in:
+                    dws = bim_in[alname]
                     break
 
         if dws is None:
-            raise KeyError("DesignWindSpeed attribute missing, cannot autopopulate")
+            msg = 'DesignWindSpeed attribute missing, cannot autopopulate'
+            raise KeyError(msg)
 
         # occupancy type
         alname_occupancy = ['occupancy', 'OccupancyClass']
 
-        oc = BIM_in.get('OccupancyClass', None)
+        oc = bim_in.get('OccupancyClass')
 
         if oc is None:
             for alname in alname_occupancy:
-                if alname in BIM_in.keys():
-                    oc = BIM_in[alname]
+                if alname in bim_in:
+                    oc = bim_in[alname]
                     break
 
         if oc is None:
-            raise KeyError("OccupancyClass attribute missing, cannot autopopulate")
+            msg = 'OccupancyClass attribute missing, cannot autopopulate'
+            raise KeyError(msg)
 
         # if getting RES3 then converting it to default RES3A
         if oc == 'RES3':
             oc = 'RES3A'
 
         # maps for BuildingType
-        ap_BuildingType_NJ = {
+        ap_building_type_nj = {
             # Coastal areas with a 1% or greater chance of flooding and an
             # additional hazard associated with storm waves.
             3001: 'Wood',
@@ -219,57 +229,56 @@ def parse_BIM(BIM_in, location, hazards):
         }
         if location == 'NJ':
             # NJDEP code for flood zone needs to be converted
-            buildingtype = ap_BuildingType_NJ[BIM_in['BuildingType']]
+            buildingtype = ap_building_type_nj[bim_in['BuildingType']]
 
         elif location == 'LA':
             # standard input should provide the building type as a string
-            buildingtype = BIM_in['BuildingType']
+            buildingtype = bim_in['BuildingType']
 
         # maps for design level (Marginal Engineered is mapped to
         # Engineered as defauplt)
-        ap_DesignLevel = {'E': 'E', 'NE': 'NE', 'PE': 'PE', 'ME': 'E'}
-        design_level = BIM_in.get('DesignLevel', 'E')
+        ap_design_level = {'E': 'E', 'NE': 'NE', 'PE': 'PE', 'ME': 'E'}
+        design_level = bim_in.get('DesignLevel', 'E')
 
         # flood zone
-        flood_zone = BIM_in.get('FloodZone', 'X')
+        flood_zone = bim_in.get('FloodZone', 'X')
 
         # add the parsed data to the BIM dict
-        BIM.update(
-            dict(
-                OccupancyClass=str(oc),
-                BuildingType=buildingtype,
-                YearBuilt=int(yearbuilt),
-                NumberOfStories=int(nstories),
-                PlanArea=float(area),
-                V_ult=float(dws),
-                AvgJanTemp=ap_ajt[BIM_in.get('AvgJanTemp', 'Below')],
-                RoofShape=ap_RoofType[BIM_in['RoofShape']],
-                RoofSlope=float(BIM_in.get('RoofSlope', 0.25)),  # default 0.25
-                SheathingThickness=float(
-                    BIM_in.get('SheathingThick', 1.0)
+        bim.update(
+            {
+                'OccupancyClass': str(oc),
+                'BuildingType': buildingtype,
+                'YearBuilt': int(yearbuilt),
+                'NumberOfStories': int(nstories),
+                'PlanArea': float(area),
+                'V_ult': float(dws),
+                'AvgJanTemp': ap_ajt[bim_in.get('AvgJanTemp', 'Below')],
+                'RoofShape': ap_roof_type[bim_in['RoofShape']],
+                'RoofSlope': float(bim_in.get('RoofSlope', 0.25)),  # default 0.25
+                'SheathingThickness': float(
+                    bim_in.get('SheathingThick', 1.0)
                 ),  # default 1.0
-                RoofSystem=str(
-                    ap_RoofSystem[roof_system]
+                'RoofSystem': str(
+                    ap_roof_system[roof_system]
                 ),  # only valid for masonry structures
-                Garage=float(BIM_in.get('Garage', -1.0)),
-                LULC=BIM_in.get('LULC', -1),
-                MeanRoofHt=float(BIM_in.get('MeanRoofHt', 15.0)),  # default 15
-                WindowArea=float(BIM_in.get('WindowArea', 0.20)),
-                WindZone=str(BIM_in.get('WindZone', 'I')),
-                FloodZone=str(flood_zone),
-            )
+                'Garage': float(bim_in.get('Garage', -1.0)),
+                'LULC': bim_in.get('LULC', -1),
+                'MeanRoofHt': float(bim_in.get('MeanRoofHt', 15.0)),  # default 15
+                'WindowArea': float(bim_in.get('WindowArea', 0.20)),
+                'WindZone': str(bim_in.get('WindZone', 'I')),
+                'FloodZone': str(flood_zone),
+            }
         )
 
     if 'inundation' in hazards:
-
         # maps for split level
-        ap_SplitLevel = {'NO': 0, 'YES': 1}
+        ap_split_level = {'NO': 0, 'YES': 1}
 
         # foundation type
-        foundation = BIM_in.get('FoundationType', 3501)
+        foundation = bim_in.get('FoundationType', 3501)
 
         # number of units
-        nunits = BIM_in.get('NoUnits', 1)
+        nunits = bim_in.get('NoUnits', 1)
 
         # flake8 - unused variable: `ap_FloodZone`.
         # # maps for flood zone
@@ -303,33 +312,34 @@ def parse_BIM(BIM_in, location, hazards):
         #     floodzone_fema = BIM_in['FloodZone']
 
         # add the parsed data to the BIM dict
-        BIM.update(
-            dict(
-                DesignLevel=str(ap_DesignLevel[design_level]),  # default engineered
-                NumberOfUnits=int(nunits),
-                FirstFloorElevation=float(BIM_in.get('FirstFloorHt1', 10.0)),
-                SplitLevel=bool(
-                    ap_SplitLevel[BIM_in.get('SplitLevel', 'NO')]
+        bim.update(
+            {
+                'DesignLevel': str(
+                    ap_design_level[design_level]
+                ),  # default engineered
+                'NumberOfUnits': int(nunits),
+                'FirstFloorElevation': float(bim_in.get('FirstFloorHt1', 10.0)),
+                'SplitLevel': bool(
+                    ap_split_level[bim_in.get('SplitLevel', 'NO')]
                 ),  # dfault: no
-                FoundationType=int(foundation),  # default: pile
-                City=BIM_in.get('City', 'NA'),
-            )
+                'FoundationType': int(foundation),  # default: pile
+                'City': bim_in.get('City', 'NA'),
+            }
         )
 
     # add inferred, generic meta-variables
 
     if 'wind' in hazards:
-
         # Hurricane-Prone Region (HRP)
         # Areas vulnerable to hurricane, defined as the U.S. Atlantic Ocean and
         # Gulf of Mexico coasts where the ultimate design wind speed, V_ult is
         # greater than a pre-defined limit.
-        if BIM['YearBuilt'] >= 2016:
+        if bim['YearBuilt'] >= 2016:
             # The limit is 115 mph in IRC 2015
-            HPR = BIM['V_ult'] > 115.0
+            hpr = bim['V_ult'] > 115.0
         else:
             # The limit is 90 mph in IRC 2009 and earlier versions
-            HPR = BIM['V_ult'] > 90.0
+            hpr = bim['V_ult'] > 90.0
 
         # Wind Borne Debris
         # Areas within hurricane-prone regions are affected by debris if one of
@@ -339,7 +349,7 @@ def parse_BIM(BIM_in, location, hazards):
         # (2) In areas where the ultimate design wind speed is greater than
         # general_lim
         # The flood_lim and general_lim limits depend on the year of construction
-        if BIM['YearBuilt'] >= 2016:
+        if bim['YearBuilt'] >= 2016:
             # In IRC 2015:
             flood_lim = 130.0  # mph
             general_lim = 140.0  # mph
@@ -353,16 +363,16 @@ def parse_BIM(BIM_in, location, hazards):
         # where the ultimate design wind speed is 130 mph (58m/s) or greater.
         # (2) In areas where the ultimate design wind speed is 140 mph (63.5m/s)
         # or greater. (Definitions: Chapter 2, 2015 NJ Residential Code)
-        if not HPR:
-            WBD = False
+        if not hpr:
+            wbd = False
         else:
-            WBD = (
+            wbd = (
                 (
-                    BIM['FloodZone'].startswith('A')
-                    or BIM['FloodZone'].startswith('V')
+                    bim['FloodZone'].startswith('A')
+                    or bim['FloodZone'].startswith('V')
                 )
-                and BIM['V_ult'] >= flood_lim
-            ) or (BIM['V_ult'] >= general_lim)
+                and bim['V_ult'] >= flood_lim
+            ) or (bim['V_ult'] >= general_lim)
 
         # Terrain
         # open (0.03) = 3
@@ -374,7 +384,7 @@ def parse_BIM(BIM_in, location, hazards):
         # https://www.state.nj.us/dep/gis/
         # digidownload/metadata/lulc02/anderson2002.html) by T. Wu
         # group (see internal report on roughness calculations, Table
-        # 4).  These are mapped to Hazus defintions as follows: Open
+        # 4).  These are mapped to Hazus definitions as follows: Open
         # Water (5400s) with zo=0.01 and barren land (7600) with
         # zo=0.04 assume Open Open Space Developed, Low Intensity
         # Developed, Medium Intensity Developed (1110-1140) assumed
@@ -388,76 +398,74 @@ def parse_BIM(BIM_in, location, hazards):
         # Note: HAZUS category of trees (1.00) does not apply to any
         # LU/LC in NJ
         terrain = 15  # Default in Reorganized Rulesets - WIND
-        if location == "NJ":
-            if BIM['FloodZone'].startswith('V') or BIM['FloodZone'] in [
+        if location == 'NJ':
+            if bim['FloodZone'].startswith('V') or bim['FloodZone'] in {
                 'A',
                 'AE',
                 'A1-30',
                 'AR',
                 'A99',
-            ]:
+            }:
                 terrain = 3
-            elif (BIM['LULC'] >= 5000) and (BIM['LULC'] <= 5999):
-                terrain = 3  # Open
-            elif ((BIM['LULC'] == 4400) or (BIM['LULC'] == 6240)) or (
-                BIM['LULC'] == 7600
+            elif ((bim['LULC'] >= 5000) and (bim['LULC'] <= 5999)) or (
+                ((bim['LULC'] == 4400) or (bim['LULC'] == 6240))
+                or (bim['LULC'] == 7600)
             ):
                 terrain = 3  # Open
-            elif (BIM['LULC'] >= 2000) and (BIM['LULC'] <= 2999):
+            elif (bim['LULC'] >= 2000) and (bim['LULC'] <= 2999):
                 terrain = 15  # Light suburban
-            elif ((BIM['LULC'] >= 1110) and (BIM['LULC'] <= 1140)) or (
-                (BIM['LULC'] >= 6250) and (BIM['LULC'] <= 6252)
+            elif ((bim['LULC'] >= 1110) and (bim['LULC'] <= 1140)) or (
+                (bim['LULC'] >= 6250) and (bim['LULC'] <= 6252)
             ):
                 terrain = 35  # Suburban
-            elif ((BIM['LULC'] >= 4100) and (BIM['LULC'] <= 4300)) or (
-                BIM['LULC'] == 1600
+            elif ((bim['LULC'] >= 4100) and (bim['LULC'] <= 4300)) or (
+                bim['LULC'] == 1600
             ):
                 terrain = 70  # light trees
-        elif location == "LA":
-            if BIM['FloodZone'].startswith('V') or BIM['FloodZone'] in [
+        elif location == 'LA':
+            if bim['FloodZone'].startswith('V') or bim['FloodZone'] in {
                 'A',
                 'AE',
                 'A1-30',
                 'AR',
                 'A99',
-            ]:
+            }:
                 terrain = 3
-            elif (BIM['LULC'] >= 50) and (BIM['LULC'] <= 59):
+            elif ((bim['LULC'] >= 50) and (bim['LULC'] <= 59)) or (
+                ((bim['LULC'] == 44) or (bim['LULC'] == 62)) or (bim['LULC'] == 76)
+            ):
                 terrain = 3  # Open
-            elif ((BIM['LULC'] == 44) or (BIM['LULC'] == 62)) or (BIM['LULC'] == 76):
-                terrain = 3  # Open
-            elif (BIM['LULC'] >= 20) and (BIM['LULC'] <= 29):
+            elif (bim['LULC'] >= 20) and (bim['LULC'] <= 29):
                 terrain = 15  # Light suburban
-            elif (BIM['LULC'] == 11) or (BIM['LULC'] == 61):
+            elif (bim['LULC'] == 11) or (bim['LULC'] == 61):
                 terrain = 35  # Suburban
-            elif ((BIM['LULC'] >= 41) and (BIM['LULC'] <= 43)) or (
-                BIM['LULC'] in [16, 17]
+            elif ((bim['LULC'] >= 41) and (bim['LULC'] <= 43)) or (
+                bim['LULC'] in {16, 17}
             ):
                 terrain = 70  # light trees
 
-        BIM.update(
-            dict(
+        bim.update(
+            {
                 # Nominal Design Wind Speed
                 # Former term was “Basic Wind Speed”; it is now the “Nominal Design
                 # Wind Speed (V_asd). Unit: mph."
-                V_asd=np.sqrt(0.6 * BIM['V_ult']),
-                HazardProneRegion=HPR,
-                WindBorneDebris=WBD,
-                TerrainRoughness=terrain,
-            )
+                'V_asd': np.sqrt(0.6 * bim['V_ult']),
+                'HazardProneRegion': hpr,
+                'WindBorneDebris': wbd,
+                'TerrainRoughness': terrain,
+            }
         )
 
     if 'inundation' in hazards:
-
-        BIM.update(
-            dict(
+        bim.update(
+            {
                 # Flood Risk
                 # Properties in the High Water Zone (within 1 mile of
                 # the coast) are at risk of flooding and other
                 # wind-borne debris action.
-                # TODO: need high water zone for this and move it to inputs!
-                FloodRisk=True,
-            )
+                # TODO: need high water zone for this and move it to inputs!  # noqa: TD002
+                'FloodRisk': True,
+            }
         )
 
-    return BIM
+    return bim

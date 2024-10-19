@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,55 +37,56 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the damage model of pelicun.
-"""
+"""These are unit and integration tests on the damage model of pelicun."""
 
 from __future__ import annotations
-from copy import deepcopy
+
 import warnings
-import pytest
+from copy import deepcopy
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
-from pelicun import base
-from pelicun import uq
-from pelicun.model.damage_model import DamageModel
-from pelicun.model.damage_model import DamageModel_Base
-from pelicun.model.damage_model import DamageModel_DS
-from pelicun.model.damage_model import _is_for_ds_model
-from pelicun.tests.basic.test_pelicun_model import TestPelicunModel
-from pelicun.warnings import PelicunWarning
+import pytest
 
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=missing-return-doc,missing-return-type-doc
+from pelicun import base, uq
+from pelicun.base import ensure_value
+from pelicun.model.damage_model import (
+    DamageModel,
+    DamageModel_Base,
+    DamageModel_DS,
+    _is_for_ds_model,
+)
+from pelicun.pelicun_warnings import PelicunWarning
+from pelicun.tests.basic.test_pelicun_model import TestPelicunModel
+
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 
 class TestDamageModel(TestPelicunModel):
-
     @pytest.fixture
-    def damage_model(self, assessment_instance):
+    def damage_model(self, assessment_instance: Assessment) -> DamageModel:
         return deepcopy(assessment_instance.damage)
 
-    def test___init__(self, damage_model):
+    def test___init__(self, damage_model: DamageModel) -> None:
         assert damage_model.log
         assert damage_model.ds_model
         with pytest.raises(AttributeError):
-            damage_model.xyz = 123
+            damage_model.xyz = 123  # type: ignore
 
         assert damage_model.ds_model.damage_params is None
         assert damage_model.ds_model.sample is None
 
         assert len(damage_model._damage_models) == 1
 
-    def test_damage_models(self, assessment_instance):
-
+    def test_damage_models(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel(assessment_instance)
         assert damage_model._damage_models is not None
         assert len(damage_model._damage_models) == 1
         assert isinstance(damage_model._damage_models[0], DamageModel_DS)
 
-    def test_load_model_parameters(self, damage_model):
+    def test_load_model_parameters(self, damage_model: DamageModel) -> None:
         path = (
             'pelicun/tests/basic/data/model/test_DamageModel/'
             'load_model_parameters/damage_db.csv'
@@ -100,11 +100,12 @@ class TestDamageModel(TestPelicunModel):
             damage_model.load_model_parameters([path], cmp_set, warn_missing=True)
         assert len(w) == 1
         assert (
-            "The damage model does not provide damage information "
-            "for the following component(s) in the asset model: "
+            'The damage model does not provide damage information '
+            'for the following component(s) in the asset model: '
             "['component.incomplete']."
         ) in str(w[0].message)
         damage_parameters = damage_model.ds_model.damage_params
+        assert damage_parameters is not None
         assert 'component.A' in damage_parameters.index
         assert 'component.B' in damage_parameters.index
         assert 'component.C' not in damage_parameters.index
@@ -127,29 +128,28 @@ class TestDamageModel(TestPelicunModel):
             damage_model.load_model_parameters([path], cmp_set, warn_missing=True)
         assert len(w) == 1
         assert (
-            "The damage model does not provide damage "
-            "information for the following component(s) "
+            'The damage model does not provide damage '
+            'information for the following component(s) '
             "in the asset model: ['not.exist']."
         ) in str(w[0].message)
-        assert damage_model.ds_model.damage_params.empty
+        assert ensure_value(damage_model.ds_model.damage_params).empty
 
-    def test_calculate(self):
+    def test_calculate(self) -> None:
         # User-facing methods are coupled with other assessment objects
         # and are tested in the verification examples.
         pass
 
-    def test_save_sample(self):
+    def test_save_sample(self) -> None:
         # User-facing methods are coupled with other assessment objects
         # and are tested in the verification examples.
         pass
 
-    def test_load_sample(self):
+    def test_load_sample(self) -> None:
         # User-facing methods are coupled with other assessment objects
         # and are tested in the verification examples.
         pass
 
-    def test__get_component_id_set(self, assessment_instance):
-
+    def test__get_component_id_set(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel(assessment_instance)
 
         damage_model.ds_model.damage_params = pd.DataFrame(
@@ -166,8 +166,9 @@ class TestDamageModel(TestPelicunModel):
 
         assert component_id_set == expected_set
 
-    def test__ensure_damage_parameter_availability(self, assessment_instance):
-
+    def test__ensure_damage_parameter_availability(
+        self, assessment_instance: Assessment
+    ) -> None:
         damage_model = DamageModel(assessment_instance)
 
         damage_model.ds_model.damage_params = pd.DataFrame(
@@ -178,29 +179,26 @@ class TestDamageModel(TestPelicunModel):
             index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3'], name='ID'),
         )
 
-        cmp_list = ['cmp.1', 'cmp.2', 'cmp.3', 'cmp.4']
+        cmp_set = {'cmp.1', 'cmp.2', 'cmp.3', 'cmp.4'}
 
         expected_missing_components = ['cmp.4']
 
         with pytest.warns(PelicunWarning) as record:
             missing_components = damage_model._ensure_damage_parameter_availability(
-                cmp_list, warn_missing=True
+                cmp_set, warn_missing=True
             )
         assert missing_components == expected_missing_components
         assert len(record) == 1
-        assert "cmp.4" in str(record[0].message)
+        assert 'cmp.4' in str(record[0].message)
 
 
 class TestDamageModel_Base(TestPelicunModel):
-    def test___init__(self, assessment_instance):
-
+    def test___init__(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel_Base(assessment_instance)
         with pytest.raises(AttributeError):
-            # pylint: disable=assigning-non-slot
-            damage_model.xyz = 123
+            damage_model.xyz = 123  # type: ignore
 
-    def test__load_model_parameters(self, assessment_instance):
-
+    def test__load_model_parameters(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel_Base(assessment_instance)
 
         damage_model.damage_params = pd.DataFrame(
@@ -221,7 +219,7 @@ class TestDamageModel_Base(TestPelicunModel):
             index=pd.Index(['cmp.1', 'cmp.3'], name='ID'),
         )
 
-        damage_model._load_model_parameters(new_data)
+        damage_model.load_model_parameters(new_data)
 
         pd.testing.assert_frame_equal(
             damage_model.damage_params,
@@ -234,12 +232,13 @@ class TestDamageModel_Base(TestPelicunModel):
             ),
         )
 
-    def test__convert_damage_parameter_units(self, assessment_instance):
-
+    def test__convert_damage_parameter_units(
+        self, assessment_instance: Assessment
+    ) -> None:
         damage_model = DamageModel_Base(assessment_instance)
 
         # should have no effect when damage_params is None
-        damage_model._convert_damage_parameter_units()
+        damage_model.convert_damage_parameter_units()
 
         # converting units from 'g' to 'm/s2' (1g ~ 9.80665 m/s2)
 
@@ -251,7 +250,7 @@ class TestDamageModel_Base(TestPelicunModel):
             index=pd.Index(['cmp.1', 'cmp.2'], name='ID'),
         )
 
-        damage_model._convert_damage_parameter_units()
+        damage_model.convert_damage_parameter_units()
 
         pd.testing.assert_frame_equal(
             damage_model.damage_params,
@@ -266,13 +265,14 @@ class TestDamageModel_Base(TestPelicunModel):
             ),
         )
 
-    def test__remove_incomplete_components(self, assessment_instance):
-
+    def test__remove_incomplete_components(
+        self, assessment_instance: Assessment
+    ) -> None:
         damage_model = DamageModel_Base(assessment_instance)
 
         # with damage_model.damage_params set to None this should have
         # no effect.
-        damage_model._remove_incomplete_components()
+        damage_model.remove_incomplete_components()
 
         damage_model.damage_params = pd.DataFrame(
             {
@@ -282,7 +282,7 @@ class TestDamageModel_Base(TestPelicunModel):
             index=pd.Index(['cmp.1', 'cmp.2', 'cmp.3', 'cmp.4'], name='ID'),
         )
 
-        damage_model._remove_incomplete_components()
+        damage_model.remove_incomplete_components()
 
         pd.testing.assert_frame_equal(
             damage_model.damage_params,
@@ -298,14 +298,17 @@ class TestDamageModel_Base(TestPelicunModel):
 
         # with damage_model.damage_params set to None this should have
         # no effect.
-        damage_model.damage_params.drop(('Incomplete', ''), axis=1, inplace=True)
+        damage_model.damage_params = damage_model.damage_params.drop(
+            ('Incomplete', ''), axis=1
+        )
         # now, this should also have no effect
         before = damage_model.damage_params.copy()
-        damage_model._remove_incomplete_components()
+        damage_model.remove_incomplete_components()
         pd.testing.assert_frame_equal(before, damage_model.damage_params)
 
-    def test__drop_unused_damage_parameters(self, assessment_instance):
-
+    def test__drop_unused_damage_parameters(
+        self, assessment_instance: Assessment
+    ) -> None:
         damage_model = DamageModel_Base(assessment_instance)
 
         damage_model.damage_params = pd.DataFrame(
@@ -314,15 +317,14 @@ class TestDamageModel_Base(TestPelicunModel):
 
         cmp_set = {'cmp.1', 'cmp.3'}
 
-        damage_model._drop_unused_damage_parameters(cmp_set)
+        damage_model.drop_unused_damage_parameters(cmp_set)
 
         pd.testing.assert_frame_equal(
             damage_model.damage_params,
             pd.DataFrame(index=pd.Index(['cmp.1', 'cmp.3'], name='ID')),
         )
 
-    def test__get_pg_batches(self, assessment_instance):
-
+    def test__get_pg_batches(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel_Base(assessment_instance)
 
         component_blocks = pd.DataFrame(
@@ -370,9 +372,7 @@ class TestDamageModel_Base(TestPelicunModel):
 
 
 class TestDamageModel_DS(TestDamageModel_Base):
-
-    def test__obtain_ds_sample(self, assessment_instance):
-
+    def test__obtain_ds_sample(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel_DS(assessment_instance)
 
         demand_sample = pd.DataFrame(
@@ -417,7 +417,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             index=['cmp.1', 'cmp.2', 'cmp.3'],
         ).rename_axis('ID')
 
-        damage_model._obtain_ds_sample(
+        damage_model.obtain_ds_sample(
             demand_sample,
             component_blocks,
             block_batch_size,
@@ -426,7 +426,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             nondirectional_multipliers,
         )
         pd.testing.assert_frame_equal(
-            damage_model.ds_sample,
+            ensure_value(damage_model.ds_sample),
             pd.DataFrame(
                 {
                     ('cmp.1', '1', '1', '1', '1'): [1, 1],
@@ -438,8 +438,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block']),
         )
 
-    def test__handle_operation(self, assessment_instance):
-
+    def test__handle_operation(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel_DS(assessment_instance)
 
         assert damage_model._handle_operation(1.00, '+', 1.00) == 2.00
@@ -447,16 +446,14 @@ class TestDamageModel_DS(TestDamageModel_Base):
         assert damage_model._handle_operation(1.00, '*', 4.00) == 4.00
         assert damage_model._handle_operation(8.00, '/', 8.00) == 1.00
 
-        with pytest.raises(ValueError) as record:
+        with pytest.raises(ValueError, match='Invalid operation: `%`'):
             damage_model._handle_operation(1.00, '%', 1.00)
-        assert ('Invalid operation: `%`') in str(record.value)
 
-    def test__generate_dmg_sample(self, assessment_instance):
-
+    def test__generate_dmg_sample(self, assessment_instance: Assessment) -> None:
         # Create an instance of the damage model
         damage_model = DamageModel_DS(assessment_instance)
 
-        PGB = pd.DataFrame(
+        pgb = pd.DataFrame(
             {'Blocks': [1]},
             index=pd.MultiIndex.from_tuples(
                 [('cmp.test', '1', '2', '3')],
@@ -484,7 +481,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
         sample_size = 2
 
         capacity_sample, lsds_sample = damage_model._generate_dmg_sample(
-            sample_size, PGB, scaling_specification
+            sample_size, pgb, scaling_specification
         )
 
         pd.testing.assert_frame_equal(
@@ -506,11 +503,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block', 'ls']),
         )
 
-    def test__create_dmg_RVs(self, assessment_instance):
-
+    def test__create_dmg_RVs(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel_DS(assessment_instance)
 
-        PGB = pd.DataFrame(
+        pgb = pd.DataFrame(
             {'Blocks': [1]},
             index=pd.MultiIndex.from_tuples(
                 [
@@ -543,8 +539,8 @@ class TestDamageModel_DS(TestDamageModel_Base):
         scaling_specification = {'cmp.A-1-2': '*1.20'}
 
         # Execute the method under test
-        capacity_RV_reg, lsds_RV_reg = damage_model._create_dmg_RVs(
-            PGB, scaling_specification
+        capacity_rv_reg, lsds_rv_reg = damage_model._create_dmg_RVs(
+            pgb, scaling_specification
         )
 
         # Now we need to verify the outputs in the registries
@@ -552,20 +548,19 @@ class TestDamageModel_DS(TestDamageModel_Base):
         # created correctly.
         # Example check for presence and properties of a
         # RandomVariable in the registry:
-        assert 'FRG-cmp.A-1-2-3-1-1' in capacity_RV_reg.RV
+        assert 'FRG-cmp.A-1-2-3-1-1' in capacity_rv_reg.RV
         assert isinstance(
-            capacity_RV_reg.RV['FRG-cmp.A-1-2-3-1-1'],
+            capacity_rv_reg.RV['FRG-cmp.A-1-2-3-1-1'],
             uq.LogNormalRandomVariable,
         )
 
-        assert 'LSDS-cmp.A-1-2-3-1-1' in lsds_RV_reg.RV
+        assert 'LSDS-cmp.A-1-2-3-1-1' in lsds_rv_reg.RV
         assert isinstance(
-            lsds_RV_reg.RV['LSDS-cmp.A-1-2-3-1-1'],
+            lsds_rv_reg.RV['LSDS-cmp.A-1-2-3-1-1'],
             uq.MultinomialRandomVariable,
         )
 
-    def test__evaluate_damage_state(self, assessment_instance):
-
+    def test__evaluate_damage_state(self, assessment_instance: Assessment) -> None:
         # We define a single component with 3 limit states.
         # The last limit state can have two damage states, DS3 and DS4.
         # We test that the damage state assignments are correct.
@@ -609,8 +604,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'block']),
         )
 
-    def test__prepare_dmg_quantities(self, assessment_instance):
-
+    def test__prepare_dmg_quantities(self, assessment_instance: Assessment) -> None:
         #
         # A case with blocks
         #
@@ -638,10 +632,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
             index=pd.MultiIndex.from_tuples([('A', '0', '1', '0')]),
         ).rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
 
-        res = damage_model._prepare_dmg_quantities(
+        res = damage_model.prepare_dmg_quantities(
             component_sample,
             component_marginal_parameters,
-            True,
+            dropzero=True,
         )
 
         # Each block takes half the quantity.
@@ -678,10 +672,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
             },
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        res = damage_model._prepare_dmg_quantities(
+        res = damage_model.prepare_dmg_quantities(
             component_sample,
             None,
-            True,
+            dropzero=True,
         )
 
         # Realization 0: Expect NaNs
@@ -719,10 +713,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
             },
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        res = damage_model._prepare_dmg_quantities(
+        res = damage_model.prepare_dmg_quantities(
             component_sample,
             None,
-            True,
+            dropzero=True,
         )
 
         pd.testing.assert_frame_equal(
@@ -734,10 +728,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
         )
 
-        res = damage_model._prepare_dmg_quantities(
+        res = damage_model.prepare_dmg_quantities(
             component_sample,
             None,
-            False,
+            dropzero=False,
         )
 
         pd.testing.assert_frame_equal(
@@ -751,8 +745,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
             ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds']),
         )
 
-    def test__perform_dmg_task(self, assessment_instance):
-
+    def test__perform_dmg_task(self, assessment_instance: Assessment) -> None:  # noqa: C901
         damage_model = DamageModel_DS(assessment_instance)
 
         #
@@ -769,9 +762,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_DS4"}}
+        dmg_process = {'1_CMP.B': {'DS1': 'CMP.A_DS4'}}
         for task in dmg_process.items():
-            damage_model._perform_dmg_task(task)
+            damage_model.perform_dmg_task(task)
 
         pd.testing.assert_frame_equal(
             damage_model.ds_sample,
@@ -800,9 +793,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
+        dmg_process = {'1_CMP.B': {'DS1': 'CMP.A_NA'}}
         for task in dmg_process.items():
-            damage_model._perform_dmg_task(task)
+            damage_model.perform_dmg_task(task)
 
         pd.testing.assert_frame_equal(
             damage_model.ds_sample,
@@ -833,9 +826,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_DS4"}}
+        dmg_process = {'1_CMP.B-LOC': {'DS1': 'CMP.A_DS4'}}
         for task in dmg_process.items():
-            damage_model._perform_dmg_task(task)
+            damage_model.perform_dmg_task(task)
 
         pd.testing.assert_frame_equal(
             damage_model.ds_sample,
@@ -867,9 +860,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.A": {"DS1": "ALL_DS2"}}
+        dmg_process = {'1_CMP.A': {'DS1': 'ALL_DS2'}}
         for task in dmg_process.items():
-            damage_model._perform_dmg_task(task)
+            damage_model.perform_dmg_task(task)
 
         pd.testing.assert_frame_equal(
             damage_model.ds_sample,
@@ -900,9 +893,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.B": {"DS1": "CMP.A_NA"}}
+        dmg_process = {'1_CMP.B': {'DS1': 'CMP.A_NA'}}
         for task in dmg_process.items():
-            damage_model._perform_dmg_task(task)
+            damage_model.perform_dmg_task(task)
 
         pd.testing.assert_frame_equal(
             damage_model.ds_sample,
@@ -931,9 +924,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.B-LOC": {"DS1": "CMP.A_NA"}}
+        dmg_process = {'1_CMP.B-LOC': {'DS1': 'CMP.A_NA'}}
         for task in dmg_process.items():
-            damage_model._perform_dmg_task(task)
+            damage_model.perform_dmg_task(task)
 
         pd.testing.assert_frame_equal(
             damage_model.ds_sample,
@@ -964,9 +957,9 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.A-LOC": {"DS1": "ALL_NA"}}
+        dmg_process = {'1_CMP.A-LOC': {'DS1': 'ALL_NA'}}
         for task in dmg_process.items():
-            damage_model._perform_dmg_task(task)
+            damage_model.perform_dmg_task(task)
 
         pd.testing.assert_frame_equal(
             damage_model.ds_sample,
@@ -994,10 +987,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
             dtype='int32',
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid'])
 
-        dmg_process = {"1_CMP.C": {"DS1": "CMP.A_DS4"}}
+        dmg_process = {'1_CMP.C': {'DS1': 'CMP.A_DS4'}}
         with pytest.warns(PelicunWarning) as record:
             for task in dmg_process.items():
-                damage_model._perform_dmg_task(task)
+                damage_model.perform_dmg_task(task)
         assert (
             'Source component `CMP.C` in the prescribed damage process not found'
         ) in str(record.list[0].message)
@@ -1005,10 +998,10 @@ class TestDamageModel_DS(TestDamageModel_Base):
         #
         # Test warnings: Target component not found
         #
-        dmg_process = {"1_CMP.A": {"DS1": "CMP.C_DS4"}}
+        dmg_process = {'1_CMP.A': {'DS1': 'CMP.C_DS4'}}
         with pytest.warns(PelicunWarning) as record:
             for task in dmg_process.items():
-                damage_model._perform_dmg_task(task)
+                damage_model.perform_dmg_task(task)
         assert (
             'Target component `CMP.C` in the prescribed damage process not found'
         ) in str(record.list[0].message)
@@ -1016,23 +1009,22 @@ class TestDamageModel_DS(TestDamageModel_Base):
         #
         # Test Error: Unable to parse source event
         #
-        dmg_process = {"1_CMP.A": {"XYZ": "CMP.B_DS1"}}
-        with pytest.raises(ValueError) as record:
-            for task in dmg_process.items():
-                damage_model._perform_dmg_task(task)
-        assert ('Unable to parse source event in damage process: `XYZ`') in str(
-            record.value
-        )
-        dmg_process = {"1_CMP.A": {"DS1": "CMP.B_ABC"}}
-        with pytest.raises(ValueError) as record:
-            for task in dmg_process.items():
-                damage_model._perform_dmg_task(task)
-        assert ('Unable to parse target event in damage process: `ABC`') in str(
-            record.value
-        )
+        dmg_process = {'1_CMP.A': {'XYZ': 'CMP.B_DS1'}}
+        for task in dmg_process.items():
+            with pytest.raises(
+                ValueError,
+                match='Unable to parse source event in damage process: `XYZ`',
+            ):
+                damage_model.perform_dmg_task(task)
+        dmg_process = {'1_CMP.A': {'DS1': 'CMP.B_ABC'}}
+        for task in dmg_process.items():
+            with pytest.raises(
+                ValueError,
+                match='Unable to parse target event in damage process: `ABC`',
+            ):
+                damage_model.perform_dmg_task(task)
 
-    def test__complete_ds_cols(self, assessment_instance):
-
+    def test__complete_ds_cols(self, assessment_instance: Assessment) -> None:
         damage_model = DamageModel_DS(assessment_instance)
         # the method needs damage parameters
         damage_model.damage_params = base.convert_to_MultiIndex(
@@ -1053,7 +1045,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
                 ('single.ds', '0', '0', '0', '1'): [100.00],
             },
         ).rename_axis(columns=['cmp', 'loc', 'dir', 'uid', 'ds'])
-        out = damage_model._complete_ds_cols(dmg_sample)
+        out = damage_model.complete_ds_cols(dmg_sample)
         pd.testing.assert_frame_equal(
             out,
             pd.DataFrame(
@@ -1069,8 +1061,7 @@ class TestDamageModel_DS(TestDamageModel_Base):
         )
 
 
-def test__is_for_ds_model():
-
+def test__is_for_ds_model() -> None:
     data_with_ls1 = pd.DataFrame(
         {
             ('LS1', 'Theta_0'): [0.5],

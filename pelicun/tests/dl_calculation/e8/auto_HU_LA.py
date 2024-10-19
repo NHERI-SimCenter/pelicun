@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-#
+#  # noqa: N999
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
 #
@@ -33,7 +32,7 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # this file. If not, see <http://www.opensource.org/licenses/>.
-#
+
 # Contributors:
 # Adam Zsarnóczay
 # Kuanshi Zhong
@@ -44,20 +43,24 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
+
+from __future__ import annotations
+
+import contextlib
+
 import pandas as pd
-
-from MetaVarRulesets import parse_BIM
 from BldgClassRulesets import building_class
-from WindWSFRulesets import WSF_config
+from MetaVarRulesets import parse_BIM
 from WindWMUHRulesets import WMUH_config
+from WindWSFRulesets import WSF_config
 
 
-def auto_populate(AIM):
+def auto_populate(aim: dict) -> tuple[dict, dict, pd.DataFrame]:
     """
-    Populates the DL model for hurricane assessments in Atlantic County, NJ
+    Populates the DL model for hurricane assessments in Atlantic County, NJ.
 
     Assumptions:
-    - Everything relevant to auto-population is provided in the Buiding
+    - Everything relevant to auto-population is provided in the Building
     Information Model (AIM).
     - The information expected in the AIM file is described in the parse_GI
     method.
@@ -71,74 +74,78 @@ def auto_populate(AIM):
     Returns
     -------
     GI_ap: dictionary
-        Containes the extended BIM data.
+        Contains the extended BIM data.
     DL_ap: dictionary
         Contains the auto-populated loss model.
-    """
 
+    Raises
+    ------
+    ValueError
+      If the building class is not recognized.
+
+    """
     # extract the General Information
-    GI = AIM.get('GeneralInformation', None)
+    gi = aim.get('GeneralInformation')
 
     # parse the GI data
-    GI_ap = parse_BIM(
-        GI,
-        location="LA",
+    gi_ap = parse_BIM(
+        gi,
+        location='LA',
         hazards=[
             'wind',
         ],
     )
 
     # identify the building class
-    bldg_class = building_class(GI_ap, hazard='wind')
-    GI_ap.update({'HazusClassW': bldg_class})
+    bldg_class = building_class(gi_ap, hazard='wind')
+    gi_ap.update({'HazusClassW': bldg_class})
 
     # prepare the building configuration string
     if bldg_class == 'WSF':
-        bldg_config = WSF_config(GI_ap)
+        bldg_config = WSF_config(gi_ap)
     elif bldg_class == 'WMUH':
-        bldg_config = WMUH_config(GI_ap)
+        bldg_config = WMUH_config(gi_ap)
     else:
-        raise ValueError(
-            f"Building class {bldg_class} not recognized by the "
-            f"auto-population routine."
+        msg = (
+            f'Building class {bldg_class} not recognized by the '
+            f'auto-population routine.'
         )
+        raise ValueError(msg)
 
     # drop keys of internal variables from GI_ap dict
     internal_vars = ['V_ult', 'V_asd']
     for var in internal_vars:
-        try:
-            GI_ap.pop(var)
-        except KeyError:
-            pass
+        with contextlib.suppress(KeyError):
+            gi_ap.pop(var)
 
     # prepare the component assignment
-    CMP = pd.DataFrame(
+    comp = pd.DataFrame(
         {f'{bldg_config}': ['ea', 1, 1, 1, 'N/A']},
         index=['Units', 'Location', 'Direction', 'Theta_0', 'Family'],
     ).T
 
-    DL_ap = {
-        "Asset": {
-            "ComponentAssignmentFile": "CMP_QNT.csv",
-            "ComponentDatabase": "Hazus Hurricane",
-            "NumberOfStories": f"{GI_ap['NumberOfStories']}",
-            "OccupancyType": f"{GI_ap['OccupancyClass']}",
-            "PlanArea": f"{GI_ap['PlanArea']}",
+    dl_ap = {
+        'Asset': {
+            'ComponentAssignmentFile': 'CMP_QNT.csv',
+            'ComponentDatabase': 'Hazus Hurricane',
+            'NumberOfStories': f"{gi_ap['NumberOfStories']}",
+            'OccupancyType': f"{gi_ap['OccupancyClass']}",
+            'PlanArea': f"{gi_ap['PlanArea']}",
         },
-        "Damage": {"DamageProcess": "Hazus Hurricane"},
-        "Demands": {},
-        "Losses": {
-            "BldgRepair": {
-                "ConsequenceDatabase": "Hazus Hurricane",
-                "MapApproach": "Automatic",
-                "DecisionVariables": {
-                    "Cost": True,
-                    "Carbon": False,
-                    "Energy": False,
-                    "Time": False,
+        'Damage': {'DamageProcess': 'Hazus Hurricane'},
+        'Demands': {},
+        'Losses': {
+            'BldgRepair': {
+                'ConsequenceDatabase': 'Hazus Hurricane',
+                'MapApproach': 'Automatic',
+                'DecisionVariables': {
+                    'Cost': True,
+                    'Carbon': False,
+                    'Energy': False,
+                    'Time': False,
                 },
             }
         },
     }
 
-    return GI_ap, DL_ap, CMP
+    return gi_ap, dl_ap, comp

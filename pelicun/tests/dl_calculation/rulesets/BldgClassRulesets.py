@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -44,9 +43,9 @@
 # Tracy Kijewski-Correa
 
 
-def building_class(BIM, hazard):
+def building_class(bim: dict, hazard: str) -> str:  # noqa: C901
     """
-    Short description
+    Short description.
 
     Long description
 
@@ -61,27 +60,27 @@ def building_class(BIM, hazard):
     -------
     bldg_class: str
         One of the standard building class labels from HAZUS
-    """
 
+    """
     # check hazard
-    if hazard not in ['wind', 'inundation']:
-        print(f'WARNING: The provided hazard is not recognized: {hazard}')
+    if hazard not in {'wind', 'inundation'}:
+        print(f'WARNING: The provided hazard is not recognized: {hazard}')  # noqa: T201
 
     if hazard == 'wind':
-        if BIM['BuildingType'] == "Wood":
-            if (BIM['OccupancyClass'] == 'RES1') or (
-                (BIM['RoofShape'] != 'flt') and (BIM['OccupancyClass'] == '')
+        if bim['BuildingType'] == 'Wood':
+            if (bim['OccupancyClass'] == 'RES1') or (
+                (bim['RoofShape'] != 'flt') and (bim['OccupancyClass'] == '')  # noqa: PLC1901
             ):
                 # OccupancyClass = RES1
                 # Wood Single-Family Homes (WSF1 or WSF2)
                 # OR roof type = flat (HAZUS can only map flat to WSF1)
                 # OR default (by '')
                 if (
-                    BIM['RoofShape'] == 'flt'
+                    bim['RoofShape'] == 'flt'
                 ):  # checking if there is a misclassication
-                    BIM['RoofShape'] = (
+                    bim['RoofShape'] = (
                         # ensure the WSF has gab (by default, note gab
-                        # is more vulneable than hip)
+                        # is more vulnerable than hip)
                         'gab'
                     )
                 bldg_class = 'WSF'
@@ -90,16 +89,16 @@ def building_class(BIM, hazard):
                 # Wood Multi-Unit Hotel (WMUH1, WMUH2, or WMUH3)
                 bldg_class = 'WMUH'
 
-        elif BIM['BuildingType'] == "Steel":
-            if (BIM['DesignLevel'] == 'E') and (
-                BIM['OccupancyClass']
-                in ['RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F']
+        elif bim['BuildingType'] == 'Steel':
+            if (bim['DesignLevel'] == 'E') and (
+                bim['OccupancyClass']
+                in {'RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F'}
             ):
                 # Steel Engineered Residential Building (SERBL, SERBM, SERBH)
                 bldg_class = 'SERB'
-            elif (BIM['DesignLevel'] == 'E') and (
-                BIM['OccupancyClass']
-                in [
+            elif (bim['DesignLevel'] == 'E') and (
+                bim['OccupancyClass']
+                in {
                     'COM1',
                     'COM2',
                     'COM3',
@@ -110,23 +109,23 @@ def building_class(BIM, hazard):
                     'COM8',
                     'COM9',
                     'COM10',
-                ]
+                }
             ):
                 # Steel Engineered Commercial Building (SECBL, SECBM, SECBH)
                 bldg_class = 'SECB'
-            elif (BIM['DesignLevel'] == 'PE') and (
-                BIM['OccupancyClass']
-                not in ['RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F']
+            elif (bim['DesignLevel'] == 'PE') and (
+                bim['OccupancyClass']
+                not in {'RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F'}
             ):
                 # Steel Pre-Engineered Metal Building (SPMBS, SPMBM, SPMBL)
                 bldg_class = 'SPMB'
             else:
                 bldg_class = 'SECB'
 
-        elif BIM['BuildingType'] == "Concrete":
-            if (BIM['DesignLevel'] == 'E') and (
-                BIM['OccupancyClass']
-                in [
+        elif bim['BuildingType'] == 'Concrete':
+            if (bim['DesignLevel'] == 'E') and (
+                bim['OccupancyClass']
+                in {
                     'RES3A',
                     'RES3B',
                     'RES3C',
@@ -135,13 +134,13 @@ def building_class(BIM, hazard):
                     'RES3F',
                     'RES5',
                     'RES6',
-                ]
+                }
             ):
                 # Concrete Engineered Residential Building (CERBL, CERBM, CERBH)
                 bldg_class = 'CERB'
-            elif (BIM['DesignLevel'] == 'E') and (
-                BIM['OccupancyClass']
-                in [
+            elif (bim['DesignLevel'] == 'E') and (
+                bim['OccupancyClass']
+                in {
                     'COM1',
                     'COM2',
                     'COM3',
@@ -152,27 +151,27 @@ def building_class(BIM, hazard):
                     'COM8',
                     'COM9',
                     'COM10',
-                ]
+                }
             ):
                 # Concrete Engineered Commercial Building (CECBL, CECBM, CECBH)
                 bldg_class = 'CECB'
             else:
                 bldg_class = 'CECB'
 
-        elif BIM['BuildingType'] == "Masonry":
-            if BIM['OccupancyClass'] == 'RES1':
+        elif bim['BuildingType'] == 'Masonry':
+            if bim['OccupancyClass'] == 'RES1':
                 # OccupancyClass = RES1
                 # Masonry Single-Family Homes (MSF1 or MSF2)
                 bldg_class = 'MSF'
             elif (
-                BIM['OccupancyClass']
-                in ['RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F']
-            ) and (BIM['DesignLevel'] == 'E'):
+                bim['OccupancyClass']
+                in {'RES3A', 'RES3B', 'RES3C', 'RES3D', 'RES3E', 'RES3F'}
+            ) and (bim['DesignLevel'] == 'E'):
                 # Masonry Engineered Residential Building (MERBL, MERBM, MERBH)
                 bldg_class = 'MERB'
             elif (
-                BIM['OccupancyClass']
-                in [
+                bim['OccupancyClass']
+                in {
                     'COM1',
                     'COM2',
                     'COM3',
@@ -183,21 +182,21 @@ def building_class(BIM, hazard):
                     'COM8',
                     'COM9',
                     'COM10',
-                ]
-            ) and (BIM['DesignLevel'] == 'E'):
+                }
+            ) and (bim['DesignLevel'] == 'E'):
                 # Masonry Engineered Commercial Building (MECBL, MECBM, MECBH)
                 bldg_class = 'MECB'
-            elif BIM['OccupancyClass'] in [
+            elif bim['OccupancyClass'] in {
                 'IND1',
                 'IND2',
                 'IND3',
                 'IND4',
                 'IND5',
                 'IND6',
-            ]:
+            }:
                 # Masonry Low-Rise Masonry Warehouse/Factory (MLRI)
                 bldg_class = 'MLRI'
-            elif BIM['OccupancyClass'] in [
+            elif bim['OccupancyClass'] in {
                 'RES3A',
                 'RES3B',
                 'RES3C',
@@ -207,12 +206,12 @@ def building_class(BIM, hazard):
                 'RES5',
                 'RES6',
                 'COM8',
-            ]:
+            }:
                 # OccupancyClass = RES3X or COM8
                 # Masonry Multi-Unit Hotel/Motel (MMUH1, MMUH2, or MMUH3)
                 bldg_class = 'MMUH'
-            elif (BIM['NumberOfStories'] == 1) and (
-                BIM['OccupancyClass'] in ['COM1', 'COM2']
+            elif (bim['NumberOfStories'] == 1) and (
+                bim['OccupancyClass'] in {'COM1', 'COM2'}
             ):
                 # Low-Rise Masonry Strip Mall (MLRM1 or MLRM2)
                 bldg_class = 'MLRM'
@@ -236,7 +235,7 @@ def building_class(BIM, hazard):
             else:
                 bldg_class = 'MECB'  # for others not covered by the above
 
-        elif BIM['BuildingType'] == "Manufactured":
+        elif bim['BuildingType'] == 'Manufactured':
             bldg_class = 'MH'
 
         else:

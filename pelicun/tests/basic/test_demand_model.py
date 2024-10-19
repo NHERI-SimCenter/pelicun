@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,89 +37,113 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the demand model of pelicun.
-"""
+"""These are unit and integration tests on the demand model of pelicun."""
 
 from __future__ import annotations
-from collections import defaultdict
-import os
+
 import tempfile
 import warnings
+from collections import defaultdict
 from copy import deepcopy
-import pytest
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
+import pytest
+
+from pelicun.base import ensure_value
+from pelicun.model.demand_model import (
+    DemandModel,
+    _assemble_required_demand_data,
+    _get_required_demand_type,
+)
 from pelicun.tests.basic.test_model import TestModelModule
-from pelicun.model.demand_model import _get_required_demand_type
-from pelicun.model.demand_model import _assemble_required_demand_data
 
-# pylint: disable=unused-argument
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=missing-return-doc,missing-return-type-doc
+if TYPE_CHECKING:
+    from pelicun.assessment import Assessment
 
 
-class TestDemandModel(TestModelModule):
+class TestDemandModel(TestModelModule):  # noqa: PLR0904
     @pytest.fixture
-    def demand_model(self, assessment_instance):
+    def demand_model(self, assessment_instance: Assessment) -> DemandModel:
         return deepcopy(assessment_instance.demand)
 
     @pytest.fixture
-    def demand_model_with_sample(self, assessment_instance):
+    def demand_model_with_sample(
+        self, assessment_instance: Assessment
+    ) -> DemandModel:
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/basic/data/model/'
             'test_DemandModel/load_sample/demand_sample_A.csv'
         )
-        return deepcopy(mdl)
+        model_copy = deepcopy(mdl)
+        assert isinstance(model_copy, DemandModel)
+        return model_copy
 
     @pytest.fixture
-    def calibrated_demand_model(self, demand_model_with_sample):
+    def calibrated_demand_model(
+        self, demand_model_with_sample: DemandModel
+    ) -> DemandModel:
         config = {
-            "ALL": {
-                "DistributionFamily": "normal",
-                "AddUncertainty": 0.00,
+            'ALL': {
+                'DistributionFamily': 'normal',
+                'AddUncertainty': 0.00,
             },
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateUpper": "0.06",
+            'PID': {
+                'DistributionFamily': 'lognormal',
+                'TruncateUpper': '0.06',
             },
-            "SA": {
-                "DistributionFamily": "empirical",
+            'SA': {
+                'DistributionFamily': 'empirical',
             },
         }
         demand_model_with_sample.calibrate_model(config)
-        return deepcopy(demand_model_with_sample)
+        model_copy = deepcopy(demand_model_with_sample)
+        assert isinstance(model_copy, DemandModel)
+        return model_copy
 
     @pytest.fixture
-    def demand_model_with_sample_B(self, assessment_instance):
+    def demand_model_with_sample_b(
+        self, assessment_instance: Assessment
+    ) -> DemandModel:
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/basic/data/model/'
             'test_DemandModel/load_sample/demand_sample_B.csv'
         )
-        return deepcopy(mdl)
+        model_copy = deepcopy(mdl)
+        assert isinstance(model_copy, DemandModel)
+        return model_copy
 
     @pytest.fixture
-    def demand_model_with_sample_C(self, assessment_instance):
+    def demand_model_with_sample_c(
+        self, assessment_instance: Assessment
+    ) -> DemandModel:
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/basic/data/model/'
             'test_DemandModel/load_sample/demand_sample_C.csv'
         )
-        return deepcopy(mdl)
+        model_copy = deepcopy(mdl)
+        assert isinstance(model_copy, DemandModel)
+        return model_copy
 
     @pytest.fixture
-    def demand_model_with_sample_D(self, assessment_instance):
+    def demand_model_with_sample_d(
+        self, assessment_instance: Assessment
+    ) -> DemandModel:
         mdl = assessment_instance.demand
         mdl.load_sample(
             'pelicun/tests/basic/data/model/'
             'test_DemandModel/load_sample/demand_sample_D.csv'
         )
-        return deepcopy(mdl)
+        model_copy = deepcopy(mdl)
+        assert isinstance(model_copy, DemandModel)
+        return model_copy
 
-    def test_init(self, demand_model):
+    def test_init(self, demand_model: DemandModel) -> None:
         assert demand_model.log
 
         assert demand_model.marginal_params is None
@@ -130,19 +153,20 @@ class TestDemandModel(TestModelModule):
         assert demand_model._RVs is None
         assert demand_model.sample is None
 
-    def test_save_sample(self, demand_model_with_sample):
+    def test_save_sample(self, demand_model_with_sample: DemandModel) -> None:
         # instantiate a temporary directory in memory
         temp_dir = tempfile.mkdtemp()
         # save the sample there
         demand_model_with_sample.save_sample(f'{temp_dir}/temp.csv')
-        with open(f'{temp_dir}/temp.csv', 'r', encoding='utf-8') as f:
+        with Path(f'{temp_dir}/temp.csv').open(encoding='utf-8') as f:
             contents = f.read()
         assert contents == (
             ',PFA-0-1,PFA-1-1,PID-1-1,SA_0.23-0-1\n'
             'Units,inps2,inps2,rad,inps2\n'
             '0,158.62478,397.04389,0.02672,342.149\n'
         )
-        res = demand_model_with_sample.save_sample(save_units=False)
+        res = demand_model_with_sample.save_sample()
+        assert isinstance(res, pd.DataFrame)
         assert res.to_dict() == {
             ('PFA', '0', '1'): {0: 158.62478},
             ('PFA', '1', '1'): {0: 397.04389},
@@ -150,15 +174,19 @@ class TestDemandModel(TestModelModule):
             ('SA_0.23', '0', '1'): {0: 342.149},
         }
 
-    def test_load_sample(self, demand_model_with_sample, demand_model_with_sample_B):
+    def test_load_sample(
+        self,
+        demand_model_with_sample: DemandModel,
+        demand_model_with_sample_b: DemandModel,
+    ) -> None:
         # retrieve the loaded sample and units
-        obtained_sample = demand_model_with_sample.sample
-        obtained_units = demand_model_with_sample.user_units
+        obtained_sample = ensure_value(demand_model_with_sample.sample)
+        obtained_units = ensure_value(demand_model_with_sample.user_units)
 
-        obtained_sample_2 = demand_model_with_sample_B.sample
-        obtained_units_2 = demand_model_with_sample_B.user_units
+        obtained_sample_2 = ensure_value(demand_model_with_sample_b.sample)
+        obtained_units_2 = ensure_value(demand_model_with_sample_b.user_units)
 
-        # demand_sample_A.csv and demand_sample_B.csv only differ in the
+        # demand_sample_A.csv and demand_sample_b.csv only differ in the
         # headers, where the first includes a tag for the hazard
         # level. Therefore, the two files are expected to result to the
         # same `obtained_sample`
@@ -212,174 +240,187 @@ class TestDemandModel(TestModelModule):
             check_index_type=False,
         )
 
-    def test_estimate_RID(self, demand_model_with_sample):
-        demands = demand_model_with_sample.sample['PID']
+    def test_estimate_RID(self, demand_model_with_sample: DemandModel) -> None:
+        demands = ensure_value(demand_model_with_sample.sample)['PID']
         params = {'yield_drift': 0.01}
         res = demand_model_with_sample.estimate_RID(demands, params)
         assert list(res.columns) == [('RID', '1', '1')]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match='Invalid method: `xyz`'):
             demand_model_with_sample.estimate_RID(demands, params, method='xyz')
 
-    def test_expand_sample_float(self, demand_model_with_sample):
-        sample_before = demand_model_with_sample.sample.copy()
-        demand_model_with_sample.expand_sample("test_lab", 1.00, "unitless")
-        sample_after = demand_model_with_sample.sample.copy()
+    def test_expand_sample_float(
+        self, demand_model_with_sample: DemandModel
+    ) -> None:
+        sample_before = ensure_value(demand_model_with_sample.sample).copy()
+        demand_model_with_sample.expand_sample('test_lab', 1.00, 'unitless')
+        sample_after = ensure_value(demand_model_with_sample.sample).copy()
         pd.testing.assert_frame_equal(
             sample_before, sample_after.drop('test_lab', axis=1)
         )
         assert sample_after.loc[0, ('test_lab', '0', '1')] == 1.0
 
-    def test_expand_sample_numpy(self, demand_model_with_sample):
-        sample_before = demand_model_with_sample.sample.copy()
-        demand_model_with_sample.expand_sample(
-            "test_lab", np.array(1.00), "unitless"
-        )
-        sample_after = demand_model_with_sample.sample.copy()
+    def test_expand_sample_numpy(
+        self, demand_model_with_sample: DemandModel
+    ) -> None:
+        sample_before = ensure_value(demand_model_with_sample.sample).copy()
+        demand_model_with_sample.expand_sample('test_lab', 1.00, 'unitless')
+        sample_after = ensure_value(demand_model_with_sample.sample).copy()
         pd.testing.assert_frame_equal(
             sample_before, sample_after.drop('test_lab', axis=1)
         )
         assert sample_after.loc[0, ('test_lab', '0', '1')] == 1.0
 
-    def test_expand_sample_error_no_sample(self, demand_model):
+    def test_expand_sample_error_no_sample(self, demand_model: DemandModel) -> None:
         with pytest.raises(
             ValueError, match='Demand model does not have a sample yet.'
         ):
-            demand_model.expand_sample("test_lab", 1.00, "unitless")
+            demand_model.expand_sample('test_lab', np.array((1.00,)), 'unitless')
 
-    def test_expand_sample_error_wrong_shape(self, demand_model_with_sample):
+    def test_expand_sample_error_wrong_shape(
+        self, demand_model_with_sample: DemandModel
+    ) -> None:
         with pytest.raises(ValueError, match='Incompatible array length.'):
             demand_model_with_sample.expand_sample(
-                "test_lab", np.array((1.00, 1.00)), "unitless"
+                'test_lab', np.array((1.00, 1.00)), 'unitless'
             )
 
     def test_calibrate_model(
-        self, calibrated_demand_model, demand_model_with_sample_C
-    ):
-        assert calibrated_demand_model.marginal_params['Family'].to_list() == [
+        self,
+        calibrated_demand_model: DemandModel,
+    ) -> None:
+        assert ensure_value(calibrated_demand_model.marginal_params)[
+            'Family'
+        ].to_list() == [
             'normal',
             'normal',
             'lognormal',
             'empirical',
         ]
         assert (
-            calibrated_demand_model.marginal_params.at[
+            ensure_value(calibrated_demand_model.marginal_params).loc[
                 ('PID', '1', '1'), 'TruncateUpper'
             ]
             == 0.06
         )
 
     def test_calibrate_model_censoring(
-        self, calibrated_demand_model, demand_model_with_sample_C
-    ):
+        self,
+        demand_model_with_sample_c: DemandModel,
+    ) -> None:
         # with a config featuring censoring the RIDs
         config = {
-            "ALL": {
-                "DistributionFamily": "normal",
-                "AddUncertainty": 0.00,
+            'ALL': {
+                'DistributionFamily': 'normal',
+                'AddUncertainty': 0.00,
             },
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "CensorUpper": "0.05",
+            'PID': {
+                'DistributionFamily': 'lognormal',
+                'CensorUpper': '0.05',
             },
         }
-        demand_model_with_sample_C.calibrate_model(config)
+        demand_model_with_sample_c.calibrate_model(config)
 
     def test_calibrate_model_truncation(
-        self, calibrated_demand_model, demand_model_with_sample_C
-    ):
+        self,
+        demand_model_with_sample_c: DemandModel,
+    ) -> None:
         # with a config that specifies a truncation limit smaller than
         # the samples
         config = {
-            "ALL": {
-                "DistributionFamily": "normal",
-                "AddUncertainty": 0.00,
+            'ALL': {
+                'DistributionFamily': 'normal',
+                'AddUncertainty': 0.00,
             },
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateUpper": "0.04",
+            'PID': {
+                'DistributionFamily': 'lognormal',
+                'TruncateUpper': '0.04',
             },
         }
-        demand_model_with_sample_C.calibrate_model(config)
+        demand_model_with_sample_c.calibrate_model(config)
 
     def test_save_load_model_with_empirical(
-        self, calibrated_demand_model, assessment_instance
-    ):
-
+        self, calibrated_demand_model: DemandModel, assessment_instance: Assessment
+    ) -> None:
         # a model that has empirical marginal parameters
         temp_dir = tempfile.mkdtemp()
         calibrated_demand_model.save_model(f'{temp_dir}/temp')
-        assert os.path.exists(f'{temp_dir}/temp_marginals.csv')
-        assert os.path.exists(f'{temp_dir}/temp_empirical.csv')
-        assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
+        assert Path(f'{temp_dir}/temp_marginals.csv').exists()
+        assert Path(f'{temp_dir}/temp_empirical.csv').exists()
+        assert Path(f'{temp_dir}/temp_correlation.csv').exists()
 
         # Load model to a different DemandModel instance to verify
         new_demand_model = assessment_instance.demand
         new_demand_model.load_model(f'{temp_dir}/temp')
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.marginal_params,
-            new_demand_model.marginal_params,
+            ensure_value(calibrated_demand_model.marginal_params),
+            ensure_value(new_demand_model.marginal_params),
             atol=1e-4,
             check_index_type=False,
             check_column_type=False,
         )
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.correlation,
-            new_demand_model.correlation,
+            ensure_value(calibrated_demand_model.correlation),
+            ensure_value(new_demand_model.correlation),
             atol=1e-4,
             check_index_type=False,
             check_column_type=False,
         )
         pd.testing.assert_frame_equal(
-            calibrated_demand_model.empirical_data,
-            new_demand_model.empirical_data,
+            ensure_value(calibrated_demand_model.empirical_data),
+            ensure_value(new_demand_model.empirical_data),
             atol=1e-4,
             check_index_type=False,
             check_column_type=False,
         )
 
     def test_save_load_model_without_empirical(
-        self, demand_model_with_sample_C, assessment_instance
-    ):
+        self,
+        demand_model_with_sample_c: DemandModel,
+        assessment_instance: Assessment,
+    ) -> None:
         # a model that does not have empirical marginal parameters
         temp_dir = tempfile.mkdtemp()
         config = {
-            "ALL": {
-                "DistributionFamily": "normal",
-                "AddUncertainty": 0.00,
+            'ALL': {
+                'DistributionFamily': 'normal',
+                'AddUncertainty': 0.00,
             },
-            "PID": {
-                "DistributionFamily": "lognormal",
-                "TruncateUpper": "0.04",
+            'PID': {
+                'DistributionFamily': 'lognormal',
+                'TruncateUpper': '0.04',
             },
         }
-        demand_model_with_sample_C.calibrate_model(config)
-        demand_model_with_sample_C.save_model(f'{temp_dir}/temp')
-        assert os.path.exists(f'{temp_dir}/temp_marginals.csv')
-        assert os.path.exists(f'{temp_dir}/temp_correlation.csv')
+        demand_model_with_sample_c.calibrate_model(config)
+        demand_model_with_sample_c.save_model(f'{temp_dir}/temp')
+        assert Path(f'{temp_dir}/temp_marginals.csv').exists()
+        assert Path(f'{temp_dir}/temp_correlation.csv').exists()
 
         # Load model to a different DemandModel instance to verify
         new_demand_model = assessment_instance.demand
         new_demand_model.load_model(f'{temp_dir}/temp')
         pd.testing.assert_frame_equal(
-            demand_model_with_sample_C.marginal_params,
-            new_demand_model.marginal_params,
+            ensure_value(demand_model_with_sample_c.marginal_params),
+            ensure_value(new_demand_model.marginal_params),
         )
         pd.testing.assert_frame_equal(
-            demand_model_with_sample_C.correlation, new_demand_model.correlation
+            ensure_value(demand_model_with_sample_c.correlation),
+            ensure_value(new_demand_model.correlation),
         )
-        assert demand_model_with_sample_C.empirical_data is None
+        assert demand_model_with_sample_c.empirical_data is None
         assert new_demand_model.empirical_data is None
 
-    def test_generate_sample_exceptions(self, demand_model):
+    def test_generate_sample_exceptions(self, demand_model: DemandModel) -> None:
         # generating a sample from a non calibrated model should fail
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match='Model parameters have not been specified'
+        ):
             demand_model.generate_sample(
-                {"SampleSize": 3, 'PreserveRawOrder': False}
+                {'SampleSize': 3, 'PreserveRawOrder': False}
             )
 
-    def test_generate_sample(self, calibrated_demand_model):
+    def test_generate_sample(self, calibrated_demand_model: DemandModel) -> None:
         calibrated_demand_model.generate_sample(
-            {"SampleSize": 3, 'PreserveRawOrder': False}
+            {'SampleSize': 3, 'PreserveRawOrder': False}
         )
 
         # get the generated demand sample
@@ -427,7 +468,9 @@ class TestDemandModel(TestModelModule):
             check_index_type=False,
         )
 
-    def test_generate_sample_with_demand_cloning(self, assessment_instance):
+    def test_generate_sample_with_demand_cloning(
+        self, assessment_instance: Assessment
+    ) -> None:
         # # used for debugging
         # assessment_instance = assessment.Assessment()
 
@@ -442,8 +485,8 @@ class TestDemandModel(TestModelModule):
         )
         demand_model.calibrate_model(
             {
-                "ALL": {
-                    "DistributionFamily": "lognormal",
+                'ALL': {
+                    'DistributionFamily': 'lognormal',
                 },
             }
         )
@@ -461,12 +504,12 @@ class TestDemandModel(TestModelModule):
             )
         assert len(w) == 1
         assert (
-            "The demand cloning configuration lists columns "
+            'The demand cloning configuration lists columns '
             "that are not present in the original demand sample's "
             "columns: ['not_present']."
         ) in str(w[0].message)
         # we'll just get a warning for the `not_present` entry
-        assert demand_model.sample.columns.to_list() == [
+        assert ensure_value(demand_model.sample).columns.to_list() == [
             ('PGA', '0', '1'),
             ('PGV', '0', '1'),
             ('PGV', '0', '2'),
@@ -479,12 +522,14 @@ class TestDemandModel(TestModelModule):
             ('PGV', '2', '3'),
         ]
         assert np.array_equal(
-            demand_model.sample[('PGV', '0', '1')].values,
-            demand_model.sample[('PGV', '0', '3')].values,
+            demand_model.sample['PGV', '0', '1'].values,  # type: ignore
+            demand_model.sample['PGV', '0', '3'].values,  # type: ignore
         )
         # exceptions
         # Duplicate entries in demand cloning configuration
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match='Duplicate entries in demand cloning configuration.'
+        ):
             demand_model.generate_sample(
                 {
                     'SampleSize': 1000,
@@ -496,8 +541,9 @@ class TestDemandModel(TestModelModule):
                 }
             )
 
-    def test__get_required_demand_type(self, assessment_instance):
-
+    def test__get_required_demand_type(
+        self, assessment_instance: Assessment
+    ) -> None:
         # Simple case: single demand
         damage_model = assessment_instance.damage
         cmp_set = {'testing.component'}
@@ -513,7 +559,7 @@ class TestDemandModel(TestModelModule):
         ).T.rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
         demand_offset = {'PFA': 0}
         required = _get_required_demand_type(
-            damage_model.ds_model.damage_params, pgb, demand_offset
+            ensure_value(damage_model.ds_model.damage_params), pgb, demand_offset
         )
         expected = defaultdict(
             list,
@@ -536,21 +582,21 @@ class TestDemandModel(TestModelModule):
         ).T.rename_axis(index=['cmp', 'loc', 'dir', 'uid'])
         demand_offset = {'PFA': 0}
         required = _get_required_demand_type(
-            damage_model.ds_model.damage_params, pgb, demand_offset
+            ensure_value(damage_model.ds_model.damage_params), pgb, demand_offset
         )
         expected = defaultdict(
             list,
             {
-                (('PID-1-1', 'PFA-1-1'), 'sqrt(X1^2+X2^2)'): [
+                (('PID-1-1', 'PFA-1-1'), 'sqrt(X1^2+X2^2)'): [  # type: ignore
                     ('testing.component', '1', '1', '1')
                 ]
             },
         )
         assert required == expected
 
-    def test__assemble_required_demand_data(self, assessment_instance):
-
-        # Utility demand case: two demands are required
+    def test__assemble_required_demand_data(
+        self, assessment_instance: Assessment
+    ) -> None:
         damage_model = assessment_instance.damage
         cmp_set = {'testing.component'}
         damage_model.load_model_parameters(
@@ -576,7 +622,9 @@ class TestDemandModel(TestModelModule):
             }
         )
         demand_data = _assemble_required_demand_data(
-            required_edps, nondirectional_multipliers, demand_sample
+            required_edps,  # type: ignore
+            nondirectional_multipliers,
+            demand_sample,
         )
         expected = {
             (('PID-1-1', 'PFA-1-1'), 'sqrt(X1^2+X2^2)'): np.array(

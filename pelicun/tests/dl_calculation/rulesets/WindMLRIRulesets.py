@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -46,9 +45,9 @@
 import datetime
 
 
-def MLRI_config(BIM):
+def MLRI_config(bim: dict) -> str:
     """
-    Rules to identify a HAZUS MLRI configuration based on BIM data
+    Rules to identify a HAZUS MLRI configuration based on BIM data.
 
     Parameters
     ----------
@@ -58,14 +57,14 @@ def MLRI_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # MR
-    MR = True
+    mr = True
 
     # Shutters
     shutters = False
@@ -75,49 +74,50 @@ def MLRI_config(BIM):
     # Underlayment applied in areas subject to high winds (Vasd greater
     # than 110 mph as determined in accordance with Section 1609.3.1) shall
     #  be applied with corrosion-resistant fasteners in accordance with
-    # the manufacturer’s instructions. Fasteners are to be applied along
+    # the manufacturer's instructions. Fasteners are to be applied along
     # the overlap not more than 36 inches on center.
-    if BIM['V_ult'] > 142:
-        MRDA = 'std'  # standard
+    if bim['V_ult'] > 142:
+        mrda = 'std'  # standard
     else:
-        MRDA = 'sup'  # superior
+        mrda = 'sup'  # superior
 
-    if BIM['RoofShape'] in ['gab', 'hip']:
+    if bim['RoofShape'] in {'gab', 'hip'}:
         roof_cover = 'null'
         roof_quality = 'god'  # default supported by HAZUS
-    else:
-        if year >= 1975:
-            roof_cover = 'spm'
-            if BIM['YearBuilt'] >= (datetime.datetime.now().year - 35):
-                roof_quality = 'god'
-            else:
-                roof_quality = 'por'
+    elif year >= 1975:
+        roof_cover = 'spm'
+        if bim['YearBuilt'] >= (
+            datetime.datetime.now(tz=datetime.timezone.utc).year - 35
+        ):
+            roof_quality = 'god'
         else:
-            # year < 1975
-            roof_cover = 'bur'
-            if BIM['YearBuilt'] >= (datetime.datetime.now().year - 30):
-                roof_quality = 'god'
-            else:
-                roof_quality = 'por'
+            roof_quality = 'por'
+    else:
+        # year < 1975
+        roof_cover = 'bur'
+        if bim['YearBuilt'] >= (
+            datetime.datetime.now(tz=datetime.timezone.utc).year - 30
+        ):
+            roof_quality = 'god'
+        else:
+            roof_quality = 'por'
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            RoofCover=roof_cover,
-            RoofQuality=roof_quality,
-            RoofDeckAttachmentM=MRDA,
-            Shutters=shutters,
-            MasonryReinforcing=MR,
-        )
+    bim.update(
+        {
+            'RoofCover': roof_cover,
+            'RoofQuality': roof_quality,
+            'RoofDeckAttachmentM': mrda,
+            'Shutters': shutters,
+            'MasonryReinforcing': mr,
+        }
     )
 
-    bldg_config = (
+    return (
         f"M.LRI."
         f"{int(shutters)}."
-        f"{int(MR)}."
+        f"{int(mr)}."
         f"{roof_quality}."
-        f"{MRDA}."
-        f"{int(BIM['TerrainRoughness'])}"
+        f"{mrda}."
+        f"{int(bim['TerrainRoughness'])}"
     )
-
-    return bldg_config

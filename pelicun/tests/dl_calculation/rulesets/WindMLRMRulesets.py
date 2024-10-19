@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -43,13 +42,13 @@
 # Meredith Lockhead
 # Tracy Kijewski-Correa
 
-import random
 import datetime
+import random
 
 
-def MLRM_config(BIM):
+def MLRM_config(bim: dict) -> str:  # noqa: C901
     """
-    Rules to identify a HAZUS MLRM configuration based on BIM data
+    Rules to identify a HAZUS MLRM configuration based on BIM data.
 
     Parameters
     ----------
@@ -59,17 +58,17 @@ def MLRM_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
-    """
+        A string that identifies a specific configuration within this
+        building class.
 
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    """
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Note the only roof option for commercial masonry in NJ appraisers manual
     # is OSWJ, so this suggests they do not even see alternate roof system
     # ref: Custom Inventory google spreadsheet H-37 10/01/20
     # This could be commented for other regions if detailed data are available
-    BIM['RoofSystem'] = 'ows'
+    bim['RoofSystem'] = 'ows'
 
     # Roof cover
     # Roof cover does not apply to gable and hip roofs
@@ -90,106 +89,104 @@ def MLRM_config(BIM):
     # surrounding the opening, and the attachments are resistant to
     # corrosion and are able to resist component and cladding loads;
     # Earlier IRC editions provide similar rules.
-    shutters = BIM['WindBorneDebris']
+    shutters = bim['WindBorneDebris']
 
     # Masonry Reinforcing (MR)
     # R606.6.4.1.2 Metal Reinforcement states that walls other than
     # interior non-load-bearing walls shall be anchored at vertical
     # intervals of not more than 8 inches with joint reinforcement of
-    # not less than 9 gage.  Therefore this ruleset assumes that all
+    # not less than 9-gage.  Therefore this ruleset assumes that all
     # exterior or load-bearing masonry walls will have
     # reinforcement. Since our considerations deal with wind speed, I
     # made the assumption that only exterior walls are being taken
     # into consideration.
-    MR = True
+    mr = True
 
     # Wind Debris (widd in HAZSU)
     # HAZUS A: Res/Comm, B: Varies by direction, C: Residential, D: None
-    WIDD = 'C'  # residential (default)
-    if BIM['OccupancyClass'] in ['RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D']:
-        WIDD = 'C'  # residential
-    elif BIM['OccupancyClass'] == 'AGR1':
-        WIDD = 'D'  # None
+    widd = 'C'  # residential (default)
+    if bim['OccupancyClass'] in {'RES1', 'RES2', 'RES3A', 'RES3B', 'RES3C', 'RES3D'}:
+        widd = 'C'  # residential
+    elif bim['OccupancyClass'] == 'AGR1':
+        widd = 'D'  # None
     else:
-        WIDD = 'A'  # Res/Comm
+        widd = 'A'  # Res/Comm
 
-    if BIM['RoofSystem'] == 'ows':
+    if bim['RoofSystem'] == 'ows':
         # RDA
-        RDA = 'null'  # Doesn't apply to OWSJ
+        rda = 'null'  # Doesn't apply to OWSJ
 
         # Roof deck age (DQ)
         # Average lifespan of a steel joist roof is roughly 50 years according
         # to the source below. Therefore, if constructed 50 years before the
         # current year, the roof deck should be considered old.
         # https://www.metalroofing.systems/metal-roofing-pros-cons/
-        if year >= (datetime.datetime.now().year - 50):
-            DQ = 'god'  # new or average
+        if year >= (datetime.datetime.now(tz=datetime.timezone.utc).year - 50):
+            dq = 'god'  # new or average
         else:
-            DQ = 'por'  # old
+            dq = 'por'  # old
 
         # RWC
-        RWC = 'null'  # Doesn't apply to OWSJ
+        rwc = 'null'  # Doesn't apply to OWSJ
 
         # Metal RDA
         # 1507.2.8.1 High Wind Attachment.
         # Underlayment applied in areas subject to high winds (Vasd greater
         # than 110 mph as determined in accordance with Section 1609.3.1) shall
         #  be applied with corrosion-resistant fasteners in accordance with
-        # the manufacturer’s instructions. Fasteners are to be applied along
+        # the manufacturer's instructions. Fasteners are to be applied along
         # the overlap not more than 36 inches on center.
-        if BIM['V_ult'] > 142:
-            MRDA = 'std'  # standard
+        if bim['V_ult'] > 142:
+            mrda = 'std'  # standard
         else:
-            MRDA = 'sup'  # superior
+            mrda = 'sup'  # superior
 
-    elif BIM['RoofSystem'] == 'trs':
+    elif bim['RoofSystem'] == 'trs':
         # This clause should not be activated for NJ
         # RDA
-        if BIM['TerrainRoughness'] >= 35:  # suburban or light trees
-            if BIM['V_ult'] > 130.0:
-                RDA = '8s'  # 8d @ 6"/6" 'D'
+        if bim['TerrainRoughness'] >= 35:  # suburban or light trees
+            if bim['V_ult'] > 130.0:
+                rda = '8s'  # 8d @ 6"/6" 'D'
             else:
-                RDA = '8d'  # 8d @ 6"/12" 'B'
-        else:  # light suburban or open
-            if BIM['V_ult'] > 110.0:
-                RDA = '8s'  # 8d @ 6"/6" 'D'
-            else:
-                RDA = '8d'  # 8d @ 6"/12" 'B'
+                rda = '8d'  # 8d @ 6"/12" 'B'
+        elif bim['V_ult'] > 110.0:
+            rda = '8s'  # 8d @ 6"/6" 'D'
+        else:
+            rda = '8d'  # 8d @ 6"/12" 'B'
 
         #  Metal RDA
-        MRDA = 'null'  # Doesn't apply to Wood Truss
+        mrda = 'null'  # Doesn't apply to Wood Truss
 
         # Roof deck agea (DQ)
-        DQ = 'null'  # Doesn't apply to Wood Truss
+        dq = 'null'  # Doesn't apply to Wood Truss
 
         # RWC
-        if BIM['V_ult'] > 110:
-            RWC = 'strap'  # Strap
+        if bim['V_ult'] > 110:
+            rwc = 'strap'  # Strap
         else:
-            RWC = 'tnail'  # Toe-nail
+            rwc = 'tnail'  # Toe-nail
 
     # shutters
     if year >= 2000:
-        shutters = BIM['WindBorneDebris']
+        shutters = bim['WindBorneDebris']
+    elif bim['WindBorneDebris']:
+        shutters = random.random() < 0.46
     else:
-        if BIM['WindBorneDebris']:
-            shutters = random.random() < 0.46
-        else:
-            shutters = False
+        shutters = False
 
-    if BIM['MeanRoofHt'] < 15.0:
+    if bim['MeanRoofHt'] < 15.0:
         # extend the BIM dictionary
-        BIM.update(
-            dict(
-                RoofCover=roof_cover,
-                RoofDeckAttachmentW=RDA,
-                RoofDeckAttachmentM=MRDA,
-                RoofDeckAge=DQ,
-                RoofToWallConnection=RWC,
-                Shutters=shutters,
-                MasonryReinforcing=MR,
-                WindowAreaRatio=WIDD,
-            )
+        bim.update(
+            {
+                'RoofCover': roof_cover,
+                'RoofDeckAttachmentW': rda,
+                'RoofDeckAttachmentM': mrda,
+                'RoofDeckAge': dq,
+                'RoofToWallConnection': rwc,
+                'Shutters': shutters,
+                'MasonryReinforcing': mr,
+                'WindowAreaRatio': widd,
+            }
         )
 
         # if it's MLRM1, configure outputs
@@ -197,24 +194,24 @@ def MLRM_config(BIM):
             f"M.LRM.1."
             f"{roof_cover}."
             f"{int(shutters)}."
-            f"{int(MR)}."
-            f"{WIDD}."
-            f"{BIM['RoofSystem']}."
-            f"{RDA}."
-            f"{RWC}."
-            f"{DQ}."
-            f"{MRDA}."
-            f"{int(BIM['TerrainRoughness'])}"
+            f"{int(mr)}."
+            f"{widd}."
+            f"{bim['RoofSystem']}."
+            f"{rda}."
+            f"{rwc}."
+            f"{dq}."
+            f"{mrda}."
+            f"{int(bim['TerrainRoughness'])}"
         )
 
     else:
         unit_tag = 'null'
         # MLRM2 needs more rulesets
 
-        if BIM['RoofSystem'] == 'trs':
-            joist_spacing = 'null'
-        elif BIM['RoofSystem'] == 'ows':
-            if BIM['NumberOfUnits'] == 1:
+        if bim['RoofSystem'] == 'trs':
+            joist_spacing: int | str = 'null'
+        elif bim['RoofSystem'] == 'ows':
+            if bim['NumberOfUnits'] == 1:
                 joist_spacing = 'null'
                 unit_tag = 'sgl'
             else:
@@ -222,34 +219,34 @@ def MLRM_config(BIM):
                 unit_tag = 'mlt'
 
         # extend the BIM dictionary
-        BIM.update(
-            dict(
-                RoofCover=roof_cover,
-                RoofDeckAttachmentW=RDA,
-                RoofDeckAttachmentM=MRDA,
-                RoofDeckAge=DQ,
-                RoofToWallConnection=RWC,
-                Shutters=shutters,
-                MasonryReinforcing=MR,
-                WindDebrisClass=WIDD,
-                UnitType=unit_tag,
-            )
+        bim.update(
+            {
+                'RoofCover': roof_cover,
+                'RoofDeckAttachmentW': rda,
+                'RoofDeckAttachmentM': mrda,
+                'RoofDeckAge': dq,
+                'RoofToWallConnection': rwc,
+                'Shutters': shutters,
+                'MasonryReinforcing': mr,
+                'WindDebrisClass': widd,
+                'UnitType': unit_tag,
+            }
         )
 
         bldg_config = (
             f"M.LRM.2."
             f"{roof_cover}."
             f"{int(shutters)}."
-            f"{int(MR)}."
-            f"{WIDD}."
-            f"{BIM['RoofSystem']}."
-            f"{RDA}."
-            f"{RWC}."
-            f"{DQ}."
-            f"{MRDA}."
+            f"{int(mr)}."
+            f"{widd}."
+            f"{bim['RoofSystem']}."
+            f"{rda}."
+            f"{rwc}."
+            f"{dq}."
+            f"{mrda}."
             f"{unit_tag}."
             f"{joist_spacing}."
-            f"{int(BIM['TerrainRoughness'])}"
+            f"{int(bim['TerrainRoughness'])}"
         )
 
     return bldg_config

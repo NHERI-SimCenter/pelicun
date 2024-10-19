@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -46,9 +45,9 @@
 import numpy as np
 
 
-def FL_config(BIM):
+def FL_config(bim: dict) -> str:  # noqa: C901
     """
-    Rules to identify the flood vunerability category
+    Rules to identify the flood vulnerability category.
 
     Parameters
     ----------
@@ -58,17 +57,16 @@ def FL_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
+        A string that identifies a specific configuration within this
+        building class.
+
     """
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Flood Type
-    if BIM['FloodZone'] == 'AO':
+    if bim['FloodZone'] == 'AO':
         flood_type = 'raz'  # Riverline/A-Zone
-    elif BIM['FloodZone'] in ['A', 'AE']:
-        flood_type = 'cvz'  # Costal-Zone
-    elif BIM['FloodZone'].startswith('V'):
+    elif bim['FloodZone'] in {'A', 'AE'} or bim['FloodZone'].startswith('V'):
         flood_type = 'cvz'  # Costal-Zone
     else:
         flood_type = 'cvz'  # Default
@@ -81,7 +79,7 @@ def FL_config(BIM):
     #     FFE = BIM['FirstFloorElevation'] - 1.0
 
     # PostFIRM
-    PostFIRM = False  # Default
+    post_firm = False  # Default
     city_list = [
         'Absecon',
         'Atlantic',
@@ -132,115 +130,53 @@ def FL_config(BIM):
         1971,
         1979,
     ]
-    for i in range(0, 22):
-        PostFIRM = (
-            (BIM['City'] == city_list[i]) and (year > year_list[i])
-        ) or PostFIRM
+    for i in range(22):
+        post_firm = (
+            (bim['City'] == city_list[i]) and (year > year_list[i])
+        ) or post_firm
 
     # Basement Type
-    if BIM['SplitLevel'] and (BIM['FoundationType'] == 3504):
+    if bim['SplitLevel'] and (bim['FoundationType'] == 3504):
         bmt_type = 'spt'  # Split-Level Basement
-    elif BIM['FoundationType'] in [3501, 3502, 3503, 3505, 3506, 3507]:
+    elif bim['FoundationType'] in {3501, 3502, 3503, 3505, 3506, 3507}:
         bmt_type = 'bn'  # No Basement
-    elif (not BIM['SplitLevel']) and (BIM['FoundationType'] == 3504):
+    elif (not bim['SplitLevel']) and (bim['FoundationType'] == 3504):
         bmt_type = 'bw'  # Basement
     else:
         bmt_type = 'bw'  # Default
 
-    # flake8 - unused variable: `dur`.
-    # # Duration
-    # dur = 'short'
-
-    # flake8 - unused variable: `OT`.
-    # # Occupancy Type
-    # if BIM['OccupancyClass'] == 'RES1':
-    #     if BIM['NumberOfStories'] == 1:
-    #         if flood_type == 'raz':
-    #             OT = 'SF1XA'
-    #         elif flood_type == 'cvz':
-    #             OT = 'SF1XV'
-    #     else:
-    #         if bmt_type == 'nav':
-    #             if flood_type == 'raz':
-    #                 OT = 'SF2XA'
-    #             elif flood_type == 'cvz':
-    #                 OT = 'SF2XV'
-    #         elif bmt_type == 'bmt':
-    #             if flood_type == 'raz':
-    #                 OT = 'SF2BA'
-    #             elif flood_type == 'cvz':
-    #                 OT = 'SF2BV'
-    #         elif bmt_type == 'spt':
-    #             if flood_type == 'raz':
-    #                 OT = 'SF2SA'
-    #             elif flood_type == 'cvz':
-    #                 OT = 'SF2SV'
-    # elif 'RES3' in BIM['OccupancyClass']:
-    #     OT = 'APT'
-    # else:
-    #     ap_OT = {
-    #         'RES2': 'MH',
-    #         'RES4': 'HOT',
-    #         'RES5': 'NURSE',
-    #         'RES6': 'NURSE',
-    #         'COM1': 'RETAL',
-    #         'COM2': 'WHOLE',
-    #         'COM3': 'SERVICE',
-    #         'COM4': 'OFFICE',
-    #         'COM5': 'BANK',
-    #         'COM6': 'HOSP',
-    #         'COM7': 'MED',
-    #         'COM8': 'REC',
-    #         'COM9': 'THEAT',
-    #         'COM10': 'GARAGE',
-    #         'IND1': 'INDH',
-    #         'IND2': 'INDL',
-    #         'IND3': 'CHEM',
-    #         'IND4': 'PROC',
-    #         'IND5': 'CHEM',
-    #         'IND6': 'CONST',
-    #         'AGR1': 'AGRI',
-    #         'REL1': 'RELIG',
-    #         'GOV1': 'CITY',
-    #         'GOV2': 'EMERG',
-    #         'EDU1': 'SCHOOL',
-    #         'EDU2': 'SCHOOL',
-    #     }
-    #     ap_OT[BIM['OccupancyClass']]
-
-    if BIM['OccupancyClass'] not in ['RES1', 'RES2']:
-        if 'RES3' in BIM['OccupancyClass']:
+    if bim['OccupancyClass'] not in {'RES1', 'RES2'}:
+        if 'RES3' in bim['OccupancyClass']:
             fl_config = f"{'fl'}_" f"{'RES3'}"
         else:
-            fl_config = f"{'fl'}_" f"{BIM['OccupancyClass']}"
-    elif BIM['OccupancyClass'] == 'RES2':
-        fl_config = f"{'fl'}_" f"{BIM['OccupancyClass']}_" f"{flood_type}"
+            fl_config = f"{'fl'}_" f"{bim['OccupancyClass']}"
+    elif bim['OccupancyClass'] == 'RES2':
+        fl_config = f"{'fl'}_" f"{bim['OccupancyClass']}_" f"{flood_type}"
+    elif bmt_type == 'spt':
+        fl_config = (
+            f"{'fl'}_"
+            f"{bim['OccupancyClass']}_"
+            f"{'sl'}_"
+            f"{'bw'}_"
+            f"{flood_type}"
+        )
     else:
-        if bmt_type == 'spt':
-            fl_config = (
-                f"{'fl'}_"
-                f"{BIM['OccupancyClass']}_"
-                f"{'sl'}_"
-                f"{'bw'}_"
-                f"{flood_type}"
-            )
-        else:
-            st = 's' + str(np.min([BIM['NumberOfStories'], 3]))
-            fl_config = (
-                f"{'fl'}_"
-                f"{BIM['OccupancyClass']}_"
-                f"{st}_"
-                f"{bmt_type}_"
-                f"{flood_type}"
-            )
+        st = 's' + str(np.min([bim['NumberOfStories'], 3]))
+        fl_config = (
+            f"{'fl'}_"
+            f"{bim['OccupancyClass']}_"
+            f"{st}_"
+            f"{bmt_type}_"
+            f"{flood_type}"
+        )
 
     # extend the BIM dictionary
-    BIM.update(
-        dict(
-            FloodType=flood_type,
-            BasementType=bmt_type,
-            PostFIRM=PostFIRM,
-        )
+    bim.update(
+        {
+            'FloodType': flood_type,
+            'BasementType': bmt_type,
+            'PostFIRM': post_firm,
+        }
     )
 
     return fl_config

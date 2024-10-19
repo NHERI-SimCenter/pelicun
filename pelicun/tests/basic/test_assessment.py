@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,27 +37,20 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the assessment module of pelicun.
-"""
+"""These are unit and integration tests on the assessment module of pelicun."""
 
 from __future__ import annotations
+
 import pytest
+
 from pelicun import assessment
 
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-return-doc, missing-return-type-doc
+
+def create_assessment_obj(config: dict | None = None) -> assessment.Assessment:
+    return assessment.Assessment(config) if config else assessment.Assessment({})
 
 
-def create_assessment_obj(config=None):
-    if config:
-        asmt = assessment.Assessment(config)
-    else:
-        asmt = assessment.Assessment({})
-    return asmt
-
-
-def test_Assessment_init():
+def test_Assessment_init() -> None:
     asmt = create_assessment_obj()
     # confirm attributes
     for attribute in (
@@ -78,11 +70,10 @@ def test_Assessment_init():
         assert hasattr(asmt, attribute)
     # confirm that creating an attribute on the fly is not allowed
     with pytest.raises(AttributeError):
-        # pylint: disable=assigning-non-slot
-        asmt.my_attribute = 2
+        asmt.my_attribute = 2  # type: ignore
 
 
-def test_assessment_get_default_metadata():
+def test_assessment_get_default_metadata() -> None:
     asmt = create_assessment_obj()
 
     data_sources = (
@@ -101,7 +92,7 @@ def test_assessment_get_default_metadata():
         asmt.get_default_metadata(data_source)
 
 
-def test_assessment_calc_unit_scale_factor():
+def test_assessment_calc_unit_scale_factor() -> None:
     # default unit file
     asmt = create_assessment_obj()
 
@@ -135,7 +126,7 @@ def test_assessment_calc_unit_scale_factor():
         # 1 smoot was 67 inches in 1958.
 
 
-def test_assessment_scale_factor():
+def test_assessment_scale_factor() -> None:
     # default unit file
     asmt = create_assessment_obj()
     assert asmt.scale_factor('m') == 1.00
@@ -156,5 +147,5 @@ def test_assessment_scale_factor():
     assert asmt.scale_factor('m') == 39.3701
 
     # exceptions
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='Unknown unit: helen'):
         asmt.scale_factor('helen')

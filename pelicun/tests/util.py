@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -33,26 +32,16 @@
 #
 # You should have received a copy of the BSD 3-Clause License along with
 # pelicun. If not, see <http://www.opensource.org/licenses/>.
-#
-# Contributors:
-# Adam Zsarnóczay
-# John Vouvakis Manousakis
 
-"""
-These are utility functions for the unit and integration tests.
-"""
+"""These are utility functions for the unit and integration tests."""
 
 from __future__ import annotations
-import pickle
-import os
 
-# pylint: disable=useless-suppression
-# pylint: disable=unused-variable
-# pylint: disable=pointless-statement
-# pylint: disable=missing-return-doc,missing-return-type-doc
+import pickle  # noqa: S403
+from pathlib import Path
 
 
-def export_pickle(filepath, obj, makedirs=True):
+def export_pickle(filepath, obj, makedirs=True) -> None:  # noqa: ANN001, FBT002
     """
     Auxiliary function to export a pickle object.
 
@@ -69,20 +58,20 @@ def export_pickle(filepath, obj, makedirs=True):
 
     """
     # extract the directory name
-    dirname = os.path.dirname(filepath)
+    dirname = Path(filepath).parent
     # if making directories is requested,
     if makedirs:
         # and the path does not exist
-        if not os.path.exists(dirname):
+        if not Path(dirname).exists():
             # create the directory
-            os.makedirs(dirname)
+            Path(dirname).mkdir(parents=True)
     # open the file with the given filepath
-    with open(filepath, 'wb') as f:
+    with Path(filepath).open('wb') as f:
         # and store the object in the file
         pickle.dump(obj, f)
 
 
-def import_pickle(filepath):
+def import_pickle(filepath):  # noqa: ANN001, ANN201
     """
     Auxiliary function to import a pickle object.
 
@@ -97,6 +86,6 @@ def import_pickle(filepath):
 
     """
     # open the file with the given filepath
-    with open(filepath, 'rb') as f:
+    with Path(filepath).open('rb') as f:
         # and retrieve the pickled object
-        return pickle.load(f)
+        return pickle.load(f)  # noqa: S301

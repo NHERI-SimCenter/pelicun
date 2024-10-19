@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,38 +37,39 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-These are unit and integration tests on the asset model of pelicun.
-"""
+"""These are unit and integration tests on the asset model of pelicun."""
 
 from __future__ import annotations
+
 import tempfile
 from copy import deepcopy
-import pytest
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
+import pytest
+
 from pelicun import assessment
+from pelicun.base import ensure_value
 from pelicun.tests.basic.test_pelicun_model import TestPelicunModel
 
-# pylint: disable=missing-function-docstring
-# pylint: disable=missing-class-docstring
-# pylint: disable=arguments-renamed
-# pylint: disable=missing-return-doc,missing-return-type-doc
+if TYPE_CHECKING:
+    from pelicun.model.asset_model import AssetModel
 
 
 class TestAssetModel(TestPelicunModel):
     @pytest.fixture
-    def asset_model(self, assessment_instance):
+    def asset_model(self, assessment_instance: assessment.Assessment) -> AssetModel:
         return deepcopy(assessment_instance.asset)
 
-    def test_init(self, asset_model):
+    def test_init_method(self, asset_model: AssetModel) -> None:
         assert asset_model.log
         assert asset_model.cmp_marginal_params is None
         assert asset_model.cmp_units is None
         assert asset_model._cmp_RVs is None
         assert asset_model.cmp_sample is None
 
-    def test_save_cmp_sample(self, asset_model):
+    def test_save_cmp_sample(self, asset_model: AssetModel) -> None:
         asset_model.cmp_sample = pd.DataFrame(
             {
                 ('component_a', f'{i}', f'{j}', '0'): 8.0
@@ -105,10 +105,10 @@ class TestAssetModel(TestPelicunModel):
 
         # also test loading sample to variables
         # (but we don't inspect them)
-        _ = asset_model.save_cmp_sample(save_units=False)
-        _, _ = asset_model.save_cmp_sample(save_units=True)
+        asset_model.save_cmp_sample(save_units=False)
+        asset_model.save_cmp_sample(save_units=True)
 
-    def test_load_cmp_model_1(self, asset_model):
+    def test_load_cmp_model_1(self, asset_model: AssetModel) -> None:
         cmp_marginals = pd.read_csv(
             'pelicun/tests/basic/data/model/test_AssetModel/CMP_marginals.csv',
             index_col=0,
@@ -135,7 +135,7 @@ class TestAssetModel(TestPelicunModel):
 
         pd.testing.assert_frame_equal(
             expected_cmp_marginal_params,
-            asset_model.cmp_marginal_params,
+            ensure_value(asset_model.cmp_marginal_params),
             check_index_type=False,
             check_column_type=False,
             check_dtype=False,
@@ -147,11 +147,11 @@ class TestAssetModel(TestPelicunModel):
 
         pd.testing.assert_series_equal(
             expected_cmp_units,
-            asset_model.cmp_units,
+            ensure_value(asset_model.cmp_units),
             check_index_type=False,
         )
 
-    def test_load_cmp_model_2(self, asset_model):
+    def test_load_cmp_model_2(self, asset_model: AssetModel) -> None:
         # component marginals utilizing the keywords '--', 'all', 'top', 'roof'
         cmp_marginals = pd.read_csv(
             'pelicun/tests/basic/data/model/test_AssetModel/CMP_marginals_2.csv',
@@ -160,7 +160,7 @@ class TestAssetModel(TestPelicunModel):
         asset_model._asmnt.stories = 4
         asset_model.load_cmp_model({'marginals': cmp_marginals})
 
-        assert asset_model.cmp_marginal_params.to_dict() == {
+        assert ensure_value(asset_model.cmp_marginal_params).to_dict() == {
             'Theta_0': {
                 ('component_a', '0', '1', '0'): 1.0,
                 ('component_a', '0', '2', '0'): 1.0,
@@ -209,23 +209,25 @@ class TestAssetModel(TestPelicunModel):
 
         pd.testing.assert_series_equal(
             expected_cmp_units,
-            asset_model.cmp_units,
+            ensure_value(asset_model.cmp_units),
             check_index_type=False,
         )
 
-    def test_load_cmp_model_csv(self, asset_model):
+    def test_load_cmp_model_csv(self, asset_model: AssetModel) -> None:
         # load by directly specifying the csv file
         cmp_marginals = 'pelicun/tests/basic/data/model/test_AssetModel/CMP'
         asset_model.load_cmp_model(cmp_marginals)
 
-    def test_load_cmp_model_exceptions(self, asset_model):
+    def test_load_cmp_model_exceptions(self, asset_model: AssetModel) -> None:
         cmp_marginals = pd.read_csv(
             'pelicun/tests/basic/data/model/test_AssetModel/'
             'CMP_marginals_invalid_loc.csv',
             index_col=0,
         )
         asset_model._asmnt.stories = 4
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match='Cannot parse location string: basement'
+        ):
             asset_model.load_cmp_model({'marginals': cmp_marginals})
 
         cmp_marginals = pd.read_csv(
@@ -234,10 +236,12 @@ class TestAssetModel(TestPelicunModel):
             index_col=0,
         )
         asset_model._asmnt.stories = 4
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match='Cannot parse direction string: non-directional'
+        ):
             asset_model.load_cmp_model({'marginals': cmp_marginals})
 
-    def test_generate_cmp_sample(self, asset_model):
+    def test_generate_cmp_sample(self, asset_model: AssetModel) -> None:
         asset_model.cmp_marginal_params = pd.DataFrame(
             {'Theta_0': (8.0, 8.0, 8.0, 8.0), 'Blocks': (1.0, 1.0, 1.0, 1.0)},
             index=pd.MultiIndex.from_tuples(
@@ -278,25 +282,27 @@ class TestAssetModel(TestPelicunModel):
 
         pd.testing.assert_frame_equal(
             expected_cmp_sample,
-            asset_model.cmp_sample,
+            ensure_value(asset_model.cmp_sample),
             check_index_type=False,
             check_column_type=False,
         )
 
-    def test_generate_cmp_sample_exceptions_1(self, asset_model):
+    def test_generate_cmp_sample_exceptions_1(self, asset_model: AssetModel) -> None:
         # without marginal parameters
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match='Model parameters have not been specified'
+        ):
             asset_model.generate_cmp_sample(sample_size=10)
 
-    def test_generate_cmp_sample_exceptions_2(self, asset_model):
+    def test_generate_cmp_sample_exceptions_2(self, asset_model: AssetModel) -> None:
         # without specifying sample size
         cmp_marginals = pd.read_csv(
             'pelicun/tests/basic/data/model/test_AssetModel/CMP_marginals.csv',
             index_col=0,
         )
         asset_model.load_cmp_model({'marginals': cmp_marginals})
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match='Sample size was not specified'):
             asset_model.generate_cmp_sample()
         # but it should work if a demand sample is available
-        asset_model._asmnt.demand.sample = np.empty(shape=(10, 2))
+        asset_model._asmnt.demand.sample = pd.DataFrame(np.empty(shape=(10, 2)))
         asset_model.generate_cmp_sample()

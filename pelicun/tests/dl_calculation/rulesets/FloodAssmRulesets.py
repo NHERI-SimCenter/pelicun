@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -45,9 +44,12 @@
 # Tracy Kijewski-Correa
 
 
-def Assm_config(BIM):
+from __future__ import annotations
+
+
+def Assm_config(bim: dict) -> tuple[str, str]:
     """
-    Rules to identify the flood vunerability category
+    Rules to identify the flood vulnerability category.
 
     Parameters
     ----------
@@ -57,23 +59,24 @@ def Assm_config(BIM):
     Returns
     -------
     config: str
-        A string that identifies a specific configration within this buidling
-        class.
+        A string that identifies a specific configuration within this
+        building class.
+
     """
-    year = BIM['YearBuilt']  # just for the sake of brevity
+    year = bim['YearBuilt']  # just for the sake of brevity
 
     # Flood Type
-    if BIM['FloodZone'] in ['AO']:
+    if bim['FloodZone'] == 'AO':
         flood_type = 'raz'  # Riverline/A-Zone
-    elif BIM['FloodZone'] in ['AE', 'AH', 'A']:
+    elif bim['FloodZone'] in {'AE', 'AH', 'A'}:
         flood_type = 'caz'  # Costal/A-Zone
-    elif BIM['FloodZone'] in ['VE']:
+    elif bim['FloodZone'] == 'VE':
         flood_type = 'cvz'  # Costal/V-Zone
     else:
         flood_type = 'caz'  # Default
 
     # PostFIRM
-    PostFIRM = False  # Default
+    post_firm = False  # Default
     city_list = [
         'Absecon',
         'Atlantic',
@@ -124,20 +127,20 @@ def Assm_config(BIM):
         1971,
         1979,
     ]
-    for i in range(0, 22):
-        PostFIRM = (
-            (BIM['City'] == city_list[i]) and (year > year_list[i])
-        ) or PostFIRM
+    for i in range(22):
+        post_firm = (
+            (bim['City'] == city_list[i]) and (year > year_list[i])
+        ) or post_firm
 
     # fl_assm
     fl_assm = (
         f"{'fl_surge_assm'}_"
-        f"{BIM['OccupancyClass']}_"
-        f"{int(PostFIRM)}_"
+        f"{bim['OccupancyClass']}_"
+        f"{int(post_firm)}_"
         f"{flood_type}"
     )
 
     # hu_assm
-    hu_assm = f"{'hu_surge_assm'}_" f"{BIM['OccupancyClass']}_" f"{int(PostFIRM)}"
+    hu_assm = f"{'hu_surge_assm'}_{bim['OccupancyClass']}_{int(post_firm)}"
 
     return hu_assm, fl_assm

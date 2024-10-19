@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2018 Leland Stanford Junior University
 # Copyright (c) 2018 The Regents of the University of California
@@ -38,46 +37,55 @@
 # Adam Zsarnóczay
 # John Vouvakis Manousakis
 
-"""
-This file defines the DamageModel object and its methods.
 
-"""
+"""DamageModel object and methods."""
 
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 from functools import partial
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
+
+from pelicun import base, file_io, uq
+from pelicun.model.demand_model import (
+    _assemble_required_demand_data,
+    _get_required_demand_type,
+    _verify_edps_available,
+)
 from pelicun.model.pelicun_model import PelicunModel
-from pelicun.model.demand_model import _get_required_demand_type
-from pelicun.model.demand_model import _assemble_required_demand_data
-from pelicun.model.demand_model import _verify_edps_available
-from pelicun import base
-from pelicun import uq
-from pelicun import file_io
 
 if TYPE_CHECKING:
     from pelicun.assessment import AssessmentBase
+    from pelicun.uq import RandomVariableRegistry
 
 idx = base.idx
 
 
 class DamageModel(PelicunModel):
-    """
-    Manages damage information used in assessments.
-
-    """
+    """Manages damage information used in assessments."""
 
     __slots__ = ['ds_model', 'missing_components']
 
-    def __init__(self, assessment: AssessmentBase):
+    def __init__(self, assessment: AssessmentBase) -> None:
+        """
+        Initialize a Damage model.
+
+        Parameters
+        ----------
+        assessment: AssessmentBase
+            The parent assessment object.
+
+        """
         super().__init__(assessment)
 
         self.ds_model: DamageModel_DS = DamageModel_DS(assessment)
         self.missing_components: list[str] = []
 
     @property
-    def _damage_models(self):
+    def _damage_models(self) -> tuple[DamageModel_DS]:
         """
         Points to the damage model objects included in DamageModel.
 
@@ -90,13 +98,10 @@ class DamageModel(PelicunModel):
         return (self.ds_model,)
 
     def load_damage_model(
-        self, data_paths: list[str | pd.DataFrame], warn_missing: bool = False
+        self, data_paths: list[str | pd.DataFrame], *, warn_missing: bool = False
     ) -> None:
-        """
-        <backwards compatibility>
-
-        """
-        self.log.warn(
+        """<backwards compatibility>."""
+        self.log.warning(
             '`load_damage_model` is deprecated and will be '
             'dropped in future versions of pelicun. '
             'Please use `load_model_parameters` instead, '
@@ -107,12 +112,12 @@ class DamageModel(PelicunModel):
             'load_model_parameters(data_paths, cmp_set)`.'
         )
         cmp_set = set(self._asmnt.asset.list_unique_component_ids())
-        self.load_model_parameters(data_paths, cmp_set, warn_missing)
+        self.load_model_parameters(data_paths, cmp_set, warn_missing=warn_missing)
 
     @property
     def sample(self) -> pd.DataFrame:
         """
-        <backwards compatibility>
+        <backwards compatibility>.
 
         Returns
         -------
@@ -120,7 +125,7 @@ class DamageModel(PelicunModel):
             The damage sample of the `ds_model`.
 
         """
-        self.log.warn(
+        self.log.warning(
             '`{damage model}.sample` is deprecated and will be '
             'dropped in future versions of pelicun. '
             'Please use `{damage model}.ds_model.sample` instead. '
@@ -133,6 +138,7 @@ class DamageModel(PelicunModel):
         self,
         data_paths: list[str | pd.DataFrame],
         cmp_set: set[str],
+        *,
         warn_missing: bool = False,
     ) -> None:
         """
@@ -152,7 +158,7 @@ class DamageModel(PelicunModel):
             Damage parameters in the input files for components
             outside of that set are omitted for performance.
         warn_missing: bool
-            Wether to check if there are components in the asset model
+            Whether to check if there are components in the asset model
             that do not have specified damage parameters. Should be
             set to True if all components in the asset model are
             damage state-driven, or if only a damage estimation is
@@ -165,15 +171,14 @@ class DamageModel(PelicunModel):
             specified paths.
 
         """
-
         self.log.div()
         self.log.msg('Loading damage model...', prepend_timestamp=False)
 
         # <backwards compatibility>
         for i, path in enumerate(data_paths):
             if 'fragility_DB' in path:
-                path = path.replace('fragility_DB', 'damage_DB')
-                self.log.warn(
+                path = path.replace('fragility_DB', 'damage_DB')  # noqa: PLW2901
+                self.log.warning(
                     '`fragility_DB` is deprecated and will '
                     'be dropped in future versions of pelicun. '
                     'Please use `damage_DB` instead.'
@@ -195,9 +200,10 @@ class DamageModel(PelicunModel):
             # states
             assert isinstance(data, pd.DataFrame)
             if _is_for_ds_model(data):
-                self.ds_model._load_model_parameters(data)
+                self.ds_model.load_model_parameters(data)
             else:
-                raise ValueError(f'Invalid damage model parameters: {data_path}')
+                msg = f'Invalid damage model parameters: {data_path}'
+                raise ValueError(msg)
 
         self.log.msg(
             'Damage model parameters loaded successfully.', prepend_timestamp=False
@@ -213,9 +219,9 @@ class DamageModel(PelicunModel):
 
         for damage_model in self._damage_models:
             # drop unused damage parameter definitions
-            damage_model._drop_unused_damage_parameters(cmp_set)
+            damage_model.drop_unused_damage_parameters(cmp_set)
             # remove components with incomplete damage parameters
-            damage_model._remove_incomplete_components()
+            damage_model.remove_incomplete_components()
 
         #
         # convert units
@@ -225,7 +231,7 @@ class DamageModel(PelicunModel):
             'Converting damage model parameter units.', prepend_timestamp=False
         )
         for damage_model in self._damage_models:
-            damage_model._convert_damage_parameter_units()
+            damage_model.convert_damage_parameter_units()
 
         #
         # verify damage parameter availability
@@ -237,7 +243,7 @@ class DamageModel(PelicunModel):
             prepend_timestamp=False,
         )
         missing_components = self._ensure_damage_parameter_availability(
-            cmp_set, warn_missing
+            cmp_set, warn_missing=warn_missing
         )
 
         self.missing_components = missing_components
@@ -268,7 +274,6 @@ class DamageModel(PelicunModel):
             subtraction, '*' for multiplication, and '/' for division.
 
         """
-
         self.log.div()
         self.log.msg('Calculating damages...')
 
@@ -300,7 +305,7 @@ class DamageModel(PelicunModel):
 
         # obtain damage states for applicable components
         assert self._asmnt.demand.sample is not None
-        self.ds_model._obtain_ds_sample(
+        self.ds_model.obtain_ds_sample(
             demand_sample=self._asmnt.demand.sample,
             component_blocks=component_blocks,
             block_batch_size=block_batch_size,
@@ -311,20 +316,20 @@ class DamageModel(PelicunModel):
 
         # Apply the prescribed damage process, if any
         if dmg_process is not None:
-            self.log.msg("Applying damage processes.")
+            self.log.msg('Applying damage processes.')
 
             # Sort the damage processes tasks
             dmg_process = {key: dmg_process[key] for key in sorted(dmg_process)}
 
             # Perform damage tasks in the sorted order
             for task in dmg_process.items():
-                self.ds_model._perform_dmg_task(task)
+                self.ds_model.perform_dmg_task(task)
 
             self.log.msg(
-                "Damage processes successfully applied.", prepend_timestamp=False
+                'Damage processes successfully applied.', prepend_timestamp=False
             )
 
-        qnt_sample = self.ds_model._prepare_dmg_quantities(
+        qnt_sample = self.ds_model.prepare_dmg_quantities(
             self._asmnt.asset.cmp_sample,
             self._asmnt.asset.cmp_marginal_params,
             dropzero=False,
@@ -332,16 +337,18 @@ class DamageModel(PelicunModel):
 
         # If requested, extend the quantity table with all possible DSs
         if self._asmnt.options.list_all_ds:
-            qnt_sample = self.ds_model._complete_ds_cols(qnt_sample)
+            qnt_sample = self.ds_model.complete_ds_cols(qnt_sample)
 
         self.ds_model.sample = qnt_sample
 
         self.log.msg('Damage calculation completed.', prepend_timestamp=False)
 
     def save_sample(
-        self, filepath: str | None = None, save_units: bool = False
+        self, filepath: str | None = None, *, save_units: bool = False
     ) -> pd.DataFrame | tuple[pd.DataFrame, pd.Series] | None:
         """
+        Save or return the damage sample data.
+
         Saves the damage sample data to a CSV file or returns it
         directly with an option to include units.
 
@@ -353,11 +360,11 @@ class DamageModel(PelicunModel):
 
         Parameters
         ----------
-        filepath : str, optional
+        filepath: str, optional
             The path to the file where the damage sample should be
             saved. If not provided, the sample is not saved to disk
             but returned.
-        save_units : bool, default: False
+        save_units: bool, default: False
             Indicates whether to include a row with unit information
             in the returned DataFrame. This parameter is ignored if a
             file path is provided.
@@ -371,6 +378,7 @@ class DamageModel(PelicunModel):
             - DataFrame containing the damage sample.
             - Optionally, a Series containing the units for each
             column if `save_units` is True.
+
         """
         self.log.div()
         self.log.msg('Saving damage sample...')
@@ -388,7 +396,7 @@ class DamageModel(PelicunModel):
 
         res = file_io.save_to_csv(
             self.ds_model.sample,
-            filepath,
+            Path(filepath) if filepath is not None else None,
             units=qnt_units,
             unit_conversion_factors=self._asmnt.unit_conversion_factors,
             use_simpleindex=(filepath is not None),
@@ -403,9 +411,9 @@ class DamageModel(PelicunModel):
 
         # else:
         assert isinstance(res, pd.DataFrame)
-        units = res.loc["Units"]
+        units = res.loc['Units']
         assert isinstance(units, pd.Series)
-        res.drop("Units", inplace=True)
+        res = res.drop('Units')
         res.index = res.index.astype('int64')
         res = res.astype(float)
         assert isinstance(res, pd.DataFrame)
@@ -416,10 +424,7 @@ class DamageModel(PelicunModel):
         return res
 
     def load_sample(self, filepath: str) -> None:
-        """
-        Load damage state sample data.
-
-        """
+        """Load damage state sample data."""
         self.log.div()
         self.log.msg('Loading damage sample...')
 
@@ -435,17 +440,17 @@ class DamageModel(PelicunModel):
         self.log.msg('Damage sample successfully loaded.', prepend_timestamp=False)
 
     def _ensure_damage_parameter_availability(
-        self, cmp_set: set[str], warn_missing: bool
+        self, cmp_set: set[str], *, warn_missing: bool
     ) -> list[str]:
         """
-        Makes sure that all components have damage parameters.
+        Make sure that all components have damage parameters.
 
         Parameters
         ----------
         cmp_set: list
             List of component IDs in the asset model.
         warn_missing: bool
-            Wether to issue a warning if missing components are found.
+            Whether to issue a warning if missing components are found.
 
         Returns
         -------
@@ -453,7 +458,6 @@ class DamageModel(PelicunModel):
             List of component IDs with missing damage parameters.
 
         """
-
         available_components = self._get_component_id_set()
 
         missing_components = [
@@ -463,18 +467,23 @@ class DamageModel(PelicunModel):
         ]
 
         if missing_components and warn_missing:
-            self.log.warn(
-                f"The damage model does not provide "
-                f"damage information for the following component(s) "
-                f"in the asset model: {missing_components}."
+            self.log.warning(
+                f'The damage model does not provide '
+                f'damage information for the following component(s) '
+                f'in the asset model: {missing_components}.'
             )
 
         return missing_components
 
     def _get_component_id_set(self) -> set[str]:
         """
-        Get a set of components for which damage parameters are
-        available.
+        Get a set of components with available damage parameters.
+
+        Returns
+        -------
+        set
+          Set of components with available damage parameters.
+
         """
         cmp_list = []
         if self.ds_model.damage_params is not None:
@@ -483,22 +492,30 @@ class DamageModel(PelicunModel):
 
 
 class DamageModel_Base(PelicunModel):
-    """
-    Base class for damage models
-
-    """
+    """Base class for damage models."""
 
     __slots__ = ['damage_params', 'sample']
 
-    def __init__(self, assessment: AssessmentBase):
+    def __init__(self, assessment: AssessmentBase) -> None:
+        """
+        Initialize the object.
+
+        Parameters
+        ----------
+        assessment: AssessmentBase
+            Parent assessment object.
+
+        """
         super().__init__(assessment)
 
         self.damage_params: pd.DataFrame | None = None
         self.sample: pd.DataFrame | None = None
 
-    def _load_model_parameters(self, data: pd.DataFrame) -> None:
+    def load_model_parameters(self, data: pd.DataFrame) -> None:
         """
-        Load model parameters from a DataFrame, extending those
+        Load model parameters from a DataFrame.
+
+        Loads model parameters from a DataFrame, extending those
         already available. Parameters already defined take precedence,
         i.e. redefinitions of parameters are ignored.
 
@@ -508,37 +525,35 @@ class DamageModel_Base(PelicunModel):
             Data with damage model information.
 
         """
-
         if self.damage_params is not None:
             data = pd.concat((self.damage_params, data), axis=0)
 
         # drop redefinitions of components
         data = data.groupby(data.index).first()
 
-        # TODO: load defaults for Demand-Offset and Demand-Directional
+        # TODO(AZ): load defaults for Demand-Offset and Demand-Directional
 
         self.damage_params = data
 
-    def _convert_damage_parameter_units(self) -> None:
-        """
-        Converts previously loaded damage parameters to base units.
-
-        """
+    def convert_damage_parameter_units(self) -> None:
+        """Convert previously loaded damage parameters to base units."""
         if self.damage_params is None:
             return
 
-        units = self.damage_params[('Demand', 'Unit')]
-        self.damage_params.drop(('Demand', 'Unit'), axis=1, inplace=True)
-        for LS_i in self.damage_params.columns.unique(level=0):
-            if LS_i.startswith('LS'):
-                params = self.damage_params.loc[:, LS_i].copy()
+        units = self.damage_params['Demand', 'Unit']
+        self.damage_params = self.damage_params.drop(('Demand', 'Unit'), axis=1)
+        for ls_i in self.damage_params.columns.unique(level=0):
+            if ls_i.startswith('LS'):
+                params = self.damage_params.loc[:, ls_i].copy()
                 assert isinstance(params, pd.DataFrame)
-                self.damage_params.loc[:, LS_i] = self._convert_marginal_params(
+                self.damage_params.loc[:, ls_i] = self._convert_marginal_params(
                     params, units
-                ).values
+                ).to_numpy()
 
-    def _remove_incomplete_components(self) -> None:
+    def remove_incomplete_components(self) -> None:
         """
+        Remove components with incompelte damage parameter info.
+
         Removes components that have incomplete damage model
         definitions from the damage model parameters.
 
@@ -550,13 +565,15 @@ class DamageModel_Base(PelicunModel):
             return
 
         cmp_incomplete_idx = self.damage_params.loc[
-            self.damage_params[('Incomplete', '')] == 1
+            self.damage_params['Incomplete', ''] == 1
         ].index
 
-        self.damage_params.drop(cmp_incomplete_idx, inplace=True)
+        self.damage_params = self.damage_params.drop(cmp_incomplete_idx)
 
-    def _drop_unused_damage_parameters(self, cmp_set: set[str]) -> None:
+    def drop_unused_damage_parameters(self, cmp_set: set[str]) -> None:
         """
+        Remove info for non existent components.
+
         Removes damage parameter definitions for component IDs not
         present in the given list.
 
@@ -565,6 +582,7 @@ class DamageModel_Base(PelicunModel):
         cmp_set: set
             Set of component IDs to be preserved in the damage
             parameters.
+
         """
         if self.damage_params is None:
             return
@@ -578,8 +596,7 @@ class DamageModel_Base(PelicunModel):
         missing_components: list[str],
     ) -> pd.DataFrame:
         """
-        Group performance groups into batches for efficient damage
-        assessment.
+        Group performance groups into batches for efficiency.
 
         The method takes as input the block_batch_size, which
         specifies the maximum number of blocks per batch. The method
@@ -605,9 +622,8 @@ class DamageModel_Base(PelicunModel):
 
         Parameters
         ----------
-
         component_blocks: pd.DataFrame
-            DataFrame containing a singe column, `Blocks`, which lists
+            DataFrame containing a single column, `Blocks`, which lists
             the number of blocks for each (`cmp`-`loc`-`dir`-`uid`).
         block_batch_size: int
             Maximum number of components in each batch.
@@ -627,11 +643,10 @@ class DamageModel_Base(PelicunModel):
             block batch size.
 
         """
-
         # A warning has already been issued for components with
         # missing damage parameters (in
         # `DamageModel._ensure_damage_parameter_availability`).
-        component_blocks.drop(pd.Index(missing_components), inplace=True)
+        component_blocks = component_blocks.drop(pd.Index(missing_components))
 
         # It is safe to simply disregard components that are not
         # present in the `damage_params` of *this* model, and let them
@@ -646,11 +661,11 @@ class DamageModel_Base(PelicunModel):
         component_blocks = component_blocks.groupby(
             ['loc', 'dir', 'cmp', 'uid']
         ).sum()
-        component_blocks.sort_index(axis=0, inplace=True)
+        component_blocks = component_blocks.sort_index(axis=0)
 
         # Calculate cumulative sum of blocks
         component_blocks['CBlocks'] = np.cumsum(
-            component_blocks['Blocks'].values.astype(int)
+            component_blocks['Blocks'].to_numpy().astype(int)
         )
         component_blocks['Batch'] = 0
 
@@ -669,7 +684,7 @@ class DamageModel_Base(PelicunModel):
             )
 
             if np.sum(batch_mask) < 1:
-                batch_mask = np.full(batch_mask.shape, False)
+                batch_mask = np.full(batch_mask.shape, fill_value=False)
                 batch_mask[np.where(component_blocks['CBlocks'] > 0)[0][0]] = True
 
             component_blocks.loc[batch_mask, 'Batch'] = batch_i
@@ -694,28 +709,32 @@ class DamageModel_Base(PelicunModel):
             .loc[:, 'Blocks']
             .to_frame()
         )
-        component_blocks = component_blocks.sort_index(
+        return component_blocks.sort_index(
             level=['Batch', 'cmp', 'loc', 'dir', 'uid']
         )
-        return component_blocks
 
 
 class DamageModel_DS(DamageModel_Base):
-    """
-    Damage model for components that have discrete Damage States (DS).
-
-    """
+    """Damage model for components that have discrete Damage States (DS)."""
 
     __slots__ = ['ds_sample']
 
-    def __init__(self, assessment: AssessmentBase):
+    def __init__(self, assessment: AssessmentBase) -> None:
+        """
+        Initialize the object.
+
+        Parameters
+        ----------
+        assessment: AssessmentBase
+            Parent assessment object.
+
+        """
         super().__init__(assessment)
         self.ds_sample: pd.DataFrame | None = None
 
     def probabilities(self) -> pd.DataFrame:
         """
-        Returns the probability of each observed damage state in the
-        sample.
+        Return the probability of each observed damage state.
 
         Returns
         -------
@@ -749,7 +768,7 @@ class DamageModel_DS(DamageModel_Base):
             .sort_index(axis=0)
         )
 
-    def _obtain_ds_sample(
+    def obtain_ds_sample(
         self,
         demand_sample: pd.DataFrame,
         component_blocks: pd.DataFrame,
@@ -758,11 +777,7 @@ class DamageModel_DS(DamageModel_Base):
         missing_components: list[str],
         nondirectional_multipliers: dict[str, float],
     ) -> None:
-        """
-        Obtain the damage state of each performance group in the
-        model.
-        """
-
+        """Obtain the damage state of each performance group."""
         # Break up damage calculation and perform it by performance group.
         # Compared to the simultaneous calculation of all PGs, this approach
         # reduces demands on memory and increases the load on CPU. This leads
@@ -783,19 +798,18 @@ class DamageModel_DS(DamageModel_Base):
         )
 
         self.log.msg(
-            f"{len(batches)} batches of Performance Groups prepared "
-            "for damage assessment",
+            f'{len(batches)} batches of Performance Groups prepared '
+            'for damage assessment',
             prepend_timestamp=False,
         )
 
         # for PG_i in self._asmnt.asset.cmp_sample.columns:
         ds_samples = []
-        for PGB_i in batches:
-
-            performance_group = component_blocks.loc[PGB_i]
+        for pgb_i in batches:
+            performance_group = component_blocks.loc[pgb_i]
 
             self.log.msg(
-                f"Calculating damage states for PG batch {PGB_i} with "
+                f"Calculating damage states for PG batch {pgb_i} with "
                 f"{int(performance_group['Blocks'].sum())} blocks"
             )
 
@@ -849,12 +863,14 @@ class DamageModel_DS(DamageModel_Base):
 
         self.ds_sample = pd.concat(ds_samples, axis=1)
 
-        self.log.msg("Damage state calculation successful.", prepend_timestamp=False)
+        self.log.msg('Damage state calculation successful.', prepend_timestamp=False)
 
-    def _handle_operation(
+    def _handle_operation(  # noqa: PLR6301
         self, initial_value: float, operation: str, other_value: float
     ) -> float:
         """
+        Handle a capacity adjustment operation.
+
         This method is used in `_create_dmg_RVs` to apply capacity
         adjustment operations whenever required. It is defined as a
         safer alternative to directly using `eval`.
@@ -887,26 +903,29 @@ class DamageModel_DS(DamageModel_Base):
             return initial_value * other_value
         if operation == '/':
             return initial_value / other_value
-        raise ValueError(f'Invalid operation: `{operation}`')
+        msg = f'Invalid operation: `{operation}`'
+        raise ValueError(msg)
 
     def _generate_dmg_sample(
         self,
         sample_size: int,
-        PGB: pd.DataFrame,
+        pgb: pd.DataFrame,
         scaling_specification: dict | None = None,
     ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
-        This method generates a damage sample by creating random
-        variables (RVs) for capacities and limit-state-damage-states
-        (lsds), and then sampling from these RVs. The sample size and
-        performance group batches (PGB) are specified as inputs. The
-        method returns the capacity sample and the lsds sample.
+        Generate the damage sample.
+
+        Generates a damage sample by creating random variables (RVs)
+        for capacities and limit-state-damage-states (lsds), and then
+        sampling from these RVs. The sample size and performance group
+        batches (PGB) are specified as inputs. The method returns the
+        capacity sample and the lsds sample.
 
         Parameters
         ----------
-        sample_size : int
+        sample_size: int
             The number of realizations to generate.
-        PGB : DataFrame
+        pgb: DataFrame
             A DataFrame that groups performance groups into batches
             for efficient damage assessment.
         scaling_specification: dict, optional
@@ -920,9 +939,9 @@ class DamageModel_DS(DamageModel_Base):
 
         Returns
         -------
-        capacity_sample : DataFrame
+        capacity_sample: DataFrame
             A DataFrame that represents the capacity sample.
-        lsds_sample : DataFrame
+        lsds_sample: DataFrame
             A DataFrame that represents the .
 
         Raises
@@ -933,36 +952,37 @@ class DamageModel_DS(DamageModel_Base):
         """
         # Check if damage model parameters have been specified
         if self.damage_params is None:
-            raise ValueError(
+            msg = (
                 'Damage model parameters have not been specified. '
                 'Load parameters from the default damage model '
                 'databases or provide your own damage model '
                 'definitions before generating a sample.'
             )
+            raise ValueError(msg)
 
         # Create capacity and LSD RVs for each performance group
-        capacity_RVs, lsds_RVs = self._create_dmg_RVs(PGB, scaling_specification)
+        capacity_rvs, lsds_rvs = self._create_dmg_RVs(pgb, scaling_specification)
 
         if self._asmnt.log.verbose:
             self.log.msg('Sampling capacities...', prepend_timestamp=True)
 
         # Generate samples for capacity RVs
         assert self._asmnt.options.sampling_method is not None
-        capacity_RVs.generate_sample(
+        capacity_rvs.generate_sample(
             sample_size=sample_size, method=self._asmnt.options.sampling_method
         )
 
         # Generate samples for LSD RVs
-        lsds_RVs.generate_sample(
+        lsds_rvs.generate_sample(
             sample_size=sample_size, method=self._asmnt.options.sampling_method
         )
 
         if self._asmnt.log.verbose:
-            self.log.msg("Raw samples are available", prepend_timestamp=True)
+            self.log.msg('Raw samples are available', prepend_timestamp=True)
 
         # get the capacity and lsds samples
         capacity_sample = (
-            pd.DataFrame(capacity_RVs.RV_sample)
+            pd.DataFrame(capacity_rvs.RV_sample)
             .sort_index(axis=0)
             .sort_index(axis=1)
         )
@@ -974,7 +994,7 @@ class DamageModel_DS(DamageModel_Base):
         capacity_sample.columns.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
 
         lsds_sample = (
-            pd.DataFrame(lsds_RVs.RV_sample)
+            pd.DataFrame(lsds_rvs.RV_sample)
             .sort_index(axis=0)
             .sort_index(axis=1)
             .astype(int)
@@ -986,7 +1006,7 @@ class DamageModel_DS(DamageModel_Base):
 
         if self._asmnt.log.verbose:
             self.log.msg(
-                f"Successfully generated {sample_size} realizations.",
+                f'Successfully generated {sample_size} realizations.',
                 prepend_timestamp=True,
             )
 
@@ -1000,7 +1020,7 @@ class DamageModel_DS(DamageModel_Base):
         lsds_sample: pd.DataFrame,
     ) -> pd.DataFrame:
         """
-        Use the demand and LS capacity sample to evaluate damage states
+        Use the demand and LS capacity sample to evaluate damage states.
 
         Parameters
         ----------
@@ -1020,8 +1040,8 @@ class DamageModel_DS(DamageModel_Base):
         DataFrame
             Assigns a Damage State to each component block in the
             asset model.
-        """
 
+        """
         if self._asmnt.log.verbose:
             self.log.msg('Evaluating damage states...', prepend_timestamp=True)
 
@@ -1037,28 +1057,28 @@ class DamageModel_DS(DamageModel_Base):
         # For each demand type in the demand dictionary
         for demand_name, demand_vals in demand_dict.items():
             # Get the list of PGs assigned to this demand type
-            PG_list = required_edps[demand_name]
+            pg_list = required_edps[demand_name]
 
             # Create a list of columns for the demand data
             # corresponding to each PG in the PG_list
-            PG_cols = pd.concat(
-                [dmg_eval.loc[:1, PG_i] for PG_i in PG_list],  # type: ignore
+            pg_cols = pd.concat(
+                [dmg_eval.loc[:1, PG_i] for PG_i in pg_list],  # type: ignore
                 axis=1,
-                keys=PG_list,
+                keys=pg_list,
             ).columns
-            PG_cols.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
+            pg_cols.names = ['cmp', 'loc', 'dir', 'uid', 'block', 'ls']
             # Create a DataFrame with demand values repeated for the
             # number of PGs and assign the columns as PG_cols
             demand_df.append(
                 pd.concat(
-                    [pd.Series(demand_vals)] * len(PG_cols), axis=1, keys=PG_cols
+                    [pd.Series(demand_vals)] * len(pg_cols), axis=1, keys=pg_cols
                 )
             )
 
         # Concatenate all demand DataFrames into a single DataFrame
         demand_df_concat = pd.concat(demand_df, axis=1)
         # Sort the columns of the demand DataFrame
-        demand_df_concat.sort_index(axis=1, inplace=True)
+        demand_df_concat = demand_df_concat.sort_index(axis=1)
 
         # Evaluate the damage exceedance by subtracting demand from
         # capacity and checking if the result is less than zero
@@ -1066,7 +1086,7 @@ class DamageModel_DS(DamageModel_Base):
 
         # Remove any columns with NaN values from the damage
         # exceedance DataFrame
-        dmg_eval.dropna(axis=1, inplace=True)
+        dmg_eval = dmg_eval.dropna(axis=1)
 
         # initialize the DataFrames that store the damage states and
         # quantities
@@ -1081,11 +1101,11 @@ class DamageModel_DS(DamageModel_Base):
         ls_list = dmg_eval.columns.get_level_values(5).unique()
 
         # for each consecutive limit state...
-        for LS_id in ls_list:
+        for ls_id in ls_list:
             # get all cmp - loc - dir - block where this limit state occurs
             dmg_e_ls = dmg_eval.loc[
                 :,  # type: ignore
-                idx[:, :, :, :, :, LS_id],
+                idx[:, :, :, :, :, ls_id],
             ].dropna(axis=1)
 
             # Get the damage states corresponding to this limit state in each
@@ -1115,11 +1135,11 @@ class DamageModel_DS(DamageModel_Base):
 
         return ds_sample
 
-    def _create_dmg_RVs(
-        self, PGB: pd.DataFrame, scaling_specification: dict | None = None
+    def _create_dmg_RVs(  # noqa: N802, C901
+        self, pgb: pd.DataFrame, scaling_specification: dict | None = None
     ) -> tuple[uq.RandomVariableRegistry, uq.RandomVariableRegistry]:
         """
-        Creates random variables required later for the damage calculation.
+        Create random variables for the damage calculation.
 
         The method initializes two random variable registries,
         capacity_RV_reg and lsds_RV_reg, and loops through each
@@ -1136,7 +1156,7 @@ class DamageModel_DS(DamageModel_Base):
 
         Parameters
         ----------
-        PGB : DataFrame
+        pgb: DataFrame
             A DataFrame that groups performance groups into batches
             for efficient damage assessment.
         scaling_specification: dict, optional
@@ -1160,13 +1180,21 @@ class DamageModel_DS(DamageModel_Base):
         ValueError
             Raises an error if the scaling specification is invalid or
             if the input DataFrame does not meet the expected format.
-            Also, raises errors if there are any issues with the types
-            or formats of the data in the input DataFrame.
+        TypeError
+            If there are any issues with the types of the data in the
+            input DataFrame.
 
         """
 
-        def assign_lsds(ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag):
+        def assign_lsds(
+            ds_weights: str | None,
+            ds_id: int,
+            lsds_rv_reg: RandomVariableRegistry,
+            lsds_rv_tag: str,
+        ) -> int:
             """
+            Assign limit states to damage states.
+
             Assigns limit states to damage states using random
             variables, updating the provided random variable registry.
             This function either creates a deterministic random
@@ -1175,19 +1203,19 @@ class DamageModel_DS(DamageModel_Base):
 
             Parameters
             ----------
-            ds_weights : str or None
+            ds_weights: str or None
                 A string representing the weights of different damage
                 states associated with a limit state, separated by
                 '|'.  If None, indicates that there is only one damage
                 state associated with the limit state.
-            ds_id : int
+            ds_id: int
                 The starting index for damage state IDs. This ID helps
                 in mapping damage states to limit states.
-            lsds_RV_reg : RandomVariableRegistry
+            lsds_rv_reg: RandomVariableRegistry
                 The registry where the newly created random variables
                 (for mapping limit states to damage states) will be
                 added.
-            lsds_rv_tag : str
+            lsds_rv_tag: str
                 A unique identifier for the random variable being
                 created, typically including identifiers for
                 component, location, direction, and limit state.
@@ -1206,39 +1234,42 @@ class DamageModel_DS(DamageModel_Base):
             probabilistic damage assessments. It dynamically adjusts
             to the number of damage states specified and applies a
             mapping function to correctly assign state IDs.
+
             """
             # If the limit state has a single damage state assigned
             # to it, we don't need random sampling
-            if pd.isnull(ds_weights):
+            if pd.isna(ds_weights):
                 ds_id += 1
-
-                lsds_RV_reg.add_RV(
+                lsds_rv_reg.add_RV(
                     uq.DeterministicRandomVariable(
                         name=lsds_rv_tag,
-                        theta=ds_id,
+                        theta=np.array((ds_id,)),
                     )
                 )
 
             # Otherwise, we create a multinomial random variable
             else:
+                assert isinstance(ds_weights, str)
                 # parse the DS weights
-                ds_weights = np.array(
-                    ds_weights.replace(" ", "").split('|'), dtype=float
+                ds_weights_np = np.array(
+                    ds_weights.replace(' ', '').split('|'), dtype=float
                 )
 
-                def map_ds(values, offset):
+                def map_ds(values: np.ndarray, offset: int) -> np.ndarray:
                     """
+                    Map DS indices to damage states.
+
                     Maps an array of damage state indices to their
                     corresponding actual state IDs by applying an
                     offset.
 
                     Parameters
                     ----------
-                    values : array-like
+                    values: array-like
                         An array of indices representing damage
                         states. These indices are typically sequential
                         integers starting from zero.
-                    offset : int
+                    offset: int
                         The value to be added to each element in
                         `values` to obtain the actual damage state
                         IDs.
@@ -1249,18 +1280,19 @@ class DamageModel_DS(DamageModel_Base):
                         An array where each original index from
                         `values` has been incremented by `offset` to
                         reflect its actual damage state ID.
+
                     """
                     return values + offset
 
-                lsds_RV_reg.add_RV(
+                lsds_rv_reg.add_RV(
                     uq.MultinomialRandomVariable(
                         name=lsds_rv_tag,
-                        theta=ds_weights,
+                        theta=ds_weights_np,
                         f_map=partial(map_ds, offset=ds_id + 1),
                     )
                 )
 
-                ds_id += len(ds_weights)
+                ds_id += len(ds_weights_np)
 
             return ds_id
 
@@ -1268,8 +1300,8 @@ class DamageModel_DS(DamageModel_Base):
             self.log.msg('Generating capacity variables ...', prepend_timestamp=True)
 
         # initialize the registry
-        capacity_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
-        lsds_RV_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+        capacity_rv_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
+        lsds_rv_reg = uq.RandomVariableRegistry(self._asmnt.options.rng)
 
         # capacity adjustment:
         # ensure the scaling_specification is a dictionary
@@ -1283,20 +1315,23 @@ class DamageModel_DS(DamageModel_Base):
             for key, value in scaling_specification.items():
                 css = 'capacity adjustment specification'
                 if not isinstance(value, str):
-                    raise ValueError(
+                    msg = (
                         f'Invalid entry in {css}: {value}. It has to be a string. '
                         f'See docstring of DamageModel._create_dmg_RVs.'
                     )
+                    raise TypeError(msg)
                 capacity_adjustment_operation = value[0]
                 number = value[1::]
-                if capacity_adjustment_operation not in ('+', '-', '*', '/'):
-                    raise ValueError(
+                if capacity_adjustment_operation not in {'+', '-', '*', '/'}:
+                    msg = (
                         f'Invalid operation in {css}: '
                         f'{capacity_adjustment_operation}'
                     )
+                    raise ValueError(msg)
                 fnumber = base.float_or_None(number)
                 if fnumber is None:
-                    raise ValueError(f'Invalid number in {css}: {number}')
+                    msg = f'Invalid number in {css}: {number}'
+                    raise ValueError(msg)
                 parsed_scaling_specification[key] = (
                     capacity_adjustment_operation,
                     fnumber,
@@ -1304,17 +1339,15 @@ class DamageModel_DS(DamageModel_Base):
                 scaling_specification = parsed_scaling_specification
 
         # get the component sample and blocks from the asset model
-        for PG in PGB.index:
+        for pg in pgb.index:
             # determine demand capacity adjustment operation, if required
-            cmp_loc_dir = '-'.join(PG[0:3])
-            capacity_adjustment_operation = (
-                scaling_specification.get(  # type: ignore
-                    cmp_loc_dir,
-                )
+            cmp_loc_dir = '-'.join(pg[0:3])
+            capacity_adjustment_operation = scaling_specification.get(  # type: ignore
+                cmp_loc_dir,
             )
 
-            cmp_id = PG[0]
-            blocks = PGB.loc[PG, 'Blocks']
+            cmp_id = pg[0]
+            blocks = pgb.loc[pg, 'Blocks']
 
             # Calculate the block weights
             blocks = np.full(int(blocks), 1.0 / blocks)
@@ -1329,26 +1362,26 @@ class DamageModel_DS(DamageModel_Base):
 
                 for val in frg_params.index.get_level_values(0).unique():
                     if 'LS' in val:
-                        limit_states.append(val[2:])
+                        limit_states.append(val[2:])  # noqa: PERF401
 
                 ds_id = 0
 
                 frg_rv_set_tags: list = [[] for b in blocks]
-                anchor_RVs: list = []
+                anchor_rvs: list = []
 
                 for ls_id in limit_states:
-                    frg_params_LS = frg_params[f'LS{ls_id}']
+                    frg_params_ls = frg_params[f'LS{ls_id}']
 
-                    theta_0 = frg_params_LS.get('Theta_0', np.nan)
-                    family = frg_params_LS.get('Family', 'deterministic')
-                    ds_weights = frg_params_LS.get('DamageStateWeights', np.nan)
+                    theta_0 = frg_params_ls.get('Theta_0', np.nan)
+                    family = frg_params_ls.get('Family', 'deterministic')
+                    ds_weights = frg_params_ls.get('DamageStateWeights', None)
 
                     # check if the limit state is defined for the component
                     if pd.isna(theta_0):
                         continue
 
                     theta = [
-                        frg_params_LS.get(f"Theta_{t_i}", np.nan) for t_i in range(3)
+                        frg_params_ls.get(f'Theta_{t_i}', np.nan) for t_i in range(3)
                     ]
 
                     if capacity_adjustment_operation:
@@ -1359,24 +1392,24 @@ class DamageModel_DS(DamageModel_Base):
                                 float(capacity_adjustment_operation[1]),
                             )
                         else:
-                            self.log.warn(
+                            self.log.warning(
                                 f'Capacity adjustment is only supported '
                                 f'for `normal` or `lognormal` distributions. '
                                 f'Ignoring: `{cmp_loc_dir}`, which is `{family}`'
                             )
 
                     tr_lims = [
-                        frg_params_LS.get(f"Truncate{side}", np.nan)
-                        for side in ("Lower", "Upper")
+                        frg_params_ls.get(f'Truncate{side}', np.nan)
+                        for side in ('Lower', 'Upper')
                     ]
 
                     for block_i, _ in enumerate(blocks):
                         frg_rv_tag = (
                             'FRG-'
-                            f'{PG[0]}-'  # cmp_id
-                            f'{PG[1]}-'  # loc
-                            f'{PG[2]}-'  # dir
-                            f'{PG[3]}-'  # uid
+                            f'{pg[0]}-'  # cmp_id
+                            f'{pg[1]}-'  # loc
+                            f'{pg[2]}-'  # dir
+                            f'{pg[3]}-'  # uid
                             f'{block_i + 1}-'  # block
                             f'{ls_id}'
                         )
@@ -1397,7 +1430,7 @@ class DamageModel_DS(DamageModel_Base):
                         if ls_id == limit_states[0]:
                             anchor = None
                         else:
-                            anchor = anchor_RVs[block_i]
+                            anchor = anchor_rvs[block_i]
 
                         # parse theta values for multilinear_CDF
                         if family == 'multilinear_CDF':
@@ -1414,55 +1447,55 @@ class DamageModel_DS(DamageModel_Base):
                                 )
                             )
 
-                        RV = uq.rv_class_map(family)(  # type: ignore
+                        rv = uq.rv_class_map(family)(  # type: ignore
                             name=frg_rv_tag,
                             theta=theta,
                             truncation_limits=tr_lims,
                             anchor=anchor,
                         )
 
-                        capacity_RV_reg.add_RV(RV)  # type: ignore
+                        capacity_rv_reg.add_RV(rv)  # type: ignore
 
                         # add the RV to the set of correlated variables
                         frg_rv_set_tags[block_i].append(frg_rv_tag)
 
                         if ls_id == limit_states[0]:
-                            anchor_RVs.append(RV)
+                            anchor_rvs.append(rv)
 
                         # Now add the LS->DS assignments
                         lsds_rv_tag = (
                             'LSDS-'
-                            f'{PG[0]}-'  # cmp_id
-                            f'{PG[1]}-'  # loc
-                            f'{PG[2]}-'  # dir
-                            f'{PG[3]}-'  # uid
+                            f'{pg[0]}-'  # cmp_id
+                            f'{pg[1]}-'  # loc
+                            f'{pg[2]}-'  # dir
+                            f'{pg[3]}-'  # uid
                             f'{block_i + 1}-'  # block
                             f'{ls_id}'
                         )
 
                         ds_id_next = assign_lsds(
-                            ds_weights, ds_id, lsds_RV_reg, lsds_rv_tag
+                            ds_weights, ds_id, lsds_rv_reg, lsds_rv_tag
                         )
 
                     ds_id = ds_id_next
 
         if self._asmnt.log.verbose:
-            rv_count = len(lsds_RV_reg.RV)
+            rv_count = len(lsds_rv_reg.RV)
             self.log.msg(
-                f"2x{rv_count} random variables created.", prepend_timestamp=False
+                f'2x{rv_count} random variables created.', prepend_timestamp=False
             )
 
-        return capacity_RV_reg, lsds_RV_reg
+        return capacity_rv_reg, lsds_rv_reg
 
-    def _prepare_dmg_quantities(
+    def prepare_dmg_quantities(
         self,
         component_sample: pd.DataFrame,
-        component_marginal_parameters: pd.DataFrame,
+        component_marginal_parameters: pd.DataFrame | None,
+        *,
         dropzero: bool = True,
     ) -> pd.DataFrame:
         """
-        Combine component quantity and damage state information in one
-        DataFrame.
+        Combine component quantity and damage state information.
 
         This method assumes that a component quantity sample is
         available in the asset model and a damage state sample is
@@ -1470,7 +1503,7 @@ class DamageModel_DS(DamageModel_Base):
 
         Parameters
         ----------
-        component_quantities: pd.DataFrame
+        component_sample: pd.DataFrame
             Component quantity sample from the AssetModel.
         component_marginal_parameters: pd.DataFrame
             Component marginal parameters from the AssetModel.
@@ -1485,11 +1518,9 @@ class DamageModel_DS(DamageModel_Base):
             damage state information.
 
         """
-
         # ('cmp', 'loc', 'dir', 'uid') -> component quantity series
         component_quantities = component_sample.to_dict('series')
 
-        # pylint: disable=missing-return-doc
         if self._asmnt.log.verbose:
             self.log.msg('Calculating damage quantities...', prepend_timestamp=True)
 
@@ -1504,15 +1535,13 @@ class DamageModel_DS(DamageModel_Base):
             # ('cmp', 'loc', 'dir', 'uid) -> number of blocks
             num_blocks = component_marginal_parameters['Blocks'].to_dict()
 
-            def get_num_blocks(key):
-                # pylint: disable=missing-return-type-doc
+            def get_num_blocks(key: object) -> float:
                 return float(num_blocks[key])
 
         else:
             # otherwise assume 1 block regardless of
             # ('cmp', 'loc', 'dir', 'uid) key
-            def get_num_blocks(_):
-                # pylint: disable=missing-return-type-doc
+            def get_num_blocks(key: object) -> float:  # noqa: ARG001
                 return 1.00
 
         # ('cmp', 'loc', 'dir', 'uid', 'block') -> damage state series
@@ -1534,18 +1563,20 @@ class DamageModel_DS(DamageModel_Base):
                 if dropzero and ds == 0:
                     continue
                 dmg_qnt_vals = np.where(
-                    damage_state_series.values == ds,
-                    component_quantities[component, location, direction, uid].values
+                    damage_state_series.to_numpy() == ds,
+                    component_quantities[
+                        component, location, direction, uid
+                    ].to_numpy()
                     / get_num_blocks((component, location, direction, uid)),
                     0.00,
                 )
                 if -1 in damage_state_set:
                     dmg_qnt_vals = np.where(
-                        damage_state_series.values != -1, dmg_qnt_vals, np.nan
+                        damage_state_series.to_numpy() != -1, dmg_qnt_vals, np.nan
                     )
                 dmg_qnt_series = pd.Series(dmg_qnt_vals)
                 dmg_qnt_series_collection[
-                    (component, location, direction, uid, block, str(ds))
+                    component, location, direction, uid, block, str(ds)
                 ] = dmg_qnt_series
 
         damage_quantities = pd.concat(
@@ -1558,13 +1589,11 @@ class DamageModel_DS(DamageModel_Base):
         # min_count=1 is specified so that the sum cross all NaNs will
         # result in NaN instead of zero.
         # https://stackoverflow.com/questions/33448003/sum-across-all-nans-in-pandas-returns-zero
-        damage_quantities = damage_quantities.groupby(  # type: ignore
+        return damage_quantities.groupby(  # type: ignore
             level=['cmp', 'loc', 'dir', 'uid', 'ds'], axis=1
         ).sum(min_count=1)
 
-        return damage_quantities
-
-    def _perform_dmg_task(self, task: tuple) -> None:
+    def perform_dmg_task(self, task: tuple) -> None:  # noqa: C901
         """
         Perform a task from a damage process.
 
@@ -1578,7 +1607,7 @@ class DamageModel_DS(DamageModel_Base):
 
         Parameters
         ----------
-        task : list
+        task: list
             A list representing a task from the damage process. The
             list contains two elements:
             - The first element is a string representing the source
@@ -1603,8 +1632,8 @@ class DamageModel_DS(DamageModel_Base):
         ValueError
             Raises an error if the source or target event descriptions
             do not follow expected formats.
-        """
 
+        """
         if self._asmnt.log.verbose:
             self.log.msg(f'Applying task {task}...', prepend_timestamp=True)
 
@@ -1624,29 +1653,30 @@ class DamageModel_DS(DamageModel_Base):
         # DataFrame
         assert self.ds_sample is not None
         if source_cmp not in self.ds_sample.columns.get_level_values('cmp'):
-            self.log.warn(
-                f"Source component `{source_cmp}` in the prescribed "
-                "damage process not found among components in the damage "
-                "sample. The corresponding part of the damage process is "
-                "skipped."
+            self.log.warning(
+                f'Source component `{source_cmp}` in the prescribed '
+                'damage process not found among components in the damage '
+                'sample. The corresponding part of the damage process is '
+                'skipped.'
             )
             return
 
-        # execute the events pres prescribed in the damage task
+        # execute the events prescribed in the damage task
         for source_event, target_infos in events.items():
             # events can only be triggered by damage state occurrence
             if not source_event.startswith('DS'):
-                raise ValueError(
-                    f"Unable to parse source event in damage "
-                    f"process: `{source_event}`"
+                msg = (
+                    f'Unable to parse source event in damage '
+                    f'process: `{source_event}`'
                 )
+                raise ValueError(msg)
             # get the ID of the damage state that triggers the event
             ds_source = int(source_event[2:])
 
             # turn the target_infos into a list if it is a single
             # argument, for consistency
             if not isinstance(target_infos, list):
-                target_infos = [target_infos]
+                target_infos = [target_infos]  # noqa: PLW2901
 
             for target_info in target_infos:
                 # get the target component and event type
@@ -1655,11 +1685,11 @@ class DamageModel_DS(DamageModel_Base):
                 if (target_cmp != 'ALL') and (
                     target_cmp not in self.ds_sample.columns.get_level_values('cmp')
                 ):
-                    self.log.warn(
-                        f"Target component `{target_cmp}` in the prescribed "
-                        "damage process not found among components in the damage "
-                        "sample. The corresponding part of the damage process is "
-                        "skipped."
+                    self.log.warning(
+                        f'Target component `{target_cmp}` in the prescribed '
+                        'damage process not found among components in the damage '
+                        'sample. The corresponding part of the damage process is '
+                        'skipped.'
                     )
                     continue
 
@@ -1675,10 +1705,11 @@ class DamageModel_DS(DamageModel_Base):
                     # -1 stands for nan (ints don'ts support nan)
 
                 else:
-                    raise ValueError(
-                        f"Unable to parse target event in damage "
-                        f"process: `{target_event}`"
+                    msg = (
+                        f'Unable to parse target event in damage '
+                        f'process: `{target_event}`'
                     )
+                    raise ValueError(msg)
 
                 if match_locations:
                     self._perform_dmg_event_loc(
@@ -1700,16 +1731,15 @@ class DamageModel_DS(DamageModel_Base):
     ) -> None:
         """
         Perform a damage event.
+
         See `_perform_dmg_task`.
-
         """
-
         # affected rows
         assert self.ds_sample is not None
         row_selection = np.where(
             # for many instances of source_cmp, we
             # consider the highest damage state
-            self.ds_sample[source_cmp].max(axis=1).values  # type: ignore
+            self.ds_sample[source_cmp].max(axis=1).to_numpy()  # type: ignore
             == ds_source
         )[0]
         # affected columns
@@ -1728,10 +1758,23 @@ class DamageModel_DS(DamageModel_Base):
     ) -> None:
         """
         Perform a damage event matching locations.
-        See `_perform_dmg_task`.
+
+        Parameters
+        ----------
+        source_cmp: str
+            Source component, e.g., `'1_CMP_A'`. The number in the beginning
+            is used to order the tasks and is not considered here.
+        ds_source: int
+            Source damage state.
+        target_cmp: str
+            Target component, e.g., `'CMP_B'`. The components that
+            will be affected when `source_cmp` gets to `ds_source`.
+        ds_target: int
+            Target damage state, e.g., `'DS_1'`. The damage state that
+            is assigned to `target_cmp` when `source_cmp` gets to
+            `ds_source`.
 
         """
-
         # get locations of source component
         assert self.ds_sample is not None
         source_locs = set(self.ds_sample[source_cmp].columns.get_level_values('loc'))
@@ -1740,8 +1783,7 @@ class DamageModel_DS(DamageModel_Base):
             row_selection = np.where(
                 # for many instances of source_cmp, we
                 # consider the highest damage state
-                self.ds_sample[source_cmp, loc].max(axis=1).values
-                == ds_source
+                self.ds_sample[source_cmp, loc].max(axis=1).to_numpy() == ds_source
             )[0]
 
             # affected columns
@@ -1761,14 +1803,16 @@ class DamageModel_DS(DamageModel_Base):
                 )[0]
             self.ds_sample.iloc[row_selection, column_selection] = ds_target
 
-    def _complete_ds_cols(self, dmg_sample: pd.DataFrame) -> pd.DataFrame:
+    def complete_ds_cols(self, dmg_sample: pd.DataFrame) -> pd.DataFrame:
         """
+        Complete damage state columns.
+
         Completes the damage sample DataFrame with all possible damage
         states for each component.
 
         Parameters
         ----------
-        dmg_sample : DataFrame
+        dmg_sample: DataFrame
             A DataFrame containing the damage state information for
             each component block in the asset model. The columns are
             MultiIndexed with levels corresponding to component
@@ -1793,10 +1837,9 @@ class DamageModel_DS(DamageModel_Base):
           damage states for each component.
 
         """
-
         # get a shortcut for the damage model parameters
-        DP = self.damage_params
-        assert DP is not None
+        dp = self.damage_params
+        assert dp is not None
 
         # Get the header for the results that we can use to identify
         # cmp-loc-dir-uid sets
@@ -1811,20 +1854,20 @@ class DamageModel_DS(DamageModel_Base):
         damaged_components = set(dmg_header.columns.get_level_values('cmp'))
 
         # get the number of possible limit states
-        ls_list = [col for col in DP.columns.unique(level=0) if 'LS' in col]
+        ls_list = [col for col in dp.columns.unique(level=0) if 'LS' in col]
 
         # initialize the result DataFrame
         res = pd.DataFrame()
 
-        # TODO: For the code below, store the number of damage states
+        # TODO(JVM): For the code below, store the number of damage states
         # for each component ID as an attribute of the ds_model when
         # loading the parameters, and then directly access them here
         # much faster instead of parsing the parameters again.
 
         # walk through all components that have damage parameters provided
-        for cmp_id in DP.index:
+        for cmp_id in dp.index:
             # get the component-specific parameters
-            cmp_data = DP.loc[cmp_id]
+            cmp_data = dp.loc[cmp_id]
 
             # and initialize the damage state counter
             ds_count = 0
@@ -1832,15 +1875,15 @@ class DamageModel_DS(DamageModel_Base):
             # walk through all limit states for the component
             for ls in ls_list:
                 # check if the given limit state is defined
-                if not pd.isna(cmp_data[(ls, 'Theta_0')]):
+                if not pd.isna(cmp_data[ls, 'Theta_0']):
                     # check if there is only one damage state
-                    if pd.isna(cmp_data[(ls, 'DamageStateWeights')]):
+                    if pd.isna(cmp_data[ls, 'DamageStateWeights']):
                         ds_count += 1
 
                     else:
                         # or if there are more than one, how many
                         ds_count += len(
-                            cmp_data[(ls, 'DamageStateWeights')].split('|')
+                            cmp_data[ls, 'DamageStateWeights'].split('|')
                         )
 
             # get the list of valid cmp-loc-dir-uid sets
@@ -1853,7 +1896,7 @@ class DamageModel_DS(DamageModel_Base):
             # multiindexed column
             cmp_headers = pd.concat(
                 [cmp_header for ds_i in range(ds_count + 1)],
-                keys=[str(r) for r in range(0, ds_count + 1)],
+                keys=[str(r) for r in range(ds_count + 1)],
                 axis=1,
             )
             cmp_headers.columns.names = ['ds', *cmp_headers.columns.names[1::]]
@@ -1877,7 +1920,20 @@ class DamageModel_DS(DamageModel_Base):
 
 def _is_for_ds_model(data: pd.DataFrame) -> bool:
     """
+    Check if data are for `ds_model`.
+
     Determines if the specified damage model parameters are for
     components modeled with discrete Damage States (DS).
+
+    Parameters
+    ----------
+    data: pd.DataFrame
+        The data to check.
+
+    Returns
+    -------
+    bool
+        If the data are for `ds_model`.
+
     """
     return 'LS1' in data.columns.get_level_values(0)

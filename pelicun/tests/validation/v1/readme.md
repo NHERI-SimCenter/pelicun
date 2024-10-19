@@ -17,4 +17,4 @@ If $\mathrm{Y} \sim \textrm{LogNormal}(\delta, \beta)$, then  $\mathrm{X} = \log
 ```
 where $\Phi$ is the cumulative distribution function of the standard normal distribution, $\delta_{C1}$, $\delta_{C2}$, $\beta_{C1}$, $\beta_{C2}$ are the medians and dispersions of the fragility curve capacities, and $\delta_{D}$, $\beta_{D}$ is the median and dispersion of the EDP demand.
 
-The equations inherently asume that the capacity RVs for the damage states are perfectly correlated, which is the case for sequential damage states.
+The equations inherently assume that the capacity RVs for the damage states are perfectly correlated, which is the case for sequential damage states.

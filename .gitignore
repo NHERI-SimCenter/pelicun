@@ -38,3 +38,7 @@ __pycache__
 flycheck*.py
 /notes/
 /.ropeproject/
+
+/doc_src/
+/doc/build/
+/doc/source/api_reference/_autosummary
