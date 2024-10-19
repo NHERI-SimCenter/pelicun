@@ -44,6 +44,7 @@ from __future__ import annotations
 import argparse
 import io
 import re
+import subprocess  # noqa: S404
 import tempfile
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -206,6 +207,50 @@ def test_logger_div() -> None:
         with Path(f'{temp_dir}/log.txt').open(encoding='utf-8') as f:
             # simply check that it is not empty
             assert f.read()
+
+
+def test_logger_exception() -> None:
+    # Create a temporary directory for log files
+    temp_dir = tempfile.mkdtemp()
+
+    # Create a sample Python script that will raise an exception
+    test_script = Path(temp_dir) / 'test_script.py'
+    test_script_content = f"""
+import sys
+import traceback
+from pelicun.base import Logger
+
+log_file = "{temp_dir}/log.txt"
+
+log = Logger(log_file=log_file, verbose=True, log_show_ms=True, print_log=True)
+
+raise ValueError("Test exception in subprocess")
+"""
+
+    # Write the test script to the file
+    test_script.write_text(test_script_content)
+
+    # Use subprocess to run the script
+    process = subprocess.run(  # noqa: S603
+        ['python', str(test_script)],  # noqa: S607
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    # Check that the process exited with an error
+    assert process.returncode == 1
+
+    # Check the stdout/stderr for the expected output
+    assert 'Test exception in subprocess' in process.stderr
+
+    # Check that the exception was logged in the log file
+    log_file = Path(temp_dir) / 'log.txt'
+    assert log_file.exists(), 'Log file was not created'
+    log_content = log_file.read_text()
+    assert 'Test exception in subprocess' in log_content
+    assert 'Traceback' in log_content
+    assert 'ValueError' in log_content
 
 
 def test_split_file_name() -> None:
