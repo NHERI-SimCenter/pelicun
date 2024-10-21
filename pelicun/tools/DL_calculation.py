@@ -379,6 +379,7 @@ def run_pelicun(
                 config, 'DL/Damage/DamageProcessFilePath', default=None
             ),
             custom_model_dir=custom_model_dir,
+            scaling_specification=get(config, 'DL/Damage/ScalingSpecification'),
             is_for_water_network_assessment=is_specified(
                 config, 'DL/Asset/ComponentDatabase/Water'
             ),
