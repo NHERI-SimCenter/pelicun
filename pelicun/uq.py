@@ -463,7 +463,7 @@ def _get_std_corr_matrix(std_samples: np.ndarray) -> np.ndarray | None:
     # otherwise, we can try to fix the matrix using SVD
     except np.linalg.LinAlgError:
         try:
-            u_matrix, s_matrix, _ = svd(
+            u_matrix, s_vector, _ = svd(
                 rho_hat,
             )
 
@@ -471,7 +471,7 @@ def _get_std_corr_matrix(std_samples: np.ndarray) -> np.ndarray | None:
             # if this also fails, we give up
             return None
 
-        s_diag = np.diagflat(s_matrix)
+        s_diag = np.diagflat(s_vector)
 
         rho_hat = u_matrix @ s_diag @ u_matrix.T
         np.fill_diagonal(rho_hat, 1.0)
