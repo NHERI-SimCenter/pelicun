@@ -688,10 +688,10 @@ def _neg_log_likelihood(  # noqa: C901
         + censored_count * np.log(cen_likelihood)
     )  # censoring influence
 
+    # print(theta[0], params, NLL)
+
     # normalize the NLL with the sample count
     return negative_log_likelihood / samples.size
-
-    # print(theta[0], params, NLL)
 
 
 def fit_distribution_to_sample(  # noqa: C901
