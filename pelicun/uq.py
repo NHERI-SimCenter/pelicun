@@ -683,13 +683,13 @@ def _neg_log_likelihood(  # noqa: C901
     likelihoods = np.clip(likelihoods, a_min=np.nextafter(0, 1), a_max=None)
 
     # calculate the total negative log likelihood
-    null = -(
+    negative_log_likelihood = -(
         np.sum(np.log(likelihoods))  # from samples
         + censored_count * np.log(cen_likelihood)
     )  # censoring influence
 
     # normalize the NLL with the sample count
-    return null / samples.size
+    return negative_log_likelihood / samples.size
 
     # print(theta[0], params, NLL)
 
