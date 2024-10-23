@@ -8,6 +8,7 @@ Join our growing community of users and developers dedicated to advancing risk e
 Getting started
 ---------------
 
+===============
 `Pelicun <https://pypi.org/project/pelicun/>`_ is available on the Python Package Index (PyPI) and should work out-of-the-box in all major platforms.
 
 .. tip::

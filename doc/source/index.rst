@@ -25,18 +25,12 @@ Utilized in both academia and industry, it supports cutting-edge natural hazards
    release_notes/index.rst
 
 .. toctree::
-   :caption: The Pelicun Framework
-   :maxdepth: 1
-   :numbered: 4
-
-   pelicun_framework/pelicun_framework.rst
-
-.. toctree::
    :caption: User Guide
    :maxdepth: 1
    :numbered: 4
 
    user_guide/install.rst
+   user_guide/pelicun_framework.rst
    user_guide/feature_overview.rst
    user_guide/damage_and_loss_library.rst
    user_guide/bug_reports_and_feature_requests.rst
