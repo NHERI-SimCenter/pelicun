@@ -393,18 +393,18 @@ def _get_std_samples(
                 raise ValueError(msg)
 
             # first transform from normal to uniform
-            uni_samples = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
+            uni_sample = norm.cdf(samples_i, loc=theta_i[0], scale=theta_i[1])
 
             # replace 0 and 1 values with the nearest float
-            uni_samples[uni_samples == 0] = np.nextafter(0, 1)
-            uni_samples[uni_samples == 1] = np.nextafter(1, -1)
+            uni_sample[uni_sample == 0] = np.nextafter(0, 1)
+            uni_sample[uni_sample == 1] = np.nextafter(1, -1)
 
             # consider truncation if needed
             p_a, p_b = _get_limit_probs(tr_lim_i, dist_i, theta_i)
-            uni_samples = (uni_samples - p_a) / (p_b - p_a)
+            uni_sample = (uni_sample - p_a) / (p_b - p_a)
 
             # then transform from uniform to standard normal
-            std_samples[i] = norm.ppf(uni_samples, loc=0.0, scale=1.0)
+            std_samples[i] = norm.ppf(uni_sample, loc=0.0, scale=1.0)
 
         else:
             msg = f'Unsupported distribution: {dist_i}'
@@ -1120,11 +1120,11 @@ class BaseRandomVariable(ABC):  # noqa: B024
         'RV_set',
         '_sample',
         '_sample_DF',
+        '_uni_sample',
         'anchor',
         'distribution',
         'f_map',
         'name',
-        'uni_samples',
     ]
 
     def __init__(
@@ -1153,7 +1153,7 @@ class BaseRandomVariable(ABC):  # noqa: B024
         self.name = name
         self.distribution: str | None = None
         self.f_map = f_map
-        self.uni_samples: np.ndarray | None = None
+        self._uni_sample: np.ndarray | None = None
         self.RV_set: RandomVariableSet | None = None
         self._sample_DF: pd.Series | None = None
         self._sample: np.ndarray | None = None
@@ -1219,7 +1219,9 @@ class BaseRandomVariable(ABC):  # noqa: B024
           The sample from the controlling uniform distribution.
 
         """
-        return self.anchor.uni_samples
+        if self.anchor is self:
+            return self._uni_sample
+        return self.anchor.uni_sample
 
     @uni_sample.setter
     def uni_sample(self, value: np.ndarray) -> None:
@@ -1232,7 +1234,7 @@ class BaseRandomVariable(ABC):  # noqa: B024
             An array of floating point values in the [0, 1] domain.
 
         """
-        self.uni_samples = value
+        self._uni_sample = value
 
 
 class RandomVariable(BaseRandomVariable):
