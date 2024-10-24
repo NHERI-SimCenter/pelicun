@@ -33,7 +33,7 @@ quote-style = "single"
 
 [tool.codespell]
 ignore-words = ["ignore_words.txt"]
-skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*"]
+skip = ["*.html", "./htmlcov/*", "./doc_src/build/*", "./pelicun.egg-info/*", "./doc_src/*", "./doc/build/*", "*/rulesets/*", "custom_pop.py"]
 
 [tool.mypy]
 ignore_missing_imports = true
